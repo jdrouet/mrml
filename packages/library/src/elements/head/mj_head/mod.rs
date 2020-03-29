@@ -11,15 +11,15 @@ use std::collections::HashMap;
 pub const NAME: &str = "mj-head";
 
 #[derive(Debug, Clone)]
-pub struct MJHead<'a> {
-    attributes: HashMap<&'a str, &'a str>,
+pub struct MJHead {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
     children: Vec<HeadElement>,
     header: Header,
 }
 
-impl<'a> MJHead<'a> {
-    pub fn empty(opts: Options) -> MJHead<'a> {
+impl MJHead {
+    pub fn empty(opts: Options) -> MJHead {
         debug!("create empty");
         MJHead {
             attributes: HashMap::new(),

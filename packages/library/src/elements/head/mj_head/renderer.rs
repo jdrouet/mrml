@@ -52,7 +52,7 @@ p {
 <![endif]-->
 "#;
 
-impl<'a> MJHead<'a> {
+impl MJHead {
     pub fn get_title(&self) -> String {
         self.header.title.as_ref().cloned().unwrap_or_default()
     }
@@ -128,7 +128,7 @@ impl<'a> MJHead<'a> {
     }
 }
 
-impl<'a> Component for MJHead<'a> {
+impl Component for MJHead {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }

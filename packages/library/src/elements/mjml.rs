@@ -8,14 +8,14 @@ use crate::Options;
 use log::debug;
 
 #[derive(Clone, Debug)]
-pub struct MJMLElement<'a> {
+pub struct MJMLElement {
     context: Option<Context>,
-    head: MJHead<'a>,
+    head: MJHead,
     body: MJBody,
 }
 
-impl<'a> MJMLElement<'a> {
-    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJMLElement<'a>, Error> {
+impl<'a> MJMLElement {
+    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJMLElement, Error> {
         let mut head: Option<&Node<'a>> = None;
         let mut body: Option<&Node<'a>> = None;
         for item in node.children.iter() {
