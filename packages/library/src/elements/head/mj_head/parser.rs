@@ -5,10 +5,9 @@ use crate::elements::Error;
 use crate::parser::Node;
 use crate::util::header::Header;
 use crate::Options;
-use std::collections::HashMap;
 
-impl<'a> MJHead<'a> {
-    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJHead<'a>, Error> {
+impl<'a> MJHead {
+    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJHead, Error> {
         let children = HeadElement::parse_all(&node.children)?;
         let mut header = Header::from(opts);
         for child in children.iter() {
@@ -18,10 +17,8 @@ impl<'a> MJHead<'a> {
             attributes: node
                 .attributes
                 .iter()
-                .fold(HashMap::new(), |mut res, (key, value)| {
-                    res.insert(key.as_str(), value.as_str());
-                    res
-                }),
+                .map(|(key, value)| (key.to_string(), value.to_string()))
+                .collect(),
             context: None,
             children,
             header,
