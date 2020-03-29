@@ -1,5 +1,5 @@
 use super::MJSocial;
-use crate::elements::body::mj_social_element::MJSocialElement;
+use crate::elements::body::mj_social_element::{MJSocialElement, NAME as MJ_SOCIAL_ELEMENT};
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::parser::Node;
@@ -37,7 +37,7 @@ impl MJSocial {
         for child in node.children.iter() {
             if let Some(child_node) = child.as_node() {
                 let tag_name = child_node.name.as_str();
-                if tag_name != "mj-social-element" {
+                if tag_name != MJ_SOCIAL_ELEMENT {
                     return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
                     let element =

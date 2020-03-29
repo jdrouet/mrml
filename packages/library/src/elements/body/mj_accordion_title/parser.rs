@@ -1,4 +1,4 @@
-use super::MJAccordionTitle;
+use super::{MJAccordionTitle, NAME as MJ_ACCORDION_TITLE};
 use crate::elements::error::Error;
 use crate::parser::Node;
 use crate::util::attributes::*;
@@ -22,7 +22,7 @@ impl MJAccordionTitle {
         header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionTitle, Error> {
-        if node.name.as_str() != "mj-accordion-title" {
+        if node.name.as_str() != MJ_ACCORDION_TITLE {
             return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let content: String = node

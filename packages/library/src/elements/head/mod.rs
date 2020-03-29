@@ -52,12 +52,16 @@ impl HeadElement {
     pub fn parse(node: &Node) -> Result<HeadElement, Error> {
         let tag_name = node.name.as_str();
         let res = match tag_name {
-            "mj-attributes" => HeadElement::MJAttributes(mj_attributes::MJAttributes::parse(node)?),
-            "mj-breakpoint" => HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node)?),
-            "mj-font" => HeadElement::MJFont(mj_font::MJFont::parse(node)?),
-            "mj-preview" => HeadElement::MJPreview(mj_preview::MJPreview::parse(node)?),
-            "mj-style" => HeadElement::MJStyle(mj_style::MJStyle::parse(node)?),
-            "mj-title" => HeadElement::MJTitle(mj_title::MJTitle::parse(node)?),
+            mj_attributes::NAME => {
+                HeadElement::MJAttributes(mj_attributes::MJAttributes::parse(node)?)
+            }
+            mj_breakpoint::NAME => {
+                HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node)?)
+            }
+            mj_font::NAME => HeadElement::MJFont(mj_font::MJFont::parse(node)?),
+            mj_preview::NAME => HeadElement::MJPreview(mj_preview::MJPreview::parse(node)?),
+            mj_style::NAME => HeadElement::MJStyle(mj_style::MJStyle::parse(node)?),
+            mj_title::NAME => HeadElement::MJTitle(mj_title::MJTitle::parse(node)?),
             _ => return Err(Error::UnexpectedElement(tag_name.into())),
         };
         Ok(res)

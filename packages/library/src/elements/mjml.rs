@@ -1,5 +1,5 @@
-use super::body::mj_body::MJBody;
-use super::head::mj_head::MJHead;
+use super::body::mj_body::{MJBody, NAME as MJ_BODY};
+use super::head::mj_head::{MJHead, NAME as MJ_HEAD};
 use super::prelude::*;
 use super::Error;
 use crate::parser::{Element, Node};
@@ -21,8 +21,8 @@ impl<'a> MJMLElement<'a> {
         for item in node.children.iter() {
             match item {
                 Element::Node(node) => match node.name.as_str() {
-                    "mj-head" => head = Some(node),
-                    "mj-body" => body = Some(node),
+                    MJ_HEAD => head = Some(node),
+                    MJ_BODY => body = Some(node),
                     name => return Err(Error::UnexpectedElement(name.into())),
                 },
                 // TODO handle comments in <mjml>

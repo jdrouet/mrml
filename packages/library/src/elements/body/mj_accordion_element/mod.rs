@@ -7,6 +7,8 @@ use crate::elements::body::prelude::*;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 
+pub const NAME: &str = "mj-accordion-element";
+
 const CHILDREN_ATTR: [&str; 9] = [
     "border",
     "icon-align",

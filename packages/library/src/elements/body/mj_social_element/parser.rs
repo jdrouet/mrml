@@ -1,4 +1,4 @@
-use super::{MJSocialElement, SocialNetwork};
+use super::{MJSocialElement, SocialNetwork, NAME as MJ_SOCIAL_ELEMENT};
 use crate::elements::error::Error;
 use crate::parser::Node;
 use crate::util::attributes::*;
@@ -221,7 +221,7 @@ impl MJSocialElement {
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
-        if node.name.as_str() != "mj-social-element" {
+        if node.name.as_str() != MJ_SOCIAL_ELEMENT {
             return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let content = node

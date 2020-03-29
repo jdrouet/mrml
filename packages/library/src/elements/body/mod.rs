@@ -140,28 +140,34 @@ impl BodyElement {
     ) -> Result<BodyElement, Error> {
         let res = match element {
             Element::Node(node) => match node.name.as_str() {
-                "mj-accordion" => {
+                mj_accordion::NAME => {
                     BodyElement::MJAccordion(mj_accordion::MJAccordion::parse(node, header)?)
                 }
-                "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, header)?),
-                "mj-carousel" => {
+                mj_button::NAME => BodyElement::MJButton(mj_button::MJButton::parse(node, header)?),
+                mj_carousel::NAME => {
                     BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(node, header)?)
                 }
-                "mj-column" => {
+                mj_column::NAME => {
                     BodyElement::MJColumn(mj_column::MJColumn::parse(node, header, extra)?)
                 }
-                "mj-divider" => BodyElement::MJDivider(mj_divider::MJDivider::parse(node, header)?),
-                "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, header)?),
-                "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, header)?),
-                "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, header)?),
-                "mj-navbar" => BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(node, header)?),
-                "mj-raw" => BodyElement::MJRaw(mj_raw::MJRaw::parse(node, header)?),
-                "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, header)?),
-                "mj-social" => BodyElement::MJSocial(mj_social::MJSocial::parse(node, header)?),
-                "mj-spacer" => BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(node, header)?),
-                "mj-table" => BodyElement::MJTable(mj_table::MJTable::parse(node, header)?),
-                "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, header)?),
-                "mj-wrapper" => BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(node, header)?),
+                mj_divider::NAME => {
+                    BodyElement::MJDivider(mj_divider::MJDivider::parse(node, header)?)
+                }
+                mj_group::NAME => BodyElement::MJGroup(mj_group::MJGroup::parse(node, header)?),
+                mj_hero::NAME => BodyElement::MJHero(mj_hero::MJHero::parse(node, header)?),
+                mj_image::NAME => BodyElement::MJImage(mj_image::MJImage::parse(node, header)?),
+                mj_navbar::NAME => BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(node, header)?),
+                mj_raw::NAME => BodyElement::MJRaw(mj_raw::MJRaw::parse(node, header)?),
+                mj_section::NAME => {
+                    BodyElement::MJSection(mj_section::MJSection::parse(node, header)?)
+                }
+                mj_social::NAME => BodyElement::MJSocial(mj_social::MJSocial::parse(node, header)?),
+                mj_spacer::NAME => BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(node, header)?),
+                mj_table::NAME => BodyElement::MJTable(mj_table::MJTable::parse(node, header)?),
+                mj_text::NAME => BodyElement::MJText(mj_text::MJText::parse(node, header)?),
+                mj_wrapper::NAME => {
+                    BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(node, header)?)
+                }
                 _ => BodyElement::Raw(raw::RawElement::parse(element, header)?),
             },
             Element::Comment(text) => {
