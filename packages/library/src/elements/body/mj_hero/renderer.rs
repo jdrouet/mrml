@@ -147,9 +147,10 @@ impl MJHero {
     fn render_children(&self, header: &Header) -> Result<String, Error> {
         let mut res = String::from("");
         for child in self.get_children().iter() {
-            let result = match child {
-                BodyElement::Raw(_) => child.render(header)?,
-                _ => self.render_child(header, child)?,
+            let result = if child.is_raw() {
+                child.render(header)?
+            } else {
+                self.render_child(header, child)?
             };
             res.push_str(result.as_str());
         }

@@ -1,6 +1,5 @@
 use super::MJTable;
 use crate::elements::body::raw::RawElement;
-use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::parser::Node;
 use crate::util::attributes::*;
@@ -31,9 +30,7 @@ impl MJTable {
     pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJTable, Error> {
         let mut children = vec![];
         for child in node.children.iter() {
-            children.push(BodyElement::Raw(RawElement::conditional_parse(
-                &child, header, true,
-            )?));
+            children.push(RawElement::conditional_parse(&child, header, true)?.into());
         }
         Ok(MJTable {
             attributes: Self::default_attributes(node, header).concat(node),
