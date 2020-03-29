@@ -19,7 +19,7 @@ impl MJBody {
             Some(value) => value,
             None => return String::new(),
         };
-        Tag::new("div")
+        Tag::div()
             .set_style("display", "none")
             .set_style("font-size", "1px")
             .set_style("color", "#ffffff")
@@ -64,7 +64,7 @@ impl Component for MJBody {
         res.push(self.render_preview(&header));
         if self.exists {
             let div = self
-                .set_style_body(Tag::new("div"))
+                .set_style_body(Tag::div())
                 .maybe_set_class(self.get_attribute("css-class"));
             res.push(div.open());
             for child in self.children.iter() {

@@ -60,7 +60,7 @@ impl MJGroup {
     }
 
     fn render_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
-        let td = Tag::new("td")
+        let td = Tag::td()
             .maybe_set_style("align", child.get_attribute("align"))
             .maybe_set_style("vertical-align", child.get_attribute("vertical-align"))
             .maybe_set_style(
@@ -120,12 +120,12 @@ impl Component for MJGroup {
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         let div = self
-            .set_style_div(Tag::new("div"))
+            .set_style_div(Tag::div())
             .set_class(self.get_column_class().0)
             .set_class("mj-outlook-group-fix")
             .maybe_set_class(self.get_attribute("css-class"));
         let table = Tag::table_presentation();
-        let tr = Tag::new("tr");
+        let tr = Tag::tr();
         let mut res: Vec<String> = vec![];
         res.push(div.open());
         res.push(START_CONDITIONAL_TAG.into());

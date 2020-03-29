@@ -122,8 +122,8 @@ impl MJHero {
     }
 
     fn render_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
-        let tr = Tag::new("tr");
-        let td = Tag::new("td")
+        let tr = Tag::tr();
+        let td = Tag::td()
             .maybe_set_style(
                 "background",
                 child.get_attribute("container-background-color"),
@@ -159,16 +159,13 @@ impl MJHero {
 
     fn render_content(&self, header: &Header) -> Result<String, Error> {
         let table = self
-            .set_style_outlook_inner_table(Tag::new("table"))
+            .set_style_outlook_inner_table(Tag::table_borderless())
             .maybe_set_attribute("align", self.get_attribute("align"))
-            .set_attribute("border", 0)
-            .set_attribute("cellpadding", 0)
-            .set_attribute("cellspacing", 0)
             .maybe_set_attribute("width", self.get_container_width_value());
         let tr = Tag::tr();
         let outlook_inner_td = self.set_style_outlook_inner_td(Tag::td());
         let outlook_inner_div = self
-            .set_style_inner_div(Tag::new("div"))
+            .set_style_inner_div(Tag::div())
             .maybe_set_attribute("width", self.get_attribute("align"))
             .set_class("mj-hero-content");
         let inner_table = self.set_style_inner_table(Tag::table_presentation());
