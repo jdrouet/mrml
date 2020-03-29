@@ -1,4 +1,4 @@
-use super::MJAccordionText;
+use super::{MJAccordionText, NAME as MJ_ACCORDION_TEXT};
 use crate::elements::body::raw::RawElement;
 use crate::elements::error::Error;
 use crate::parser::Node;
@@ -24,7 +24,7 @@ impl MJAccordionText {
         header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionText, Error> {
-        if node.name.as_str() != "mj-accordion-text" {
+        if node.name.as_str() != MJ_ACCORDION_TEXT {
             return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let attributes = Self::default_attributes(node, header)

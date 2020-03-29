@@ -8,6 +8,8 @@ use crate::Options;
 use log::debug;
 use std::collections::HashMap;
 
+pub const NAME: &str = "mj-head";
+
 #[derive(Debug, Clone)]
 pub struct MJHead<'a> {
     attributes: HashMap<&'a str, &'a str>,

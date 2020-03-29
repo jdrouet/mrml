@@ -5,6 +5,8 @@ use super::BodyElement;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 
+pub const NAME: &str = "mj-section";
+
 const DEFAULT_BACKGROUND_POSITION: &str = "top center";
 
 #[derive(Clone, Debug)]

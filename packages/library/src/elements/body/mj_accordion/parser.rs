@@ -1,5 +1,7 @@
 use super::MJAccordion;
-use crate::elements::body::mj_accordion_element::MJAccordionElement;
+use crate::elements::body::mj_accordion_element::{
+    MJAccordionElement, NAME as MJ_ACCORDION_ELEMENT,
+};
 use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
@@ -51,7 +53,7 @@ impl MJAccordion {
         for child in node.children.iter() {
             match child {
                 Element::Node(node) => match node.name.as_str() {
-                    "mj-accordion-element" => {
+                    MJ_ACCORDION_ELEMENT => {
                         let element = MJAccordionElement::parse(node, header, &child_attrs)?;
                         result
                             .children

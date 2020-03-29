@@ -1,6 +1,8 @@
 mod parser;
 mod renderer;
 
+pub const NAME: &str = "mj-title";
+
 #[derive(Clone, Debug)]
 pub struct MJTitle {
     content: String,

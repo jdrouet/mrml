@@ -1,5 +1,5 @@
 use super::MJCarousel;
-use crate::elements::body::mj_carousel_image::MJCarouselImage;
+use crate::elements::body::mj_carousel_image::{MJCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::parser::Node;
@@ -40,7 +40,7 @@ impl MJCarousel {
         for child in node.children.iter() {
             if let Some(child_node) = child.as_node() {
                 let tag_name = child_node.name.as_str();
-                if tag_name != "mj-carousel-image" {
+                if tag_name != MJ_CAROUSEL_IMAGE {
                     return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
                     let element = MJCarouselImage::parse(&child_node, header, Some(&attrs))?;

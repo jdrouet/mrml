@@ -4,6 +4,8 @@ mod renderer;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 
+pub const NAME: &str = "mj-accordion-title";
+
 #[derive(Clone, Debug)]
 pub struct MJAccordionTitle {
     attributes: Attributes,

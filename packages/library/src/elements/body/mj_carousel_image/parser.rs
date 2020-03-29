@@ -1,4 +1,4 @@
-use super::MJCarouselImage;
+use super::{MJCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
 use crate::elements::error::Error;
 use crate::parser::Node;
 use crate::util::attributes::*;
@@ -20,7 +20,7 @@ impl MJCarouselImage {
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJCarouselImage, Error> {
-        if node.name.as_str() != "mj-carousel-image" {
+        if node.name.as_str() != MJ_CAROUSEL_IMAGE {
             return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let carousel_id = match extra.and_then(|attrs| attrs.get("carousel-id")) {

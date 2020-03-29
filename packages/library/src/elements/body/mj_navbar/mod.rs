@@ -6,6 +6,8 @@ use crate::elements::body::BodyElement;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 
+pub const NAME: &str = "mj-navbar";
+
 #[derive(Clone, Debug)]
 pub struct MJNavbar {
     attributes: Attributes,
