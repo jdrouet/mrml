@@ -157,10 +157,11 @@ impl MJColumn {
         let mut res = vec![];
         res.push(table.open());
         for child in self.children.iter() {
-            match child {
-                BodyElement::Raw(_) => res.push(child.render(header)?),
-                _ => res.push(self.render_mj_child(header, &child)?),
-            };
+            if child.is_raw() {
+                res.push(child.render(header)?);
+            } else {
+                res.push(self.render_mj_child(header, &child)?);
+            }
         }
         res.push(table.close());
         Ok(res.join(""))

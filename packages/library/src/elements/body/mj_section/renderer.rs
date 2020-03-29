@@ -181,20 +181,19 @@ impl MJSection {
         let mut res = vec![];
         res.push(conditional_tag(tr.open()));
         for child in self.children.iter() {
-            match child {
-                BodyElement::Raw(element) => res.push(element.render(header)?),
-                _ => {
-                    let td = Tag::td()
-                        .maybe_set_attribute("align", child.get_attribute("align"))
-                        .maybe_set_class(suffix_css_classes(
-                            child.get_attribute("css-class"),
-                            "outlook",
-                        ));
-                    let td = child.set_style("td-outlook", td);
-                    res.push(conditional_tag(td.open()));
-                    res.push(child.render(header)?);
-                    res.push(conditional_tag(td.close()));
-                }
+            if child.is_raw() {
+                res.push(child.render(header)?);
+            } else {
+                let td = Tag::td()
+                    .maybe_set_attribute("align", child.get_attribute("align"))
+                    .maybe_set_class(suffix_css_classes(
+                        child.get_attribute("css-class"),
+                        "outlook",
+                    ));
+                let td = child.set_style("td-outlook", td);
+                res.push(conditional_tag(td.open()));
+                res.push(child.render(header)?);
+                res.push(conditional_tag(td.close()));
             }
         }
         res.push(conditional_tag(tr.close()));

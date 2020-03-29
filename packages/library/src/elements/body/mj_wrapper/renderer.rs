@@ -181,27 +181,26 @@ impl MJWrapper {
         let tr = Tag::tr();
         let mut res = vec![];
         for child in self.children.iter() {
-            match child {
-                BodyElement::Raw(element) => res.push(element.render(header)?),
-                _ => {
-                    let td = Tag::td()
-                        .maybe_set_attribute("align", child.get_attribute("align"))
-                        .maybe_set_class(suffix_css_classes(
-                            child.get_attribute("css-class"),
-                            "outlook",
-                        ))
-                        .maybe_set_attribute("width", container_width.clone());
-                    let td = child.set_style("td-outlook", td);
-                    res.push(START_CONDITIONAL_TAG.into());
-                    res.push(tr.open());
-                    res.push(td.open());
-                    res.push(END_CONDITIONAL_TAG.into());
-                    res.push(child.render(header)?);
-                    res.push(START_CONDITIONAL_TAG.into());
-                    res.push(td.close());
-                    res.push(tr.close());
-                    res.push(END_CONDITIONAL_TAG.into());
-                }
+            if child.is_raw() {
+                res.push(child.render(header)?);
+            } else {
+                let td = Tag::td()
+                    .maybe_set_attribute("align", child.get_attribute("align"))
+                    .maybe_set_class(suffix_css_classes(
+                        child.get_attribute("css-class"),
+                        "outlook",
+                    ))
+                    .maybe_set_attribute("width", container_width.clone());
+                let td = child.set_style("td-outlook", td);
+                res.push(START_CONDITIONAL_TAG.into());
+                res.push(tr.open());
+                res.push(td.open());
+                res.push(END_CONDITIONAL_TAG.into());
+                res.push(child.render(header)?);
+                res.push(START_CONDITIONAL_TAG.into());
+                res.push(td.close());
+                res.push(tr.close());
+                res.push(END_CONDITIONAL_TAG.into());
             }
         }
         Ok(res.join(""))

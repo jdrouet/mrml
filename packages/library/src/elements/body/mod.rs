@@ -8,6 +8,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 use prelude::BodyComponent;
 
+pub mod comment;
 pub mod mj_accordion;
 pub mod mj_accordion_element;
 pub mod mj_accordion_text;
@@ -31,11 +32,16 @@ pub mod mj_spacer;
 pub mod mj_table;
 pub mod mj_text;
 pub mod mj_wrapper;
+pub mod node;
 pub mod prelude;
 pub mod raw;
+pub mod text;
 
 #[derive(Clone, Debug)]
 pub enum BodyElement {
+    Comment(comment::Comment),
+    Text(text::Text),
+    Node(node::Node),
     MJAccordion(mj_accordion::MJAccordion),
     MJAccordionElement(mj_accordion_element::MJAccordionElement),
     MJButton(mj_button::MJButton),
@@ -56,12 +62,15 @@ pub enum BodyElement {
     MJTable(mj_table::MJTable),
     MJText(mj_text::MJText),
     MJWrapper(mj_wrapper::MJWrapper),
-    Raw(raw::RawElement),
+    // Raw(raw::RawElement),
 }
 
 macro_rules! inner_element {
     ($root:expr) => {
         match $root {
+            BodyElement::Comment(item) => item,
+            BodyElement::Text(item) => item,
+            BodyElement::Node(item) => item,
             BodyElement::MJAccordion(item) => item,
             BodyElement::MJAccordionElement(item) => item,
             BodyElement::MJButton(item) => item,
@@ -82,7 +91,7 @@ macro_rules! inner_element {
             BodyElement::MJTable(item) => item,
             BodyElement::MJText(item) => item,
             BodyElement::MJWrapper(item) => item,
-            BodyElement::Raw(item) => item,
+            // BodyElement::Raw(item) => item,
         }
     };
 }
@@ -168,17 +177,19 @@ impl BodyElement {
                 mj_wrapper::NAME => {
                     BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(node, header)?)
                 }
-                _ => BodyElement::Raw(raw::RawElement::parse(element, header)?),
+                _ => BodyElement::Node(node::Node::parse(node, header)?),
             },
-            Element::Comment(text) => {
-                BodyElement::Raw(raw::RawElement::Comment(text.as_str().to_string()))
+            Element::Comment(content) => {
+                BodyElement::Comment(comment::Comment::from(content.to_string()))
             }
-            _ => BodyElement::Raw(raw::RawElement::parse(element, header)?),
+            Element::Text(content) => BodyElement::Text(text::Text::from(content.to_string())),
         };
         Ok(res)
     }
 
     pub fn is_raw(&self) -> bool {
-        matches!(self, BodyElement::Raw(_))
+        matches!(self, BodyElement::Node(_))
+            || matches!(self, BodyElement::Comment(_))
+            || matches!(self, BodyElement::Text(_))
     }
 }
