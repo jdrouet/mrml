@@ -131,21 +131,16 @@ impl Component for MJImage {
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
-        let table = Tag::new("table")
-            .set_attribute("border", 0)
-            .set_attribute("cellpadding", 0)
-            .set_attribute("cellspacing", 0)
-            .set_attribute("role", "presentation")
-            .maybe_set_class(if self.is_fluid_on_mobile() {
-                Some("mj-full-width-mobile")
-            } else {
-                None
-            });
+        let table = Tag::table_presentation().maybe_set_class(if self.is_fluid_on_mobile() {
+            Some("mj-full-width-mobile")
+        } else {
+            None
+        });
         let table = self.set_style_table(table);
-        let tbody = Tag::new("tbody");
-        let tr = Tag::new("tr");
+        let tbody = Tag::tbody();
+        let tr = Tag::tr();
         let td = self
-            .set_style_td(Tag::new("td"))
+            .set_style_td(Tag::td())
             .maybe_set_class(if self.is_fluid_on_mobile() {
                 Some("mj-full-width-mobile")
             } else {

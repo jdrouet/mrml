@@ -117,7 +117,7 @@ impl MJSocialElement {
     }
 
     fn render_text(&self, href: &Option<String>) -> String {
-        let td = self.set_style_td_text(Tag::new("td"));
+        let td = self.set_style_td_text(Tag::td());
         let wrapper = if href.is_some() {
             Tag::new("a")
                 .maybe_set_attribute("href", href.as_ref())

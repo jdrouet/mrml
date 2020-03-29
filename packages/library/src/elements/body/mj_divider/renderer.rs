@@ -55,10 +55,8 @@ impl MJDivider {
             .set_style_outlook(Tag::table_presentation())
             .set_attribute("align", "center")
             .set_attribute("width", self.get_outlook_width());
-        let tr = Tag::new("tr");
-        let td = Tag::new("td")
-            .set_style("height", 0)
-            .set_style("line-height", 0);
+        let tr = Tag::tr();
+        let td = Tag::td().set_style("height", 0).set_style("line-height", 0);
         conditional_tag(table.render(tr.render(td.render("&nbsp;"))))
     }
 }

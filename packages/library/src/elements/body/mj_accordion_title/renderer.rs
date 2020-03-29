@@ -46,7 +46,7 @@ impl MJAccordionTitle {
             .maybe_set_attribute("alt", self.get_attribute("icon-unwrapped-alt"))
             .set_class("mj-accordion-less")
             .closed();
-        let td = Tag::new("td")
+        let td = Tag::td()
             .set_style("padding", "16px")
             .maybe_set_style("background", self.get_attribute("background-color"))
             .maybe_set_style("vertical-align", self.get_attribute("icon-align"))

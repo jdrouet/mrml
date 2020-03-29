@@ -367,13 +367,13 @@ impl Component for MJCarousel {
         let thumbnails = self.render_thumbnails();
         let carousel = self.render_carousel(header)?;
         let inner_div = self
-            .set_style_carousel_div(Tag::new("div"))
+            .set_style_carousel_div(Tag::div())
             .set_class("mj-carousel-content")
             .set_class(format!("mj-carousel-{}-content", self.id))
             .render(thumbnails + &carousel);
         let fallback = self.render_fallback(header)?;
         Ok(mso_negation_conditional_tag(
-            Tag::new("div")
+            Tag::div()
                 .set_class("mj-carousel")
                 .render(radios + &inner_div),
         ) + &fallback)

@@ -127,8 +127,8 @@ impl MJColumn {
     }
 
     fn render_mj_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
-        let tr = Tag::new("tr");
-        let td = Tag::new("td")
+        let tr = Tag::tr();
+        let td = Tag::td()
             .maybe_set_style(
                 "background",
                 child.get_attribute("container-background-color"),
@@ -148,11 +148,7 @@ impl MJColumn {
 
     fn render_column(&self, header: &Header) -> Result<String, Error> {
         let table = self
-            .set_style_table(Tag::new("table"))
-            .set_attribute("border", 0)
-            .set_attribute("cellpadding", 0)
-            .set_attribute("cellspacing", 0)
-            .set_attribute("role", "presentation")
+            .set_style_table(Tag::table_presentation())
             .set_attribute("width", "100%");
         let mut res = vec![];
         res.push(table.open());
@@ -197,7 +193,7 @@ impl Component for MJColumn {
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         Ok(self
-            .set_style_div(Tag::new("div"))
+            .set_style_div(Tag::div())
             .set_class("mj-outlook-group-fix")
             .maybe_set_class(self.get_column_class().map(|(classname, _size)| classname))
             .maybe_set_class(self.get_attribute("css-class"))
