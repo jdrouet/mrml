@@ -1,0 +1,15 @@
+version: 2
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - test
+
+jobs:
+  test:
+    docker:
+      - image: rust:latest
+    steps:
+      - checkout
+      - run: cargo test
