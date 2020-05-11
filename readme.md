@@ -21,12 +21,11 @@
   - [ ] mj-head
     - [x] without attributes
     - TBD
-  - [ ] mj-body
+  - [x] mj-body
     - [x] without attributes
     - [x] with background-color
-    - [ ] with css-class
+    - [x] with css-class
     - [x] with width
-    - TBD
   - [ ] mj-section
     - [x] without attributes
     - [x] with background-color
