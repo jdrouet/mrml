@@ -56,7 +56,7 @@ impl Component for MJBody<'_, '_> {
     fn default_attribute(key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
-            "width" => Some("600".into()),
+            "width" => Some("600px".into()),
             _ => None,
         }
     }

@@ -1,7 +1,7 @@
 use super::error::Error;
 use super::prelude::Component;
 use crate::util::condition::*;
-use crate::util::{suffix_css_classes, suffix_unit, Properties};
+use crate::util::{parse_pixel, suffix_css_classes, Properties};
 use crate::{close_tag, closed_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
@@ -46,6 +46,11 @@ impl MJSection<'_, '_> {
         self.context.as_ref().and_then(|ctx| ctx.get(name))
     }
 
+    fn get_container_width(&self) -> Option<String> {
+        self.get_context("container-width")
+            .and_then(|value| Some(parse_pixel(value)))
+    }
+
     fn get_background(&self) -> Option<String> {
         let mut res = vec![];
         if let Some(color) = self.get_attribute("background-color") {
@@ -88,10 +93,7 @@ impl MJSection<'_, '_> {
                     res.merge(&bg_style);
                 }
                 res.set("margin", "0px auto");
-                res.maybe_set(
-                    "max-width",
-                    suffix_unit(self.get_context("container-width"), "px"),
-                );
+                res.maybe_set("max-width", self.get_context("container-width"));
                 res.maybe_set("border-radius", self.get_attribute("border-radius"));
             }
             "inner-div" => {
@@ -152,9 +154,9 @@ impl MJSection<'_, '_> {
             attr.maybe_set(
                 "style",
                 self.get_context("container-width")
-                    .and_then(|v| Some(format!("width:{}px;", v))),
+                    .and_then(|v| Some(format!("width:{};", v))),
             );
-            attr.maybe_set("width", self.get_context("container-width"));
+            attr.maybe_set("width", self.get_container_width());
             attr.maybe_set(
                 "class",
                 suffix_css_classes(self.get_attribute("css-class"), "outlook"),
@@ -270,7 +272,7 @@ impl MJSection<'_, '_> {
                 attrs.maybe_set(
                     "style",
                     self.get_context("container-width")
-                        .and_then(|v| Some(format!("width:{}px;", v))),
+                        .and_then(|v| Some(format!("width:{};", v))),
                 );
             }
             attrs.set("xmlns:v", "urn:schemas-microsoft-com:vml");
