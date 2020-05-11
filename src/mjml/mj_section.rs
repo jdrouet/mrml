@@ -6,7 +6,7 @@ use crate::{close_tag, closed_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
 
-const ALLOWED_ATTRIBUTES: [&str; 20] = [
+const ALLOWED_ATTRIBUTES: [&'static str; 20] = [
     "background-color",
     "background-url",
     "background-repeat",
@@ -35,34 +35,11 @@ pub struct MJSection<'a, 'b> {
 }
 
 impl MJSection<'_, '_> {
-    fn default_attribute(key: &str) -> Option<&str> {
-        debug!("default_attribute {}", key);
-        match key {
-            "background-repeat" => Some("repeat"),
-            "background-size" => Some("auto"),
-            "direction" => Some("ltr"),
-            "padding" => Some("20px 0"),
-            "text-align" => Some("center"),
-            "text-padding" => Some("4px 4px 4px 0"),
-            _ => None,
-        }
-    }
-
     pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJSection<'a, 'b>, Error> {
         Ok(MJSection {
             context: None,
             node,
         })
-    }
-
-    fn get_attribute(&self, key: &str) -> Option<String> {
-        if !ALLOWED_ATTRIBUTES.contains(&key) {
-            return None;
-        }
-        self.node
-            .attribute(key)
-            .or_else(|| MJSection::default_attribute(key))
-            .map(|v| v.to_string())
     }
 
     fn get_context(&self, name: &str) -> Option<String> {
@@ -340,6 +317,10 @@ impl MJSection<'_, '_> {
 }
 
 impl Component for MJSection<'_, '_> {
+    fn allowed_attributes() -> Option<Vec<&'static str>> {
+        Some(ALLOWED_ATTRIBUTES.to_vec())
+    }
+
     fn default_attribute(key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {

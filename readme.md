@@ -23,6 +23,9 @@
     - TBD
   - [ ] mj-body
     - [x] without attributes
+    - [x] with background-color
+    - [ ] with css-class
+    - [ ] with width
     - TBD
   - [ ] mj-section
     - [x] without attributes

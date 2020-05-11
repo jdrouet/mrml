@@ -31,6 +31,10 @@ impl Properties {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.inner().is_empty()
+    }
+
     pub fn get<K: Display>(&self, key: K) -> Option<String> {
         let key = key.to_string();
         self.inner().get(&key).and_then(|v| Some(v.to_string()))

@@ -57,6 +57,15 @@ mod tests {
     }
 
     #[test]
+    fn parse_render_mj_body_with_background_color() {
+        let source = include_str!("../test/mj-body-background-color.mjml");
+        let expected = include_str!("../test/mj-body-background-color.html");
+        let result = to_html(source);
+        assert_eq!(result.is_ok(), true);
+        compare_html(result.unwrap(), expected.into());
+    }
+
+    #[test]
     fn parse_render_mj_section() {
         let source = include_str!("../test/mj-section.mjml");
         let expected = include_str!("../test/mj-section.html");

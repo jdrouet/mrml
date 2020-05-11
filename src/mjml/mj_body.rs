@@ -1,8 +1,10 @@
 use super::{Component, Element, Error};
-use crate::{close_tag, open_tag};
 use crate::util::Properties;
+use crate::{close_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
+
+const ALLOWED_ATTRIBUTES: [&'static str; 3] = ["background-color", "css-class", "width"];
 
 pub struct MJBody<'a, 'b> {
     node: Option<Node<'a, 'b>>,
@@ -31,11 +33,12 @@ impl MJBody<'_, '_> {
         })
     }
 
-    pub fn digest_context(&mut self) {}
-
     fn get_style(&self, key: &str) -> Properties {
         let mut res = Properties::new();
         match key {
+            "body" => {
+                res.maybe_set("background-color", self.get_attribute("background-color"));
+            }
             "div" => {
                 res.maybe_set("background-color", self.get_attribute("background-color"));
             }
@@ -46,6 +49,10 @@ impl MJBody<'_, '_> {
 }
 
 impl Component for MJBody<'_, '_> {
+    fn allowed_attributes() -> Option<Vec<&'static str>> {
+        Some(ALLOWED_ATTRIBUTES.to_vec())
+    }
+
     fn default_attribute(key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
@@ -72,7 +79,14 @@ impl Component for MJBody<'_, '_> {
     fn render(&self) -> Result<String, Error> {
         debug!("render");
         let mut res: Vec<String> = vec![];
-        res.push(open_tag!("body"));
+        {
+            let mut attrs = Properties::new();
+            let style = self.get_style("body");
+            if !style.is_empty() {
+                attrs.set("style", style.as_style());
+            }
+            res.push(open_tag!("body", attrs.as_attributes()));
+        }
         if self.node.is_some() {
             let mut attrs = Properties::new();
             attrs.maybe_set("class", self.get_attribute("css-class"));
