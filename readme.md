@@ -30,8 +30,8 @@
   - [ ] mj-section
     - [x] without attributes
     - [x] with background-color
-    - [ ] with background-repeat (default: repeat)
-    - [ ] with background-size (default: auto)
+    - [x] with background-repeat (default: repeat)
+    - [x] with background-size (default: auto)
     - [x] with background-url
     - [ ] with border, border-(top|right|bottom|left)
     - [ ] with border-radius

@@ -119,6 +119,15 @@ mod tests {
         compare_html(result.unwrap(), expected.into());
     }
 
+    #[test]
+    fn parse_render_mj_section_with_background_url_full() {
+        let source = include_str!("../test/mj-section-background-url-full.mjml");
+        let expected = include_str!("../test/mj-section-background-url-full.html");
+        let result = to_html(source);
+        assert_eq!(result.is_ok(), true);
+        compare_html(result.unwrap(), expected.into());
+    }
+
     // #[test]
     // fn mjml_to_html_hello_world() {
     //     let source = include_str!("../test/hello-world.mjml");

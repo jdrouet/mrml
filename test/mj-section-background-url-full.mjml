@@ -1,0 +1,10 @@
+<mjml>
+  <mj-body>
+    <mj-section
+      background-url="https://www.rust-lang.org/static/images/rust-logo-blk.svg"
+      background-size="contain"
+      background-repeat="no-repeat"
+    >
+    </mj-section>
+  </mj-body>
+</mjml>
