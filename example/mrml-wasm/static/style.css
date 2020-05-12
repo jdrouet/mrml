@@ -1,0 +1,14 @@
+body {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+section, iframe, textarea {
+  flex: 1;
+}
+section {
+  display: flex;
+  flex-direction: column;
+}
