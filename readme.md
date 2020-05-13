@@ -34,7 +34,7 @@
     - [x] with background-size (default: auto)
     - [x] with background-url
     - [x] with border, border-(top|right|bottom|left)
-    - [ ] with border-radius
+    - [x] with border-radius
     - [ ] with css-class
     - [ ] with direction (default: ltr)
     - [ ] with full-width

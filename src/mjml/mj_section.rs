@@ -404,4 +404,12 @@ pub mod tests {
             include_str!("../../test/mj-section-border.html"),
         );
     }
+
+    #[test]
+    fn with_border_radius() {
+        compare_render(
+            include_str!("../../test/mj-section-border-radius.mjml"),
+            include_str!("../../test/mj-section-border-radius.html"),
+        );
+    }
 }
