@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 
+fn sort_by_key<'r, 's>(a: &'r (String, String), b: &'s (String, String)) -> std::cmp::Ordering {
+    a.0.partial_cmp(&b.0).unwrap()
+}
+
 #[derive(Clone, Debug)]
 pub struct Properties {
     inner: HashMap<String, String>,
@@ -50,29 +54,51 @@ impl Properties {
         }
     }
 
-    fn get_attribute_list(&self) -> Vec<String> {
-        let mut result = vec![];
-        for (key, value) in self.inner.iter() {
-            result.push(format!("{}=\"{}\"", key, value));
-        }
-        result.sort();
-        result
+    fn get_entries(&self) -> Vec<(String, String)> {
+        self.inner
+            .iter()
+            .map(|v| (v.0.clone(), v.1.clone()))
+            .collect()
     }
 
-    fn get_style_list(&self) -> Vec<String> {
-        let mut result = vec![];
-        for (key, value) in self.inner.iter() {
-            result.push(format!("{}:{};", key, value));
-        }
-        result.sort();
-        result
+    fn get_sorted_entries(&self) -> Vec<(String, String)> {
+        let mut entries = self.get_entries();
+        entries.sort_by(sort_by_key);
+        entries
     }
 
     pub fn as_style(&self) -> String {
-        self.get_style_list().join("")
+        let entries = self.get_sorted_entries();
+        entries
+            .iter()
+            .map(|v| format!("{}:{};", v.0, v.1))
+            .collect::<Vec<String>>()
+            .join("")
     }
 
     pub fn as_attributes(&self) -> String {
-        self.get_attribute_list().join(" ")
+        let entries = self.get_sorted_entries();
+        entries
+            .iter()
+            .map(|v| format!("{}=\"{}\"", v.0, v.1))
+            .collect::<Vec<String>>()
+            .join(" ")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sort_style() {
+        let mut props = Properties::new();
+        props.set("border-right", "3px");
+        props.set("border", "1px");
+        props.set("border-left", "2px");
+        assert_eq!(
+            props.as_style(),
+            "border:1px;border-left:2px;border-right:3px;"
+        );
     }
 }

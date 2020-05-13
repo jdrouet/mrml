@@ -93,8 +93,8 @@ impl MJSection<'_, '_> {
                     res.merge(&bg_style);
                 }
                 res.set("margin", "0px auto");
-                res.maybe_set("max-width", self.get_context("container-width"));
                 res.maybe_set("border-radius", self.get_attribute("border-radius"));
+                res.maybe_set("max-width", self.get_context("container-width"));
             }
             "inner-div" => {
                 res.set("line-height", 0);
@@ -186,7 +186,37 @@ impl MJSection<'_, '_> {
     }
 
     fn render_full_width(&self) -> Result<String, Error> {
-        unimplemented!();
+        let mut content: Vec<String> = vec![];
+        content.push(self.render_before()?);
+        content.push(self.render_section()?);
+        content.push(self.render_after()?);
+        let content = if self.has_background() {
+            self.render_with_background(content.join(""))?
+        } else {
+            content.join("")
+        };
+        let mut res: Vec<String> = vec![];
+        {
+            let mut attrs = Properties::new();
+            attrs.set("align", "center");
+            attrs.maybe_set("class", self.get_attribute("css-class"));
+            attrs.maybe_set("background", self.get_attribute("background-url"));
+            attrs.set("border", "0");
+            attrs.set("cellpadding", "0");
+            attrs.set("cellspacing", "0");
+            attrs.set("role", "presentation");
+            attrs.set("style", self.get_style("table-full-width").as_style());
+            res.push(open_tag!("table", attrs.as_attributes()));
+        };
+        res.push(open_tag!("tbody"));
+        res.push(open_tag!("tr"));
+        res.push(open_tag!("td"));
+        res.push(content);
+        res.push(close_tag!("td"));
+        res.push(close_tag!("tr"));
+        res.push(close_tag!("tbody"));
+        res.push(close_tag!("table"));
+        Ok(res.join(""))
     }
 
     fn render_wrapped_children(&self) -> Result<String, Error> {
@@ -350,5 +380,106 @@ impl Component for MJSection<'_, '_> {
         } else {
             self.render_simple()
         }
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use crate::tests::compare_render;
+
+    #[test]
+    fn with_body_width() {
+        compare_render(
+            include_str!("../../test/mj-section-body-width.mjml"),
+            include_str!("../../test/mj-section-body-width.html"),
+        );
+    }
+
+    #[test]
+    fn base() {
+        compare_render(
+            include_str!("../../test/mj-section.mjml"),
+            include_str!("../../test/mj-section.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_color() {
+        compare_render(
+            include_str!("../../test/mj-section-background-color.mjml"),
+            include_str!("../../test/mj-section-background-color.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_url() {
+        compare_render(
+            include_str!("../../test/mj-section-background-url.mjml"),
+            include_str!("../../test/mj-section-background-url.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_url_full() {
+        compare_render(
+            include_str!("../../test/mj-section-background-url-full.mjml"),
+            include_str!("../../test/mj-section-background-url-full.html"),
+        );
+    }
+
+    #[test]
+    fn with_border() {
+        compare_render(
+            include_str!("../../test/mj-section-border.mjml"),
+            include_str!("../../test/mj-section-border.html"),
+        );
+    }
+
+    #[test]
+    fn with_border_radius() {
+        compare_render(
+            include_str!("../../test/mj-section-border-radius.mjml"),
+            include_str!("../../test/mj-section-border-radius.html"),
+        );
+    }
+
+    #[test]
+    fn with_css_class() {
+        compare_render(
+            include_str!("../../test/mj-section-class.mjml"),
+            include_str!("../../test/mj-section-class.html"),
+        );
+    }
+
+    #[test]
+    fn with_direction() {
+        compare_render(
+            include_str!("../../test/mj-section-direction.mjml"),
+            include_str!("../../test/mj-section-direction.html"),
+        );
+    }
+
+    #[test]
+    fn with_full_width() {
+        compare_render(
+            include_str!("../../test/mj-section-full-width.mjml"),
+            include_str!("../../test/mj-section-full-width.html"),
+        );
+    }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../test/mj-section-padding.mjml"),
+            include_str!("../../test/mj-section-padding.html"),
+        );
+    }
+
+    #[test]
+    fn with_text_align() {
+        compare_render(
+            include_str!("../../test/mj-section-text-align.mjml"),
+            include_str!("../../test/mj-section-text-align.html"),
+        );
     }
 }

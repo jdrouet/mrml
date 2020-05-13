@@ -27,20 +27,20 @@
     - [x] with background-color
     - [x] with css-class
     - [x] with width
-  - [ ] mj-section
+  - [x] mj-section
     - [x] without attributes
     - [x] with background-color
-    - [ ] with background-repeat (default: repeat)
-    - [ ] with background-size (default: auto)
+    - [x] with background-repeat (default: repeat)
+    - [x] with background-size (default: auto)
     - [x] with background-url
-    - [ ] with border, border-(top|right|bottom|left)
-    - [ ] with border-radius
-    - [ ] with css-class
-    - [ ] with direction (default: ltr)
-    - [ ] with full-width
-    - [ ] with padding (default: 20px 0)
-    - [ ] with padding-(top|right|bottom|left)
-    - [ ] with text-align
+    - [x] with border, border-(top|right|bottom|left)
+    - [x] with border-radius
+    - [x] with css-class
+    - [x] with direction (default: ltr)
+    - [x] with full-width
+    - [x] with padding (default: 20px 0)
+    - [x] with padding-(top|right|bottom|left)
+    - [x] with text-align
   - [ ] mj-column
     - [ ] without attributes
     - [ ] with background-color
