@@ -27,7 +27,7 @@
     - [x] with background-color
     - [x] with css-class
     - [x] with width
-  - [ ] mj-section
+  - [x] mj-section
     - [x] without attributes
     - [x] with background-color
     - [x] with background-repeat (default: repeat)
@@ -40,7 +40,7 @@
     - [x] with full-width
     - [x] with padding (default: 20px 0)
     - [x] with padding-(top|right|bottom|left)
-    - [ ] with text-align
+    - [x] with text-align
   - [ ] mj-column
     - [ ] without attributes
     - [ ] with background-color

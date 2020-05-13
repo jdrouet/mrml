@@ -474,4 +474,12 @@ pub mod tests {
             include_str!("../../test/mj-section-padding.html"),
         );
     }
+
+    #[test]
+    fn with_text_align() {
+        compare_render(
+            include_str!("../../test/mj-section-text-align.mjml"),
+            include_str!("../../test/mj-section-text-align.html"),
+        );
+    }
 }
