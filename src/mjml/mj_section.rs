@@ -466,4 +466,12 @@ pub mod tests {
             include_str!("../../test/mj-section-full-width.html"),
         );
     }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../test/mj-section-padding.mjml"),
+            include_str!("../../test/mj-section-padding.html"),
+        );
+    }
 }
