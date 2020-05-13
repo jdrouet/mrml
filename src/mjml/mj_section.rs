@@ -186,7 +186,37 @@ impl MJSection<'_, '_> {
     }
 
     fn render_full_width(&self) -> Result<String, Error> {
-        unimplemented!();
+        let mut content: Vec<String> = vec![];
+        content.push(self.render_before()?);
+        content.push(self.render_section()?);
+        content.push(self.render_after()?);
+        let content = if self.has_background() {
+            self.render_with_background(content.join(""))?
+        } else {
+            content.join("")
+        };
+        let mut res: Vec<String> = vec![];
+        {
+            let mut attrs = Properties::new();
+            attrs.set("align", "center");
+            attrs.maybe_set("class", self.get_attribute("css-class"));
+            attrs.maybe_set("background", self.get_attribute("background-url"));
+            attrs.set("border", "0");
+            attrs.set("cellpadding", "0");
+            attrs.set("cellspacing", "0");
+            attrs.set("role", "presentation");
+            attrs.set("style", self.get_style("table-full-width").as_style());
+            res.push(open_tag!("table", attrs.as_attributes()));
+        };
+        res.push(open_tag!("tbody"));
+        res.push(open_tag!("tr"));
+        res.push(open_tag!("td"));
+        res.push(content);
+        res.push(close_tag!("td"));
+        res.push(close_tag!("tr"));
+        res.push(close_tag!("tbody"));
+        res.push(close_tag!("table"));
+        Ok(res.join(""))
     }
 
     fn render_wrapped_children(&self) -> Result<String, Error> {
@@ -426,6 +456,14 @@ pub mod tests {
         compare_render(
             include_str!("../../test/mj-section-direction.mjml"),
             include_str!("../../test/mj-section-direction.html"),
+        );
+    }
+
+    #[test]
+    fn with_full_width() {
+        compare_render(
+            include_str!("../../test/mj-section-full-width.mjml"),
+            include_str!("../../test/mj-section-full-width.html"),
         );
     }
 }

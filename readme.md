@@ -37,7 +37,7 @@
     - [x] with border-radius
     - [x] with css-class
     - [x] with direction (default: ltr)
-    - [ ] with full-width
+    - [x] with full-width
     - [ ] with padding (default: 20px 0)
     - [ ] with padding-(top|right|bottom|left)
     - [ ] with text-align
