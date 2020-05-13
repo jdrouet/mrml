@@ -21,7 +21,7 @@ pub fn to_html(input: &str) -> Result<String, Error> {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use super::*;
 
     fn clean_str(input: String) -> String {
@@ -32,100 +32,12 @@ mod tests {
             .replace(" ", "")
     }
 
-    fn compare_html(result: String, expected: String) {
-        let result = clean_str(result);
-        let expected = clean_str(expected);
+    pub fn compare_render(source: &str, expected: &str) {
+        let result = to_html(source);
+        assert_eq!(result.is_ok(), true);
+        let result = clean_str(result.unwrap());
+        let expected = clean_str(expected.into());
         assert_diff!(result.as_str(), expected.as_str(), "", 0);
-    }
-
-    #[test]
-    fn parse_render_mjml() {
-        let source = include_str!("../test/mjml.mjml");
-        let expected = include_str!("../test/mjml.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_body() {
-        let source = include_str!("../test/mj-body.mjml");
-        let expected = include_str!("../test/mj-body.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_body_with_background_color() {
-        let source = include_str!("../test/mj-body-background-color.mjml");
-        let expected = include_str!("../test/mj-body-background-color.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_body_with_class() {
-        let source = include_str!("../test/mj-body-class.mjml");
-        let expected = include_str!("../test/mj-body-class.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_body_with_width() {
-        let source = include_str!("../test/mj-body-width.mjml");
-        let expected = include_str!("../test/mj-body-width.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_section_with_body_width() {
-        let source = include_str!("../test/mj-section-body-width.mjml");
-        let expected = include_str!("../test/mj-section-body-width.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_section() {
-        let source = include_str!("../test/mj-section.mjml");
-        let expected = include_str!("../test/mj-section.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_section_with_background_color() {
-        let source = include_str!("../test/mj-section-background-color.mjml");
-        let expected = include_str!("../test/mj-section-background-color.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_section_with_background_url() {
-        let source = include_str!("../test/mj-section-background-url.mjml");
-        let expected = include_str!("../test/mj-section-background-url.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
-    }
-
-    #[test]
-    fn parse_render_mj_section_with_background_url_full() {
-        let source = include_str!("../test/mj-section-background-url-full.mjml");
-        let expected = include_str!("../test/mj-section-background-url-full.html");
-        let result = to_html(source);
-        assert_eq!(result.is_ok(), true);
-        compare_html(result.unwrap(), expected.into());
     }
 
     // #[test]

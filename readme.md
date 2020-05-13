@@ -33,7 +33,7 @@
     - [x] with background-repeat (default: repeat)
     - [x] with background-size (default: auto)
     - [x] with background-url
-    - [ ] with border, border-(top|right|bottom|left)
+    - [x] with border, border-(top|right|bottom|left)
     - [ ] with border-radius
     - [ ] with css-class
     - [ ] with direction (default: ltr)

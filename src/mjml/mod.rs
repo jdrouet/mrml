@@ -61,49 +61,4 @@ impl Element<'_, '_> {
         };
         Ok(res)
     }
-
-    pub fn digest(&mut self) {
-        // match self {
-        //     Element::MJML(item) => item.render(),
-        //     Element::MJBody(item) => item.render(),
-        //     Element::MJHead(item) => item.render(),
-        //     Element::MJSection(item) => item.render(),
-        //     Element::Raw(item) => item.render(),
-        //     _ => (),
-        // };
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use roxmltree::Document;
-
-    #[test]
-    fn parse_mjml() {
-        let expected = include_str!("../../test/mjml.html");
-        let expected = expected.replace("\n", "").replace(" ", "");
-        let doc = Document::parse("<mjml></mjml>").unwrap();
-        let root = doc.root_element();
-        let element = Element::parse(root);
-        assert_eq!(element.is_ok(), true);
-        let result = element.unwrap().render();
-        assert_eq!(result.is_ok(), true);
-        let result = result.unwrap().replace("\n", "").replace(" ", "");
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn parse_mj_body() {
-        let expected = include_str!("../../test/mj-body.html");
-        let expected = expected.replace("\n", "").replace(" ", "");
-        let doc = Document::parse("<mjml><mj-body></mj-body></mjml>").unwrap();
-        let root = doc.root_element();
-        let element = Element::parse(root);
-        assert_eq!(element.is_ok(), true);
-        let result = element.unwrap().render();
-        assert_eq!(result.is_ok(), true);
-        let result = result.unwrap().replace("\n", "").replace(" ", "");
-        assert_eq!(result, expected);
-    }
 }

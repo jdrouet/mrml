@@ -93,8 +93,8 @@ impl MJSection<'_, '_> {
                     res.merge(&bg_style);
                 }
                 res.set("margin", "0px auto");
-                res.maybe_set("max-width", self.get_context("container-width"));
                 res.maybe_set("border-radius", self.get_attribute("border-radius"));
+                res.maybe_set("max-width", self.get_context("container-width"));
             }
             "inner-div" => {
                 res.set("line-height", 0);
@@ -350,5 +350,58 @@ impl Component for MJSection<'_, '_> {
         } else {
             self.render_simple()
         }
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use crate::tests::compare_render;
+
+    #[test]
+    fn with_body_width() {
+        compare_render(
+            include_str!("../../test/mj-section-body-width.mjml"),
+            include_str!("../../test/mj-section-body-width.html"),
+        );
+    }
+
+    #[test]
+    fn base() {
+        compare_render(
+            include_str!("../../test/mj-section.mjml"),
+            include_str!("../../test/mj-section.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_color() {
+        compare_render(
+            include_str!("../../test/mj-section-background-color.mjml"),
+            include_str!("../../test/mj-section-background-color.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_url() {
+        compare_render(
+            include_str!("../../test/mj-section-background-url.mjml"),
+            include_str!("../../test/mj-section-background-url.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_url_full() {
+        compare_render(
+            include_str!("../../test/mj-section-background-url-full.mjml"),
+            include_str!("../../test/mj-section-background-url-full.html"),
+        );
+    }
+
+    #[test]
+    fn with_border() {
+        compare_render(
+            include_str!("../../test/mj-section-border.mjml"),
+            include_str!("../../test/mj-section-border.html"),
+        );
     }
 }

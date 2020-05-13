@@ -76,3 +76,16 @@ impl Component for MJMLElement<'_, '_> {
         Ok(res.join(""))
     }
 }
+
+#[cfg(test)]
+pub mod tests {
+    use crate::tests::compare_render;
+
+    #[test]
+    fn basic() {
+        compare_render(
+            include_str!("../../test/mjml.mjml"),
+            include_str!("../../test/mjml.html"),
+        );
+    }
+}

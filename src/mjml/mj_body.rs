@@ -101,3 +101,40 @@ impl Component for MJBody<'_, '_> {
         Ok(res.join(""))
     }
 }
+
+#[cfg(test)]
+pub mod tests {
+    use crate::tests::compare_render;
+
+    #[test]
+    fn basic() {
+        compare_render(
+            include_str!("../../test/mj-body.mjml"),
+            include_str!("../../test/mj-body.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_color() {
+        compare_render(
+            include_str!("../../test/mj-body-background-color.mjml"),
+            include_str!("../../test/mj-body-background-color.html"),
+        );
+    }
+
+    #[test]
+    fn with_class() {
+        compare_render(
+            include_str!("../../test/mj-body-class.mjml"),
+            include_str!("../../test/mj-body-class.html"),
+        );
+    }
+
+    #[test]
+    fn with_width() {
+        compare_render(
+            include_str!("../../test/mj-body-width.mjml"),
+            include_str!("../../test/mj-body-width.html"),
+        );
+    }
+}

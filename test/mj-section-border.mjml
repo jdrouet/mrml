@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section
+      border="1px solid blue"
+      border-top="2px solid red"
+      border-right="3px solid green"
+      border-bottom="4px solid orange"
+      border-left="5px solid grey"
+    >
+    </mj-section>
+  </mj-body>
+</mjml>
