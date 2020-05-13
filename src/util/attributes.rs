@@ -3,7 +3,7 @@ pub fn suffix_css_classes(input: Option<String>, suffix: &str) -> Option<String>
         let value: Vec<String> = value
             .split(" ")
             .filter(|v| v.len() > 0)
-            .map(|v| format!("{}-{}", suffix, v))
+            .map(|v| format!("{}-{}", v, suffix))
             .collect();
         if value.is_empty() {
             None
@@ -36,7 +36,7 @@ mod tests {
     fn suffix_css_classes_with_values() {
         assert_eq!(
             suffix_css_classes(Some("toto tutu".into()), "whatever"),
-            Some("whatever-toto whatever-tutu".into())
+            Some("toto-whatever tutu-whatever".into())
         );
     }
 }
