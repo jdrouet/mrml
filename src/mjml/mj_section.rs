@@ -420,4 +420,12 @@ pub mod tests {
             include_str!("../../test/mj-section-class.html"),
         );
     }
+
+    #[test]
+    fn with_direction() {
+        compare_render(
+            include_str!("../../test/mj-section-direction.mjml"),
+            include_str!("../../test/mj-section-direction.html"),
+        );
+    }
 }
