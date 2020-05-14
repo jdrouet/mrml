@@ -28,6 +28,24 @@
     - [x] with background-color
     - [x] with css-class
     - [x] with width
+  - [ ] mj-accordion
+  - [ ] mj-button
+  - [ ] mj-carousel
+  - [x] mj-column
+    - [x] without attributes
+    - [x] with background-color
+    - [x] with border, border-(top|right|bottom|left)
+    - [x] with border-radius
+    - [x] with css-class
+    - [x] with padding, padding-(top|right|bottom|left)
+    - [x] with vertical-align
+    - [x] with width (default: (100 / number of non-raw elements in section)%)
+  - [ ] mj-divider
+  - [ ] mj-group
+  - [ ] mj-hero
+  - [ ] mj-image
+  - [ ] mj-navbar
+  - [ ] mj-raw
   - [x] mj-section
     - [x] without attributes
     - [x] with background-color
@@ -42,12 +60,8 @@
     - [x] with padding (default: 20px 0)
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-align
-  - [x] mj-column
-    - [x] without attributes
-    - [x] with background-color
-    - [x] with border, border-(top|right|bottom|left)
-    - [x] with border-radius
-    - [x] with css-class
-    - [x] with padding, padding-(top|right|bottom|left)
-    - [x] with vertical-align
-    - [x] with width (default: (100 / number of non-raw elements in section)%)
+  - [ ] mj-social
+  - [ ] mj-spacer
+  - [ ] mj-table
+  - [ ] mj-text
+  - [ ] mj-wrapper
