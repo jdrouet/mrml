@@ -313,4 +313,12 @@ pub mod tests {
             include_str!("../../test/mj-column-border-radius.html"),
         );
     }
+
+    #[test]
+    fn with_class() {
+        compare_render(
+            include_str!("../../test/mj-column-class.mjml"),
+            include_str!("../../test/mj-column-class.html"),
+        );
+    }
 }
