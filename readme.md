@@ -45,7 +45,7 @@
   - [ ] mj-column
     - [x] without attributes
     - [x] with background-color
-    - [ ] with border, border-(top|right|bottom|left)
+    - [x] with border, border-(top|right|bottom|left)
     - [ ] with border-radius
     - [ ] with css-class
     - [ ] with padding, padding-(top|right|bottom|left)

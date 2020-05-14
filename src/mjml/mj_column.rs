@@ -291,10 +291,18 @@ pub mod tests {
     }
 
     #[test]
-    fn background_color() {
+    fn with_background_color() {
         compare_render(
             include_str!("../../test/mj-column-background-color.mjml"),
             include_str!("../../test/mj-column-background-color.html"),
+        );
+    }
+
+    #[test]
+    fn with_border() {
+        compare_render(
+            include_str!("../../test/mj-column-border.mjml"),
+            include_str!("../../test/mj-column-border.html"),
         );
     }
 }
