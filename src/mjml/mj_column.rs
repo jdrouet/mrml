@@ -337,4 +337,12 @@ pub mod tests {
             include_str!("../../test/mj-column-vertical-align.html"),
         );
     }
+
+    #[test]
+    fn with_width() {
+        compare_render(
+            include_str!("../../test/mj-column-width.mjml"),
+            include_str!("../../test/mj-column-width.html"),
+        );
+    }
 }

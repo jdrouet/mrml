@@ -1,0 +1,15 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column width="25%">
+        <!-- Your first column -->
+      </mj-column>
+      <mj-column width="50%">
+        <!-- Your second column -->
+      </mj-column>
+      <mj-column width="25%">
+        <!-- Your third column -->
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

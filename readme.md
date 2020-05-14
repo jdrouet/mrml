@@ -42,7 +42,7 @@
     - [x] with padding (default: 20px 0)
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-align
-  - [ ] mj-column
+  - [x] mj-column
     - [x] without attributes
     - [x] with background-color
     - [x] with border, border-(top|right|bottom|left)
@@ -50,4 +50,4 @@
     - [x] with css-class
     - [x] with padding, padding-(top|right|bottom|left)
     - [x] with vertical-align
-    - [ ] with width (default: (100 / number of non-raw elements in section)%)
+    - [x] with width (default: (100 / number of non-raw elements in section)%)
