@@ -42,12 +42,12 @@
     - [x] with padding (default: 20px 0)
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-align
-  - [ ] mj-column
-    - [ ] without attributes
-    - [ ] with background-color
-    - [ ] with border, border-(top|right|bottom|left)
-    - [ ] with border-radius
-    - [ ] with css-class
-    - [ ] with padding, padding-(top|right|bottom|left)
-    - [ ] with vertical-align
-    - [ ] with width (default: (100 / number of non-raw elements in section)%)
+  - [x] mj-column
+    - [x] without attributes
+    - [x] with background-color
+    - [x] with border, border-(top|right|bottom|left)
+    - [x] with border-radius
+    - [x] with css-class
+    - [x] with padding, padding-(top|right|bottom|left)
+    - [x] with vertical-align
+    - [x] with width (default: (100 / number of non-raw elements in section)%)

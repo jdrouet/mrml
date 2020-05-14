@@ -1,6 +1,6 @@
 use super::{Component, Error};
-use crate::{close_tag, open_tag};
-use crate::util::Properties;
+use crate::util::{Context, Header};
+use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 
@@ -50,9 +50,9 @@ p {
 
 #[derive(Debug, Clone)]
 pub struct MJHead<'a, 'b> {
-    context: Option<Properties>,
+    context: Option<Context>,
+    header: Header,
     node: Option<Node<'a, 'b>>,
-    title: String,
 }
 
 impl MJHead<'_, '_> {
@@ -60,8 +60,8 @@ impl MJHead<'_, '_> {
         debug!("create empty");
         MJHead {
             context: None,
+            header: Header::new(),
             node: None,
-            title: "".into(),
         }
     }
 
@@ -69,23 +69,52 @@ impl MJHead<'_, '_> {
         debug!("parse");
         Ok(MJHead {
             context: None,
+            header: Header::new(),
             node: Some(node),
-            title: "".into(),
         })
+    }
+
+    pub fn set_header(&mut self, header: Header) {
+        self.header.merge(&header);
+    }
+
+    fn get_title(&self) -> String {
+        match self.header.title() {
+            Some(value) => value.clone(),
+            None => "".into(),
+        }
+    }
+
+    fn get_media_queries(&self) -> String {
+        let breakpoint = "480px";
+        if !self.header.has_media_queries() {
+            return "".into();
+        }
+        let mut res = vec![];
+        res.push(open_tag!("style", to_attributes!(("type", "text/css"))));
+        res.push(format!("@media only screen and (min-width:{}) {{ ", breakpoint));
+        let mut classnames: Vec<&String> = self.header.get_media_queries().keys().collect();
+        classnames.sort();
+        for classname in classnames.iter() {
+            let size = self.header.get_media_queries().get(classname.clone()).unwrap();
+            res.push(format!(".{} {{ width:{} !important; max-width: {}; }}", classname, size.to_string(), size.to_string()));
+        }
+        res.push("}".into());
+        res.push(close_tag!("style"));
+        res.join("\n")
     }
 }
 
 impl Component for MJHead<'_, '_> {
-    fn default_attribute(key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        None
-    }
-
     fn node(&self) -> Option<Node> {
         self.node
     }
 
-    fn set_context(&mut self, ctx: Properties) {
+    fn context(&self) -> Option<&Context> {
+        self.context.as_ref()
+    }
+
+    fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx);
     }
 
@@ -94,26 +123,30 @@ impl Component for MJHead<'_, '_> {
         let mut res: Vec<String> = vec![];
         res.push(open_tag!("head"));
         res.push(open_tag!("title"));
-        res.push(self.title.clone());
+        res.push(self.get_title());
         res.push(close_tag!("title"));
         res.push("<!--[if !mso]><!-- -->".into());
         res.push(open_tag!(
             "meta",
-            ("http-equiv", "X-UA-Compatible"),
-            ("content", "IE=edge")
+            to_attributes!(("http-equiv", "X-UA-Compatible"), ("content", "IE=edge"))
         ));
         res.push("<!--<![endif]-->".into());
         res.push(open_tag!(
             "meta",
-            ("http-equiv", "Content-Type"),
-            ("content", "text/html; charset=UTF-8")
+            to_attributes!(
+                ("http-equiv", "Content-Type"),
+                ("content", "text/html; charset=UTF-8")
+            )
         ));
         res.push(open_tag!(
             "meta",
-            ("name", "viewport"),
-            ("content", "width=device-width, initial-scale=1")
+            to_attributes!(
+                ("name", "viewport"),
+                ("content", "width=device-width, initial-scale=1")
+            )
         ));
         res.push(STYLE_BASE.into());
+        res.push(self.get_media_queries());
         res.push(close_tag!("head"));
         Ok(res.join(""))
     }

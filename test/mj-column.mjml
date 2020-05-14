@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <!-- Your first column -->
+      </mj-column>
+      <mj-column>
+        <!-- Your second column -->
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -1,7 +1,7 @@
 use super::mj_body::MJBody;
 use super::mj_head::MJHead;
 use super::{Component, Error};
-use crate::util::Properties;
+use crate::util::Context;
 use log::debug;
 use roxmltree::Node;
 
@@ -9,8 +9,9 @@ const DOCTYPE: &str = "<!doctype html>";
 const HTML_OPEN: &str = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">";
 const HTML_CLOSE: &str = "</html>";
 
+#[derive(Clone, Debug)]
 pub struct MJMLElement<'a, 'b> {
-    context: Option<Properties>,
+    context: Option<Context>,
     head: MJHead<'a, 'b>,
     body: MJBody<'a, 'b>,
     node: Node<'a, 'b>,
@@ -50,15 +51,15 @@ impl MJMLElement<'_, '_> {
 }
 
 impl Component for MJMLElement<'_, '_> {
-    fn default_attribute(_key: &str) -> Option<String> {
-        None
+    fn context(&self) -> Option<&Context> {
+        self.context.as_ref()
     }
 
     fn node(&self) -> Option<Node> {
         Some(self.node)
     }
 
-    fn set_context(&mut self, ctx: Properties) {
+    fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
         // TODO
         self.body.set_context(ctx.clone());
@@ -67,10 +68,12 @@ impl Component for MJMLElement<'_, '_> {
 
     fn render(&self) -> Result<String, Error> {
         debug!("render");
+        let mut head = self.head.clone();
+        head.set_header(self.body.to_header());
         let mut res: Vec<String> = vec![];
         res.push(DOCTYPE.into());
         res.push(HTML_OPEN.into());
-        res.push(self.head.render()?);
+        res.push(head.render()?);
         res.push(self.body.render()?);
         res.push(HTML_CLOSE.into());
         Ok(res.join(""))

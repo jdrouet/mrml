@@ -15,6 +15,7 @@ include = [
 
 [dependencies]
 log = "0.4"
+regex = "1"
 roxmltree = "0.11"
 
 [dev-dependencies]

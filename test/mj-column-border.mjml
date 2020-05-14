@@ -1,0 +1,23 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column border-top="1px solid green">
+        <!-- Your first column -->
+      </mj-column>
+      <mj-column border-left="1px solid blue">
+        <!-- Your second column -->
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column border="1px solid green">
+        <!-- Your first column -->
+      </mj-column>
+      <mj-column border-right="1px solid green">
+        <!-- Your second column -->
+      </mj-column>
+      <mj-column border-bottom="1px solid green">
+        <!-- Your third column -->
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

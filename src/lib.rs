@@ -16,7 +16,7 @@ pub fn to_html(input: &str) -> Result<String, Error> {
     let doc = Document::parse(input)?;
     let root = doc.root_element();
     let mut element = mjml::Element::parse(root)?;
-    element.set_context(util::Properties::new());
+    element.set_context(util::Context::default());
     Ok(element.render()?)
 }
 

@@ -1,8 +1,10 @@
 use super::error::Error;
-use super::prelude::Component;
+use super::prelude::{Component, ContainedComponent};
+use super::Element;
 use crate::util::condition::*;
-use crate::util::{parse_pixel, suffix_css_classes, Properties};
-use crate::{close_tag, closed_tag, open_tag};
+use crate::util::prelude::PropertyMap;
+use crate::util::{suffix_css_classes, Attributes, Context, Header, Style};
+use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 
@@ -29,26 +31,24 @@ const ALLOWED_ATTRIBUTES: [&'static str; 20] = [
     "text-padding",
 ];
 
+#[derive(Clone, Debug)]
 pub struct MJSection<'a, 'b> {
-    context: Option<Properties>,
+    context: Option<Context>,
     node: Node<'a, 'b>,
+    children: Vec<Element<'a, 'b>>,
 }
 
 impl MJSection<'_, '_> {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJSection<'a, 'b>, Error> {
+        let mut children = vec![];
+        for child in node.children() {
+            children.push(Element::parse(child)?);
+        }
         Ok(MJSection {
             context: None,
             node,
+            children,
         })
-    }
-
-    fn get_context(&self, name: &str) -> Option<String> {
-        self.context.as_ref().and_then(|ctx| ctx.get(name))
-    }
-
-    fn get_container_width(&self) -> Option<String> {
-        self.get_context("container-width")
-            .and_then(|value| Some(parse_pixel(value)))
     }
 
     fn get_background(&self) -> Option<String> {
@@ -73,64 +73,14 @@ impl MJSection<'_, '_> {
         }
     }
 
-    fn get_background_style(&self) -> Properties {
-        let mut res = Properties::new();
+    fn get_background_style(&self) -> Style {
+        let mut res = Style::new();
         if self.get_attribute("background-url").is_some() {
             res.maybe_set("background", self.get_background());
         } else {
             res.maybe_set("background", self.get_attribute("background-color"));
             res.maybe_set("background-color", self.get_attribute("background-color"));
         }
-        res
-    }
-
-    fn get_style(&self, name: &str) -> Properties {
-        let mut res = Properties::new();
-        let bg_style = self.get_background_style();
-        match name {
-            "div" => {
-                if !self.is_full_width() {
-                    res.merge(&bg_style);
-                }
-                res.set("margin", "0px auto");
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.maybe_set("max-width", self.get_context("container-width"));
-            }
-            "inner-div" => {
-                res.set("line-height", 0);
-                res.set("font-size", 0);
-            }
-            "table-full-width" => {
-                if self.is_full_width() {
-                    res.merge(&bg_style);
-                }
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.set("width", "100%");
-            }
-            "table" => {
-                if !self.is_full_width() {
-                    res.merge(&bg_style);
-                }
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.set("width", "100%");
-            }
-            "td" => {
-                res.maybe_set("border", self.get_attribute("border"));
-                res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
-                res.maybe_set("border-left", self.get_attribute("border-left"));
-                res.maybe_set("border-right", self.get_attribute("border-right"));
-                res.maybe_set("border-top", self.get_attribute("border-top"));
-                res.maybe_set("direction", self.get_attribute("direction"));
-                res.set("font-size", "0px");
-                res.maybe_set("padding", self.get_attribute("padding"));
-                res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
-                res.maybe_set("padding-left", self.get_attribute("padding-left"));
-                res.maybe_set("padding-right", self.get_attribute("padding-right"));
-                res.maybe_set("padding-top", self.get_attribute("padding-top"));
-                res.maybe_set("text-align", self.get_attribute("text-align"));
-            }
-            _ => (),
-        };
         res
     }
 
@@ -146,30 +96,30 @@ impl MJSection<'_, '_> {
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
         {
-            let mut attr = Properties::new();
+            let mut attr = Attributes::new();
             attr.set("align", "center");
             attr.set("border", "0");
             attr.set("cellpadding", "0");
             attr.set("cellspacing", "0");
             attr.maybe_set(
                 "style",
-                self.get_context("container-width")
-                    .and_then(|v| Some(format!("width:{};", v))),
+                self.get_container_width()
+                    .and_then(|v| Some(format!("width:{};", v.to_string()))),
             );
-            attr.maybe_set("width", self.get_container_width());
+            attr.maybe_set("width", self.get_container_width_value());
             attr.maybe_set(
                 "class",
                 suffix_css_classes(self.get_attribute("css-class"), "outlook"),
             );
-            res.push(open_tag!("table", attr.as_attributes()));
+            res.push(open_tag!("table", attr.to_string()));
         };
         res.push(open_tag!("tr"));
         res.push(open_tag!(
             "td",
-            (
+            to_attributes!((
                 "style",
                 "font-size:0px;line-height:0px;mso-line-height-rule:exactly;"
-            )
+            ))
         ));
         res.push(END_CONDITIONAL_TAG.into());
         Ok(res.join(""))
@@ -197,7 +147,7 @@ impl MJSection<'_, '_> {
         };
         let mut res: Vec<String> = vec![];
         {
-            let mut attrs = Properties::new();
+            let mut attrs = Attributes::new();
             attrs.set("align", "center");
             attrs.maybe_set("class", self.get_attribute("css-class"));
             attrs.maybe_set("background", self.get_attribute("background-url"));
@@ -205,8 +155,8 @@ impl MJSection<'_, '_> {
             attrs.set("cellpadding", "0");
             attrs.set("cellspacing", "0");
             attrs.set("role", "presentation");
-            attrs.set("style", self.get_style("table-full-width").as_style());
-            res.push(open_tag!("table", attrs.as_attributes()));
+            attrs.set("style", self.get_style("table-full-width").to_string());
+            res.push(open_tag!("table", attrs.to_string()));
         };
         res.push(open_tag!("tbody"));
         res.push(open_tag!("tr"));
@@ -224,7 +174,28 @@ impl MJSection<'_, '_> {
         res.push(START_CONDITIONAL_TAG.into());
         res.push(open_tag!("tr"));
         res.push(END_CONDITIONAL_TAG.into());
-        // TODO: render children
+        for child in self.children.iter() {
+            match child {
+                Element::Raw(element) => res.push(element.render()?),
+                _ => {
+                    let mut attrs = Attributes::new();
+                    attrs.maybe_set("align", child.get_attribute("align"));
+                    attrs.maybe_set(
+                        "class",
+                        suffix_css_classes(child.get_attribute("css-class"), "outlook"),
+                    );
+                    attrs.set("style", child.get_style("td-outlook").to_string());
+                    res.push(START_CONDITIONAL_TAG.into());
+                    res.push(open_tag!("td", attrs.to_string()));
+                    res.push(END_CONDITIONAL_TAG.into());
+                    res.push(child.render()?);
+                    res.push(START_CONDITIONAL_TAG.into());
+                    res.push(close_tag!("td"));
+                    res.push(END_CONDITIONAL_TAG.into());
+                }
+            }
+        }
+
         res.push(START_CONDITIONAL_TAG.into());
         res.push(close_tag!("tr"));
         res.push(END_CONDITIONAL_TAG.into());
@@ -235,22 +206,22 @@ impl MJSection<'_, '_> {
         let has_bg = self.has_background();
         let mut res = vec![];
         {
-            let mut attr = Properties::new();
+            let mut attr = Attributes::new();
             if !self.is_full_width() {
                 attr.maybe_set("class", self.get_attribute("css-class"));
             }
-            attr.set("style", self.get_style("div").as_style());
-            res.push(open_tag!("div", attr.as_attributes()));
+            attr.set("style", self.get_style("div").to_string());
+            res.push(open_tag!("div", attr.to_string()));
         };
         if has_bg {
             res.push(open_tag!(
                 "div",
-                ("style", self.get_style("inner-div").as_style())
+                to_attributes!(("style", self.get_style("inner-div").to_string()))
             ));
         }
         {
             // TABLE
-            let mut attrs = Properties::new();
+            let mut attrs = Attributes::new();
             attrs.set("align", "center");
             if !self.is_full_width() {
                 attrs.maybe_set("background", self.get_attribute("background-url"));
@@ -259,19 +230,24 @@ impl MJSection<'_, '_> {
             attrs.set("cellpadding", 0);
             attrs.set("cellspacing", 0);
             attrs.set("role", "presentation");
-            attrs.set("style", self.get_style("table").as_style());
-            res.push(open_tag!("table", attrs.as_attributes()));
+            attrs.set("style", self.get_style("table").to_string());
+            res.push(open_tag!("table", attrs.to_string()));
         };
         res.push(open_tag!("tbody"));
         res.push(open_tag!("tr"));
-        res.push(open_tag!("td", ("style", self.get_style("td").as_style())));
+        res.push(open_tag!(
+            "td",
+            to_attributes!(("style", self.get_style("td").to_string()))
+        ));
         res.push(START_CONDITIONAL_TAG.into());
         res.push(open_tag!(
             "table",
-            ("role", "presentation"),
-            ("border", 0),
-            ("cellpadding", 0),
-            ("cellspacing", 0)
+            to_attributes!(
+                ("role", "presentation"),
+                ("border", 0),
+                ("cellpadding", 0),
+                ("cellspacing", 0)
+            )
         ));
         res.push(END_CONDITIONAL_TAG.into());
         // renderWrappedChildren()
@@ -295,34 +271,36 @@ impl MJSection<'_, '_> {
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
         {
-            let mut attrs = Properties::new();
+            let mut attrs = Attributes::new();
             if self.is_full_width() {
                 attrs.set("mso-width-percent", "1000");
             } else {
                 attrs.maybe_set(
                     "style",
-                    self.get_context("container-width")
-                        .and_then(|v| Some(format!("width:{};", v))),
+                    self.get_container_width()
+                        .and_then(|width| Some(format!("width:{};", width.to_string()))),
                 );
             }
             attrs.set("xmlns:v", "urn:schemas-microsoft-com:vml");
             attrs.set("fill", "true");
             attrs.set("stroke", "false");
-            res.push(open_tag!("v:rect", attrs.as_attributes()));
+            res.push(open_tag!("v:rect", attrs.to_string()));
         };
         {
-            let mut attrs = Properties::new();
+            let mut attrs = Attributes::new();
             attrs.set("origin", "0.5, 0");
             attrs.set("position", "0.5, 0");
             attrs.maybe_set("src", self.get_attribute("background-url"));
             attrs.maybe_set("color", self.get_attribute("background-color"));
             attrs.set("type", "tile");
-            res.push(closed_tag!("v:fill", attrs.as_attributes()));
+            res.push(closed_tag!("v:fill", attrs.to_string()));
         };
         res.push(open_tag!(
             "v:textbox",
-            ("style", "mso-fit-shape-to-text:true"),
-            ("inset", "0,0,0,0")
+            to_attributes!(
+                ("style", "mso-fit-shape-to-text:true"),
+                ("inset", "0,0,0,0")
+            )
         ));
         res.push(END_CONDITIONAL_TAG.into());
         res.push(content);
@@ -366,12 +344,94 @@ impl Component for MJSection<'_, '_> {
         }
     }
 
+    fn to_header(&self) -> Header {
+        let mut header = Header::new();
+        for child in self.children.iter() {
+            header.merge(&child.to_header());
+        }
+        header
+    }
+
+    fn get_style(&self, name: &str) -> Style {
+        let mut res = Style::new();
+        let bg_style = self.get_background_style();
+        match name {
+            "div" => {
+                if !self.is_full_width() {
+                    res.merge(&bg_style);
+                }
+                res.set("margin", "0px auto");
+                res.maybe_set("border-radius", self.get_attribute("border-radius"));
+                res.maybe_set("max-width", self.get_container_width_str());
+            }
+            "inner-div" => {
+                res.set("line-height", 0);
+                res.set("font-size", 0);
+            }
+            "table-full-width" => {
+                if self.is_full_width() {
+                    res.merge(&bg_style);
+                }
+                res.maybe_set("border-radius", self.get_attribute("border-radius"));
+                res.set("width", "100%");
+            }
+            "table" => {
+                if !self.is_full_width() {
+                    res.merge(&bg_style);
+                }
+                res.maybe_set("border-radius", self.get_attribute("border-radius"));
+                res.set("width", "100%");
+            }
+            "td" => {
+                res.maybe_set("border", self.get_attribute("border"));
+                res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
+                res.maybe_set("border-left", self.get_attribute("border-left"));
+                res.maybe_set("border-right", self.get_attribute("border-right"));
+                res.maybe_set("border-top", self.get_attribute("border-top"));
+                res.maybe_set("direction", self.get_attribute("direction"));
+                res.set("font-size", "0px");
+                res.maybe_set("padding", self.get_attribute("padding"));
+                res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
+                res.maybe_set("padding-left", self.get_attribute("padding-left"));
+                res.maybe_set("padding-right", self.get_attribute("padding-right"));
+                res.maybe_set("padding-top", self.get_attribute("padding-top"));
+                res.maybe_set("text-align", self.get_attribute("text-align"));
+            }
+            _ => (),
+        };
+        res
+    }
+
+    fn context(&self) -> Option<&Context> {
+        self.context.as_ref()
+    }
+
     fn node(&self) -> Option<Node> {
         Some(self.node)
     }
 
-    fn set_context(&mut self, ctx: Properties) {
-        self.context = Some(ctx);
+    fn set_context(&mut self, ctx: Context) {
+        self.context = Some(ctx.clone());
+        //
+        let sibling = self.children.len();
+        let raw_sibling = self
+            .children
+            .iter()
+            .filter(|item| match item {
+                Element::Raw(_) => true,
+                _ => false,
+            })
+            .collect::<Vec<&Element>>()
+            .len();
+        //
+        let container_width = self.get_container_width();
+        //
+        for (idx, child) in self.children.iter_mut().enumerate() {
+            let mut child_ctx =
+                Context::from(&ctx, container_width.clone(), sibling, raw_sibling, idx);
+            child_ctx.set("index", idx);
+            child.set_context(child_ctx);
+        }
     }
 
     fn render(&self) -> Result<String, Error> {
@@ -382,6 +442,8 @@ impl Component for MJSection<'_, '_> {
         }
     }
 }
+
+impl ContainedComponent for MJSection<'_, '_> {}
 
 #[cfg(test)]
 pub mod tests {

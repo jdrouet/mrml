@@ -1,0 +1,23 @@
+<mjml>
+  <mj-body background-color="red">
+    <mj-section background-color="orange">
+      <mj-column background-color="red">
+        <!-- Your first column -->
+      </mj-column>
+      <mj-column background-color="blue">
+        <!-- Your second column -->
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="green">
+      <mj-column>
+        <!-- Your first column -->
+      </mj-column>
+      <mj-column>
+        <!-- Your second column -->
+      </mj-column>
+      <mj-column>
+        <!-- Your third column -->
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
