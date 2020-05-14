@@ -49,5 +49,5 @@
     - [x] with border-radius
     - [x] with css-class
     - [x] with padding, padding-(top|right|bottom|left)
-    - [ ] with vertical-align
+    - [x] with vertical-align
     - [ ] with width (default: (100 / number of non-raw elements in section)%)

@@ -1,0 +1,15 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column vertical-align="top">
+        <!-- Your first column -->
+      </mj-column>
+      <mj-column vertical-align="middle">
+        <!-- Your second column -->
+      </mj-column>
+      <mj-column vertical-align="bottom">
+        <!-- Your third column -->
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

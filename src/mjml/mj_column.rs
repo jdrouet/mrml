@@ -329,4 +329,12 @@ pub mod tests {
             include_str!("../../test/mj-column-padding.html"),
         );
     }
+
+    #[test]
+    fn with_vertical_align() {
+        compare_render(
+            include_str!("../../test/mj-column-vertical-align.mjml"),
+            include_str!("../../test/mj-column-vertical-align.html"),
+        );
+    }
 }
