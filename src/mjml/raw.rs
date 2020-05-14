@@ -1,9 +1,10 @@
 use super::{Component, Error};
-use crate::util::Properties;
+use crate::util::Context;
 use roxmltree::Node;
 
+#[derive(Clone, Debug)]
 pub struct RawElement<'a, 'b> {
-    context: Option<Properties>,
+    context: Option<Context>,
     node: Node<'a, 'b>,
 }
 
@@ -17,11 +18,11 @@ impl RawElement<'_, '_> {
 }
 
 impl Component for RawElement<'_, '_> {
-    fn default_attribute(_key: &str) -> Option<String> {
-        None
+    fn context(&self) -> Option<&Context> {
+        self.context.as_ref()
     }
 
-    fn set_context(&mut self, ctx: Properties) {
+    fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx);
     }
 
@@ -32,9 +33,14 @@ impl Component for RawElement<'_, '_> {
     fn render(&self) -> Result<String, Error> {
         if self.node.is_text() {
             if let Some(txt) = self.node.text() {
-                Ok(txt.to_string())
+                Ok(txt.into())
             } else {
-                Ok("".to_string())
+                Ok("".into())
+            }
+        } else if self.node.is_comment() {
+            match self.node.text() {
+                Some(txt) => Ok(format!("<!--{}-->", txt)),
+                None => Ok("".into()),
             }
         } else {
             Ok("raw".into())

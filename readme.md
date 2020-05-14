@@ -43,7 +43,7 @@
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-align
   - [ ] mj-column
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] with background-color
     - [ ] with border, border-(top|right|bottom|left)
     - [ ] with border-radius
