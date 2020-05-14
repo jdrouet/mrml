@@ -19,10 +19,15 @@
 - components
   - [ ] mjml
     - [x] without attributes
-    - TBD
-  - [ ] mj-head
-    - [x] without attributes
-    - TBD
+    - [ ] with owa
+    - [ ] with lang
+  - [x] mj-head
+  - [ ] mj-attributes
+  - [ ] mj-breakpoint
+  - [ ] mj-font
+  - [ ] mj-preview
+  - [ ] mj-style
+  - [ ] mj-title
   - [x] mj-body
     - [x] without attributes
     - [x] with background-color
@@ -64,4 +69,19 @@
   - [ ] mj-spacer
   - [ ] mj-table
   - [ ] mj-text
+    - [ ] without attributes
+    - [ ] with color (default: #000000)
+    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [ ] with font-size (default: 13px)
+    - [ ] with font-style
+    - [ ] with font-weight
+    - [ ] with line-height (default: 1)
+    - [ ] with letter-spacing (default: none)
+    - [ ] with height
+    - [ ] with text-decoration
+    - [ ] with text-transform
+    - [ ] with align (default: left)
+    - [ ] with container-background-color
+    - [ ] with padding (default: 10px 25px), padding-(top|right|bottom|left)
+    - [ ] with css-class
   - [ ] mj-wrapper
