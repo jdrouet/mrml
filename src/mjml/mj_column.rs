@@ -321,4 +321,12 @@ pub mod tests {
             include_str!("../../test/mj-column-class.html"),
         );
     }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../test/mj-column-padding.mjml"),
+            include_str!("../../test/mj-column-padding.html"),
+        );
+    }
 }
