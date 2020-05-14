@@ -46,7 +46,7 @@
     - [x] without attributes
     - [x] with background-color
     - [x] with border, border-(top|right|bottom|left)
-    - [ ] with border-radius
+    - [x] with border-radius
     - [ ] with css-class
     - [ ] with padding, padding-(top|right|bottom|left)
     - [ ] with vertical-align

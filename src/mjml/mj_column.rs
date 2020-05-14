@@ -305,4 +305,12 @@ pub mod tests {
             include_str!("../../test/mj-column-border.html"),
         );
     }
+
+    #[test]
+    fn with_border_radius() {
+        compare_render(
+            include_str!("../../test/mj-column-border-radius.mjml"),
+            include_str!("../../test/mj-column-border-radius.html"),
+        );
+    }
 }
