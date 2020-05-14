@@ -44,7 +44,7 @@
     - [x] with text-align
   - [ ] mj-column
     - [x] without attributes
-    - [ ] with background-color
+    - [x] with background-color
     - [ ] with border, border-(top|right|bottom|left)
     - [ ] with border-radius
     - [ ] with css-class

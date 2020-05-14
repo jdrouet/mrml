@@ -52,12 +52,12 @@ impl MJColumn<'_, '_> {
             Size::Percent(value) => format!("mj-column-per-{}", value),
             _ => format!("mj-column-px-{}", parsed_width.value()),
         };
-        Some((classname, parsed_width))
+        Some((classname.replace(".", "-"), parsed_width))
     }
 
     fn get_mobile_width(&self) -> Option<Size> {
         if self.get_attribute("mobile-width") != Some("mobile_width".into()) {
-            return Some(Size::Percent(100));
+            return Some(Size::Percent(100.0));
         }
         let width = self
             .get_attribute("width")
@@ -66,7 +66,7 @@ impl MJColumn<'_, '_> {
             return self
                 .context()
                 .and_then(|ctx| Some(ctx.non_raw_siblings()))
-                .and_then(|count| Some(Size::Percent(100 / count)));
+                .and_then(|count| Some(Size::Percent(100.0 / (count as f32))));
         }
         return width.and_then(|width| match width {
             Size::Percent(_) => Some(width),
@@ -88,7 +88,7 @@ impl MJColumn<'_, '_> {
             .and_then(|width| width.parse::<Size>().ok())
         {
             Some(size) => size,
-            None => Size::Percent(100 / non_raw_siblings),
+            None => Size::Percent(100.0 / (non_raw_siblings as f32)),
         }
     }
 
@@ -100,7 +100,7 @@ impl MJColumn<'_, '_> {
         let container_width = container_width.unwrap();
         let parsed_width = self.get_parsed_width();
         let result = match parsed_width {
-            Size::Percent(value) => Size::Pixel(container_width.value() * value / 100),
+            Size::Percent(value) => Size::Pixel(container_width.value() * value / 100.0),
             _ => parsed_width,
         };
         result.to_string()
@@ -287,6 +287,14 @@ pub mod tests {
         compare_render(
             include_str!("../../test/mj-column.mjml"),
             include_str!("../../test/mj-column.html"),
+        );
+    }
+
+    #[test]
+    fn background_color() {
+        compare_render(
+            include_str!("../../test/mj-column-background-color.mjml"),
+            include_str!("../../test/mj-column-background-color.html"),
         );
     }
 }

@@ -93,7 +93,10 @@ impl MJHead<'_, '_> {
         let mut res = vec![];
         res.push(open_tag!("style", to_attributes!(("type", "text/css"))));
         res.push(format!("@media only screen and (min-width:{}) {{ ", breakpoint));
-        for (classname, size) in self.header.get_media_queries().iter() {
+        let mut classnames: Vec<&String> = self.header.get_media_queries().keys().collect();
+        classnames.sort();
+        for classname in classnames.iter() {
+            let size = self.header.get_media_queries().get(classname.clone()).unwrap();
             res.push(format!(".{} {{ width:{} !important; max-width: {}; }}", classname, size.to_string(), size.to_string()));
         }
         res.push("}".into());

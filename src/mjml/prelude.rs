@@ -53,6 +53,6 @@ pub trait ContainedComponent: Component {
 
     fn get_container_width_value(&self) -> Option<usize> {
         self.get_container_width()
-            .and_then(|width| Some(width.value()))
+            .and_then(|width| Some(width.value() as usize))
     }
 }
