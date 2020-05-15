@@ -219,4 +219,12 @@ pub mod tests {
             include_str!("../../test/mj-text-line-height.html"),
         );
     }
+
+    #[test]
+    fn with_letter_spacing() {
+        compare_render(
+            include_str!("../../test/mj-text-letter-spacing.mjml"),
+            include_str!("../../test/mj-text-letter-spacing.html"),
+        );
+    }
 }

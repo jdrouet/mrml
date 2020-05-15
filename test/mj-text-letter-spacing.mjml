@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text letter-spacing="3px">
+          with letter spacing
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
