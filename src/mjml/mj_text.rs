@@ -251,4 +251,12 @@ pub mod tests {
             include_str!("../../test/mj-text-transform.html"),
         );
     }
+
+    #[test]
+    fn with_align() {
+        compare_render(
+            include_str!("../../test/mj-text-align.mjml"),
+            include_str!("../../test/mj-text-align.html"),
+        );
+    }
 }

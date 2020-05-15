@@ -81,7 +81,7 @@
     - [x] with height
     - [x] with text-decoration
     - [x] with text-transform
-    - [ ] with align (default: left)
+    - [x] with align (default: left)
     - [ ] with container-background-color
     - [ ] with padding (default: 10px 25px), padding-(top|right|bottom|left)
     - [ ] with css-class
