@@ -203,4 +203,12 @@ pub mod tests {
             include_str!("../../test/mj-text-font-size.html"),
         );
     }
+
+    #[test]
+    fn with_font_style() {
+        compare_render(
+            include_str!("../../test/mj-text-font-style.mjml"),
+            include_str!("../../test/mj-text-font-style.html"),
+        );
+    }
 }

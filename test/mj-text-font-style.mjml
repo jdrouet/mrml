@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-style="oblique">
+          with font style
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
