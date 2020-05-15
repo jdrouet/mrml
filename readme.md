@@ -83,6 +83,6 @@
     - [x] with text-transform
     - [x] with align (default: left)
     - [x] with container-background-color
-    - [ ] with padding (default: 10px 25px), padding-(top|right|bottom|left)
+    - [x] with padding (default: 10px 25px), padding-(top|right|bottom|left)
     - [ ] with css-class
   - [ ] mj-wrapper

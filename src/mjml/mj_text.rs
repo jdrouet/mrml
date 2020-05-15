@@ -267,4 +267,12 @@ pub mod tests {
             include_str!("../../test/mj-text-container-background-color.html"),
         );
     }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../test/mj-text-padding.mjml"),
+            include_str!("../../test/mj-text-padding.html"),
+        );
+    }
 }

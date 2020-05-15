@@ -1,0 +1,35 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text padding="1px">
+          with padding
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column>
+        <mj-text padding-top="2px">
+          with padding-top
+        </mj-text>
+      </mj-column>
+      <mj-column>
+        <mj-text padding-bottom="3px">
+          with padding-bottom
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column>
+        <mj-text padding-left="4px">
+          with padding-left
+        </mj-text>
+      </mj-column>
+      <mj-column>
+        <mj-text padding-right="5px">
+          with padding-right
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
