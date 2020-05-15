@@ -187,4 +187,12 @@ pub mod tests {
             include_str!("../../test/mj-text-color.html"),
         );
     }
+
+    #[test]
+    fn with_font_family() {
+        compare_render(
+            include_str!("../../test/mj-text-font-family.mjml"),
+            include_str!("../../test/mj-text-font-family.html"),
+        );
+    }
 }

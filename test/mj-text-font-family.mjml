@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-family="Roboto, Helvetica, Arial, sans-serif">
+          with font family
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
