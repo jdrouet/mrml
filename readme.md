@@ -71,7 +71,7 @@
   - [ ] mj-text
     - [x] without attributes
     - [x] mjml documentation example
-    - [ ] with color (default: #000000)
+    - [x] with color (default: #000000)
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)
     - [ ] with font-style

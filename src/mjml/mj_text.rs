@@ -179,4 +179,12 @@ pub mod tests {
             include_str!("../../test/mj-text-example.html"),
         );
     }
+
+    #[test]
+    fn with_color() {
+        compare_render(
+            include_str!("../../test/mj-text-color.mjml"),
+            include_str!("../../test/mj-text-color.html"),
+        );
+    }
 }
