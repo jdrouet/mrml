@@ -80,7 +80,7 @@
     - [x] with letter-spacing (default: none)
     - [x] with height
     - [x] with text-decoration
-    - [ ] with text-transform
+    - [x] with text-transform
     - [ ] with align (default: left)
     - [ ] with container-background-color
     - [ ] with padding (default: 10px 25px), padding-(top|right|bottom|left)

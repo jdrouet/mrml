@@ -243,4 +243,12 @@ pub mod tests {
             include_str!("../../test/mj-text-decoration.html"),
         );
     }
+
+    #[test]
+    fn with_transform() {
+        compare_render(
+            include_str!("../../test/mj-text-transform.mjml"),
+            include_str!("../../test/mj-text-transform.html"),
+        );
+    }
 }
