@@ -84,5 +84,5 @@
     - [x] with align (default: left)
     - [x] with container-background-color
     - [x] with padding (default: 10px 25px), padding-(top|right|bottom|left)
-    - [ ] with css-class
+    - [x] with css-class
   - [ ] mj-wrapper

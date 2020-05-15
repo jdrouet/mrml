@@ -275,4 +275,12 @@ pub mod tests {
             include_str!("../../test/mj-text-padding.html"),
         );
     }
+
+    #[test]
+    fn with_css_class() {
+        compare_render(
+            include_str!("../../test/mj-text-class.mjml"),
+            include_str!("../../test/mj-text-class.html"),
+        );
+    }
 }
