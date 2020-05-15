@@ -1,6 +1,8 @@
 use super::{Component, Error};
 use crate::util::{Context, Header};
-use crate::{close_tag, open_tag, to_attributes};
+use crate::util::condition::{START_MSO_NEGATION_CONDITIONAL_TAG, END_NEGATION_CONDITIONAL_TAG};
+use crate::util::fonts::{url_to_import, url_to_link};
+use crate::{close_tag, open_tag, to_attributes, with_tag};
 use log::debug;
 use roxmltree::Node;
 
@@ -91,17 +93,60 @@ impl MJHead<'_, '_> {
             return "".into();
         }
         let mut res = vec![];
-        res.push(open_tag!("style", to_attributes!(("type", "text/css"))));
-        res.push(format!("@media only screen and (min-width:{}) {{ ", breakpoint));
+        res.push(format!(
+            "@media only screen and (min-width:{}) {{ ",
+            breakpoint
+        ));
         let mut classnames: Vec<&String> = self.header.get_media_queries().keys().collect();
         classnames.sort();
         for classname in classnames.iter() {
-            let size = self.header.get_media_queries().get(classname.clone()).unwrap();
-            res.push(format!(".{} {{ width:{} !important; max-width: {}; }}", classname, size.to_string(), size.to_string()));
+            let size = self
+                .header
+                .get_media_queries()
+                .get(classname.clone())
+                .unwrap();
+            res.push(format!(
+                ".{} {{ width:{} !important; max-width: {}; }}",
+                classname,
+                size.to_string(),
+                size.to_string()
+            ));
         }
         res.push("}".into());
+        with_tag!(
+            "style",
+            to_attributes!(("type", "text/css")),
+            res.join("\n")
+        )
+    }
+
+    fn get_font_families(&self) -> String {
+        let ctx = match self.context() {
+            Some(ctx) => ctx,
+            None => return "".into(),
+        };
+        let fonts = self.header.get_font_families();
+        if fonts.is_empty() {
+            return "".into();
+        }
+        let mut res = vec![];
+        res.push(START_MSO_NEGATION_CONDITIONAL_TAG.into());
+        for font in fonts.iter() {
+            match ctx.options().fonts.get(&font) {
+                Some(url) => res.push(url_to_link(url.as_str())),
+                None => (),
+            };
+        }
+        res.push(open_tag!("style", to_attributes!(("type", "text/css"))));
+        for font in fonts.iter() {
+            match ctx.options().fonts.get(&font) {
+                Some(url) => res.push(url_to_import(url.as_str())),
+                None => (),
+            };
+        }
         res.push(close_tag!("style"));
-        res.join("\n")
+        res.push(END_NEGATION_CONDITIONAL_TAG.into());
+        res.join("")
     }
 }
 
@@ -146,6 +191,7 @@ impl Component for MJHead<'_, '_> {
             )
         ));
         res.push(STYLE_BASE.into());
+        res.push(self.get_font_families());
         res.push(self.get_media_queries());
         res.push(close_tag!("head"));
         Ok(res.join(""))

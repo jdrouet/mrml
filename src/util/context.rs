@@ -1,10 +1,12 @@
 use super::prelude::PropertyMap;
 use super::size::Size;
+use crate::Options;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct Context {
     inner: HashMap<String, String>,
+    options: Options,
     container_width: Option<Size>,
     siblings: usize,
     raw_siblings: usize,
@@ -22,11 +24,12 @@ impl PropertyMap for Context {
 }
 
 impl Context {
-    pub fn default() -> Self {
-        Self::new(None, 1, 0, 0)
+    pub fn default(options: Options) -> Self {
+        Self::new(options, None, 1, 0, 0)
     }
 
     pub fn new(
+        options: Options,
         container_width: Option<Size>,
         siblings: usize,
         raw_siblings: usize,
@@ -34,6 +37,7 @@ impl Context {
     ) -> Self {
         Self {
             inner: HashMap::new(),
+            options,
             container_width,
             siblings,
             raw_siblings,
@@ -53,6 +57,7 @@ impl Context {
         index: usize,
     ) -> Self {
         let mut ctx = Self {
+            options: other.options.clone(),
             inner: HashMap::new(),
             container_width,
             siblings,
@@ -61,6 +66,10 @@ impl Context {
         };
         ctx.merge(other);
         ctx
+    }
+
+    pub fn options(&self) -> &Options {
+        &self.options
     }
 
     pub fn container_width(&self) -> Option<Size> {

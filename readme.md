@@ -69,7 +69,7 @@
   - [ ] mj-spacer
   - [ ] mj-table
   - [ ] mj-text
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] with color (default: #000000)
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)
