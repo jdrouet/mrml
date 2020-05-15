@@ -227,4 +227,12 @@ pub mod tests {
             include_str!("../../test/mj-text-letter-spacing.html"),
         );
     }
+
+    #[test]
+    fn with_height() {
+        compare_render(
+            include_str!("../../test/mj-text-height.mjml"),
+            include_str!("../../test/mj-text-height.html"),
+        );
+    }
 }

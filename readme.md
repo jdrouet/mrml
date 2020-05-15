@@ -78,7 +78,7 @@
     - [x] with font-weight
     - [x] with line-height (default: 1)
     - [x] with letter-spacing (default: none)
-    - [ ] with height
+    - [x] with height
     - [ ] with text-decoration
     - [ ] with text-transform
     - [ ] with align (default: left)
