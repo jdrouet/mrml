@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text text-decoration="underline">
+          with text decoration
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

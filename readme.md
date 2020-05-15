@@ -79,7 +79,7 @@
     - [x] with line-height (default: 1)
     - [x] with letter-spacing (default: none)
     - [x] with height
-    - [ ] with text-decoration
+    - [x] with text-decoration
     - [ ] with text-transform
     - [ ] with align (default: left)
     - [ ] with container-background-color

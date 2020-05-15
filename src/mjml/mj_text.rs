@@ -235,4 +235,12 @@ pub mod tests {
             include_str!("../../test/mj-text-height.html"),
         );
     }
+
+    #[test]
+    fn with_decoration() {
+        compare_render(
+            include_str!("../../test/mj-text-decoration.mjml"),
+            include_str!("../../test/mj-text-decoration.html"),
+        );
+    }
 }
