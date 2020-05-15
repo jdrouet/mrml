@@ -153,6 +153,33 @@ impl MJColumn<'_, '_> {
         Ok(res.join(""))
     }
 
+    fn render_mj_child(&self, child: &Element) -> Result<String, Error> {
+        let mut res = vec![];
+        res.push(open_tag!("tr"));
+        let mut style = Style::new();
+        style.maybe_set(
+            "background",
+            child.get_attribute("container-background-color"),
+        );
+        style.set("font-size", "0px");
+        style.maybe_set("padding", child.get_attribute("padding"));
+        style.maybe_set("padding-top", child.get_attribute("padding-top"));
+        style.maybe_set("padding-right", child.get_attribute("padding-right"));
+        style.maybe_set("padding-bottom", child.get_attribute("padding-bottom"));
+        style.maybe_set("padding-left", child.get_attribute("padding-left"));
+        style.set("word-break", "break-word");
+        let mut attrs = Attributes::new();
+        attrs.maybe_set("align", child.get_attribute("align"));
+        attrs.maybe_set("vertical-align", child.get_attribute("vertical-align"));
+        attrs.maybe_set("class", child.get_attribute("css-class"));
+        attrs.set("style", style.to_string());
+        res.push(open_tag!("td", attrs.to_string()));
+        res.push(child.render()?);
+        res.push(close_tag!("td"));
+        res.push(close_tag!("tr"));
+        Ok(res.join(""))
+    }
+
     fn render_column(&self) -> Result<String, Error> {
         let mut res = vec![];
         res.push(open_tag!(
@@ -169,7 +196,7 @@ impl MJColumn<'_, '_> {
         for child in self.children.iter() {
             match child {
                 Element::Raw(_) => res.push(child.render()?),
-                _ => (),
+                _ => res.push(self.render_mj_child(&child)?),
             };
         }
         res.push(close_tag!("table"));
@@ -199,6 +226,9 @@ impl Component for MJColumn<'_, '_> {
         let mut header = Header::new();
         if let Some((classname, size)) = self.get_column_class() {
             header.add_media_query(classname, size);
+        }
+        for child in self.children.iter() {
+            header.merge(&child.to_header());
         }
         header
     }

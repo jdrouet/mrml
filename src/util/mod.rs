@@ -1,6 +1,7 @@
 mod attributes;
 pub mod condition;
 mod context;
+pub mod fonts;
 mod header;
 pub mod prelude;
 mod properties;

@@ -1,10 +1,8 @@
 #[macro_export]
 macro_rules! open_tag {
-    ($name:expr, $attributes:expr) => {
-        {
-            format!("<{} {}>", $name, $attributes)
-        }
-    };
+    ($name:expr, $attributes:expr) => {{
+        format!("<{} {}>", $name, $attributes)
+    }};
     ($name:expr) => {
         format!("<{}>", $name)
     };
@@ -12,11 +10,9 @@ macro_rules! open_tag {
 
 #[macro_export]
 macro_rules! closed_tag {
-    ($name:expr, $attributes:expr) => {
-        {
-            format!("<{} {} />", $name, $attributes)
-        }
-    };
+    ($name:expr, $attributes:expr) => {{
+        format!("<{} {} />", $name, $attributes)
+    }};
     ($name:expr) => {
         format!("<{} />", $name)
     };
@@ -52,5 +48,15 @@ macro_rules! to_attributes {
             )*
             res.join(" ")
         }
+    };
+}
+
+#[macro_export]
+macro_rules! with_tag {
+    ($name:expr, $content:expr) => {
+        format!("<{}>{}</{}>", $name, $content, $name)
+    };
+    ($name:expr, $attributes:expr, $content:expr) => {
+        format!("<{} {}>{}</{}>", $name, $attributes, $content, $name)
     };
 }

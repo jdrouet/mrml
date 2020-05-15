@@ -11,12 +11,28 @@ pub mod util;
 
 pub use error::Error;
 use mjml::prelude::Component;
+use util::fonts::FontRegistry;
 
-pub fn to_html(input: &str) -> Result<String, Error> {
+#[derive(Clone, Debug)]
+pub struct Options {
+    pub fonts: FontRegistry,
+    pub keep_comments: bool,
+}
+
+impl Options {
+    pub fn default() -> Self {
+        Self {
+            fonts: FontRegistry::default(),
+            keep_comments: true,
+        }
+    }
+}
+
+pub fn to_html(input: &str, options: Options) -> Result<String, Error> {
     let doc = Document::parse(input)?;
     let root = doc.root_element();
     let mut element = mjml::Element::parse(root)?;
-    element.set_context(util::Context::default());
+    element.set_context(util::Context::default(options));
     Ok(element.render()?)
 }
 
@@ -33,7 +49,7 @@ pub mod tests {
     }
 
     pub fn compare_render(source: &str, expected: &str) {
-        let result = to_html(source);
+        let result = to_html(source, Options::default());
         assert_eq!(result.is_ok(), true);
         let result = clean_str(result.unwrap());
         let expected = clean_str(expected.into());

@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text css-class="testing">
+          with css class
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
