@@ -75,7 +75,7 @@
     - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [x] with font-size (default: 13px)
     - [x] with font-style
-    - [ ] with font-weight
+    - [x] with font-weight
     - [ ] with line-height (default: 1)
     - [ ] with letter-spacing (default: none)
     - [ ] with height

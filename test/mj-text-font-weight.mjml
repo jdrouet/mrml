@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-weight="bolder">
+          with font weight
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
