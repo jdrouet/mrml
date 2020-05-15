@@ -259,4 +259,12 @@ pub mod tests {
             include_str!("../../test/mj-text-align.html"),
         );
     }
+
+    #[test]
+    fn with_container_background_color() {
+        compare_render(
+            include_str!("../../test/mj-text-container-background-color.mjml"),
+            include_str!("../../test/mj-text-container-background-color.html"),
+        );
+    }
 }
