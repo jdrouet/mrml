@@ -11,19 +11,8 @@ jobs:
     docker:
       - image: jdrouet/rust-nightly:buster-slim
     steps:
+      - run: apt-get update && apt-get install -y curl
       - checkout
       - run: cargo install grcov
-      - run:
-          command: cargo build --verbose $CARGO_OPTIONS
-          environment:
-            CARGO_INCREMENTAL: "0"
-            RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort"
-            RUSTDOCFLAGS: "-Cpanic=abort"
-      - run:
-          command: cargo test --verbose $CARGO_OPTIONS
-          environment:
-            CARGO_INCREMENTAL: "0"
-            RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort"
-            RUSTDOCFLAGS: "-Cpanic=abort"
-      - run: grcov ./target/debug -t coveralls -s . --token $CODECOV_TOKEN > coveralls.json
-      - run: bash <(curl -s https://codecov.io/bash) -f coveralls.json
+      - run: bash script/run-coverage.sh
+      - run: bash script/push-coverage.sh
