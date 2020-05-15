@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text line-height="42">
+          with line height
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

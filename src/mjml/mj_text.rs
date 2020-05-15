@@ -211,4 +211,12 @@ pub mod tests {
             include_str!("../../test/mj-text-font-style.html"),
         );
     }
+
+    #[test]
+    fn with_line_height() {
+        compare_render(
+            include_str!("../../test/mj-text-line-height.mjml"),
+            include_str!("../../test/mj-text-line-height.html"),
+        );
+    }
 }
