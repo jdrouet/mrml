@@ -57,11 +57,9 @@ impl MJText<'_, '_> {
             "div",
             to_attributes!(("style", style.to_string()))
         ));
-        // TODO
-        match self.node.text() {
-            Some(content) => res.push(content.trim().to_string()),
-            None => (),
-        };
+        for child in self.children.iter() {
+            res.push(child.render()?);
+        }
         res.push(close_tag!("div"));
         Ok(res.join(""))
     }
@@ -171,6 +169,14 @@ pub mod tests {
         compare_render(
             include_str!("../../test/mj-text.mjml"),
             include_str!("../../test/mj-text.html"),
+        );
+    }
+
+    #[test]
+    fn doc_example() {
+        compare_render(
+            include_str!("../../test/mj-text-example.mjml"),
+            include_str!("../../test/mj-text-example.html"),
         );
     }
 }
