@@ -177,10 +177,6 @@ impl Component for MJHead<'_, '_> {
         self.context = Some(ctx);
     }
 
-    fn is_raw(&self) -> bool {
-        false
-    }
-
     fn render(&self) -> Result<String, Error> {
         debug!("render");
         let mut res: Vec<String> = vec![];

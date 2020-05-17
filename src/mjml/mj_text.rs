@@ -111,10 +111,6 @@ impl Component for MJText<'_, '_> {
         }
     }
 
-    fn is_raw(&self) -> bool {
-        false
-    }
-
     fn to_header(&self) -> Header {
         let mut header = Header::new();
         header.maybe_add_font_families(self.get_attribute("font-family"));

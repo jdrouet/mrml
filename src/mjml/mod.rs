@@ -70,13 +70,6 @@ impl Component for Element<'_, '_> {
     fn render(&self) -> Result<String, Error> {
         apply_fn!(self, render())
     }
-
-    fn is_raw(&self) -> bool {
-        match self {
-            Element::Raw(_) => true,
-            _ => false,
-        }
-    }
 }
 
 impl Element<'_, '_> {

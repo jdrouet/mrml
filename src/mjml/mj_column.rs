@@ -311,10 +311,6 @@ impl Component for MJColumn<'_, '_> {
         res.push(close_tag!("div"));
         Ok(res.join(""))
     }
-
-    fn is_raw(&self) -> bool {
-        false
-    }
 }
 
 impl ComponentWithChildren for MJColumn<'_, '_> {

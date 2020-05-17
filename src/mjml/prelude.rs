@@ -41,8 +41,6 @@ pub trait Component {
     fn set_context(&mut self, ctx: Context);
 
     fn render(&self) -> Result<String, Error>;
-
-    fn is_raw(&self) -> bool;
 }
 
 pub trait ComponentWithSizeAttribute: Component {
@@ -207,8 +205,9 @@ pub trait ComponentWithChildren: Component {
     }
 
     fn get_raw_siblings(&self) -> usize {
-        self.get_children()
-            .iter()
-            .fold(0, |res, item| if item.is_raw() { res + 1 } else { res })
+        self.get_children().iter().fold(0, |res, item| match item {
+            Element::Raw(_) => res + 1,
+            _ => res,
+        })
     }
 }

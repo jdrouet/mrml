@@ -59,10 +59,6 @@ impl Component for MJMLElement<'_, '_> {
         Some(self.node)
     }
 
-    fn is_raw(&self) -> bool {
-        false
-    }
-
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
         // TODO

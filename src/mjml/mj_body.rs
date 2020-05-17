@@ -131,10 +131,6 @@ impl Component for MJBody<'_, '_> {
         res.push(close_tag!("body"));
         Ok(res.join(""))
     }
-
-    fn is_raw(&self) -> bool {
-        false
-    }
 }
 
 impl ComponentWithSizeAttribute for MJBody<'_, '_> {}
