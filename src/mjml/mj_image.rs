@@ -318,4 +318,12 @@ pub mod tests {
             include_str!("../../test/mj-image-height.html"),
         );
     }
+
+    #[test]
+    fn with_href() {
+        compare_render(
+            include_str!("../../test/mj-image-href.mjml"),
+            include_str!("../../test/mj-image-href.html"),
+        );
+    }
 }

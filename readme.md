@@ -57,7 +57,7 @@
     - [x] with css-class
     - [x] with fluid-on-mobile
     - [x] with height
-    - [ ] with href
+    - [x] with href
     - [ ] with padding, padding-(top|right|bottom|left)
     - [ ] with rel
     - [x] with src
