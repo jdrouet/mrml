@@ -53,7 +53,7 @@
     - [x] with align
     - [x] with border
     - [x] with border-radius
-    - [ ] with container-background-color
+    - [x] with container-background-color
     - [ ] with css-class
     - [ ] with fluid-on-mobile
     - [ ] with height
