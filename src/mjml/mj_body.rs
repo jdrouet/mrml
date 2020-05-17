@@ -1,26 +1,29 @@
-use super::{Component, Element, Error};
 use super::prelude::*;
+use super::{Component, Element, Error};
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Style};
 use crate::{close_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const ALLOWED_ATTRIBUTES: [&'static str; 3] = ["background-color", "css-class", "width"];
 
 #[derive(Clone, Debug)]
 pub struct MJBody<'a, 'b> {
-    node: Option<Node<'a, 'b>>,
+    attributes: HashMap<String, String>,
     context: Option<Context>,
     children: Vec<Element<'a, 'b>>,
+    exists: bool,
 }
 
 impl MJBody<'_, '_> {
     pub fn empty<'a, 'b>() -> MJBody<'a, 'b> {
         MJBody {
-            node: None,
+            attributes: HashMap::new(),
             children: vec![],
             context: None,
+            exists: false,
         }
     }
 
@@ -30,9 +33,10 @@ impl MJBody<'_, '_> {
             children.push(Element::parse(child)?);
         }
         Ok(MJBody {
-            node: Some(node),
+            attributes: get_node_attributes(&node),
             children,
             context: None,
+            exists: true,
         })
     }
 }
@@ -40,6 +44,10 @@ impl MJBody<'_, '_> {
 impl Component for MJBody<'_, '_> {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
+    }
+
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
     }
 
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
@@ -74,10 +82,6 @@ impl Component for MJBody<'_, '_> {
             _ => (),
         };
         res
-    }
-
-    fn node(&self) -> Option<Node> {
-        self.node
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -118,7 +122,7 @@ impl Component for MJBody<'_, '_> {
             }
             res.push(open_tag!("body", attrs.to_string()));
         }
-        if self.node.is_some() {
+        if self.exists {
             let mut attrs = Attributes::new();
             attrs.maybe_set("class", self.get_attribute("css-class"));
             attrs.set("style", self.get_style("div").to_string());

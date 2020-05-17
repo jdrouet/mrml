@@ -6,6 +6,7 @@ use crate::util::{Attributes, Context, Header, Size, Style};
 use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const ALLOWED_ATTRIBUTES: [&'static str; 16] = [
     "background-color",
@@ -28,8 +29,8 @@ const ALLOWED_ATTRIBUTES: [&'static str; 16] = [
 
 #[derive(Clone, Debug)]
 pub struct MJColumn<'a, 'b> {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
-    node: Node<'a, 'b>,
     children: Vec<Element<'a, 'b>>,
 }
 
@@ -40,8 +41,8 @@ impl MJColumn<'_, '_> {
             children.push(Element::parse(child)?);
         }
         Ok(MJColumn {
+            attributes: get_node_attributes(&node),
             context: None,
-            node,
             children,
         })
     }
@@ -213,6 +214,10 @@ impl Component for MJColumn<'_, '_> {
         }
     }
 
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
+    }
+
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }
@@ -267,10 +272,6 @@ impl Component for MJColumn<'_, '_> {
             _ => (),
         };
         res
-    }
-
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
     }
 
     fn set_context(&mut self, ctx: Context) {

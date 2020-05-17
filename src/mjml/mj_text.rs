@@ -1,5 +1,5 @@
 use super::error::Error;
-use super::prelude::{Component, ContainedComponent};
+use super::prelude::{Component, ContainedComponent, get_node_attributes};
 use super::Element;
 use crate::util::condition::*;
 use crate::util::prelude::PropertyMap;
@@ -7,6 +7,7 @@ use crate::util::{Context, Header, Style};
 use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const ALLOWED_ATTRIBUTES: [&'static str; 19] = [
     "color",
@@ -32,8 +33,8 @@ const ALLOWED_ATTRIBUTES: [&'static str; 19] = [
 
 #[derive(Clone, Debug)]
 pub struct MJText<'a, 'b> {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
-    node: Node<'a, 'b>,
     children: Vec<Element<'a, 'b>>,
 }
 
@@ -44,8 +45,8 @@ impl MJText<'_, '_> {
             children.push(Element::parse(child)?);
         }
         Ok(MJText {
+            attributes: get_node_attributes(&node),
             context: None,
-            node,
             children,
         })
     }
@@ -111,6 +112,10 @@ impl Component for MJText<'_, '_> {
         }
     }
 
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
+    }
+
     fn to_header(&self) -> Header {
         let mut header = Header::new();
         header.maybe_add_font_families(self.get_attribute("font-family"));
@@ -140,10 +145,6 @@ impl Component for MJText<'_, '_> {
 
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
-    }
-
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
     }
 
     fn set_context(&mut self, ctx: Context) {

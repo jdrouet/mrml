@@ -4,6 +4,7 @@ use super::{Component, Error};
 use crate::util::Context;
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const DOCTYPE: &str = "<!doctype html>";
 const HTML_OPEN: &str = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">";
@@ -12,12 +13,12 @@ const HTML_CLOSE: &str = "</html>";
 #[derive(Clone, Debug)]
 pub struct MJMLElement<'a, 'b> {
     context: Option<Context>,
-    head: MJHead<'a, 'b>,
+    head: MJHead,
     body: MJBody<'a, 'b>,
     node: Node<'a, 'b>,
 }
 
-fn get_head<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead<'a, 'b>, Error> {
+fn get_head<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-head" {
             return MJHead::parse(child);
@@ -55,8 +56,8 @@ impl Component for MJMLElement<'_, '_> {
         self.context.as_ref()
     }
 
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        None
     }
 
     fn set_context(&mut self, ctx: Context) {

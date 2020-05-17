@@ -7,6 +7,7 @@ use crate::util::{Attributes, Context, Header, Size, Style};
 use crate::{close_tag, closed_tag, open_tag, with_tag};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const ALLOWED_ATTRIBUTES: [&'static str; 29] = [
     "css-class",
@@ -41,16 +42,16 @@ const ALLOWED_ATTRIBUTES: [&'static str; 29] = [
 ];
 
 #[derive(Clone, Debug)]
-pub struct MJImage<'a, 'b> {
+pub struct MJImage {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
-    node: Node<'a, 'b>,
 }
 
-impl MJImage<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJImage<'a, 'b>, Error> {
+impl MJImage {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJImage, Error> {
         Ok(MJImage {
+            attributes: get_node_attributes(&node),
             context: None,
-            node,
         })
     }
 
@@ -118,7 +119,7 @@ impl MJImage<'_, '_> {
     }
 }
 
-impl Component for MJImage<'_, '_> {
+impl Component for MJImage {
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
@@ -134,6 +135,10 @@ impl Component for MJImage<'_, '_> {
             "font-size" => Some("13px".into()),
             _ => None,
         }
+    }
+
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
     }
 
     fn to_header(&self) -> Header {
@@ -196,10 +201,6 @@ impl Component for MJImage<'_, '_> {
         self.context.as_ref()
     }
 
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
-    }
-
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
     }
@@ -241,11 +242,11 @@ impl Component for MJImage<'_, '_> {
     }
 }
 
-impl ContainedComponent for MJImage<'_, '_> {}
-impl ComponentWithSizeAttribute for MJImage<'_, '_> {}
-impl ComponentWithBorder for MJImage<'_, '_> {}
-impl ComponentWithPadding for MJImage<'_, '_> {}
-impl ComponentWithBoxWidths for MJImage<'_, '_> {}
+impl ContainedComponent for MJImage {}
+impl ComponentWithSizeAttribute for MJImage {}
+impl ComponentWithBorder for MJImage {}
+impl ComponentWithPadding for MJImage {}
+impl ComponentWithBoxWidths for MJImage {}
 
 #[cfg(test)]
 pub mod tests {

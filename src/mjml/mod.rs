@@ -1,5 +1,6 @@
 use crate::util::{Context, Header, Style};
 use roxmltree::Node;
+use std::collections::HashMap;
 
 pub mod error;
 mod mj_body;
@@ -20,8 +21,8 @@ pub enum Element<'a, 'b> {
     MJML(mjml::MJMLElement<'a, 'b>),
     MJBody(mj_body::MJBody<'a, 'b>),
     MJColumn(mj_column::MJColumn<'a, 'b>),
-    MJHead(mj_head::MJHead<'a, 'b>),
-    MJImage(mj_image::MJImage<'a, 'b>),
+    MJHead(mj_head::MJHead),
+    MJImage(mj_image::MJImage),
     MJSection(mj_section::MJSection<'a, 'b>),
     MJText(mj_text::MJText<'a, 'b>),
     Raw(raw::RawElement<'a, 'b>),
@@ -43,8 +44,8 @@ macro_rules! apply_fn {
 }
 
 impl Component for Element<'_, '_> {
-    fn node(&self) -> Option<Node> {
-        apply_fn!(self, node())
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        apply_fn!(self, source_attributes())
     }
 
     fn to_header(&self) -> Header {

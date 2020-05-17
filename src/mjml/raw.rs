@@ -1,11 +1,14 @@
 use super::{Component, Element, Error};
+use super::prelude::get_node_attributes;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context};
-use crate::{open_tag, close_tag};
+use crate::{close_tag, open_tag};
 use roxmltree::Node;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct RawElement<'a, 'b> {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
     node: Node<'a, 'b>,
     children: Vec<Element<'a, 'b>>,
@@ -22,6 +25,7 @@ impl RawElement<'_, '_> {
             children.push(Element::parse(child)?);
         }
         Ok(RawElement {
+            attributes: get_node_attributes(&node),
             context: None,
             node,
             children,
@@ -45,8 +49,8 @@ impl RawElement<'_, '_> {
 
     fn render_component(&self) -> Result<String, Error> {
         let mut attrs = Attributes::new();
-        for attr in self.node.attributes().iter() {
-            attrs.set(attr.name(), attr.value());
+        for (key, value) in self.attributes.iter() {
+            attrs.set(key, value);
         }
         let mut res = vec![];
         res.push(open_tag!(self.node.tag_name().name(), attrs.to_string()));
@@ -74,8 +78,8 @@ impl Component for RawElement<'_, '_> {
         self.context = Some(ctx);
     }
 
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
     }
 
     fn render(&self) -> Result<String, Error> {

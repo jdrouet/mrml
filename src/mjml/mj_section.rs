@@ -7,6 +7,7 @@ use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Style};
 use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const ALLOWED_ATTRIBUTES: [&'static str; 20] = [
     "background-color",
@@ -33,8 +34,8 @@ const ALLOWED_ATTRIBUTES: [&'static str; 20] = [
 
 #[derive(Clone, Debug)]
 pub struct MJSection<'a, 'b> {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
-    node: Node<'a, 'b>,
     children: Vec<Element<'a, 'b>>,
 }
 
@@ -45,8 +46,8 @@ impl MJSection<'_, '_> {
             children.push(Element::parse(child)?);
         }
         Ok(MJSection {
+            attributes: get_node_attributes(&node),
             context: None,
-            node,
             children,
         })
     }
@@ -85,11 +86,11 @@ impl MJSection<'_, '_> {
     }
 
     fn has_background(&self) -> bool {
-        self.node.has_attribute("background-url")
+        self.attributes.contains_key("background-url")
     }
 
     fn is_full_width(&self) -> bool {
-        self.node.has_attribute("full-width")
+        self.attributes.contains_key("full-width")
     }
 
     fn render_before(&self) -> Result<String, Error> {
@@ -344,6 +345,10 @@ impl Component for MJSection<'_, '_> {
         }
     }
 
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
+    }
+
     fn to_header(&self) -> Header {
         let mut header = Header::new();
         for child in self.children.iter() {
@@ -404,10 +409,6 @@ impl Component for MJSection<'_, '_> {
 
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
-    }
-
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
     }
 
     fn set_context(&mut self, ctx: Context) {
