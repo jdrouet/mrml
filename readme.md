@@ -52,7 +52,7 @@
     - [x] mjml documentation example
     - [x] with align
     - [x] with border
-    - [ ] with border-radius
+    - [x] with border-radius
     - [ ] with container-background-color
     - [ ] with css-class
     - [ ] with fluid-on-mobile
