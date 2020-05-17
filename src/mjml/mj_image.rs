@@ -295,4 +295,12 @@ pub mod tests {
             include_str!("../../test/mj-image.html"),
         );
     }
+
+    #[test]
+    fn with_align() {
+        compare_render(
+            include_str!("../../test/mj-image-align.mjml"),
+            include_str!("../../test/mj-image-align.html"),
+        );
+    }
 }

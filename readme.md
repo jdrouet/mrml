@@ -50,8 +50,7 @@
   - [ ] mj-hero
   - [ ] mj-image
     - [x] mjml documentation example
-    - [ ] with align
-    - [ ] with align
+    - [x] with align
     - [ ] with border
     - [ ] with border-radius
     - [ ] with container-background-color
