@@ -59,7 +59,7 @@
     - [x] with height
     - [x] with href
     - [2] with padding, padding-(top|right|bottom|left)
-    - [ ] with rel
+    - [x] with rel
     - [x] with src
     - [ ] with srcset
     - [ ] with target

@@ -334,4 +334,12 @@ pub mod tests {
             include_str!("../../test/mj-image-padding.html"),
         );
     }
+
+    #[test]
+    fn with_rel() {
+        compare_render(
+            include_str!("../../test/mj-image-rel.mjml"),
+            include_str!("../../test/mj-image-rel.html"),
+        );
+    }
 }
