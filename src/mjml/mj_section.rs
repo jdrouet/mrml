@@ -1,9 +1,9 @@
 use super::error::Error;
-use super::prelude::{Component, ContainedComponent};
+use super::prelude::*;
 use super::Element;
 use crate::util::condition::*;
 use crate::util::prelude::PropertyMap;
-use crate::util::{suffix_css_classes, Attributes, Context, Header, Style};
+use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Style};
 use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
@@ -327,11 +327,11 @@ impl MJSection<'_, '_> {
 }
 
 impl Component for MJSection<'_, '_> {
-    fn allowed_attributes() -> Option<Vec<&'static str>> {
+    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
 
-    fn default_attribute(key: &str) -> Option<String> {
+    fn default_attribute(&self, key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
             "background-repeat" => Some("repeat".into()),
@@ -342,6 +342,10 @@ impl Component for MJSection<'_, '_> {
             "text-padding" => Some("4px 4px 4px 0".into()),
             _ => None,
         }
+    }
+
+    fn is_raw(&self) -> bool {
+        false
     }
 
     fn to_header(&self) -> Header {
@@ -412,20 +416,9 @@ impl Component for MJSection<'_, '_> {
 
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
-        //
-        let sibling = self.children.len();
-        let raw_sibling = self
-            .children
-            .iter()
-            .filter(|item| match item {
-                Element::Raw(_) => true,
-                _ => false,
-            })
-            .collect::<Vec<&Element>>()
-            .len();
-        //
+        let sibling = self.get_siblings();
+        let raw_sibling = self.get_raw_siblings();
         let container_width = self.get_container_width();
-        //
         for (idx, child) in self.children.iter_mut().enumerate() {
             let mut child_ctx =
                 Context::from(&ctx, container_width.clone(), sibling, raw_sibling, idx);
@@ -440,6 +433,16 @@ impl Component for MJSection<'_, '_> {
         } else {
             self.render_simple()
         }
+    }
+}
+
+impl ComponentWithChildren for MJSection<'_, '_> {
+    fn get_children(&self) -> &Vec<Element> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        self.context().and_then(|ctx| ctx.container_width())
     }
 }
 

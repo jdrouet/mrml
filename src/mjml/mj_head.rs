@@ -148,6 +148,20 @@ impl MJHead<'_, '_> {
         res.push(END_NEGATION_CONDITIONAL_TAG.into());
         res.join("")
     }
+
+    fn get_styles(&self) -> String {
+        let styles = self.header.get_styles();
+        if styles.is_empty() {
+            return "".into();
+        }
+        let mut res = vec![];
+        res.push(open_tag!("style", to_attributes!(("type", "text/css"))));
+        for item in styles.iter() {
+            res.push(item.to_string());
+        }
+        res.push(close_tag!("style"));
+        res.join("")
+    }
 }
 
 impl Component for MJHead<'_, '_> {
@@ -161,6 +175,10 @@ impl Component for MJHead<'_, '_> {
 
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx);
+    }
+
+    fn is_raw(&self) -> bool {
+        false
     }
 
     fn render(&self) -> Result<String, Error> {
@@ -193,6 +211,7 @@ impl Component for MJHead<'_, '_> {
         res.push(STYLE_BASE.into());
         res.push(self.get_font_families());
         res.push(self.get_media_queries());
+        res.push(self.get_styles());
         res.push(close_tag!("head"));
         Ok(res.join(""))
     }

@@ -12,9 +12,11 @@ pub mod util;
 pub use error::Error;
 use mjml::prelude::Component;
 use util::fonts::FontRegistry;
+use util::Size;
 
 #[derive(Clone, Debug)]
 pub struct Options {
+    pub breakpoint: Size,
     pub fonts: FontRegistry,
     pub keep_comments: bool,
 }
@@ -22,6 +24,7 @@ pub struct Options {
 impl Options {
     pub fn default() -> Self {
         Self {
+            breakpoint: Size::Pixel(480.0),
             fonts: FontRegistry::default(),
             keep_comments: true,
         }
@@ -46,12 +49,12 @@ pub mod tests {
             .replace("style=\"\"", "")
             .replace("\n", "")
             .replace(" ", "")
+            .replace("<![endif]--><!--[ifmso|IE]>", "")
     }
 
     pub fn compare_render(source: &str, expected: &str) {
-        let result = to_html(source, Options::default());
-        assert_eq!(result.is_ok(), true);
-        let result = clean_str(result.unwrap());
+        let result = to_html(source, Options::default()).unwrap();
+        let result = clean_str(result);
         let expected = clean_str(expected.into());
         assert_diff!(result.as_str(), expected.as_str(), "", 0);
     }

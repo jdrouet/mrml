@@ -94,11 +94,11 @@ impl MJText<'_, '_> {
 }
 
 impl Component for MJText<'_, '_> {
-    fn allowed_attributes() -> Option<Vec<&'static str>> {
+    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
 
-    fn default_attribute(key: &str) -> Option<String> {
+    fn default_attribute(&self, key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
             "align" => Some("left".into()),
@@ -109,6 +109,10 @@ impl Component for MJText<'_, '_> {
             "padding" => Some("10px 25px".into()),
             _ => None,
         }
+    }
+
+    fn is_raw(&self) -> bool {
+        false
     }
 
     fn to_header(&self) -> Header {

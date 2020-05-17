@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image href="https://crates.io/crates/mrml" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+      <mj-column>
+        <mj-image href="https://crates.io/crates/mrml" target="_self" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

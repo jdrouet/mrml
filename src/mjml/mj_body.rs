@@ -1,6 +1,7 @@
 use super::{Component, Element, Error};
+use super::prelude::*;
 use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::{Attributes, Context, Header, Style};
 use crate::{close_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
@@ -34,11 +35,6 @@ impl MJBody<'_, '_> {
             context: None,
         })
     }
-
-    fn get_attribute_width(&self) -> Option<Size> {
-        self.get_attribute("width")
-            .and_then(|value| value.parse::<Size>().ok())
-    }
 }
 
 impl Component for MJBody<'_, '_> {
@@ -46,11 +42,11 @@ impl Component for MJBody<'_, '_> {
         self.context.as_ref()
     }
 
-    fn allowed_attributes() -> Option<Vec<&'static str>> {
+    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
 
-    fn default_attribute(key: &str) -> Option<String> {
+    fn default_attribute(&self, key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
             "width" => Some("600px".into()),
@@ -98,7 +94,7 @@ impl Component for MJBody<'_, '_> {
             .collect::<Vec<&Element>>()
             .len();
         //
-        let container_width = self.get_attribute_width();
+        let container_width = self.get_size_attribute("width");
         //
         for (idx, child) in self.children.iter_mut().enumerate() {
             child.set_context(Context::from(
@@ -135,7 +131,13 @@ impl Component for MJBody<'_, '_> {
         res.push(close_tag!("body"));
         Ok(res.join(""))
     }
+
+    fn is_raw(&self) -> bool {
+        false
+    }
 }
+
+impl ComponentWithSizeAttribute for MJBody<'_, '_> {}
 
 #[cfg(test)]
 pub mod tests {
