@@ -1,5 +1,5 @@
 use super::error::Error;
-use super::prelude::{Component, ContainedComponent};
+use super::prelude::*;
 use super::Element;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Size, Style};
@@ -59,9 +59,7 @@ impl MJColumn<'_, '_> {
         if self.get_attribute("mobile-width") != Some("mobile_width".into()) {
             return Some(Size::Percent(100.0));
         }
-        let width = self
-            .get_attribute("width")
-            .and_then(|width| width.parse::<Size>().ok());
+        let width = self.get_size_attribute("width");
         if width.is_none() {
             return self
                 .context()
@@ -83,10 +81,7 @@ impl MJColumn<'_, '_> {
             .and_then(|ctx| Some(ctx.non_raw_siblings()))
             .or(Some(1))
             .unwrap();
-        match self
-            .get_attribute("width")
-            .and_then(|width| width.parse::<Size>().ok())
-        {
+        match self.get_size_attribute("width") {
             Some(size) => size,
             None => Size::Percent(100.0 / (non_raw_siblings as f32)),
         }
@@ -310,6 +305,7 @@ impl Component for MJColumn<'_, '_> {
 }
 
 impl ContainedComponent for MJColumn<'_, '_> {}
+impl ComponentWithSizeAttribute for MJColumn<'_, '_> {}
 
 #[cfg(test)]
 pub mod tests {

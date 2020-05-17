@@ -51,7 +51,7 @@
   - [ ] mj-image
     - [x] mjml documentation example
     - [x] with align
-    - [ ] with border
+    - [x] with border
     - [ ] with border-radius
     - [ ] with container-background-color
     - [ ] with css-class

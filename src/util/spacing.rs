@@ -42,11 +42,26 @@ impl Spacing {
     }
 
     pub fn from_2d(vertical: Size, horizontal: Size) -> Self {
-        Self::from_4d(vertical.clone(), horizontal.clone(), vertical.clone(), horizontal.clone())
+        Self::from_4d(
+            vertical.clone(),
+            horizontal.clone(),
+            vertical.clone(),
+            horizontal.clone(),
+        )
     }
 
     pub fn from_1d(size: Size) -> Self {
         Self::from_4d(size.clone(), size.clone(), size.clone(), size.clone())
+    }
+
+    pub fn get(&self, direction: &str) -> Option<Size> {
+        match direction {
+            "left" => Some(self.left.clone()),
+            "right" => Some(self.right.clone()),
+            "top" => Some(self.top.clone()),
+            "bottom" => Some(self.bottom.clone()),
+            _ => None,
+        }
     }
 }
 

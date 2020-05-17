@@ -1,9 +1,9 @@
 use super::error::Error;
-use super::prelude::{Component, ContainedComponent};
+use super::prelude::*;
 // use super::Element;
 // use crate::util::condition::*;
 use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Size, Spacing, Style};
+use crate::util::{Attributes, Context, Header, Size, Style};
 use crate::{close_tag, closed_tag, open_tag, with_tag};
 use log::debug;
 use roxmltree::Node;
@@ -53,79 +53,26 @@ impl MJImage<'_, '_> {
         })
     }
 
-    fn get_padding_left(&self) -> Size {
-        match self
-            .get_attribute("padding-left")
-            .and_then(|value| value.parse::<Size>().ok())
-            .or_else(|| {
-                self.get_attribute("padding")
-                    .and_then(|value| value.parse::<Spacing>().ok())
-                    .and_then(|value| Some(value.left))
-            }) {
-            Some(value) => value,
-            None => Size::Pixel(0.0),
-        }
-    }
-
-    fn get_padding_right(&self) -> Size {
-        match self
-            .get_attribute("padding-right")
-            .and_then(|value| value.parse::<Size>().ok())
-            .or_else(|| {
-                self.get_attribute("padding")
-                    .and_then(|value| value.parse::<Spacing>().ok())
-                    .and_then(|value| Some(value.right))
-            }) {
-            Some(value) => value,
-            None => Size::Pixel(0.0),
-        }
-    }
-
-    fn get_padding_horizontal(&self) -> Size {
-        let left = self.get_padding_left();
-        let right = self.get_padding_right();
-        if left.is_pixel() && right.is_pixel() {
-            Size::Pixel(left.value() + right.value())
-        } else {
-            Size::Pixel(0.0)
-        }
-    }
-
-    fn get_border_horizontal(&self) -> Size {
-        // TODO
-        Size::Pixel(0.0)
-    }
-
-    fn get_box_widths(&self) -> Size {
-        let container_width = self
-            .get_container_width()
-            .or(Some(Size::Pixel(0.0)))
-            .unwrap();
-        let paddings = self.get_padding_horizontal();
-        let borders = self.get_border_horizontal();
-        Size::Pixel(container_width.value() - paddings.value() - borders.value())
-    }
-
     fn get_content_width(&self) -> Option<Size> {
-        self.get_attribute("width")
-            .and_then(|width| width.parse::<Size>().ok())
-            .and_then(|width| {
-                let box_size = self.get_box_widths();
-                if width.value() < box_size.value() {
-                    Some(width)
-                } else {
-                    Some(box_size)
+        self.get_size_attribute("width")
+            .and_then(|width| match self.get_box_widths() {
+                Some(box_size) => {
+                    if width.value() < box_size.value() {
+                        Some(width)
+                    } else {
+                        Some(box_size)
+                    }
                 }
+                None => Some(width),
             })
+            // when no width given
+            .or_else(|| self.get_box_widths())
     }
 
     fn render_image(&self) -> String {
         let mut attrs = Attributes::new();
         attrs.maybe_set("alt", self.get_attribute("alt"));
-        match self
-            .get_attribute("height")
-            .and_then(|height| height.parse::<Size>().ok())
-        {
+        match self.get_size_attribute("height") {
             Some(height) => {
                 attrs.set("height", height);
             }
@@ -273,7 +220,6 @@ impl Component for MJImage<'_, '_> {
         } else {
             res.push(self.render_image());
         }
-        // TODO render image
         res.push(close_tag!("td"));
         res.push(close_tag!("tr"));
         res.push(close_tag!("tbody"));
@@ -283,6 +229,10 @@ impl Component for MJImage<'_, '_> {
 }
 
 impl ContainedComponent for MJImage<'_, '_> {}
+impl ComponentWithSizeAttribute for MJImage<'_, '_> {}
+impl ComponentWithBorder for MJImage<'_, '_> {}
+impl ComponentWithPadding for MJImage<'_, '_> {}
+impl ComponentWithBoxWidths for MJImage<'_, '_> {}
 
 #[cfg(test)]
 pub mod tests {
@@ -301,6 +251,14 @@ pub mod tests {
         compare_render(
             include_str!("../../test/mj-image-align.mjml"),
             include_str!("../../test/mj-image-align.html"),
+        );
+    }
+
+    #[test]
+    fn with_border() {
+        compare_render(
+            include_str!("../../test/mj-image-border.mjml"),
+            include_str!("../../test/mj-image-border.html"),
         );
     }
 }
