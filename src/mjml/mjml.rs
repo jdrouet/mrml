@@ -11,11 +11,10 @@ const HTML_OPEN: &str = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"
 const HTML_CLOSE: &str = "</html>";
 
 #[derive(Clone, Debug)]
-pub struct MJMLElement<'a, 'b> {
+pub struct MJMLElement {
     context: Option<Context>,
     head: MJHead,
-    body: MJBody<'a, 'b>,
-    node: Node<'a, 'b>,
+    body: MJBody,
 }
 
 fn get_head<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead, Error> {
@@ -27,7 +26,7 @@ fn get_head<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead, Error> {
     Ok(MJHead::empty())
 }
 
-fn get_body<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody<'a, 'b>, Error> {
+fn get_body<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-body" {
             return MJBody::parse(child);
@@ -36,14 +35,13 @@ fn get_body<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody<'a, 'b>, Error> {
     Ok(MJBody::empty())
 }
 
-impl MJMLElement<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJMLElement<'a, 'b>, Error> {
+impl MJMLElement {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJMLElement, Error> {
         debug!("parse");
         let head = get_head(node)?;
         let body = get_body(node)?;
         let element = MJMLElement {
             context: None,
-            node,
             head,
             body,
         };
@@ -51,7 +49,7 @@ impl MJMLElement<'_, '_> {
     }
 }
 
-impl Component for MJMLElement<'_, '_> {
+impl Component for MJMLElement {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }

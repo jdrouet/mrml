@@ -17,15 +17,15 @@ use error::Error;
 use prelude::Component;
 
 #[derive(Clone, Debug)]
-pub enum Element<'a, 'b> {
-    MJML(mjml::MJMLElement<'a, 'b>),
-    MJBody(mj_body::MJBody<'a, 'b>),
-    MJColumn(mj_column::MJColumn<'a, 'b>),
+pub enum Element {
+    MJML(mjml::MJMLElement),
+    MJBody(mj_body::MJBody),
+    MJColumn(mj_column::MJColumn),
     MJHead(mj_head::MJHead),
     MJImage(mj_image::MJImage),
-    MJSection(mj_section::MJSection<'a, 'b>),
-    MJText(mj_text::MJText<'a, 'b>),
-    Raw(raw::RawElement<'a, 'b>),
+    MJSection(mj_section::MJSection),
+    MJText(mj_text::MJText),
+    Raw(raw::RawElement),
 }
 
 macro_rules! apply_fn {
@@ -43,7 +43,7 @@ macro_rules! apply_fn {
     };
 }
 
-impl Component for Element<'_, '_> {
+impl Component for Element {
     fn source_attributes(&self) -> Option<&HashMap<String, String>> {
         apply_fn!(self, source_attributes())
     }
@@ -73,8 +73,8 @@ impl Component for Element<'_, '_> {
     }
 }
 
-impl Element<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<Element<'a, 'b>, Error> {
+impl Element {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<Element, Error> {
         let res = match node.tag_name().name() {
             "mjml" => Element::MJML(mjml::MJMLElement::parse(node)?),
             "mj-body" => Element::MJBody(mj_body::MJBody::parse(node)?),

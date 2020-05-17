@@ -32,14 +32,14 @@ const ALLOWED_ATTRIBUTES: [&'static str; 19] = [
 ];
 
 #[derive(Clone, Debug)]
-pub struct MJText<'a, 'b> {
+pub struct MJText {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element<'a, 'b>>,
+    children: Vec<Element>,
 }
 
-impl MJText<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJText<'a, 'b>, Error> {
+impl MJText {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJText, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(Element::parse(child)?);
@@ -94,7 +94,7 @@ impl MJText<'_, '_> {
     }
 }
 
-impl Component for MJText<'_, '_> {
+impl Component for MJText {
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
@@ -159,7 +159,7 @@ impl Component for MJText<'_, '_> {
     }
 }
 
-impl ContainedComponent for MJText<'_, '_> {}
+impl ContainedComponent for MJText {}
 
 #[cfg(test)]
 pub mod tests {

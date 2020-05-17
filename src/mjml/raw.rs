@@ -43,14 +43,14 @@ impl Component for CommentElement {
 }
 
 #[derive(Clone, Debug)]
-pub struct NodeElement<'a, 'b> {
+pub struct NodeElement {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element<'a, 'b>>,
+    children: Vec<Element>,
     tag: String,
 }
 
-impl Component for NodeElement<'_, '_> {
+impl Component for NodeElement {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }
@@ -79,9 +79,9 @@ impl Component for NodeElement<'_, '_> {
 }
 
 #[derive(Clone, Debug)]
-pub enum RawElement<'a, 'b> {
+pub enum RawElement {
     Comment(CommentElement),
-    Node(NodeElement<'a, 'b>),
+    Node(NodeElement),
     Text(String),
 }
 
@@ -92,19 +92,19 @@ fn get_node_text<'a, 'b>(node: Node<'a, 'b>) -> String {
         .unwrap()
 }
 
-impl RawElement<'_, '_> {
-    fn parse_comment<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement<'a, 'b>, Error> {
+impl RawElement {
+    fn parse_comment<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement, Error> {
         Ok(RawElement::Comment(CommentElement {
             content: get_node_text(node),
             context: None,
         }))
     }
 
-    fn parse_text<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement<'a, 'b>, Error> {
+    fn parse_text<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement, Error> {
         Ok(RawElement::Text(get_node_text(node)))
     }
 
-    fn parse_node<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement<'a, 'b>, Error> {
+    fn parse_node<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(Element::parse(child)?);
@@ -117,7 +117,7 @@ impl RawElement<'_, '_> {
         }))
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement<'a, 'b>, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement, Error> {
         if node.is_comment() {
             RawElement::parse_comment(node)
         } else if node.is_text() {
@@ -128,7 +128,7 @@ impl RawElement<'_, '_> {
     }
 }
 
-impl Component for RawElement<'_, '_> {
+impl Component for RawElement {
     fn context(&self) -> Option<&Context> {
         match self {
             RawElement::Comment(comment) => comment.context(),

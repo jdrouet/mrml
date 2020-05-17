@@ -10,15 +10,15 @@ use std::collections::HashMap;
 const ALLOWED_ATTRIBUTES: [&'static str; 3] = ["background-color", "css-class", "width"];
 
 #[derive(Clone, Debug)]
-pub struct MJBody<'a, 'b> {
+pub struct MJBody {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element<'a, 'b>>,
+    children: Vec<Element>,
     exists: bool,
 }
 
-impl MJBody<'_, '_> {
-    pub fn empty<'a, 'b>() -> MJBody<'a, 'b> {
+impl MJBody {
+    pub fn empty<'a, 'b>() -> MJBody {
         MJBody {
             attributes: HashMap::new(),
             children: vec![],
@@ -27,7 +27,7 @@ impl MJBody<'_, '_> {
         }
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody<'a, 'b>, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(Element::parse(child)?);
@@ -41,7 +41,7 @@ impl MJBody<'_, '_> {
     }
 }
 
-impl Component for MJBody<'_, '_> {
+impl Component for MJBody {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }
@@ -137,7 +137,7 @@ impl Component for MJBody<'_, '_> {
     }
 }
 
-impl ComponentWithSizeAttribute for MJBody<'_, '_> {}
+impl ComponentWithSizeAttribute for MJBody {}
 
 #[cfg(test)]
 pub mod tests {

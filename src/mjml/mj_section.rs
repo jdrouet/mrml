@@ -33,14 +33,14 @@ const ALLOWED_ATTRIBUTES: [&'static str; 20] = [
 ];
 
 #[derive(Clone, Debug)]
-pub struct MJSection<'a, 'b> {
+pub struct MJSection {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element<'a, 'b>>,
+    children: Vec<Element>,
 }
 
-impl MJSection<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJSection<'a, 'b>, Error> {
+impl MJSection {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJSection, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(Element::parse(child)?);
@@ -327,7 +327,7 @@ impl MJSection<'_, '_> {
     }
 }
 
-impl Component for MJSection<'_, '_> {
+impl Component for MJSection {
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
@@ -433,7 +433,7 @@ impl Component for MJSection<'_, '_> {
     }
 }
 
-impl ComponentWithChildren for MJSection<'_, '_> {
+impl ComponentWithChildren for MJSection {
     fn get_children(&self) -> &Vec<Element> {
         &self.children
     }
@@ -443,7 +443,7 @@ impl ComponentWithChildren for MJSection<'_, '_> {
     }
 }
 
-impl ContainedComponent for MJSection<'_, '_> {}
+impl ContainedComponent for MJSection {}
 
 #[cfg(test)]
 pub mod tests {

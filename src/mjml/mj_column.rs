@@ -28,14 +28,14 @@ const ALLOWED_ATTRIBUTES: [&'static str; 16] = [
 ];
 
 #[derive(Clone, Debug)]
-pub struct MJColumn<'a, 'b> {
+pub struct MJColumn {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element<'a, 'b>>,
+    children: Vec<Element>,
 }
 
-impl MJColumn<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJColumn<'a, 'b>, Error> {
+impl MJColumn {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJColumn, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(Element::parse(child)?);
@@ -200,7 +200,7 @@ impl MJColumn<'_, '_> {
     }
 }
 
-impl Component for MJColumn<'_, '_> {
+impl Component for MJColumn {
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
@@ -314,7 +314,7 @@ impl Component for MJColumn<'_, '_> {
     }
 }
 
-impl ComponentWithChildren for MJColumn<'_, '_> {
+impl ComponentWithChildren for MJColumn {
     fn get_children(&self) -> &Vec<Element> {
         &self.children
     }
@@ -353,11 +353,11 @@ impl ComponentWithChildren for MJColumn<'_, '_> {
     }
 }
 
-impl ContainedComponent for MJColumn<'_, '_> {}
-impl ComponentWithSizeAttribute for MJColumn<'_, '_> {}
-impl ComponentWithBorder for MJColumn<'_, '_> {}
-impl ComponentWithPadding for MJColumn<'_, '_> {}
-impl ComponentWithBoxWidths for MJColumn<'_, '_> {}
+impl ContainedComponent for MJColumn {}
+impl ComponentWithSizeAttribute for MJColumn {}
+impl ComponentWithBorder for MJColumn {}
+impl ComponentWithPadding for MJColumn {}
+impl ComponentWithBoxWidths for MJColumn {}
 
 #[cfg(test)]
 pub mod tests {
