@@ -42,11 +42,11 @@ impl Component for MJBody<'_, '_> {
         self.context.as_ref()
     }
 
-    fn allowed_attributes() -> Option<Vec<&'static str>> {
+    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
 
-    fn default_attribute(key: &str) -> Option<String> {
+    fn default_attribute(&self, key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
             "width" => Some("600px".into()),
@@ -130,6 +130,10 @@ impl Component for MJBody<'_, '_> {
         }
         res.push(close_tag!("body"));
         Ok(res.join(""))
+    }
+
+    fn is_raw(&self) -> bool {
+        false
     }
 }
 

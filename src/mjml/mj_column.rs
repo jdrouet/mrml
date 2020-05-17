@@ -200,11 +200,11 @@ impl MJColumn<'_, '_> {
 }
 
 impl Component for MJColumn<'_, '_> {
-    fn allowed_attributes() -> Option<Vec<&'static str>> {
+    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
 
-    fn default_attribute(key: &str) -> Option<String> {
+    fn default_attribute(&self, key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
             "direction" => Some("ltr".into()),
@@ -275,8 +275,17 @@ impl Component for MJColumn<'_, '_> {
 
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
-        for item in self.children.iter_mut() {
-            item.set_context(ctx.clone());
+        let children_ctx = Context::from(
+            &ctx,
+            self.get_current_width(),
+            self.get_siblings(),
+            self.get_raw_siblings(),
+            0,
+        );
+        for (idx, item) in self.children.iter_mut().enumerate() {
+            let mut child_ctx = children_ctx.clone();
+            child_ctx.set_index(idx);
+            item.set_context(child_ctx.clone());
         }
     }
 
@@ -302,10 +311,56 @@ impl Component for MJColumn<'_, '_> {
         res.push(close_tag!("div"));
         Ok(res.join(""))
     }
+
+    fn is_raw(&self) -> bool {
+        false
+    }
+}
+
+impl ComponentWithChildren for MJColumn<'_, '_> {
+    fn get_children(&self) -> &Vec<Element> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        let ctx = match self.context() {
+            Some(value) => value,
+            None => return None,
+        };
+        let parent_width = ctx.container_width().unwrap();
+        let non_raw_siblings = ctx.non_raw_siblings();
+        let borders = self.get_border_horizontal_width();
+        let paddings = self.get_padding_horizontal_width();
+        let inner_border_left = match self.get_prefixed_border_left("inner") {
+            Some(size) => size.value(),
+            None => 0.0,
+        };
+        let inner_border_right = match self.get_prefixed_border_right("inner") {
+            Some(size) => size.value(),
+            None => 0.0,
+        };
+        let inner_borders = inner_border_left + inner_border_right;
+        let all_paddings = paddings.value() + borders.value() + inner_borders;
+
+        let container_width = match self.get_size_attribute("width") {
+            Some(value) => value,
+            None => Size::Pixel(parent_width.value() / (non_raw_siblings as f32)),
+        };
+        if container_width.is_percent() {
+            Some(Size::Pixel(
+                (parent_width.value() * container_width.value() / 100.0) - all_paddings,
+            ))
+        } else {
+            Some(Size::Pixel(container_width.value() - all_paddings))
+        }
+    }
 }
 
 impl ContainedComponent for MJColumn<'_, '_> {}
 impl ComponentWithSizeAttribute for MJColumn<'_, '_> {}
+impl ComponentWithBorder for MJColumn<'_, '_> {}
+impl ComponentWithPadding for MJColumn<'_, '_> {}
+impl ComponentWithBoxWidths for MJColumn<'_, '_> {}
 
 #[cfg(test)]
 pub mod tests {

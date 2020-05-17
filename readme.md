@@ -55,7 +55,7 @@
     - [x] with border-radius
     - [x] with container-background-color
     - [x] with css-class
-    - [ ] with fluid-on-mobile
+    - [x] with fluid-on-mobile
     - [ ] with height
     - [ ] with href
     - [ ] with padding, padding-(top|right|bottom|left)

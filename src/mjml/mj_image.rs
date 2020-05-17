@@ -54,6 +54,20 @@ impl MJImage<'_, '_> {
         })
     }
 
+    fn is_fluid_on_mobile(&self) -> bool {
+        match self
+            .get_attribute("fluid-on-mobile")
+            .and_then(|value| value.parse::<bool>().ok())
+        {
+            Some(value) => value,
+            None => false,
+        }
+    }
+
+    fn is_full_width(&self) -> bool {
+        self.get_attribute("full-width").is_some()
+    }
+
     fn get_content_width(&self) -> Option<Size> {
         self.get_size_attribute("width")
             .and_then(|width| match self.get_box_widths() {
@@ -106,11 +120,11 @@ impl MJImage<'_, '_> {
 }
 
 impl Component for MJImage<'_, '_> {
-    fn allowed_attributes() -> Option<Vec<&'static str>> {
+    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
 
-    fn default_attribute(key: &str) -> Option<String> {
+    fn default_attribute(&self, key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
             "align" => Some("center".into()),
@@ -121,6 +135,10 @@ impl Component for MJImage<'_, '_> {
             "font-size" => Some("13px".into()),
             _ => None,
         }
+    }
+
+    fn is_raw(&self) -> bool {
+        false
     }
 
     fn to_header(&self) -> Header {
@@ -140,7 +158,6 @@ impl Component for MJImage<'_, '_> {
 
     fn get_style(&self, name: &str) -> Style {
         let mut res = Style::new();
-        let full_width = self.get_attribute("full-width").is_some();
         match name {
             "img" => {
                 res.maybe_set("border", self.get_attribute("border"));
@@ -155,19 +172,19 @@ impl Component for MJImage<'_, '_> {
                 res.maybe_set("height", self.get_attribute("height"));
                 res.maybe_set("max-height", self.get_attribute("max-height"));
                 res.set("width", "100%");
-                if full_width {
+                if self.is_full_width() {
                     res.set("min-width", "100%");
                     res.set("max-width", "100%");
                 }
                 res.maybe_set("font-size", self.get_attribute("font-size"));
             }
             "td" => {
-                if !full_width {
+                if !self.is_full_width() {
                     res.maybe_set("width", self.get_content_width());
                 }
             }
             "table" => {
-                if full_width {
+                if self.is_full_width() {
                     res.set("min-width", "100%");
                     res.set("max-width", "100%");
                     res.maybe_set("width", self.get_content_width());
@@ -200,8 +217,8 @@ impl Component for MJImage<'_, '_> {
             attrs.set("cellpadding", "0");
             attrs.set("cellspacing", "0");
             attrs.set("role", "presentation");
-            attrs.set("style", self.get_style("table").to_string());
-            if self.get_attribute("fluid-on-mobile").is_some() {
+            attrs.set("style", self.get_style("table"));
+            if self.is_fluid_on_mobile() {
                 attrs.set("class", "mj-full-width-mobile");
             }
             res.push(open_tag!("table", attrs.to_string()));
@@ -210,8 +227,8 @@ impl Component for MJImage<'_, '_> {
         res.push(open_tag!("tr"));
         {
             let mut attrs = Attributes::new();
-            attrs.set("style", self.get_style("td").to_string());
-            if self.get_attribute("fluid-on-mobile").is_some() {
+            attrs.set("style", self.get_style("td"));
+            if self.is_fluid_on_mobile() {
                 attrs.set("class", "mj-full-width-mobile");
             }
             res.push(open_tag!("td", attrs.to_string()));
@@ -284,6 +301,14 @@ pub mod tests {
         compare_render(
             include_str!("../../test/mj-image-class.mjml"),
             include_str!("../../test/mj-image-class.html"),
+        );
+    }
+
+    #[test]
+    fn with_fluid_on_mobile() {
+        compare_render(
+            include_str!("../../test/mj-image-fluid-on-mobile.mjml"),
+            include_str!("../../test/mj-image-fluid-on-mobile.html"),
         );
     }
 }

@@ -78,6 +78,10 @@ impl Component for RawElement<'_, '_> {
         Some(self.node)
     }
 
+    fn is_raw(&self) -> bool {
+        true
+    }
+
     fn render(&self) -> Result<String, Error> {
         if self.node.is_text() {
             Ok(self.render_text())

@@ -1,15 +1,16 @@
 use super::error::Error;
+use super::Element;
 use crate::util::{Context, Header, Size, Spacing, Style};
 use regex::Regex;
 use roxmltree::Node;
 use std::string::ToString;
 
 pub trait Component {
-    fn allowed_attributes() -> Option<Vec<&'static str>> {
+    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         None
     }
 
-    fn default_attribute(_key: &str) -> Option<String> {
+    fn default_attribute(&self, _key: &str) -> Option<String> {
         None
     }
 
@@ -26,7 +27,7 @@ pub trait Component {
     }
 
     fn get_attribute(&self, key: &str) -> Option<String> {
-        if let Some(allowed) = Self::allowed_attributes() {
+        if let Some(allowed) = self.allowed_attributes() {
             if !allowed.contains(&key) {
                 return None;
             }
@@ -34,12 +35,14 @@ pub trait Component {
         self.node()
             .and_then(|node| node.attribute(key))
             .and_then(|value| Some(value.to_string()))
-            .or_else(|| Self::default_attribute(key))
+            .or_else(|| self.default_attribute(key))
     }
 
     fn set_context(&mut self, ctx: Context);
 
     fn render(&self) -> Result<String, Error>;
+
+    fn is_raw(&self) -> bool;
 }
 
 pub trait ComponentWithSizeAttribute: Component {
@@ -67,7 +70,7 @@ pub trait ComponentWithBorder: Component {
     }
 
     fn get_border_bottom(&self) -> Option<Size> {
-        self.get_border_by_name("border-botttom")
+        self.get_border_by_name("border-bottom")
             .or_else(|| self.get_border_by_name("border"))
     }
 
@@ -79,6 +82,26 @@ pub trait ComponentWithBorder: Component {
     fn get_border_right(&self) -> Option<Size> {
         self.get_border_by_name("border-right")
             .or_else(|| self.get_border_by_name("border"))
+    }
+
+    fn get_prefixed_border_top(&self, prefix: &str) -> Option<Size> {
+        self.get_border_by_name(format!("{}-border-top", prefix).as_str())
+            .or_else(|| self.get_border_by_name(format!("{}-border", prefix).as_str()))
+    }
+
+    fn get_prefixed_border_bottom(&self, prefix: &str) -> Option<Size> {
+        self.get_border_by_name(format!("{}-border-bottom", prefix).as_str())
+            .or_else(|| self.get_border_by_name(format!("{}-border", prefix).as_str()))
+    }
+
+    fn get_prefixed_border_left(&self, prefix: &str) -> Option<Size> {
+        self.get_border_by_name(format!("{}-border-left", prefix).as_str())
+            .or_else(|| self.get_border_by_name(format!("{}-border", prefix).as_str()))
+    }
+
+    fn get_prefixed_border_right(&self, prefix: &str) -> Option<Size> {
+        self.get_border_by_name(format!("{}-border-right", prefix).as_str())
+            .or_else(|| self.get_border_by_name(format!("{}-border", prefix).as_str()))
     }
 }
 
@@ -172,5 +195,20 @@ pub trait ComponentWithBoxWidths:
                 width.value() - paddings.value() - borders.value(),
             ))
         })
+    }
+}
+
+pub trait ComponentWithChildren: Component {
+    fn get_children(&self) -> &Vec<Element>;
+    fn get_current_width(&self) -> Option<Size>;
+
+    fn get_siblings(&self) -> usize {
+        self.get_children().len()
+    }
+
+    fn get_raw_siblings(&self) -> usize {
+        self.get_children()
+            .iter()
+            .fold(0, |res, item| if item.is_raw() { res + 1 } else { res })
     }
 }
