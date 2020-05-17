@@ -89,13 +89,12 @@ impl MJImage<'_, '_> {
         attrs.maybe_set("alt", self.get_attribute("alt"));
         match self.get_size_attribute("height") {
             Some(height) => {
-                attrs.set("height", height);
+                attrs.set("height", height.value());
             }
             None => {
                 attrs.set("height", "auto");
             }
         };
-        // TODO height
         attrs.maybe_set("src", self.get_attribute("src"));
         attrs.maybe_set("srcset", self.get_attribute("srcset"));
         attrs.set("style", self.get_style("img").to_string());
@@ -309,6 +308,14 @@ pub mod tests {
         compare_render(
             include_str!("../../test/mj-image-fluid-on-mobile.mjml"),
             include_str!("../../test/mj-image-fluid-on-mobile.html"),
+        );
+    }
+
+    #[test]
+    fn with_height() {
+        compare_render(
+            include_str!("../../test/mj-image-height.mjml"),
+            include_str!("../../test/mj-image-height.html"),
         );
     }
 }

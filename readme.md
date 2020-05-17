@@ -56,7 +56,7 @@
     - [x] with container-background-color
     - [x] with css-class
     - [x] with fluid-on-mobile
-    - [ ] with height
+    - [x] with height
     - [ ] with href
     - [ ] with padding, padding-(top|right|bottom|left)
     - [ ] with rel

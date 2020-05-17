@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image height="42px" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+      <mj-column>
+        <mj-image height="100px" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
