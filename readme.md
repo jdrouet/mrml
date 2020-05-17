@@ -58,7 +58,7 @@
     - [x] with fluid-on-mobile
     - [x] with height
     - [x] with href
-    - [2] with padding, padding-(top|right|bottom|left)
+    - [x] with padding, padding-(top|right|bottom|left)
     - [x] with rel
     - [x] with src
     - [ ] with srcset
