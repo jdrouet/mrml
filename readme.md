@@ -54,7 +54,7 @@
     - [x] with border
     - [x] with border-radius
     - [x] with container-background-color
-    - [ ] with css-class
+    - [x] with css-class
     - [ ] with fluid-on-mobile
     - [ ] with height
     - [ ] with href

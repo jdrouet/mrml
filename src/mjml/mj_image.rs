@@ -8,7 +8,8 @@ use crate::{close_tag, closed_tag, open_tag, with_tag};
 use log::debug;
 use roxmltree::Node;
 
-const ALLOWED_ATTRIBUTES: [&'static str; 28] = [
+const ALLOWED_ATTRIBUTES: [&'static str; 29] = [
+    "css-class",
     "align",
     "alt",
     "href",
@@ -275,6 +276,14 @@ pub mod tests {
         compare_render(
             include_str!("../../test/mj-image-container-background-color.mjml"),
             include_str!("../../test/mj-image-container-background-color.html"),
+        );
+    }
+
+    #[test]
+    fn with_css_class() {
+        compare_render(
+            include_str!("../../test/mj-image-class.mjml"),
+            include_str!("../../test/mj-image-class.html"),
         );
     }
 }
