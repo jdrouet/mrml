@@ -326,4 +326,12 @@ pub mod tests {
             include_str!("../../test/mj-image-href.html"),
         );
     }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../test/mj-image-padding.mjml"),
+            include_str!("../../test/mj-image-padding.html"),
+        );
+    }
 }

@@ -1,0 +1,28 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image padding="10px" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+      <mj-column>
+        <mj-image padding="10px 15px 12px" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column>
+        <mj-image padding-top="1px" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+      <mj-column>
+        <mj-image padding-right="2px" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column>
+        <mj-image padding-bottom="3px" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+      <mj-column>
+        <mj-image padding-left="4px" src="http://www.online-image-editor.com//styles/2014/images/example_image.png" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
