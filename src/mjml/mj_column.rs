@@ -279,7 +279,10 @@ impl Component for MJColumn<'_, '_> {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx);
+        self.context = Some(ctx.clone());
+        for item in self.children.iter_mut() {
+            item.set_context(ctx.clone());
+        }
     }
 
     fn render(&self) -> Result<String, Error> {

@@ -1,7 +1,9 @@
 use regex::Regex;
+use std::cmp::PartialEq;
 use std::str::FromStr;
 use std::string::ToString;
 
+#[derive(Debug)]
 pub enum ParseSizeError {
     Invalid,
 }
@@ -23,7 +25,40 @@ impl ToString for Size {
     }
 }
 
+impl PartialEq for Size {
+    fn eq(&self, other: &Self) -> bool {
+        self.value() == other.value() && self.same_type(other)
+    }
+}
+
 impl Size {
+    pub fn same_type(&self, other: &Self) -> bool {
+        (self.is_percent() && other.is_percent())
+                || (self.is_pixel() && other.is_pixel())
+                || (self.is_raw() && other.is_raw())
+    }
+
+    pub fn is_raw(&self) -> bool {
+        match self {
+            Size::Raw(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_percent(&self) -> bool {
+        match self {
+            Size::Percent(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_pixel(&self) -> bool {
+        match self {
+            Size::Pixel(_) => true,
+            _ => false,
+        }
+    }
+
     fn parse_pixel(input: &str) -> Option<Size> {
         let re = Regex::new(r"^(\d+)px$").unwrap();
         re.captures(input)

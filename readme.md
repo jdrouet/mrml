@@ -49,6 +49,23 @@
   - [ ] mj-group
   - [ ] mj-hero
   - [ ] mj-image
+    - [x] mjml documentation example
+    - [ ] with align
+    - [ ] with align
+    - [ ] with border
+    - [ ] with border-radius
+    - [ ] with container-background-color
+    - [ ] with css-class
+    - [ ] with fluid-on-mobile
+    - [ ] with height
+    - [ ] with href
+    - [ ] with padding, padding-(top|right|bottom|left)
+    - [ ] with rel
+    - [x] with src
+    - [ ] with srcset
+    - [ ] with target
+    - [ ] with title
+    - [x] with width
   - [ ] mj-navbar
   - [ ] mj-raw
   - [x] mj-section

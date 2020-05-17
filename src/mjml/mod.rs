@@ -5,6 +5,7 @@ pub mod error;
 mod mj_body;
 mod mj_column;
 mod mj_head;
+mod mj_image;
 mod mj_section;
 mod mj_text;
 mod mjml;
@@ -20,6 +21,7 @@ pub enum Element<'a, 'b> {
     MJBody(mj_body::MJBody<'a, 'b>),
     MJColumn(mj_column::MJColumn<'a, 'b>),
     MJHead(mj_head::MJHead<'a, 'b>),
+    MJImage(mj_image::MJImage<'a, 'b>),
     MJSection(mj_section::MJSection<'a, 'b>),
     MJText(mj_text::MJText<'a, 'b>),
     Raw(raw::RawElement<'a, 'b>),
@@ -32,6 +34,7 @@ macro_rules! apply_fn {
             Element::MJBody(item) => item.$func($($args)*),
             Element::MJColumn(item) => item.$func($($args)*),
             Element::MJHead(item) => item.$func($($args)*),
+            Element::MJImage(item) => item.$func($($args)*),
             Element::MJSection(item) => item.$func($($args)*),
             Element::MJText(item) => item.$func($($args)*),
             Element::Raw(item) => item.$func($($args)*),
@@ -76,6 +79,7 @@ impl Element<'_, '_> {
             "mj-body" => Element::MJBody(mj_body::MJBody::parse(node)?),
             "mj-column" => Element::MJColumn(mj_column::MJColumn::parse(node)?),
             "mj-head" => Element::MJHead(mj_head::MJHead::parse(node)?),
+            "mj-image" => Element::MJImage(mj_image::MJImage::parse(node)?),
             "mj-section" => Element::MJSection(mj_section::MJSection::parse(node)?),
             "mj-text" => Element::MJText(mj_text::MJText::parse(node)?),
             _ => Element::Raw(raw::RawElement::parse(node)?),
