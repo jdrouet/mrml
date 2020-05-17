@@ -63,7 +63,7 @@
     - [x] with src
     - [ ] with srcset
     - [x] with target
-    - [ ] with title
+    - [x] with title
     - [x] with width
   - [ ] mj-navbar
   - [ ] mj-raw

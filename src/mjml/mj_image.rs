@@ -342,4 +342,12 @@ pub mod tests {
             include_str!("../../test/mj-image-rel.html"),
         );
     }
+
+    #[test]
+    fn with_title() {
+        compare_render(
+            include_str!("../../test/mj-image-title.mjml"),
+            include_str!("../../test/mj-image-title.html"),
+        );
+    }
 }
