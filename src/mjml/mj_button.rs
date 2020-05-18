@@ -306,4 +306,12 @@ pub mod tests {
             include_str!("../../test/mj-button-font-weight.html"),
         );
     }
+
+    #[test]
+    fn with_height() {
+        compare_render(
+            include_str!("../../test/mj-button-height.mjml"),
+            include_str!("../../test/mj-button-height.html"),
+        );
+    }
 }

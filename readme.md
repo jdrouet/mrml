@@ -48,7 +48,7 @@
     - [x] with font-size (default: 13px)
     - [x] with font-style
     - [x] with font-weight (default: normal)
-    - [ ] with height
+    - [x] with height
     - [ ] with href
     - [ ] with inner-padding (default: 10px 25px)
     - [ ] with line-height (default: 120%)
