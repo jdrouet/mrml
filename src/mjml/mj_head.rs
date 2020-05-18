@@ -90,14 +90,20 @@ impl MJHead {
     }
 
     fn get_media_queries(&self) -> String {
-        let breakpoint = "480px";
+        let breakpoint = match self
+            .context()
+            .and_then(|ctx| Some(ctx.options().breakpoint.clone()))
+        {
+            Some(value) => value,
+            None => return "".into(),
+        };
         if !self.header.has_media_queries() {
             return "".into();
         }
         let mut res = vec![];
         res.push(format!(
             "@media only screen and (min-width:{}) {{ ",
-            breakpoint
+            breakpoint.to_string()
         ));
         let mut classnames: Vec<&String> = self.header.get_media_queries().keys().collect();
         classnames.sort();
