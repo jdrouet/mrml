@@ -40,7 +40,7 @@
     - [x] with align (default: center)
     - [x] with background-color (default: #414141)
     - [x] with border, border-(top|right|bottom|left)
-    - [ ] with border-radius (default: 3px)
+    - [x] with border-radius (default: 3px)
     - [ ] with color (default: #ffffff)
     - [ ] with container-background-color
     - [ ] with css-class
