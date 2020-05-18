@@ -1,0 +1,14 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-button padding="2px 3px">
+          Don't click me!
+         </mj-button>
+        <mj-button padding-top="1px" padding-right="2px" padding-bottom="3px" padding-left="4px">
+          Don't click me!
+         </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -52,7 +52,7 @@
     - [x] with href
     - [x] with inner-padding (default: 10px 25px)
     - [x] with line-height (default: 120%)
-    - [ ] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
+    - [x] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [ ] with rel
     - [x] with target (default: _blank)
     - [ ] with text-align

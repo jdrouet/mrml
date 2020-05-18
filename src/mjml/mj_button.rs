@@ -338,4 +338,12 @@ pub mod tests {
             include_str!("../../test/mj-button-line-height.html"),
         );
     }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../test/mj-button-padding.mjml"),
+            include_str!("../../test/mj-button-padding.html"),
+        );
+    }
 }
