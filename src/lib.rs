@@ -65,13 +65,4 @@ pub mod tests {
         let expected = clean_str(expected.into());
         assert_diff!(result.as_str(), expected.as_str(), "", 0);
     }
-
-    // #[test]
-    // fn mjml_to_html_hello_world() {
-    //     let source = include_str!("../test/hello-world.mjml");
-    //     let expected = include_str!("../test/hello-world.html");
-    //     let result = to_html(source);
-    //     assert_eq!(result.is_ok(), true);
-    //     assert_eq!(result.unwrap(), expected);
-    // }
 }

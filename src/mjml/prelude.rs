@@ -65,14 +65,19 @@ pub trait ComponentWithSizeAttribute: Component {
 
 pub trait ComponentWithBorder: Component {
     fn get_border_by_name(&self, name: &str) -> Option<Size> {
-        self.get_attribute(name)
-            .and_then(|border| {
-                let re = Regex::new(r"(\d+)").unwrap();
-                re.captures(border.as_str())
-                    .and_then(|list| list.get(1))
-                    .and_then(|first| first.as_str().parse::<f32>().ok())
-            })
-            .and_then(|value| Some(Size::Pixel(value)))
+        self.get_attribute(name).and_then(|border| {
+            let re = Regex::new(r"(\d+)").unwrap();
+            re.captures(border.as_str())
+                .and_then(|list| list.get(1))
+                .and_then(|first| first.as_str().parse::<f32>().ok())
+                .and_then(move |value| {
+                    if border.contains("%") {
+                        Some(Size::Percent(value))
+                    } else {
+                        Some(Size::Pixel(value))
+                    }
+                })
+        })
     }
 
     fn get_border_top(&self) -> Option<Size> {
@@ -251,5 +256,154 @@ pub trait ComponentWithChildren: Component {
             Element::Raw(_) => res + 1,
             _ => res,
         })
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use crate::util::prelude::PropertyMap;
+
+    struct TestComponent {
+        attributes: HashMap<String, String>,
+    }
+
+    impl Component for TestComponent {
+        fn context(&self) -> Option<&Context> {
+            None
+        }
+
+        fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+            Some(&self.attributes)
+        }
+
+        fn set_context(&mut self, _ctx: Context) {
+            // noop
+        }
+
+        fn render(&self) -> Result<String, Error> {
+            Ok("nothing".into())
+        }
+    }
+
+    #[test]
+    fn basic_component_default_values() {
+        let item = TestComponent {
+            attributes: HashMap::new(),
+        };
+        assert_eq!(item.allowed_attributes(), None);
+        assert_eq!(item.default_attribute("nothing"), None);
+        assert_eq!(item.get_style("nothing").is_empty(), true);
+        let header = item.to_header();
+        assert_eq!(header.get_font_families().len(), 0);
+        assert_eq!(header.get_media_queries().is_empty(), true);
+        assert_eq!(header.get_styles().is_empty(), true);
+    }
+
+    impl ComponentWithBorder for TestComponent {}
+
+    #[test]
+    fn component_with_border_default_values() {
+        let mut attributes = HashMap::new();
+        attributes.insert("border-top".to_string(), "1px solid red".to_string());
+        attributes.insert("border-bottom".to_string(), "2px solid blue".to_string());
+        attributes.insert("toto-border-top".to_string(), "3px solid red".to_string());
+        attributes.insert(
+            "toto-border-bottom".to_string(),
+            "4px solid blue".to_string(),
+        );
+        let item = TestComponent { attributes };
+        assert_eq!(item.get_border_top(), Some(Size::Pixel(1.0)));
+        assert_eq!(item.get_border_bottom(), Some(Size::Pixel(2.0)));
+        assert_eq!(item.get_prefixed_border_top("toto"), Some(Size::Pixel(3.0)));
+        assert_eq!(
+            item.get_prefixed_border_bottom("toto"),
+            Some(Size::Pixel(4.0))
+        );
+    }
+
+    #[test]
+    fn component_with_border_common_border() {
+        let mut attributes = HashMap::new();
+        attributes.insert("border".to_string(), "1px solid red".to_string());
+        attributes.insert("toto-border".to_string(), "2px solid red".to_string());
+        let item = TestComponent { attributes };
+        assert_eq!(item.get_border_top(), Some(Size::Pixel(1.0)));
+        assert_eq!(item.get_border_bottom(), Some(Size::Pixel(1.0)));
+        assert_eq!(item.get_prefixed_border_top("toto"), Some(Size::Pixel(2.0)));
+        assert_eq!(
+            item.get_prefixed_border_bottom("toto"),
+            Some(Size::Pixel(2.0))
+        );
+    }
+
+    impl ComponentWithSizeAttribute for TestComponent {}
+
+    #[test]
+    fn component_with_size_attribute() {
+        let mut attributes = HashMap::new();
+        attributes.insert("padding-top".to_string(), "1px".to_string());
+        attributes.insert("padding-bottom".to_string(), "something".to_string());
+        let item = TestComponent { attributes };
+        assert_eq!(
+            item.get_size_attribute("padding-top"),
+            Some(Size::Pixel(1.0))
+        );
+        assert_eq!(item.get_size_attribute("padding-bottom"), None);
+    }
+
+    impl ComponentWithPadding for TestComponent {}
+
+    #[test]
+    fn component_with_padding_normal() {
+        let mut attributes = HashMap::new();
+        attributes.insert("padding-top".to_string(), "1px".to_string());
+        attributes.insert("padding-bottom".to_string(), "2px".to_string());
+        attributes.insert("toto-padding-top".to_string(), "3px".to_string());
+        attributes.insert("toto-padding-bottom".to_string(), "4px".to_string());
+        let item = TestComponent { attributes };
+        assert_eq!(item.get_padding_top(), Some(Size::Pixel(1.0)));
+        assert_eq!(item.get_padding_bottom(), Some(Size::Pixel(2.0)));
+        assert_eq!(
+            item.get_prefixed_padding_top("toto"),
+            Some(Size::Pixel(3.0))
+        );
+        assert_eq!(
+            item.get_prefixed_padding_bottom("toto"),
+            Some(Size::Pixel(4.0))
+        );
+    }
+
+    #[test]
+    fn component_with_padding_common() {
+        let mut attributes = HashMap::new();
+        attributes.insert("padding".to_string(), "1px".to_string());
+        attributes.insert("toto-padding".to_string(), "2px".to_string());
+        let item = TestComponent { attributes };
+        assert_eq!(item.get_padding_top(), Some(Size::Pixel(1.0)));
+        assert_eq!(item.get_padding_bottom(), Some(Size::Pixel(1.0)));
+        assert_eq!(
+            item.get_prefixed_padding_top("toto"),
+            Some(Size::Pixel(2.0))
+        );
+        assert_eq!(
+            item.get_prefixed_padding_bottom("toto"),
+            Some(Size::Pixel(2.0))
+        );
+    }
+
+    impl ContainedComponent for TestComponent {}
+    impl ComponentWithBoxWidths for TestComponent {}
+
+    #[test]
+    fn component_with_box_widths() {
+        let mut attributes = HashMap::new();
+        attributes.insert("border-left".to_string(), "2% solid blue".to_string());
+        attributes.insert("border-right".to_string(), "2px solid blue".to_string());
+        attributes.insert("padding-left".to_string(), "2%".to_string());
+        attributes.insert("padding-right".to_string(), "2px".to_string());
+        let item = TestComponent { attributes };
+        assert_eq!(item.get_border_horizontal_width(), Size::Pixel(0.0));
+        assert_eq!(item.get_padding_horizontal_width(), Size::Pixel(0.0));
     }
 }
