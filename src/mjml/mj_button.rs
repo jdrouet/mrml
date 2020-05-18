@@ -322,4 +322,12 @@ pub mod tests {
             include_str!("../../test/mj-button-href.html"),
         );
     }
+
+    #[test]
+    fn with_inner_padding() {
+        compare_render(
+            include_str!("../../test/mj-button-inner-padding.mjml"),
+            include_str!("../../test/mj-button-inner-padding.html"),
+        );
+    }
 }

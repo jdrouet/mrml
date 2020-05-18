@@ -50,7 +50,7 @@
     - [x] with font-weight (default: normal)
     - [x] with height
     - [x] with href
-    - [ ] with inner-padding (default: 10px 25px)
+    - [x] with inner-padding (default: 10px 25px)
     - [ ] with line-height (default: 120%)
     - [ ] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [ ] with rel
