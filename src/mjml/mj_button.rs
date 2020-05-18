@@ -362,4 +362,12 @@ pub mod tests {
             include_str!("../../test/mj-button-text-transform.html"),
         );
     }
+
+    #[test]
+    fn with_vertical_align() {
+        compare_render(
+            include_str!("../../test/mj-button-vertical-align.mjml"),
+            include_str!("../../test/mj-button-vertical-align.html"),
+        );
+    }
 }

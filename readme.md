@@ -58,7 +58,7 @@
     - [ ] with text-align
     - [x] with text-decoration
     - [x] with text-transform
-    - [ ] with vertical-align (default: middle)
+    - [x] with vertical-align (default: middle)
     - [ ] with width
   - [ ] mj-carousel
   - [x] mj-column

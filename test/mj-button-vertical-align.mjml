@@ -1,0 +1,14 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-button vertical-align="top">
+          Don't click me!
+         </mj-button>
+        <mj-button vertical-align="bottom">
+          Don't click me!
+         </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
