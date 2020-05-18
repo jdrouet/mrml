@@ -210,4 +210,12 @@ pub mod tests {
             include_str!("../../test/mj-button.html"),
         );
     }
+
+    #[test]
+    fn example() {
+        compare_render(
+            include_str!("../../test/mj-button-example.mjml"),
+            include_str!("../../test/mj-button-example.html"),
+        );
+    }
 }

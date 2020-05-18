@@ -36,7 +36,7 @@
   - [ ] mj-accordion
   - [ ] mj-button
     - [x] without attributes
-    - [ ] documentation example
+    - [x] documentation example
     - [ ] with align (default: center)
     - [ ] with background-color (default: #414141)
     - [ ] with border, border-(top|right|bottom|left)

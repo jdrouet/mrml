@@ -134,23 +134,23 @@ impl MJHead {
             None => return "".into(),
         };
         let fonts = self.header.get_font_families();
-        if fonts.is_empty() {
+        let mut font_urls = vec![];
+        for font in fonts.iter() {
+            if let Some(url) = ctx.options().fonts.get(&font) {
+                font_urls.push(url);
+            }
+        }
+        if font_urls.is_empty() {
             return "".into();
         }
         let mut res = vec![];
         res.push(START_MSO_NEGATION_CONDITIONAL_TAG.into());
-        for font in fonts.iter() {
-            match ctx.options().fonts.get(&font) {
-                Some(url) => res.push(url_to_link(url.as_str())),
-                None => (),
-            };
+        for url in font_urls.iter() {
+            res.push(url_to_link(url.as_str()));
         }
         res.push(open_tag!("style", to_attributes!(("type", "text/css"))));
-        for font in fonts.iter() {
-            match ctx.options().fonts.get(&font) {
-                Some(url) => res.push(url_to_import(url.as_str())),
-                None => (),
-            };
+        for url in font_urls.iter() {
+            res.push(url_to_import(url.as_str()));
         }
         res.push(close_tag!("style"));
         res.push(END_NEGATION_CONDITIONAL_TAG.into());
