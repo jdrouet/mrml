@@ -49,12 +49,12 @@
     - [x] with font-style
     - [x] with font-weight (default: normal)
     - [x] with height
-    - [ ] with href
+    - [x] with href
     - [ ] with inner-padding (default: 10px 25px)
     - [ ] with line-height (default: 120%)
     - [ ] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [ ] with rel
-    - [ ] with target (default: _blank)
+    - [x] with target (default: _blank)
     - [ ] with text-align
     - [ ] with text-decoration
     - [ ] with text-transform
