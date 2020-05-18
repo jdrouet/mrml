@@ -354,4 +354,12 @@ pub mod tests {
             include_str!("../../test/mj-button-text-decoration.html"),
         );
     }
+
+    #[test]
+    fn with_text_transform() {
+        compare_render(
+            include_str!("../../test/mj-button-text-transform.mjml"),
+            include_str!("../../test/mj-button-text-transform.html"),
+        );
+    }
 }

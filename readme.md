@@ -57,7 +57,7 @@
     - [x] with target (default: _blank)
     - [ ] with text-align
     - [x] with text-decoration
-    - [ ] with text-transform
+    - [x] with text-transform
     - [ ] with vertical-align (default: middle)
     - [ ] with width
   - [ ] mj-carousel

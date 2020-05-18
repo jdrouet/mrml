@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-button text-transform="lowercase">
+          Don't click me!
+         </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
