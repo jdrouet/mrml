@@ -35,7 +35,7 @@
     - [x] with width
   - [ ] mj-accordion
   - [ ] mj-button
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] documentation example
     - [ ] with align (default: center)
     - [ ] with background-color (default: #414141)
