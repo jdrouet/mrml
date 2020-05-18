@@ -38,7 +38,7 @@
     - [x] without attributes
     - [x] documentation example
     - [x] with align (default: center)
-    - [ ] with background-color (default: #414141)
+    - [x] with background-color (default: #414141)
     - [ ] with border, border-(top|right|bottom|left)
     - [ ] with border-radius (default: 3px)
     - [ ] with color (default: #ffffff)

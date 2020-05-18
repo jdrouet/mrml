@@ -226,4 +226,12 @@ pub mod tests {
             include_str!("../../test/mj-button-align.html"),
         );
     }
+
+    #[test]
+    fn with_background() {
+        compare_render(
+            include_str!("../../test/mj-button-background.mjml"),
+            include_str!("../../test/mj-button-background.html"),
+        );
+    }
 }
