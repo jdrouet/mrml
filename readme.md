@@ -59,7 +59,7 @@
     - [x] with text-decoration
     - [x] with text-transform
     - [x] with vertical-align (default: middle)
-    - [ ] with width
+    - [x] with width
   - [ ] mj-carousel
   - [x] mj-column
     - [x] without attributes

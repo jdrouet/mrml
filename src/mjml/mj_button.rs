@@ -53,7 +53,7 @@ impl MJButton {
             None => 0.0,
         };
 
-        Some(Size::Pixel(width.value() + pad_left + pad_right))
+        Some(Size::Pixel(width.value() - pad_left - pad_right))
     }
 }
 
@@ -368,6 +368,14 @@ pub mod tests {
         compare_render(
             include_str!("../../test/mj-button-vertical-align.mjml"),
             include_str!("../../test/mj-button-vertical-align.html"),
+        );
+    }
+
+    #[test]
+    fn with_width() {
+        compare_render(
+            include_str!("../../test/mj-button-width.mjml"),
+            include_str!("../../test/mj-button-width.html"),
         );
     }
 }
