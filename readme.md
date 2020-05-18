@@ -51,7 +51,7 @@
     - [x] with height
     - [x] with href
     - [x] with inner-padding (default: 10px 25px)
-    - [ ] with line-height (default: 120%)
+    - [x] with line-height (default: 120%)
     - [ ] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [ ] with rel
     - [x] with target (default: _blank)

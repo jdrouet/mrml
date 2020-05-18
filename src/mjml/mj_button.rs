@@ -330,4 +330,12 @@ pub mod tests {
             include_str!("../../test/mj-button-inner-padding.html"),
         );
     }
+
+    #[test]
+    fn with_line_height() {
+        compare_render(
+            include_str!("../../test/mj-button-line-height.mjml"),
+            include_str!("../../test/mj-button-line-height.html"),
+        );
+    }
 }
