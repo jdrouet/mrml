@@ -1,0 +1,14 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-button href="https://crates.io/crates/mrml">
+          Don't click me!
+         </mj-button>
+        <mj-button href="https://crates.io/crates/mrml" rel="testing" target="_self">
+          Don't click me!
+         </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

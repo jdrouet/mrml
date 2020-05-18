@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 pub mod error;
 mod mj_body;
+mod mj_button;
 mod mj_column;
 mod mj_head;
 mod mj_image;
@@ -20,6 +21,7 @@ use prelude::Component;
 pub enum Element {
     MJML(mjml::MJMLElement),
     MJBody(mj_body::MJBody),
+    MJButton(mj_button::MJButton),
     MJColumn(mj_column::MJColumn),
     MJHead(mj_head::MJHead),
     MJImage(mj_image::MJImage),
@@ -33,6 +35,7 @@ macro_rules! apply_fn {
         match $root {
             Element::MJML(item) => item.$func($($args)*),
             Element::MJBody(item) => item.$func($($args)*),
+            Element::MJButton(item) => item.$func($($args)*),
             Element::MJColumn(item) => item.$func($($args)*),
             Element::MJHead(item) => item.$func($($args)*),
             Element::MJImage(item) => item.$func($($args)*),
@@ -78,6 +81,7 @@ impl Element {
         let res = match node.tag_name().name() {
             "mjml" => Element::MJML(mjml::MJMLElement::parse(node)?),
             "mj-body" => Element::MJBody(mj_body::MJBody::parse(node)?),
+            "mj-button" => Element::MJButton(mj_button::MJButton::parse(node)?),
             "mj-column" => Element::MJColumn(mj_column::MJColumn::parse(node)?),
             "mj-head" => Element::MJHead(mj_head::MJHead::parse(node)?),
             "mj-image" => Element::MJImage(mj_image::MJImage::parse(node)?),

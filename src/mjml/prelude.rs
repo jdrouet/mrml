@@ -117,6 +117,35 @@ pub trait ComponentWithBorder: Component {
 }
 
 pub trait ComponentWithPadding: Component + ComponentWithSizeAttribute {
+    fn get_prefixed_padding_global(&self, prefix: &str) -> Option<Spacing> {
+        self.get_attribute(format!("{}-padding", prefix).as_str())
+            .and_then(|value| value.parse::<Spacing>().ok())
+    }
+
+    fn get_prefixed_padding(&self, prefix: &str, direction: &str) -> Option<Size> {
+        self.get_size_attribute(format!("{}-padding-{}", prefix, direction).as_str())
+            .or_else(|| {
+                self.get_prefixed_padding_global(prefix)
+                    .and_then(|value| value.get(direction))
+            })
+    }
+
+    fn get_prefixed_padding_top(&self, prefix: &str) -> Option<Size> {
+        self.get_prefixed_padding(prefix, "top")
+    }
+
+    fn get_prefixed_padding_right(&self, prefix: &str) -> Option<Size> {
+        self.get_prefixed_padding(prefix, "right")
+    }
+
+    fn get_prefixed_padding_bottom(&self, prefix: &str) -> Option<Size> {
+        self.get_prefixed_padding(prefix, "bottom")
+    }
+
+    fn get_prefixed_padding_left(&self, prefix: &str) -> Option<Size> {
+        self.get_prefixed_padding(prefix, "left")
+    }
+
     fn get_padding_global(&self) -> Option<Spacing> {
         self.get_attribute("padding")
             .and_then(|value| value.parse::<Spacing>().ok())
