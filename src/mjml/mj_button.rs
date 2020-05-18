@@ -290,4 +290,12 @@ pub mod tests {
             include_str!("../../test/mj-button-font-size.html"),
         );
     }
+
+    #[test]
+    fn with_font_style() {
+        compare_render(
+            include_str!("../../test/mj-button-font-style.mjml"),
+            include_str!("../../test/mj-button-font-style.html"),
+        );
+    }
 }
