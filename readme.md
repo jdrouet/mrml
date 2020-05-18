@@ -44,7 +44,7 @@
     - [x] with color (default: #ffffff)
     - [x] with container-background-color
     - [x] with css-class
-    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)
     - [ ] with font-style
     - [ ] with font-weight (default: normal)

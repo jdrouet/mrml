@@ -274,4 +274,12 @@ pub mod tests {
             include_str!("../../test/mj-button-class.html"),
         );
     }
+
+    #[test]
+    fn with_font_family() {
+        compare_render(
+            include_str!("../../test/mj-button-font-family.mjml"),
+            include_str!("../../test/mj-button-font-family.html"),
+        );
+    }
 }
