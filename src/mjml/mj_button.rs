@@ -250,4 +250,12 @@ pub mod tests {
             include_str!("../../test/mj-button-border-radius.html"),
         );
     }
+
+    #[test]
+    fn with_color() {
+        compare_render(
+            include_str!("../../test/mj-button-color.mjml"),
+            include_str!("../../test/mj-button-color.html"),
+        );
+    }
 }
