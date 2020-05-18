@@ -39,7 +39,7 @@
     - [x] documentation example
     - [x] with align (default: center)
     - [x] with background-color (default: #414141)
-    - [ ] with border, border-(top|right|bottom|left)
+    - [x] with border, border-(top|right|bottom|left)
     - [ ] with border-radius (default: 3px)
     - [ ] with color (default: #ffffff)
     - [ ] with container-background-color

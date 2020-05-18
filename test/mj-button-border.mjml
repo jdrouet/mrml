@@ -1,0 +1,14 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-button border="1px solid red">
+          Don't click me!
+         </mj-button>
+        <mj-button border-top="1px solid red" border-right="2px solid green" border-bottom="3px solid blue" border-left="4px solid orange">
+          Don't click me!
+         </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

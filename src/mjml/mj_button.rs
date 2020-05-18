@@ -234,4 +234,12 @@ pub mod tests {
             include_str!("../../test/mj-button-background.html"),
         );
     }
+
+    #[test]
+    fn with_border() {
+        compare_render(
+            include_str!("../../test/mj-button-border.mjml"),
+            include_str!("../../test/mj-button-border.html"),
+        );
+    }
 }
