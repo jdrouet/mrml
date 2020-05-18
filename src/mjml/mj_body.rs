@@ -141,13 +141,25 @@ impl ComponentWithSizeAttribute for MJBody {}
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tests::compare_render;
+    use crate::tests::{compare_render, compare_render_with_options};
+    use crate::Options;
 
     #[test]
     fn basic() {
         compare_render(
             include_str!("../../test/mj-body.mjml"),
             include_str!("../../test/mj-body.html"),
+        );
+    }
+
+    #[test]
+    fn with_options() {
+        let mut opts = Options::default();
+        opts.keep_comments = false;
+        compare_render_with_options(
+            include_str!("../../test/mj-body.mjml"),
+            include_str!("../../test/mj-body-without-comments.html"),
+            opts,
         );
     }
 
