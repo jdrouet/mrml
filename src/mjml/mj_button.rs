@@ -298,4 +298,12 @@ pub mod tests {
             include_str!("../../test/mj-button-font-style.html"),
         );
     }
+
+    #[test]
+    fn with_font_weight() {
+        compare_render(
+            include_str!("../../test/mj-button-font-weight.mjml"),
+            include_str!("../../test/mj-button-font-weight.html"),
+        );
+    }
 }

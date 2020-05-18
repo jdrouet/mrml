@@ -47,7 +47,7 @@
     - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [x] with font-size (default: 13px)
     - [x] with font-style
-    - [ ] with font-weight (default: normal)
+    - [x] with font-weight (default: normal)
     - [ ] with height
     - [ ] with href
     - [ ] with inner-padding (default: 10px 25px)
