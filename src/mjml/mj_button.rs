@@ -282,4 +282,12 @@ pub mod tests {
             include_str!("../../test/mj-button-font-family.html"),
         );
     }
+
+    #[test]
+    fn with_font_size() {
+        compare_render(
+            include_str!("../../test/mj-button-font-size.mjml"),
+            include_str!("../../test/mj-button-font-size.html"),
+        );
+    }
 }
