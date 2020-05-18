@@ -35,6 +35,31 @@
     - [x] with width
   - [ ] mj-accordion
   - [ ] mj-button
+    - [ ] without attributes
+    - [ ] documentation example
+    - [ ] with align (default: center)
+    - [ ] with background-color (default: #414141)
+    - [ ] with border, border-(top|right|bottom|left)
+    - [ ] with border-radius (default: 3px)
+    - [ ] with color (default: #ffffff)
+    - [ ] with container-background-color
+    - [ ] with css-class
+    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [ ] with font-size (default: 13px)
+    - [ ] with font-style
+    - [ ] with font-weight (default: normal)
+    - [ ] with height
+    - [ ] with href
+    - [ ] with inner-padding (default: 10px 25px)
+    - [ ] with line-height (default: 120%)
+    - [ ] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
+    - [ ] with rel
+    - [ ] with target (default: _blank)
+    - [ ] with text-align
+    - [ ] with text-decoration
+    - [ ] with text-transform
+    - [ ] with vertical-align (default: middle)
+    - [ ] with width
   - [ ] mj-carousel
   - [x] mj-column
     - [x] without attributes
