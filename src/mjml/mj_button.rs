@@ -346,4 +346,12 @@ pub mod tests {
             include_str!("../../test/mj-button-padding.html"),
         );
     }
+
+    #[test]
+    fn with_text_decoration() {
+        compare_render(
+            include_str!("../../test/mj-button-text-decoration.mjml"),
+            include_str!("../../test/mj-button-text-decoration.html"),
+        );
+    }
 }

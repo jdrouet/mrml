@@ -56,7 +56,7 @@
     - [x] with rel
     - [x] with target (default: _blank)
     - [ ] with text-align
-    - [ ] with text-decoration
+    - [x] with text-decoration
     - [ ] with text-transform
     - [ ] with vertical-align (default: middle)
     - [ ] with width
