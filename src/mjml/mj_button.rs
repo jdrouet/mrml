@@ -266,4 +266,12 @@ pub mod tests {
             include_str!("../../test/mj-button-container-background-color.html"),
         );
     }
+
+    #[test]
+    fn with_class() {
+        compare_render(
+            include_str!("../../test/mj-button-class.mjml"),
+            include_str!("../../test/mj-button-class.html"),
+        );
+    }
 }
