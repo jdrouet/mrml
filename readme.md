@@ -42,7 +42,7 @@
     - [x] with border, border-(top|right|bottom|left)
     - [x] with border-radius (default: 3px)
     - [x] with color (default: #ffffff)
-    - [ ] with container-background-color
+    - [x] with container-background-color
     - [ ] with css-class
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)

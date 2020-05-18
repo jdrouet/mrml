@@ -258,4 +258,12 @@ pub mod tests {
             include_str!("../../test/mj-button-color.html"),
         );
     }
+
+    #[test]
+    fn with_container_background_color() {
+        compare_render(
+            include_str!("../../test/mj-button-container-background-color.mjml"),
+            include_str!("../../test/mj-button-container-background-color.html"),
+        );
+    }
 }
