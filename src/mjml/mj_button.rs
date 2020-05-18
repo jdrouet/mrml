@@ -218,4 +218,12 @@ pub mod tests {
             include_str!("../../test/mj-button-example.html"),
         );
     }
+
+    #[test]
+    fn with_align() {
+        compare_render(
+            include_str!("../../test/mj-button-align.mjml"),
+            include_str!("../../test/mj-button-align.html"),
+        );
+    }
 }
