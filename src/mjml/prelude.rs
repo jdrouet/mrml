@@ -3,7 +3,16 @@ use super::Element;
 use crate::util::{Context, Header, Size, Spacing, Style};
 use regex::Regex;
 use roxmltree::Node;
+use std::collections::HashMap;
 use std::string::ToString;
+
+pub fn get_node_attributes<'a, 'b>(node: &Node<'a, 'b>) -> HashMap<String, String> {
+    let mut res = HashMap::<String, String>::new();
+    for item in node.attributes().iter() {
+        res.insert(item.name().to_string(), item.value().to_string());
+    }
+    res
+}
 
 pub trait Component {
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
@@ -13,8 +22,6 @@ pub trait Component {
     fn default_attribute(&self, _key: &str) -> Option<String> {
         None
     }
-
-    fn node(&self) -> Option<Node>;
 
     fn get_style(&self, _key: &str) -> Style {
         Style::new()
@@ -26,23 +33,27 @@ pub trait Component {
         Header::new()
     }
 
+    fn source_attributes(&self) -> Option<&HashMap<String, String>>;
+
+    fn get_source_attribute(&self, key: &str) -> Option<String> {
+        self.source_attributes()
+            .and_then(|src| src.get(&key.to_string()))
+            .and_then(|value| Some(value.clone()))
+    }
+
     fn get_attribute(&self, key: &str) -> Option<String> {
         if let Some(allowed) = self.allowed_attributes() {
             if !allowed.contains(&key) {
                 return None;
             }
         }
-        self.node()
-            .and_then(|node| node.attribute(key))
-            .and_then(|value| Some(value.to_string()))
+        self.get_source_attribute(key)
             .or_else(|| self.default_attribute(key))
     }
 
     fn set_context(&mut self, ctx: Context);
 
     fn render(&self) -> Result<String, Error>;
-
-    fn is_raw(&self) -> bool;
 }
 
 pub trait ComponentWithSizeAttribute: Component {
@@ -207,8 +218,9 @@ pub trait ComponentWithChildren: Component {
     }
 
     fn get_raw_siblings(&self) -> usize {
-        self.get_children()
-            .iter()
-            .fold(0, |res, item| if item.is_raw() { res + 1 } else { res })
+        self.get_children().iter().fold(0, |res, item| match item {
+            Element::Raw(_) => res + 1,
+            _ => res,
+        })
     }
 }

@@ -4,20 +4,20 @@ use super::{Component, Error};
 use crate::util::Context;
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const DOCTYPE: &str = "<!doctype html>";
 const HTML_OPEN: &str = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">";
 const HTML_CLOSE: &str = "</html>";
 
 #[derive(Clone, Debug)]
-pub struct MJMLElement<'a, 'b> {
+pub struct MJMLElement {
     context: Option<Context>,
-    head: MJHead<'a, 'b>,
-    body: MJBody<'a, 'b>,
-    node: Node<'a, 'b>,
+    head: MJHead,
+    body: MJBody,
 }
 
-fn get_head<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead<'a, 'b>, Error> {
+fn get_head<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-head" {
             return MJHead::parse(child);
@@ -26,7 +26,7 @@ fn get_head<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead<'a, 'b>, Error> {
     Ok(MJHead::empty())
 }
 
-fn get_body<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody<'a, 'b>, Error> {
+fn get_body<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-body" {
             return MJBody::parse(child);
@@ -35,14 +35,13 @@ fn get_body<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody<'a, 'b>, Error> {
     Ok(MJBody::empty())
 }
 
-impl MJMLElement<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJMLElement<'a, 'b>, Error> {
+impl MJMLElement {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJMLElement, Error> {
         debug!("parse");
         let head = get_head(node)?;
         let body = get_body(node)?;
         let element = MJMLElement {
             context: None,
-            node,
             head,
             body,
         };
@@ -50,17 +49,13 @@ impl MJMLElement<'_, '_> {
     }
 }
 
-impl Component for MJMLElement<'_, '_> {
+impl Component for MJMLElement {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }
 
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
-    }
-
-    fn is_raw(&self) -> bool {
-        false
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        None
     }
 
     fn set_context(&mut self, ctx: Context) {

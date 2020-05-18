@@ -1,45 +1,53 @@
-use super::{Component, Element, Error};
 use super::prelude::*;
+use super::{Component, Element, Error};
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Style};
 use crate::{close_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const ALLOWED_ATTRIBUTES: [&'static str; 3] = ["background-color", "css-class", "width"];
 
 #[derive(Clone, Debug)]
-pub struct MJBody<'a, 'b> {
-    node: Option<Node<'a, 'b>>,
+pub struct MJBody {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element<'a, 'b>>,
+    children: Vec<Element>,
+    exists: bool,
 }
 
-impl MJBody<'_, '_> {
-    pub fn empty<'a, 'b>() -> MJBody<'a, 'b> {
+impl MJBody {
+    pub fn empty<'a, 'b>() -> MJBody {
         MJBody {
-            node: None,
+            attributes: HashMap::new(),
             children: vec![],
             context: None,
+            exists: false,
         }
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody<'a, 'b>, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(Element::parse(child)?);
         }
         Ok(MJBody {
-            node: Some(node),
+            attributes: get_node_attributes(&node),
             children,
             context: None,
+            exists: true,
         })
     }
 }
 
-impl Component for MJBody<'_, '_> {
+impl Component for MJBody {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
+    }
+
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
     }
 
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
@@ -74,10 +82,6 @@ impl Component for MJBody<'_, '_> {
             _ => (),
         };
         res
-    }
-
-    fn node(&self) -> Option<Node> {
-        self.node
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -118,7 +122,7 @@ impl Component for MJBody<'_, '_> {
             }
             res.push(open_tag!("body", attrs.to_string()));
         }
-        if self.node.is_some() {
+        if self.exists {
             let mut attrs = Attributes::new();
             attrs.maybe_set("class", self.get_attribute("css-class"));
             attrs.set("style", self.get_style("div").to_string());
@@ -131,23 +135,31 @@ impl Component for MJBody<'_, '_> {
         res.push(close_tag!("body"));
         Ok(res.join(""))
     }
-
-    fn is_raw(&self) -> bool {
-        false
-    }
 }
 
-impl ComponentWithSizeAttribute for MJBody<'_, '_> {}
+impl ComponentWithSizeAttribute for MJBody {}
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tests::compare_render;
+    use crate::tests::{compare_render, compare_render_with_options};
+    use crate::Options;
 
     #[test]
     fn basic() {
         compare_render(
             include_str!("../../test/mj-body.mjml"),
             include_str!("../../test/mj-body.html"),
+        );
+    }
+
+    #[test]
+    fn with_options() {
+        let mut opts = Options::default();
+        opts.keep_comments = false;
+        compare_render_with_options(
+            include_str!("../../test/mj-body.mjml"),
+            include_str!("../../test/mj-body-without-comments.html"),
+            opts,
         );
     }
 

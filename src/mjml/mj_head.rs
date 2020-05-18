@@ -1,10 +1,12 @@
-use super::{Component, Error};
-use crate::util::{Context, Header};
-use crate::util::condition::{START_MSO_NEGATION_CONDITIONAL_TAG, END_NEGATION_CONDITIONAL_TAG};
+use super::prelude::{get_node_attributes, Component};
+use super::Error;
+use crate::util::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::util::fonts::{url_to_import, url_to_link};
+use crate::util::{Context, Header};
 use crate::{close_tag, open_tag, to_attributes, with_tag};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const STYLE_BASE: &str = r#"
 <style type="text/css">
@@ -51,28 +53,28 @@ p {
 "#;
 
 #[derive(Debug, Clone)]
-pub struct MJHead<'a, 'b> {
+pub struct MJHead {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
     header: Header,
-    node: Option<Node<'a, 'b>>,
 }
 
-impl MJHead<'_, '_> {
-    pub fn empty<'a, 'b>() -> MJHead<'a, 'b> {
+impl MJHead {
+    pub fn empty() -> MJHead {
         debug!("create empty");
         MJHead {
+            attributes: HashMap::new(),
             context: None,
             header: Header::new(),
-            node: None,
         }
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead<'a, 'b>, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead, Error> {
         debug!("parse");
         Ok(MJHead {
+            attributes: get_node_attributes(&node),
             context: None,
             header: Header::new(),
-            node: Some(node),
         })
     }
 
@@ -88,14 +90,20 @@ impl MJHead<'_, '_> {
     }
 
     fn get_media_queries(&self) -> String {
-        let breakpoint = "480px";
+        let breakpoint = match self
+            .context()
+            .and_then(|ctx| Some(ctx.options().breakpoint.clone()))
+        {
+            Some(value) => value,
+            None => return "".into(),
+        };
         if !self.header.has_media_queries() {
             return "".into();
         }
         let mut res = vec![];
         res.push(format!(
             "@media only screen and (min-width:{}) {{ ",
-            breakpoint
+            breakpoint.to_string()
         ));
         let mut classnames: Vec<&String> = self.header.get_media_queries().keys().collect();
         classnames.sort();
@@ -164,21 +172,17 @@ impl MJHead<'_, '_> {
     }
 }
 
-impl Component for MJHead<'_, '_> {
-    fn node(&self) -> Option<Node> {
-        self.node
-    }
-
+impl Component for MJHead {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }
 
-    fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx);
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        None
     }
 
-    fn is_raw(&self) -> bool {
-        false
+    fn set_context(&mut self, ctx: Context) {
+        self.context = Some(ctx);
     }
 
     fn render(&self) -> Result<String, Error> {

@@ -6,6 +6,7 @@ use crate::util::{Attributes, Context, Header, Size, Style};
 use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const ALLOWED_ATTRIBUTES: [&'static str; 16] = [
     "background-color",
@@ -27,21 +28,21 @@ const ALLOWED_ATTRIBUTES: [&'static str; 16] = [
 ];
 
 #[derive(Clone, Debug)]
-pub struct MJColumn<'a, 'b> {
+pub struct MJColumn {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
-    node: Node<'a, 'b>,
-    children: Vec<Element<'a, 'b>>,
+    children: Vec<Element>,
 }
 
-impl MJColumn<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJColumn<'a, 'b>, Error> {
+impl MJColumn {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJColumn, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(Element::parse(child)?);
         }
         Ok(MJColumn {
+            attributes: get_node_attributes(&node),
             context: None,
-            node,
             children,
         })
     }
@@ -199,7 +200,7 @@ impl MJColumn<'_, '_> {
     }
 }
 
-impl Component for MJColumn<'_, '_> {
+impl Component for MJColumn {
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
@@ -211,6 +212,10 @@ impl Component for MJColumn<'_, '_> {
             "vertical-align" => Some("top".into()),
             _ => None,
         }
+    }
+
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
     }
 
     fn context(&self) -> Option<&Context> {
@@ -269,10 +274,6 @@ impl Component for MJColumn<'_, '_> {
         res
     }
 
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
-    }
-
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
         let children_ctx = Context::from(
@@ -311,13 +312,9 @@ impl Component for MJColumn<'_, '_> {
         res.push(close_tag!("div"));
         Ok(res.join(""))
     }
-
-    fn is_raw(&self) -> bool {
-        false
-    }
 }
 
-impl ComponentWithChildren for MJColumn<'_, '_> {
+impl ComponentWithChildren for MJColumn {
     fn get_children(&self) -> &Vec<Element> {
         &self.children
     }
@@ -356,11 +353,11 @@ impl ComponentWithChildren for MJColumn<'_, '_> {
     }
 }
 
-impl ContainedComponent for MJColumn<'_, '_> {}
-impl ComponentWithSizeAttribute for MJColumn<'_, '_> {}
-impl ComponentWithBorder for MJColumn<'_, '_> {}
-impl ComponentWithPadding for MJColumn<'_, '_> {}
-impl ComponentWithBoxWidths for MJColumn<'_, '_> {}
+impl ContainedComponent for MJColumn {}
+impl ComponentWithSizeAttribute for MJColumn {}
+impl ComponentWithBorder for MJColumn {}
+impl ComponentWithPadding for MJColumn {}
+impl ComponentWithBoxWidths for MJColumn {}
 
 #[cfg(test)]
 pub mod tests {

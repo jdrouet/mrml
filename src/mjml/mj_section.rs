@@ -7,6 +7,7 @@ use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Style};
 use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
+use std::collections::HashMap;
 
 const ALLOWED_ATTRIBUTES: [&'static str; 20] = [
     "background-color",
@@ -32,21 +33,21 @@ const ALLOWED_ATTRIBUTES: [&'static str; 20] = [
 ];
 
 #[derive(Clone, Debug)]
-pub struct MJSection<'a, 'b> {
+pub struct MJSection {
+    attributes: HashMap<String, String>,
     context: Option<Context>,
-    node: Node<'a, 'b>,
-    children: Vec<Element<'a, 'b>>,
+    children: Vec<Element>,
 }
 
-impl MJSection<'_, '_> {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJSection<'a, 'b>, Error> {
+impl MJSection {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJSection, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(Element::parse(child)?);
         }
         Ok(MJSection {
+            attributes: get_node_attributes(&node),
             context: None,
-            node,
             children,
         })
     }
@@ -85,11 +86,11 @@ impl MJSection<'_, '_> {
     }
 
     fn has_background(&self) -> bool {
-        self.node.has_attribute("background-url")
+        self.attributes.contains_key("background-url")
     }
 
     fn is_full_width(&self) -> bool {
-        self.node.has_attribute("full-width")
+        self.attributes.contains_key("full-width")
     }
 
     fn render_before(&self) -> Result<String, Error> {
@@ -326,7 +327,7 @@ impl MJSection<'_, '_> {
     }
 }
 
-impl Component for MJSection<'_, '_> {
+impl Component for MJSection {
     fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
         Some(ALLOWED_ATTRIBUTES.to_vec())
     }
@@ -344,8 +345,8 @@ impl Component for MJSection<'_, '_> {
         }
     }
 
-    fn is_raw(&self) -> bool {
-        false
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
     }
 
     fn to_header(&self) -> Header {
@@ -410,10 +411,6 @@ impl Component for MJSection<'_, '_> {
         self.context.as_ref()
     }
 
-    fn node(&self) -> Option<Node> {
-        Some(self.node)
-    }
-
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
         let sibling = self.get_siblings();
@@ -436,7 +433,7 @@ impl Component for MJSection<'_, '_> {
     }
 }
 
-impl ComponentWithChildren for MJSection<'_, '_> {
+impl ComponentWithChildren for MJSection {
     fn get_children(&self) -> &Vec<Element> {
         &self.children
     }
@@ -446,7 +443,7 @@ impl ComponentWithChildren for MJSection<'_, '_> {
     }
 }
 
-impl ContainedComponent for MJSection<'_, '_> {}
+impl ContainedComponent for MJSection {}
 
 #[cfg(test)]
 pub mod tests {
