@@ -1,6 +1,7 @@
-use super::error::Error;
-use super::prelude::{Component, ContainedComponent, get_node_attributes};
-use super::Element;
+use super::BodyElement;
+use crate::mjml::body::prelude::*;
+use crate::mjml::error::Error;
+use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Context, Header, Style};
@@ -9,40 +10,18 @@ use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
-const ALLOWED_ATTRIBUTES: [&'static str; 19] = [
-    "color",
-    "align",
-    "font-family",
-    "font-size",
-    "font-style",
-    "font-weight",
-    "line-height",
-    "letter-spacing",
-    "height",
-    "text-decoration",
-    "text-transform",
-    "align",
-    "container-background-color",
-    "padding",
-    "padding-top",
-    "padding-bottom",
-    "padding-left",
-    "padding-right",
-    "css-class",
-];
-
 #[derive(Clone, Debug)]
 pub struct MJText {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element>,
+    children: Vec<BodyElement>,
 }
 
 impl MJText {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJText, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(Element::parse(child)?);
+            children.push(BodyElement::parse(child)?);
         }
         Ok(MJText {
             attributes: get_node_attributes(&node),
@@ -95,10 +74,29 @@ impl MJText {
 }
 
 impl Component for MJText {
-    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
-        Some(ALLOWED_ATTRIBUTES.to_vec())
+    fn to_header(&self) -> Header {
+        let mut header = Header::new();
+        header.maybe_add_font_families(self.get_attribute("font-family"));
+        header
     }
 
+    fn context(&self) -> Option<&Context> {
+        self.context.as_ref()
+    }
+
+    fn set_context(&mut self, ctx: Context) {
+        self.context = Some(ctx.clone());
+    }
+
+    fn render(&self) -> Result<String, Error> {
+        match self.get_attribute("height") {
+            Some(value) => self.render_with_height(value),
+            None => self.render_content(),
+        }
+    }
+}
+
+impl ComponentWithAttributes for MJText {
     fn default_attribute(&self, key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
@@ -115,13 +113,9 @@ impl Component for MJText {
     fn source_attributes(&self) -> Option<&HashMap<String, String>> {
         Some(&self.attributes)
     }
+}
 
-    fn to_header(&self) -> Header {
-        let mut header = Header::new();
-        header.maybe_add_font_families(self.get_attribute("font-family"));
-        header
-    }
-
+impl BodyComponent for MJText {
     fn get_style(&self, name: &str) -> Style {
         let mut res = Style::new();
         match name {
@@ -142,24 +136,9 @@ impl Component for MJText {
         };
         res
     }
-
-    fn context(&self) -> Option<&Context> {
-        self.context.as_ref()
-    }
-
-    fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
-    }
-
-    fn render(&self) -> Result<String, Error> {
-        match self.get_attribute("height") {
-            Some(value) => self.render_with_height(value),
-            None => self.render_content(),
-        }
-    }
 }
 
-impl ContainedComponent for MJText {}
+impl BodyContainedComponent for MJText {}
 
 #[cfg(test)]
 pub mod tests {
@@ -168,120 +147,120 @@ pub mod tests {
     #[test]
     fn base() {
         compare_render(
-            include_str!("../../test/mj-text.mjml"),
-            include_str!("../../test/mj-text.html"),
+            include_str!("../../../test/mj-text.mjml"),
+            include_str!("../../../test/mj-text.html"),
         );
     }
 
     #[test]
     fn doc_example() {
         compare_render(
-            include_str!("../../test/mj-text-example.mjml"),
-            include_str!("../../test/mj-text-example.html"),
+            include_str!("../../../test/mj-text-example.mjml"),
+            include_str!("../../../test/mj-text-example.html"),
         );
     }
 
     #[test]
     fn with_color() {
         compare_render(
-            include_str!("../../test/mj-text-color.mjml"),
-            include_str!("../../test/mj-text-color.html"),
+            include_str!("../../../test/mj-text-color.mjml"),
+            include_str!("../../../test/mj-text-color.html"),
         );
     }
 
     #[test]
     fn with_font_family() {
         compare_render(
-            include_str!("../../test/mj-text-font-family.mjml"),
-            include_str!("../../test/mj-text-font-family.html"),
+            include_str!("../../../test/mj-text-font-family.mjml"),
+            include_str!("../../../test/mj-text-font-family.html"),
         );
     }
 
     #[test]
     fn with_font_size() {
         compare_render(
-            include_str!("../../test/mj-text-font-size.mjml"),
-            include_str!("../../test/mj-text-font-size.html"),
+            include_str!("../../../test/mj-text-font-size.mjml"),
+            include_str!("../../../test/mj-text-font-size.html"),
         );
     }
 
     #[test]
     fn with_font_style() {
         compare_render(
-            include_str!("../../test/mj-text-font-style.mjml"),
-            include_str!("../../test/mj-text-font-style.html"),
+            include_str!("../../../test/mj-text-font-style.mjml"),
+            include_str!("../../../test/mj-text-font-style.html"),
         );
     }
 
     #[test]
     fn with_line_height() {
         compare_render(
-            include_str!("../../test/mj-text-line-height.mjml"),
-            include_str!("../../test/mj-text-line-height.html"),
+            include_str!("../../../test/mj-text-line-height.mjml"),
+            include_str!("../../../test/mj-text-line-height.html"),
         );
     }
 
     #[test]
     fn with_letter_spacing() {
         compare_render(
-            include_str!("../../test/mj-text-letter-spacing.mjml"),
-            include_str!("../../test/mj-text-letter-spacing.html"),
+            include_str!("../../../test/mj-text-letter-spacing.mjml"),
+            include_str!("../../../test/mj-text-letter-spacing.html"),
         );
     }
 
     #[test]
     fn with_height() {
         compare_render(
-            include_str!("../../test/mj-text-height.mjml"),
-            include_str!("../../test/mj-text-height.html"),
+            include_str!("../../../test/mj-text-height.mjml"),
+            include_str!("../../../test/mj-text-height.html"),
         );
     }
 
     #[test]
     fn with_decoration() {
         compare_render(
-            include_str!("../../test/mj-text-decoration.mjml"),
-            include_str!("../../test/mj-text-decoration.html"),
+            include_str!("../../../test/mj-text-decoration.mjml"),
+            include_str!("../../../test/mj-text-decoration.html"),
         );
     }
 
     #[test]
     fn with_transform() {
         compare_render(
-            include_str!("../../test/mj-text-transform.mjml"),
-            include_str!("../../test/mj-text-transform.html"),
+            include_str!("../../../test/mj-text-transform.mjml"),
+            include_str!("../../../test/mj-text-transform.html"),
         );
     }
 
     #[test]
     fn with_align() {
         compare_render(
-            include_str!("../../test/mj-text-align.mjml"),
-            include_str!("../../test/mj-text-align.html"),
+            include_str!("../../../test/mj-text-align.mjml"),
+            include_str!("../../../test/mj-text-align.html"),
         );
     }
 
     #[test]
     fn with_container_background_color() {
         compare_render(
-            include_str!("../../test/mj-text-container-background-color.mjml"),
-            include_str!("../../test/mj-text-container-background-color.html"),
+            include_str!("../../../test/mj-text-container-background-color.mjml"),
+            include_str!("../../../test/mj-text-container-background-color.html"),
         );
     }
 
     #[test]
     fn with_padding() {
         compare_render(
-            include_str!("../../test/mj-text-padding.mjml"),
-            include_str!("../../test/mj-text-padding.html"),
+            include_str!("../../../test/mj-text-padding.mjml"),
+            include_str!("../../../test/mj-text-padding.html"),
         );
     }
 
     #[test]
     fn with_css_class() {
         compare_render(
-            include_str!("../../test/mj-text-class.mjml"),
-            include_str!("../../test/mj-text-class.html"),
+            include_str!("../../../test/mj-text-class.mjml"),
+            include_str!("../../../test/mj-text-class.html"),
         );
     }
 }

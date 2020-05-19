@@ -1,45 +1,12 @@
-use super::error::Error;
-use super::prelude::*;
-// use super::Element;
-// use crate::util::condition::*;
+use crate::mjml::error::Error;
+use crate::mjml::prelude::*;
+use crate::mjml::body::prelude::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Size, Style};
 use crate::{close_tag, closed_tag, open_tag, with_tag};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
-
-const ALLOWED_ATTRIBUTES: [&'static str; 29] = [
-    "css-class",
-    "align",
-    "alt",
-    "href",
-    "name",
-    "src",
-    "srcset",
-    "title",
-    "rel",
-    "enum",
-    "border",
-    "border-top",
-    "border-right",
-    "border-bottom",
-    "border-left",
-    "border-radius",
-    "container-background-color",
-    "fluid-on-mobile",
-    "padding",
-    "padding-top",
-    "padding-right",
-    "padding-bottom",
-    "padding-left",
-    "target",
-    "width",
-    "height",
-    "max-height",
-    "font-size",
-    "usemap",
-];
 
 #[derive(Clone, Debug)]
 pub struct MJImage {
@@ -120,27 +87,6 @@ impl MJImage {
 }
 
 impl Component for MJImage {
-    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
-        Some(ALLOWED_ATTRIBUTES.to_vec())
-    }
-
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("center".into()),
-            "border" => Some("0".into()),
-            "height" => Some("auto".into()),
-            "padding" => Some("10px 25px".into()),
-            "target" => Some("_blank".into()),
-            "font-size" => Some("13px".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
-    }
-
     fn to_header(&self) -> Header {
         let mut header = Header::new();
         if let Some(ctx) = self.context() {
@@ -154,47 +100,6 @@ impl Component for MJImage {
             header.add_style(style);
         }
         header
-    }
-
-    fn get_style(&self, name: &str) -> Style {
-        let mut res = Style::new();
-        match name {
-            "img" => {
-                res.maybe_set("border", self.get_attribute("border"));
-                res.maybe_set("border-left", self.get_attribute("left"));
-                res.maybe_set("border-right", self.get_attribute("right"));
-                res.maybe_set("border-top", self.get_attribute("top"));
-                res.maybe_set("border-bottom", self.get_attribute("bottom"));
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.set("display", "block");
-                res.set("outline", "none");
-                res.set("text-decoration", "none");
-                res.maybe_set("height", self.get_attribute("height"));
-                res.maybe_set("max-height", self.get_attribute("max-height"));
-                res.set("width", "100%");
-                if self.is_full_width() {
-                    res.set("min-width", "100%");
-                    res.set("max-width", "100%");
-                }
-                res.maybe_set("font-size", self.get_attribute("font-size"));
-            }
-            "td" => {
-                if !self.is_full_width() {
-                    res.maybe_set("width", self.get_content_width());
-                }
-            }
-            "table" => {
-                if self.is_full_width() {
-                    res.set("min-width", "100%");
-                    res.set("max-width", "100%");
-                    res.maybe_set("width", self.get_content_width());
-                }
-                res.set("border-collapse", "collapse");
-                res.set("border-spacing", "0px");
-            }
-            _ => (),
-        };
-        res
     }
 
     fn context(&self) -> Option<&Context> {
@@ -242,11 +147,73 @@ impl Component for MJImage {
     }
 }
 
-impl ContainedComponent for MJImage {}
+impl ComponentWithAttributes for MJImage {
+    fn default_attribute(&self, key: &str) -> Option<String> {
+        debug!("default_attribute {}", key);
+        match key {
+            "align" => Some("center".into()),
+            "border" => Some("0".into()),
+            "height" => Some("auto".into()),
+            "padding" => Some("10px 25px".into()),
+            "target" => Some("_blank".into()),
+            "font-size" => Some("13px".into()),
+            _ => None,
+        }
+    }
+
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
+    }
+}
+
+impl BodyComponent for MJImage {
+    fn get_style(&self, name: &str) -> Style {
+        let mut res = Style::new();
+        match name {
+            "img" => {
+                res.maybe_set("border", self.get_attribute("border"));
+                res.maybe_set("border-left", self.get_attribute("left"));
+                res.maybe_set("border-right", self.get_attribute("right"));
+                res.maybe_set("border-top", self.get_attribute("top"));
+                res.maybe_set("border-bottom", self.get_attribute("bottom"));
+                res.maybe_set("border-radius", self.get_attribute("border-radius"));
+                res.set("display", "block");
+                res.set("outline", "none");
+                res.set("text-decoration", "none");
+                res.maybe_set("height", self.get_attribute("height"));
+                res.maybe_set("max-height", self.get_attribute("max-height"));
+                res.set("width", "100%");
+                if self.is_full_width() {
+                    res.set("min-width", "100%");
+                    res.set("max-width", "100%");
+                }
+                res.maybe_set("font-size", self.get_attribute("font-size"));
+            }
+            "td" => {
+                if !self.is_full_width() {
+                    res.maybe_set("width", self.get_content_width());
+                }
+            }
+            "table" => {
+                if self.is_full_width() {
+                    res.set("min-width", "100%");
+                    res.set("max-width", "100%");
+                    res.maybe_set("width", self.get_content_width());
+                }
+                res.set("border-collapse", "collapse");
+                res.set("border-spacing", "0px");
+            }
+            _ => (),
+        };
+        res
+    }
+}
+
+impl BodyContainedComponent for MJImage {}
 impl ComponentWithSizeAttribute for MJImage {}
-impl ComponentWithBorder for MJImage {}
-impl ComponentWithPadding for MJImage {}
-impl ComponentWithBoxWidths for MJImage {}
+impl BodyComponentWithBorder for MJImage {}
+impl BodyComponentWithPadding for MJImage {}
+impl BodyComponentWithBoxWidths for MJImage {}
 
 #[cfg(test)]
 pub mod tests {
@@ -255,96 +222,96 @@ pub mod tests {
     #[test]
     fn base() {
         compare_render(
-            include_str!("../../test/mj-image.mjml"),
-            include_str!("../../test/mj-image.html"),
+            include_str!("../../../test/mj-image.mjml"),
+            include_str!("../../../test/mj-image.html"),
         );
     }
 
     #[test]
     fn with_align() {
         compare_render(
-            include_str!("../../test/mj-image-align.mjml"),
-            include_str!("../../test/mj-image-align.html"),
+            include_str!("../../../test/mj-image-align.mjml"),
+            include_str!("../../../test/mj-image-align.html"),
         );
     }
 
     #[test]
     fn with_border() {
         compare_render(
-            include_str!("../../test/mj-image-border.mjml"),
-            include_str!("../../test/mj-image-border.html"),
+            include_str!("../../../test/mj-image-border.mjml"),
+            include_str!("../../../test/mj-image-border.html"),
         );
     }
 
     #[test]
     fn with_border_radius() {
         compare_render(
-            include_str!("../../test/mj-image-border-radius.mjml"),
-            include_str!("../../test/mj-image-border-radius.html"),
+            include_str!("../../../test/mj-image-border-radius.mjml"),
+            include_str!("../../../test/mj-image-border-radius.html"),
         );
     }
 
     #[test]
     fn with_container_background_color() {
         compare_render(
-            include_str!("../../test/mj-image-container-background-color.mjml"),
-            include_str!("../../test/mj-image-container-background-color.html"),
+            include_str!("../../../test/mj-image-container-background-color.mjml"),
+            include_str!("../../../test/mj-image-container-background-color.html"),
         );
     }
 
     #[test]
     fn with_css_class() {
         compare_render(
-            include_str!("../../test/mj-image-class.mjml"),
-            include_str!("../../test/mj-image-class.html"),
+            include_str!("../../../test/mj-image-class.mjml"),
+            include_str!("../../../test/mj-image-class.html"),
         );
     }
 
     #[test]
     fn with_fluid_on_mobile() {
         compare_render(
-            include_str!("../../test/mj-image-fluid-on-mobile.mjml"),
-            include_str!("../../test/mj-image-fluid-on-mobile.html"),
+            include_str!("../../../test/mj-image-fluid-on-mobile.mjml"),
+            include_str!("../../../test/mj-image-fluid-on-mobile.html"),
         );
     }
 
     #[test]
     fn with_height() {
         compare_render(
-            include_str!("../../test/mj-image-height.mjml"),
-            include_str!("../../test/mj-image-height.html"),
+            include_str!("../../../test/mj-image-height.mjml"),
+            include_str!("../../../test/mj-image-height.html"),
         );
     }
 
     #[test]
     fn with_href() {
         compare_render(
-            include_str!("../../test/mj-image-href.mjml"),
-            include_str!("../../test/mj-image-href.html"),
+            include_str!("../../../test/mj-image-href.mjml"),
+            include_str!("../../../test/mj-image-href.html"),
         );
     }
 
     #[test]
     fn with_padding() {
         compare_render(
-            include_str!("../../test/mj-image-padding.mjml"),
-            include_str!("../../test/mj-image-padding.html"),
+            include_str!("../../../test/mj-image-padding.mjml"),
+            include_str!("../../../test/mj-image-padding.html"),
         );
     }
 
     #[test]
     fn with_rel() {
         compare_render(
-            include_str!("../../test/mj-image-rel.mjml"),
-            include_str!("../../test/mj-image-rel.html"),
+            include_str!("../../../test/mj-image-rel.mjml"),
+            include_str!("../../../test/mj-image-rel.html"),
         );
     }
 
     #[test]
     fn with_title() {
         compare_render(
-            include_str!("../../test/mj-image-title.mjml"),
-            include_str!("../../test/mj-image-title.html"),
+            include_str!("../../../test/mj-image-title.mjml"),
+            include_str!("../../../test/mj-image-title.html"),
         );
     }
 }
