@@ -4,6 +4,7 @@ use crate::Options;
 use roxmltree::Node;
 
 pub mod mj_breakpoint;
+pub mod mj_font;
 pub mod mj_head;
 mod mj_title;
 pub mod prelude;
@@ -11,6 +12,7 @@ pub mod prelude;
 #[derive(Clone, Debug)]
 pub enum HeadElement {
     MJBreakpoint(mj_breakpoint::MJBreakpoint),
+    MJFont(mj_font::MJFont),
     MJTitle(mj_title::MJTitle),
 }
 
@@ -18,6 +20,7 @@ macro_rules! apply_fn {
     ($root:expr, $func:ident($($args:tt)*)) => {
         match $root {
             HeadElement::MJBreakpoint(item) => item.$func($($args)*),
+            HeadElement::MJFont(item) => item.$func($($args)*),
             HeadElement::MJTitle(item) => item.$func($($args)*),
         }
     };
@@ -43,6 +46,7 @@ impl HeadElement {
             "mj-breakpoint" => {
                 HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node, opts)?)
             }
+            "mj-font" => HeadElement::MJFont(mj_font::MJFont::parse(node, opts)?),
             "mj-title" => HeadElement::MJTitle(mj_title::MJTitle::parse(node, opts)?),
             _ => return Err(Error::ParseError(format!("{} tag not known", tag_name))),
         };

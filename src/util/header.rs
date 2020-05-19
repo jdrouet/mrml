@@ -1,3 +1,4 @@
+use super::fonts::FontRegistry;
 use super::Size;
 use crate::Options;
 use std::collections::HashMap;
@@ -7,10 +8,11 @@ use std::string::ToString;
 #[derive(Clone, Debug)]
 pub struct Header {
     breakpoint: Size,
+    font_registry: FontRegistry,
+    font_families: HashSet<String>,
     title: Option<String>,
     media_queries: HashMap<String, Size>,
     styles: HashSet<String>,
-    font_families: HashSet<String>,
 }
 
 impl Header {
@@ -66,12 +68,26 @@ impl Header {
         }
     }
 
+    pub fn register_font(&mut self, name: &str, href: &str) {
+        self.font_registry.add(name, href);
+    }
+
     pub fn get_styles(&self) -> Vec<String> {
         self.styles.iter().cloned().collect()
     }
 
     pub fn get_font_families(&self) -> Vec<String> {
         self.font_families.iter().cloned().collect()
+    }
+
+    pub fn get_used_font_families(&self) -> Vec<&String> {
+        let mut res = vec![];
+        for name in self.font_families.iter() {
+            if let Some(url) = self.font_registry.get(name) {
+                res.push(url);
+            }
+        }
+        res
     }
 
     pub fn get_media_queries(&self) -> &HashMap<String, Size> {
@@ -83,6 +99,7 @@ impl From<&Options> for Header {
     fn from(value: &Options) -> Self {
         Header {
             breakpoint: value.breakpoint.clone(),
+            font_registry: value.fonts.clone(),
             font_families: HashSet::new(),
             title: None,
             media_queries: HashMap::new(),

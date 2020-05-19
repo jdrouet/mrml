@@ -129,13 +129,7 @@ impl MJHead {
     }
 
     fn get_font_families(&self, header: &Header) -> String {
-        let fonts = header.get_font_families();
-        let mut font_urls = vec![];
-        for font in fonts.iter() {
-            if let Some(url) = self.options.fonts.get(&font) {
-                font_urls.push(url);
-            }
-        }
+        let font_urls = header.get_used_font_families();
         if font_urls.is_empty() {
             return "".into();
         }
