@@ -1,5 +1,7 @@
 use super::prelude::*;
-use super::{Component, Element, Error};
+use super::BodyElement;
+use crate::mjml::prelude::*;
+use crate::mjml::{Component, Error};
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Style};
 use crate::{close_tag, open_tag};
@@ -7,13 +9,11 @@ use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
-const ALLOWED_ATTRIBUTES: [&'static str; 3] = ["background-color", "css-class", "width"];
-
 #[derive(Clone, Debug)]
 pub struct MJBody {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element>,
+    children: Vec<BodyElement>,
     exists: bool,
 }
 
@@ -30,7 +30,7 @@ impl MJBody {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(Element::parse(child)?);
+            children.push(BodyElement::parse(child)?);
         }
         Ok(MJBody {
             attributes: get_node_attributes(&node),
@@ -46,42 +46,12 @@ impl Component for MJBody {
         self.context.as_ref()
     }
 
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
-    }
-
-    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
-        Some(ALLOWED_ATTRIBUTES.to_vec())
-    }
-
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "width" => Some("600px".into()),
-            _ => None,
-        }
-    }
-
     fn to_header(&self) -> Header {
         let mut header = Header::new();
         for child in self.children.iter() {
             header.merge(&child.to_header());
         }
         header
-    }
-
-    fn get_style(&self, key: &str) -> Style {
-        let mut res = Style::new();
-        match key {
-            "body" => {
-                res.maybe_set("background-color", self.get_attribute("background-color"));
-            }
-            "div" => {
-                res.maybe_set("background-color", self.get_attribute("background-color"));
-            }
-            _ => (),
-        };
-        res
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -92,10 +62,10 @@ impl Component for MJBody {
             .children
             .iter()
             .filter(|item| match item {
-                Element::Raw(_) => true,
+                BodyElement::Raw(_) => true,
                 _ => false,
             })
-            .collect::<Vec<&Element>>()
+            .collect::<Vec<&BodyElement>>()
             .len();
         //
         let container_width = self.get_size_attribute("width");
@@ -137,6 +107,33 @@ impl Component for MJBody {
     }
 }
 
+impl ComponentWithAttributes for MJBody {
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
+    }
+
+    fn default_attribute(&self, key: &str) -> Option<String> {
+        debug!("default_attribute {}", key);
+        match key {
+            "width" => Some("600px".into()),
+            _ => None,
+        }
+    }
+}
+
+impl BodyComponent for MJBody {
+    fn get_style(&self, key: &str) -> Style {
+        let mut res = Style::new();
+        match key {
+            "body" | "div" => {
+                res.maybe_set("background-color", self.get_attribute("background-color"));
+            }
+            _ => (),
+        };
+        res
+    }
+}
+
 impl ComponentWithSizeAttribute for MJBody {}
 
 #[cfg(test)]
@@ -147,8 +144,8 @@ pub mod tests {
     #[test]
     fn basic() {
         compare_render(
-            include_str!("../../test/mj-body.mjml"),
-            include_str!("../../test/mj-body.html"),
+            include_str!("../../../test/mj-body.mjml"),
+            include_str!("../../../test/mj-body.html"),
         );
     }
 
@@ -157,8 +154,8 @@ pub mod tests {
         let mut opts = Options::default();
         opts.keep_comments = false;
         compare_render_with_options(
-            include_str!("../../test/mj-body.mjml"),
-            include_str!("../../test/mj-body-without-comments.html"),
+            include_str!("../../../test/mj-body.mjml"),
+            include_str!("../../../test/mj-body-without-comments.html"),
             opts,
         );
     }
@@ -166,24 +163,24 @@ pub mod tests {
     #[test]
     fn with_background_color() {
         compare_render(
-            include_str!("../../test/mj-body-background-color.mjml"),
-            include_str!("../../test/mj-body-background-color.html"),
+            include_str!("../../../test/mj-body-background-color.mjml"),
+            include_str!("../../../test/mj-body-background-color.html"),
         );
     }
 
     #[test]
     fn with_class() {
         compare_render(
-            include_str!("../../test/mj-body-class.mjml"),
-            include_str!("../../test/mj-body-class.html"),
+            include_str!("../../../test/mj-body-class.mjml"),
+            include_str!("../../../test/mj-body-class.html"),
         );
     }
 
     #[test]
     fn with_width() {
         compare_render(
-            include_str!("../../test/mj-body-width.mjml"),
-            include_str!("../../test/mj-body-width.html"),
+            include_str!("../../../test/mj-body-width.mjml"),
+            include_str!("../../../test/mj-body-width.html"),
         );
     }
 }

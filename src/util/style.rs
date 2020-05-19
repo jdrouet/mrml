@@ -34,10 +34,4 @@ impl Style {
             inner: HashMap::new(),
         }
     }
-
-    pub fn from(other: &Self) -> Self {
-        let mut attrs = Self::new();
-        attrs.merge(other);
-        attrs
-    }
 }

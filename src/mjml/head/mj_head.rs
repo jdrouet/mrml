@@ -1,5 +1,5 @@
-use super::prelude::{get_node_attributes, Component};
-use super::Error;
+use crate::mjml::prelude::*;
+use crate::mjml::Error;
 use crate::util::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::util::fonts::{url_to_import, url_to_link};
 use crate::util::{Context, Header};
@@ -175,10 +175,6 @@ impl MJHead {
 impl Component for MJHead {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        None
     }
 
     fn set_context(&mut self, ctx: Context) {

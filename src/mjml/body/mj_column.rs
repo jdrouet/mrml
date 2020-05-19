@@ -1,6 +1,7 @@
-use super::error::Error;
-use super::prelude::*;
-use super::Element;
+use super::BodyElement;
+use crate::mjml::body::prelude::*;
+use crate::mjml::error::Error;
+use crate::mjml::prelude::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Size, Style};
 use crate::{close_tag, open_tag, to_attributes};
@@ -8,37 +9,18 @@ use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
-const ALLOWED_ATTRIBUTES: [&'static str; 16] = [
-    "background-color",
-    "border",
-    "border-bottom",
-    "border-left",
-    "border-radius",
-    "border-right",
-    "border-top",
-    "css-class",
-    "direction",
-    "padding",
-    "padding-top",
-    "padding-bottom",
-    "padding-left",
-    "padding-right",
-    "vertical-align",
-    "width",
-];
-
 #[derive(Clone, Debug)]
 pub struct MJColumn {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element>,
+    children: Vec<BodyElement>,
 }
 
 impl MJColumn {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJColumn, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(Element::parse(child)?);
+            children.push(BodyElement::parse(child)?);
         }
         Ok(MJColumn {
             attributes: get_node_attributes(&node),
@@ -149,7 +131,7 @@ impl MJColumn {
         Ok(res.join(""))
     }
 
-    fn render_mj_child(&self, child: &Element) -> Result<String, Error> {
+    fn render_mj_child(&self, child: &BodyElement) -> Result<String, Error> {
         let mut res = vec![];
         res.push(open_tag!("tr"));
         let mut style = Style::new();
@@ -191,7 +173,7 @@ impl MJColumn {
         ));
         for child in self.children.iter() {
             match child {
-                Element::Raw(_) => res.push(child.render()?),
+                BodyElement::Raw(_) => res.push(child.render()?),
                 _ => res.push(self.render_mj_child(&child)?),
             };
         }
@@ -201,23 +183,6 @@ impl MJColumn {
 }
 
 impl Component for MJColumn {
-    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
-        Some(ALLOWED_ATTRIBUTES.to_vec())
-    }
-
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "direction" => Some("ltr".into()),
-            "vertical-align" => Some("top".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
-    }
-
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }
@@ -231,47 +196,6 @@ impl Component for MJColumn {
             header.merge(&child.to_header());
         }
         header
-    }
-
-    fn get_style(&self, key: &str) -> Style {
-        let mut res = Style::new();
-        match key {
-            "div" => {
-                res.set("font-size", "0px");
-                res.set("text-align", "left");
-                res.maybe_set("direction", self.get_attribute("direction"));
-                res.set("display", "inline-block");
-                res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-                res.maybe_set("width", self.get_mobile_width());
-            }
-            "table" => {
-                if self.has_gutter() {
-                    res.maybe_set("background-color", self.get_attribute("background-color"));
-                    res.maybe_set("border", self.get_attribute("border"));
-                    res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
-                    res.maybe_set("border-left", self.get_attribute("border-left"));
-                    res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                    res.maybe_set("border-right", self.get_attribute("border-right"));
-                    res.maybe_set("border-top", self.get_attribute("border-top"));
-                } else {
-                    res.merge(&self.get_table_style());
-                }
-            }
-            "td-outlook" => {
-                res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-                res.set("width", self.get_width_as_pixel());
-            }
-            "gutter" => {
-                res.merge(&self.get_table_style());
-                res.maybe_set("padding", self.get_attribute("padding"));
-                res.maybe_set("padding-top", self.get_attribute("padding-top"));
-                res.maybe_set("padding-right", self.get_attribute("padding-right"));
-                res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
-                res.maybe_set("padding-left", self.get_attribute("padding-left"));
-            }
-            _ => (),
-        };
-        res
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -314,8 +238,66 @@ impl Component for MJColumn {
     }
 }
 
+impl ComponentWithAttributes for MJColumn {
+    fn default_attribute(&self, key: &str) -> Option<String> {
+        debug!("default_attribute {}", key);
+        match key {
+            "direction" => Some("ltr".into()),
+            "vertical-align" => Some("top".into()),
+            _ => None,
+        }
+    }
+
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
+    }
+}
+
+impl BodyComponent for MJColumn {
+    fn get_style(&self, key: &str) -> Style {
+        let mut res = Style::new();
+        match key {
+            "div" => {
+                res.set("font-size", "0px");
+                res.set("text-align", "left");
+                res.maybe_set("direction", self.get_attribute("direction"));
+                res.set("display", "inline-block");
+                res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
+                res.maybe_set("width", self.get_mobile_width());
+            }
+            "table" => {
+                if self.has_gutter() {
+                    res.maybe_set("background-color", self.get_attribute("background-color"));
+                    res.maybe_set("border", self.get_attribute("border"));
+                    res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
+                    res.maybe_set("border-left", self.get_attribute("border-left"));
+                    res.maybe_set("border-radius", self.get_attribute("border-radius"));
+                    res.maybe_set("border-right", self.get_attribute("border-right"));
+                    res.maybe_set("border-top", self.get_attribute("border-top"));
+                } else {
+                    res.merge(&self.get_table_style());
+                }
+            }
+            "td-outlook" => {
+                res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
+                res.set("width", self.get_width_as_pixel());
+            }
+            "gutter" => {
+                res.merge(&self.get_table_style());
+                res.maybe_set("padding", self.get_attribute("padding"));
+                res.maybe_set("padding-top", self.get_attribute("padding-top"));
+                res.maybe_set("padding-right", self.get_attribute("padding-right"));
+                res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
+                res.maybe_set("padding-left", self.get_attribute("padding-left"));
+            }
+            _ => (),
+        };
+        res
+    }
+}
+
 impl ComponentWithChildren for MJColumn {
-    fn get_children(&self) -> &Vec<Element> {
+    fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
 
@@ -353,11 +335,11 @@ impl ComponentWithChildren for MJColumn {
     }
 }
 
-impl ContainedComponent for MJColumn {}
 impl ComponentWithSizeAttribute for MJColumn {}
-impl ComponentWithBorder for MJColumn {}
-impl ComponentWithPadding for MJColumn {}
-impl ComponentWithBoxWidths for MJColumn {}
+impl BodyContainedComponent for MJColumn {}
+impl BodyComponentWithBorder for MJColumn {}
+impl BodyComponentWithBoxWidths for MJColumn {}
+impl BodyComponentWithPadding for MJColumn {}
 
 #[cfg(test)]
 pub mod tests {
@@ -366,64 +348,64 @@ pub mod tests {
     #[test]
     fn base() {
         compare_render(
-            include_str!("../../test/mj-column.mjml"),
-            include_str!("../../test/mj-column.html"),
+            include_str!("../../../test/mj-column.mjml"),
+            include_str!("../../../test/mj-column.html"),
         );
     }
 
     #[test]
     fn with_background_color() {
         compare_render(
-            include_str!("../../test/mj-column-background-color.mjml"),
-            include_str!("../../test/mj-column-background-color.html"),
+            include_str!("../../../test/mj-column-background-color.mjml"),
+            include_str!("../../../test/mj-column-background-color.html"),
         );
     }
 
     #[test]
     fn with_border() {
         compare_render(
-            include_str!("../../test/mj-column-border.mjml"),
-            include_str!("../../test/mj-column-border.html"),
+            include_str!("../../../test/mj-column-border.mjml"),
+            include_str!("../../../test/mj-column-border.html"),
         );
     }
 
     #[test]
     fn with_border_radius() {
         compare_render(
-            include_str!("../../test/mj-column-border-radius.mjml"),
-            include_str!("../../test/mj-column-border-radius.html"),
+            include_str!("../../../test/mj-column-border-radius.mjml"),
+            include_str!("../../../test/mj-column-border-radius.html"),
         );
     }
 
     #[test]
     fn with_class() {
         compare_render(
-            include_str!("../../test/mj-column-class.mjml"),
-            include_str!("../../test/mj-column-class.html"),
+            include_str!("../../../test/mj-column-class.mjml"),
+            include_str!("../../../test/mj-column-class.html"),
         );
     }
 
     #[test]
     fn with_padding() {
         compare_render(
-            include_str!("../../test/mj-column-padding.mjml"),
-            include_str!("../../test/mj-column-padding.html"),
+            include_str!("../../../test/mj-column-padding.mjml"),
+            include_str!("../../../test/mj-column-padding.html"),
         );
     }
 
     #[test]
     fn with_vertical_align() {
         compare_render(
-            include_str!("../../test/mj-column-vertical-align.mjml"),
-            include_str!("../../test/mj-column-vertical-align.html"),
+            include_str!("../../../test/mj-column-vertical-align.mjml"),
+            include_str!("../../../test/mj-column-vertical-align.html"),
         );
     }
 
     #[test]
     fn with_width() {
         compare_render(
-            include_str!("../../test/mj-column-width.mjml"),
-            include_str!("../../test/mj-column-width.html"),
+            include_str!("../../../test/mj-column-width.mjml"),
+            include_str!("../../../test/mj-column-width.html"),
         );
     }
 }

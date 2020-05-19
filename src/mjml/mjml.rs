@@ -1,6 +1,7 @@
-use super::mj_body::MJBody;
-use super::mj_head::MJHead;
-use super::{Component, Error};
+use super::body::mj_body::MJBody;
+use super::head::mj_head::MJHead;
+use super::Error;
+use super::prelude::*;
 use crate::util::Context;
 use log::debug;
 use roxmltree::Node;
@@ -54,13 +55,8 @@ impl Component for MJMLElement {
         self.context.as_ref()
     }
 
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        None
-    }
-
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
-        // TODO
         self.body.set_context(ctx.clone());
         self.head.set_context(ctx.clone());
     }
@@ -76,6 +72,12 @@ impl Component for MJMLElement {
         res.push(self.body.render()?);
         res.push(HTML_CLOSE.into());
         Ok(res.join(""))
+    }
+}
+
+impl ComponentWithAttributes for MJMLElement {
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        None
     }
 }
 

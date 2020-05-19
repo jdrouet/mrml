@@ -1,6 +1,7 @@
-use super::error::Error;
-use super::prelude::*;
-use super::Element;
+use super::BodyElement;
+use crate::mjml::body::prelude::*;
+use crate::mjml::error::Error;
+use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Style};
@@ -9,41 +10,18 @@ use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
-const ALLOWED_ATTRIBUTES: [&'static str; 20] = [
-    "background-color",
-    "background-url",
-    "background-repeat",
-    "background-size",
-    "css-class",
-    "border",
-    "border-bottom",
-    "border-left",
-    "border-radius",
-    "border-right",
-    "border-top",
-    "direction",
-    "full-width",
-    "padding",
-    "padding-top",
-    "padding-bottom",
-    "padding-left",
-    "padding-right",
-    "text-align",
-    "text-padding",
-];
-
 #[derive(Clone, Debug)]
 pub struct MJSection {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element>,
+    children: Vec<BodyElement>,
 }
 
 impl MJSection {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJSection, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(Element::parse(child)?);
+            children.push(BodyElement::parse(child)?);
         }
         Ok(MJSection {
             attributes: get_node_attributes(&node),
@@ -177,7 +155,7 @@ impl MJSection {
         res.push(END_CONDITIONAL_TAG.into());
         for child in self.children.iter() {
             match child {
-                Element::Raw(element) => res.push(element.render()?),
+                BodyElement::Raw(element) => res.push(element.render()?),
                 _ => {
                     let mut attrs = Attributes::new();
                     attrs.maybe_set("align", child.get_attribute("align"));
@@ -328,10 +306,41 @@ impl MJSection {
 }
 
 impl Component for MJSection {
-    fn allowed_attributes(&self) -> Option<Vec<&'static str>> {
-        Some(ALLOWED_ATTRIBUTES.to_vec())
+    fn to_header(&self) -> Header {
+        let mut header = Header::new();
+        for child in self.children.iter() {
+            header.merge(&child.to_header());
+        }
+        header
     }
 
+    fn context(&self) -> Option<&Context> {
+        self.context.as_ref()
+    }
+
+    fn set_context(&mut self, ctx: Context) {
+        self.context = Some(ctx.clone());
+        let sibling = self.get_siblings();
+        let raw_sibling = self.get_raw_siblings();
+        let container_width = self.get_container_width();
+        for (idx, child) in self.children.iter_mut().enumerate() {
+            let mut child_ctx =
+                Context::from(&ctx, container_width.clone(), sibling, raw_sibling, idx);
+            child_ctx.set("index", idx);
+            child.set_context(child_ctx);
+        }
+    }
+
+    fn render(&self) -> Result<String, Error> {
+        if self.is_full_width() {
+            self.render_full_width()
+        } else {
+            self.render_simple()
+        }
+    }
+}
+
+impl ComponentWithAttributes for MJSection {
     fn default_attribute(&self, key: &str) -> Option<String> {
         debug!("default_attribute {}", key);
         match key {
@@ -348,15 +357,9 @@ impl Component for MJSection {
     fn source_attributes(&self) -> Option<&HashMap<String, String>> {
         Some(&self.attributes)
     }
+}
 
-    fn to_header(&self) -> Header {
-        let mut header = Header::new();
-        for child in self.children.iter() {
-            header.merge(&child.to_header());
-        }
-        header
-    }
-
+impl BodyComponent for MJSection {
     fn get_style(&self, name: &str) -> Style {
         let mut res = Style::new();
         let bg_style = self.get_background_style();
@@ -406,35 +409,10 @@ impl Component for MJSection {
         };
         res
     }
-
-    fn context(&self) -> Option<&Context> {
-        self.context.as_ref()
-    }
-
-    fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
-        let sibling = self.get_siblings();
-        let raw_sibling = self.get_raw_siblings();
-        let container_width = self.get_container_width();
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            let mut child_ctx =
-                Context::from(&ctx, container_width.clone(), sibling, raw_sibling, idx);
-            child_ctx.set("index", idx);
-            child.set_context(child_ctx);
-        }
-    }
-
-    fn render(&self) -> Result<String, Error> {
-        if self.is_full_width() {
-            self.render_full_width()
-        } else {
-            self.render_simple()
-        }
-    }
 }
 
 impl ComponentWithChildren for MJSection {
-    fn get_children(&self) -> &Vec<Element> {
+    fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
 
@@ -443,7 +421,7 @@ impl ComponentWithChildren for MJSection {
     }
 }
 
-impl ContainedComponent for MJSection {}
+impl BodyContainedComponent for MJSection {}
 
 #[cfg(test)]
 pub mod tests {
@@ -452,96 +430,96 @@ pub mod tests {
     #[test]
     fn with_body_width() {
         compare_render(
-            include_str!("../../test/mj-section-body-width.mjml"),
-            include_str!("../../test/mj-section-body-width.html"),
+            include_str!("../../../test/mj-section-body-width.mjml"),
+            include_str!("../../../test/mj-section-body-width.html"),
         );
     }
 
     #[test]
     fn base() {
         compare_render(
-            include_str!("../../test/mj-section.mjml"),
-            include_str!("../../test/mj-section.html"),
+            include_str!("../../../test/mj-section.mjml"),
+            include_str!("../../../test/mj-section.html"),
         );
     }
 
     #[test]
     fn with_background_color() {
         compare_render(
-            include_str!("../../test/mj-section-background-color.mjml"),
-            include_str!("../../test/mj-section-background-color.html"),
+            include_str!("../../../test/mj-section-background-color.mjml"),
+            include_str!("../../../test/mj-section-background-color.html"),
         );
     }
 
     #[test]
     fn with_background_url() {
         compare_render(
-            include_str!("../../test/mj-section-background-url.mjml"),
-            include_str!("../../test/mj-section-background-url.html"),
+            include_str!("../../../test/mj-section-background-url.mjml"),
+            include_str!("../../../test/mj-section-background-url.html"),
         );
     }
 
     #[test]
     fn with_background_url_full() {
         compare_render(
-            include_str!("../../test/mj-section-background-url-full.mjml"),
-            include_str!("../../test/mj-section-background-url-full.html"),
+            include_str!("../../../test/mj-section-background-url-full.mjml"),
+            include_str!("../../../test/mj-section-background-url-full.html"),
         );
     }
 
     #[test]
     fn with_border() {
         compare_render(
-            include_str!("../../test/mj-section-border.mjml"),
-            include_str!("../../test/mj-section-border.html"),
+            include_str!("../../../test/mj-section-border.mjml"),
+            include_str!("../../../test/mj-section-border.html"),
         );
     }
 
     #[test]
     fn with_border_radius() {
         compare_render(
-            include_str!("../../test/mj-section-border-radius.mjml"),
-            include_str!("../../test/mj-section-border-radius.html"),
+            include_str!("../../../test/mj-section-border-radius.mjml"),
+            include_str!("../../../test/mj-section-border-radius.html"),
         );
     }
 
     #[test]
     fn with_css_class() {
         compare_render(
-            include_str!("../../test/mj-section-class.mjml"),
-            include_str!("../../test/mj-section-class.html"),
+            include_str!("../../../test/mj-section-class.mjml"),
+            include_str!("../../../test/mj-section-class.html"),
         );
     }
 
     #[test]
     fn with_direction() {
         compare_render(
-            include_str!("../../test/mj-section-direction.mjml"),
-            include_str!("../../test/mj-section-direction.html"),
+            include_str!("../../../test/mj-section-direction.mjml"),
+            include_str!("../../../test/mj-section-direction.html"),
         );
     }
 
     #[test]
     fn with_full_width() {
         compare_render(
-            include_str!("../../test/mj-section-full-width.mjml"),
-            include_str!("../../test/mj-section-full-width.html"),
+            include_str!("../../../test/mj-section-full-width.mjml"),
+            include_str!("../../../test/mj-section-full-width.html"),
         );
     }
 
     #[test]
     fn with_padding() {
         compare_render(
-            include_str!("../../test/mj-section-padding.mjml"),
-            include_str!("../../test/mj-section-padding.html"),
+            include_str!("../../../test/mj-section-padding.mjml"),
+            include_str!("../../../test/mj-section-padding.html"),
         );
     }
 
     #[test]
     fn with_text_align() {
         compare_render(
-            include_str!("../../test/mj-section-text-align.mjml"),
-            include_str!("../../test/mj-section-text-align.html"),
+            include_str!("../../../test/mj-section-text-align.mjml"),
+            include_str!("../../../test/mj-section-text-align.html"),
         );
     }
 }

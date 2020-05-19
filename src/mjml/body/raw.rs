@@ -1,5 +1,7 @@
-use super::prelude::get_node_attributes;
-use super::{Component, Element, Error};
+use crate::mjml::body::prelude::*;
+use crate::mjml::body::BodyElement;
+use crate::mjml::prelude::*;
+use crate::mjml::{Component, Error};
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context};
 use crate::{close_tag, open_tag};
@@ -25,10 +27,6 @@ impl Component for CommentElement {
         self.context = Some(ctx);
     }
 
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        None
-    }
-
     fn render(&self) -> Result<String, Error> {
         let keep_comments = self
             .context()
@@ -46,7 +44,7 @@ impl Component for CommentElement {
 pub struct NodeElement {
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    children: Vec<Element>,
+    children: Vec<BodyElement>,
     tag: String,
 }
 
@@ -57,10 +55,6 @@ impl Component for NodeElement {
 
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx);
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
     }
 
     fn render(&self) -> Result<String, Error> {
@@ -75,6 +69,12 @@ impl Component for NodeElement {
         }
         res.push(close_tag!(self.tag));
         Ok(res.join(""))
+    }
+}
+
+impl ComponentWithAttributes for NodeElement {
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.attributes)
     }
 }
 
@@ -107,7 +107,7 @@ impl RawElement {
     fn parse_node<'a, 'b>(node: Node<'a, 'b>) -> Result<RawElement, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(Element::parse(child)?);
+            children.push(BodyElement::parse(child)?);
         }
         Ok(RawElement::Node(NodeElement {
             attributes: get_node_attributes(&node),
@@ -145,13 +145,6 @@ impl Component for RawElement {
         };
     }
 
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        match self {
-            RawElement::Node(node) => node.source_attributes(),
-            _ => None,
-        }
-    }
-
     fn render(&self) -> Result<String, Error> {
         match self {
             RawElement::Comment(comment) => comment.render(),
@@ -160,3 +153,14 @@ impl Component for RawElement {
         }
     }
 }
+
+impl ComponentWithAttributes for RawElement {
+    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        match self {
+            RawElement::Node(node) => node.source_attributes(),
+            _ => None,
+        }
+    }
+}
+
+impl BodyComponent for RawElement {}

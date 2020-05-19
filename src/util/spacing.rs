@@ -137,4 +137,26 @@ pub mod tests {
         assert_eq!(res.bottom, Size::Pixel(4.0));
         assert_eq!(res.left, Size::Pixel(5.0));
     }
+
+    #[test]
+    fn more_values() {
+        let res = "2px 3px 4px 5px 6px".parse::<Spacing>();
+        assert_eq!(res.is_err(), true);
+    }
+
+    #[test]
+    fn invalid_values() {
+        let res = "2tx 3px 4px 5px".parse::<Spacing>();
+        assert_eq!(res.is_err(), true);
+    }
+
+    #[test]
+    fn accessor() {
+        let res = "2px 3px 4px 5px".parse::<Spacing>().unwrap();
+        assert_eq!(res.get("top"), Some(Size::Pixel(2.0)));
+        assert_eq!(res.get("right"), Some(Size::Pixel(3.0)));
+        assert_eq!(res.get("bottom"), Some(Size::Pixel(4.0)));
+        assert_eq!(res.get("left"), Some(Size::Pixel(5.0)));
+        assert_eq!(res.get("out"), None);
+    }
 }
