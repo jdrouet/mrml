@@ -104,7 +104,7 @@ impl MJHead {
         let mut res = vec![];
         res.push(format!(
             "@media only screen and (min-width:{}) {{ ",
-            self.options.breakpoint.to_string()
+            header.breakpoint().to_string()
         ));
         let mut classnames: Vec<&String> = header.get_media_queries().keys().collect();
         classnames.sort();

@@ -39,7 +39,6 @@ fn get_body<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error>
 
 impl MJMLElement {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJMLElement, Error> {
-        debug!("parse");
         let head = get_head(node, opts)?;
         let body = get_body(node, opts)?;
         let mut element = MJMLElement {
@@ -57,7 +56,7 @@ impl MJMLElement {
     }
 
     fn get_header(&self) -> Header {
-        let mut header = Header::new();
+        let mut header = Header::from(&self.options);
         self.head.update_header(&mut header);
         self.body.update_header(&mut header);
         header

@@ -1,10 +1,12 @@
 use super::Size;
+use crate::Options;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::string::ToString;
 
 #[derive(Clone, Debug)]
 pub struct Header {
+    breakpoint: Size,
     title: Option<String>,
     media_queries: HashMap<String, Size>,
     styles: HashSet<String>,
@@ -12,21 +14,20 @@ pub struct Header {
 }
 
 impl Header {
-    pub fn new() -> Self {
-        Header {
-            title: None,
-            media_queries: HashMap::new(),
-            styles: HashSet::new(),
-            font_families: HashSet::new(),
-        }
-    }
-
     pub fn title(&self) -> Option<&String> {
         self.title.as_ref()
     }
 
     pub fn set_title(&mut self, title: String) {
         self.title = Some(title);
+    }
+
+    pub fn breakpoint(&self) -> &Size {
+        &self.breakpoint
+    }
+
+    pub fn set_breakpoint(&mut self, value: Size) {
+        self.breakpoint = value;
     }
 
     pub fn has_media_queries(&self) -> bool {
@@ -75,5 +76,17 @@ impl Header {
 
     pub fn get_media_queries(&self) -> &HashMap<String, Size> {
         &self.media_queries
+    }
+}
+
+impl From<&Options> for Header {
+    fn from(value: &Options) -> Self {
+        Header {
+            breakpoint: value.breakpoint.clone(),
+            font_families: HashSet::new(),
+            title: None,
+            media_queries: HashMap::new(),
+            styles: HashSet::new(),
+        }
     }
 }
