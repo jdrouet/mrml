@@ -4,6 +4,7 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::Options;
 use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
@@ -17,10 +18,10 @@ pub struct MJColumn {
 }
 
 impl MJColumn {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJColumn, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJColumn, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child)?);
+            children.push(BodyElement::parse(child, opts)?);
         }
         Ok(MJColumn {
             attributes: get_node_attributes(&node),
@@ -105,7 +106,7 @@ impl MJColumn {
             || self.get_attribute("padding-top").is_some()
     }
 
-    fn render_gutter(&self) -> Result<String, Error> {
+    fn render_gutter(&self, header: &Header) -> Result<String, Error> {
         let mut res = vec![];
         res.push(open_tag!(
             "table",
@@ -123,7 +124,7 @@ impl MJColumn {
             "td",
             to_attributes!(("style", self.get_style("gutter").to_string()))
         ));
-        res.push(self.render_column()?);
+        res.push(self.render_column(header)?);
         res.push(close_tag!("td"));
         res.push(close_tag!("tr"));
         res.push(close_tag!("tbody"));
@@ -131,7 +132,7 @@ impl MJColumn {
         Ok(res.join(""))
     }
 
-    fn render_mj_child(&self, child: &BodyElement) -> Result<String, Error> {
+    fn render_mj_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
         let mut res = vec![];
         res.push(open_tag!("tr"));
         let mut style = Style::new();
@@ -152,13 +153,13 @@ impl MJColumn {
         attrs.maybe_set("class", child.get_attribute("css-class"));
         attrs.set("style", style.to_string());
         res.push(open_tag!("td", attrs.to_string()));
-        res.push(child.render()?);
+        res.push(child.render(header)?);
         res.push(close_tag!("td"));
         res.push(close_tag!("tr"));
         Ok(res.join(""))
     }
 
-    fn render_column(&self) -> Result<String, Error> {
+    fn render_column(&self, header: &Header) -> Result<String, Error> {
         let mut res = vec![];
         res.push(open_tag!(
             "table",
@@ -173,8 +174,8 @@ impl MJColumn {
         ));
         for child in self.children.iter() {
             match child {
-                BodyElement::Raw(_) => res.push(child.render()?),
-                _ => res.push(self.render_mj_child(&child)?),
+                BodyElement::Raw(_) => res.push(child.render(header)?),
+                _ => res.push(self.render_mj_child(header, &child)?),
             };
         }
         res.push(close_tag!("table"));
@@ -187,15 +188,13 @@ impl Component for MJColumn {
         self.context.as_ref()
     }
 
-    fn to_header(&self) -> Header {
-        let mut header = Header::new();
+    fn update_header(&self, header: &mut Header) {
         if let Some((classname, size)) = self.get_column_class() {
             header.add_media_query(classname, size);
         }
         for child in self.children.iter() {
-            header.merge(&child.to_header());
+            child.update_header(header);
         }
-        header
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -214,7 +213,7 @@ impl Component for MJColumn {
         }
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, header: &Header) -> Result<String, Error> {
         let mut classes = vec![];
         if let Some((classname, _size)) = self.get_column_class() {
             classes.push(classname);
@@ -229,9 +228,9 @@ impl Component for MJColumn {
         let mut res = vec![];
         res.push(open_tag!("div", attrs.to_string()));
         if self.has_gutter() {
-            res.push(self.render_gutter()?);
+            res.push(self.render_gutter(header)?);
         } else {
-            res.push(self.render_column()?);
+            res.push(self.render_column(header)?);
         }
         res.push(close_tag!("div"));
         Ok(res.join(""))

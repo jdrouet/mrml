@@ -5,6 +5,7 @@ use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Style};
+use crate::Options;
 use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
@@ -18,10 +19,10 @@ pub struct MJSection {
 }
 
 impl MJSection {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJSection, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJSection, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child)?);
+            children.push(BodyElement::parse(child, opts)?);
         }
         Ok(MJSection {
             attributes: get_node_attributes(&node),
@@ -114,10 +115,10 @@ impl MJSection {
         Ok(res.join(""))
     }
 
-    fn render_full_width(&self) -> Result<String, Error> {
+    fn render_full_width(&self, header: &Header) -> Result<String, Error> {
         let mut content: Vec<String> = vec![];
         content.push(self.render_before()?);
-        content.push(self.render_section()?);
+        content.push(self.render_section(header)?);
         content.push(self.render_after()?);
         let content = if self.has_background() {
             self.render_with_background(content.join(""))?
@@ -148,14 +149,14 @@ impl MJSection {
         Ok(res.join(""))
     }
 
-    fn render_wrapped_children(&self) -> Result<String, Error> {
+    fn render_wrapped_children(&self, header: &Header) -> Result<String, Error> {
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
         res.push(open_tag!("tr"));
         res.push(END_CONDITIONAL_TAG.into());
         for child in self.children.iter() {
             match child {
-                BodyElement::Raw(element) => res.push(element.render()?),
+                BodyElement::Raw(element) => res.push(element.render(header)?),
                 _ => {
                     let mut attrs = Attributes::new();
                     attrs.maybe_set("align", child.get_attribute("align"));
@@ -167,7 +168,7 @@ impl MJSection {
                     res.push(START_CONDITIONAL_TAG.into());
                     res.push(open_tag!("td", attrs.to_string()));
                     res.push(END_CONDITIONAL_TAG.into());
-                    res.push(child.render()?);
+                    res.push(child.render(header)?);
                     res.push(START_CONDITIONAL_TAG.into());
                     res.push(close_tag!("td"));
                     res.push(END_CONDITIONAL_TAG.into());
@@ -181,7 +182,7 @@ impl MJSection {
         Ok(res.join(""))
     }
 
-    fn render_section(&self) -> Result<String, Error> {
+    fn render_section(&self, header: &Header) -> Result<String, Error> {
         let has_bg = self.has_background();
         let mut res = vec![];
         {
@@ -230,7 +231,7 @@ impl MJSection {
         ));
         res.push(END_CONDITIONAL_TAG.into());
         // renderWrappedChildren()
-        res.push(self.render_wrapped_children()?);
+        res.push(self.render_wrapped_children(header)?);
         //
         res.push(START_CONDITIONAL_TAG.into());
         res.push(close_tag!("table"));
@@ -290,8 +291,8 @@ impl MJSection {
         Ok(res.join(""))
     }
 
-    fn render_simple(&self) -> Result<String, Error> {
-        let section = self.render_section()?;
+    fn render_simple(&self, header: &Header) -> Result<String, Error> {
+        let section = self.render_section(header)?;
 
         let mut res = vec![];
         res.push(self.render_before()?);
@@ -306,12 +307,10 @@ impl MJSection {
 }
 
 impl Component for MJSection {
-    fn to_header(&self) -> Header {
-        let mut header = Header::new();
+    fn update_header(&self, header: &mut Header) {
         for child in self.children.iter() {
-            header.merge(&child.to_header());
+            child.update_header(header);
         }
-        header
     }
 
     fn context(&self) -> Option<&Context> {
@@ -331,11 +330,11 @@ impl Component for MJSection {
         }
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, header: &Header) -> Result<String, Error> {
         if self.is_full_width() {
-            self.render_full_width()
+            self.render_full_width(header)
         } else {
-            self.render_simple()
+            self.render_simple(header)
         }
     }
 }

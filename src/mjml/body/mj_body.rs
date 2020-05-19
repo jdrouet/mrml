@@ -4,6 +4,7 @@ use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Style};
+use crate::Options;
 use crate::{close_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
@@ -18,7 +19,7 @@ pub struct MJBody {
 }
 
 impl MJBody {
-    pub fn empty<'a, 'b>() -> MJBody {
+    pub fn empty<'a, 'b>(_opts: &Options) -> MJBody {
         MJBody {
             attributes: HashMap::new(),
             children: vec![],
@@ -27,10 +28,10 @@ impl MJBody {
         }
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child)?);
+            children.push(BodyElement::parse(child, opts)?);
         }
         Ok(MJBody {
             attributes: get_node_attributes(&node),
@@ -46,12 +47,10 @@ impl Component for MJBody {
         self.context.as_ref()
     }
 
-    fn to_header(&self) -> Header {
-        let mut header = Header::new();
+    fn update_header(&self, header: &mut Header) {
         for child in self.children.iter() {
-            header.merge(&child.to_header());
+            child.update_header(header);
         }
-        header
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -81,7 +80,7 @@ impl Component for MJBody {
         }
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, header: &Header) -> Result<String, Error> {
         debug!("render");
         let mut res: Vec<String> = vec![];
         {
@@ -98,7 +97,7 @@ impl Component for MJBody {
             attrs.set("style", self.get_style("div").to_string());
             res.push(open_tag!("div", attrs.to_string()));
             for child in self.children.iter() {
-                res.push(child.render()?);
+                res.push(child.render(header)?);
             }
             res.push(close_tag!("div"));
         }

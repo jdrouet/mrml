@@ -13,8 +13,6 @@ pub use error::Error;
 use util::fonts::FontRegistry;
 use util::Size;
 
-use mjml::prelude::Component;
-
 #[derive(Clone, Debug)]
 pub struct Options {
     pub breakpoint: Size,
@@ -35,7 +33,7 @@ impl Options {
 pub fn to_html(input: &str, options: Options) -> Result<String, Error> {
     let doc = Document::parse(input)?;
     let root = doc.root_element();
-    let element = mjml::parse(root, util::Context::default(options))?;
+    let element = mjml::parse(root, &options)?;
     Ok(element.render()?)
 }
 

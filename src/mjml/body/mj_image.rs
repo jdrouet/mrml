@@ -1,8 +1,9 @@
+use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::mjml::body::prelude::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::Options;
 use crate::{close_tag, closed_tag, open_tag, with_tag};
 use log::debug;
 use roxmltree::Node;
@@ -10,13 +11,15 @@ use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct MJImage {
+    options: Options,
     attributes: HashMap<String, String>,
     context: Option<Context>,
 }
 
 impl MJImage {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJImage, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJImage, Error> {
         Ok(MJImage {
+            options: opts.clone(),
             attributes: get_node_attributes(&node),
             context: None,
         })
@@ -87,19 +90,15 @@ impl MJImage {
 }
 
 impl Component for MJImage {
-    fn to_header(&self) -> Header {
-        let mut header = Header::new();
-        if let Some(ctx) = self.context() {
-            let mut style = format!(
-                "@media only screen and (max-width:{}) {{\n",
-                ctx.options().breakpoint.to_string(),
-            );
-            style.push_str("table.mj-full-width-mobile { width: 100% !important; }\n");
-            style.push_str("td.mj-full-width-mobile { width: auto !important; }\n");
-            style.push_str("}\n");
-            header.add_style(style);
-        }
-        header
+    fn update_header(&self, header: &mut Header) {
+        let mut style = format!(
+            "@media only screen and (max-width:{}) {{\n",
+            self.options.breakpoint.to_string(),
+        );
+        style.push_str("table.mj-full-width-mobile { width: 100% !important; }\n");
+        style.push_str("td.mj-full-width-mobile { width: auto !important; }\n");
+        style.push_str("}\n");
+        header.add_style(style);
     }
 
     fn context(&self) -> Option<&Context> {
@@ -110,7 +109,7 @@ impl Component for MJImage {
         self.context = Some(ctx.clone());
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, _header: &Header) -> Result<String, Error> {
         let mut res = vec![];
         {
             let mut attrs = Attributes::new();

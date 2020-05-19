@@ -22,12 +22,6 @@ impl Attributes {
             inner: HashMap::new(),
         }
     }
-
-    pub fn from(other: &Self) -> Self {
-        let mut attrs = Self::new();
-        attrs.merge(other);
-        attrs
-    }
 }
 
 impl ToString for Attributes {
@@ -40,6 +34,10 @@ impl ToString for Attributes {
             .collect::<Vec<String>>()
             .join(" ")
     }
+}
+
+pub fn suffix_unit(input: Option<String>, suffix: &str) -> Option<String> {
+    input.and_then(|v| Some(format!("{}{}", v, suffix)))
 }
 
 pub fn suffix_css_classes(input: Option<String>, suffix: &str) -> Option<String> {
@@ -57,10 +55,6 @@ pub fn suffix_css_classes(input: Option<String>, suffix: &str) -> Option<String>
     } else {
         None
     }
-}
-
-pub fn suffix_unit(input: Option<String>, suffix: &str) -> Option<String> {
-    input.and_then(|v| Some(format!("{}{}", v, suffix)))
 }
 
 #[cfg(test)]

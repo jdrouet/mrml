@@ -13,6 +13,7 @@ pub mod raw;
 
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::Options;
 use prelude::BodyComponent;
 
 #[derive(Clone, Debug)]
@@ -39,8 +40,8 @@ macro_rules! apply_fn {
 }
 
 impl Component for BodyElement {
-    fn to_header(&self) -> Header {
-        apply_fn!(self, to_header())
+    fn update_header(&self, header: &mut Header) {
+        apply_fn!(self, update_header(header))
     }
 
     fn context(&self) -> Option<&Context> {
@@ -51,8 +52,8 @@ impl Component for BodyElement {
         apply_fn!(self, set_context(ctx))
     }
 
-    fn render(&self) -> Result<String, Error> {
-        apply_fn!(self, render())
+    fn render(&self, header: &Header) -> Result<String, Error> {
+        apply_fn!(self, render(header))
     }
 }
 
@@ -73,14 +74,14 @@ impl BodyComponent for BodyElement {
 }
 
 impl BodyElement {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<BodyElement, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<BodyElement, Error> {
         let res = match node.tag_name().name() {
-            "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node)?),
-            "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node)?),
-            "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node)?),
-            "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node)?),
-            "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node)?),
-            _ => BodyElement::Raw(raw::RawElement::parse(node)?),
+            "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, opts)?),
+            "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, opts)?),
+            "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, opts)?),
+            "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, opts)?),
+            "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, opts)?),
+            _ => BodyElement::Raw(raw::RawElement::parse(node, opts)?),
         };
         Ok(res)
     }

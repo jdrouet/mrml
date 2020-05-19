@@ -21,29 +21,12 @@ impl Header {
         }
     }
 
-    pub fn from(other: &Self) -> Self {
-        let mut header = Header::new();
-        header.merge(other);
-        header
-    }
-
-    pub fn merge(&mut self, other: &Self) {
-        if self.title.is_none() && other.title.is_some() {
-            self.title = other.title.clone();
-        }
-        for (key, value) in other.media_queries.iter() {
-            self.media_queries.insert(key.clone(), value.clone());
-        }
-        for item in other.font_families.iter() {
-            self.font_families.insert(item.clone());
-        }
-        for item in other.styles.iter() {
-            self.styles.insert(item.clone());
-        }
-    }
-
     pub fn title(&self) -> Option<&String> {
         self.title.as_ref()
+    }
+
+    pub fn set_title(&mut self, title: String) {
+        self.title = Some(title);
     }
 
     pub fn has_media_queries(&self) -> bool {

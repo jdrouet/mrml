@@ -5,6 +5,7 @@ use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Context, Header, Style};
+use crate::Options;
 use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
@@ -18,10 +19,10 @@ pub struct MJText {
 }
 
 impl MJText {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJText, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJText, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child)?);
+            children.push(BodyElement::parse(child, opts)?);
         }
         Ok(MJText {
             attributes: get_node_attributes(&node),
@@ -30,7 +31,7 @@ impl MJText {
         })
     }
 
-    fn render_content(&self) -> Result<String, Error> {
+    fn render_content(&self, header: &Header) -> Result<String, Error> {
         let style = self.get_style("text");
         let mut res = vec![];
         res.push(open_tag!(
@@ -38,13 +39,13 @@ impl MJText {
             to_attributes!(("style", style.to_string()))
         ));
         for child in self.children.iter() {
-            res.push(child.render()?);
+            res.push(child.render(header)?);
         }
         res.push(close_tag!("div"));
         Ok(res.join(""))
     }
 
-    fn render_with_height(&self, height: String) -> Result<String, Error> {
+    fn render_with_height(&self, header: &Header, height: String) -> Result<String, Error> {
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
         res.push(open_tag!(
@@ -64,7 +65,7 @@ impl MJText {
                 ("style", format!("height:{};vertical-align:top;", height))
             )
         ));
-        res.push(self.render_content()?);
+        res.push(self.render_content(header)?);
         res.push(close_tag!("td"));
         res.push(close_tag!("tr"));
         res.push(close_tag!("table"));
@@ -74,10 +75,8 @@ impl MJText {
 }
 
 impl Component for MJText {
-    fn to_header(&self) -> Header {
-        let mut header = Header::new();
+    fn update_header(&self, header: &mut Header) {
         header.maybe_add_font_families(self.get_attribute("font-family"));
-        header
     }
 
     fn context(&self) -> Option<&Context> {
@@ -88,10 +87,10 @@ impl Component for MJText {
         self.context = Some(ctx.clone());
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, header: &Header) -> Result<String, Error> {
         match self.get_attribute("height") {
-            Some(value) => self.render_with_height(value),
-            None => self.render_content(),
+            Some(value) => self.render_with_height(header, value),
+            None => self.render_content(header),
         }
     }
 }

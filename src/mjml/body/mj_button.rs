@@ -4,6 +4,7 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::Options;
 use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
@@ -17,10 +18,10 @@ pub struct MJButton {
 }
 
 impl MJButton {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJButton, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJButton, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child)?);
+            children.push(BodyElement::parse(child, opts)?);
         }
         Ok(MJButton {
             attributes: get_node_attributes(&node),
@@ -29,10 +30,10 @@ impl MJButton {
         })
     }
 
-    fn get_content(&self) -> Result<String, Error> {
+    fn get_content(&self, header: &Header) -> Result<String, Error> {
         let mut res = String::from("");
         for item in self.children.iter() {
-            res.push_str(item.render()?.as_str());
+            res.push_str(item.render(header)?.as_str());
         }
         Ok(res)
     }
@@ -59,10 +60,8 @@ impl MJButton {
 }
 
 impl Component for MJButton {
-    fn to_header(&self) -> Header {
-        let mut header = Header::new();
+    fn update_header(&self, header: &mut Header) {
         header.maybe_add_font_families(self.get_attribute("font-family"));
-        header
     }
 
     fn context(&self) -> Option<&Context> {
@@ -73,7 +72,7 @@ impl Component for MJButton {
         self.context = Some(ctx.clone());
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, header: &Header) -> Result<String, Error> {
         let mut res = vec![];
         res.push(open_tag!(
             "table",
@@ -108,7 +107,7 @@ impl Component for MJButton {
             attrs.maybe_set("target", self.get_attribute("target"));
         }
         res.push(open_tag!(tag_name, attrs.to_string()));
-        res.push(self.get_content()?);
+        res.push(self.get_content(header)?);
         res.push(close_tag!(tag_name));
         res.push(close_tag!("td"));
         res.push(close_tag!("tr"));

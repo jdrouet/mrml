@@ -196,7 +196,7 @@ pub mod tests {
     use super::*;
     use crate::mjml::error::Error;
     use crate::util::prelude::PropertyMap;
-    use crate::util::Context;
+    use crate::util::{Context, Header};
     use std::collections::HashMap;
 
     struct TestComponent {
@@ -212,7 +212,7 @@ pub mod tests {
             // noop
         }
 
-        fn render(&self) -> Result<String, Error> {
+        fn render(&self, _header: &Header) -> Result<String, Error> {
             Ok("nothing".into())
         }
     }
@@ -232,10 +232,6 @@ pub mod tests {
         };
         assert_eq!(item.default_attribute("nothing"), None);
         assert_eq!(item.get_style("nothing").is_empty(), true);
-        let header = item.to_header();
-        assert_eq!(header.get_font_families().len(), 0);
-        assert_eq!(header.get_media_queries().is_empty(), true);
-        assert_eq!(header.get_styles().is_empty(), true);
     }
 
     impl BodyComponentWithBorder for TestComponent {}
