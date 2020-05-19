@@ -65,6 +65,7 @@ pub trait ComponentWithChildren: Component {
 
 #[cfg(test)]
 pub mod tests {
+    use crate::Options;
     use super::*;
 
     struct TestComponent {
@@ -93,7 +94,7 @@ pub mod tests {
 
     #[test]
     fn basic_component_default_values() {
-        let header = Header::new();
+        let header = Header::from(&Options::default());
         let mut item = TestComponent {
             attributes: HashMap::new(),
         };

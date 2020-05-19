@@ -23,7 +23,7 @@
     - [ ] with lang
   - [x] mj-head
   - [ ] mj-attributes
-  - [ ] mj-breakpoint
+  - [x] mj-breakpoint
   - [ ] mj-font
   - [ ] mj-preview
   - [ ] mj-style
