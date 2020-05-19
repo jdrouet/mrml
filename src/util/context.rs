@@ -1,12 +1,10 @@
 use super::prelude::PropertyMap;
 use super::size::Size;
-use crate::Options;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct Context {
     inner: HashMap<String, String>,
-    options: Options,
     container_width: Option<Size>,
     siblings: usize,
     raw_siblings: usize,
@@ -24,12 +22,11 @@ impl PropertyMap for Context {
 }
 
 impl Context {
-    pub fn default(options: Options) -> Self {
-        Self::new(options, None, 1, 0, 0)
+    pub fn default() -> Self {
+        Self::new(None, 1, 0, 0)
     }
 
     pub fn new(
-        options: Options,
         container_width: Option<Size>,
         siblings: usize,
         raw_siblings: usize,
@@ -37,16 +34,11 @@ impl Context {
     ) -> Self {
         Self {
             inner: HashMap::new(),
-            options,
             container_width,
             siblings,
             raw_siblings,
             index,
         }
-    }
-
-    pub fn default_from(other: &Self) -> Self {
-        Self::from(other, None, 1, 0, 0)
     }
 
     pub fn from(
@@ -57,7 +49,6 @@ impl Context {
         index: usize,
     ) -> Self {
         let mut ctx = Self {
-            options: other.options.clone(),
             inner: HashMap::new(),
             container_width,
             siblings,
@@ -66,10 +57,6 @@ impl Context {
         };
         ctx.merge(other);
         ctx
-    }
-
-    pub fn options(&self) -> &Options {
-        &self.options
     }
 
     pub fn container_width(&self) -> Option<Size> {
@@ -120,29 +107,17 @@ impl Context {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Options;
-
-    #[test]
-    fn with_default_from() {
-        let origin = Context::default(Options::default());
-        let result = Context::default_from(&origin);
-        assert_eq!(origin.options().breakpoint, result.options().breakpoint);
-        assert_eq!(
-            origin.options().keep_comments,
-            result.options().keep_comments
-        );
-    }
 
     #[test]
     fn set_container_width() {
-        let mut ctx = Context::default(Options::default());
+        let mut ctx = Context::default();
         ctx.set_container_width(Some(Size::Percent(32.0)));
         assert_eq!(ctx.container_width().unwrap().value(), 32.0);
     }
 
     #[test]
     fn with_params() {
-        let mut ctx = Context::new(Options::default(), Some(Size::Percent(42.0)), 4, 2, 1);
+        let mut ctx = Context::new(Some(Size::Percent(42.0)), 4, 2, 1);
         assert_eq!(ctx.container_width().unwrap().value(), 42.0);
         assert_eq!(ctx.siblings(), 4);
         ctx.set_siblings(6);

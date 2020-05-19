@@ -17,11 +17,8 @@ pub trait Component {
     fn context(&self) -> Option<&Context>;
     fn set_context(&mut self, ctx: Context);
 
-    fn to_header(&self) -> Header {
-        Header::new()
-    }
-
-    fn render(&self) -> Result<String, Error>;
+    fn update_header(&self, _header: &mut Header) {}
+    fn render(&self, header: &Header) -> Result<String, Error>;
 }
 
 pub trait ComponentWithAttributes: Component {
@@ -69,7 +66,6 @@ pub trait ComponentWithChildren: Component {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::Options;
 
     struct TestComponent {
         attributes: HashMap<String, String>,
@@ -84,7 +80,7 @@ pub mod tests {
             // noop
         }
 
-        fn render(&self) -> Result<String, Error> {
+        fn render(&self, _header: &Header) -> Result<String, Error> {
             Ok("nothing".into())
         }
     }
@@ -97,17 +93,14 @@ pub mod tests {
 
     #[test]
     fn basic_component_default_values() {
+        let header = Header::new();
         let mut item = TestComponent {
             attributes: HashMap::new(),
         };
         assert_eq!(item.context().is_none(), true);
-        item.set_context(Context::default(Options::default()));
+        item.set_context(Context::default());
         assert_eq!(item.source_attributes(), Some(&item.attributes));
         assert_eq!(item.default_attribute("nothing"), None);
-        assert_eq!(item.render().unwrap(), "nothing");
-        let header = item.to_header();
-        assert_eq!(header.get_font_families().len(), 0);
-        assert_eq!(header.get_media_queries().is_empty(), true);
-        assert_eq!(header.get_styles().is_empty(), true);
+        assert_eq!(item.render(&header).unwrap(), "nothing");
     }
 }

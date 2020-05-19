@@ -1,11 +1,11 @@
 use super::body::mj_body::MJBody;
 use super::head::mj_head::MJHead;
-use super::Error;
 use super::prelude::*;
-use crate::util::Context;
+use super::Error;
+use crate::util::{Context, Header};
+use crate::Options;
 use log::debug;
 use roxmltree::Node;
-use std::collections::HashMap;
 
 const DOCTYPE: &str = "<!doctype html>";
 const HTML_OPEN: &str = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">";
@@ -13,71 +13,66 @@ const HTML_CLOSE: &str = "</html>";
 
 #[derive(Clone, Debug)]
 pub struct MJMLElement {
+    options: Options,
     context: Option<Context>,
     head: MJHead,
     body: MJBody,
 }
 
-fn get_head<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead, Error> {
+fn get_head<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-head" {
-            return MJHead::parse(child);
+            return MJHead::parse(child, &opts);
         }
     }
-    Ok(MJHead::empty())
+    Ok(MJHead::empty(&opts))
 }
 
-fn get_body<'a, 'b>(node: Node<'a, 'b>) -> Result<MJBody, Error> {
+fn get_body<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-body" {
-            return MJBody::parse(child);
+            return MJBody::parse(child, opts);
         }
     }
-    Ok(MJBody::empty())
+    Ok(MJBody::empty(opts))
 }
 
 impl MJMLElement {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJMLElement, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJMLElement, Error> {
         debug!("parse");
-        let head = get_head(node)?;
-        let body = get_body(node)?;
-        let element = MJMLElement {
+        let head = get_head(node, opts)?;
+        let body = get_body(node, opts)?;
+        let mut element = MJMLElement {
+            options: opts.clone(),
             context: None,
             head,
             body,
         };
+        element.digest();
         Ok(element)
     }
-}
 
-impl Component for MJMLElement {
-    fn context(&self) -> Option<&Context> {
-        self.context.as_ref()
+    pub fn digest(&mut self) {
+        self.body.set_context(Context::default());
     }
 
-    fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
-        self.body.set_context(ctx.clone());
-        self.head.set_context(ctx.clone());
+    fn get_header(&self) -> Header {
+        let mut header = Header::new();
+        self.head.update_header(&mut header);
+        self.body.update_header(&mut header);
+        header
     }
 
-    fn render(&self) -> Result<String, Error> {
+    pub fn render(&self) -> Result<String, Error> {
         debug!("render");
-        let mut head = self.head.clone();
-        head.set_header(self.body.to_header());
+        let header = self.get_header();
         let mut res: Vec<String> = vec![];
         res.push(DOCTYPE.into());
         res.push(HTML_OPEN.into());
-        res.push(head.render()?);
-        res.push(self.body.render()?);
+        res.push(self.head.render(&header)?);
+        res.push(self.body.render(&header)?);
         res.push(HTML_CLOSE.into());
         Ok(res.join(""))
-    }
-}
-
-impl ComponentWithAttributes for MJMLElement {
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        None
     }
 }
 

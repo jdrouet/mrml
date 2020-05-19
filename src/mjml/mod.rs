@@ -1,4 +1,4 @@
-use crate::util::Context;
+use crate::Options;
 use roxmltree::Node;
 
 pub mod body;
@@ -12,8 +12,6 @@ use prelude::Component;
 
 pub use mjml::MJMLElement;
 
-pub fn parse<'a, 'b>(node: Node<'a, 'b>, ctx: Context) -> Result<mjml::MJMLElement, Error> {
-    let mut element = mjml::MJMLElement::parse(node)?;
-    element.set_context(ctx);
-    Ok(element)
+pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<mjml::MJMLElement, Error> {
+    mjml::MJMLElement::parse(node, opts)
 }

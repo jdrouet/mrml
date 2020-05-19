@@ -27,7 +27,7 @@
   - [ ] mj-font
   - [ ] mj-preview
   - [ ] mj-style
-  - [ ] mj-title
+  - [x] mj-title
   - [x] mj-body
     - [x] without attributes
     - [x] with background-color

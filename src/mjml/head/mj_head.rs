@@ -1,8 +1,11 @@
+use super::HeadElement;
+use crate::mjml::head::prelude::HeadComponent;
 use crate::mjml::prelude::*;
 use crate::mjml::Error;
 use crate::util::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::util::fonts::{url_to_import, url_to_link};
 use crate::util::{Context, Header};
+use crate::Options;
 use crate::{close_tag, open_tag, to_attributes, with_tag};
 use log::debug;
 use roxmltree::Node;
@@ -54,62 +57,59 @@ p {
 
 #[derive(Debug, Clone)]
 pub struct MJHead {
+    options: Options,
     attributes: HashMap<String, String>,
     context: Option<Context>,
-    header: Header,
+    children: Vec<HeadElement>,
 }
 
 impl MJHead {
-    pub fn empty() -> MJHead {
+    pub fn empty(opts: &Options) -> MJHead {
         debug!("create empty");
         MJHead {
+            options: opts.clone(),
             attributes: HashMap::new(),
             context: None,
-            header: Header::new(),
+            children: vec![],
         }
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>) -> Result<MJHead, Error> {
-        debug!("parse");
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
+        let children = HeadElement::parse_all(node.children().collect(), opts)?;
         Ok(MJHead {
+            options: opts.clone(),
             attributes: get_node_attributes(&node),
             context: None,
-            header: Header::new(),
+            children,
         })
     }
 
-    pub fn set_header(&mut self, header: Header) {
-        self.header.merge(&header);
+    pub fn update_header(&self, header: &mut Header) {
+        for item in self.children.iter() {
+            item.update_header(header);
+        }
     }
 
-    fn get_title(&self) -> String {
-        match self.header.title() {
+    fn get_title(&self, header: &Header) -> String {
+        match header.title() {
             Some(value) => value.clone(),
             None => "".into(),
         }
     }
 
-    fn get_media_queries(&self) -> String {
-        let breakpoint = match self
-            .context()
-            .and_then(|ctx| Some(ctx.options().breakpoint.clone()))
-        {
-            Some(value) => value,
-            None => return "".into(),
-        };
-        if !self.header.has_media_queries() {
+    fn get_media_queries(&self, header: &Header) -> String {
+        if !header.has_media_queries() {
             return "".into();
         }
         let mut res = vec![];
         res.push(format!(
             "@media only screen and (min-width:{}) {{ ",
-            breakpoint.to_string()
+            self.options.breakpoint.to_string()
         ));
-        let mut classnames: Vec<&String> = self.header.get_media_queries().keys().collect();
+        let mut classnames: Vec<&String> = header.get_media_queries().keys().collect();
         classnames.sort();
         for classname in classnames.iter() {
-            let size = self
-                .header
+            let size = header
                 .get_media_queries()
                 .get(classname.clone())
                 .unwrap();
@@ -128,15 +128,11 @@ impl MJHead {
         )
     }
 
-    fn get_font_families(&self) -> String {
-        let ctx = match self.context() {
-            Some(ctx) => ctx,
-            None => return "".into(),
-        };
-        let fonts = self.header.get_font_families();
+    fn get_font_families(&self, header: &Header) -> String {
+        let fonts = header.get_font_families();
         let mut font_urls = vec![];
         for font in fonts.iter() {
-            if let Some(url) = ctx.options().fonts.get(&font) {
+            if let Some(url) = self.options.fonts.get(&font) {
                 font_urls.push(url);
             }
         }
@@ -157,8 +153,8 @@ impl MJHead {
         res.join("")
     }
 
-    fn get_styles(&self) -> String {
-        let styles = self.header.get_styles();
+    fn get_styles(&self, header: &Header) -> String {
+        let styles = header.get_styles();
         if styles.is_empty() {
             return "".into();
         }
@@ -181,12 +177,12 @@ impl Component for MJHead {
         self.context = Some(ctx);
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, header: &Header) -> Result<String, Error> {
         debug!("render");
         let mut res: Vec<String> = vec![];
         res.push(open_tag!("head"));
         res.push(open_tag!("title"));
-        res.push(self.get_title());
+        res.push(self.get_title(header));
         res.push(close_tag!("title"));
         res.push("<!--[if !mso]><!-- -->".into());
         res.push(open_tag!(
@@ -209,9 +205,9 @@ impl Component for MJHead {
             )
         ));
         res.push(STYLE_BASE.into());
-        res.push(self.get_font_families());
-        res.push(self.get_media_queries());
-        res.push(self.get_styles());
+        res.push(self.get_font_families(header));
+        res.push(self.get_media_queries(header));
+        res.push(self.get_styles(header));
         res.push(close_tag!("head"));
         Ok(res.join(""))
     }
