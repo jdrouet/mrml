@@ -24,7 +24,7 @@
   - [x] mj-head
   - [ ] mj-attributes
   - [x] mj-breakpoint
-  - [ ] mj-font
+  - [x] mj-font
   - [ ] mj-preview
   - [ ] mj-style
   - [x] mj-title
