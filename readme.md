@@ -25,7 +25,7 @@
   - [ ] mj-attributes
   - [x] mj-breakpoint
   - [x] mj-font
-  - [ ] mj-preview
+  - [x] mj-preview
   - [ ] mj-style
     - [x] without attributes
     - [ ] with inline
