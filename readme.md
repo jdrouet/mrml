@@ -27,6 +27,8 @@
   - [x] mj-font
   - [ ] mj-preview
   - [ ] mj-style
+    - [x] without attributes
+    - [ ] with inline
   - [x] mj-title
   - [x] mj-body
     - [x] without attributes
