@@ -1,0 +1,17 @@
+<mjml>
+  <mj-head>
+    <mj-style>
+      .red-text div {
+        color: red !important;
+        text-decoration: underline !important;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text css-class="red-text">I'm red and underlined</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
