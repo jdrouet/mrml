@@ -77,6 +77,7 @@ impl MJMLElement {
 
 #[cfg(test)]
 pub mod tests {
+    use crate::{to_html, Options};
     use crate::tests::compare_render;
 
     #[test]
@@ -85,5 +86,12 @@ pub mod tests {
             include_str!("../../test/mjml.mjml"),
             include_str!("../../test/mjml.html"),
         );
+    }
+
+    #[test]
+    fn debug() {
+        let template = include_str!("../../test/mjml.mjml");
+        let result = to_html(template, Options::default()).unwrap();
+        println!("result: {:?}", result);
     }
 }
