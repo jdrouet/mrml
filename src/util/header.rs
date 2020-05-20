@@ -8,10 +8,11 @@ use std::string::ToString;
 #[derive(Clone, Debug)]
 pub struct Header {
     breakpoint: Size,
-    font_registry: FontRegistry,
     font_families: HashSet<String>,
-    title: Option<String>,
+    font_registry: FontRegistry,
     media_queries: HashMap<String, Size>,
+    preview: Option<String>,
+    title: Option<String>,
     styles: HashSet<String>,
 }
 
@@ -30,6 +31,14 @@ impl Header {
 
     pub fn set_breakpoint(&mut self, value: Size) {
         self.breakpoint = value;
+    }
+
+    pub fn preview(&self) -> Option<&String> {
+        self.preview.as_ref()
+    }
+
+    pub fn set_preview(&mut self, preview: String) {
+        self.preview = Some(preview);
     }
 
     pub fn has_media_queries(&self) -> bool {
@@ -99,10 +108,11 @@ impl From<&Options> for Header {
     fn from(value: &Options) -> Self {
         Header {
             breakpoint: value.breakpoint.clone(),
-            font_registry: value.fonts.clone(),
             font_families: HashSet::new(),
-            title: None,
+            font_registry: value.fonts.clone(),
             media_queries: HashMap::new(),
+            preview: None,
+            title: None,
             styles: HashSet::new(),
         }
     }

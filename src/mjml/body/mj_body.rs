@@ -5,7 +5,7 @@ use crate::mjml::{Component, Error};
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header, Style};
 use crate::Options;
-use crate::{close_tag, open_tag};
+use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -39,6 +39,27 @@ impl MJBody {
             context: None,
             exists: true,
         })
+    }
+
+    pub fn render_preview(&self, header: &Header) -> String {
+        let preview = match header.preview() {
+            Some(value) => value,
+            None => return "".into(),
+        };
+        let mut style = Style::new();
+        style.set("display", "none");
+        style.set("font-size", "1px");
+        style.set("color", "#ffffff");
+        style.set("line-height", "1px");
+        style.set("max-height", "0px");
+        style.set("max-width", "0px");
+        style.set("opacity", "0");
+        style.set("overflow", "hidden");
+        let mut res = vec![];
+        res.push(open_tag!("div", to_attributes!(("style", style.to_string()))));
+        res.push(preview.clone());
+        res.push(close_tag!("div"));
+        res.join("")
     }
 }
 
@@ -91,6 +112,7 @@ impl Component for MJBody {
             }
             res.push(open_tag!("body", attrs.to_string()));
         }
+        res.push(self.render_preview(&header));
         if self.exists {
             let mut attrs = Attributes::new();
             attrs.maybe_set("class", self.get_attribute("css-class"));

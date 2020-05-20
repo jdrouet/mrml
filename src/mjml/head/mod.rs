@@ -6,14 +6,16 @@ use roxmltree::Node;
 pub mod mj_breakpoint;
 pub mod mj_font;
 pub mod mj_head;
-pub mod mj_title;
+pub mod mj_preview;
 pub mod mj_style;
+pub mod mj_title;
 pub mod prelude;
 
 #[derive(Clone, Debug)]
 pub enum HeadElement {
     MJBreakpoint(mj_breakpoint::MJBreakpoint),
     MJFont(mj_font::MJFont),
+    MJPreview(mj_preview::MJPreview),
     MJStyle(mj_style::MJStyle),
     MJTitle(mj_title::MJTitle),
 }
@@ -23,6 +25,7 @@ macro_rules! apply_fn {
         match $root {
             HeadElement::MJBreakpoint(item) => item.$func($($args)*),
             HeadElement::MJFont(item) => item.$func($($args)*),
+            HeadElement::MJPreview(item) => item.$func($($args)*),
             HeadElement::MJStyle(item) => item.$func($($args)*),
             HeadElement::MJTitle(item) => item.$func($($args)*),
         }
@@ -50,6 +53,7 @@ impl HeadElement {
                 HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node, opts)?)
             }
             "mj-font" => HeadElement::MJFont(mj_font::MJFont::parse(node, opts)?),
+            "mj-preview" => HeadElement::MJPreview(mj_preview::MJPreview::parse(node, opts)?),
             "mj-style" => HeadElement::MJStyle(mj_style::MJStyle::parse(node, opts)?),
             "mj-title" => HeadElement::MJTitle(mj_title::MJTitle::parse(node, opts)?),
             _ => return Err(Error::ParseError(format!("{} tag not known", tag_name))),
