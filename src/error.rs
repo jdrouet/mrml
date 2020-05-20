@@ -7,6 +7,15 @@ pub enum Error {
     XMLError(XMLError),
 }
 
+impl Error {
+    pub fn is_mjml_error(&self) -> bool {
+        match self {
+            Error::MJMLError(_) => true,
+            _ => false,
+        }
+    }
+}
+
 impl From<MJMLError> for Error {
     fn from(error: MJMLError) -> Error {
         Error::MJMLError(error)
