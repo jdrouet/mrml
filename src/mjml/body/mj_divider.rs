@@ -187,4 +187,12 @@ pub mod tests {
             include_str!("../../../test/mj-divider-class.html"),
         );
     }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../../test/mj-divider-padding.mjml"),
+            include_str!("../../../test/mj-divider-padding.html"),
+        );
+    }
 }
