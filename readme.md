@@ -74,7 +74,7 @@
     - [x] with width (default: (100 / number of non-raw elements in section)%)
   - [ ] mj-divider
     - [x] without attributes
-    - [ ] with border-(color|style|width) (default: #000000 solid 4px)
+    - [x] with border-(color|style|width) (default: #000000 solid 4px)
     - [ ] with container-background-color
     - [ ] with css-class
     - [ ] with padding, padding-(top|right|bottom|left) (default: 10px 25px)

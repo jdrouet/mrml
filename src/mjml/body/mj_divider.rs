@@ -163,4 +163,12 @@ pub mod tests {
             include_str!("../../../test/mj-divider.html"),
         );
     }
+
+    #[test]
+    fn with_border() {
+        compare_render(
+            include_str!("../../../test/mj-divider-border.mjml"),
+            include_str!("../../../test/mj-divider-border.html"),
+        );
+    }
 }
