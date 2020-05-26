@@ -195,4 +195,12 @@ pub mod tests {
             include_str!("../../../test/mj-divider-padding.html"),
         );
     }
+
+    #[test]
+    fn with_width() {
+        compare_render(
+            include_str!("../../../test/mj-divider-width.mjml"),
+            include_str!("../../../test/mj-divider-width.html"),
+        );
+    }
 }
