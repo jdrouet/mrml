@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-divider padding="5px" />
+      </mj-column>
+      <mj-column>
+        <mj-divider padding-top="1px" padding-right="2px" padding-bottom="3px" padding-left="4px" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

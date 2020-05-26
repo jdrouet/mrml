@@ -72,7 +72,13 @@
     - [x] with padding, padding-(top|right|bottom|left)
     - [x] with vertical-align
     - [x] with width (default: (100 / number of non-raw elements in section)%)
-  - [ ] mj-divider
+  - [x] mj-divider
+    - [x] without attributes
+    - [x] with border-(color|style|width) (default: #000000 solid 4px)
+    - [x] with container-background-color
+    - [x] with css-class
+    - [x] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
+    - [x] with width (default: 100%)
   - [ ] mj-group
   - [ ] mj-hero
   - [ ] mj-image
