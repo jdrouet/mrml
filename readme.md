@@ -75,7 +75,7 @@
   - [ ] mj-divider
     - [x] without attributes
     - [x] with border-(color|style|width) (default: #000000 solid 4px)
-    - [ ] with container-background-color
+    - [x] with container-background-color
     - [ ] with css-class
     - [ ] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [ ] with width (default: 100%)

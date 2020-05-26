@@ -171,4 +171,12 @@ pub mod tests {
             include_str!("../../../test/mj-divider-border.html"),
         );
     }
+
+    #[test]
+    fn with_container_background_color() {
+        compare_render(
+            include_str!("../../../test/mj-divider-container-background-color.mjml"),
+            include_str!("../../../test/mj-divider-container-background-color.html"),
+        );
+    }
 }
