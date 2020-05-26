@@ -76,7 +76,7 @@
     - [x] without attributes
     - [x] with border-(color|style|width) (default: #000000 solid 4px)
     - [x] with container-background-color
-    - [ ] with css-class
+    - [x] with css-class
     - [ ] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [ ] with width (default: 100%)
   - [ ] mj-group

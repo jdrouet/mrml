@@ -179,4 +179,12 @@ pub mod tests {
             include_str!("../../../test/mj-divider-container-background-color.html"),
         );
     }
+
+    #[test]
+    fn with_css_class() {
+        compare_render(
+            include_str!("../../../test/mj-divider-class.mjml"),
+            include_str!("../../../test/mj-divider-class.html"),
+        );
+    }
 }
