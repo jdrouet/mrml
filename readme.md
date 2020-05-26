@@ -81,6 +81,18 @@
     - [x] with width (default: 100%)
   - [ ] mj-group
   - [ ] mj-hero
+    - [ ] without attributes
+    - [ ] with background-color (default: #ffffff)
+    - [ ] with background-height
+    - [ ] with background-position (default: center center)
+    - [ ] with background-url
+    - [ ] with background-width (default: parent width)
+    - [ ] with css-class
+    - [ ] with height (default: 0px)
+    - [ ] with mode (default: fluid-height)
+    - [ ] with padding, padding-(top|right|bottom|left) (default: 0px)
+    - [ ] with vertical-align (default: top)
+    - [ ] with width (default: parent width)
   - [ ] mj-image
     - [x] mjml documentation example
     - [x] with align
