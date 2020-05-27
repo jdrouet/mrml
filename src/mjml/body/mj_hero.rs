@@ -54,7 +54,7 @@ impl MJHero {
         let bg_ratio = self
             .get_size_attribute("background-height")
             .and_then(|height| {
-                self.get_size_attribute("background_width")
+                self.get_size_attribute("background-width")
                     .and_then(|width| Some(height.value() * 100.0 / width.value()))
             });
         let mut res = Style::new();
@@ -515,6 +515,14 @@ pub mod tests {
         compare_render(
             include_str!("../../../test/mj-hero-height.mjml"),
             include_str!("../../../test/mj-hero-height.html"),
+        );
+    }
+
+    #[test]
+    fn with_mode() {
+        compare_render(
+            include_str!("../../../test/mj-hero-mode.mjml"),
+            include_str!("../../../test/mj-hero-mode.html"),
         );
     }
 }

@@ -89,8 +89,8 @@
     - [x] with background-width (default: parent width)
     - [x] with css-class
     - [x] with height (default: 0px)
-    - [ ] with mode (default: fluid-height)
-    - [ ] with padding, padding-(top|right|bottom|left) (default: 0px)
+    - [x] with mode (default: fluid-height)
+    - [x] with padding, padding-(top|right|bottom|left) (default: 0px)
     - [ ] with vertical-align (default: top)
     - [ ] with width (default: parent width)
   - [ ] mj-image
