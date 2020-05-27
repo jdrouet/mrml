@@ -6,6 +6,7 @@ pub mod mj_body;
 pub mod mj_button;
 pub mod mj_column;
 pub mod mj_divider;
+pub mod mj_hero;
 pub mod mj_image;
 pub mod mj_section;
 pub mod mj_text;
@@ -22,6 +23,7 @@ pub enum BodyElement {
     MJButton(mj_button::MJButton),
     MJColumn(mj_column::MJColumn),
     MJDivider(mj_divider::MJDivider),
+    MJHero(mj_hero::MJHero),
     MJImage(mj_image::MJImage),
     MJSection(mj_section::MJSection),
     MJText(mj_text::MJText),
@@ -34,6 +36,7 @@ macro_rules! apply_fn {
             BodyElement::MJButton(item) => item.$func($($args)*),
             BodyElement::MJColumn(item) => item.$func($($args)*),
             BodyElement::MJDivider(item) => item.$func($($args)*),
+            BodyElement::MJHero(item) => item.$func($($args)*),
             BodyElement::MJImage(item) => item.$func($($args)*),
             BodyElement::MJSection(item) => item.$func($($args)*),
             BodyElement::MJText(item) => item.$func($($args)*),
@@ -82,6 +85,7 @@ impl BodyElement {
             "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, opts)?),
             "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, opts)?),
             "mj-divider" => BodyElement::MJDivider(mj_divider::MJDivider::parse(node, opts)?),
+            "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, opts)?),
             "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, opts)?),
             "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, opts)?),
             "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, opts)?),

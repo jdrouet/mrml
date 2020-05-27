@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-hero>
+      <mj-text>
+        GO TO SPACE
+      </mj-text>
+      <mj-button href="https://jolimail.io/">
+        ORDER YOUR TICKET NOW
+      </mj-button>
+    </mj-hero>
+  </mj-body>
+</mjml>

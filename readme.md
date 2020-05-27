@@ -80,7 +80,19 @@
     - [x] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [x] with width (default: 100%)
   - [ ] mj-group
-  - [ ] mj-hero
+  - [x] mj-hero
+    - [x] without attributes
+    - [x] with background-color (default: #ffffff)
+    - [x] with background-height
+    - [x] with background-position (default: center center)
+    - [x] with background-url
+    - [x] with background-width (default: parent width)
+    - [x] with css-class
+    - [x] with height (default: 0px)
+    - [x] with mode (default: fluid-height)
+    - [x] with padding, padding-(top|right|bottom|left) (default: 0px)
+    - [x] with vertical-align (default: top)
+    - [x] with width (default: parent width)
   - [ ] mj-image
     - [x] mjml documentation example
     - [x] with align
