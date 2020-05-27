@@ -81,7 +81,7 @@
     - [x] with width (default: 100%)
   - [ ] mj-group
   - [ ] mj-hero
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] with background-color (default: #ffffff)
     - [ ] with background-height
     - [ ] with background-position (default: center center)

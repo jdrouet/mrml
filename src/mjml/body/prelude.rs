@@ -127,6 +127,20 @@ pub trait BodyComponentWithPadding: Component + ComponentWithSizeAttribute {
     fn get_padding_right(&self) -> Option<Size> {
         self.get_padding("right")
     }
+
+    fn get_padding_vertical(&self) -> Option<Size> {
+        self.get_padding_top().and_then(|top| {
+            self.get_padding_bottom().and_then(|bot| {
+                if top.is_pixel() && bot.is_pixel() {
+                    Some(Size::Pixel(top.value() + bot.value()))
+                } else if top.is_percent() && bot.is_percent() {
+                    Some(Size::Percent(top.value() + bot.value()))
+                } else {
+                    None
+                }
+            })
+        })
+    }
 }
 
 pub trait BodyContainedComponent: Component {
