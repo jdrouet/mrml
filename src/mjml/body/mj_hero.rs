@@ -501,4 +501,12 @@ pub mod tests {
             include_str!("../../../test/mj-hero-background-width.html"),
         );
     }
+
+    #[test]
+    fn with_class() {
+        compare_render(
+            include_str!("../../../test/mj-hero-class.mjml"),
+            include_str!("../../../test/mj-hero-class.html"),
+        );
+    }
 }
