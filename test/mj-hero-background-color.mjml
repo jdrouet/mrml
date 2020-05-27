@@ -1,0 +1,9 @@
+<mjml>
+  <mj-body>
+    <mj-hero background-color="blue">
+      <mj-text>
+        GO TO SPACE
+      </mj-text>
+    </mj-hero>
+  </mj-body>
+</mjml>

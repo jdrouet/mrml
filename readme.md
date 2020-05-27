@@ -82,7 +82,7 @@
   - [ ] mj-group
   - [ ] mj-hero
     - [x] without attributes
-    - [ ] with background-color (default: #ffffff)
+    - [x] with background-color (default: #ffffff)
     - [ ] with background-height
     - [ ] with background-position (default: center center)
     - [ ] with background-url

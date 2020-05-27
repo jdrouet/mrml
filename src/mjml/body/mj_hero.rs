@@ -458,4 +458,12 @@ pub mod tests {
             include_str!("../../../test/mj-hero.html"),
         );
     }
+
+    #[test]
+    fn with_background_color() {
+        compare_render(
+            include_str!("../../../test/mj-hero-background-color.mjml"),
+            include_str!("../../../test/mj-hero-background-color.html"),
+        );
+    }
 }
