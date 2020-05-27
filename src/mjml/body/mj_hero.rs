@@ -509,4 +509,12 @@ pub mod tests {
             include_str!("../../../test/mj-hero-class.html"),
         );
     }
+
+    #[test]
+    fn with_height() {
+        compare_render(
+            include_str!("../../../test/mj-hero-height.mjml"),
+            include_str!("../../../test/mj-hero-height.html"),
+        );
+    }
 }
