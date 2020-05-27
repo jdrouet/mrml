@@ -525,4 +525,12 @@ pub mod tests {
             include_str!("../../../test/mj-hero-mode.html"),
         );
     }
+
+    #[test]
+    fn with_vertical_align() {
+        compare_render(
+            include_str!("../../../test/mj-hero-vertical-align.mjml"),
+            include_str!("../../../test/mj-hero-vertical-align.html"),
+        );
+    }
 }
