@@ -493,4 +493,12 @@ pub mod tests {
             include_str!("../../../test/mj-hero-background-url.html"),
         );
     }
+
+    #[test]
+    fn with_background_width() {
+        compare_render(
+            include_str!("../../../test/mj-hero-background-width.mjml"),
+            include_str!("../../../test/mj-hero-background-width.html"),
+        );
+    }
 }

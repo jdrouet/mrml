@@ -86,7 +86,7 @@
     - [x] with background-height
     - [x] with background-position (default: center center)
     - [x] with background-url
-    - [ ] with background-width (default: parent width)
+    - [x] with background-width (default: parent width)
     - [ ] with css-class
     - [ ] with height (default: 0px)
     - [ ] with mode (default: fluid-height)
