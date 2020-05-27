@@ -474,4 +474,12 @@ pub mod tests {
             include_str!("../../../test/mj-hero-background-height.html"),
         );
     }
+
+    #[test]
+    fn with_background_position() {
+        compare_render(
+            include_str!("../../../test/mj-hero-background-position.mjml"),
+            include_str!("../../../test/mj-hero-background-position.html"),
+        );
+    }
 }

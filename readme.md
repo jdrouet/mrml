@@ -84,7 +84,7 @@
     - [x] without attributes
     - [x] with background-color (default: #ffffff)
     - [x] with background-height
-    - [ ] with background-position (default: center center)
+    - [x] with background-position (default: center center)
     - [ ] with background-url
     - [ ] with background-width (default: parent width)
     - [ ] with css-class
