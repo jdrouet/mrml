@@ -117,7 +117,7 @@ impl MJHero {
         res.maybe_set(
             "width",
             self.get_attribute("background-width")
-            .or_else(|| self.get_container_width_str()),
+                .or_else(|| self.get_container_width_str()),
         );
         res.set("z-index", "-3");
         res
@@ -135,8 +135,11 @@ impl MJHero {
         let bg_color = self.get_attribute("background-color");
         match self.get_attribute("background-url") {
             Some(url) => Some(format!(
-                "url({}) no-repeat {} / cover",
+                "{} url({}) no-repeat {} / cover",
+                // has default value
+                self.get_attribute("background-color").unwrap(),
                 url,
+                // has default value
                 self.get_attribute("background-position").unwrap()
             )),
             None => bg_color,
@@ -480,6 +483,14 @@ pub mod tests {
         compare_render(
             include_str!("../../../test/mj-hero-background-position.mjml"),
             include_str!("../../../test/mj-hero-background-position.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_url() {
+        compare_render(
+            include_str!("../../../test/mj-hero-background-url.mjml"),
+            include_str!("../../../test/mj-hero-background-url.html"),
         );
     }
 }

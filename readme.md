@@ -85,7 +85,7 @@
     - [x] with background-color (default: #ffffff)
     - [x] with background-height
     - [x] with background-position (default: center center)
-    - [ ] with background-url
+    - [x] with background-url
     - [ ] with background-width (default: parent width)
     - [ ] with css-class
     - [ ] with height (default: 0px)
