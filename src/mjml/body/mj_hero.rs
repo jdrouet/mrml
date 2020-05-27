@@ -466,4 +466,12 @@ pub mod tests {
             include_str!("../../../test/mj-hero-background-color.html"),
         );
     }
+
+    #[test]
+    fn with_background_height() {
+        compare_render(
+            include_str!("../../../test/mj-hero-background-height.mjml"),
+            include_str!("../../../test/mj-hero-background-height.html"),
+        );
+    }
 }

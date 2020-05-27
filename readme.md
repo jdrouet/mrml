@@ -83,7 +83,7 @@
   - [ ] mj-hero
     - [x] without attributes
     - [x] with background-color (default: #ffffff)
-    - [ ] with background-height
+    - [x] with background-height
     - [ ] with background-position (default: center center)
     - [ ] with background-url
     - [ ] with background-width (default: parent width)
