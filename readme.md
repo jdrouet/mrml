@@ -127,6 +127,50 @@
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-align
   - [ ] mj-social
+    - [ ] without attributes
+    - [ ] with align (default: center)
+    - [ ] with border-radius (default: 3px)
+    - [ ] with color (default: #333333)
+    - [ ] with css-class
+    - [ ] with container-background-color
+    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [ ] with font-size (default: 13px)
+    - [ ] with font-style (default: normal)
+    - [ ] with font-weight (default: normal)
+    - [ ] with icon-height (default: icon-size)
+    - [ ] with icon-size (default: 20px)
+    - [ ] with inner-padding (default: 4px)
+    - [ ] with line-height (default: 22px)
+    - [ ] with mode (default: horizontal)
+    - [ ] with padding (default: 10px 25px)
+    - [ ] with padding-(top|right|bottom|left)
+    - [ ] with icon-padding (default: 0px)
+    - [ ] with text-padding (default: 4px 4px 4px 0)
+    - [ ] with text-decoration
+  - [ ] mj-social-element
+    - [ ] with align (default: center)
+    - [ ] with alt
+    - [ ] with background-color (default: depending on name)
+    - [ ] with border-radius (default: 3px)
+    - [ ] with color (default: #333333)
+    - [ ] with css-class
+    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [ ] with font-size (default: 13px)
+    - [ ] with font-style (default: normal)
+    - [ ] with font-weight (default: normal)
+    - [ ] with href
+    - [ ] with icon-height (default: icon-size)
+    - [ ] with icon-size (default: 20px)
+    - [ ] with line-height (default: 22px)
+    - [ ] with mode (default: horizontal)
+    - [ ] with padding (default: 4px)
+    - [ ] with padding-(top|right|bottom|left)
+    - [ ] with icon-padding (default: 0px)
+    - [ ] with text-padding (default: 4px 4px 4px 0)
+    - [ ] with src (default: depending on name)
+    - [ ] with target (default: _blank)
+    - [ ] with title
+    - [ ] with text-decoration
   - [ ] mj-spacer
   - [ ] mj-table
   - [ ] mj-text
