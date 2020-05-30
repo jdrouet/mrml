@@ -28,7 +28,7 @@ impl HeadComponent for MJTitle {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tests::compare_render;
+    use crate::tests::{compare_render, compare_title};
 
     #[test]
     fn base() {
@@ -36,5 +36,10 @@ pub mod tests {
             include_str!("../../../test/mj-title.mjml"),
             include_str!("../../../test/mj-title.html"),
         );
+    }
+
+    #[test]
+    fn to_title() {
+        compare_title(include_str!("../../../test/mj-title.mjml"), "Hello MJML");
     }
 }
