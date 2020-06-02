@@ -137,14 +137,14 @@
     - [x] with font-size (default: 13px)
     - [x] with font-style (default: normal)
     - [x] with font-weight (default: normal)
-    - [ ] with icon-height (default: icon-size)
-    - [ ] with icon-size (default: 20px)
+    - [x] with icon-height (default: icon-size)
+    - [x] with icon-padding (default: 0px)
+    - [x] with icon-size (default: 20px)
     - [ ] with inner-padding (default: 4px)
     - [ ] with line-height (default: 22px)
     - [ ] with mode (default: horizontal)
     - [ ] with padding (default: 10px 25px)
     - [ ] with padding-(top|right|bottom|left)
-    - [ ] with icon-padding (default: 0px)
     - [ ] with text-padding (default: 4px 4px 4px 0)
     - [ ] with text-decoration
   - [ ] mj-social-element

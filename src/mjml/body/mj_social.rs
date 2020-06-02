@@ -286,4 +286,12 @@ pub mod tests {
             include_str!("../../../test/mj-social-font.html"),
         );
     }
+
+    #[test]
+    fn with_icon() {
+        compare_render(
+            include_str!("../../../test/mj-social-icon.mjml"),
+            include_str!("../../../test/mj-social-icon.html"),
+        );
+    }
 }
