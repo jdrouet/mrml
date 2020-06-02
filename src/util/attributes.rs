@@ -24,6 +24,14 @@ impl Attributes {
     }
 }
 
+impl From<&Attributes> for Attributes {
+    fn from(value: &Attributes) -> Self {
+        Self {
+            inner: value.inner.clone(),
+        }
+    }
+}
+
 impl ToString for Attributes {
     fn to_string(&self) -> String {
         let mut entries = self.get_entries();

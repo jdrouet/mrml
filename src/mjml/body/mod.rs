@@ -6,6 +6,7 @@ pub mod mj_body;
 pub mod mj_button;
 pub mod mj_column;
 pub mod mj_divider;
+pub mod mj_group;
 pub mod mj_hero;
 pub mod mj_image;
 pub mod mj_section;
@@ -17,6 +18,7 @@ pub mod raw;
 
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::{Attributes, Size};
 use crate::Options;
 use prelude::BodyComponent;
 
@@ -25,6 +27,7 @@ pub enum BodyElement {
     MJButton(mj_button::MJButton),
     MJColumn(mj_column::MJColumn),
     MJDivider(mj_divider::MJDivider),
+    MJGroup(mj_group::MJGroup),
     MJHero(mj_hero::MJHero),
     MJImage(mj_image::MJImage),
     MJSection(mj_section::MJSection),
@@ -40,6 +43,7 @@ macro_rules! apply_fn {
             BodyElement::MJButton(item) => item.$func($($args)*),
             BodyElement::MJColumn(item) => item.$func($($args)*),
             BodyElement::MJDivider(item) => item.$func($($args)*),
+            BodyElement::MJGroup(item) => item.$func($($args)*),
             BodyElement::MJHero(item) => item.$func($($args)*),
             BodyElement::MJImage(item) => item.$func($($args)*),
             BodyElement::MJSection(item) => item.$func($($args)*),
@@ -83,24 +87,36 @@ impl BodyComponent for BodyElement {
     fn get_style(&self, key: &str) -> Style {
         apply_fn!(self, get_style(key))
     }
+
+    fn get_width(&self) -> Option<Size> {
+        apply_fn!(self, get_width())
+    }
 }
 
 impl BodyElement {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<BodyElement, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options, extra: Option<&Attributes>) -> Result<BodyElement, Error> {
         let res = match node.tag_name().name() {
             "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, opts)?),
-            "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, opts)?),
+            "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, opts, extra)?),
             "mj-divider" => BodyElement::MJDivider(mj_divider::MJDivider::parse(node, opts)?),
+            "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, opts, extra)?),
             "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, opts)?),
             "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, opts)?),
             "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, opts)?),
             "mj-social" => BodyElement::MJSocial(mj_social::MJSocial::parse(node, opts)?),
             "mj-social-element" => {
-                BodyElement::MJSocialElement(mj_social_element::MJSocialElement::parse(node, opts)?)
+                BodyElement::MJSocialElement(mj_social_element::MJSocialElement::parse(node, opts, extra)?)
             }
             "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, opts)?),
             _ => BodyElement::Raw(raw::RawElement::parse(node, opts)?),
         };
         Ok(res)
+    }
+
+    pub fn is_raw(&self) -> bool {
+        match self {
+            BodyElement::Raw(_) => true,
+            _ => false,
+        }
     }
 }

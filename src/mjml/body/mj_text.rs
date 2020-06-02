@@ -22,7 +22,7 @@ impl MJText {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJText, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts)?);
+            children.push(BodyElement::parse(child, opts, None)?);
         }
         Ok(MJText {
             attributes: get_node_attributes(&node),
@@ -51,10 +51,10 @@ impl MJText {
         res.push(open_tag!(
             "table",
             to_attributes!(
-                ("role", "presentation"),
                 ("border", "0"),
                 ("cellpadding", "0"),
-                ("cellspacing", "0")
+                ("cellspacing", "0"),
+                ("role", "presentation")
             )
         ));
         res.push(open_tag!("tr"));

@@ -80,7 +80,7 @@
     - [x] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [x] with width (default: 100%)
   - [ ] mj-group
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] with background-color
     - [ ] with css-class
     - [ ] with direction (default: ltr)

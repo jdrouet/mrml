@@ -41,7 +41,7 @@ impl MJSocial {
                     tag_name
                 )));
             } else {
-                let element = MJSocialElement::parse_with_attributes(child, opts, &attrs)?;
+                let element = MJSocialElement::parse_social_child(child, opts, Some(&attrs))?;
                 result.children.push(BodyElement::MJSocialElement(element));
             }
         }
