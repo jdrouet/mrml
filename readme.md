@@ -126,7 +126,7 @@
     - [x] with padding (default: 20px 0)
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-align
-  - [ ] mj-social
+  - [x] mj-social
     - [x] without attributes
     - [x] with align (default: center)
     - [x] with border-radius (default: 3px)
@@ -147,7 +147,7 @@
     - [x] with padding (default: 10px 25px)
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-padding (default: 4px 4px 4px 0)
-  - [ ] mj-social-element
+  - [x] mj-social-element
     - [x] without attributes
     - [x] with align (default: center)
     - [x] with alt
@@ -163,7 +163,7 @@
     - [x] with icon-height (default: icon-size)
     - [x] with icon-size (default: 20px)
     - [x] with line-height (default: 22px)
-    - [ ] with mode (default: horizontal)
+    - [x] with mode (default: horizontal)
     - [x] with padding (default: 4px)
     - [x] with padding-(top|right|bottom|left)
     - [x] with icon-padding (default: 0px)

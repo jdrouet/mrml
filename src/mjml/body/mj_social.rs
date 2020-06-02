@@ -310,4 +310,12 @@ pub mod tests {
             include_str!("../../../test/mj-social-padding.html"),
         );
     }
+
+    #[test]
+    fn with_mode() {
+        compare_render(
+            include_str!("../../../test/mj-social-mode.mjml"),
+            include_str!("../../../test/mj-social-mode.html"),
+        );
+    }
 }
