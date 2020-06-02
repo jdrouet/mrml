@@ -31,7 +31,7 @@ impl SocialNetwork {
             "pinterest" => Some(Self::pinterest()),
             "snapchat" => Some(Self::snapchat()),
             "soundcloud" => Some(Self::soundcloud()),
-            "tumblr" => Some(Self::twitter()),
+            "tumblr" => Some(Self::tumblr()),
             "twitter" => Some(Self::twitter()),
             "vimeo" => Some(Self::vimeo()),
             "web" => Some(Self::web()),
@@ -120,6 +120,14 @@ impl SocialNetwork {
             background_color: "#EF7F31".into(),
             share_url: None,
             src: format!("{}soundcloud.png", IMAGE_ORIGIN),
+        }
+    }
+
+    fn tumblr() -> Self {
+        Self {
+            background_color: "#344356".into(),
+            share_url: Some("https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]".into()),
+            src: format!("{}tumblr.png", IMAGE_ORIGIN),
         }
     }
 

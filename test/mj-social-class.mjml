@@ -1,0 +1,19 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social css-class="testing">
+          <mj-social-element name="tumblr" icon-height="30px">
+						Tumblr
+          </mj-social-element>
+          <mj-social-element name="vimeo" icon-size="25px">
+            Vimeo
+          </mj-social-element>
+          <mj-social-element  name="web" line-height="30px">
+						Web
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
