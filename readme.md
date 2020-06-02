@@ -128,7 +128,7 @@
     - [x] with text-align
   - [ ] mj-social
     - [x] without attributes
-    - [ ] with align (default: center)
+    - [x] with align (default: center)
     - [ ] with border-radius (default: 3px)
     - [ ] with color (default: #333333)
     - [ ] with css-class
@@ -151,9 +151,9 @@
     - [x] without attributes
     - [x] with align (default: center)
     - [x] with alt
-    - [ ] with background-color (default: depending on name)
-    - [ ] with border-radius (default: 3px)
-    - [ ] with color (default: #333333)
+    - [x] with background-color (default: depending on name)
+    - [x] with border-radius (default: 3px)
+    - [x] with color (default: #333333)
     - [ ] with css-class
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)

@@ -230,4 +230,12 @@ pub mod tests {
             include_str!("../../../test/mj-social.html"),
         );
     }
+
+    #[test]
+    fn with_align() {
+        compare_render(
+            include_str!("../../../test/mj-social-align.mjml"),
+            include_str!("../../../test/mj-social-align.html"),
+        );
+    }
 }

@@ -21,7 +21,7 @@ struct SocialNetwork {
 impl SocialNetwork {
     pub fn find(name: &str) -> Option<Self> {
         match name {
-            "dribble" => Some(Self::dribble()),
+            "dribbble" => Some(Self::dribbble()),
             "facebook" => Some(Self::facebook()),
             "github" => Some(Self::github()),
             "google" => Some(Self::google()),
@@ -41,11 +41,11 @@ impl SocialNetwork {
         }
     }
 
-    fn dribble() -> Self {
+    fn dribbble() -> Self {
         Self {
             background_color: "#D95988".into(),
             share_url: None,
-            src: format!("{}dribble.png", IMAGE_ORIGIN),
+            src: format!("{}dribbble.png", IMAGE_ORIGIN),
         }
     }
 
