@@ -278,4 +278,12 @@ pub mod tests {
             include_str!("../../../test/mj-social-font-family.html"),
         );
     }
+
+    #[test]
+    fn with_font() {
+        compare_render(
+            include_str!("../../../test/mj-social-font.mjml"),
+            include_str!("../../../test/mj-social-font.html"),
+        );
+    }
 }

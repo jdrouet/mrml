@@ -134,9 +134,9 @@
     - [x] with css-class
     - [x] with container-background-color
     - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
-    - [ ] with font-size (default: 13px)
-    - [ ] with font-style (default: normal)
-    - [ ] with font-weight (default: normal)
+    - [x] with font-size (default: 13px)
+    - [x] with font-style (default: normal)
+    - [x] with font-weight (default: normal)
     - [ ] with icon-height (default: icon-size)
     - [ ] with icon-size (default: 20px)
     - [ ] with inner-padding (default: 4px)
