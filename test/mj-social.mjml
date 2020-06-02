@@ -1,0 +1,19 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social>
+          <mj-social-element name="facebook" align="right">
+            Facebook
+          </mj-social-element>
+          <mj-social-element name="google" alt="google">
+            Google
+          </mj-social-element>
+          <mj-social-element  name="twitter">
+            Twitter
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -1,0 +1,16 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social mode="vertical">
+          <mj-social-element name="github">
+						Github
+          </mj-social-element>
+          <mj-social-element name="youtube">
+						Youtube
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

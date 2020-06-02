@@ -46,6 +46,7 @@ pub mod tests {
             .replace("class=\"\"", "")
             .replace("style=\"\"", "")
             .replace("\n", "")
+            .replace("\t", "")
             .replace(" ", "")
             .replace("<![endif]--><!--[ifmso|IE]>", "")
     }

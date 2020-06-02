@@ -7,10 +7,14 @@ use std::string::ToString;
 
 pub fn get_node_attributes<'a, 'b>(node: &Node<'a, 'b>) -> HashMap<String, String> {
     let mut res = HashMap::<String, String>::new();
+    add_node_attributes(&mut res, node);
+    res
+}
+
+pub fn add_node_attributes<'a, 'b>(res: &mut HashMap<String, String>, node: &Node<'a, 'b>) {
     for item in node.attributes().iter() {
         res.insert(item.name().to_string(), item.value().to_string());
     }
-    res
 }
 
 pub trait Component {

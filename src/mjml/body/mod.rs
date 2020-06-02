@@ -9,6 +9,8 @@ pub mod mj_divider;
 pub mod mj_hero;
 pub mod mj_image;
 pub mod mj_section;
+pub mod mj_social;
+pub mod mj_social_element;
 pub mod mj_text;
 pub mod prelude;
 pub mod raw;
@@ -26,6 +28,8 @@ pub enum BodyElement {
     MJHero(mj_hero::MJHero),
     MJImage(mj_image::MJImage),
     MJSection(mj_section::MJSection),
+    MJSocial(mj_social::MJSocial),
+    MJSocialElement(mj_social_element::MJSocialElement),
     MJText(mj_text::MJText),
     Raw(raw::RawElement),
 }
@@ -39,6 +43,8 @@ macro_rules! apply_fn {
             BodyElement::MJHero(item) => item.$func($($args)*),
             BodyElement::MJImage(item) => item.$func($($args)*),
             BodyElement::MJSection(item) => item.$func($($args)*),
+            BodyElement::MJSocial(item) => item.$func($($args)*),
+            BodyElement::MJSocialElement(item) => item.$func($($args)*),
             BodyElement::MJText(item) => item.$func($($args)*),
             BodyElement::Raw(item) => item.$func($($args)*),
         }
@@ -88,6 +94,10 @@ impl BodyElement {
             "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, opts)?),
             "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, opts)?),
             "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, opts)?),
+            "mj-social" => BodyElement::MJSocial(mj_social::MJSocial::parse(node, opts)?),
+            "mj-social-element" => {
+                BodyElement::MJSocialElement(mj_social_element::MJSocialElement::parse(node, opts)?)
+            }
             "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, opts)?),
             _ => BodyElement::Raw(raw::RawElement::parse(node, opts)?),
         };

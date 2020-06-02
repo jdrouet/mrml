@@ -126,7 +126,52 @@
     - [x] with padding (default: 20px 0)
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-align
-  - [ ] mj-social
+  - [x] mj-social
+    - [x] without attributes
+    - [x] with align (default: center)
+    - [x] with border-radius (default: 3px)
+    - [x] with color (default: #333333)
+    - [x] with css-class
+    - [x] with container-background-color
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with font-size (default: 13px)
+    - [x] with font-style (default: normal)
+    - [x] with font-weight (default: normal)
+    - [x] with icon-height (default: icon-size)
+    - [x] with icon-padding (default: 0px)
+    - [x] with icon-size (default: 20px)
+    - [x] with line-height (default: 22px)
+    - [x] with text-decoration
+    - [ ] with mode (default: horizontal)
+    - [x] with inner-padding (default: 4px)
+    - [x] with padding (default: 10px 25px)
+    - [x] with padding-(top|right|bottom|left)
+    - [x] with text-padding (default: 4px 4px 4px 0)
+  - [x] mj-social-element
+    - [x] without attributes
+    - [x] with align (default: center)
+    - [x] with alt
+    - [x] with background-color (default: depending on name)
+    - [x] with border-radius (default: 3px)
+    - [x] with color (default: #333333)
+    - [x] with css-class
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with font-size (default: 13px)
+    - [x] with font-style (default: normal)
+    - [x] with font-weight (default: normal)
+    - [x] with href
+    - [x] with icon-height (default: icon-size)
+    - [x] with icon-size (default: 20px)
+    - [x] with line-height (default: 22px)
+    - [x] with mode (default: horizontal)
+    - [x] with padding (default: 4px)
+    - [x] with padding-(top|right|bottom|left)
+    - [x] with icon-padding (default: 0px)
+    - [x] with text-padding (default: 4px 4px 4px 0)
+    - [x] with src (default: depending on name)
+    - [x] with target (default: _blank)
+    - [x] with title
+    - [x] with text-decoration
   - [ ] mj-spacer
   - [ ] mj-table
   - [ ] mj-text

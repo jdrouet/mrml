@@ -1,0 +1,19 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social container-background-color="purple">
+          <mj-social-element name="xing" padding="2px" padding-bottom="5px">
+						Tumblr
+          </mj-social-element>
+          <mj-social-element name="youtube" icon-padding="8px">
+            Vimeo
+          </mj-social-element>
+          <mj-social-element  name="web" text-padding="9px">
+						Web
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

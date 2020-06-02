@@ -1,0 +1,19 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social border-radius="1px">
+          <mj-social-element name="instagram" border-radius="3px" css-class="testing">
+						Instagram
+          </mj-social-element>
+          <mj-social-element name="linkedin" font-family="Comic">
+            LinkedIn
+          </mj-social-element>
+          <mj-social-element  name="medium" font-size="15px">
+            Medium
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

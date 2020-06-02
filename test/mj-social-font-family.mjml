@@ -1,0 +1,16 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social font-family="Roboto">
+          <mj-social-element name="youtube" href="https://jolimail.io" title="youtube element" target="_self">
+            Youtube
+          </mj-social-element>
+          <mj-social-element background-color="red" src="https://www.mailjet.com/images/theme/v1/icons/ico-social/github.png" text-decoration="underline">
+						Other
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
