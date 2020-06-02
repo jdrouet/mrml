@@ -132,7 +132,7 @@
     - [x] with border-radius (default: 3px)
     - [x] with color (default: #333333)
     - [x] with css-class
-    - [ ] with container-background-color
+    - [x] with container-background-color
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)
     - [ ] with font-style (default: normal)
@@ -164,10 +164,10 @@
     - [x] with icon-size (default: 20px)
     - [x] with line-height (default: 22px)
     - [ ] with mode (default: horizontal)
-    - [ ] with padding (default: 4px)
-    - [ ] with padding-(top|right|bottom|left)
-    - [ ] with icon-padding (default: 0px)
-    - [ ] with text-padding (default: 4px 4px 4px 0)
+    - [x] with padding (default: 4px)
+    - [x] with padding-(top|right|bottom|left)
+    - [x] with icon-padding (default: 0px)
+    - [x] with text-padding (default: 4px 4px 4px 0)
     - [ ] with src (default: depending on name)
     - [ ] with target (default: _blank)
     - [ ] with title

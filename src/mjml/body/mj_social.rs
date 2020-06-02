@@ -262,4 +262,12 @@ pub mod tests {
             include_str!("../../../test/mj-social-class.html"),
         );
     }
+
+    #[test]
+    fn with_container_background_color() {
+        compare_render(
+            include_str!("../../../test/mj-social-container-background-color.mjml"),
+            include_str!("../../../test/mj-social-container-background-color.html"),
+        );
+    }
 }
