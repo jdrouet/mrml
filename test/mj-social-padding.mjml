@@ -1,0 +1,13 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social inner-padding="1px" padding="2px" padding-left="3px" text-padding="4px">
+          <mj-social-element name="youtube">
+						Youtube
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

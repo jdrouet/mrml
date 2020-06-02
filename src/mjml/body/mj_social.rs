@@ -302,4 +302,12 @@ pub mod tests {
             include_str!("../../../test/mj-social-text.html"),
         );
     }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../../test/mj-social-padding.mjml"),
+            include_str!("../../../test/mj-social-padding.html"),
+        );
+    }
 }

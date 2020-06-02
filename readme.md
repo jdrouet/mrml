@@ -143,10 +143,10 @@
     - [x] with line-height (default: 22px)
     - [x] with text-decoration
     - [ ] with mode (default: horizontal)
-    - [ ] with inner-padding (default: 4px)
-    - [ ] with padding (default: 10px 25px)
-    - [ ] with padding-(top|right|bottom|left)
-    - [ ] with text-padding (default: 4px 4px 4px 0)
+    - [x] with inner-padding (default: 4px)
+    - [x] with padding (default: 10px 25px)
+    - [x] with padding-(top|right|bottom|left)
+    - [x] with text-padding (default: 4px 4px 4px 0)
   - [ ] mj-social-element
     - [x] without attributes
     - [x] with align (default: center)
