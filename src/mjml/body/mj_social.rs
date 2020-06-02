@@ -270,4 +270,12 @@ pub mod tests {
             include_str!("../../../test/mj-social-container-background-color.html"),
         );
     }
+
+    #[test]
+    fn with_font_family() {
+        compare_render(
+            include_str!("../../../test/mj-social-font-family.mjml"),
+            include_str!("../../../test/mj-social-font-family.html"),
+        );
+    }
 }

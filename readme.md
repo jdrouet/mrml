@@ -133,7 +133,7 @@
     - [x] with color (default: #333333)
     - [x] with css-class
     - [x] with container-background-color
-    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)
     - [ ] with font-style (default: normal)
     - [ ] with font-weight (default: normal)
@@ -168,10 +168,10 @@
     - [x] with padding-(top|right|bottom|left)
     - [x] with icon-padding (default: 0px)
     - [x] with text-padding (default: 4px 4px 4px 0)
-    - [ ] with src (default: depending on name)
-    - [ ] with target (default: _blank)
-    - [ ] with title
-    - [ ] with text-decoration
+    - [x] with src (default: depending on name)
+    - [x] with target (default: _blank)
+    - [x] with title
+    - [x] with text-decoration
   - [ ] mj-spacer
   - [ ] mj-table
   - [ ] mj-text
