@@ -129,7 +129,7 @@
   - [ ] mj-social
     - [x] without attributes
     - [x] with align (default: center)
-    - [ ] with border-radius (default: 3px)
+    - [x] with border-radius (default: 3px)
     - [ ] with color (default: #333333)
     - [ ] with css-class
     - [ ] with container-background-color
@@ -154,9 +154,9 @@
     - [x] with background-color (default: depending on name)
     - [x] with border-radius (default: 3px)
     - [x] with color (default: #333333)
-    - [ ] with css-class
-    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
-    - [ ] with font-size (default: 13px)
+    - [x] with css-class
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with font-size (default: 13px)
     - [ ] with font-style (default: normal)
     - [ ] with font-weight (default: normal)
     - [ ] with href
