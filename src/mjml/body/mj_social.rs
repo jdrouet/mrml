@@ -246,4 +246,12 @@ pub mod tests {
             include_str!("../../../test/mj-social-border-radius.html"),
         );
     }
+
+    #[test]
+    fn with_color() {
+        compare_render(
+            include_str!("../../../test/mj-social-color.mjml"),
+            include_str!("../../../test/mj-social-color.html"),
+        );
+    }
 }

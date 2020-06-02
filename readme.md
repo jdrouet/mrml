@@ -130,7 +130,7 @@
     - [x] without attributes
     - [x] with align (default: center)
     - [x] with border-radius (default: 3px)
-    - [ ] with color (default: #333333)
+    - [x] with color (default: #333333)
     - [ ] with css-class
     - [ ] with container-background-color
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
@@ -157,9 +157,9 @@
     - [x] with css-class
     - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [x] with font-size (default: 13px)
-    - [ ] with font-style (default: normal)
-    - [ ] with font-weight (default: normal)
-    - [ ] with href
+    - [x] with font-style (default: normal)
+    - [x] with font-weight (default: normal)
+    - [x] with href
     - [ ] with icon-height (default: icon-size)
     - [ ] with icon-size (default: 20px)
     - [ ] with line-height (default: 22px)

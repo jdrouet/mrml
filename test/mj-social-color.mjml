@@ -1,0 +1,19 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social color="purple">
+          <mj-social-element name="pinterest" font-style="oblique">
+            Pinterest
+          </mj-social-element>
+          <mj-social-element name="snapchat" font-weight="bolder">
+            Snapchat
+          </mj-social-element>
+          <mj-social-element  name="soundcloud" href="https://jolimail.io">
+            Soundcloud
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

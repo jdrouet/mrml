@@ -301,6 +301,7 @@ impl MJSocialElement {
                 .as_ref()
                 .and_then(|net| net.share_url.clone())
                 .and_then(move |url| Some(url.replace("[[URL]]", href)))
+                .or_else(move || Some(href.clone()))
         } else {
             None
         }
