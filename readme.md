@@ -80,6 +80,12 @@
     - [x] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [x] with width (default: 100%)
   - [ ] mj-group
+    - [ ] without attributes
+    - [ ] with background-color
+    - [ ] with css-class
+    - [ ] with direction (default: ltr)
+    - [ ] with vertical-align (default: top)
+    - [ ] with width (default: (100 / non raw element)%)
   - [x] mj-hero
     - [x] without attributes
     - [x] with background-color (default: #ffffff)
