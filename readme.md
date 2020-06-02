@@ -127,7 +127,7 @@
     - [x] with padding-(top|right|bottom|left)
     - [x] with text-align
   - [ ] mj-social
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] with align (default: center)
     - [ ] with border-radius (default: 3px)
     - [ ] with color (default: #333333)
@@ -148,8 +148,9 @@
     - [ ] with text-padding (default: 4px 4px 4px 0)
     - [ ] with text-decoration
   - [ ] mj-social-element
-    - [ ] with align (default: center)
-    - [ ] with alt
+    - [x] without attributes
+    - [x] with align (default: center)
+    - [x] with alt
     - [ ] with background-color (default: depending on name)
     - [ ] with border-radius (default: 3px)
     - [ ] with color (default: #333333)
