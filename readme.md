@@ -79,13 +79,13 @@
     - [x] with css-class
     - [x] with padding, padding-(top|right|bottom|left) (default: 10px 25px)
     - [x] with width (default: 100%)
-  - [ ] mj-group
+  - [x] mj-group
     - [x] without attributes
     - [x] with background-color
     - [x] with css-class
     - [x] with direction (default: ltr)
     - [x] with vertical-align (default: top)
-    - [ ] with width (default: (100 / non raw element)%)
+    - [x] with width (default: (100 / non raw element)%)
   - [x] mj-hero
     - [x] without attributes
     - [x] with background-color (default: #ffffff)

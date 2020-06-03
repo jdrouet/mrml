@@ -311,4 +311,12 @@ pub mod tests {
             include_str!("../../../test/mj-group-vertical-align.html"),
         );
     }
+
+    #[test]
+    fn with_width() {
+        compare_render(
+            include_str!("../../../test/mj-group-width.mjml"),
+            include_str!("../../../test/mj-group-width.html"),
+        );
+    }
 }
