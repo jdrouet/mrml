@@ -84,7 +84,7 @@
     - [x] with background-color
     - [x] with css-class
     - [x] with direction (default: ltr)
-    - [ ] with vertical-align (default: top)
+    - [x] with vertical-align (default: top)
     - [ ] with width (default: (100 / non raw element)%)
   - [x] mj-hero
     - [x] without attributes

@@ -303,4 +303,12 @@ pub mod tests {
             include_str!("../../../test/mj-group-direction.html"),
         );
     }
+
+    #[test]
+    fn with_vertical_align() {
+        compare_render(
+            include_str!("../../../test/mj-group-vertical-align.mjml"),
+            include_str!("../../../test/mj-group-vertical-align.html"),
+        );
+    }
 }
