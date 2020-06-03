@@ -22,7 +22,7 @@ impl MJSection {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJSection, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts)?);
+            children.push(BodyElement::parse(child, opts, None)?);
         }
         Ok(MJSection {
             attributes: get_node_attributes(&node),
@@ -223,10 +223,10 @@ impl MJSection {
         res.push(open_tag!(
             "table",
             to_attributes!(
-                ("role", "presentation"),
                 ("border", 0),
                 ("cellpadding", 0),
-                ("cellspacing", 0)
+                ("cellspacing", 0),
+                ("role", "presentation")
             )
         ));
         res.push(END_CONDITIONAL_TAG.into());

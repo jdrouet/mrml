@@ -21,7 +21,7 @@ impl MJButton {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJButton, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts)?);
+            children.push(BodyElement::parse(child, opts, None)?);
         }
         Ok(MJButton {
             attributes: get_node_attributes(&node),

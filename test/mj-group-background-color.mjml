@@ -1,0 +1,18 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-group background-color="red">
+        <mj-column>
+          <mj-text>
+            <h2>Easy and quick</h2>
+          </mj-text>
+        </mj-column>
+        <mj-column>
+          <mj-text>
+            <h2>Responsive</h2>
+          </mj-text>
+        </mj-column>
+      </mj-group>
+    </mj-section>
+  </mj-body>
+</mjml>

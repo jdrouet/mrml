@@ -126,7 +126,9 @@ impl SocialNetwork {
     fn tumblr() -> Self {
         Self {
             background_color: "#344356".into(),
-            share_url: Some("https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]".into()),
+            share_url: Some(
+                "https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]".into(),
+            ),
             src: format!("{}tumblr.png", IMAGE_ORIGIN),
         }
     }
@@ -181,16 +183,10 @@ pub struct MJSocialElement {
 }
 
 impl MJSocialElement {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJSocialElement, Error> {
-        let mut attrs = Attributes::new();
-        attrs.set("text-padding", "4px 4px 4px 0");
-        Self::parse_with_attributes(node, opts, &attrs)
-    }
-
-    pub fn parse_with_attributes<'a, 'b>(
+    pub fn parse_social_child<'a, 'b>(
         node: Node<'a, 'b>,
         _opts: &Options,
-        extra: &Attributes,
+        extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
         if node.tag_name().name() != "mj-social-element" {
             return Err(Error::ParseError(format!(
@@ -213,15 +209,32 @@ impl MJSocialElement {
         let social_network = node
             .attribute("name")
             .and_then(|name| SocialNetwork::find(name));
-        let mut attributes = extra.inner().clone();
+        let mut attributes = match extra {
+            Some(value) => value.inner().clone(),
+            None => HashMap::new(),
+        };
         add_node_attributes(&mut attributes, &node);
-        println!("content: {:?}", content);
         Ok(MJSocialElement {
             attributes,
             context: None,
             content,
             social_network,
         })
+    }
+
+    pub fn parse<'a, 'b>(
+        node: Node<'a, 'b>,
+        opts: &Options,
+        extra: Option<&Attributes>,
+    ) -> Result<MJSocialElement, Error> {
+        let mut attrs = match extra {
+            Some(value) => value.into(),
+            None => Attributes::new(),
+        };
+        if attrs.get("text-padding").is_none() {
+            attrs.set("text-padding", "4px 4px 4px 0");
+        }
+        Self::parse_social_child(node, opts, Some(&attrs))
     }
 
     fn get_background_color(&self) -> Option<String> {

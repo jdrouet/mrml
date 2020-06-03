@@ -6,6 +6,10 @@ pub trait BodyComponent: Component {
     fn get_style(&self, _key: &str) -> Style {
         Style::new()
     }
+
+    fn get_width(&self) -> Option<Size> {
+        None
+    }
 }
 
 pub trait BodyComponentWithBorder: ComponentWithAttributes {

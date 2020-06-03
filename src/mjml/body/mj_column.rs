@@ -18,13 +18,18 @@ pub struct MJColumn {
 }
 
 impl MJColumn {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJColumn, Error> {
+    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options, extra: Option<&Attributes>) -> Result<MJColumn, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts)?);
+            children.push(BodyElement::parse(child, opts, None)?);
         }
+        let mut attributes = match extra {
+            Some(attrs) => attrs.inner().clone(),
+            None => HashMap::new(),
+        };
+        add_node_attributes(&mut attributes, &node);
         Ok(MJColumn {
-            attributes: get_node_attributes(&node),
+            attributes,
             context: None,
             children,
         })
@@ -40,7 +45,7 @@ impl MJColumn {
     }
 
     fn get_mobile_width(&self) -> Option<Size> {
-        if self.get_attribute("mobile-width") != Some("mobile_width".into()) {
+        if self.get_attribute("mobile-width").is_none() {
             return Some(Size::Percent(100.0));
         }
         let width = self.get_size_attribute("width");
@@ -292,6 +297,17 @@ impl BodyComponent for MJColumn {
             _ => (),
         };
         res
+    }
+
+    fn get_width(&self) -> Option<Size> {
+        self.get_container_width().and_then(|container_width| {
+            let parsed_width = self.get_parsed_width();
+            let result = match parsed_width {
+                Size::Percent(value) => Size::Pixel(container_width.value() * value / 100.0),
+                _ => parsed_width,
+            };
+            Some(result)
+        })
     }
 }
 

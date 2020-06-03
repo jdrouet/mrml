@@ -103,7 +103,7 @@ impl RawElement {
     fn parse_node<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<RawElement, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts)?);
+            children.push(BodyElement::parse(child, opts, None)?);
         }
         Ok(RawElement::Node(NodeElement {
             attributes: get_node_attributes(&node),
