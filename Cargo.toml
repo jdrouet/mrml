@@ -2,7 +2,7 @@
 name = "mrml"
 description = "Rust implementation of MJML renderer"
 keywords = ["email", "mjml"]
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 license-file = "license.md"
 edition = "2018"
