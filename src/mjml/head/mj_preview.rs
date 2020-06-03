@@ -17,6 +17,10 @@ impl MJPreview {
         };
         Ok(Self { content })
     }
+
+    pub fn get_content(&self) -> String {
+        self.content.clone()
+    }
 }
 
 impl HeadComponent for MJPreview {
@@ -27,13 +31,21 @@ impl HeadComponent for MJPreview {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tests::compare_render;
+    use crate::tests::{compare_preview, compare_render};
 
     #[test]
     fn base() {
         compare_render(
             include_str!("../../../test/mj-preview.mjml"),
             include_str!("../../../test/mj-preview.html"),
+        );
+    }
+
+    #[test]
+    fn to_preview() {
+        compare_preview(
+            include_str!("../../../test/mj-preview.mjml"),
+            "Hello MJML",
         );
     }
 }

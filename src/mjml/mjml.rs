@@ -55,16 +55,25 @@ impl MJMLElement {
         self.body.set_context(Context::default());
     }
 
-    fn get_header(&self) -> Header {
+    pub fn get_header(&self) -> Header {
         let mut header = Header::from(&self.options);
         self.head.update_header(&mut header);
         self.body.update_header(&mut header);
         header
     }
 
-    pub fn render(&self) -> Result<String, Error> {
-        debug!("render");
-        let header = self.get_header();
+    pub fn get_title(&self, header: &Header) -> String {
+        debug!("get_title");
+        self.head.get_title(header)
+    }
+
+    pub fn get_preview(&self, header: &Header) -> String {
+        debug!("get_preview");
+        self.head.get_preview(header)
+    }
+
+    pub fn get_html(&self, header: &Header) -> Result<String, Error> {
+        debug!("get_html");
         let mut res: Vec<String> = vec![];
         res.push(DOCTYPE.into());
         res.push(HTML_OPEN.into());

@@ -90,11 +90,21 @@ impl MJHead {
         }
     }
 
-    fn get_title(&self, header: &Header) -> String {
+    pub fn get_title(&self, header: &Header) -> String {
         match header.title() {
             Some(value) => value.clone(),
             None => "".into(),
         }
+    }
+
+    pub fn get_preview(&self, _header: &Header) -> String {
+        for child in self.children.iter() {
+            match child {
+                HeadElement::MJPreview(element) => return element.get_content(),
+                _ => (),
+            };
+        }
+        "".into()
     }
 
     fn get_media_queries(&self, header: &Header) -> String {
@@ -109,10 +119,7 @@ impl MJHead {
         let mut classnames: Vec<&String> = header.get_media_queries().keys().collect();
         classnames.sort();
         for classname in classnames.iter() {
-            let size = header
-                .get_media_queries()
-                .get(classname.clone())
-                .unwrap();
+            let size = header.get_media_queries().get(classname.clone()).unwrap();
             res.push(format!(
                 ".{} {{ width:{} !important; max-width: {}; }}",
                 classname,

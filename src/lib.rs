@@ -3,6 +3,7 @@
 extern crate difference;
 
 use roxmltree::Document;
+use std::default::Default;
 
 mod error;
 mod macros;
@@ -13,15 +14,19 @@ pub use error::Error;
 use util::fonts::FontRegistry;
 use util::Size;
 
+/// global options for renderer
 #[derive(Clone, Debug)]
 pub struct Options {
+    /// size between mobile and desktop
     pub breakpoint: Size,
+    /// list of registered fonts
     pub fonts: FontRegistry,
+    /// rather the comments should be kept
     pub keep_comments: bool,
 }
 
-impl Options {
-    pub fn default() -> Self {
+impl Default for Options {
+    fn default() -> Self {
         Self {
             breakpoint: Size::Pixel(480.0),
             fonts: FontRegistry::default(),
@@ -30,17 +35,126 @@ impl Options {
     }
 }
 
-pub fn to_html(input: &str, options: Options) -> Result<String, Error> {
+pub fn parse(input: &str, options: Options) -> Result<mjml::MJMLElement, Error> {
     let doc = Document::parse(input)?;
     let root = doc.root_element();
     let element = mjml::parse(root, &options)?;
-    Ok(element.render()?)
+    Ok(element)
+}
+
+/// generate the title from mjml
+///
+/// ```rust
+/// use mrml::{to_title, Options};
+/// let result = to_title(r#"
+///     <mjml>
+///         <mj-head>
+///             <mj-title>Something</mj-title>
+///         </mj-head>
+///     </mjml>
+/// "#, Options::default());
+/// assert!(result.is_ok());
+/// assert_eq!(result.unwrap(), "Something");
+/// ```
+///
+/// ```rust
+/// use mrml::{to_title, Options};
+/// let result = to_title("<mjml", Options::default());
+/// assert!(result.is_err());
+/// ```
+pub fn to_title(input: &str, options: Options) -> Result<String, Error> {
+    let element = parse(input, options)?;
+    let header = element.get_header();
+    Ok(element.get_title(&header))
+}
+
+/// generate the preview from mjml
+///
+/// ```rust
+/// use mrml::{to_preview, Options};
+/// let result = to_preview("<mjml></mjml>", Options::default());
+/// assert!(result.is_ok());
+/// ```
+///
+/// ```rust
+/// use mrml::{to_preview, Options};
+/// let result = to_preview("<mjml", Options::default());
+/// assert!(result.is_err());
+/// ```
+pub fn to_preview(input: &str, options: Options) -> Result<String, Error> {
+    let element = parse(input, options)?;
+    let header = element.get_header();
+    Ok(element.get_preview(&header))
+}
+
+/// generate the html from mjml
+///
+/// ```rust
+/// use mrml::{to_html, Options};
+/// let result = to_html("<mjml></mjml>", Options::default());
+/// assert!(result.is_ok());
+/// ```
+///
+/// ```rust
+/// use mrml::{to_html, Options};
+/// let result = to_html("<mjml", Options::default());
+/// assert!(result.is_err());
+/// ```
+pub fn to_html(input: &str, options: Options) -> Result<String, Error> {
+    let element = parse(input, options)?;
+    let header = element.get_header();
+    Ok(element.get_html(&header)?)
+}
+
+#[derive(Clone, Debug)]
+pub struct Email {
+    pub subject: String,
+    pub text: String,
+    pub html: String,
+}
+
+/// generate an email from mjml
+///
+/// ```rust
+/// use mrml::{to_email, Options};
+/// let result = to_email(r#"
+///     <mjml>
+///         <mj-head>
+///             <mj-title>Testing</mj-title>
+///             <mj-preview>Preview</mj-preview>
+///         </mj-head>
+///     </mjml>
+/// "#, Options::default());
+/// assert!(result.is_ok());
+/// let result = result.unwrap();
+/// assert_eq!(result.subject, "Testing");
+/// assert_eq!(result.text, "Preview");
+/// ```
+///
+/// ```rust
+/// use mrml::{to_email, Options};
+/// let result = to_email("<mjml", Options::default());
+/// assert!(result.is_err());
+/// ```
+pub fn to_email(input: &str, options: Options) -> Result<Email, Error> {
+    let element = parse(input, options)?;
+    let header = element.get_header();
+    let subject = element.get_title(&header);
+    let text = element.get_preview(&header);
+    let html = element.get_html(&header)?;
+    Ok(Email { subject, text, html })
 }
 
 #[cfg(test)]
 pub mod tests {
     use super::*;
     use std::env;
+
+    #[test]
+    fn invalid_mjml() {
+        let res = to_html("<mjml", Options::default());
+        assert!(res.is_err());
+    }
 
     fn diff(first: &str, second: &str) {
         if env::var("BASIC_DIFF").is_ok() {
@@ -58,6 +172,16 @@ pub mod tests {
             .replace("\t", "")
             .replace(" ", "")
             .replace("<![endif]--><!--[ifmso|IE]>", "")
+    }
+
+    pub fn compare_title(source: &str, expected: &str) {
+        let result = to_title(source, Options::default()).unwrap();
+        assert_diff!(result.as_str(), expected, "", 0);
+    }
+
+    pub fn compare_preview(source: &str, expected: &str) {
+        let result = to_preview(source, Options::default()).unwrap();
+        assert_diff!(result.as_str(), expected, "", 0);
     }
 
     pub fn compare_render(source: &str, expected: &str) {
