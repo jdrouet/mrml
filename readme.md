@@ -179,6 +179,14 @@
     - [x] with title
     - [x] with text-decoration
   - [ ] mj-spacer
+    - [ ] without attributes
+    - [ ] with container-background-color
+    - [ ] with css-class
+    - [ ] with height (default: 20px)
+    - [ ] with padding (default: none)
+    - [ ] with padding-(top|right|bottom|left)
+    - [ ] with vertical-align (default: middle)
+    - [ ] with width
   - [ ] mj-table
   - [ ] mj-text
     - [x] without attributes
