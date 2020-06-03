@@ -307,4 +307,12 @@ pub mod tests {
             include_str!("../../../../test/mj-navbar-align-class.html"),
         );
     }
+
+    #[test]
+    fn with_ico_and_link() {
+        compare_render(
+            include_str!("../../../../test/mj-navbar-ico.mjml"),
+            include_str!("../../../../test/mj-navbar-ico.html"),
+        );
+    }
 }

@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-navbar hamburger="hamburger" ico-align="right" ico-close="&#8856;" ico-color="red" ico-font-family="Comic" ico-font-size="12px" ico-line-height="20px" ico-open="&#8867;" ico-padding="1px" ico-padding-right="2px" ico-text-decoration="underline" ico-text-transform="uppercase">
+          <mj-navbar-link href="/hello" font-family="Helvetica" font-size="14px" font-style="oblique" font-weight="bolder">Hello</mj-navbar-link>
+          <mj-navbar-link href="/about" line-height="22px" padding="8px" padding-bottom="12px" text-decoration="underline" text-transform="uppercase">About</mj-navbar-link>
+        </mj-navbar>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
