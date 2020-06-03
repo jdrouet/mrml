@@ -9,11 +9,9 @@ workflows:
 jobs:
   test:
     docker:
-      - image: jdrouet/rust-nightly:buster-slim
+      - image: jdrouet/rust-nightly:buster-slim-dev
     steps:
-      - run: apt-get update && apt-get install -y curl
       - checkout
-      - run: cargo install grcov
       - run:
           command: bash script/run-coverage.sh
           environment:
