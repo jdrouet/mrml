@@ -6,12 +6,17 @@ version = "0.1.2"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 license-file = "license.md"
 edition = "2018"
+readme = "readme.md"
 
 include = [
   "src/*",
   "Cargo.toml",
 ]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[badges]
+circle-ci = { repository = "jdrouet/mrml" }
+codecov = { repository = "jdrouet/mrml" }
 
 [dependencies]
 log = "0.4"
