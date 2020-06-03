@@ -178,15 +178,15 @@
     - [x] with target (default: _blank)
     - [x] with title
     - [x] with text-decoration
-  - [ ] mj-spacer
-    - [ ] without attributes
-    - [ ] with container-background-color
-    - [ ] with css-class
-    - [ ] with height (default: 20px)
-    - [ ] with padding (default: none)
-    - [ ] with padding-(top|right|bottom|left)
-    - [ ] with vertical-align (default: middle)
-    - [ ] with width
+  - [x] mj-spacer
+    - [x] without attributes
+    - [x] with container-background-color
+    - [x] with css-class
+    - [x] with height (default: 20px)
+    - [x] with padding (default: none)
+    - [x] with padding-(top|right|bottom|left)
+    - [x] with vertical-align (default: middle)
+    - [x] with width
   - [ ] mj-table
   - [ ] mj-text
     - [x] without attributes
