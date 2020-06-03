@@ -112,9 +112,9 @@
     - [x] with title
     - [x] with width
   - [ ] mj-navbar
-    - [ ] with align (default: center)
+    - [x] with align (default: center)
     - [x] with base-url
-    - [ ] with css-class
+    - [x] with css-class
     - [x] with hamburger
     - [ ] with ico-align (default: center)
     - [ ] with ico-close (default: 8855)
@@ -128,8 +128,8 @@
     - [ ] with ico-text-decoration (default: none)
     - [ ] with ico-text-transform (default: none)
   - [ ] mj-navbar-link
-    - [ ] with color (default: #000000)
-    - [ ] with css-class
+    - [x] with color (default: #000000)
+    - [x] with css-class
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)
     - [ ] with font-style
@@ -138,7 +138,7 @@
     - [ ] with line-height (default: 22px)
     - [ ] with padding (default: 10px 25px)
     - [ ] with padding-(top|right|bottom|left)
-    - [ ] with rel
+    - [x] with rel
     - [x] with target
     - [ ] with text-decoration
     - [ ] with text-transform (default: uppercase)

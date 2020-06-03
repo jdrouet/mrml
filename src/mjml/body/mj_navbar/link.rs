@@ -99,9 +99,10 @@ impl MJNavbarLink {
     }
 
     fn get_link(&self) -> Option<String> {
-        self.get_attribute("href").and_then(|href| {
+        self.get_attribute("href").as_ref().and_then(|href| {
             self.get_attribute("navbar-base-url")
                 .and_then(move |base| Some(format!("{}{}", base, href)))
+                .or_else(|| Some(href.clone()))
         })
     }
 

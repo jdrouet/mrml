@@ -299,4 +299,12 @@ pub mod tests {
             include_str!("../../../../test/mj-navbar.html"),
         );
     }
+
+    #[test]
+    fn with_align_and_class() {
+        compare_render(
+            include_str!("../../../../test/mj-navbar-align-class.mjml"),
+            include_str!("../../../../test/mj-navbar-align-class.html"),
+        );
+    }
 }
