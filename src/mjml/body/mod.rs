@@ -9,6 +9,7 @@ pub mod mj_divider;
 pub mod mj_group;
 pub mod mj_hero;
 pub mod mj_image;
+pub mod mj_navbar;
 pub mod mj_section;
 pub mod mj_social;
 pub mod mj_social_element;
@@ -31,6 +32,8 @@ pub enum BodyElement {
     MJGroup(mj_group::MJGroup),
     MJHero(mj_hero::MJHero),
     MJImage(mj_image::MJImage),
+    MJNavbar(mj_navbar::MJNavbar),
+    MJNavbarLink(mj_navbar::MJNavbarLink),
     MJSection(mj_section::MJSection),
     MJSocial(mj_social::MJSocial),
     MJSocialElement(mj_social_element::MJSocialElement),
@@ -48,6 +51,8 @@ macro_rules! apply_fn {
             BodyElement::MJGroup(item) => item.$func($($args)*),
             BodyElement::MJHero(item) => item.$func($($args)*),
             BodyElement::MJImage(item) => item.$func($($args)*),
+            BodyElement::MJNavbar(item) => item.$func($($args)*),
+            BodyElement::MJNavbarLink(item) => item.$func($($args)*),
             BodyElement::MJSection(item) => item.$func($($args)*),
             BodyElement::MJSocial(item) => item.$func($($args)*),
             BodyElement::MJSocialElement(item) => item.$func($($args)*),
@@ -105,6 +110,8 @@ impl BodyElement {
             "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, opts, extra)?),
             "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, opts)?),
             "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, opts)?),
+            "mj-navbar" => BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(node, opts)?),
+            "mj-navbar-link" => BodyElement::MJNavbarLink(mj_navbar::MJNavbarLink::parse(node, opts, extra)?),
             "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, opts)?),
             "mj-social" => BodyElement::MJSocial(mj_social::MJSocial::parse(node, opts)?),
             "mj-social-element" => {
