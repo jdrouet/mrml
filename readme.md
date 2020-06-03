@@ -81,7 +81,7 @@
     - [x] with width (default: 100%)
   - [ ] mj-group
     - [x] without attributes
-    - [ ] with background-color
+    - [x] with background-color
     - [ ] with css-class
     - [ ] with direction (default: ltr)
     - [ ] with vertical-align (default: top)

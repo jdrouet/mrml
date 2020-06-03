@@ -178,16 +178,6 @@ impl Component for MJGroup {
         res.push(START_CONDITIONAL_TAG.into());
         {
             let mut attrs = Attributes::new();
-            attrs.maybe_set(
-                "bgcolor",
-                self.get_attribute("background-color").and_then(|value| {
-                    if value == "none" {
-                        None
-                    } else {
-                        Some(value)
-                    }
-                }),
-            );
             attrs.set("border", "0");
             attrs.set("cellpadding", "0");
             attrs.set("cellspacing", "0");
@@ -284,6 +274,14 @@ pub mod tests {
         compare_render(
             include_str!("../../../test/mj-group.mjml"),
             include_str!("../../../test/mj-group.html"),
+        );
+    }
+
+    #[test]
+    fn with_background_color() {
+        compare_render(
+            include_str!("../../../test/mj-group-background-color.mjml"),
+            include_str!("../../../test/mj-group-background-color.html"),
         );
     }
 }
