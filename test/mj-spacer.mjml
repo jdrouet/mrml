@@ -1,0 +1,23 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Text</mj-text>
+        <mj-spacer />
+        <mj-text>Text</mj-text>
+        <mj-spacer container-background-color="red" />
+        <mj-text>Text</mj-text>
+        <mj-spacer css-class="testing" />
+        <mj-text>Text</mj-text>
+        <mj-spacer height="60px" />
+        <mj-text>Text</mj-text>
+        <mj-spacer padding="1px" padding-left="3px" />
+        <mj-text>Text</mj-text>
+        <mj-spacer vertical-align="bottom" />
+        <mj-text>Text</mj-text>
+        <mj-spacer width="50px" />
+        <mj-text>Text</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

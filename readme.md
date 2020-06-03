@@ -178,7 +178,15 @@
     - [x] with target (default: _blank)
     - [x] with title
     - [x] with text-decoration
-  - [ ] mj-spacer
+  - [x] mj-spacer
+    - [x] without attributes
+    - [x] with container-background-color
+    - [x] with css-class
+    - [x] with height (default: 20px)
+    - [x] with padding (default: none)
+    - [x] with padding-(top|right|bottom|left)
+    - [x] with vertical-align (default: middle)
+    - [x] with width
   - [ ] mj-table
   - [ ] mj-text
     - [x] without attributes
