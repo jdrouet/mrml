@@ -295,4 +295,12 @@ pub mod tests {
             include_str!("../../../test/mj-group-class.html"),
         );
     }
+
+    #[test]
+    fn with_direction() {
+        compare_render(
+            include_str!("../../../test/mj-group-direction.mjml"),
+            include_str!("../../../test/mj-group-direction.html"),
+        );
+    }
 }
