@@ -40,6 +40,15 @@ pub fn to_html(input: &str, options: Options) -> Result<String, Error> {
 #[cfg(test)]
 pub mod tests {
     use super::*;
+    use std::env;
+
+    fn diff(first: &str, second: &str) {
+        if env::var("BASIC_DIFF").is_ok() {
+            assert_eq!(first, second);
+        } else {
+            assert_diff!(first, second, "", 0);
+        }
+    }
 
     fn clean_str(input: String) -> String {
         input
@@ -55,13 +64,13 @@ pub mod tests {
         let result = to_html(source, Options::default()).unwrap();
         let result = clean_str(result);
         let expected = clean_str(expected.into());
-        assert_diff!(result.as_str(), expected.as_str(), "", 0);
+        diff(result.as_str(), expected.as_str());
     }
 
     pub fn compare_render_with_options(source: &str, expected: &str, opts: Options) {
         let result = to_html(source, opts).unwrap();
         let result = clean_str(result);
         let expected = clean_str(expected.into());
-        assert_diff!(result.as_str(), expected.as_str(), "", 0);
+        diff(result.as_str(), expected.as_str());
     }
 }
