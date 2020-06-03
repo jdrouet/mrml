@@ -167,6 +167,9 @@ impl Component for MJGroup {
             let mut classnames: Vec<String> = vec![];
             classnames.push(self.get_column_class().0);
             classnames.push("mj-outlook-group-fix".into());
+            if let Some(class) = self.get_attribute("css-class") {
+                classnames.push(class);
+            }
             res.push(open_tag!(
                 "div",
                 to_attributes!(
@@ -282,6 +285,14 @@ pub mod tests {
         compare_render(
             include_str!("../../../test/mj-group-background-color.mjml"),
             include_str!("../../../test/mj-group-background-color.html"),
+        );
+    }
+
+    #[test]
+    fn with_css_class() {
+        compare_render(
+            include_str!("../../../test/mj-group-class.mjml"),
+            include_str!("../../../test/mj-group-class.html"),
         );
     }
 }

@@ -82,7 +82,7 @@
   - [ ] mj-group
     - [x] without attributes
     - [x] with background-color
-    - [ ] with css-class
+    - [x] with css-class
     - [ ] with direction (default: ltr)
     - [ ] with vertical-align (default: top)
     - [ ] with width (default: (100 / non raw element)%)
