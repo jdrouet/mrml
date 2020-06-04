@@ -1,0 +1,13 @@
+<mjml>
+  <mj-body>
+    <mj-raw>
+      <div id="whatever">
+        <span>Hello</span>
+      </div>
+      Something
+      <canvas></canvas>
+      <!-- some comment -->
+      <img src="some_url" />
+    </mj-raw>
+  </mj-body>
+</mjml>

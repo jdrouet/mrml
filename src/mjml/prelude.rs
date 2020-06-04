@@ -69,8 +69,8 @@ pub trait ComponentWithChildren: Component {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::Options;
     use super::*;
+    use crate::Options;
 
     struct TestComponent {
         attributes: HashMap<String, String>,

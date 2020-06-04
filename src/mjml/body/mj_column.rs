@@ -18,7 +18,11 @@ pub struct MJColumn {
 }
 
 impl MJColumn {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options, extra: Option<&Attributes>) -> Result<MJColumn, Error> {
+    pub fn parse<'a, 'b>(
+        node: Node<'a, 'b>,
+        opts: &Options,
+        extra: Option<&Attributes>,
+    ) -> Result<MJColumn, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(BodyElement::parse(child, opts, None)?);

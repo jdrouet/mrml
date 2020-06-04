@@ -86,8 +86,8 @@ impl MJMLElement {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::{to_html, Options};
     use crate::tests::compare_render;
+    use crate::{to_html, Options};
 
     #[test]
     fn basic() {

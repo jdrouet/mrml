@@ -56,7 +56,10 @@ impl MJBody {
         style.set("opacity", "0");
         style.set("overflow", "hidden");
         let mut res = vec![];
-        res.push(open_tag!("div", to_attributes!(("style", style.to_string()))));
+        res.push(open_tag!(
+            "div",
+            to_attributes!(("style", style.to_string()))
+        ));
         res.push(preview.clone());
         res.push(close_tag!("div"));
         res.join("")

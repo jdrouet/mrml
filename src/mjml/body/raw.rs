@@ -4,8 +4,8 @@ use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header};
-use crate::{close_tag, open_tag};
 use crate::Options;
+use crate::{close_tag, open_tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 

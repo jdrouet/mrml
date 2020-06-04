@@ -1,5 +1,5 @@
-mod main;
 mod link;
+mod main;
 
-pub use main::MJNavbar;
 pub use link::MJNavbarLink;
+pub use main::MJNavbar;
