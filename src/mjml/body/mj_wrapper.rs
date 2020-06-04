@@ -316,7 +316,7 @@ impl Component for MJWrapper {
         self.context = Some(ctx.clone());
         let sibling = self.get_siblings();
         let raw_sibling = self.get_raw_siblings();
-        let container_width = self.get_container_width();
+        let container_width = self.get_box_widths();
         for (idx, child) in self.children.iter_mut().enumerate() {
             let mut child_ctx =
                 Context::from(&ctx, container_width.clone(), sibling, raw_sibling, idx);
@@ -416,6 +416,10 @@ impl ComponentWithChildren for MJWrapper {
 }
 
 impl BodyContainedComponent for MJWrapper {}
+impl ComponentWithSizeAttribute for MJWrapper {}
+impl BodyComponentWithBorder for MJWrapper {}
+impl BodyComponentWithPadding for MJWrapper {}
+impl BodyComponentWithBoxWidths for MJWrapper {}
 
 #[cfg(test)]
 pub mod tests {
@@ -434,6 +438,14 @@ pub mod tests {
         compare_render(
             include_str!("../../../test/mj-wrapper-background.mjml"),
             include_str!("../../../test/mj-wrapper-background.html"),
+        );
+    }
+
+    #[test]
+    fn with_border() {
+        compare_render(
+            include_str!("../../../test/mj-wrapper-border.mjml"),
+            include_str!("../../../test/mj-wrapper-border.html"),
         );
     }
 }
