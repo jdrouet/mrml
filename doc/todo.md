@@ -111,7 +111,37 @@
     - [x] with target
     - [x] with title
     - [x] with width
-  - [ ] mj-navbar
+  - [x] mj-navbar
+    - [x] with align (default: center)
+    - [x] with base-url
+    - [x] with css-class
+    - [x] with hamburger
+    - [x] with ico-align (default: center)
+    - [x] with ico-close (default: 8855)
+    - [x] with ico-color (default: #000000)
+    - [x] with ico-font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with ico-font-size (default: 30px)
+    - [x] with ico-line-height (default: 30px)
+    - [x] with ico-open (default: 9776)
+    - [x] with ico-padding (default: 10px)
+    - [x] with ico-padding-(top|right|bottom|left) (default: 10px)
+    - [x] with ico-text-decoration (default: none)
+    - [x] with ico-text-transform (default: none)
+  - [x] mj-navbar-link
+    - [x] with color (default: #000000)
+    - [x] with css-class
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with font-size (default: 13px)
+    - [x] with font-style
+    - [x] with font-weight
+    - [x] with href
+    - [x] with line-height (default: 22px)
+    - [x] with padding (default: 10px 25px)
+    - [x] with padding-(top|right|bottom|left)
+    - [x] with rel
+    - [x] with target
+    - [x] with text-decoration
+    - [x] with text-transform (default: uppercase)
   - [ ] mj-raw
   - [x] mj-section
     - [x] without attributes

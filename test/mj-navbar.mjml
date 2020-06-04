@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-navbar base-url="https://jolimail.io" hamburger="hamburger">
+            <mj-navbar-link href="/hello">Hello</mj-navbar-link>
+            <mj-navbar-link href="/about" target="_self">About</mj-navbar-link>
+        </mj-navbar>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

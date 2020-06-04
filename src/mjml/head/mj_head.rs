@@ -2,7 +2,6 @@ use super::HeadElement;
 use crate::mjml::head::prelude::HeadComponent;
 use crate::mjml::prelude::*;
 use crate::mjml::Error;
-use crate::util::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::util::fonts::{url_to_import, url_to_link};
 use crate::util::{Context, Header};
 use crate::Options;
@@ -141,7 +140,7 @@ impl MJHead {
             return "".into();
         }
         let mut res = vec![];
-        res.push(START_MSO_NEGATION_CONDITIONAL_TAG.into());
+        res.push("<!--[if !mso]><!-->".into());
         for url in font_urls.iter() {
             res.push(url_to_link(url.as_str()));
         }
@@ -150,7 +149,7 @@ impl MJHead {
             res.push(url_to_import(url.as_str()));
         }
         res.push(close_tag!("style"));
-        res.push(END_NEGATION_CONDITIONAL_TAG.into());
+        res.push("<!--<![endif]-->".into());
         res.join("")
     }
 

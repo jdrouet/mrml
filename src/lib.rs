@@ -142,7 +142,11 @@ pub fn to_email(input: &str, options: Options) -> Result<Email, Error> {
     let subject = element.get_title(&header);
     let text = element.get_preview(&header);
     let html = element.get_html(&header)?;
-    Ok(Email { subject, text, html })
+    Ok(Email {
+        subject,
+        text,
+        html,
+    })
 }
 
 #[cfg(test)]
