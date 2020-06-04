@@ -448,4 +448,12 @@ pub mod tests {
             include_str!("../../../test/mj-wrapper-border.html"),
         );
     }
+
+    #[test]
+    fn with_padding() {
+        compare_render(
+            include_str!("../../../test/mj-wrapper-padding.mjml"),
+            include_str!("../../../test/mj-wrapper-padding.html"),
+        );
+    }
 }

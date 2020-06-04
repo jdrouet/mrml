@@ -241,6 +241,6 @@
     - [ ] with css-class
     - [ ] with direction (default: ltr)
     - [ ] with full-width
-    - [ ] with padding (default: 20px 0)
-    - [ ] with padding-(top|right|bottom|left)
+    - [x] with padding (default: 20px 0)
+    - [x] with padding-(top|right|bottom|left)
     - [ ] with text-align
