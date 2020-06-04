@@ -230,7 +230,7 @@
     - [x] with container-background-color
     - [x] with padding (default: 10px 25px), padding-(top|right|bottom|left)
     - [x] with css-class
-  - [ ] mj-wrapper
+  - [x] mj-wrapper
     - [x] without attributes
     - [x] with background-color
     - [x] with background-repeat (default: repeat)
@@ -238,9 +238,9 @@
     - [x] with background-url
     - [x] with border, border-(top|right|bottom|left)
     - [x] with border-radius
-    - [ ] with css-class
-    - [ ] with direction (default: ltr)
-    - [ ] with full-width
+    - [x] with css-class
+    - [x] with direction (default: ltr)
+    - [x] with full-width
     - [x] with padding (default: 20px 0)
     - [x] with padding-(top|right|bottom|left)
-    - [ ] with text-align
+    - [x] with text-align

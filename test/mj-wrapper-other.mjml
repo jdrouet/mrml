@@ -1,0 +1,7 @@
+<mjml>
+  <mj-body>
+    <mj-wrapper css-class="testing" direction="rtl" full-width="full-width" text-align="right">
+      <mj-section></mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>

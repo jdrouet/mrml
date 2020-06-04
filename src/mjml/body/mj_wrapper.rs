@@ -456,4 +456,12 @@ pub mod tests {
             include_str!("../../../test/mj-wrapper-padding.html"),
         );
     }
+
+    #[test]
+    fn with_other() {
+        compare_render(
+            include_str!("../../../test/mj-wrapper-other.mjml"),
+            include_str!("../../../test/mj-wrapper-other.html"),
+        );
+    }
 }
