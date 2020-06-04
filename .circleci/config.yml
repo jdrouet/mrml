@@ -12,6 +12,7 @@ jobs:
       - image: jdrouet/rust-nightly:buster-slim-dev
     steps:
       - checkout
+      - run: rustfmt --check src/{**/,}*.rs
       - run:
           command: bash script/run-coverage.sh
           environment:
