@@ -15,6 +15,7 @@ pub mod mj_section;
 pub mod mj_social;
 pub mod mj_social_element;
 pub mod mj_spacer;
+pub mod mj_table;
 pub mod mj_text;
 pub mod mj_wrapper;
 pub mod prelude;
@@ -41,6 +42,7 @@ pub enum BodyElement {
     MJSocial(mj_social::MJSocial),
     MJSocialElement(mj_social_element::MJSocialElement),
     MJSpacer(mj_spacer::MJSpacer),
+    MJTable(mj_table::MJTable),
     MJText(mj_text::MJText),
     MJWrapper(mj_wrapper::MJWrapper),
     Raw(raw::RawElement),
@@ -62,6 +64,7 @@ macro_rules! apply_fn {
             BodyElement::MJSocial(item) => item.$func($($args)*),
             BodyElement::MJSocialElement(item) => item.$func($($args)*),
             BodyElement::MJSpacer(item) => item.$func($($args)*),
+            BodyElement::MJTable(item) => item.$func($($args)*),
             BodyElement::MJText(item) => item.$func($($args)*),
             BodyElement::MJWrapper(item) => item.$func($($args)*),
             BodyElement::Raw(item) => item.$func($($args)*),
@@ -131,6 +134,7 @@ impl BodyElement {
                 mj_social_element::MJSocialElement::parse(node, opts, extra)?,
             ),
             "mj-spacer" => BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(node, opts)?),
+            "mj-table" => BodyElement::MJTable(mj_table::MJTable::parse(node, opts)?),
             "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, opts)?),
             "mj-wrapper" => BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(node, opts)?),
             _ => BodyElement::Raw(raw::RawElement::parse(node, opts)?),

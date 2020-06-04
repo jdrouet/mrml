@@ -213,7 +213,7 @@
     - [x] with vertical-align (default: middle)
     - [x] with width
   - [ ] mj-table
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] with align (default: left)
     - [ ] with border (default: none)
     - [ ] with cellpadding
