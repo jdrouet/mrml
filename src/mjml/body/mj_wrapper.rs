@@ -428,4 +428,12 @@ pub mod tests {
             include_str!("../../../test/mj-wrapper.html"),
         );
     }
+
+    #[test]
+    fn with_background() {
+        compare_render(
+            include_str!("../../../test/mj-wrapper-background.mjml"),
+            include_str!("../../../test/mj-wrapper-background.html"),
+        );
+    }
 }

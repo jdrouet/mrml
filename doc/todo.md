@@ -232,10 +232,10 @@
     - [x] with css-class
   - [ ] mj-wrapper
     - [x] without attributes
-    - [ ] with background-color
-    - [ ] with background-repeat (default: repeat)
-    - [ ] with background-size (default: auto)
-    - [ ] with background-url
+    - [x] with background-color
+    - [x] with background-repeat (default: repeat)
+    - [x] with background-size (default: auto)
+    - [x] with background-url
     - [ ] with border, border-(top|right|bottom|left)
     - [ ] with border-radius
     - [ ] with css-class
