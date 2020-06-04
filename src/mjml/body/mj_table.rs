@@ -127,4 +127,12 @@ pub mod tests {
             include_str!("../../../test/mj-table-table.html"),
         );
     }
+
+    #[test]
+    fn with_other_attributes() {
+        compare_render(
+            include_str!("../../../test/mj-table-other.mjml"),
+            include_str!("../../../test/mj-table-other.html"),
+        );
+    }
 }

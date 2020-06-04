@@ -84,7 +84,11 @@ pub struct NodeElement {
 }
 
 impl NodeElement {
-    fn conditional_parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options, only_raw: bool) -> Result<NodeElement, Error> {
+    fn conditional_parse<'a, 'b>(
+        node: Node<'a, 'b>,
+        opts: &Options,
+        only_raw: bool,
+    ) -> Result<NodeElement, Error> {
         let tag = node.tag_name().name();
         if only_raw && tag.starts_with("mj-") {
             return Err(Error::ParseError(format!("'{}' is not allowed", tag)));
@@ -92,7 +96,9 @@ impl NodeElement {
         let mut children = vec![];
         for child in node.children() {
             if only_raw {
-                children.push(BodyElement::Raw(RawElement::conditional_parse(child, opts, true)?))
+                children.push(BodyElement::Raw(RawElement::conditional_parse(
+                    child, opts, true,
+                )?))
             } else {
                 children.push(BodyElement::parse(child, opts, None)?);
             }
@@ -152,15 +158,24 @@ impl RawElement {
         TextElement::parse(node, opts).and_then(|item| Ok(RawElement::Text(item)))
     }
 
-    fn parse_node<'a, 'b>(node: Node<'a, 'b>, opts: &Options, only_raw: bool) -> Result<RawElement, Error> {
-        NodeElement::conditional_parse(node, opts, only_raw).and_then(|item| Ok(RawElement::Node(item)))
+    fn parse_node<'a, 'b>(
+        node: Node<'a, 'b>,
+        opts: &Options,
+        only_raw: bool,
+    ) -> Result<RawElement, Error> {
+        NodeElement::conditional_parse(node, opts, only_raw)
+            .and_then(|item| Ok(RawElement::Node(item)))
     }
 
     pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<RawElement, Error> {
         RawElement::conditional_parse(node, opts, false)
     }
 
-    pub fn conditional_parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options, only_raw: bool) -> Result<RawElement, Error> {
+    pub fn conditional_parse<'a, 'b>(
+        node: Node<'a, 'b>,
+        opts: &Options,
+        only_raw: bool,
+    ) -> Result<RawElement, Error> {
         if node.is_comment() {
             RawElement::parse_comment(node, opts)
         } else if node.is_text() {
