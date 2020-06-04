@@ -111,4 +111,12 @@ pub mod tests {
             include_str!("../../../test/mj-table.html"),
         );
     }
+
+    #[test]
+    fn with_text_attributes() {
+        compare_render(
+            include_str!("../../../test/mj-table-text.mjml"),
+            include_str!("../../../test/mj-table-text.html"),
+        );
+    }
 }
