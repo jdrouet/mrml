@@ -231,3 +231,16 @@
     - [x] with padding (default: 10px 25px), padding-(top|right|bottom|left)
     - [x] with css-class
   - [ ] mj-wrapper
+    - [ ] without attributes
+    - [ ] with background-color
+    - [ ] with background-repeat (default: repeat)
+    - [ ] with background-size (default: auto)
+    - [ ] with background-url
+    - [ ] with border, border-(top|right|bottom|left)
+    - [ ] with border-radius
+    - [ ] with css-class
+    - [ ] with direction (default: ltr)
+    - [ ] with full-width
+    - [ ] with padding (default: 20px 0)
+    - [ ] with padding-(top|right|bottom|left)
+    - [ ] with text-align
