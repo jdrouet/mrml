@@ -119,4 +119,12 @@ pub mod tests {
             include_str!("../../../test/mj-table-text.html"),
         );
     }
+
+    #[test]
+    fn with_table_attributes() {
+        compare_render(
+            include_str!("../../../test/mj-table-table.mjml"),
+            include_str!("../../../test/mj-table-table.html"),
+        );
+    }
 }

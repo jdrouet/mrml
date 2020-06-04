@@ -215,9 +215,9 @@
   - [ ] mj-table
     - [x] without attributes
     - [x] with align (default: left)
-    - [ ] with border (default: none)
-    - [ ] with cellpadding
-    - [ ] with cellspacing
+    - [x] with border (default: none)
+    - [x] with cellpadding
+    - [x] with cellspacing
     - [x] with color (default: #000000)
     - [ ] with container-background-color
     - [ ] with css-class
@@ -227,7 +227,7 @@
     - [x] with line-height (default: 22px)
     - [ ] with padding (default: 10px 25px)
     - [ ] with padding-(top|right|bottom|left)
-    - [ ] with table-layout (default: auto)
+    - [x] with table-layout (default: auto)
     - [ ] with width (default: 100%)
   - [ ] mj-text
     - [x] without attributes
