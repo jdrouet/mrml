@@ -231,7 +231,7 @@
     - [x] with padding (default: 10px 25px), padding-(top|right|bottom|left)
     - [x] with css-class
   - [ ] mj-wrapper
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] with background-color
     - [ ] with background-repeat (default: repeat)
     - [ ] with background-size (default: auto)
