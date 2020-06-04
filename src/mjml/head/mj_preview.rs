@@ -43,9 +43,6 @@ pub mod tests {
 
     #[test]
     fn to_preview() {
-        compare_preview(
-            include_str!("../../../test/mj-preview.mjml"),
-            "Hello MJML",
-        );
+        compare_preview(include_str!("../../../test/mj-preview.mjml"), "Hello MJML");
     }
 }

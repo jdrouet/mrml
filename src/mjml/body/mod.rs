@@ -10,6 +10,7 @@ pub mod mj_group;
 pub mod mj_hero;
 pub mod mj_image;
 pub mod mj_navbar;
+pub mod mj_raw;
 pub mod mj_section;
 pub mod mj_social;
 pub mod mj_social_element;
@@ -34,6 +35,7 @@ pub enum BodyElement {
     MJImage(mj_image::MJImage),
     MJNavbar(mj_navbar::MJNavbar),
     MJNavbarLink(mj_navbar::MJNavbarLink),
+    MJRaw(mj_raw::MJRaw),
     MJSection(mj_section::MJSection),
     MJSocial(mj_social::MJSocial),
     MJSocialElement(mj_social_element::MJSocialElement),
@@ -53,6 +55,7 @@ macro_rules! apply_fn {
             BodyElement::MJImage(item) => item.$func($($args)*),
             BodyElement::MJNavbar(item) => item.$func($($args)*),
             BodyElement::MJNavbarLink(item) => item.$func($($args)*),
+            BodyElement::MJRaw(item) => item.$func($($args)*),
             BodyElement::MJSection(item) => item.$func($($args)*),
             BodyElement::MJSocial(item) => item.$func($($args)*),
             BodyElement::MJSocialElement(item) => item.$func($($args)*),
@@ -102,7 +105,11 @@ impl BodyComponent for BodyElement {
 }
 
 impl BodyElement {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options, extra: Option<&Attributes>) -> Result<BodyElement, Error> {
+    pub fn parse<'a, 'b>(
+        node: Node<'a, 'b>,
+        opts: &Options,
+        extra: Option<&Attributes>,
+    ) -> Result<BodyElement, Error> {
         let res = match node.tag_name().name() {
             "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, opts)?),
             "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, opts, extra)?),
@@ -111,12 +118,15 @@ impl BodyElement {
             "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, opts)?),
             "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, opts)?),
             "mj-navbar" => BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(node, opts)?),
-            "mj-navbar-link" => BodyElement::MJNavbarLink(mj_navbar::MJNavbarLink::parse(node, opts, extra)?),
+            "mj-navbar-link" => {
+                BodyElement::MJNavbarLink(mj_navbar::MJNavbarLink::parse(node, opts, extra)?)
+            }
+            "mj-raw" => BodyElement::MJRaw(mj_raw::MJRaw::parse(node, opts)?),
             "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, opts)?),
             "mj-social" => BodyElement::MJSocial(mj_social::MJSocial::parse(node, opts)?),
-            "mj-social-element" => {
-                BodyElement::MJSocialElement(mj_social_element::MJSocialElement::parse(node, opts, extra)?)
-            }
+            "mj-social-element" => BodyElement::MJSocialElement(
+                mj_social_element::MJSocialElement::parse(node, opts, extra)?,
+            ),
             "mj-spacer" => BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(node, opts)?),
             "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, opts)?),
             _ => BodyElement::Raw(raw::RawElement::parse(node, opts)?),

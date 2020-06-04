@@ -41,8 +41,8 @@ impl PartialEq for Size {
 impl Size {
     pub fn same_type(&self, other: &Self) -> bool {
         (self.is_percent() && other.is_percent())
-                || (self.is_pixel() && other.is_pixel())
-                || (self.is_raw() && other.is_raw())
+            || (self.is_pixel() && other.is_pixel())
+            || (self.is_raw() && other.is_raw())
     }
 
     pub fn is_raw(&self) -> bool {
