@@ -213,6 +213,22 @@
     - [x] with vertical-align (default: middle)
     - [x] with width
   - [ ] mj-table
+    - [ ] without attributes
+    - [ ] with align (default: left)
+    - [ ] with border (default: none)
+    - [ ] with cellpadding
+    - [ ] with cellspacing
+    - [ ] with color (default: #000000)
+    - [ ] with container-background-color
+    - [ ] with css-class
+    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [ ] with font-size (default: 13px)
+    - [ ] with font-style
+    - [ ] with line-height (default: 22px)
+    - [ ] with padding (default: 10px 25px)
+    - [ ] with padding-(top|right|bottom|left)
+    - [ ] with table-layout (default: auto)
+    - [ ] with width (default: 100%)
   - [ ] mj-text
     - [x] without attributes
     - [x] mjml documentation example
