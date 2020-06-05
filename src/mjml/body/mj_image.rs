@@ -55,6 +55,48 @@ impl MJImage {
             .or_else(|| self.get_box_widths())
     }
 
+    fn get_style_img(&self) -> Style {
+        let mut res = Style::new();
+        res.maybe_set("border", self.get_attribute("border"));
+        res.maybe_set("border-left", self.get_attribute("left"));
+        res.maybe_set("border-right", self.get_attribute("right"));
+        res.maybe_set("border-top", self.get_attribute("top"));
+        res.maybe_set("border-bottom", self.get_attribute("bottom"));
+        res.maybe_set("border-radius", self.get_attribute("border-radius"));
+        res.set("display", "block");
+        res.set("outline", "none");
+        res.set("text-decoration", "none");
+        res.maybe_set("height", self.get_attribute("height"));
+        res.maybe_set("max-height", self.get_attribute("max-height"));
+        res.set("width", "100%");
+        if self.is_full_width() {
+            res.set("min-width", "100%");
+            res.set("max-width", "100%");
+        }
+        res.maybe_set("font-size", self.get_attribute("font-size"));
+        res
+    }
+
+    fn get_style_td(&self) -> Style {
+        let mut res = Style::new();
+        if !self.is_full_width() {
+            res.maybe_set("width", self.get_content_width());
+        }
+        res
+    }
+
+    fn get_style_table(&self) -> Style {
+        let mut res = Style::new();
+        if self.is_full_width() {
+            res.set("min-width", "100%");
+            res.set("max-width", "100%");
+            res.maybe_set("width", self.get_content_width());
+        }
+        res.set("border-collapse", "collapse");
+        res.set("border-spacing", "0px");
+        res
+    }
+
     fn render_image(&self) -> String {
         let mut attrs = Attributes::new();
         attrs.maybe_set("alt", self.get_attribute("alt"));
@@ -68,7 +110,7 @@ impl MJImage {
         };
         attrs.maybe_set("src", self.get_attribute("src"));
         attrs.maybe_set("srcset", self.get_attribute("srcset"));
-        attrs.set("style", self.get_style("img").to_string());
+        attrs.set("style", self.get_style_img());
         attrs.maybe_set("title", self.get_attribute("title"));
         attrs.maybe_set(
             "width",
@@ -117,7 +159,7 @@ impl Component for MJImage {
             attrs.set("cellpadding", "0");
             attrs.set("cellspacing", "0");
             attrs.set("role", "presentation");
-            attrs.set("style", self.get_style("table"));
+            attrs.set("style", self.get_style_table());
             if self.is_fluid_on_mobile() {
                 attrs.set("class", "mj-full-width-mobile");
             }
@@ -127,7 +169,7 @@ impl Component for MJImage {
         res.push(open_tag!("tr"));
         {
             let mut attrs = Attributes::new();
-            attrs.set("style", self.get_style("td"));
+            attrs.set("style", self.get_style_td());
             if self.is_fluid_on_mobile() {
                 attrs.set("class", "mj-full-width-mobile");
             }
@@ -167,44 +209,12 @@ impl ComponentWithAttributes for MJImage {
 
 impl BodyComponent for MJImage {
     fn get_style(&self, name: &str) -> Style {
-        let mut res = Style::new();
         match name {
-            "img" => {
-                res.maybe_set("border", self.get_attribute("border"));
-                res.maybe_set("border-left", self.get_attribute("left"));
-                res.maybe_set("border-right", self.get_attribute("right"));
-                res.maybe_set("border-top", self.get_attribute("top"));
-                res.maybe_set("border-bottom", self.get_attribute("bottom"));
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.set("display", "block");
-                res.set("outline", "none");
-                res.set("text-decoration", "none");
-                res.maybe_set("height", self.get_attribute("height"));
-                res.maybe_set("max-height", self.get_attribute("max-height"));
-                res.set("width", "100%");
-                if self.is_full_width() {
-                    res.set("min-width", "100%");
-                    res.set("max-width", "100%");
-                }
-                res.maybe_set("font-size", self.get_attribute("font-size"));
-            }
-            "td" => {
-                if !self.is_full_width() {
-                    res.maybe_set("width", self.get_content_width());
-                }
-            }
-            "table" => {
-                if self.is_full_width() {
-                    res.set("min-width", "100%");
-                    res.set("max-width", "100%");
-                    res.maybe_set("width", self.get_content_width());
-                }
-                res.set("border-collapse", "collapse");
-                res.set("border-spacing", "0px");
-            }
-            _ => (),
-        };
-        res
+            "img" => self.get_style_img(),
+            "td" => self.get_style_td(),
+            "table" => self.get_style_table(),
+            _ => Style::new(),
+        }
     }
 }
 
