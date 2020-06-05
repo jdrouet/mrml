@@ -4,7 +4,7 @@ use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::PropertyMap;
+use crate::util::prelude::*;
 use crate::util::{Attributes, Context, Header, Size, Style};
 use crate::Options;
 use crate::{close_tag, open_tag, to_attributes};

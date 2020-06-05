@@ -2,7 +2,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::BodyElement;
 use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
-use crate::util::prelude::PropertyMap;
+use crate::util::prelude::*;
 use crate::util::{Attributes, Context, Header};
 use crate::Options;
 use crate::{close_tag, closed_tag, open_tag};

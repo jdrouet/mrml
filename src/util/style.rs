@@ -1,24 +1,22 @@
-use super::prelude::{sort_by_key, PropertyMap};
+use super::prelude::*;
 use std::collections::HashMap;
 use std::string::ToString;
 
-pub struct Style {
-    inner: HashMap<String, String>,
-}
+pub struct Style(HashMap<String, String>);
 
-impl PropertyMap for Style {
+impl Properties for Style {
     fn inner(&self) -> &HashMap<String, String> {
-        &self.inner
+        &self.0
     }
 
     fn inner_mut(&mut self) -> &mut HashMap<String, String> {
-        &mut self.inner
+        &mut self.0
     }
 }
 
 impl ToString for Style {
     fn to_string(&self) -> String {
-        let mut entries = self.get_entries();
+        let mut entries = self.entries();
         entries.sort_by(sort_by_key);
         entries
             .iter()
@@ -30,8 +28,6 @@ impl ToString for Style {
 
 impl Style {
     pub fn new() -> Self {
-        Self {
-            inner: HashMap::new(),
-        }
+        Self(HashMap::new())
     }
 }

@@ -1,40 +1,34 @@
-use super::prelude::{sort_by_key, PropertyMap};
+use super::prelude::*;
 use std::collections::HashMap;
 use std::string::ToString;
 
-pub struct Attributes {
-    inner: HashMap<String, String>,
-}
+pub struct Attributes(HashMap<String, String>);
 
-impl PropertyMap for Attributes {
+impl Properties for Attributes {
     fn inner(&self) -> &HashMap<String, String> {
-        &self.inner
+        &self.0
     }
 
     fn inner_mut(&mut self) -> &mut HashMap<String, String> {
-        &mut self.inner
+        &mut self.0
     }
 }
 
 impl Attributes {
     pub fn new() -> Self {
-        Self {
-            inner: HashMap::new(),
-        }
+        Self(HashMap::new())
     }
 }
 
 impl From<&Attributes> for Attributes {
     fn from(value: &Attributes) -> Self {
-        Self {
-            inner: value.inner.clone(),
-        }
+        Self(value.0.clone())
     }
 }
 
 impl ToString for Attributes {
     fn to_string(&self) -> String {
-        let mut entries = self.get_entries();
+        let mut entries = self.entries();
         entries.sort_by(sort_by_key);
         entries
             .iter()

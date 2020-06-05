@@ -2,11 +2,11 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::string::ToString;
 
-pub fn sort_by_key<'r, 's>(a: &'r (String, String), b: &'s (String, String)) -> Ordering {
+pub fn sort_by_key<'r, 's>(a: &'r (&String, &String), b: &'s (&String, &String)) -> Ordering {
     a.0.partial_cmp(&b.0).unwrap()
 }
 
-pub trait PropertyMap {
+pub trait Properties {
     fn inner(&self) -> &HashMap<String, String>;
     fn inner_mut(&mut self) -> &mut HashMap<String, String>;
 
@@ -20,9 +20,8 @@ pub trait PropertyMap {
         }
     }
 
-    fn get<K: ToString>(&self, key: K) -> Option<String> {
-        let key = key.to_string();
-        self.inner().get(&key).and_then(|v| Some(v.to_string()))
+    fn get<K: ToString>(&self, key: K) -> Option<&String> {
+        self.inner().get(&key.to_string())
     }
 
     fn set<K: ToString, V: ToString>(&mut self, key: K, value: V) {
@@ -30,15 +29,12 @@ pub trait PropertyMap {
     }
 
     fn maybe_set<K: ToString, V: ToString>(&mut self, key: K, value: Option<V>) {
-        if let Some(value) = value {
-            self.set(key, value);
+        if let Some(content) = value {
+            self.set(key, content);
         }
     }
 
-    fn get_entries(&self) -> Vec<(String, String)> {
-        self.inner()
-            .iter()
-            .map(|v| (v.0.clone(), v.1.clone()))
-            .collect()
+    fn entries(&self) -> Vec<(&String, &String)> {
+        self.inner().iter().collect()
     }
 }

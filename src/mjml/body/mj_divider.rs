@@ -2,7 +2,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
-use crate::util::prelude::PropertyMap;
+use crate::util::prelude::*;
 use crate::util::{Context, Header, Size, Style};
 use crate::Options;
 use crate::{close_tag, open_tag, to_attributes};

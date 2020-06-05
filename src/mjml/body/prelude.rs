@@ -213,7 +213,7 @@ pub trait BodyComponentWithBoxWidths:
 pub mod tests {
     use super::*;
     use crate::mjml::error::Error;
-    use crate::util::prelude::PropertyMap;
+    use crate::util::prelude::*;
     use crate::util::{Context, Header};
     use std::collections::HashMap;
 

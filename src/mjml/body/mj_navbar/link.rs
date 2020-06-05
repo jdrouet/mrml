@@ -2,7 +2,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::PropertyMap;
+use crate::util::prelude::*;
 use crate::util::{suffix_css_classes, Attributes, Context, Header, Style};
 use crate::Options;
 use crate::{close_tag, open_tag};
