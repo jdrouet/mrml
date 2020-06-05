@@ -1,0 +1,7 @@
+<mjml>
+  <mj-body>
+    <mj-wrapper border="1px" border-right="2px" border-radius="3px">
+      <mj-section></mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>
