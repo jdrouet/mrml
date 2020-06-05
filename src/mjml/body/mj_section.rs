@@ -64,6 +64,65 @@ impl MJSection {
         res
     }
 
+    fn get_style_div(&self) -> Style {
+        let mut res = if self.is_full_width() {
+            Style::new()
+        } else {
+            self.get_background_style()
+        };
+        res.set("margin", "0px auto");
+        res.maybe_set("border-radius", self.get_attribute("border-radius"));
+        res.maybe_set("max-width", self.get_container_width_str());
+        res
+    }
+
+    fn get_style_inner_div(&self) -> Style {
+        let mut res = Style::new();
+        res.set("line-height", 0);
+        res.set("font-size", 0);
+        res
+    }
+
+    fn get_style_table_full_width(&self) -> Style {
+        let mut res = if self.is_full_width() {
+            self.get_background_style()
+        } else {
+            Style::new()
+        };
+        res.maybe_set("border-radius", self.get_attribute("border-radius"));
+        res.set("width", "100%");
+        res
+    }
+
+    fn get_style_table(&self) -> Style {
+        let mut res = if self.is_full_width() {
+            Style::new()
+        } else {
+            self.get_background_style()
+        };
+        res.maybe_set("border-radius", self.get_attribute("border-radius"));
+        res.set("width", "100%");
+        res
+    }
+
+    fn get_style_td(&self) -> Style {
+        let mut res = Style::new();
+        res.maybe_set("border", self.get_attribute("border"));
+        res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
+        res.maybe_set("border-left", self.get_attribute("border-left"));
+        res.maybe_set("border-right", self.get_attribute("border-right"));
+        res.maybe_set("border-top", self.get_attribute("border-top"));
+        res.maybe_set("direction", self.get_attribute("direction"));
+        res.set("font-size", "0px");
+        res.maybe_set("padding", self.get_attribute("padding"));
+        res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
+        res.maybe_set("padding-left", self.get_attribute("padding-left"));
+        res.maybe_set("padding-right", self.get_attribute("padding-right"));
+        res.maybe_set("padding-top", self.get_attribute("padding-top"));
+        res.maybe_set("text-align", self.get_attribute("text-align"));
+        res
+    }
+
     fn has_background(&self) -> bool {
         self.attributes.contains_key("background-url")
     }
@@ -135,7 +194,7 @@ impl MJSection {
             attrs.set("cellpadding", "0");
             attrs.set("cellspacing", "0");
             attrs.set("role", "presentation");
-            attrs.set("style", self.get_style("table-full-width").to_string());
+            attrs.set("style", self.get_style_table_full_width().to_string());
             res.push(open_tag!("table", attrs.to_string()));
         };
         res.push(open_tag!("tbody"));
@@ -190,13 +249,13 @@ impl MJSection {
             if !self.is_full_width() {
                 attr.maybe_set("class", self.get_attribute("css-class"));
             }
-            attr.set("style", self.get_style("div").to_string());
+            attr.set("style", self.get_style_div().to_string());
             res.push(open_tag!("div", attr.to_string()));
         };
         if has_bg {
             res.push(open_tag!(
                 "div",
-                to_attributes!(("style", self.get_style("inner-div").to_string()))
+                to_attributes!(("style", self.get_style_inner_div().to_string()))
             ));
         }
         {
@@ -210,14 +269,14 @@ impl MJSection {
             attrs.set("cellpadding", 0);
             attrs.set("cellspacing", 0);
             attrs.set("role", "presentation");
-            attrs.set("style", self.get_style("table").to_string());
+            attrs.set("style", self.get_style_table());
             res.push(open_tag!("table", attrs.to_string()));
         };
         res.push(open_tag!("tbody"));
         res.push(open_tag!("tr"));
         res.push(open_tag!(
             "td",
-            to_attributes!(("style", self.get_style("td").to_string()))
+            to_attributes!(("style", self.get_style_td().to_string()))
         ));
         res.push(START_CONDITIONAL_TAG.into());
         res.push(open_tag!(
@@ -360,53 +419,14 @@ impl ComponentWithAttributes for MJSection {
 
 impl BodyComponent for MJSection {
     fn get_style(&self, name: &str) -> Style {
-        let mut res = Style::new();
-        let bg_style = self.get_background_style();
         match name {
-            "div" => {
-                if !self.is_full_width() {
-                    res.merge(&bg_style);
-                }
-                res.set("margin", "0px auto");
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.maybe_set("max-width", self.get_container_width_str());
-            }
-            "inner-div" => {
-                res.set("line-height", 0);
-                res.set("font-size", 0);
-            }
-            "table-full-width" => {
-                if self.is_full_width() {
-                    res.merge(&bg_style);
-                }
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.set("width", "100%");
-            }
-            "table" => {
-                if !self.is_full_width() {
-                    res.merge(&bg_style);
-                }
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.set("width", "100%");
-            }
-            "td" => {
-                res.maybe_set("border", self.get_attribute("border"));
-                res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
-                res.maybe_set("border-left", self.get_attribute("border-left"));
-                res.maybe_set("border-right", self.get_attribute("border-right"));
-                res.maybe_set("border-top", self.get_attribute("border-top"));
-                res.maybe_set("direction", self.get_attribute("direction"));
-                res.set("font-size", "0px");
-                res.maybe_set("padding", self.get_attribute("padding"));
-                res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
-                res.maybe_set("padding-left", self.get_attribute("padding-left"));
-                res.maybe_set("padding-right", self.get_attribute("padding-right"));
-                res.maybe_set("padding-top", self.get_attribute("padding-top"));
-                res.maybe_set("text-align", self.get_attribute("text-align"));
-            }
-            _ => (),
-        };
-        res
+            "div" => self.get_style_div(),
+            "inner-div" => self.get_style_inner_div(),
+            "table-full-width" => self.get_style_table_full_width(),
+            "table" => self.get_style_table(),
+            "td" => self.get_style_td(),
+            _ => Style::new(),
+        }
     }
 }
 
