@@ -1,83 +1,23 @@
 use crate::mjml::body::prelude::*;
+use crate::mjml::body::raw::RawElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::{Context, Header};
 use crate::Options;
-use crate::{close_tag, closed_tag, open_tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
-enum MJRawChild {
-    Comment(String),
-    Element(String, HashMap<String, String>, Vec<MJRawChild>),
-    Text(String),
-}
-
-impl MJRawChild {
-    fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJRawChild, Error> {
-        if node.is_text() {
-            return Ok(MJRawChild::Text(match node.text() {
-                Some(value) => String::from(value),
-                None => "".into(),
-            }));
-        }
-        if node.is_comment() {
-            return Ok(MJRawChild::Comment(match node.text() {
-                Some(value) => String::from(value),
-                None => "".into(),
-            }));
-        }
-        if node.is_element() {
-            let mut children = vec![];
-            for child in node.children() {
-                children.push(MJRawChild::parse(child, opts)?);
-            }
-            return Ok(MJRawChild::Element(
-                node.tag_name().name().into(),
-                get_node_attributes(&node),
-                children,
-            ));
-        }
-        Ok(MJRawChild::Text("".into()))
-    }
-
-    fn render(&self) -> String {
-        match self {
-            MJRawChild::Comment(content) => format!("<!-- {} -->", content),
-            MJRawChild::Element(tag, attributes, children) => {
-                let mut res = vec![];
-                let mut attrs = vec![];
-                for (key, value) in attributes.iter() {
-                    attrs.push(format!("{}=\"{}\"", key, value));
-                }
-                if tag == "img" && children.len() == 0 {
-                    res.push(closed_tag!(tag, attrs.join("")));
-                } else {
-                    res.push(open_tag!(tag, attrs.join("")));
-                    for child in children.iter() {
-                        res.push(child.render());
-                    }
-                    res.push(close_tag!(tag));
-                }
-                res.join("")
-            }
-            MJRawChild::Text(content) => content.into(),
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
 pub struct MJRaw {
     context: Option<Context>,
-    children: Vec<MJRawChild>,
+    children: Vec<RawElement>,
 }
 
 impl MJRaw {
     pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJRaw, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(MJRawChild::parse(child, opts)?);
+            children.push(RawElement::conditional_parse(child, opts, true)?);
         }
         Ok(MJRaw {
             context: None,
@@ -95,8 +35,11 @@ impl Component for MJRaw {
         self.context = Some(ctx.clone());
     }
 
-    fn render(&self, _header: &Header) -> Result<String, Error> {
-        let res: Vec<String> = self.children.iter().map(|child| child.render()).collect();
+    fn render(&self, header: &Header) -> Result<String, Error> {
+        let mut res = vec![];
+        for child in self.children.iter() {
+            res.push(child.render(header)?);
+        }
         Ok(res.join(""))
     }
 }
