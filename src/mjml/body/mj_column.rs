@@ -94,7 +94,26 @@ impl MJColumn {
         result.to_string()
     }
 
-    fn get_table_style(&self) -> Style {
+    fn has_gutter(&self) -> bool {
+        self.get_attribute("padding").is_some()
+            || self.get_attribute("padding-bottom").is_some()
+            || self.get_attribute("padding-left").is_some()
+            || self.get_attribute("padding-right").is_some()
+            || self.get_attribute("padding-top").is_some()
+    }
+
+    fn get_style_div(&self) -> Style {
+        let mut res = Style::new();
+        res.set("font-size", "0px");
+        res.set("text-align", "left");
+        res.maybe_set("direction", self.get_attribute("direction"));
+        res.set("display", "inline-block");
+        res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
+        res.maybe_set("width", self.get_mobile_width());
+        res
+    }
+
+    fn get_style_table_gutter(&self) -> Style {
         let mut res = Style::new();
         res.maybe_set("background-color", self.get_attribute("background-color"));
         res.maybe_set("border", self.get_attribute("border"));
@@ -103,16 +122,38 @@ impl MJColumn {
         res.maybe_set("border-radius", self.get_attribute("border-radius"));
         res.maybe_set("border-right", self.get_attribute("border-right"));
         res.maybe_set("border-top", self.get_attribute("border-top"));
+        res
+    }
+
+    fn get_style_table_simple(&self) -> Style {
+        let mut res = self.get_style_table_gutter();
         res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
         res
     }
 
-    fn has_gutter(&self) -> bool {
-        self.get_attribute("padding").is_some()
-            || self.get_attribute("padding-bottom").is_some()
-            || self.get_attribute("padding-left").is_some()
-            || self.get_attribute("padding-right").is_some()
-            || self.get_attribute("padding-top").is_some()
+    fn get_style_table(&self) -> Style {
+        if self.has_gutter() {
+            self.get_style_table_gutter()
+        } else {
+            self.get_style_table_simple()
+        }
+    }
+
+    fn get_style_td_outlook(&self) -> Style {
+        let mut res = Style::new();
+        res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
+        res.set("width", self.get_width_as_pixel());
+        res
+    }
+
+    fn get_style_gutter(&self) -> Style {
+        let mut res = self.get_style_table_simple();
+        res.maybe_set("padding", self.get_attribute("padding"));
+        res.maybe_set("padding-top", self.get_attribute("padding-top"));
+        res.maybe_set("padding-right", self.get_attribute("padding-right"));
+        res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
+        res.maybe_set("padding-left", self.get_attribute("padding-left"));
+        res
     }
 
     fn render_gutter(&self, header: &Header) -> Result<String, Error> {
@@ -131,7 +172,7 @@ impl MJColumn {
         res.push(open_tag!("tr"));
         res.push(open_tag!(
             "td",
-            to_attributes!(("style", self.get_style("gutter").to_string()))
+            to_attributes!(("style", self.get_style_gutter().to_string()))
         ));
         res.push(self.render_column(header)?);
         res.push(close_tag!("td"));
@@ -177,7 +218,7 @@ impl MJColumn {
                 ("cellpadding", "0"),
                 ("cellspacing", "0"),
                 ("role", "presentation"),
-                ("style", self.get_style("table").to_string()),
+                ("style", self.get_style_table().to_string()),
                 ("width", "100%")
             )
         ));
@@ -233,7 +274,7 @@ impl Component for MJColumn {
         }
         let mut attrs = Attributes::new();
         attrs.set("class", classes.join(" "));
-        attrs.set("style", self.get_style("div").to_string());
+        attrs.set("style", self.get_style_div().to_string());
         let mut res = vec![];
         res.push(open_tag!("div", attrs.to_string()));
         if self.has_gutter() {
@@ -263,44 +304,13 @@ impl ComponentWithAttributes for MJColumn {
 
 impl BodyComponent for MJColumn {
     fn get_style(&self, key: &str) -> Style {
-        let mut res = Style::new();
         match key {
-            "div" => {
-                res.set("font-size", "0px");
-                res.set("text-align", "left");
-                res.maybe_set("direction", self.get_attribute("direction"));
-                res.set("display", "inline-block");
-                res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-                res.maybe_set("width", self.get_mobile_width());
-            }
-            "table" => {
-                if self.has_gutter() {
-                    res.maybe_set("background-color", self.get_attribute("background-color"));
-                    res.maybe_set("border", self.get_attribute("border"));
-                    res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
-                    res.maybe_set("border-left", self.get_attribute("border-left"));
-                    res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                    res.maybe_set("border-right", self.get_attribute("border-right"));
-                    res.maybe_set("border-top", self.get_attribute("border-top"));
-                } else {
-                    res.merge(&self.get_table_style());
-                }
-            }
-            "td-outlook" => {
-                res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-                res.set("width", self.get_width_as_pixel());
-            }
-            "gutter" => {
-                res.merge(&self.get_table_style());
-                res.maybe_set("padding", self.get_attribute("padding"));
-                res.maybe_set("padding-top", self.get_attribute("padding-top"));
-                res.maybe_set("padding-right", self.get_attribute("padding-right"));
-                res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
-                res.maybe_set("padding-left", self.get_attribute("padding-left"));
-            }
-            _ => (),
-        };
-        res
+            "div" => self.get_style_div(),
+            "table" => self.get_style_table(),
+            "td-outlook" => self.get_style_td_outlook(),
+            "gutter" => self.get_style_gutter(),
+            _ => Style::new(),
+        }
     }
 
     fn get_width(&self) -> Option<Size> {

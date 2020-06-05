@@ -38,6 +38,56 @@ impl MJButton {
         Ok(res)
     }
 
+    fn get_style_table(&self) -> Style {
+        let mut res = Style::new();
+        res.set("border-collapse", "separate");
+        res.maybe_set("width", self.get_attribute("width"));
+        res.set("line-height", "100%");
+        res
+    }
+
+    fn get_style_td(&self) -> Style {
+        let mut res = Style::new();
+        res.maybe_set("background", self.get_attribute("background-color"));
+        res.maybe_set("border", self.get_attribute("border"));
+        res.maybe_set("border-top", self.get_attribute("border-top"));
+        res.maybe_set("border-right", self.get_attribute("border-right"));
+        res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
+        res.maybe_set("border-left", self.get_attribute("border-left"));
+        res.maybe_set("border-radius", self.get_attribute("border-radius"));
+        res.set("cursor", "auto");
+        res.maybe_set("font-style", self.get_attribute("font-style"));
+        res.maybe_set("height", self.get_attribute("height"));
+        res.maybe_set("mso-padding-alt", self.get_attribute("inner-padding"));
+        res.maybe_set("text-align", self.get_attribute("text-align"));
+        res
+    }
+
+    fn get_style_content(&self) -> Style {
+        let mut res = Style::new();
+        res.set("display", "inline-block");
+        res.maybe_set(
+            "width",
+            self.get_size_attribute("width")
+                .and_then(|value| self.calculate_a_width(Some(value))),
+        );
+        res.maybe_set("background", self.get_attribute("background-color"));
+        res.maybe_set("color", self.get_attribute("color"));
+        res.maybe_set("font-family", self.get_attribute("font-family"));
+        res.maybe_set("font-size", self.get_attribute("font-size"));
+        res.maybe_set("font-style", self.get_attribute("font-style"));
+        res.maybe_set("font-weight", self.get_attribute("font-weight"));
+        res.maybe_set("line-height", self.get_attribute("line-height"));
+        res.maybe_set("line-spacing", self.get_attribute("line-spacing"));
+        res.set("margin", "0");
+        res.maybe_set("text-decoration", self.get_attribute("text-decoration"));
+        res.maybe_set("text-transform", self.get_attribute("text-transform"));
+        res.maybe_set("padding", self.get_attribute("inner-padding"));
+        res.set("mso-padding-alt", "0px");
+        res.maybe_set("border-radius", self.get_attribute("border-radius"));
+        res
+    }
+
     fn calculate_a_width(&self, width: Option<Size>) -> Option<Size> {
         let width = match width {
             Some(value) => value,
@@ -81,7 +131,7 @@ impl Component for MJButton {
                 ("cellpadding", "0"),
                 ("cellspacing", "0"),
                 ("role", "presentation"),
-                ("style", self.get_style("table").to_string())
+                ("style", self.get_style_table().to_string())
             )
         ));
         res.push(open_tag!("tr"));
@@ -90,7 +140,7 @@ impl Component for MJButton {
             attrs.set("align", "center");
             attrs.maybe_set("bgcolor", self.get_attribute("background-color"));
             attrs.set("role", "presentation");
-            attrs.set("style", self.get_style("td"));
+            attrs.set("style", self.get_style_td());
             attrs.maybe_set("valign", self.get_attribute("vertical-align"));
             res.push(open_tag!("td", attrs.to_string()));
         }
@@ -102,7 +152,7 @@ impl Component for MJButton {
         attrs.maybe_set("href", self.get_attribute("href"));
         attrs.maybe_set("rel", self.get_attribute("rel"));
         attrs.maybe_set("name", self.get_attribute("name"));
-        attrs.set("style", self.get_style("content"));
+        attrs.set("style", self.get_style_content());
         if self.get_attribute("href").is_some() {
             attrs.maybe_set("target", self.get_attribute("target"));
         }
@@ -146,52 +196,12 @@ impl ComponentWithAttributes for MJButton {
 
 impl BodyComponent for MJButton {
     fn get_style(&self, name: &str) -> Style {
-        let mut res = Style::new();
         match name {
-            "table" => {
-                res.set("border-collapse", "separate");
-                res.maybe_set("width", self.get_attribute("width"));
-                res.set("line-height", "100%");
-            }
-            "td" => {
-                res.maybe_set("background", self.get_attribute("background-color"));
-                res.maybe_set("border", self.get_attribute("border"));
-                res.maybe_set("border-top", self.get_attribute("border-top"));
-                res.maybe_set("border-right", self.get_attribute("border-right"));
-                res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
-                res.maybe_set("border-left", self.get_attribute("border-left"));
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-                res.set("cursor", "auto");
-                res.maybe_set("font-style", self.get_attribute("font-style"));
-                res.maybe_set("height", self.get_attribute("height"));
-                res.maybe_set("mso-padding-alt", self.get_attribute("inner-padding"));
-                res.maybe_set("text-align", self.get_attribute("text-align"));
-            }
-            "content" => {
-                res.set("display", "inline-block");
-                res.maybe_set(
-                    "width",
-                    self.get_size_attribute("width")
-                        .and_then(|value| self.calculate_a_width(Some(value))),
-                );
-                res.maybe_set("background", self.get_attribute("background-color"));
-                res.maybe_set("color", self.get_attribute("color"));
-                res.maybe_set("font-family", self.get_attribute("font-family"));
-                res.maybe_set("font-size", self.get_attribute("font-size"));
-                res.maybe_set("font-style", self.get_attribute("font-style"));
-                res.maybe_set("font-weight", self.get_attribute("font-weight"));
-                res.maybe_set("line-height", self.get_attribute("line-height"));
-                res.maybe_set("line-spacing", self.get_attribute("line-spacing"));
-                res.set("margin", "0");
-                res.maybe_set("text-decoration", self.get_attribute("text-decoration"));
-                res.maybe_set("text-transform", self.get_attribute("text-transform"));
-                res.maybe_set("padding", self.get_attribute("inner-padding"));
-                res.set("mso-padding-alt", "0px");
-                res.maybe_set("border-radius", self.get_attribute("border-radius"));
-            }
-            _ => (),
-        };
-        res
+            "table" => self.get_style_table(),
+            "td" => self.get_style_td(),
+            "content" => self.get_style_content(),
+            _ => Style::new(),
+        }
     }
 }
 
