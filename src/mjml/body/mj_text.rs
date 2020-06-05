@@ -30,6 +30,21 @@ impl MJText {
             children,
         })
     }
+    fn get_style_text(&self) -> Style {
+        let mut res = Style::new();
+        res.maybe_set("font-family", self.get_attribute("font-family"));
+        res.maybe_set("font-size", self.get_attribute("font-size"));
+        res.maybe_set("font-style", self.get_attribute("font-style"));
+        res.maybe_set("font-weight", self.get_attribute("font-weight"));
+        res.maybe_set("letter-spacing", self.get_attribute("letter-spacing"));
+        res.maybe_set("line-height", self.get_attribute("line-height"));
+        res.maybe_set("text-align", self.get_attribute("align"));
+        res.maybe_set("text-decoration", self.get_attribute("text-decoration"));
+        res.maybe_set("text-transform", self.get_attribute("text-transform"));
+        res.maybe_set("color", self.get_attribute("color"));
+        res.maybe_set("height", self.get_attribute("height"));
+        res
+    }
 
     fn render_content(&self, header: &Header) -> Result<String, Error> {
         let style = self.get_style("text");
@@ -116,24 +131,10 @@ impl ComponentWithAttributes for MJText {
 
 impl BodyComponent for MJText {
     fn get_style(&self, name: &str) -> Style {
-        let mut res = Style::new();
         match name {
-            "text" => {
-                res.maybe_set("font-family", self.get_attribute("font-family"));
-                res.maybe_set("font-size", self.get_attribute("font-size"));
-                res.maybe_set("font-style", self.get_attribute("font-style"));
-                res.maybe_set("font-weight", self.get_attribute("font-weight"));
-                res.maybe_set("letter-spacing", self.get_attribute("letter-spacing"));
-                res.maybe_set("line-height", self.get_attribute("line-height"));
-                res.maybe_set("text-align", self.get_attribute("align"));
-                res.maybe_set("text-decoration", self.get_attribute("text-decoration"));
-                res.maybe_set("text-transform", self.get_attribute("text-transform"));
-                res.maybe_set("color", self.get_attribute("color"));
-                res.maybe_set("height", self.get_attribute("height"));
-            }
-            _ => (),
-        };
-        res
+            "text" => self.get_style_text(),
+            _ => Style::new(),
+        }
     }
 }
 
