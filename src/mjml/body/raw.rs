@@ -5,7 +5,7 @@ use crate::mjml::{Component, Error};
 use crate::util::prelude::PropertyMap;
 use crate::util::{Attributes, Context, Header};
 use crate::Options;
-use crate::{close_tag, open_tag};
+use crate::{close_tag, closed_tag, open_tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -110,6 +110,10 @@ impl NodeElement {
             tag: node.tag_name().name().to_string(),
         })
     }
+
+    fn closed_element(&self) -> bool {
+        self.children.is_empty() && ["img"].contains(&self.tag.as_str())
+    }
 }
 
 impl Component for NodeElement {
@@ -126,13 +130,17 @@ impl Component for NodeElement {
         for (key, value) in self.attributes.iter() {
             attrs.set(key, value);
         }
-        let mut res = vec![];
-        res.push(open_tag!(self.tag, attrs.to_string()));
-        for child in self.children.iter() {
-            res.push(child.render(header)?);
+        if self.closed_element() {
+            Ok(closed_tag!(self.tag, attrs.to_string()))
+        } else {
+            let mut res = vec![];
+            res.push(open_tag!(self.tag, attrs.to_string()));
+            for child in self.children.iter() {
+                res.push(child.render(header)?);
+            }
+            res.push(close_tag!(self.tag));
+            Ok(res.join(""))
         }
-        res.push(close_tag!(self.tag));
-        Ok(res.join(""))
     }
 }
 
