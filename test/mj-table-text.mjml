@@ -1,0 +1,20 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-table align="right" color="red" font-family="Comic" font-size="11px" font-weight="bolder" line-height="24px">
+          <tr>
+            <th style="padding: 0 15px 0 0;">Year</th>
+            <th style="padding: 0 15px;">Language</th>
+            <th style="padding: 0 0 0 15px;">Inspired from</th>
+          </tr>
+          <tr>
+            <td style="padding: 0 15px 0 0;">1995</td>
+            <td style="padding: 0 15px;">PHP</td>
+            <td style="padding: 0 0 0 15px;">C, Shell Unix</td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
