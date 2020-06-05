@@ -1,6 +1,6 @@
-use super::mj_social_element::MJSocialElement;
-use super::BodyElement;
+use super::element::MJSocialElement;
 use crate::mjml::body::prelude::*;
+use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
@@ -226,96 +226,96 @@ pub mod tests {
     #[test]
     fn base() {
         compare_render(
-            include_str!("../../../test/mj-social.mjml"),
-            include_str!("../../../test/mj-social.html"),
+            include_str!("../../../../test/mj-social.mjml"),
+            include_str!("../../../../test/mj-social.html"),
         );
     }
 
     #[test]
     fn with_align() {
         compare_render(
-            include_str!("../../../test/mj-social-align.mjml"),
-            include_str!("../../../test/mj-social-align.html"),
+            include_str!("../../../../test/mj-social-align.mjml"),
+            include_str!("../../../../test/mj-social-align.html"),
         );
     }
 
     #[test]
     fn with_border_radius() {
         compare_render(
-            include_str!("../../../test/mj-social-border-radius.mjml"),
-            include_str!("../../../test/mj-social-border-radius.html"),
+            include_str!("../../../../test/mj-social-border-radius.mjml"),
+            include_str!("../../../../test/mj-social-border-radius.html"),
         );
     }
 
     #[test]
     fn with_color() {
         compare_render(
-            include_str!("../../../test/mj-social-color.mjml"),
-            include_str!("../../../test/mj-social-color.html"),
+            include_str!("../../../../test/mj-social-color.mjml"),
+            include_str!("../../../../test/mj-social-color.html"),
         );
     }
 
     #[test]
     fn with_class() {
         compare_render(
-            include_str!("../../../test/mj-social-class.mjml"),
-            include_str!("../../../test/mj-social-class.html"),
+            include_str!("../../../../test/mj-social-class.mjml"),
+            include_str!("../../../../test/mj-social-class.html"),
         );
     }
 
     #[test]
     fn with_container_background_color() {
         compare_render(
-            include_str!("../../../test/mj-social-container-background-color.mjml"),
-            include_str!("../../../test/mj-social-container-background-color.html"),
+            include_str!("../../../../test/mj-social-container-background-color.mjml"),
+            include_str!("../../../../test/mj-social-container-background-color.html"),
         );
     }
 
     #[test]
     fn with_font_family() {
         compare_render(
-            include_str!("../../../test/mj-social-font-family.mjml"),
-            include_str!("../../../test/mj-social-font-family.html"),
+            include_str!("../../../../test/mj-social-font-family.mjml"),
+            include_str!("../../../../test/mj-social-font-family.html"),
         );
     }
 
     #[test]
     fn with_font() {
         compare_render(
-            include_str!("../../../test/mj-social-font.mjml"),
-            include_str!("../../../test/mj-social-font.html"),
+            include_str!("../../../../test/mj-social-font.mjml"),
+            include_str!("../../../../test/mj-social-font.html"),
         );
     }
 
     #[test]
     fn with_icon() {
         compare_render(
-            include_str!("../../../test/mj-social-icon.mjml"),
-            include_str!("../../../test/mj-social-icon.html"),
+            include_str!("../../../../test/mj-social-icon.mjml"),
+            include_str!("../../../../test/mj-social-icon.html"),
         );
     }
 
     #[test]
     fn with_text() {
         compare_render(
-            include_str!("../../../test/mj-social-text.mjml"),
-            include_str!("../../../test/mj-social-text.html"),
+            include_str!("../../../../test/mj-social-text.mjml"),
+            include_str!("../../../../test/mj-social-text.html"),
         );
     }
 
     #[test]
     fn with_padding() {
         compare_render(
-            include_str!("../../../test/mj-social-padding.mjml"),
-            include_str!("../../../test/mj-social-padding.html"),
+            include_str!("../../../../test/mj-social-padding.mjml"),
+            include_str!("../../../../test/mj-social-padding.html"),
         );
     }
 
     #[test]
     fn with_mode() {
         compare_render(
-            include_str!("../../../test/mj-social-mode.mjml"),
-            include_str!("../../../test/mj-social-mode.html"),
+            include_str!("../../../../test/mj-social-mode.mjml"),
+            include_str!("../../../../test/mj-social-mode.html"),
         );
     }
 }

@@ -13,7 +13,6 @@ pub mod mj_navbar;
 pub mod mj_raw;
 pub mod mj_section;
 pub mod mj_social;
-pub mod mj_social_element;
 pub mod mj_spacer;
 pub mod mj_table;
 pub mod mj_text;
@@ -40,7 +39,7 @@ pub enum BodyElement {
     MJRaw(mj_raw::MJRaw),
     MJSection(mj_section::MJSection),
     MJSocial(mj_social::MJSocial),
-    MJSocialElement(mj_social_element::MJSocialElement),
+    MJSocialElement(mj_social::MJSocialElement),
     MJSpacer(mj_spacer::MJSpacer),
     MJTable(mj_table::MJTable),
     MJText(mj_text::MJText),
@@ -130,9 +129,9 @@ impl BodyElement {
             "mj-raw" => BodyElement::MJRaw(mj_raw::MJRaw::parse(node, opts)?),
             "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, opts)?),
             "mj-social" => BodyElement::MJSocial(mj_social::MJSocial::parse(node, opts)?),
-            "mj-social-element" => BodyElement::MJSocialElement(
-                mj_social_element::MJSocialElement::parse(node, opts, extra)?,
-            ),
+            "mj-social-element" => {
+                BodyElement::MJSocialElement(mj_social::MJSocialElement::parse(node, opts, extra)?)
+            }
             "mj-spacer" => BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(node, opts)?),
             "mj-table" => BodyElement::MJTable(mj_table::MJTable::parse(node, opts)?),
             "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, opts)?),
