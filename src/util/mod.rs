@@ -12,7 +12,7 @@ mod style;
 pub use attributes::{suffix_css_classes, suffix_unit, Attributes};
 pub use context::Context;
 pub use header::Header;
+pub use html::Tag;
 pub use size::Size;
 pub use spacing::Spacing;
 pub use style::Style;
-pub use html::Tag;

@@ -37,7 +37,9 @@ impl Tag {
 
 impl Tag {
     pub fn insert_style(self, values: &HashMap<String, String>) -> Self {
-        values.iter().fold(self, |res, (key, value)| res.set_style(key, value))
+        values
+            .iter()
+            .fold(self, |res, (key, value)| res.set_style(key, value))
     }
 
     pub fn set_style<K: ToString, V: ToString>(mut self, key: K, value: V) -> Self {
