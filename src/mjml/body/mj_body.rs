@@ -41,6 +41,12 @@ impl MJBody {
         })
     }
 
+    fn get_style_body(&self) -> Style {
+        let mut res = Style::new();
+        res.maybe_set("background-color", self.get_attribute("background-color"));
+        res
+    }
+
     pub fn render_preview(&self, header: &Header) -> String {
         let preview = match header.preview() {
             Some(value) => value,
@@ -109,7 +115,7 @@ impl Component for MJBody {
         let mut res: Vec<String> = vec![];
         {
             let mut attrs = Attributes::new();
-            let style = self.get_style("body");
+            let style = self.get_style_body();
             if !style.is_empty() {
                 attrs.set("style", style.to_string());
             }
@@ -119,7 +125,7 @@ impl Component for MJBody {
         if self.exists {
             let mut attrs = Attributes::new();
             attrs.maybe_set("class", self.get_attribute("css-class"));
-            attrs.set("style", self.get_style("div").to_string());
+            attrs.set("style", self.get_style_body());
             res.push(open_tag!("div", attrs.to_string()));
             for child in self.children.iter() {
                 res.push(child.render(header)?);
@@ -147,14 +153,10 @@ impl ComponentWithAttributes for MJBody {
 
 impl BodyComponent for MJBody {
     fn get_style(&self, key: &str) -> Style {
-        let mut res = Style::new();
         match key {
-            "body" | "div" => {
-                res.maybe_set("background-color", self.get_attribute("background-color"));
-            }
-            _ => (),
-        };
-        res
+            "body" | "div" => self.get_style_body(),
+            _ => Style::new(),
+        }
     }
 }
 
