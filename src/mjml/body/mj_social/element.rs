@@ -2,9 +2,8 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::{Attributes, Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -327,6 +326,58 @@ impl MJSocialElement {
             None
         }
     }
+
+    fn render_icon(&self, href: &Option<String>) -> String {
+        let table = Tag::table_presentation().insert_style(self.get_style_table().inner());
+        let tr = Tag::tr();
+        let td = Tag::td().insert_style(self.get_style_icon().inner());
+        let a = Tag::new("a")
+            .maybe_set_attribute("href", href.as_ref())
+            .maybe_set_attribute("rel", self.get_attribute("rel"))
+            .maybe_set_attribute("target", self.get_attribute("target"));
+        let img = Tag::new("img")
+            .maybe_set_attribute("alt", self.get_attribute("alt"))
+            .maybe_set_attribute("title", self.get_attribute("title"))
+            .maybe_set_attribute(
+                "height",
+                self.get_icon_height()
+                    .or_else(|| self.get_icon_size())
+                    .and_then(|size| Some(size.value())),
+            )
+            .maybe_set_attribute("src", self.get_icon_src())
+            .insert_style(self.get_style_img().inner())
+            .maybe_set_attribute(
+                "width",
+                self.get_icon_size().and_then(|size| Some(size.value())),
+            );
+
+        table.render(tr.render(td.render(if href.is_some() {
+            a.render(img.closed())
+        } else {
+            img.closed()
+        })))
+    }
+
+    fn render_text(&self, href: &Option<String>) -> String {
+        let td = Tag::new("td").insert_style(self.get_style_td_text().inner());
+        let wrapper = if href.is_some() {
+            Tag::new("a")
+                .maybe_set_attribute("href", href.as_ref())
+                .insert_style(self.get_style_text().inner())
+                .maybe_set_attribute("rel", self.get_attribute("rel"))
+                .maybe_set_attribute("target", self.get_attribute("target"))
+        } else {
+            Tag::new("span").insert_style(self.get_style_text().inner())
+        };
+        td.render(
+            wrapper.render(
+                self.content
+                    .as_ref()
+                    .and_then(|v| Some(v.as_str()))
+                    .unwrap_or(""),
+            ),
+        )
+    }
 }
 
 impl Component for MJSocialElement {
@@ -344,90 +395,16 @@ impl Component for MJSocialElement {
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
         let href = self.get_href();
+        let tr = Tag::tr().maybe_set_class(self.get_attribute("css-class"));
+        let td = Tag::td().insert_style(self.get_style_td().inner());
+
         let mut res = vec![];
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("class", self.get_attribute("css-class"));
-            res.push(open_tag!("tr", attrs.to_string()));
+        res.push(tr.open());
+        res.push(td.render(self.render_icon(&href)));
+        if self.content.is_some() {
+            res.push(self.render_text(&href));
         }
-        res.push(open_tag!(
-            "td",
-            to_attributes!(("style", self.get_style_td().to_string()))
-        ));
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation"),
-                ("style", self.get_style_table().to_string())
-            )
-        ));
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!(("style", self.get_style_icon().to_string()))
-        ));
-        if let Some(href) = href.as_ref() {
-            let mut attrs = Attributes::new();
-            attrs.set("href", href);
-            attrs.maybe_set("rel", self.get_attribute("rel"));
-            attrs.maybe_set("target", self.get_attribute("target"));
-            res.push(open_tag!("a", attrs.to_string()));
-        }
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("alt", self.get_attribute("alt"));
-            attrs.maybe_set("title", self.get_attribute("title"));
-            attrs.maybe_set(
-                "height",
-                self.get_icon_height()
-                    .or_else(|| self.get_icon_size())
-                    .and_then(|size| Some(size.value())),
-            );
-            attrs.maybe_set("src", self.get_icon_src());
-            attrs.set("style", self.get_style_img());
-            attrs.maybe_set(
-                "width",
-                self.get_icon_size().and_then(|size| Some(size.value())),
-            );
-            res.push(closed_tag!("img", attrs.to_string()));
-        }
-        if href.is_some() {
-            res.push(close_tag!("a"));
-        }
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
-        res.push(close_tag!("td"));
-        if let Some(content) = self.content.as_ref() {
-            res.push(open_tag!(
-                "td",
-                to_attributes!(("style", self.get_style_td_text().to_string()))
-            ));
-            if let Some(href) = href.as_ref() {
-                let mut attrs = Attributes::new();
-                attrs.set("href", href);
-                attrs.set("style", self.get_style_text());
-                attrs.maybe_set("rel", self.get_attribute("rel"));
-                attrs.maybe_set("target", self.get_attribute("target"));
-                res.push(open_tag!("a", attrs.to_string()));
-            } else {
-                res.push(open_tag!(
-                    "span",
-                    to_attributes!(("style", self.get_style_text().to_string()))
-                ));
-            }
-            res.push(content.to_string());
-            if href.is_some() {
-                res.push(close_tag!("a"));
-            } else {
-                res.push(close_tag!("span"));
-            }
-            res.push(close_tag!("td"));
-        }
-        res.push(close_tag!("tr"));
+        res.push(tr.close());
         Ok(res.join(""))
     }
 }
