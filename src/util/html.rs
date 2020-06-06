@@ -138,6 +138,16 @@ impl Tag {
     }
 }
 
+impl Tag {
+    pub fn table() -> Self {
+        Tag::new("table")
+            .set_attribute("border", "0")
+            .set_attribute("cellpadding", "0")
+            .set_attribute("cellspacing", "0")
+            .set_attribute("role", "presentation")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
