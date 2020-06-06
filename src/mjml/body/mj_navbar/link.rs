@@ -139,7 +139,10 @@ impl Component for MJNavbarLink {
     fn render(&self, header: &Header) -> Result<String, Error> {
         let td = Tag::td()
             .insert_style(self.get_style_td().inner())
-            .maybe_set_class(suffix_css_classes(self.get_attribute("css-class"), "outlook"));
+            .maybe_set_class(suffix_css_classes(
+                self.get_attribute("css-class"),
+                "outlook",
+            ));
         let mut res: Vec<String> = vec![];
         res.push(conditional_tag(td.open()));
         res.push(self.render_content(header)?);

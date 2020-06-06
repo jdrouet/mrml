@@ -159,11 +159,14 @@ impl MJWrapper {
         let inner_div = Tag::div().insert_style(self.get_style("inner-div").inner());
         let table = Tag::table_presentation()
             .set_attribute("align", "center")
-            .maybe_set_attribute("background", if self.is_full_width() {
-                None
-            } else {
-                self.get_attribute("background-url")
-            })
+            .maybe_set_attribute(
+                "background",
+                if self.is_full_width() {
+                    None
+                } else {
+                    self.get_attribute("background-url")
+                },
+            )
             .insert_style(self.get_style("table").inner());
         let tbody = Tag::tbody();
         let tr = Tag::tr();
