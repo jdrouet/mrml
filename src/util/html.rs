@@ -147,6 +147,10 @@ impl Tag {
             .set_attribute("role", "presentation")
     }
 
+    pub fn tbody() -> Self {
+        Tag::new("tbody")
+    }
+
     pub fn td() -> Self {
         Tag::new("td")
     }
