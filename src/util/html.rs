@@ -68,6 +68,12 @@ impl Tag {
 }
 
 impl Tag {
+    pub fn insert_attributes(self, values: &HashMap<String, String>) -> Self {
+        values
+            .iter()
+            .fold(self, |res, (key, value)| res.set_attribute(key, value))
+    }
+
     pub fn set_attribute<K: ToString, V: ToString>(mut self, key: K, value: V) -> Self {
         self.attributes.insert(key.to_string(), value.to_string());
         self
