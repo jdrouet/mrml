@@ -5,9 +5,8 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::{Attributes, Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -121,57 +120,33 @@ impl MJNavbar {
     }
 
     fn render_hamburger(&self, _header: &Header) -> Result<String, Error> {
+        let input = Tag::new("input")
+            .set_class("mj-menu-checkbox")
+            .set_attribute("id", self.id.as_str())
+            .insert_style(self.get_style_input().inner())
+            .set_attribute("type", "checkbox");
+        let div = Tag::div()
+            .set_class("mj-menu-trigger")
+            .insert_style(self.get_style_trigger().inner());
+        let label = Tag::new("label")
+            .maybe_set_attribute("align", self.get_attribute("ico-align"))
+            .set_class("mj-menu-label")
+            .set_attribute("for", self.id.as_str())
+            .insert_style(self.get_style_label().inner());
+        let span_open = Tag::new("span")
+            .set_class("mj-menu-icon-open")
+            .insert_style(self.get_style_ico_open().inner());
+        let span_close = Tag::new("span")
+            .set_class("mj-menu-icon-close")
+            .insert_style(self.get_style_ico_close().inner());
         let mut res: Vec<String> = vec![];
-        res.push(START_MSO_NEGATION_CONDITIONAL_TAG.into());
-        res.push(closed_tag!(
-            "input",
-            to_attributes!(
-                ("class", "mj-menu-checkbox"),
-                ("id", self.id),
-                ("style", self.get_style_input().to_string()),
-                ("type", "checkbox")
-            )
-        ));
-        res.push(END_NEGATION_CONDITIONAL_TAG.into());
-        res.push(open_tag!(
-            "div",
-            to_attributes!(
-                ("class", "mj-menu-trigger"),
-                ("style", self.get_style_trigger().to_string())
-            )
-        ));
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("align", self.get_attribute("ico-align"));
-            attrs.set("class", "mj-menu-label");
-            attrs.set("for", self.id.clone());
-            attrs.set("style", self.get_style_label());
-            res.push(open_tag!("label", attrs.to_string()));
-        }
-        res.push(open_tag!(
-            "span",
-            to_attributes!(
-                ("class", "mj-menu-icon-open"),
-                ("style", self.get_style_ico_open().to_string())
-            )
-        ));
-        if let Some(value) = self.get_attribute("ico-open") {
-            res.push(value);
-        }
-        res.push(close_tag!("span"));
-        res.push(open_tag!(
-            "span",
-            to_attributes!(
-                ("class", "mj-menu-icon-close"),
-                ("style", self.get_style_ico_close().to_string())
-            )
-        ));
-        if let Some(value) = self.get_attribute("ico-close") {
-            res.push(value);
-        }
-        res.push(close_tag!("span"));
-        res.push(close_tag!("label"));
-        res.push(close_tag!("div"));
+        res.push(mso_negation_conditional_tag(input.closed()));
+        res.push(div.open());
+        res.push(label.open());
+        res.push(span_open.render(self.get_attribute("ico-open").unwrap_or("".into())));
+        res.push(span_close.render(self.get_attribute("ico-close").unwrap_or("".into())));
+        res.push(label.close());
+        res.push(div.close());
         Ok(res.join(""))
     }
 }
@@ -212,34 +187,27 @@ impl Component for MJNavbar {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
+        let div = Tag::div().set_class("mj-inline-links");
+        let table =
+            Tag::table_presentation().maybe_set_attribute("align", self.get_attribute("align"));
+        let tr = Tag::tr();
         let mut res: Vec<String> = vec![];
         if self.has_hamburger() {
             res.push(self.render_hamburger(header)?);
         }
-        res.push(open_tag!(
-            "div",
-            to_attributes!(("class", "mj-inline-links"))
-        ));
+        res.push(div.open());
         res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("border", "0");
-            attrs.set("cellpadding", "0");
-            attrs.set("cellspacing", "0");
-            attrs.set("role", "presentation");
-            attrs.maybe_set("align", self.get_attribute("align"));
-            res.push(open_tag!("table", attrs.to_string()));
-        }
-        res.push(open_tag!("tr"));
+        res.push(table.open());
+        res.push(tr.open());
         res.push(END_CONDITIONAL_TAG.into());
         for child in self.children.iter() {
             res.push(child.render(header)?);
         }
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
+        res.push(tr.close());
+        res.push(table.close());
         res.push(END_CONDITIONAL_TAG.into());
-        res.push(close_tag!("div"));
+        res.push(div.close());
         Ok(res.join(""))
     }
 }
