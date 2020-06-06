@@ -146,6 +146,18 @@ impl Tag {
             .set_attribute("cellspacing", "0")
             .set_attribute("role", "presentation")
     }
+
+    pub fn td() -> Self {
+        Tag::new("td")
+    }
+
+    pub fn tr() -> Self {
+        Tag::new("tr")
+    }
+
+    pub fn div() -> Self {
+        Tag::new("div")
+    }
 }
 
 #[cfg(test)]

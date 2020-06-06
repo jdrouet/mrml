@@ -4,9 +4,8 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::{Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -164,35 +163,26 @@ impl MJHero {
     }
 
     fn render_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
-        let mut res = vec![];
-        res.push(open_tag!("tr"));
-        {
-            let mut style = Style::new();
-            style.maybe_set(
+        let tr = Tag::new("tr");
+        let td = Tag::new("td")
+            .maybe_set_style(
                 "background",
                 child.get_attribute("container-background-color"),
-            );
-            style.set("font-size", "0px");
-            style.maybe_set("padding", child.get_attribute("padding"));
-            style.maybe_set("padding-top", child.get_attribute("padding-top"));
-            style.maybe_set("padding-right", child.get_attribute("padding-right"));
-            style.maybe_set("padding-bottom", child.get_attribute("padding-bottom"));
-            style.maybe_set("padding-left", child.get_attribute("padding-left"));
-            style.set("word-break", "break-word");
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("align", child.get_attribute("align"));
-            attrs.maybe_set(
+            )
+            .set_style("font-size", "0px")
+            .maybe_set_style("padding", child.get_attribute("padding"))
+            .maybe_set_style("padding-top", child.get_attribute("padding-top"))
+            .maybe_set_style("padding-right", child.get_attribute("padding-right"))
+            .maybe_set_style("padding-bottom", child.get_attribute("padding-bottom"))
+            .maybe_set_style("padding-left", child.get_attribute("padding-left"))
+            .set_style("word-break", "break-word")
+            .maybe_set_attribute("align", child.get_attribute("align"))
+            .maybe_set_attribute(
                 "background",
                 child.get_attribute("container-background-color"),
-            );
-            attrs.maybe_set("class", child.get_attribute("css-class"));
-            attrs.set("style", style.to_string());
-            res.push(open_tag!("td", attrs.to_string()));
-        }
-        res.push(child.render(header)?);
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        Ok(res.join(""))
+            )
+            .maybe_set_attribute("class", child.get_attribute("css-class"));
+        Ok(tr.render(td.render(child.render(header)?)))
     }
 
     fn render_children(&self, header: &Header) -> Result<String, Error> {
@@ -208,76 +198,47 @@ impl MJHero {
     }
 
     fn render_content(&self, header: &Header) -> Result<String, Error> {
+        let table = Tag::new("table")
+            .maybe_set_attribute("align", self.get_attribute("align"))
+            .set_attribute("border", 0)
+            .set_attribute("cellpadding", 0)
+            .set_attribute("cellspacing", 0)
+            .insert_style(self.get_style_outlook_inner_table().inner())
+            .maybe_set_attribute("width", self.get_container_width_value());
+        let tr = Tag::tr();
+        let outlook_inner_td =
+            Tag::new("td").insert_style(self.get_style_outlook_inner_td().inner());
+        let outlook_inner_div = Tag::new("div")
+            .maybe_set_attribute("width", self.get_attribute("align"))
+            .set_class("mj-hero-content")
+            .insert_style(self.get_style_inner_div().inner());
+        let inner_table = Tag::table().insert_style(self.get_style_inner_table().inner());
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("align", self.get_attribute("align"));
-            attrs.set("border", "0");
-            attrs.set("cellpadding", "0");
-            attrs.set("cellspacing", "0");
-            attrs.set("style", self.get_style_outlook_inner_table().to_string());
-            attrs.maybe_set(
-                "width",
-                self.get_container_width_value()
-                    .and_then(|value| Some(value.to_string())),
-            );
-            res.push(open_tag!("table", attrs.to_string()));
-        }
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!(("style", self.get_style_outlook_inner_td().to_string()))
-        ));
+        res.push(table.open());
+        res.push(tr.open());
+        res.push(outlook_inner_td.open());
         res.push(END_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("align", self.get_attribute("align"));
-            attrs.set("class", "mj-hero-content");
-            attrs.set("style", self.get_style_inner_div().to_string());
-            res.push(open_tag!("div", attrs.to_string()));
-        }
-        let inner_table = open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation"),
-                ("style", self.get_style_inner_table().to_string())
-            )
-        );
-        res.push(inner_table.clone());
-        res.push(open_tag!("tr"));
-        res.push(open_tag!("td"));
-        res.push(inner_table.clone());
-        res.push(self.render_children(header)?);
-        res.push(close_tag!("table"));
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
-        res.push(close_tag!("div"));
+        res.push(outlook_inner_div.render(inner_table.render(
+            tr.render(Tag::td().render(inner_table.render(self.render_children(header)?))),
+        )));
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
+        res.push(outlook_inner_td.close());
+        res.push(tr.close());
+        res.push(table.close());
         res.push(END_CONDITIONAL_TAG.into());
         Ok(res.join(""))
     }
 
     fn render_mode_fluid(&self, header: &Header) -> Result<String, Error> {
+        let td_fluid = Tag::td().insert_style(self.get_style_td_fluid().inner());
+        let td = Tag::td()
+            .maybe_set_attribute("background", self.get_attribute("background-url"))
+            .insert_style(self.get_style_hero().inner());
         let mut res = vec![];
-        let td_fluid = self.get_style_td_fluid().to_string();
-        res.push(closed_tag!("td", to_attributes!(("style", td_fluid))));
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("background", self.get_attribute("background-url"));
-            attrs.set("style", self.get_style_hero().to_string());
-            res.push(open_tag!("td", attrs.to_string()));
-        }
-        res.push(self.render_content(header)?);
-        res.push(close_tag!("td"));
-        res.push(closed_tag!("td", to_attributes!(("style", td_fluid))));
+        res.push(td_fluid.closed());
+        res.push(td.render(self.render_content(header)?));
+        res.push(td_fluid.closed());
         Ok(res.join(""))
     }
 
@@ -289,17 +250,11 @@ impl MJHero {
             None => 0.0,
         };
         let height = Size::Pixel(height.value() - padding);
-        let mut res = vec![];
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("background", self.get_attribute("background-url"));
-            attrs.set("style", self.get_style_hero().to_string());
-            attrs.set("height", height.value().to_string());
-            res.push(open_tag!("td", attrs.to_string()));
-        }
-        res.push(self.render_content(header)?);
-        res.push(close_tag!("td"));
-        Ok(res.join(""))
+        let td = Tag::td()
+            .maybe_set_attribute("background", self.get_attribute("background-url"))
+            .insert_style(self.get_style_hero().inner())
+            .set_attribute("height", height.value());
+        Ok(td.render(self.render_content(header)?))
     }
 
     fn render_mode(&self, header: &Header) -> Result<String, Error> {
@@ -338,60 +293,40 @@ impl Component for MJHero {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
+        let outlook_table = Tag::table()
+            .set_attribute("align", "center")
+            .insert_style(self.get_style_outlook_table().inner())
+            .maybe_set_attribute("width", self.get_container_width_value());
+        let outlook_tr = Tag::tr();
+        let outlook_td = Tag::td().insert_style(self.get_style_outlook_td().inner());
+        let v_image = Tag::new("v:image")
+            .insert_style(self.get_style_outlook_image().inner())
+            .maybe_set_attribute("src", self.get_attribute("background-url"))
+            .set_attribute("xmlns:v", "urn:schemas-microsoft-com:vml");
+        let div = Tag::div()
+            .maybe_set_attribute("align", self.get_attribute("align"))
+            .maybe_set_class(self.get_attribute("css-class"))
+            .insert_style(self.get_style_div().inner());
+        let table = Tag::table().insert_style(self.get_style_table().inner());
+        let tr = Tag::tr().insert_style(self.get_style_tr().inner());
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("align", "center");
-            attrs.set("border", "0");
-            attrs.set("cellpadding", "0");
-            attrs.set("cellspacing", "0");
-            attrs.set("role", "presentation");
-            attrs.set("style", self.get_style_outlook_table().to_string());
-            attrs.maybe_set("width", self.get_container_width_value());
-            res.push(open_tag!("table", attrs.to_string()));
-        }
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!(("style", self.get_style_outlook_td().to_string()))
-        ));
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("style", self.get_style_outlook_image().to_string());
-            attrs.maybe_set("src", self.get_attribute("background-url"));
-            attrs.set("xmlns:v", "urn:schemas-microsoft-com:vml");
-            res.push(closed_tag!("v:image", attrs.to_string()));
-        }
+        res.push(outlook_table.open());
+        res.push(outlook_tr.open());
+        res.push(outlook_td.open());
+        res.push(v_image.closed());
         res.push(END_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("align", self.get_attribute("align"));
-            attrs.maybe_set("class", self.get_attribute("css-class"));
-            attrs.set("style", self.get_style_div().to_string());
-            res.push(open_tag!("div", attrs.to_string()));
-        }
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("border", "0");
-            attrs.set("cellpadding", "0");
-            attrs.set("cellspacing", "0");
-            attrs.set("role", "presentation");
-            attrs.set("style", self.get_style_table().to_string());
-            res.push(open_tag!("table", attrs.to_string()));
-        }
-        res.push(open_tag!(
-            "tr",
-            to_attributes!(("style", self.get_style_tr().to_string()))
-        ));
+        res.push(div.open());
+        res.push(table.open());
+        res.push(tr.open());
         res.push(self.render_mode(header)?);
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
-        res.push(close_tag!("div"));
+        res.push(tr.close());
+        res.push(table.close());
+        res.push(div.close());
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
+        res.push(outlook_td.close());
+        res.push(outlook_tr.close());
+        res.push(outlook_table.close());
         res.push(END_CONDITIONAL_TAG.into());
         Ok(res.join(""))
     }
