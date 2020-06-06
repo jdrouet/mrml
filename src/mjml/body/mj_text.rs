@@ -4,9 +4,8 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::*;
-use crate::util::{Context, Header, Style};
+use crate::util::{Context, Header, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -47,45 +46,25 @@ impl MJText {
     }
 
     fn render_content(&self, header: &Header) -> Result<String, Error> {
-        let style = self.get_style("text");
         let mut res = vec![];
-        res.push(open_tag!(
-            "div",
-            to_attributes!(("style", style.to_string()))
-        ));
         for child in self.children.iter() {
             res.push(child.render(header)?);
         }
-        res.push(close_tag!("div"));
-        Ok(res.join(""))
+        Ok(Tag::div()
+            .insert_style(self.get_style_text().inner())
+            .render(res.join("")))
     }
 
     fn render_with_height(&self, header: &Header, height: String) -> Result<String, Error> {
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation")
-            )
-        ));
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!(
-                ("height", height),
-                ("style", format!("height:{};vertical-align:top;", height))
-            )
-        ));
-        res.push(self.render_content(header)?);
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
-        res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
+        let table = Tag::table();
+        let tr = Tag::tr();
+        let td = Tag::td()
+            .set_attribute("height", &height)
+            .set_style("height", &height)
+            .set_style("vertical-align", "top");
+        Ok(conditional_tag(table.render(
+            tr.render(td.render(self.render_content(header)?)),
+        )))
     }
 }
 
