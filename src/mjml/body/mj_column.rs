@@ -5,7 +5,6 @@ use crate::mjml::prelude::*;
 use crate::util::prelude::*;
 use crate::util::{Attributes, Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -157,29 +156,11 @@ impl MJColumn {
     }
 
     fn render_gutter(&self, header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation"),
-                ("width", "100%")
-            )
-        ));
-        res.push(open_tag!("tbody"));
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!(("style", self.get_style_gutter().to_string()))
-        ));
-        res.push(self.render_column(header)?);
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("tbody"));
-        res.push(close_tag!("table"));
-        Ok(res.join(""))
+        let table = Tag::table_presentation().set_attribute("width", "100%");
+        let tbody = Tag::tbody();
+        let tr = Tag::tr();
+        let td = Tag::td().insert_style(self.get_style_gutter().inner());
+        Ok(table.render(tbody.render(tr.render(td.render(self.render_column(header)?)))))
     }
 
     fn render_mj_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
