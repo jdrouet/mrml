@@ -2,8 +2,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
-use crate::util::prelude::*;
-use crate::util::{Context, Header, Style, Tag};
+use crate::util::{Context, Header, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -25,10 +24,8 @@ impl MJSpacer {
         })
     }
 
-    fn get_style_div(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("height", self.get_attribute("height"));
-        res
+    fn set_style_div(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("height", self.get_attribute("height"))
     }
 }
 
@@ -49,7 +46,7 @@ impl Component for MJSpacer {
             .set_style("vertical-align", "top")
             .maybe_set_style("height", height.clone())
             .maybe_set_attribute("height", height.and_then(|h| Some(h.value())));
-        let div = Tag::div().insert_style(self.get_style_div().inner());
+        let div = self.set_style_div(Tag::div());
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
         res.push(table.open());
@@ -81,10 +78,10 @@ impl ComponentWithAttributes for MJSpacer {
 }
 
 impl BodyComponent for MJSpacer {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "div" => self.get_style_div(),
-            _ => Style::new(),
+            "div" => self.set_style_div(tag),
+            _ => tag,
         }
     }
 }

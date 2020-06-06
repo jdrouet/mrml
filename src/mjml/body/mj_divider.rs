@@ -2,8 +2,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::conditional_tag;
-use crate::util::prelude::*;
-use crate::util::{Context, Header, Size, Style, Tag};
+use crate::util::{Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -25,9 +24,8 @@ impl MJDivider {
         })
     }
 
-    fn get_style_p(&self) -> Style {
-        let mut res = Style::new();
-        res.set(
+    fn set_style_p(&self, tag: Tag) -> Tag {
+        tag.set_style(
             "border-top",
             format!(
                 "{} {} {}",
@@ -35,17 +33,15 @@ impl MJDivider {
                 self.get_attribute("border-width").unwrap(),
                 self.get_attribute("border-color").unwrap()
             ),
-        );
-        res.set("font-size", "1");
-        res.set("margin", "0px auto");
-        res.maybe_set("width", self.get_attribute("width"));
-        res
+        )
+        .set_style("font-size", "1")
+        .set_style("margin", "0px auto")
+        .maybe_set_style("width", self.get_attribute("width"))
     }
 
-    fn get_style_outlook(&self) -> Style {
-        let mut res = self.get_style_p();
-        res.set("width", self.get_outlook_width().to_string());
-        res
+    fn set_style_outlook(&self, tag: Tag) -> Tag {
+        self.set_style_p(tag)
+            .set_style("width", self.get_outlook_width())
     }
 
     fn get_outlook_width(&self) -> Size {
@@ -68,13 +64,9 @@ impl MJDivider {
     }
 
     fn render_after(&self) -> String {
-        let table = Tag::new("table")
+        let table = self
+            .set_style_outlook(Tag::table_presentation())
             .set_attribute("align", "center")
-            .set_attribute("border", 0)
-            .set_attribute("cellpadding", 0)
-            .set_attribute("cellspacing", 0)
-            .insert_style(self.get_style_outlook().inner())
-            .set_attribute("role", "presentation")
             .set_attribute("width", self.get_outlook_width());
         let tr = Tag::new("tr");
         let td = Tag::new("td")
@@ -95,11 +87,7 @@ impl Component for MJDivider {
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
         let mut res = vec![];
-        res.push(
-            Tag::new("p")
-                .insert_style(self.get_style_p().inner())
-                .render(""),
-        );
+        res.push(self.set_style_p(Tag::new("p")).render(""));
         res.push(self.render_after());
         Ok(res.join(""))
     }
@@ -124,11 +112,11 @@ impl ComponentWithAttributes for MJDivider {
 }
 
 impl BodyComponent for MJDivider {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "p" => self.get_style_p(),
-            "outlook" => self.get_style_outlook(),
-            _ => Style::new(),
+            "p" => self.set_style_p(tag),
+            "outlook" => self.set_style_outlook(tag),
+            _ => tag,
         }
     }
 }

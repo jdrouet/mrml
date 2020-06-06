@@ -1,4 +1,3 @@
-use crate::util::{Context, Header, Style};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -22,7 +21,7 @@ pub mod raw;
 
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{Attributes, Size};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use prelude::BodyComponent;
 
@@ -100,8 +99,8 @@ impl ComponentWithAttributes for BodyElement {
 }
 
 impl BodyComponent for BodyElement {
-    fn get_style(&self, key: &str) -> Style {
-        apply_fn!(self, get_style(key))
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
+        apply_fn!(self, set_style(key, tag))
     }
 
     fn get_width(&self) -> Option<Size> {

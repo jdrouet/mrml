@@ -5,7 +5,7 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Style, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -55,56 +55,46 @@ impl MJNavbar {
         attrs
     }
 
-    fn get_style_input(&self) -> Style {
-        let mut res = Style::new();
-        res.set("display", "none !important");
-        res.set("max-height", "0");
-        res.set("visibility", "hidden");
-        res
+    fn set_style_input(&self, tag: Tag) -> Tag {
+        tag.set_style("display", "none !important")
+            .set_style("max-height", "0")
+            .set_style("visibility", "hidden")
     }
 
-    fn get_style_label(&self) -> Style {
-        let mut res = Style::new();
-        res.set("display", "block");
-        res.set("cursor", "pointer");
-        res.set("mso-hide", "all");
-        res.set("-moz-user-select", "none");
-        res.set("user-select", "none");
-        res.maybe_set("color", self.get_attribute("ico-color"));
-        res.maybe_set("font-size", self.get_attribute("ico-font-size"));
-        res.maybe_set("font-family", self.get_attribute("ico-font-family"));
-        res.maybe_set("text-transform", self.get_attribute("ico-text-transform"));
-        res.maybe_set("text-decoration", self.get_attribute("ico-text-decoration"));
-        res.maybe_set("line-height", self.get_attribute("ico-line-height"));
-        res.maybe_set("padding-top", self.get_attribute("ico-padding-top"));
-        res.maybe_set("padding-right", self.get_attribute("ico-padding-right"));
-        res.maybe_set("padding-bottom", self.get_attribute("ico-padding-bottom"));
-        res.maybe_set("padding-left", self.get_attribute("ico-padding-left"));
-        res.maybe_set("padding", self.get_attribute("ico-padding"));
-        res
+    fn set_style_label(&self, tag: Tag) -> Tag {
+        tag.set_style("display", "block")
+            .set_style("cursor", "pointer")
+            .set_style("mso-hide", "all")
+            .set_style("-moz-user-select", "none")
+            .set_style("user-select", "none")
+            .maybe_set_style("color", self.get_attribute("ico-color"))
+            .maybe_set_style("font-size", self.get_attribute("ico-font-size"))
+            .maybe_set_style("font-family", self.get_attribute("ico-font-family"))
+            .maybe_set_style("text-transform", self.get_attribute("ico-text-transform"))
+            .maybe_set_style("text-decoration", self.get_attribute("ico-text-decoration"))
+            .maybe_set_style("line-height", self.get_attribute("ico-line-height"))
+            .maybe_set_style("padding-top", self.get_attribute("ico-padding-top"))
+            .maybe_set_style("padding-right", self.get_attribute("ico-padding-right"))
+            .maybe_set_style("padding-bottom", self.get_attribute("ico-padding-bottom"))
+            .maybe_set_style("padding-left", self.get_attribute("ico-padding-left"))
+            .maybe_set_style("padding", self.get_attribute("ico-padding"))
     }
 
-    fn get_style_trigger(&self) -> Style {
-        let mut res = Style::new();
-        res.set("display", "none");
-        res.set("max-height", "0px");
-        res.set("max-width", "0px");
-        res.set("font-size", "0px");
-        res.set("overflow", "hidden");
-        res
+    fn set_style_trigger(&self, tag: Tag) -> Tag {
+        tag.set_style("display", "none")
+            .set_style("max-height", "0px")
+            .set_style("max-width", "0px")
+            .set_style("font-size", "0px")
+            .set_style("overflow", "hidden")
     }
 
-    fn get_style_ico_close(&self) -> Style {
-        let mut res = Style::new();
-        res.set("display", "none");
-        res.set("mso-hide", "all");
-        res
+    fn set_style_ico_close(&self, tag: Tag) -> Tag {
+        tag.set_style("display", "none")
+            .set_style("mso-hide", "all")
     }
 
-    fn get_style_ico_open(&self) -> Style {
-        let mut res = Style::new();
-        res.set("mso-hide", "all");
-        res
+    fn set_style_ico_open(&self, tag: Tag) -> Tag {
+        tag.set_style("mso-hide", "all")
     }
 
     fn has_hamburger(&self) -> bool {
@@ -120,25 +110,25 @@ impl MJNavbar {
     }
 
     fn render_hamburger(&self, _header: &Header) -> Result<String, Error> {
-        let input = Tag::new("input")
+        let input = self
+            .set_style_input(Tag::new("input"))
             .set_class("mj-menu-checkbox")
             .set_attribute("id", self.id.as_str())
-            .insert_style(self.get_style_input().inner())
             .set_attribute("type", "checkbox");
-        let div = Tag::div()
-            .set_class("mj-menu-trigger")
-            .insert_style(self.get_style_trigger().inner());
-        let label = Tag::new("label")
+        let div = self
+            .set_style_trigger(Tag::div())
+            .set_class("mj-menu-trigger");
+        let label = self
+            .set_style_label(Tag::new("label"))
             .maybe_set_attribute("align", self.get_attribute("ico-align"))
             .set_class("mj-menu-label")
-            .set_attribute("for", self.id.as_str())
-            .insert_style(self.get_style_label().inner());
-        let span_open = Tag::new("span")
-            .set_class("mj-menu-icon-open")
-            .insert_style(self.get_style_ico_open().inner());
-        let span_close = Tag::new("span")
-            .set_class("mj-menu-icon-close")
-            .insert_style(self.get_style_ico_close().inner());
+            .set_attribute("for", self.id.as_str());
+        let span_open = self
+            .set_style_ico_open(Tag::new("span"))
+            .set_class("mj-menu-icon-open");
+        let span_close = self
+            .set_style_ico_close(Tag::new("span"))
+            .set_class("mj-menu-icon-close");
         let mut res: Vec<String> = vec![];
         res.push(mso_negation_conditional_tag(input.closed()));
         res.push(div.open());
@@ -237,10 +227,8 @@ impl ComponentWithAttributes for MJNavbar {
 }
 
 impl BodyComponent for MJNavbar {
-    fn get_style(&self, name: &str) -> Style {
-        match name {
-            _ => Style::new(),
-        }
+    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
+        tag
     }
 }
 

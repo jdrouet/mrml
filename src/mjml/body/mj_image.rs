@@ -1,8 +1,7 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::prelude::*;
-use crate::util::{Context, Header, Size, Style, Tag};
+use crate::util::{Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -54,50 +53,51 @@ impl MJImage {
             .or_else(|| self.get_box_widths())
     }
 
-    fn get_style_img(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("border", self.get_attribute("border"));
-        res.maybe_set("border-left", self.get_attribute("left"));
-        res.maybe_set("border-right", self.get_attribute("right"));
-        res.maybe_set("border-top", self.get_attribute("top"));
-        res.maybe_set("border-bottom", self.get_attribute("bottom"));
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res.set("display", "block");
-        res.set("outline", "none");
-        res.set("text-decoration", "none");
-        res.maybe_set("height", self.get_attribute("height"));
-        res.maybe_set("max-height", self.get_attribute("max-height"));
-        res.set("width", "100%");
-        if self.is_full_width() {
-            res.set("min-width", "100%");
-            res.set("max-width", "100%");
-        }
-        res.maybe_set("font-size", self.get_attribute("font-size"));
-        res
+    fn set_style_img(&self, tag: Tag) -> Tag {
+        let tag = tag
+            .maybe_set_style("border", self.get_attribute("border"))
+            .maybe_set_style("border-left", self.get_attribute("left"))
+            .maybe_set_style("border-right", self.get_attribute("right"))
+            .maybe_set_style("border-top", self.get_attribute("top"))
+            .maybe_set_style("border-bottom", self.get_attribute("bottom"))
+            .maybe_set_style("border-radius", self.get_attribute("border-radius"))
+            .set_style("display", "block")
+            .set_style("outline", "none")
+            .set_style("text-decoration", "none")
+            .maybe_set_style("height", self.get_attribute("height"))
+            .maybe_set_style("max-height", self.get_attribute("max-height"))
+            .set_style("width", "100%");
+        let tag = if self.is_full_width() {
+            tag.set_style("min-width", "100%")
+                .set_style("max-width", "100%")
+        } else {
+            tag
+        };
+        tag.maybe_set_style("font-size", self.get_attribute("font-size"))
     }
 
-    fn get_style_td(&self) -> Style {
-        let mut res = Style::new();
-        if !self.is_full_width() {
-            res.maybe_set("width", self.get_content_width());
+    fn set_style_td(&self, tag: Tag) -> Tag {
+        if self.is_full_width() {
+            tag
+        } else {
+            tag.maybe_set_style("width", self.get_content_width())
         }
-        res
     }
 
-    fn get_style_table(&self) -> Style {
-        let mut res = Style::new();
-        if self.is_full_width() {
-            res.set("min-width", "100%");
-            res.set("max-width", "100%");
-            res.maybe_set("width", self.get_content_width());
-        }
-        res.set("border-collapse", "collapse");
-        res.set("border-spacing", "0px");
-        res
+    fn set_style_table(&self, tag: Tag) -> Tag {
+        let tag = if self.is_full_width() {
+            tag.set_style("min-width", "100%")
+                .set_style("max-width", "100%")
+                .maybe_set_style("width", self.get_content_width())
+        } else {
+            tag
+        };
+        tag.set_style("border-collapse", "collapse")
+            .set_style("border-spacing", "0px")
     }
 
     fn render_image(&self) -> String {
-        Tag::new("img")
+        let img = Tag::new("img")
             .maybe_set_attribute("alt", self.get_attribute("alt"))
             .set_attribute(
                 "height",
@@ -107,14 +107,13 @@ impl MJImage {
             )
             .maybe_set_attribute("src", self.get_attribute("src"))
             .maybe_set_attribute("srcset", self.get_attribute("srcset"))
-            .insert_style(self.get_style_img().inner())
             .maybe_set_attribute("title", self.get_attribute("title"))
             .maybe_set_attribute(
                 "width",
                 self.get_content_width().and_then(|size| Some(size.value())),
             )
-            .maybe_set_attribute("usemap", self.get_attribute("usemap"))
-            .closed()
+            .maybe_set_attribute("usemap", self.get_attribute("usemap"));
+        self.set_style_img(img).closed()
     }
 
     fn render_link(&self) -> String {
@@ -157,12 +156,12 @@ impl Component for MJImage {
                 Some("mj-full-width-mobile")
             } else {
                 None
-            })
-            .insert_style(self.get_style_table().inner());
+            });
+        let table = self.set_style_table(table);
         let tbody = Tag::new("tbody");
         let tr = Tag::new("tr");
-        let td = Tag::new("td")
-            .insert_style(self.get_style_td().inner())
+        let td = self
+            .set_style_td(Tag::new("td"))
             .maybe_set_class(if self.is_fluid_on_mobile() {
                 Some("mj-full-width-mobile")
             } else {
@@ -197,12 +196,12 @@ impl ComponentWithAttributes for MJImage {
 }
 
 impl BodyComponent for MJImage {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "img" => self.get_style_img(),
-            "td" => self.get_style_td(),
-            "table" => self.get_style_table(),
-            _ => Style::new(),
+            "img" => self.set_style_img(tag),
+            "td" => self.set_style_td(tag),
+            "table" => self.set_style_table(tag),
+            _ => tag,
         }
     }
 }

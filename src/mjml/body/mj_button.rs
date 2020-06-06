@@ -2,8 +2,7 @@ use super::BodyElement;
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::prelude::*;
-use crate::util::{Context, Header, Size, Style, Tag};
+use crate::util::{Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -37,54 +36,48 @@ impl MJButton {
         Ok(res)
     }
 
-    fn get_style_table(&self) -> Style {
-        let mut res = Style::new();
-        res.set("border-collapse", "separate");
-        res.maybe_set("width", self.get_attribute("width"));
-        res.set("line-height", "100%");
-        res
+    fn set_style_table(&self, tag: Tag) -> Tag {
+        tag.set_style("border-collapse", "separate")
+            .maybe_set_style("width", self.get_attribute("width"))
+            .set_style("line-height", "100%")
     }
 
-    fn get_style_td(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("background", self.get_attribute("background-color"));
-        res.maybe_set("border", self.get_attribute("border"));
-        res.maybe_set("border-top", self.get_attribute("border-top"));
-        res.maybe_set("border-right", self.get_attribute("border-right"));
-        res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
-        res.maybe_set("border-left", self.get_attribute("border-left"));
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res.set("cursor", "auto");
-        res.maybe_set("font-style", self.get_attribute("font-style"));
-        res.maybe_set("height", self.get_attribute("height"));
-        res.maybe_set("mso-padding-alt", self.get_attribute("inner-padding"));
-        res.maybe_set("text-align", self.get_attribute("text-align"));
-        res
+    fn set_style_td(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("background", self.get_attribute("background-color"))
+            .maybe_set_style("border", self.get_attribute("border"))
+            .maybe_set_style("border-top", self.get_attribute("border-top"))
+            .maybe_set_style("border-right", self.get_attribute("border-right"))
+            .maybe_set_style("border-bottom", self.get_attribute("border-bottom"))
+            .maybe_set_style("border-left", self.get_attribute("border-left"))
+            .maybe_set_style("border-radius", self.get_attribute("border-radius"))
+            .set_style("cursor", "auto")
+            .maybe_set_style("font-style", self.get_attribute("font-style"))
+            .maybe_set_style("height", self.get_attribute("height"))
+            .maybe_set_style("mso-padding-alt", self.get_attribute("inner-padding"))
+            .maybe_set_style("text-align", self.get_attribute("text-align"))
     }
 
-    fn get_style_content(&self) -> Style {
-        let mut res = Style::new();
-        res.set("display", "inline-block");
-        res.maybe_set(
-            "width",
-            self.get_size_attribute("width")
-                .and_then(|value| self.calculate_a_width(Some(value))),
-        );
-        res.maybe_set("background", self.get_attribute("background-color"));
-        res.maybe_set("color", self.get_attribute("color"));
-        res.maybe_set("font-family", self.get_attribute("font-family"));
-        res.maybe_set("font-size", self.get_attribute("font-size"));
-        res.maybe_set("font-style", self.get_attribute("font-style"));
-        res.maybe_set("font-weight", self.get_attribute("font-weight"));
-        res.maybe_set("line-height", self.get_attribute("line-height"));
-        res.maybe_set("line-spacing", self.get_attribute("line-spacing"));
-        res.set("margin", "0");
-        res.maybe_set("text-decoration", self.get_attribute("text-decoration"));
-        res.maybe_set("text-transform", self.get_attribute("text-transform"));
-        res.maybe_set("padding", self.get_attribute("inner-padding"));
-        res.set("mso-padding-alt", "0px");
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res
+    fn set_style_content(&self, tag: Tag) -> Tag {
+        tag.set_style("display", "inline-block")
+            .maybe_set_style(
+                "width",
+                self.get_size_attribute("width")
+                    .and_then(|value| self.calculate_a_width(Some(value))),
+            )
+            .maybe_set_style("background", self.get_attribute("background-color"))
+            .maybe_set_style("color", self.get_attribute("color"))
+            .maybe_set_style("font-family", self.get_attribute("font-family"))
+            .maybe_set_style("font-size", self.get_attribute("font-size"))
+            .maybe_set_style("font-style", self.get_attribute("font-style"))
+            .maybe_set_style("font-weight", self.get_attribute("font-weight"))
+            .maybe_set_style("line-height", self.get_attribute("line-height"))
+            .maybe_set_style("line-spacing", self.get_attribute("line-spacing"))
+            .set_style("margin", "0")
+            .maybe_set_style("text-decoration", self.get_attribute("text-decoration"))
+            .maybe_set_style("text-transform", self.get_attribute("text-transform"))
+            .maybe_set_style("padding", self.get_attribute("inner-padding"))
+            .set_style("mso-padding-alt", "0px")
+            .maybe_set_style("border-radius", self.get_attribute("border-radius"))
     }
 
     fn calculate_a_width(&self, width: Option<Size>) -> Option<Size> {
@@ -122,18 +115,13 @@ impl Component for MJButton {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let table = Tag::new("table")
-            .set_attribute("border", 0)
-            .set_attribute("cellpadding", 0)
-            .set_attribute("cellspacing", 0)
-            .set_attribute("role", "presentation")
-            .insert_style(self.get_style_table().inner());
-        let tr = Tag::new("tr");
-        let td = Tag::new("td")
+        let table = self.set_style_table(Tag::table_presentation());
+        let tr = Tag::tr();
+        let td = self
+            .set_style_td(Tag::td())
             .set_attribute("align", "center")
             .maybe_set_attribute("bgcolor", self.get_attribute("background-color"))
             .set_attribute("role", "presentation")
-            .insert_style(self.get_style_td().inner())
             .maybe_set_attribute("valign", self.get_attribute("vertical-align"));
         let link = Tag::new(match self.get_attribute("href") {
             Some(_) => "a",
@@ -142,12 +130,12 @@ impl Component for MJButton {
         .maybe_set_attribute("href", self.get_attribute("href"))
         .maybe_set_attribute("rel", self.get_attribute("rel"))
         .maybe_set_attribute("name", self.get_attribute("name"))
-        .insert_style(self.get_style_content().inner())
         .maybe_set_attribute(
             "target",
             self.get_attribute("href")
                 .and_then(|_v| self.get_attribute("target")),
         );
+        let link = self.set_style_content(link);
 
         Ok(table.render(tr.render(td.render(link.render(self.get_content(header)?)))))
     }
@@ -182,12 +170,12 @@ impl ComponentWithAttributes for MJButton {
 }
 
 impl BodyComponent for MJButton {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "table" => self.get_style_table(),
-            "td" => self.get_style_td(),
-            "content" => self.get_style_content(),
-            _ => Style::new(),
+            "table" => self.set_style_table(tag),
+            "td" => self.set_style_td(tag),
+            "content" => self.set_style_content(tag),
+            _ => tag,
         }
     }
 }

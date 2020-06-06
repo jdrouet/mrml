@@ -2,8 +2,7 @@ use super::prelude::*;
 use super::BodyElement;
 use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
-use crate::util::prelude::*;
-use crate::util::{Context, Header, Style, Tag};
+use crate::util::{Context, Header, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -40,10 +39,8 @@ impl MJBody {
         })
     }
 
-    fn get_style_body(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("background-color", self.get_attribute("background-color"));
-        res
+    fn set_style_body(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("background-color", self.get_attribute("background-color"))
     }
 
     pub fn render_preview(&self, header: &Header) -> String {
@@ -104,14 +101,14 @@ impl Component for MJBody {
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         debug!("render");
-        let body = Tag::new("body").insert_style(self.get_style_body().inner());
+        let body = self.set_style_body(Tag::new("body"));
         let mut res: Vec<String> = vec![];
         res.push(body.open());
         res.push(self.render_preview(&header));
         if self.exists {
-            let div = Tag::new("div")
-                .maybe_set_class(self.get_attribute("css-class"))
-                .insert_style(self.get_style_body().inner());
+            let div = self
+                .set_style_body(Tag::new("div"))
+                .maybe_set_class(self.get_attribute("css-class"));
             res.push(div.open());
             for child in self.children.iter() {
                 res.push(child.render(header)?);
@@ -138,10 +135,10 @@ impl ComponentWithAttributes for MJBody {
 }
 
 impl BodyComponent for MJBody {
-    fn get_style(&self, key: &str) -> Style {
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
         match key {
-            "body" | "div" => self.get_style_body(),
-            _ => Style::new(),
+            "body" | "div" => self.set_style_body(tag),
+            _ => tag,
         }
     }
 }
