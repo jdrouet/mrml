@@ -3,7 +3,6 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::*;
 use crate::util::{Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
@@ -257,14 +256,14 @@ impl Component for MJHero {
 
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
-        let sibling = self.get_siblings();
-        let raw_sibling = self.get_raw_siblings();
-        let container_width = self.get_container_width();
+        let child_base = Context::new(
+            self.get_container_width(),
+            self.get_siblings(),
+            self.get_raw_siblings(),
+            0,
+        );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            let mut child_ctx =
-                Context::from(&ctx, container_width.clone(), sibling, raw_sibling, idx);
-            child_ctx.set("index", idx);
-            child.set_context(child_ctx);
+            child.set_context(child_base.clone().set_index(idx));
         }
     }
 
