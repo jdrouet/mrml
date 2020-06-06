@@ -2,8 +2,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::raw::RawElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::prelude::*;
-use crate::util::{Context, Header, Style, Tag};
+use crate::util::{Context, Header, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -29,16 +28,14 @@ impl MJTable {
         })
     }
 
-    fn get_style_table(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("border", self.get_attribute("border"));
-        res.maybe_set("color", self.get_attribute("color"));
-        res.maybe_set("font-family", self.get_attribute("font-family"));
-        res.maybe_set("font-size", self.get_attribute("font-size"));
-        res.maybe_set("line-height", self.get_attribute("line-height"));
-        res.maybe_set("table-layout", self.get_attribute("table-layout"));
-        res.maybe_set("width", self.get_attribute("width"));
-        res
+    fn set_style_table(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("border", self.get_attribute("border"))
+            .maybe_set_style("color", self.get_attribute("color"))
+            .maybe_set_style("font-family", self.get_attribute("font-family"))
+            .maybe_set_style("font-size", self.get_attribute("font-size"))
+            .maybe_set_style("line-height", self.get_attribute("line-height"))
+            .maybe_set_style("table-layout", self.get_attribute("table-layout"))
+            .maybe_set_style("width", self.get_attribute("width"))
     }
 }
 
@@ -60,11 +57,11 @@ impl Component for MJTable {
         for child in self.children.iter() {
             res.push(child.render(header)?);
         }
-        let table = Tag::new("table")
+        let table = self
+            .set_style_table(Tag::new("table"))
             .set_attribute("border", 0)
             .maybe_set_attribute("cellpadding", self.get_attribute("cellpadding"))
             .maybe_set_attribute("cellspacing", self.get_attribute("cellspacing"))
-            .insert_style(self.get_style_table().inner())
             .maybe_set_attribute("width", self.get_attribute("width"));
         Ok(table.render(res.join("")))
     }

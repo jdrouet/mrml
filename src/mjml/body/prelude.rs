@@ -1,10 +1,10 @@
 use crate::mjml::prelude::*;
-use crate::util::{Size, Spacing, Style};
+use crate::util::{Size, Spacing, Tag};
 use regex::Regex;
 
 pub trait BodyComponent: Component {
-    fn get_style(&self, _key: &str) -> Style {
-        Style::new()
+    fn set_style(&self, _key: &str, tag: Tag) -> Tag {
+        tag
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -213,8 +213,7 @@ pub trait BodyComponentWithBoxWidths:
 pub mod tests {
     use super::*;
     use crate::mjml::error::Error;
-    use crate::util::prelude::*;
-    use crate::util::{Context, Header};
+    use crate::util::{Context, Header, Tag};
     use std::collections::HashMap;
 
     struct TestComponent {
@@ -249,7 +248,7 @@ pub mod tests {
             attributes: HashMap::new(),
         };
         assert_eq!(item.default_attribute("nothing"), None);
-        assert_eq!(item.get_style("nothing").is_empty(), true);
+        assert_eq!(item.set_style("nothing", Tag::new("a")).open(), "<a>");
     }
 
     impl BodyComponentWithBorder for TestComponent {}

@@ -3,7 +3,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Style, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -101,65 +101,57 @@ impl MJColumn {
             || self.get_attribute("padding-top").is_some()
     }
 
-    fn get_style_div(&self) -> Style {
-        let mut res = Style::new();
-        res.set("font-size", "0px");
-        res.set("text-align", "left");
-        res.maybe_set("direction", self.get_attribute("direction"));
-        res.set("display", "inline-block");
-        res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-        res.maybe_set("width", self.get_mobile_width());
-        res
+    fn set_style_div(&self, tag: Tag) -> Tag {
+        tag.set_style("font-size", "0px")
+            .set_style("text-align", "left")
+            .maybe_set_style("direction", self.get_attribute("direction"))
+            .set_style("display", "inline-block")
+            .maybe_set_style("vertical-align", self.get_attribute("vertical-align"))
+            .maybe_set_style("width", self.get_mobile_width())
     }
 
-    fn get_style_table_gutter(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("background-color", self.get_attribute("background-color"));
-        res.maybe_set("border", self.get_attribute("border"));
-        res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
-        res.maybe_set("border-left", self.get_attribute("border-left"));
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res.maybe_set("border-right", self.get_attribute("border-right"));
-        res.maybe_set("border-top", self.get_attribute("border-top"));
-        res
+    fn set_style_table_gutter(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("background-color", self.get_attribute("background-color"))
+            .maybe_set_style("border", self.get_attribute("border"))
+            .maybe_set_style("border-bottom", self.get_attribute("border-bottom"))
+            .maybe_set_style("border-left", self.get_attribute("border-left"))
+            .maybe_set_style("border-radius", self.get_attribute("border-radius"))
+            .maybe_set_style("border-right", self.get_attribute("border-right"))
+            .maybe_set_style("border-top", self.get_attribute("border-top"))
     }
 
-    fn get_style_table_simple(&self) -> Style {
-        let mut res = self.get_style_table_gutter();
-        res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-        res
+    fn set_style_table_simple(&self, tag: Tag) -> Tag {
+        self.set_style_table_gutter(tag)
+            .maybe_set_style("vertical-align", self.get_attribute("vertical-align"))
     }
 
-    fn get_style_table(&self) -> Style {
+    fn set_style_table(&self, tag: Tag) -> Tag {
         if self.has_gutter() {
-            self.get_style_table_gutter()
+            self.set_style_table_gutter(tag)
         } else {
-            self.get_style_table_simple()
+            self.set_style_table_simple(tag)
         }
     }
 
-    fn get_style_td_outlook(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-        res.set("width", self.get_width_as_pixel());
-        res
+    fn set_style_td_outlook(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("vertical-align", self.get_attribute("vertical-align"))
+            .set_style("width", self.get_width_as_pixel())
     }
 
-    fn get_style_gutter(&self) -> Style {
-        let mut res = self.get_style_table_simple();
-        res.maybe_set("padding", self.get_attribute("padding"));
-        res.maybe_set("padding-top", self.get_attribute("padding-top"));
-        res.maybe_set("padding-right", self.get_attribute("padding-right"));
-        res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
-        res.maybe_set("padding-left", self.get_attribute("padding-left"));
-        res
+    fn set_style_gutter(&self, tag: Tag) -> Tag {
+        self.set_style_table_simple(tag)
+            .maybe_set_style("padding", self.get_attribute("padding"))
+            .maybe_set_style("padding-top", self.get_attribute("padding-top"))
+            .maybe_set_style("padding-right", self.get_attribute("padding-right"))
+            .maybe_set_style("padding-bottom", self.get_attribute("padding-bottom"))
+            .maybe_set_style("padding-left", self.get_attribute("padding-left"))
     }
 
     fn render_gutter(&self, header: &Header) -> Result<String, Error> {
         let table = Tag::table_presentation().set_attribute("width", "100%");
         let tbody = Tag::tbody();
         let tr = Tag::tr();
-        let td = Tag::td().insert_style(self.get_style_gutter().inner());
+        let td = self.set_style_gutter(Tag::td());
         Ok(table.render(tbody.render(tr.render(td.render(self.render_column(header)?)))))
     }
 
@@ -184,12 +176,12 @@ impl MJColumn {
     }
 
     fn render_column(&self, header: &Header) -> Result<String, Error> {
-        let table = Tag::new("table")
+        let table = self
+            .set_style_table(Tag::new("table"))
             .set_attribute("border", 0)
             .set_attribute("cellpadding", 0)
             .set_attribute("cellspacing", 0)
             .set_attribute("role", "presentation")
-            .insert_style(self.get_style_table().inner())
             .set_attribute("width", "100%");
         let mut res = vec![];
         res.push(table.open());
@@ -235,14 +227,14 @@ impl Component for MJColumn {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        Ok(Tag::new("div")
+        Ok(self
+            .set_style_div(Tag::new("div"))
             .set_class("mj-outlook-group-fix")
             .maybe_set_class(
                 self.get_column_class()
                     .and_then(|(classname, _size)| Some(classname)),
             )
             .maybe_set_class(self.get_attribute("css-class"))
-            .insert_style(self.get_style_div().inner())
             .render(if self.has_gutter() {
                 self.render_gutter(header)?
             } else {
@@ -267,13 +259,13 @@ impl ComponentWithAttributes for MJColumn {
 }
 
 impl BodyComponent for MJColumn {
-    fn get_style(&self, key: &str) -> Style {
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
         match key {
-            "div" => self.get_style_div(),
-            "table" => self.get_style_table(),
-            "td-outlook" => self.get_style_td_outlook(),
-            "gutter" => self.get_style_gutter(),
-            _ => Style::new(),
+            "div" => self.set_style_div(tag),
+            "table" => self.set_style_table(tag),
+            "td-outlook" => self.set_style_td_outlook(tag),
+            "gutter" => self.set_style_gutter(tag),
+            _ => tag,
         }
     }
 

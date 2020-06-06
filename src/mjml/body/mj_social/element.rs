@@ -2,7 +2,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Style, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -262,57 +262,45 @@ impl MJSocialElement {
             .and_then(|net| Some(net.src.clone()))
     }
 
-    fn get_style_img(&self) -> Style {
-        let mut res = Style::new();
-        res.set("display", "block");
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res
+    fn set_style_img(&self, tag: Tag) -> Tag {
+        tag.set_style("display", "block")
+            .maybe_set_style("border-radius", self.get_attribute("border-radius"))
     }
 
-    fn get_style_icon(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("padding", self.get_attribute("icon-padding"));
-        res.set("font-size", "0");
-        res.maybe_set(
-            "height",
-            self.get_icon_height().or_else(|| self.get_icon_size()),
-        );
-        res.set("vertical-align", "middle");
-        res.maybe_set("width", self.get_icon_size());
-        res
+    fn set_style_icon(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("padding", self.get_attribute("icon-padding"))
+            .set_style("font-size", "0")
+            .maybe_set_style(
+                "height",
+                self.get_icon_height().or_else(|| self.get_icon_size()),
+            )
+            .set_style("vertical-align", "middle")
+            .maybe_set_style("width", self.get_icon_size())
     }
 
-    fn get_style_table(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("background", self.get_background_color());
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res.maybe_set("width", self.get_icon_size());
-        res
+    fn set_style_table(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("background", self.get_background_color())
+            .maybe_set_style("border-radius", self.get_attribute("border-radius"))
+            .maybe_set_style("width", self.get_icon_size())
     }
 
-    fn get_style_td(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("padding", self.get_attribute("padding"));
-        res
+    fn set_style_td(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("padding", self.get_attribute("padding"))
     }
 
-    fn get_style_td_text(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("padding", self.get_attribute("text-padding"));
-        res.set("vertical-align", "middle");
-        res
+    fn set_style_td_text(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("padding", self.get_attribute("text-padding"))
+            .set_style("vertical-align", "middle")
     }
 
-    fn get_style_text(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("color", self.get_attribute("color"));
-        res.maybe_set("font-size", self.get_attribute("font-size"));
-        res.maybe_set("font-weight", self.get_attribute("font-weight"));
-        res.maybe_set("font-style", self.get_attribute("font-style"));
-        res.maybe_set("font-family", self.get_attribute("font-family"));
-        res.maybe_set("line-height", self.get_attribute("line-height"));
-        res.maybe_set("text-decoration", self.get_attribute("text-decoration"));
-        res
+    fn set_style_text(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("color", self.get_attribute("color"))
+            .maybe_set_style("font-size", self.get_attribute("font-size"))
+            .maybe_set_style("font-weight", self.get_attribute("font-weight"))
+            .maybe_set_style("font-style", self.get_attribute("font-style"))
+            .maybe_set_style("font-family", self.get_attribute("font-family"))
+            .maybe_set_style("line-height", self.get_attribute("line-height"))
+            .maybe_set_style("text-decoration", self.get_attribute("text-decoration"))
     }
 
     fn get_href(&self) -> Option<String> {
@@ -328,14 +316,15 @@ impl MJSocialElement {
     }
 
     fn render_icon(&self, href: &Option<String>) -> String {
-        let table = Tag::table_presentation().insert_style(self.get_style_table().inner());
+        let table = self.set_style_table(Tag::table_presentation());
         let tr = Tag::tr();
-        let td = Tag::td().insert_style(self.get_style_icon().inner());
+        let td = self.set_style_icon(Tag::td());
         let a = Tag::new("a")
             .maybe_set_attribute("href", href.as_ref())
             .maybe_set_attribute("rel", self.get_attribute("rel"))
             .maybe_set_attribute("target", self.get_attribute("target"));
-        let img = Tag::new("img")
+        let img = self
+            .set_style_img(Tag::new("img"))
             .maybe_set_attribute("alt", self.get_attribute("alt"))
             .maybe_set_attribute("title", self.get_attribute("title"))
             .maybe_set_attribute(
@@ -345,7 +334,6 @@ impl MJSocialElement {
                     .and_then(|size| Some(size.value())),
             )
             .maybe_set_attribute("src", self.get_icon_src())
-            .insert_style(self.get_style_img().inner())
             .maybe_set_attribute(
                 "width",
                 self.get_icon_size().and_then(|size| Some(size.value())),
@@ -359,16 +347,16 @@ impl MJSocialElement {
     }
 
     fn render_text(&self, href: &Option<String>) -> String {
-        let td = Tag::new("td").insert_style(self.get_style_td_text().inner());
+        let td = self.set_style_td_text(Tag::new("td"));
         let wrapper = if href.is_some() {
             Tag::new("a")
                 .maybe_set_attribute("href", href.as_ref())
-                .insert_style(self.get_style_text().inner())
                 .maybe_set_attribute("rel", self.get_attribute("rel"))
                 .maybe_set_attribute("target", self.get_attribute("target"))
         } else {
-            Tag::new("span").insert_style(self.get_style_text().inner())
+            Tag::new("span")
         };
+        let wrapper = self.set_style_text(wrapper);
         td.render(
             wrapper.render(
                 self.content
@@ -396,7 +384,7 @@ impl Component for MJSocialElement {
     fn render(&self, _header: &Header) -> Result<String, Error> {
         let href = self.get_href();
         let tr = Tag::tr().maybe_set_class(self.get_attribute("css-class"));
-        let td = Tag::td().insert_style(self.get_style_td().inner());
+        let td = self.set_style_td(Tag::td());
 
         let mut res = vec![];
         res.push(tr.open());
@@ -432,15 +420,15 @@ impl ComponentWithAttributes for MJSocialElement {
 }
 
 impl BodyComponent for MJSocialElement {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "table" => self.get_style_table(),
-            "td" => self.get_style_td(),
-            "icon" => self.get_style_icon(),
-            "img" => self.get_style_img(),
-            "td-text" => self.get_style_td_text(),
-            "text" => self.get_style_text(),
-            _ => Style::new(),
+            "table" => self.set_style_table(tag),
+            "td" => self.set_style_td(tag),
+            "icon" => self.set_style_icon(tag),
+            "img" => self.set_style_img(tag),
+            "td-text" => self.set_style_td_text(tag),
+            "text" => self.set_style_text(tag),
+            _ => tag,
         }
     }
 }

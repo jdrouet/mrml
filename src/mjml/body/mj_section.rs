@@ -4,7 +4,7 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::*;
-use crate::util::{suffix_css_classes, Context, Header, Size, Style, Tag};
+use crate::util::{suffix_css_classes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -52,74 +52,64 @@ impl MJSection {
         }
     }
 
-    fn get_background_style(&self) -> Style {
-        let mut res = Style::new();
+    fn set_background_style(&self, tag: Tag) -> Tag {
         if self.get_attribute("background-url").is_some() {
-            res.maybe_set("background", self.get_background());
+            tag.maybe_set_style("background", self.get_background())
         } else {
-            res.maybe_set("background", self.get_attribute("background-color"));
-            res.maybe_set("background-color", self.get_attribute("background-color"));
+            tag.maybe_set_style("background", self.get_attribute("background-color"))
+                .maybe_set_style("background-color", self.get_attribute("background-color"))
         }
-        res
     }
 
-    fn get_style_div(&self) -> Style {
-        let mut res = if self.is_full_width() {
-            Style::new()
+    fn set_style_div(&self, tag: Tag) -> Tag {
+        let base = if self.is_full_width() {
+            tag
         } else {
-            self.get_background_style()
+            self.set_background_style(tag)
         };
-        res.set("margin", "0px auto");
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res.maybe_set("max-width", self.get_container_width_str());
-        res
+        base.set_style("margin", "0px auto")
+            .maybe_set_style("border-radius", self.get_attribute("border-radius"))
+            .maybe_set_style("max-width", self.get_container_width())
     }
 
-    fn get_style_inner_div(&self) -> Style {
-        let mut res = Style::new();
-        res.set("line-height", 0);
-        res.set("font-size", 0);
-        res
+    fn set_style_inner_div(&self, tag: Tag) -> Tag {
+        tag.set_style("line-height", 0).set_style("font-size", 0)
     }
 
-    fn get_style_table_full_width(&self) -> Style {
-        let mut res = if self.is_full_width() {
-            self.get_background_style()
+    fn set_style_table_full_width(&self, tag: Tag) -> Tag {
+        let base = if self.is_full_width() {
+            self.set_background_style(tag)
         } else {
-            Style::new()
+            tag
         };
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res.set("width", "100%");
-        res
+        base.maybe_set_style("border-radius", self.get_attribute("border-radius"))
+            .set_style("width", "100%")
     }
 
-    fn get_style_table(&self) -> Style {
-        let mut res = if self.is_full_width() {
-            Style::new()
+    fn set_style_table(&self, tag: Tag) -> Tag {
+        let base = if self.is_full_width() {
+            tag
         } else {
-            self.get_background_style()
+            self.set_background_style(tag)
         };
-        res.maybe_set("border-radius", self.get_attribute("border-radius"));
-        res.set("width", "100%");
-        res
+        base.maybe_set_style("border-radius", self.get_attribute("border-radius"))
+            .set_style("width", "100%")
     }
 
-    fn get_style_td(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("border", self.get_attribute("border"));
-        res.maybe_set("border-bottom", self.get_attribute("border-bottom"));
-        res.maybe_set("border-left", self.get_attribute("border-left"));
-        res.maybe_set("border-right", self.get_attribute("border-right"));
-        res.maybe_set("border-top", self.get_attribute("border-top"));
-        res.maybe_set("direction", self.get_attribute("direction"));
-        res.set("font-size", "0px");
-        res.maybe_set("padding", self.get_attribute("padding"));
-        res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
-        res.maybe_set("padding-left", self.get_attribute("padding-left"));
-        res.maybe_set("padding-right", self.get_attribute("padding-right"));
-        res.maybe_set("padding-top", self.get_attribute("padding-top"));
-        res.maybe_set("text-align", self.get_attribute("text-align"));
-        res
+    fn set_style_td(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("border", self.get_attribute("border"))
+            .maybe_set_style("border-bottom", self.get_attribute("border-bottom"))
+            .maybe_set_style("border-left", self.get_attribute("border-left"))
+            .maybe_set_style("border-right", self.get_attribute("border-right"))
+            .maybe_set_style("border-top", self.get_attribute("border-top"))
+            .maybe_set_style("direction", self.get_attribute("direction"))
+            .set_style("font-size", "0px")
+            .maybe_set_style("padding", self.get_attribute("padding"))
+            .maybe_set_style("padding-bottom", self.get_attribute("padding-bottom"))
+            .maybe_set_style("padding-left", self.get_attribute("padding-left"))
+            .maybe_set_style("padding-right", self.get_attribute("padding-right"))
+            .maybe_set_style("padding-top", self.get_attribute("padding-top"))
+            .maybe_set_style("text-align", self.get_attribute("text-align"))
     }
 
     fn has_background(&self) -> bool {
@@ -170,8 +160,8 @@ impl MJSection {
         let table = Tag::table()
             .set_attribute("align", "center")
             .maybe_set_class(self.get_attribute("css-class"))
-            .maybe_set_attribute("background", self.get_attribute("background-url"))
-            .insert_style(self.get_style_table_full_width().inner());
+            .maybe_set_attribute("background", self.get_attribute("background-url"));
+        let table = self.set_style_table_full_width(table);
         Ok(table.render(Tag::tbody().render(Tag::tr().render(Tag::td().render(content)))))
     }
 
@@ -188,8 +178,8 @@ impl MJSection {
                         .maybe_set_class(suffix_css_classes(
                             child.get_attribute("css-class"),
                             "outlook",
-                        ))
-                        .insert_style(child.get_style("td-outlook").inner());
+                        ));
+                    let td = child.set_style("td-outlook", td);
                     res.push(conditional_tag(td.open()));
                     res.push(child.render(header)?);
                     res.push(conditional_tag(td.close()));
@@ -201,14 +191,13 @@ impl MJSection {
     }
 
     fn render_section(&self, header: &Header) -> Result<String, Error> {
-        let div = Tag::div()
-            .maybe_set_class(if self.is_full_width() {
-                None
-            } else {
-                self.get_attribute("css-class")
-            })
-            .insert_style(self.get_style_div().inner());
-        let inner_div = Tag::div().insert_style(self.get_style_inner_div().inner());
+        let div = Tag::div().maybe_set_class(if self.is_full_width() {
+            None
+        } else {
+            self.get_attribute("css-class")
+        });
+        let div = self.set_style_div(div);
+        let inner_div = self.set_style_inner_div(Tag::div());
         let table = Tag::table()
             .set_attribute("align", "center")
             .maybe_set_attribute(
@@ -218,11 +207,11 @@ impl MJSection {
                 } else {
                     self.get_attribute("background-url")
                 },
-            )
-            .insert_style(self.get_style_table().inner());
+            );
+        let table = self.set_style_table(table);
         let tbody = Tag::tbody();
         let tr = Tag::tr();
-        let td = Tag::td().insert_style(self.get_style_td().inner());
+        let td = self.set_style_td(Tag::td());
         let inner_table = Tag::table();
         let has_bg = self.has_background();
         let mut res = vec![];
@@ -355,14 +344,14 @@ impl ComponentWithAttributes for MJSection {
 }
 
 impl BodyComponent for MJSection {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "div" => self.get_style_div(),
-            "inner-div" => self.get_style_inner_div(),
-            "table-full-width" => self.get_style_table_full_width(),
-            "table" => self.get_style_table(),
-            "td" => self.get_style_td(),
-            _ => Style::new(),
+            "div" => self.set_style_div(tag),
+            "inner-div" => self.set_style_inner_div(tag),
+            "table-full-width" => self.set_style_table_full_width(tag),
+            "table" => self.set_style_table(tag),
+            "td" => self.set_style_td(tag),
+            _ => tag,
         }
     }
 }

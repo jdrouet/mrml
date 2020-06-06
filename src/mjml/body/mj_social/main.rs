@@ -5,7 +5,7 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Style, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -47,10 +47,8 @@ impl MJSocial {
         Ok(result)
     }
 
-    fn get_style_table_vertical(&self) -> Style {
-        let mut res = Style::new();
-        res.set("margin", "0px");
-        res
+    fn set_style_table_vertical(&self, tag: Tag) -> Tag {
+        tag.set_style("margin", "0px")
     }
 
     fn get_children_attributes(&self) -> Attributes {
@@ -104,7 +102,7 @@ impl MJSocial {
     }
 
     fn render_vertical(&self, header: &Header) -> Result<String, Error> {
-        let table = Tag::table_presentation().insert_style(self.get_style_table_vertical().inner());
+        let table = self.set_style_table_vertical(Tag::table_presentation());
         let mut res = vec![];
         for child in self.children.iter() {
             // TODO set child attributes
@@ -171,10 +169,10 @@ impl ComponentWithAttributes for MJSocial {
 }
 
 impl BodyComponent for MJSocial {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "table-vertical" => self.get_style_table_vertical(),
-            _ => Style::new(),
+            "table-vertical" => self.set_style_table_vertical(tag),
+            _ => tag,
         }
     }
 }

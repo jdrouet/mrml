@@ -4,7 +4,7 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Style, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -49,24 +49,20 @@ impl MJGroup {
         })
     }
 
-    fn get_style_div(&self) -> Style {
-        let mut res = Style::new();
-        res.set("font-size", "0");
-        res.set("line-height", "0");
-        res.set("text-align", "left");
-        res.set("display", "inline-block");
-        res.set("width", "100%");
-        res.maybe_set("background-color", self.get_attribute("background-color"));
-        res.maybe_set("direction", self.get_attribute("direction"));
-        res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-        res
+    fn set_style_div(&self, tag: Tag) -> Tag {
+        tag.set_style("font-size", "0")
+            .set_style("line-height", "0")
+            .set_style("text-align", "left")
+            .set_style("display", "inline-block")
+            .set_style("width", "100%")
+            .maybe_set_style("background-color", self.get_attribute("background-color"))
+            .maybe_set_style("direction", self.get_attribute("direction"))
+            .maybe_set_style("vertical-align", self.get_attribute("vertical-align"))
     }
 
-    fn get_style_td_outlook(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("vertical-align", self.get_attribute("vertical-align"));
-        res.maybe_set("width", self.get_width());
-        res
+    fn set_style_td_outlook(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("vertical-align", self.get_attribute("vertical-align"))
+            .maybe_set_style("width", self.get_width())
     }
 
     fn get_parsed_width(&self) -> Size {
@@ -153,11 +149,11 @@ impl Component for MJGroup {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let div = Tag::new("div")
+        let div = self
+            .set_style_div(Tag::new("div"))
             .set_class(self.get_column_class().0)
             .set_class("mj-outlook-group-fix")
-            .maybe_set_class(self.get_attribute("css-class"))
-            .insert_style(self.get_style_div().inner());
+            .maybe_set_class(self.get_attribute("css-class"));
         let table = Tag::table();
         let tr = Tag::new("tr");
         let mut res: Vec<String> = vec![];
@@ -191,11 +187,11 @@ impl ComponentWithAttributes for MJGroup {
 }
 
 impl BodyComponent for MJGroup {
-    fn get_style(&self, key: &str) -> Style {
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
         match key {
-            "div" => self.get_style_div(),
-            "td-outlook" => self.get_style_td_outlook(),
-            _ => Style::new(),
+            "div" => self.set_style_div(tag),
+            "td-outlook" => self.set_style_td_outlook(tag),
+            _ => tag,
         }
     }
 }

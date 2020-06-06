@@ -3,7 +3,7 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::prelude::*;
-use crate::util::{suffix_css_classes, Attributes, Context, Header, Style, Tag};
+use crate::util::{suffix_css_classes, Attributes, Context, Header, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -67,34 +67,30 @@ impl MJNavbarLink {
         Self::parse_link(node, opts, Some(&attrs))
     }
 
-    fn get_style_a(&self) -> Style {
-        let mut res = Style::new();
-        res.set("display", "inline-block");
-        res.maybe_set("color", self.get_attribute("color"));
-        res.maybe_set("font-family", self.get_attribute("font-family"));
-        res.maybe_set("font-size", self.get_attribute("font-size"));
-        res.maybe_set("font-style", self.get_attribute("font-style"));
-        res.maybe_set("font-weight", self.get_attribute("font-weight"));
-        res.maybe_set("letter-spacing", self.get_attribute("letter-spacing"));
-        res.maybe_set("line-height", self.get_attribute("line-height"));
-        res.maybe_set("text-decoration", self.get_attribute("text-decoration"));
-        res.maybe_set("text-transform", self.get_attribute("text-transform"));
-        res.maybe_set("padding", self.get_attribute("padding"));
-        res.maybe_set("padding-top", self.get_attribute("padding-top"));
-        res.maybe_set("padding-right", self.get_attribute("padding-right"));
-        res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
-        res.maybe_set("padding-left", self.get_attribute("padding-left"));
-        res
+    fn set_style_a(&self, tag: Tag) -> Tag {
+        tag.set_style("display", "inline-block")
+            .maybe_set_style("color", self.get_attribute("color"))
+            .maybe_set_style("font-family", self.get_attribute("font-family"))
+            .maybe_set_style("font-size", self.get_attribute("font-size"))
+            .maybe_set_style("font-style", self.get_attribute("font-style"))
+            .maybe_set_style("font-weight", self.get_attribute("font-weight"))
+            .maybe_set_style("letter-spacing", self.get_attribute("letter-spacing"))
+            .maybe_set_style("line-height", self.get_attribute("line-height"))
+            .maybe_set_style("text-decoration", self.get_attribute("text-decoration"))
+            .maybe_set_style("text-transform", self.get_attribute("text-transform"))
+            .maybe_set_style("padding", self.get_attribute("padding"))
+            .maybe_set_style("padding-top", self.get_attribute("padding-top"))
+            .maybe_set_style("padding-right", self.get_attribute("padding-right"))
+            .maybe_set_style("padding-bottom", self.get_attribute("padding-bottom"))
+            .maybe_set_style("padding-left", self.get_attribute("padding-left"))
     }
 
-    fn get_style_td(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("padding", self.get_attribute("padding"));
-        res.maybe_set("padding-top", self.get_attribute("padding-top"));
-        res.maybe_set("padding-right", self.get_attribute("padding-right"));
-        res.maybe_set("padding-bottom", self.get_attribute("padding-bottom"));
-        res.maybe_set("padding-left", self.get_attribute("padding-left"));
-        res
+    fn set_style_td(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("padding", self.get_attribute("padding"))
+            .maybe_set_style("padding-top", self.get_attribute("padding-top"))
+            .maybe_set_style("padding-right", self.get_attribute("padding-right"))
+            .maybe_set_style("padding-bottom", self.get_attribute("padding-bottom"))
+            .maybe_set_style("padding-left", self.get_attribute("padding-left"))
     }
 
     fn get_link(&self) -> Option<String> {
@@ -106,10 +102,10 @@ impl MJNavbarLink {
     }
 
     fn render_content(&self, _header: &Header) -> Result<String, Error> {
-        let link = Tag::new("a")
+        let link = self
+            .set_style_a(Tag::new("a"))
             .set_class("mj-link")
             .maybe_set_class(self.get_attribute("css-class"))
-            .insert_style(self.get_style_a().inner())
             .maybe_set_attribute("href", self.get_link())
             .maybe_set_attribute("rel", self.get_attribute("rel"))
             .maybe_set_attribute("target", self.get_attribute("target"))
@@ -137,8 +133,8 @@ impl Component for MJNavbarLink {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let td = Tag::td()
-            .insert_style(self.get_style_td().inner())
+        let td = self
+            .set_style_td(Tag::td())
             .maybe_set_class(suffix_css_classes(
                 self.get_attribute("css-class"),
                 "outlook",
@@ -174,11 +170,11 @@ impl ComponentWithAttributes for MJNavbarLink {
 }
 
 impl BodyComponent for MJNavbarLink {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "a" => self.get_style_a(),
-            "td" => self.get_style_td(),
-            _ => Style::new(),
+            "a" => self.set_style_a(tag),
+            "td" => self.set_style_td(tag),
+            _ => tag,
         }
     }
 }

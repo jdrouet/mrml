@@ -3,8 +3,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::*;
-use crate::util::{Context, Header, Style, Tag};
+use crate::util::{Context, Header, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -29,20 +28,18 @@ impl MJText {
             children,
         })
     }
-    fn get_style_text(&self) -> Style {
-        let mut res = Style::new();
-        res.maybe_set("font-family", self.get_attribute("font-family"));
-        res.maybe_set("font-size", self.get_attribute("font-size"));
-        res.maybe_set("font-style", self.get_attribute("font-style"));
-        res.maybe_set("font-weight", self.get_attribute("font-weight"));
-        res.maybe_set("letter-spacing", self.get_attribute("letter-spacing"));
-        res.maybe_set("line-height", self.get_attribute("line-height"));
-        res.maybe_set("text-align", self.get_attribute("align"));
-        res.maybe_set("text-decoration", self.get_attribute("text-decoration"));
-        res.maybe_set("text-transform", self.get_attribute("text-transform"));
-        res.maybe_set("color", self.get_attribute("color"));
-        res.maybe_set("height", self.get_attribute("height"));
-        res
+    fn set_style_text(&self, tag: Tag) -> Tag {
+        tag.maybe_set_style("font-family", self.get_attribute("font-family"))
+            .maybe_set_style("font-size", self.get_attribute("font-size"))
+            .maybe_set_style("font-style", self.get_attribute("font-style"))
+            .maybe_set_style("font-weight", self.get_attribute("font-weight"))
+            .maybe_set_style("letter-spacing", self.get_attribute("letter-spacing"))
+            .maybe_set_style("line-height", self.get_attribute("line-height"))
+            .maybe_set_style("text-align", self.get_attribute("align"))
+            .maybe_set_style("text-decoration", self.get_attribute("text-decoration"))
+            .maybe_set_style("text-transform", self.get_attribute("text-transform"))
+            .maybe_set_style("color", self.get_attribute("color"))
+            .maybe_set_style("height", self.get_attribute("height"))
     }
 
     fn render_content(&self, header: &Header) -> Result<String, Error> {
@@ -50,9 +47,7 @@ impl MJText {
         for child in self.children.iter() {
             res.push(child.render(header)?);
         }
-        Ok(Tag::div()
-            .insert_style(self.get_style_text().inner())
-            .render(res.join("")))
+        Ok(self.set_style_text(Tag::div()).render(res.join("")))
     }
 
     fn render_with_height(&self, header: &Header, height: String) -> Result<String, Error> {
@@ -109,10 +104,10 @@ impl ComponentWithAttributes for MJText {
 }
 
 impl BodyComponent for MJText {
-    fn get_style(&self, name: &str) -> Style {
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
-            "text" => self.get_style_text(),
-            _ => Style::new(),
+            "text" => self.set_style_text(tag),
+            _ => tag,
         }
     }
 }
