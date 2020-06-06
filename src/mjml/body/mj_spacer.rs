@@ -2,10 +2,9 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Style};
+use crate::util::prelude::*;
+use crate::util::{Context, Header, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -43,45 +42,25 @@ impl Component for MJSpacer {
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
+        let height = self.get_size_attribute("height");
+        let table = Tag::table();
+        let tr = Tag::tr();
+        let td = Tag::td()
+            .set_style("vertical-align", "top")
+            .maybe_set_style("height", height.clone())
+            .maybe_set_attribute("height", height.and_then(|h| Some(h.value())));
+        let div = Tag::div().insert_style(self.get_style_div().inner());
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation")
-            )
-        ));
-        res.push(open_tag!("tr"));
-        {
-            let height = self.get_size_attribute("height");
-            let mut style = Style::new();
-            style.set("vertical-align", "top");
-            style.maybe_set(
-                "height",
-                height.as_ref().and_then(|size| Some(size.to_string())),
-            );
-            let mut attrs = Attributes::new();
-            attrs.maybe_set(
-                "height",
-                height.as_ref().and_then(|size| Some(size.value())),
-            );
-            attrs.set("style", style);
-            res.push(open_tag!("td", attrs.to_string()));
-        }
+        res.push(table.open());
+        res.push(tr.open());
+        res.push(td.open());
         res.push(END_CONDITIONAL_TAG.into());
-        res.push(open_tag!(
-            "div",
-            to_attributes!(("style", self.get_style_div().to_string()))
-        ));
-        res.push("&nbsp;".into());
-        res.push(close_tag!("div"));
+        res.push(div.render("&nbsp;"));
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
+        res.push(td.close());
+        res.push(tr.close());
+        res.push(table.close());
         res.push(END_CONDITIONAL_TAG.into());
         Ok(res.join(""))
     }

@@ -2,10 +2,9 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::PropertyMap;
-use crate::util::{suffix_css_classes, Attributes, Context, Header, Style};
+use crate::util::prelude::*;
+use crate::util::{suffix_css_classes, Attributes, Context, Header, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -107,26 +106,20 @@ impl MJNavbarLink {
     }
 
     fn render_content(&self, _header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        let mut classes = vec![];
-        classes.push("mj-link".into());
-        if let Some(css_class) = self.get_attribute("css-class") {
-            classes.push(css_class);
-        }
-        let classes = classes.join(" ");
-        let mut attrs = Attributes::new();
-        attrs.set("class", classes);
-        attrs.set("style", self.get_style_a().to_string());
-        attrs.maybe_set("href", self.get_link());
-        attrs.maybe_set("rel", self.get_attribute("rel"));
-        attrs.maybe_set("target", self.get_attribute("target"));
-        attrs.maybe_set("name", self.get_attribute("name"));
-        res.push(open_tag!("a", attrs.to_string()));
-        if let Some(content) = self.content.as_ref() {
-            res.push(content.clone());
-        }
-        res.push(close_tag!("a"));
-        Ok(res.join(""))
+        let link = Tag::new("a")
+            .set_class("mj-link")
+            .maybe_set_class(self.get_attribute("css-class"))
+            .insert_style(self.get_style_a().inner())
+            .maybe_set_attribute("href", self.get_link())
+            .maybe_set_attribute("rel", self.get_attribute("rel"))
+            .maybe_set_attribute("target", self.get_attribute("target"))
+            .maybe_set_attribute("name", self.get_attribute("name"));
+        Ok(link.render(
+            self.content
+                .as_ref()
+                .and_then(|value| Some(value.as_str()))
+                .unwrap_or(""),
+        ))
     }
 }
 
@@ -144,22 +137,16 @@ impl Component for MJNavbarLink {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
+        let td = Tag::td()
+            .insert_style(self.get_style_td().inner())
+            .maybe_set_class(suffix_css_classes(
+                self.get_attribute("css-class"),
+                "outlook",
+            ));
         let mut res: Vec<String> = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("style", self.get_style_td());
-            attrs.maybe_set(
-                "class",
-                suffix_css_classes(self.get_attribute("css-class"), "outlook"),
-            );
-            res.push(open_tag!("td", attrs.to_string()));
-        }
-        res.push(END_CONDITIONAL_TAG.into());
+        res.push(conditional_tag(td.open()));
         res.push(self.render_content(header)?);
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("td"));
-        res.push(END_CONDITIONAL_TAG.into());
+        res.push(conditional_tag(td.close()));
         Ok(res.join(""))
     }
 }

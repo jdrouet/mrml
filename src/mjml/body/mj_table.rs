@@ -2,10 +2,9 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::raw::RawElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Style};
+use crate::util::prelude::*;
+use crate::util::{Context, Header, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -58,18 +57,16 @@ impl Component for MJTable {
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         let mut res = vec![];
-        let mut attrs = Attributes::new();
-        attrs.set("border", "0");
-        attrs.maybe_set("cellpadding", self.get_size_attribute("cellpadding"));
-        attrs.maybe_set("cellspacing", self.get_size_attribute("cellspacing"));
-        attrs.set("style", self.get_style_table());
-        attrs.maybe_set("width", self.get_size_attribute("width"));
-        res.push(open_tag!("table", attrs.to_string()));
         for child in self.children.iter() {
             res.push(child.render(header)?);
         }
-        res.push(close_tag!("table"));
-        Ok(res.join(""))
+        let table = Tag::new("table")
+            .set_attribute("border", 0)
+            .maybe_set_attribute("cellpadding", self.get_attribute("cellpadding"))
+            .maybe_set_attribute("cellspacing", self.get_attribute("cellspacing"))
+            .insert_style(self.get_style_table().inner())
+            .maybe_set_attribute("width", self.get_attribute("width"));
+        Ok(table.render(res.join("")))
     }
 }
 

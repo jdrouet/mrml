@@ -2,10 +2,9 @@ use super::prelude::*;
 use super::BodyElement;
 use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Style};
+use crate::util::prelude::*;
+use crate::util::{Context, Header, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -52,23 +51,16 @@ impl MJBody {
             Some(value) => value,
             None => return "".into(),
         };
-        let mut style = Style::new();
-        style.set("display", "none");
-        style.set("font-size", "1px");
-        style.set("color", "#ffffff");
-        style.set("line-height", "1px");
-        style.set("max-height", "0px");
-        style.set("max-width", "0px");
-        style.set("opacity", "0");
-        style.set("overflow", "hidden");
-        let mut res = vec![];
-        res.push(open_tag!(
-            "div",
-            to_attributes!(("style", style.to_string()))
-        ));
-        res.push(preview.clone());
-        res.push(close_tag!("div"));
-        res.join("")
+        Tag::new("div")
+            .set_style("display", "none")
+            .set_style("font-size", "1px")
+            .set_style("color", "#ffffff")
+            .set_style("line-height", "1px")
+            .set_style("max-height", "0px")
+            .set_style("max-width", "0px")
+            .set_style("opacity", "0")
+            .set_style("overflow", "hidden")
+            .render(preview)
     }
 }
 
@@ -112,27 +104,21 @@ impl Component for MJBody {
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         debug!("render");
+        let body = Tag::new("body").insert_style(self.get_style_body().inner());
         let mut res: Vec<String> = vec![];
-        {
-            let mut attrs = Attributes::new();
-            let style = self.get_style_body();
-            if !style.is_empty() {
-                attrs.set("style", style.to_string());
-            }
-            res.push(open_tag!("body", attrs.to_string()));
-        }
+        res.push(body.open());
         res.push(self.render_preview(&header));
         if self.exists {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("class", self.get_attribute("css-class"));
-            attrs.set("style", self.get_style_body());
-            res.push(open_tag!("div", attrs.to_string()));
+            let div = Tag::new("div")
+                .maybe_set_class(self.get_attribute("css-class"))
+                .insert_style(self.get_style_body().inner());
+            res.push(div.open());
             for child in self.children.iter() {
                 res.push(child.render(header)?);
             }
-            res.push(close_tag!("div"));
+            res.push(div.close());
         }
-        res.push(close_tag!("body"));
+        res.push(body.close());
         Ok(res.join(""))
     }
 }

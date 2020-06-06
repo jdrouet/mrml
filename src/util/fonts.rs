@@ -1,4 +1,4 @@
-use crate::{open_tag, to_attributes};
+use crate::util::Tag;
 use std::collections::HashMap;
 use std::string::ToString;
 
@@ -8,10 +8,11 @@ pub struct FontRegistry {
 }
 
 pub fn url_to_link(url: &str) -> String {
-    open_tag!(
-        "link",
-        to_attributes!(("href", url), ("rel", "stylesheet"), ("type", "text/css"))
-    )
+    Tag::new("link")
+        .set_attribute("href", url)
+        .set_attribute("rel", "stylesheet")
+        .set_attribute("type", "text/css")
+        .open()
 }
 
 pub fn url_to_import(url: &str) -> String {

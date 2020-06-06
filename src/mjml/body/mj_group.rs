@@ -3,10 +3,9 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::prelude::*;
+use crate::util::{Attributes, Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -92,13 +91,10 @@ impl MJGroup {
     }
 
     fn render_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut style = Style::new();
-            style.maybe_set("align", child.get_attribute("align"));
-            style.maybe_set("vertical-align", child.get_attribute("vertical-align"));
-            style.maybe_set(
+        let td = Tag::new("td")
+            .maybe_set_style("align", child.get_attribute("align"))
+            .maybe_set_style("vertical-align", child.get_attribute("vertical-align"))
+            .maybe_set_style(
                 "width",
                 child.get_width().or_else(|| {
                     child
@@ -106,17 +102,12 @@ impl MJGroup {
                         .and_then(|value| Size::from_str(value.as_str()).ok())
                 }),
             );
-            res.push(open_tag!(
-                "td",
-                to_attributes!(("style", style.to_string()))
-            ));
-        }
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(child.render(header)?);
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("td"));
-        res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
+        Ok(format!(
+            "{}{}{}",
+            conditional_tag(td.open()),
+            child.render(header)?,
+            conditional_tag(td.close())
+        ))
     }
 
     fn render_children(&self, header: &Header) -> Result<String, Error> {
@@ -162,39 +153,25 @@ impl Component for MJGroup {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
+        let div = Tag::new("div")
+            .set_class(self.get_column_class().0)
+            .set_class("mj-outlook-group-fix")
+            .maybe_set_class(self.get_attribute("css-class"))
+            .insert_style(self.get_style_div().inner());
+        let table = Tag::table();
+        let tr = Tag::new("tr");
         let mut res: Vec<String> = vec![];
-        {
-            let mut classnames: Vec<String> = vec![];
-            classnames.push(self.get_column_class().0);
-            classnames.push("mj-outlook-group-fix".into());
-            if let Some(class) = self.get_attribute("css-class") {
-                classnames.push(class);
-            }
-            res.push(open_tag!(
-                "div",
-                to_attributes!(
-                    ("class", classnames.join(" ")),
-                    ("style", self.get_style_div().to_string())
-                )
-            ));
-        }
+        res.push(div.open());
         res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("border", "0");
-            attrs.set("cellpadding", "0");
-            attrs.set("cellspacing", "0");
-            attrs.set("role", "presentation");
-            res.push(open_tag!("table", attrs.to_string()));
-        }
-        res.push(open_tag!("tr"));
+        res.push(table.open());
+        res.push(tr.open());
         res.push(END_CONDITIONAL_TAG.into());
         res.push(self.render_children(header)?);
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
+        res.push(tr.close());
+        res.push(table.close());
         res.push(END_CONDITIONAL_TAG.into());
-        res.push(close_tag!("div"));
+        res.push(div.close());
         Ok(res.join(""))
     }
 }

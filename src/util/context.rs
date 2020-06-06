@@ -1,4 +1,4 @@
-use super::prelude::PropertyMap;
+use super::prelude::*;
 use super::size::Size;
 use std::collections::HashMap;
 
@@ -11,7 +11,7 @@ pub struct Context {
     index: usize,
 }
 
-impl PropertyMap for Context {
+impl Properties for Context {
     fn inner(&self) -> &HashMap<String, String> {
         &self.inner
     }

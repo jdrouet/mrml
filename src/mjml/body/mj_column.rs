@@ -2,10 +2,9 @@ use super::BodyElement;
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::prelude::*;
+use crate::util::{Attributes, Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -157,78 +156,50 @@ impl MJColumn {
     }
 
     fn render_gutter(&self, header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation"),
-                ("width", "100%")
-            )
-        ));
-        res.push(open_tag!("tbody"));
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!(("style", self.get_style_gutter().to_string()))
-        ));
-        res.push(self.render_column(header)?);
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("tbody"));
-        res.push(close_tag!("table"));
-        Ok(res.join(""))
+        let table = Tag::table_presentation().set_attribute("width", "100%");
+        let tbody = Tag::tbody();
+        let tr = Tag::tr();
+        let td = Tag::td().insert_style(self.get_style_gutter().inner());
+        Ok(table.render(tbody.render(tr.render(td.render(self.render_column(header)?)))))
     }
 
     fn render_mj_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
-        let mut res = vec![];
-        res.push(open_tag!("tr"));
-        let mut style = Style::new();
-        style.maybe_set(
-            "background",
-            child.get_attribute("container-background-color"),
-        );
-        style.set("font-size", "0px");
-        style.maybe_set("padding", child.get_attribute("padding"));
-        style.maybe_set("padding-top", child.get_attribute("padding-top"));
-        style.maybe_set("padding-right", child.get_attribute("padding-right"));
-        style.maybe_set("padding-bottom", child.get_attribute("padding-bottom"));
-        style.maybe_set("padding-left", child.get_attribute("padding-left"));
-        style.set("word-break", "break-word");
-        let mut attrs = Attributes::new();
-        attrs.maybe_set("align", child.get_attribute("align"));
-        attrs.maybe_set("vertical-align", child.get_attribute("vertical-align"));
-        attrs.maybe_set("class", child.get_attribute("css-class"));
-        attrs.set("style", style.to_string());
-        res.push(open_tag!("td", attrs.to_string()));
-        res.push(child.render(header)?);
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        Ok(res.join(""))
+        let tr = Tag::new("tr");
+        let td = Tag::new("td")
+            .maybe_set_style(
+                "background",
+                child.get_attribute("container-background-color"),
+            )
+            .set_style("font-size", "0px")
+            .maybe_set_style("padding", child.get_attribute("padding"))
+            .maybe_set_style("padding-top", child.get_attribute("padding-top"))
+            .maybe_set_style("padding-right", child.get_attribute("padding-right"))
+            .maybe_set_style("padding-bottom", child.get_attribute("padding-bottom"))
+            .maybe_set_style("padding-left", child.get_attribute("padding-left"))
+            .set_style("word-break", "break-word")
+            .maybe_set_attribute("align", child.get_attribute("align"))
+            .maybe_set_attribute("vertical-align", child.get_attribute("vertical-align"))
+            .maybe_set_attribute("class", child.get_attribute("css-class"));
+        Ok(tr.render(td.render(child.render(header)?)))
     }
 
     fn render_column(&self, header: &Header) -> Result<String, Error> {
+        let table = Tag::new("table")
+            .set_attribute("border", 0)
+            .set_attribute("cellpadding", 0)
+            .set_attribute("cellspacing", 0)
+            .set_attribute("role", "presentation")
+            .insert_style(self.get_style_table().inner())
+            .set_attribute("width", "100%");
         let mut res = vec![];
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation"),
-                ("style", self.get_style_table().to_string()),
-                ("width", "100%")
-            )
-        ));
+        res.push(table.open());
         for child in self.children.iter() {
             match child {
                 BodyElement::Raw(_) => res.push(child.render(header)?),
                 _ => res.push(self.render_mj_child(header, &child)?),
             };
         }
-        res.push(close_tag!("table"));
+        res.push(table.close());
         Ok(res.join(""))
     }
 }
@@ -264,26 +235,19 @@ impl Component for MJColumn {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let mut classes = vec![];
-        if let Some((classname, _size)) = self.get_column_class() {
-            classes.push(classname);
-        }
-        classes.push("mj-outlook-group-fix".into());
-        if let Some(class) = self.get_attribute("css-class") {
-            classes.push(class.clone());
-        }
-        let mut attrs = Attributes::new();
-        attrs.set("class", classes.join(" "));
-        attrs.set("style", self.get_style_div().to_string());
-        let mut res = vec![];
-        res.push(open_tag!("div", attrs.to_string()));
-        if self.has_gutter() {
-            res.push(self.render_gutter(header)?);
-        } else {
-            res.push(self.render_column(header)?);
-        }
-        res.push(close_tag!("div"));
-        Ok(res.join(""))
+        Ok(Tag::new("div")
+            .set_class("mj-outlook-group-fix")
+            .maybe_set_class(
+                self.get_column_class()
+                    .and_then(|(classname, _size)| Some(classname)),
+            )
+            .maybe_set_class(self.get_attribute("css-class"))
+            .insert_style(self.get_style_div().inner())
+            .render(if self.has_gutter() {
+                self.render_gutter(header)?
+            } else {
+                self.render_column(header)?
+            }))
     }
 }
 

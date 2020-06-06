@@ -4,10 +4,9 @@ use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::prelude::*;
+use crate::util::{Attributes, Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -79,66 +78,39 @@ impl MJSocial {
     }
 
     fn render_horizontal(&self, header: &Header) -> Result<String, Error> {
+        let table =
+            Tag::table_presentation().maybe_set_attribute("align", self.get_attribute("align"));
+        let tr = Tag::tr();
+        let td = Tag::td();
+        let inner_table = Tag::table_presentation()
+            .maybe_set_attribute("align", self.get_attribute("align"))
+            .set_style("display", "inline-table")
+            .set_style("float", "none");
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            attrs.maybe_set("align", self.get_attribute("align"));
-            attrs.set("border", "0");
-            attrs.set("cellpadding", "0");
-            attrs.set("cellspacing", "0");
-            attrs.set("role", "presentation");
-            res.push(open_tag!("table", attrs.to_string()));
-        }
-        res.push(open_tag!("tr"));
+        res.push(table.open());
+        res.push(tr.open());
         res.push(END_CONDITIONAL_TAG.into());
         for child in self.children.iter() {
-            res.push(START_CONDITIONAL_TAG.into());
-            res.push(open_tag!("td"));
-            res.push(END_CONDITIONAL_TAG.into());
-            {
-                let mut attrs = Attributes::new();
-                attrs.maybe_set("align", self.get_attribute("align"));
-                attrs.set("border", "0");
-                attrs.set("cellpadding", "0");
-                attrs.set("cellspacing", "0");
-                attrs.set("role", "presentation");
-                attrs.set("style", "display:inline-table;float:none;");
-                res.push(open_tag!("table", attrs.to_string()));
-            }
-            // TODO set child attributes
-            res.push(child.render(header)?);
-            //
-            res.push(close_tag!("table"));
-            res.push(START_CONDITIONAL_TAG.into());
-            res.push(close_tag!("td"));
-            res.push(END_CONDITIONAL_TAG.into());
+            res.push(conditional_tag(td.open()));
+            res.push(inner_table.render(child.render(header)?));
+            res.push(conditional_tag(td.close()));
         }
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
+        res.push(tr.close());
+        res.push(table.close());
         res.push(END_CONDITIONAL_TAG.into());
         Ok(res.join(""))
     }
 
     fn render_vertical(&self, header: &Header) -> Result<String, Error> {
+        let table = Tag::table_presentation().insert_style(self.get_style_table_vertical().inner());
         let mut res = vec![];
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation"),
-                ("style", self.get_style_table_vertical().to_string())
-            )
-        ));
         for child in self.children.iter() {
             // TODO set child attributes
             res.push(child.render(header)?);
         }
-        res.push(close_tag!("table"));
-        Ok(res.join(""))
+        Ok(table.render(res.join("")))
     }
 }
 

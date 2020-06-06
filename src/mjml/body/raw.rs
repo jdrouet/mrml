@@ -2,10 +2,8 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::BodyElement;
 use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header};
+use crate::util::{Context, Header, Tag};
 use crate::Options;
-use crate::{close_tag, closed_tag, open_tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -126,20 +124,15 @@ impl Component for NodeElement {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let mut attrs = Attributes::new();
-        for (key, value) in self.attributes.iter() {
-            attrs.set(key, value);
-        }
+        let tag = Tag::new(self.tag.as_str()).insert_attributes(&self.attributes);
         if self.closed_element() {
-            Ok(closed_tag!(self.tag, attrs.to_string()))
+            Ok(tag.closed())
         } else {
             let mut res = vec![];
-            res.push(open_tag!(self.tag, attrs.to_string()));
             for child in self.children.iter() {
                 res.push(child.render(header)?);
             }
-            res.push(close_tag!(self.tag));
-            Ok(res.join(""))
+            Ok(tag.render(res.join("")))
         }
     }
 }

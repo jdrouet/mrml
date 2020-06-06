@@ -2,10 +2,9 @@ use super::BodyElement;
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::prelude::*;
+use crate::util::{Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -123,46 +122,34 @@ impl Component for MJButton {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("role", "presentation"),
-                ("style", self.get_style_table().to_string())
-            )
-        ));
-        res.push(open_tag!("tr"));
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("align", "center");
-            attrs.maybe_set("bgcolor", self.get_attribute("background-color"));
-            attrs.set("role", "presentation");
-            attrs.set("style", self.get_style_td());
-            attrs.maybe_set("valign", self.get_attribute("vertical-align"));
-            res.push(open_tag!("td", attrs.to_string()));
-        }
-        let tag_name = match self.get_attribute("href") {
+        let table = Tag::new("table")
+            .set_attribute("border", 0)
+            .set_attribute("cellpadding", 0)
+            .set_attribute("cellspacing", 0)
+            .set_attribute("role", "presentation")
+            .insert_style(self.get_style_table().inner());
+        let tr = Tag::new("tr");
+        let td = Tag::new("td")
+            .set_attribute("align", "center")
+            .maybe_set_attribute("bgcolor", self.get_attribute("background-color"))
+            .set_attribute("role", "presentation")
+            .insert_style(self.get_style_td().inner())
+            .maybe_set_attribute("valign", self.get_attribute("vertical-align"));
+        let link = Tag::new(match self.get_attribute("href") {
             Some(_) => "a",
             None => "p",
-        };
-        let mut attrs = Attributes::new();
-        attrs.maybe_set("href", self.get_attribute("href"));
-        attrs.maybe_set("rel", self.get_attribute("rel"));
-        attrs.maybe_set("name", self.get_attribute("name"));
-        attrs.set("style", self.get_style_content());
-        if self.get_attribute("href").is_some() {
-            attrs.maybe_set("target", self.get_attribute("target"));
-        }
-        res.push(open_tag!(tag_name, attrs.to_string()));
-        res.push(self.get_content(header)?);
-        res.push(close_tag!(tag_name));
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
-        Ok(res.join(""))
+        })
+        .maybe_set_attribute("href", self.get_attribute("href"))
+        .maybe_set_attribute("rel", self.get_attribute("rel"))
+        .maybe_set_attribute("name", self.get_attribute("name"))
+        .insert_style(self.get_style_content().inner())
+        .maybe_set_attribute(
+            "target",
+            self.get_attribute("href")
+                .and_then(|_v| self.get_attribute("target")),
+        );
+
+        Ok(table.render(tr.render(td.render(link.render(self.get_content(header)?)))))
     }
 }
 

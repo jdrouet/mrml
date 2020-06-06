@@ -6,7 +6,6 @@ use roxmltree::Document;
 use std::default::Default;
 
 mod error;
-mod macros;
 pub mod mjml;
 pub mod util;
 

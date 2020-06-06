@@ -3,9 +3,8 @@ use crate::mjml::head::prelude::HeadComponent;
 use crate::mjml::prelude::*;
 use crate::mjml::Error;
 use crate::util::fonts::{url_to_import, url_to_link};
-use crate::util::{Context, Header};
+use crate::util::{Context, Header, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes, with_tag};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -127,14 +126,13 @@ impl MJHead {
             ));
         }
         res.push("}".into());
-        with_tag!(
-            "style",
-            to_attributes!(("type", "text/css")),
-            res.join("\n")
-        )
+        Tag::new("style")
+            .set_attribute("type", "text/css")
+            .render(res.join("\n"))
     }
 
     fn get_font_families(&self, header: &Header) -> String {
+        let tag = Tag::new("style").set_attribute("type", "text/css");
         let font_urls = header.get_used_font_families();
         if font_urls.is_empty() {
             return "".into();
@@ -144,11 +142,11 @@ impl MJHead {
         for url in font_urls.iter() {
             res.push(url_to_link(url.as_str()));
         }
-        res.push(open_tag!("style", to_attributes!(("type", "text/css"))));
+        res.push(tag.open());
         for url in font_urls.iter() {
             res.push(url_to_import(url.as_str()));
         }
-        res.push(close_tag!("style"));
+        res.push(tag.close());
         res.push("<!--<![endif]-->".into());
         res.join("")
     }
@@ -156,15 +154,12 @@ impl MJHead {
     fn get_styles(&self, header: &Header) -> String {
         let styles = header.get_styles();
         if styles.is_empty() {
-            return "".into();
+            "".into()
+        } else {
+            Tag::new("style")
+                .set_attribute("type", "text/css")
+                .render(styles.join(""))
         }
-        let mut res = vec![];
-        res.push(open_tag!("style", to_attributes!(("type", "text/css"))));
-        for item in styles.iter() {
-            res.push(item.to_string());
-        }
-        res.push(close_tag!("style"));
-        res.join("")
     }
 }
 
@@ -179,36 +174,35 @@ impl Component for MJHead {
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         debug!("render");
+        let head = Tag::new("head");
         let mut res: Vec<String> = vec![];
-        res.push(open_tag!("head"));
-        res.push(open_tag!("title"));
-        res.push(self.get_title(header));
-        res.push(close_tag!("title"));
+        res.push(head.open());
+        res.push(Tag::new("title").render(self.get_title(header)));
         res.push("<!--[if !mso]><!-- -->".into());
-        res.push(open_tag!(
-            "meta",
-            to_attributes!(("http-equiv", "X-UA-Compatible"), ("content", "IE=edge"))
-        ));
+        res.push(
+            Tag::new("meta")
+                .set_attribute("http-equiv", "X-UA-Compatible")
+                .set_attribute("content", "IE=edge")
+                .open(),
+        );
         res.push("<!--<![endif]-->".into());
-        res.push(open_tag!(
-            "meta",
-            to_attributes!(
-                ("http-equiv", "Content-Type"),
-                ("content", "text/html; charset=UTF-8")
-            )
-        ));
-        res.push(open_tag!(
-            "meta",
-            to_attributes!(
-                ("name", "viewport"),
-                ("content", "width=device-width, initial-scale=1")
-            )
-        ));
+        res.push(
+            Tag::new("meta")
+                .set_attribute("http-equiv", "Content-Type")
+                .set_attribute("content", "text/html; charset=UTF-8")
+                .open(),
+        );
+        res.push(
+            Tag::new("meta")
+                .set_attribute("name", "viewport")
+                .set_attribute("content", "width=device-width, initial-scale=1")
+                .open(),
+        );
         res.push(STYLE_BASE.into());
         res.push(self.get_font_families(header));
         res.push(self.get_media_queries(header));
         res.push(self.get_styles(header));
-        res.push(close_tag!("head"));
+        res.push(head.close());
         Ok(res.join(""))
     }
 }

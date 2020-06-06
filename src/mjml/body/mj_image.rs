@@ -1,10 +1,9 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::prelude::PropertyMap;
-use crate::util::{Attributes, Context, Header, Size, Style};
+use crate::util::prelude::*;
+use crate::util::{Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, closed_tag, open_tag, with_tag};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -98,36 +97,33 @@ impl MJImage {
     }
 
     fn render_image(&self) -> String {
-        let mut attrs = Attributes::new();
-        attrs.maybe_set("alt", self.get_attribute("alt"));
-        match self.get_size_attribute("height") {
-            Some(height) => {
-                attrs.set("height", height.value());
-            }
-            None => {
-                attrs.set("height", "auto");
-            }
-        };
-        attrs.maybe_set("src", self.get_attribute("src"));
-        attrs.maybe_set("srcset", self.get_attribute("srcset"));
-        attrs.set("style", self.get_style_img());
-        attrs.maybe_set("title", self.get_attribute("title"));
-        attrs.maybe_set(
-            "width",
-            self.get_content_width()
-                .and_then(|width| Some(width.value())),
-        );
-        attrs.maybe_set("usemap", self.get_attribute("usemap"));
-        closed_tag!("img", attrs.to_string())
+        Tag::new("img")
+            .maybe_set_attribute("alt", self.get_attribute("alt"))
+            .set_attribute(
+                "height",
+                self.get_size_attribute("height")
+                    .and_then(|size| Some(size.value().to_string()))
+                    .unwrap_or("auto".into()),
+            )
+            .maybe_set_attribute("src", self.get_attribute("src"))
+            .maybe_set_attribute("srcset", self.get_attribute("srcset"))
+            .insert_style(self.get_style_img().inner())
+            .maybe_set_attribute("title", self.get_attribute("title"))
+            .maybe_set_attribute(
+                "width",
+                self.get_content_width().and_then(|size| Some(size.value())),
+            )
+            .maybe_set_attribute("usemap", self.get_attribute("usemap"))
+            .closed()
     }
 
     fn render_link(&self) -> String {
-        let mut attrs = Attributes::new();
-        attrs.maybe_set("href", self.get_attribute("href"));
-        attrs.maybe_set("target", self.get_attribute("target"));
-        attrs.maybe_set("rel", self.get_attribute("rel"));
-        attrs.maybe_set("name", self.get_attribute("name"));
-        with_tag!("a", attrs.to_string(), self.render_image())
+        Tag::new("a")
+            .maybe_set_attribute("href", self.get_attribute("href"))
+            .maybe_set_attribute("name", self.get_attribute("name"))
+            .maybe_set_attribute("rel", self.get_attribute("rel"))
+            .maybe_set_attribute("target", self.get_attribute("target"))
+            .render(self.render_image())
     }
 }
 
@@ -152,39 +148,32 @@ impl Component for MJImage {
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("border", "0");
-            attrs.set("cellpadding", "0");
-            attrs.set("cellspacing", "0");
-            attrs.set("role", "presentation");
-            attrs.set("style", self.get_style_table());
-            if self.is_fluid_on_mobile() {
-                attrs.set("class", "mj-full-width-mobile");
-            }
-            res.push(open_tag!("table", attrs.to_string()));
-        };
-        res.push(open_tag!("tbody"));
-        res.push(open_tag!("tr"));
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("style", self.get_style_td());
-            if self.is_fluid_on_mobile() {
-                attrs.set("class", "mj-full-width-mobile");
-            }
-            res.push(open_tag!("td", attrs.to_string()));
-        };
-        if self.get_attribute("href").is_some() {
-            res.push(self.render_link());
+        let table = Tag::new("table")
+            .set_attribute("border", 0)
+            .set_attribute("cellpadding", 0)
+            .set_attribute("cellspacing", 0)
+            .set_attribute("role", "presentation")
+            .maybe_set_class(if self.is_fluid_on_mobile() {
+                Some("mj-full-width-mobile")
+            } else {
+                None
+            })
+            .insert_style(self.get_style_table().inner());
+        let tbody = Tag::new("tbody");
+        let tr = Tag::new("tr");
+        let td = Tag::new("td")
+            .insert_style(self.get_style_td().inner())
+            .maybe_set_class(if self.is_fluid_on_mobile() {
+                Some("mj-full-width-mobile")
+            } else {
+                None
+            });
+        let content = if self.get_attribute("href").is_some() {
+            self.render_link()
         } else {
-            res.push(self.render_image());
-        }
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("tbody"));
-        res.push(close_tag!("table"));
-        Ok(res.join(""))
+            self.render_image()
+        };
+        Ok(table.render(tbody.render(tr.render(td.render(content)))))
     }
 }
 

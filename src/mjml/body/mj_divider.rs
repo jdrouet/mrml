@@ -1,11 +1,10 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
-use crate::util::prelude::PropertyMap;
-use crate::util::{Context, Header, Size, Style};
+use crate::util::condition::conditional_tag;
+use crate::util::prelude::*;
+use crate::util::{Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -69,31 +68,19 @@ impl MJDivider {
     }
 
     fn render_after(&self) -> String {
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("align", "center"),
-                ("border", "0"),
-                ("cellpadding", "0"),
-                ("cellspacing", "0"),
-                ("style", self.get_style_outlook().to_string()),
-                ("role", "presentation"),
-                ("width", self.get_outlook_width().to_string())
-            )
-        ));
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!(("style", "height:0;line-height:0;"))
-        ));
-        res.push("&nbsp;".into());
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
-        res.push(END_CONDITIONAL_TAG.into());
-        res.join("")
+        let table = Tag::new("table")
+            .set_attribute("align", "center")
+            .set_attribute("border", 0)
+            .set_attribute("cellpadding", 0)
+            .set_attribute("cellspacing", 0)
+            .insert_style(self.get_style_outlook().inner())
+            .set_attribute("role", "presentation")
+            .set_attribute("width", self.get_outlook_width());
+        let tr = Tag::new("tr");
+        let td = Tag::new("td")
+            .set_style("height", 0)
+            .set_style("line-height", 0);
+        conditional_tag(table.render(tr.render(td.render("&nbsp;"))))
     }
 }
 
@@ -108,11 +95,11 @@ impl Component for MJDivider {
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
         let mut res = vec![];
-        res.push(open_tag!(
-            "p",
-            to_attributes!(("style", self.get_style_p().to_string()))
-        ));
-        res.push(close_tag!("p"));
+        res.push(
+            Tag::new("p")
+                .insert_style(self.get_style_p().inner())
+                .render(""),
+        );
         res.push(self.render_after());
         Ok(res.join(""))
     }

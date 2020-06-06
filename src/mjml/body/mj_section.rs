@@ -3,10 +3,9 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::PropertyMap;
-use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Style};
+use crate::util::prelude::*;
+use crate::util::{suffix_css_classes, Context, Header, Size, Style, Tag};
 use crate::Options;
-use crate::{close_tag, closed_tag, open_tag, to_attributes};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -131,221 +130,163 @@ impl MJSection {
         self.attributes.contains_key("full-width")
     }
 
-    fn render_before(&self) -> Result<String, Error> {
+    fn render_wrap(&self, content: String) -> String {
+        let table = Tag::table_borderless()
+            .set_attribute("align", "center")
+            .maybe_set_attribute("width", self.get_container_width_value())
+            .maybe_set_style("width", self.get_container_width())
+            .maybe_set_class(suffix_css_classes(
+                self.get_attribute("css-class"),
+                "outlook",
+            ));
+        let tr = Tag::tr();
+        let td = Tag::td()
+            .set_style("font-size", "0px")
+            .set_style("line-height", "0px")
+            .set_style("mso-line-height-rule", "exactly");
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut attr = Attributes::new();
-            attr.set("align", "center");
-            attr.set("border", "0");
-            attr.set("cellpadding", "0");
-            attr.set("cellspacing", "0");
-            attr.maybe_set(
-                "style",
-                self.get_container_width()
-                    .and_then(|v| Some(format!("width:{};", v.to_string()))),
-            );
-            attr.maybe_set("width", self.get_container_width_value());
-            attr.maybe_set(
-                "class",
-                suffix_css_classes(self.get_attribute("css-class"), "outlook"),
-            );
-            res.push(open_tag!("table", attr.to_string()));
-        };
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!((
-                "style",
-                "font-size:0px;line-height:0px;mso-line-height-rule:exactly;"
-            ))
-        ));
+        res.push(table.open());
+        res.push(tr.open());
+        res.push(td.open());
         res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
-    }
-
-    fn render_after(&self) -> Result<String, Error> {
-        let mut res = vec![];
+        res.push(content);
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("table"));
+        res.push(td.close());
+        res.push(tr.close());
+        res.push(table.close());
         res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
+        res.join("")
     }
 
     fn render_full_width(&self, header: &Header) -> Result<String, Error> {
         let mut content: Vec<String> = vec![];
-        content.push(self.render_before()?);
-        content.push(self.render_section(header)?);
-        content.push(self.render_after()?);
+        content.push(self.render_wrap(self.render_section(header)?));
         let content = if self.has_background() {
             self.render_with_background(content.join(""))?
         } else {
             content.join("")
         };
-        let mut res: Vec<String> = vec![];
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("align", "center");
-            attrs.maybe_set("class", self.get_attribute("css-class"));
-            attrs.maybe_set("background", self.get_attribute("background-url"));
-            attrs.set("border", "0");
-            attrs.set("cellpadding", "0");
-            attrs.set("cellspacing", "0");
-            attrs.set("role", "presentation");
-            attrs.set("style", self.get_style_table_full_width().to_string());
-            res.push(open_tag!("table", attrs.to_string()));
-        };
-        res.push(open_tag!("tbody"));
-        res.push(open_tag!("tr"));
-        res.push(open_tag!("td"));
-        res.push(content);
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("tbody"));
-        res.push(close_tag!("table"));
-        Ok(res.join(""))
+        let table = Tag::table()
+            .set_attribute("align", "center")
+            .maybe_set_class(self.get_attribute("css-class"))
+            .maybe_set_attribute("background", self.get_attribute("background-url"))
+            .insert_style(self.get_style_table_full_width().inner());
+        Ok(table.render(Tag::tbody().render(Tag::tr().render(Tag::td().render(content)))))
     }
 
     fn render_wrapped_children(&self, header: &Header) -> Result<String, Error> {
+        let tr = Tag::tr();
         let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(open_tag!("tr"));
-        res.push(END_CONDITIONAL_TAG.into());
+        res.push(conditional_tag(tr.open()));
         for child in self.children.iter() {
             match child {
                 BodyElement::Raw(element) => res.push(element.render(header)?),
                 _ => {
-                    let mut attrs = Attributes::new();
-                    attrs.maybe_set("align", child.get_attribute("align"));
-                    attrs.maybe_set(
-                        "class",
-                        suffix_css_classes(child.get_attribute("css-class"), "outlook"),
-                    );
-                    attrs.set("style", child.get_style("td-outlook").to_string());
-                    res.push(START_CONDITIONAL_TAG.into());
-                    res.push(open_tag!("td", attrs.to_string()));
-                    res.push(END_CONDITIONAL_TAG.into());
+                    let td = Tag::td()
+                        .maybe_set_attribute("align", child.get_attribute("align"))
+                        .maybe_set_class(suffix_css_classes(
+                            child.get_attribute("css-class"),
+                            "outlook",
+                        ))
+                        .insert_style(child.get_style("td-outlook").inner());
+                    res.push(conditional_tag(td.open()));
                     res.push(child.render(header)?);
-                    res.push(START_CONDITIONAL_TAG.into());
-                    res.push(close_tag!("td"));
-                    res.push(END_CONDITIONAL_TAG.into());
+                    res.push(conditional_tag(td.close()));
                 }
             }
         }
-
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("tr"));
-        res.push(END_CONDITIONAL_TAG.into());
+        res.push(conditional_tag(tr.close()));
         Ok(res.join(""))
     }
 
     fn render_section(&self, header: &Header) -> Result<String, Error> {
+        let div = Tag::div()
+            .maybe_set_class(if self.is_full_width() {
+                None
+            } else {
+                self.get_attribute("css-class")
+            })
+            .insert_style(self.get_style_div().inner());
+        let inner_div = Tag::div().insert_style(self.get_style_inner_div().inner());
+        let table = Tag::table()
+            .set_attribute("align", "center")
+            .maybe_set_attribute(
+                "background",
+                if self.is_full_width() {
+                    None
+                } else {
+                    self.get_attribute("background-url")
+                },
+            )
+            .insert_style(self.get_style_table().inner());
+        let tbody = Tag::tbody();
+        let tr = Tag::tr();
+        let td = Tag::td().insert_style(self.get_style_td().inner());
+        let inner_table = Tag::table();
         let has_bg = self.has_background();
         let mut res = vec![];
-        {
-            let mut attr = Attributes::new();
-            if !self.is_full_width() {
-                attr.maybe_set("class", self.get_attribute("css-class"));
-            }
-            attr.set("style", self.get_style_div().to_string());
-            res.push(open_tag!("div", attr.to_string()));
-        };
+        res.push(div.open());
         if has_bg {
-            res.push(open_tag!(
-                "div",
-                to_attributes!(("style", self.get_style_inner_div().to_string()))
-            ));
+            res.push(inner_div.open());
         }
-        {
-            // TABLE
-            let mut attrs = Attributes::new();
-            attrs.set("align", "center");
-            if !self.is_full_width() {
-                attrs.maybe_set("background", self.get_attribute("background-url"));
-            }
-            attrs.set("border", 0);
-            attrs.set("cellpadding", 0);
-            attrs.set("cellspacing", 0);
-            attrs.set("role", "presentation");
-            attrs.set("style", self.get_style_table());
-            res.push(open_tag!("table", attrs.to_string()));
-        };
-        res.push(open_tag!("tbody"));
-        res.push(open_tag!("tr"));
-        res.push(open_tag!(
-            "td",
-            to_attributes!(("style", self.get_style_td().to_string()))
-        ));
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(open_tag!(
-            "table",
-            to_attributes!(
-                ("border", 0),
-                ("cellpadding", 0),
-                ("cellspacing", 0),
-                ("role", "presentation")
-            )
-        ));
-        res.push(END_CONDITIONAL_TAG.into());
+        res.push(table.open());
+        res.push(tbody.open());
+        res.push(tr.open());
+        res.push(td.open());
+        res.push(conditional_tag(inner_table.open()));
         // renderWrappedChildren()
         res.push(self.render_wrapped_children(header)?);
         //
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("table"));
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(close_tag!("td"));
-        res.push(close_tag!("tr"));
-        res.push(close_tag!("tbody"));
-        res.push(close_tag!("table"));
+        res.push(conditional_tag(inner_table.close()));
+        res.push(td.close());
+        res.push(tr.close());
+        res.push(tbody.close());
+        res.push(table.close());
         if has_bg {
-            res.push(close_tag!("div"));
+            res.push(inner_div.close());
         }
-        res.push(close_tag!("div"));
+        res.push(div.close());
         Ok(res.join(""))
     }
 
     fn render_with_background(&self, content: String) -> Result<String, Error> {
+        let full_width = self.is_full_width();
+        let vrect = Tag::new("v:rect")
+            .maybe_set_attribute(
+                "mso-width-percent",
+                if full_width { Some(1000) } else { None },
+            )
+            .maybe_set_style(
+                "width",
+                if full_width {
+                    None
+                } else {
+                    self.get_container_width()
+                },
+            )
+            .set_attribute("xmlns:v", "urn:schemas-microsoft-com:vml")
+            .set_attribute("fill", "true")
+            .set_attribute("stroke", "false");
+        let vfill = Tag::new("v:fill")
+            .set_attribute("origin", "0.5, 0")
+            .set_attribute("position", "0.5, 0")
+            .maybe_set_attribute("src", self.get_attribute("background-url"))
+            .maybe_set_attribute("color", self.get_attribute("background-color"))
+            .set_attribute("type", "tile");
+        let vtextbox = Tag::new("v:textbox")
+            .set_attribute("inset", "0,0,0,0")
+            .set_style("mso-fit-shape-to-text", "true");
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
-        {
-            let mut attrs = Attributes::new();
-            if self.is_full_width() {
-                attrs.set("mso-width-percent", "1000");
-            } else {
-                attrs.maybe_set(
-                    "style",
-                    self.get_container_width()
-                        .and_then(|width| Some(format!("width:{};", width.to_string()))),
-                );
-            }
-            attrs.set("xmlns:v", "urn:schemas-microsoft-com:vml");
-            attrs.set("fill", "true");
-            attrs.set("stroke", "false");
-            res.push(open_tag!("v:rect", attrs.to_string()));
-        };
-        {
-            let mut attrs = Attributes::new();
-            attrs.set("origin", "0.5, 0");
-            attrs.set("position", "0.5, 0");
-            attrs.maybe_set("src", self.get_attribute("background-url"));
-            attrs.maybe_set("color", self.get_attribute("background-color"));
-            attrs.set("type", "tile");
-            res.push(closed_tag!("v:fill", attrs.to_string()));
-        };
-        res.push(open_tag!(
-            "v:textbox",
-            to_attributes!(
-                ("style", "mso-fit-shape-to-text:true"),
-                ("inset", "0,0,0,0")
-            )
-        ));
+        res.push(vrect.open());
+        res.push(vfill.closed());
+        res.push(vtextbox.open());
         res.push(END_CONDITIONAL_TAG.into());
         res.push(content);
         res.push(START_CONDITIONAL_TAG.into());
-        res.push(close_tag!("v:textbox"));
-        res.push(close_tag!("v:rect"));
+        res.push(vtextbox.close());
+        res.push(vrect.close());
         res.push(END_CONDITIONAL_TAG.into());
         Ok(res.join(""))
     }
@@ -353,15 +294,11 @@ impl MJSection {
     fn render_simple(&self, header: &Header) -> Result<String, Error> {
         let section = self.render_section(header)?;
 
-        let mut res = vec![];
-        res.push(self.render_before()?);
-        if self.has_background() {
-            res.push(self.render_with_background(section)?);
+        Ok(self.render_wrap(if self.has_background() {
+            self.render_with_background(section)?
         } else {
-            res.push(section);
-        }
-        res.push(self.render_after()?);
-        Ok(res.join(""))
+            section
+        }))
     }
 }
 
