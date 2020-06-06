@@ -3,7 +3,6 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::*;
 use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
@@ -134,17 +133,14 @@ impl Component for MJGroup {
 
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
-        let children_ctx = Context::from(
-            &ctx,
+        let child_base = Context::new(
             self.get_current_width(),
             self.get_siblings(),
             self.get_raw_siblings(),
             0,
         );
-        for (idx, item) in self.children.iter_mut().enumerate() {
-            let mut child_ctx = children_ctx.clone();
-            child_ctx.set_index(idx);
-            item.set_context(child_ctx.clone());
+        for (idx, child) in self.children.iter_mut().enumerate() {
+            child.set_context(child_base.clone().set_index(idx));
         }
     }
 

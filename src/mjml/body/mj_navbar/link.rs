@@ -2,7 +2,6 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::prelude::*;
 use crate::util::{suffix_css_classes, Attributes, Context, Header, Tag};
 use crate::Options;
 use log::debug;

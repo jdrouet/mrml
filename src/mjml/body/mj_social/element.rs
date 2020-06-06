@@ -1,7 +1,6 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::prelude::*;
 use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;

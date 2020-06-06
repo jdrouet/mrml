@@ -4,7 +4,6 @@ mod context;
 pub mod fonts;
 mod header;
 mod html;
-pub mod prelude;
 mod size;
 mod spacing;
 
@@ -14,3 +13,9 @@ pub use header::Header;
 pub use html::Tag;
 pub use size::Size;
 pub use spacing::Spacing;
+
+use std::cmp::Ordering;
+
+pub fn sort_by_key<'r, 's>(a: &'r (&String, &String), b: &'s (&String, &String)) -> Ordering {
+    a.0.partial_cmp(&b.0).unwrap()
+}

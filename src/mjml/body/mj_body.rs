@@ -2,7 +2,7 @@ use super::prelude::*;
 use super::BodyElement;
 use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
-use crate::util::{Context, Header, Tag};
+use crate::util::{Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -74,28 +74,14 @@ impl Component for MJBody {
 
     fn set_context(&mut self, ctx: Context) {
         self.context = Some(ctx.clone());
-        //
-        let sibling = self.children.len();
-        let raw_sibling = self
-            .children
-            .iter()
-            .filter(|item| match item {
-                BodyElement::Raw(_) => true,
-                _ => false,
-            })
-            .collect::<Vec<&BodyElement>>()
-            .len();
-        //
-        let container_width = self.get_size_attribute("width");
-        //
+        let child_base = Context::new(
+            self.get_current_width(),
+            self.get_siblings(),
+            self.get_raw_siblings(),
+            0,
+        );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(Context::from(
-                &ctx,
-                container_width.clone(),
-                sibling,
-                raw_sibling,
-                idx,
-            ));
+            child.set_context(child_base.clone().set_index(idx));
         }
     }
 
@@ -140,6 +126,16 @@ impl BodyComponent for MJBody {
             "body" | "div" => self.set_style_body(tag),
             _ => tag,
         }
+    }
+}
+
+impl ComponentWithChildren for MJBody {
+    fn get_current_width(&self) -> Option<Size> {
+        self.get_size_attribute("width")
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
     }
 }
 

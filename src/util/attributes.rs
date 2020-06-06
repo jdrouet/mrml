@@ -1,22 +1,34 @@
-use super::prelude::*;
+use super::sort_by_key;
 use std::collections::HashMap;
 use std::string::ToString;
 
 pub struct Attributes(HashMap<String, String>);
 
-impl Properties for Attributes {
-    fn inner(&self) -> &HashMap<String, String> {
-        &self.0
-    }
-
-    fn inner_mut(&mut self) -> &mut HashMap<String, String> {
-        &mut self.0
-    }
-}
-
 impl Attributes {
     pub fn new() -> Self {
         Self(HashMap::new())
+    }
+
+    pub fn inner(&self) -> &HashMap<String, String> {
+        &self.0
+    }
+
+    pub fn get<K: ToString>(&self, key: K) -> Option<&String> {
+        self.0.get(&key.to_string())
+    }
+
+    pub fn set<K: ToString, V: ToString>(&mut self, key: K, value: V) {
+        self.0.insert(key.to_string(), value.to_string());
+    }
+
+    pub fn maybe_set<K: ToString, V: ToString>(&mut self, key: K, value: Option<V>) {
+        if let Some(content) = value {
+            self.set(key, content);
+        }
+    }
+
+    pub fn entries(&self) -> Vec<(&String, &String)> {
+        self.0.iter().collect()
     }
 }
 

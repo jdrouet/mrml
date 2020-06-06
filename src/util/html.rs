@@ -1,4 +1,4 @@
-use super::prelude::sort_by_key;
+use super::sort_by_key;
 use std::collections::{HashMap, HashSet};
 use std::string::ToString;
 
