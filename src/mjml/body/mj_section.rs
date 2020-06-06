@@ -131,10 +131,7 @@ impl MJSection {
     }
 
     fn render_wrap(&self, content: String) -> String {
-        let table = Tag::new("table")
-            .set_attribute("border", "0")
-            .set_attribute("cellpadding", "0")
-            .set_attribute("cellspacing", "0")
+        let table = Tag::table_borderless()
             .set_attribute("align", "center")
             .maybe_set_attribute("width", self.get_container_width_value())
             .maybe_set_style("width", self.get_container_width())

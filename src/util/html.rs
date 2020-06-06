@@ -147,6 +147,17 @@ impl Tag {
             .set_attribute("role", "presentation")
     }
 
+    pub fn table_borderless() -> Self {
+        Tag::new("table")
+            .set_attribute("border", "0")
+            .set_attribute("cellpadding", "0")
+            .set_attribute("cellspacing", "0")
+    }
+
+    pub fn table_presentation() -> Self {
+        Tag::table_borderless().set_attribute("role", "presentation")
+    }
+
     pub fn tbody() -> Self {
         Tag::new("tbody")
     }
