@@ -7,6 +7,19 @@
 
 This project is a reimplementation of the nice `MJML` markup language in Rust.
 
+## How to use it
+
+```rust
+use mrml;
+
+fn main() {
+    match mrml::to_html("<mjml><mj-body></mj-body></mjml>", mrml::Options::default()) {
+        Ok(content) => println!("{}", content),
+        Err(_) => println!("couldn't convert mjml template"),
+    };
+}
+```
+
 ## Why?
 
 - A `Node` server rendering a mjml template takes more than 30Mo of RAM. In `Rust`, less than 10Mo.
