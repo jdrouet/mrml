@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  mjml-express:
+    build: ../example/mjml-express
+    container_name: mjml-express
+    ports:
+      - 3000:3000
+
+  mrml-actix:
+    build:
+      context: ..
+      dockerfile: example/mrml-actix/Dockerfile
+    container_name: mrml-actix
+    ports:
+      - 3001:3000
