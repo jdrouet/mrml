@@ -5,6 +5,7 @@ workflows:
   workflow:
     jobs:
       - test
+      - bench
 
 jobs:
   test:
@@ -18,3 +19,16 @@ jobs:
           environment:
             BASIC_DIFF: "true"
       - run: bash script/push-coverage.sh
+
+  bench:
+    docker:
+      - image: jdrouet/rust-nightly:buster-slim-dev
+    steps:
+      - checkout
+      - restore_cache:
+          keys: bench-master
+      - run: cargo bench
+      - save_cache:
+          key: "bench-{{ .Branch }}"
+          paths:
+            - target/criterion
