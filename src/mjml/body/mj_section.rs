@@ -17,10 +17,10 @@ pub struct MJSection {
 }
 
 impl MJSection {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJSection, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJSection, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts, None)?);
+            children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJSection {
             attributes: get_node_attributes(&node),

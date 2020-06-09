@@ -11,7 +11,7 @@ pub struct MJStyle {
 }
 
 impl MJStyle {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, _opts: &Options) -> Result<Self, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<Self, Error> {
         let inline = match node.attribute("inline") {
             Some(value) => value == "inline",
             None => false,

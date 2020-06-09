@@ -14,10 +14,10 @@ pub struct MJRaw {
 }
 
 impl MJRaw {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJRaw, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJRaw, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(RawElement::conditional_parse(child, opts, true)?);
+            children.push(RawElement::conditional_parse(&child, opts, true)?);
         }
         Ok(MJRaw {
             context: None,

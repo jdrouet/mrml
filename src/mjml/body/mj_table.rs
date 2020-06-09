@@ -16,10 +16,10 @@ pub struct MJTable {
 }
 
 impl MJTable {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJTable, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJTable, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(RawElement::conditional_parse(child, opts, true)?);
+            children.push(RawElement::conditional_parse(&child, opts, true)?);
         }
         Ok(MJTable {
             attributes: get_node_attributes(&node),

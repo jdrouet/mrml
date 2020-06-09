@@ -19,26 +19,26 @@ pub struct MJMLElement {
     body: MJBody,
 }
 
-fn get_head<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
+fn get_head<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-head" {
-            return MJHead::parse(child, &opts);
+            return MJHead::parse(&child, &opts);
         }
     }
     Ok(MJHead::empty(&opts))
 }
 
-fn get_body<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error> {
+fn get_body<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-body" {
-            return MJBody::parse(child, opts);
+            return MJBody::parse(&child, opts);
         }
     }
     Ok(MJBody::empty(opts))
 }
 
 impl MJMLElement {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJMLElement, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJMLElement, Error> {
         let head = get_head(node, opts)?;
         let body = get_body(node, opts)?;
         let mut element = MJMLElement {

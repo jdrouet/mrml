@@ -72,7 +72,7 @@ impl MJHead {
         }
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
         let children = HeadElement::parse_all(node.children().collect(), opts)?;
         Ok(MJHead {
             options: opts.clone(),

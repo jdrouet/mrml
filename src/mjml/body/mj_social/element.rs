@@ -182,7 +182,7 @@ pub struct MJSocialElement {
 
 impl MJSocialElement {
     pub fn parse_social_child<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         _opts: &Options,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
@@ -221,7 +221,7 @@ impl MJSocialElement {
     }
 
     pub fn parse<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         opts: &Options,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {

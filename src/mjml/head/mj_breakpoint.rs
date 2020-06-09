@@ -10,7 +10,7 @@ pub struct MJBreakpoint {
 }
 
 impl MJBreakpoint {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<Self, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<Self, Error> {
         let value = match node
             .attribute("width")
             .and_then(|attr| attr.parse::<Size>().ok())

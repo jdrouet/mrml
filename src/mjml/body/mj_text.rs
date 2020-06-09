@@ -17,10 +17,10 @@ pub struct MJText {
 }
 
 impl MJText {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJText, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJText, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts, None)?);
+            children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJText {
             attributes: get_node_attributes(&node),

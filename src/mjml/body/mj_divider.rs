@@ -16,7 +16,7 @@ pub struct MJDivider {
 }
 
 impl MJDivider {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJDivider, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJDivider, Error> {
         Ok(MJDivider {
             options: opts.clone(),
             attributes: get_node_attributes(&node),

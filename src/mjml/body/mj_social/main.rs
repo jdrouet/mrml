@@ -18,7 +18,7 @@ pub struct MJSocial {
 }
 
 impl MJSocial {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJSocial, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJSocial, Error> {
         let mut result = MJSocial {
             attributes: get_node_attributes(&node),
             context: None,
@@ -39,7 +39,7 @@ impl MJSocial {
                     tag_name
                 )));
             } else {
-                let element = MJSocialElement::parse_social_child(child, opts, Some(&attrs))?;
+                let element = MJSocialElement::parse_social_child(&child, opts, Some(&attrs))?;
                 result.children.push(BodyElement::MJSocialElement(element));
             }
         }

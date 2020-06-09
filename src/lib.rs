@@ -37,7 +37,7 @@ impl Default for Options {
 pub fn parse(input: &str, options: Options) -> Result<mjml::MJMLElement, Error> {
     let doc = Document::parse(input)?;
     let root = doc.root_element();
-    let element = mjml::parse(root, &options)?;
+    let element = mjml::parse(&root, &options)?;
     Ok(element)
 }
 

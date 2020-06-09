@@ -16,7 +16,7 @@ pub struct MJSpacer {
 }
 
 impl MJSpacer {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJSpacer, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJSpacer, Error> {
         Ok(MJSpacer {
             options: opts.clone(),
             attributes: get_node_attributes(&node),

@@ -19,7 +19,7 @@ pub struct MJGroup {
 
 impl MJGroup {
     pub fn parse<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         opts: &Options,
         _extra: Option<&Attributes>,
     ) -> Result<MJGroup, Error> {
@@ -27,7 +27,7 @@ impl MJGroup {
         let mut attrs = Attributes::new();
         attrs.set("mobile-width", "mobile-width");
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts, Some(&attrs))?);
+            children.push(BodyElement::parse(&child, opts, Some(&attrs))?);
         }
         Ok(MJGroup {
             attributes: get_node_attributes(&node),
