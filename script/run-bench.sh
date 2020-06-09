@@ -1,7 +1,6 @@
 #!/bin/bash
 
-docker-compose -f bench/docker-compose.yml build
-docker-compose -f bench/docker-compose.yml up -d
+docker-compose -f bench/docker-compose.yml up --build -d
 
 cd bench
 
