@@ -17,10 +17,10 @@ pub struct MJWrapper {
 }
 
 impl MJWrapper {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJWrapper, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJWrapper, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts, None)?);
+            children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJWrapper {
             attributes: get_node_attributes(&node),

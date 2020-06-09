@@ -17,7 +17,7 @@ pub struct MJNavbarLink {
 
 impl MJNavbarLink {
     pub fn parse_link<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         _opts: &Options,
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {
@@ -52,7 +52,7 @@ impl MJNavbarLink {
     }
 
     pub fn parse<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         opts: &Options,
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {

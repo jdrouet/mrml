@@ -10,7 +10,7 @@ pub struct MJTitle {
 }
 
 impl MJTitle {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, _opts: &Options) -> Result<Self, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<Self, Error> {
         Ok(Self {
             content: match node.text() {
                 Some(value) => value.to_string(),

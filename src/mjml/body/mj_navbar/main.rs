@@ -19,7 +19,7 @@ pub struct MJNavbar {
 }
 
 impl MJNavbar {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJNavbar, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJNavbar, Error> {
         let mut result = MJNavbar {
             attributes: get_node_attributes(&node),
             context: None,
@@ -41,7 +41,7 @@ impl MJNavbar {
                     tag_name
                 )));
             } else {
-                let element = MJNavbarLink::parse_link(child, opts, Some(&attrs))?;
+                let element = MJNavbarLink::parse_link(&child, opts, Some(&attrs))?;
                 result.children.push(BodyElement::MJNavbarLink(element));
             }
         }

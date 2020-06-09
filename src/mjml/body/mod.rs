@@ -110,7 +110,7 @@ impl BodyComponent for BodyElement {
 
 impl BodyElement {
     pub fn parse<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         opts: &Options,
         extra: Option<&Attributes>,
     ) -> Result<BodyElement, Error> {

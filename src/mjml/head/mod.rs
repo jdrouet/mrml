@@ -40,13 +40,13 @@ impl HeadElement {
         let mut res = vec![];
         for item in nodes {
             if !item.tag_name().name().is_empty() {
-                res.push(HeadElement::parse(item, opts)?);
+                res.push(HeadElement::parse(&item, opts)?);
             }
         }
         Ok(res)
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<HeadElement, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<HeadElement, Error> {
         let tag_name = node.tag_name().name();
         let res = match tag_name {
             "mj-breakpoint" => {

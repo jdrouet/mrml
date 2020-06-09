@@ -12,6 +12,6 @@ use prelude::Component;
 
 pub use mjml::MJMLElement;
 
-pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<mjml::MJMLElement, Error> {
+pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<mjml::MJMLElement, Error> {
     mjml::MJMLElement::parse(node, opts)
 }

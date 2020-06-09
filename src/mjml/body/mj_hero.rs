@@ -17,10 +17,10 @@ pub struct MJHero {
 }
 
 impl MJHero {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJHero, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJHero, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts, None)?);
+            children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJHero {
             attributes: get_node_attributes(&node),

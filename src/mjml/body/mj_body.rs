@@ -26,10 +26,10 @@ impl MJBody {
         }
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(child, opts, None)?);
+            children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJBody {
             attributes: get_node_attributes(&node),

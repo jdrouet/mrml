@@ -15,7 +15,7 @@ pub struct MJImage {
 }
 
 impl MJImage {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<MJImage, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJImage, Error> {
         Ok(MJImage {
             options: opts.clone(),
             attributes: get_node_attributes(&node),

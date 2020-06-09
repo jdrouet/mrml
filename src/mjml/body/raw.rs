@@ -11,7 +11,7 @@ fn empty_str() -> String {
     "".into()
 }
 
-fn get_node_text<'a, 'b>(node: Node<'a, 'b>) -> String {
+fn get_node_text<'a, 'b>(node: &Node<'a, 'b>) -> String {
     node.text()
         .and_then(|txt| Some(txt.to_string()))
         .or_else(|| Some(empty_str()))
@@ -25,7 +25,7 @@ pub struct CommentElement {
 }
 
 impl CommentElement {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<CommentElement, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<CommentElement, Error> {
         Ok(Self {
             options: opts.clone(),
             content: get_node_text(node),
@@ -54,7 +54,7 @@ impl Component for CommentElement {
 pub struct TextElement(String);
 
 impl TextElement {
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, _opts: &Options) -> Result<TextElement, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<TextElement, Error> {
         Ok(Self(get_node_text(node)))
     }
 }
@@ -83,7 +83,7 @@ pub struct NodeElement {
 
 impl NodeElement {
     fn conditional_parse<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         opts: &Options,
         only_raw: bool,
     ) -> Result<NodeElement, Error> {
@@ -95,10 +95,10 @@ impl NodeElement {
         for child in node.children() {
             if only_raw {
                 children.push(BodyElement::Raw(RawElement::conditional_parse(
-                    child, opts, true,
+                    &child, opts, true,
                 )?))
             } else {
-                children.push(BodyElement::parse(child, opts, None)?);
+                children.push(BodyElement::parse(&child, opts, None)?);
             }
         }
         Ok(NodeElement {
@@ -151,16 +151,16 @@ pub enum RawElement {
 }
 
 impl RawElement {
-    fn parse_comment<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<RawElement, Error> {
+    fn parse_comment<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<RawElement, Error> {
         CommentElement::parse(node, opts).and_then(|item| Ok(RawElement::Comment(item)))
     }
 
-    fn parse_text<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<RawElement, Error> {
+    fn parse_text<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<RawElement, Error> {
         TextElement::parse(node, opts).and_then(|item| Ok(RawElement::Text(item)))
     }
 
     fn parse_node<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         opts: &Options,
         only_raw: bool,
     ) -> Result<RawElement, Error> {
@@ -168,12 +168,12 @@ impl RawElement {
             .and_then(|item| Ok(RawElement::Node(item)))
     }
 
-    pub fn parse<'a, 'b>(node: Node<'a, 'b>, opts: &Options) -> Result<RawElement, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<RawElement, Error> {
         RawElement::conditional_parse(node, opts, false)
     }
 
     pub fn conditional_parse<'a, 'b>(
-        node: Node<'a, 'b>,
+        node: &Node<'a, 'b>,
         opts: &Options,
         only_raw: bool,
     ) -> Result<RawElement, Error> {
