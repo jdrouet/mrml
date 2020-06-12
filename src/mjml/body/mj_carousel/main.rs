@@ -4,7 +4,7 @@ use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::{Attributes, Context, Header, Size, Style, Tag};
+use crate::util::{generate_id, Attributes, Context, Header, Size, Style, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -12,6 +12,14 @@ use std::collections::HashMap;
 
 fn repeat(count: usize, value: &str) -> String {
     (0..count).map(|_idx| value).collect::<Vec<_>>().join("")
+}
+
+fn create_id() -> String {
+    if cfg!(test) {
+        "carousel_id".into()
+    } else {
+        generate_id(8)
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -28,7 +36,7 @@ impl MJCarousel {
             attributes: get_node_attributes(&node),
             context: None,
             children: vec![],
-            id: String::from("carousel_id"),
+            id: create_id(),
         };
         let attrs = result.get_children_attributes();
         for child in node.children() {

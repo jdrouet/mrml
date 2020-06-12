@@ -4,7 +4,7 @@ use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::{Attributes, Context, Header, Size, Tag};
+use crate::util::{generate_id, Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
@@ -18,13 +18,21 @@ pub struct MJNavbar {
     id: String,
 }
 
+fn create_id() -> String {
+    if cfg!(test) {
+        "navbar_toggle".into()
+    } else {
+        generate_id(8)
+    }
+}
+
 impl MJNavbar {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJNavbar, Error> {
         let mut result = MJNavbar {
             attributes: get_node_attributes(&node),
             context: None,
             children: vec![],
-            id: String::from("navbar_toggle"),
+            id: create_id(),
         };
         let attrs = result.get_children_attributes();
         for child in node.children() {
