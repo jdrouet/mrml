@@ -58,7 +58,7 @@
     - [x] with vertical-align (default: middle)
     - [x] with width
   - [ ] mj-carousel
-    - [ ] without attributes
+    - [x] without attributes
     - [ ] with align (default: center)
     - [ ] with background-color
     - [ ] with border-radius
@@ -77,7 +77,7 @@
     - [ ] with css-class
     - [ ] with href
     - [ ] with rel
-    - [ ] with src
+    - [x] with src
     - [ ] with target (default: _blank)
     - [ ] with thumbnails-src (default: null)
     - [ ] with title

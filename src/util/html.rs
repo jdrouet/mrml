@@ -181,6 +181,46 @@ impl Tag {
     }
 }
 
+pub struct Style {
+    selectors: Vec<String>,
+    content: Vec<String>,
+}
+
+impl Style {
+    pub fn new() -> Self {
+        Self {
+            selectors: vec![],
+            content: vec![],
+        }
+    }
+
+    pub fn add_content(mut self, value: String) -> Self {
+        self.content.push(value);
+        self
+    }
+
+    pub fn add_str_content(self, value: &str) -> Self {
+        self.add_content(value.to_string())
+    }
+
+    pub fn add_selector(mut self, name: String) -> Self {
+        self.selectors.push(name);
+        self
+    }
+
+    pub fn add_str_selector(self, name: &str) -> Self {
+        self.add_selector(name.to_string())
+    }
+}
+
+impl std::string::ToString for Style {
+    fn to_string(&self) -> String {
+        let selectors = self.selectors.join(",\n");
+        let content = self.content.join("\n");
+        format!("{} {{ {} }}", selectors, content)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

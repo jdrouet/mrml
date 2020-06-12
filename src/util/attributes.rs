@@ -21,10 +21,20 @@ impl Attributes {
         self.0.insert(key.to_string(), value.to_string());
     }
 
+    pub fn add<K: ToString, V: ToString>(mut self, key: K, value: V) -> Self {
+        self.set(key, value);
+        self
+    }
+
     pub fn maybe_set<K: ToString, V: ToString>(&mut self, key: K, value: Option<V>) {
         if let Some(content) = value {
             self.set(key, content);
         }
+    }
+
+    pub fn maybe_add<K: ToString, V: ToString>(mut self, key: K, value: Option<V>) -> Self {
+        self.maybe_set(key, value);
+        self
     }
 
     pub fn entries(&self) -> Vec<(&String, &String)> {
