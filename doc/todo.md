@@ -57,7 +57,29 @@
     - [x] with text-transform
     - [x] with vertical-align (default: middle)
     - [x] with width
-  - [ ] mj-carousel
+  - [x] mj-carousel
+    - [x] without attributes
+    - [x] with align (default: center)
+    - [x] with border-radius
+    - [x] with css-class
+    - [x] with icon-width (default: 44px)
+    - [x] with left-icon (default: https://mjml.io/assets/img/left-arrow.png)
+    - [x] with right-icon (default: https://mjml.io/assets/img/right-arrow.png)
+    - [x] with tb-border (default: none)
+    - [x] with tb-border-radius (default: none)
+    - [x] with tb-hover-border-color (default: none)
+    - [x] with tb-selected-border-color (default: none)
+    - [x] with tb-width (default: null)
+    - [x] with thumbnails
+  - [x] mj-carousel-image
+    - [x] with alt
+    - [x] with css-class
+    - [x] with href
+    - [x] with rel
+    - [x] with src
+    - [x] with target (default: _blank)
+    - [x] with thumbnails-src (default: null)
+    - [x] with title
   - [x] mj-column
     - [x] without attributes
     - [x] with background-color

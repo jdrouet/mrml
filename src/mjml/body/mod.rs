@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 pub mod mj_body;
 pub mod mj_button;
+pub mod mj_carousel;
 pub mod mj_column;
 pub mod mj_divider;
 pub mod mj_group;
@@ -28,6 +29,8 @@ use prelude::BodyComponent;
 #[derive(Clone, Debug)]
 pub enum BodyElement {
     MJButton(mj_button::MJButton),
+    MJCarousel(mj_carousel::MJCarousel),
+    MJCarouselImage(mj_carousel::MJCarouselImage),
     MJColumn(mj_column::MJColumn),
     MJDivider(mj_divider::MJDivider),
     MJGroup(mj_group::MJGroup),
@@ -50,6 +53,8 @@ macro_rules! apply_fn {
     ($root:expr, $func:ident($($args:tt)*)) => {
         match $root {
             BodyElement::MJButton(item) => item.$func($($args)*),
+            BodyElement::MJCarousel(item) => item.$func($($args)*),
+            BodyElement::MJCarouselImage(item) => item.$func($($args)*),
             BodyElement::MJColumn(item) => item.$func($($args)*),
             BodyElement::MJDivider(item) => item.$func($($args)*),
             BodyElement::MJGroup(item) => item.$func($($args)*),
@@ -116,6 +121,10 @@ impl BodyElement {
     ) -> Result<BodyElement, Error> {
         let res = match node.tag_name().name() {
             "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, opts)?),
+            "mj-carousel" => BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(node, opts)?),
+            "mj-carousel-image" => BodyElement::MJCarouselImage(
+                mj_carousel::MJCarouselImage::parse(node, opts, extra)?,
+            ),
             "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, opts, extra)?),
             "mj-divider" => BodyElement::MJDivider(mj_divider::MJDivider::parse(node, opts)?),
             "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, opts, extra)?),

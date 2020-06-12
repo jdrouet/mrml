@@ -1,0 +1,13 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-carousel icon-width="22px" left-icon="https://mjml.io/assets/img/right-arrow.png" right-icon="https://mjml.io/assets/img/left-arrow.png">
+          <mj-carousel-image rel="rel-value" src="https://www.mailjet.com/wp-content/uploads/2016/11/ecommerce-guide.jpg" />
+          <mj-carousel-image src="https://www.mailjet.com/wp-content/uploads/2016/09/3@1x.png" thumbnails-src="https://www.mailjet.com/wp-content/uploads/2016/09/1@1x.png" title="some title" />
+          <mj-carousel-image href="https://jolimail.io" target="_top" src="https://www.mailjet.com/wp-content/uploads/2016/09/1@1x.png" />
+        </mj-carousel>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
