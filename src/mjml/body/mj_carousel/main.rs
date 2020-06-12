@@ -475,11 +475,20 @@ pub mod tests {
             include_str!("../../../../test/mj-carousel.html"),
         );
     }
+
     #[test]
     fn with_align_border_radius_css_class() {
         compare_render(
             include_str!("../../../../test/mj-carousel-align-border-radius-class.mjml"),
             include_str!("../../../../test/mj-carousel-align-border-radius-class.html"),
+        );
+    }
+
+    #[test]
+    fn with_icon() {
+        compare_render(
+            include_str!("../../../../test/mj-carousel-icon.mjml"),
+            include_str!("../../../../test/mj-carousel-icon.html"),
         );
     }
 }
