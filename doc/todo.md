@@ -59,10 +59,9 @@
     - [x] with width
   - [ ] mj-carousel
     - [x] without attributes
-    - [ ] with align (default: center)
-    - [ ] with background-color
-    - [ ] with border-radius
-    - [ ] with css-class
+    - [x] with align (default: center)
+    - [x] with border-radius
+    - [x] with css-class
     - [ ] with icon-width (default: 44px)
     - [ ] with left-icon (default: https://mjml.io/assets/img/left-arrow.png)
     - [ ] with right-icon (default: https://mjml.io/assets/img/right-arrow.png)
@@ -73,9 +72,9 @@
     - [ ] with tb-width (default: null)
     - [ ] with thumbnails
   - [ ] mj-carousel-image
-    - [ ] with alt
-    - [ ] with css-class
-    - [ ] with href
+    - [x] with alt
+    - [x] with css-class
+    - [x] with href
     - [ ] with rel
     - [x] with src
     - [ ] with target (default: _blank)
