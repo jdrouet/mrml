@@ -20,6 +20,7 @@ codecov = { repository = "jdrouet/mrml" }
 
 [dependencies]
 log = "0.4"
+rand = { default-features = false, features = ["std"], version = "0.7" }
 regex = "1"
 roxmltree = "0.11"
 
