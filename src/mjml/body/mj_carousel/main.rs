@@ -67,7 +67,7 @@ impl MJCarousel {
         if count == 0 {
             Size::Raw(0.0)
         } else {
-            self.get_size_attribute("tb_width")
+            self.get_size_attribute("tb-width")
                 .or_else(|| {
                     self.context()
                         .and_then(|ctx| ctx.container_width())
@@ -489,6 +489,14 @@ pub mod tests {
         compare_render(
             include_str!("../../../../test/mj-carousel-icon.mjml"),
             include_str!("../../../../test/mj-carousel-icon.html"),
+        );
+    }
+
+    #[test]
+    fn with_tb() {
+        compare_render(
+            include_str!("../../../../test/mj-carousel-tb.mjml"),
+            include_str!("../../../../test/mj-carousel-tb.html"),
         );
     }
 }
