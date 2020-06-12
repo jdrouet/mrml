@@ -122,7 +122,9 @@ impl BodyElement {
         let res = match node.tag_name().name() {
             "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, opts)?),
             "mj-carousel" => BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(node, opts)?),
-            "mj-carousel-image" => BodyElement::MJCarouselImage(mj_carousel::MJCarouselImage::parse(node, opts, extra)?),
+            "mj-carousel-image" => BodyElement::MJCarouselImage(
+                mj_carousel::MJCarouselImage::parse(node, opts, extra)?,
+            ),
             "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, opts, extra)?),
             "mj-divider" => BodyElement::MJDivider(mj_divider::MJDivider::parse(node, opts)?),
             "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, opts, extra)?),

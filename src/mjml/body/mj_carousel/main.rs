@@ -499,4 +499,12 @@ pub mod tests {
             include_str!("../../../../test/mj-carousel-tb.html"),
         );
     }
+
+    #[test]
+    fn with_thumbnail() {
+        compare_render(
+            include_str!("../../../../test/mj-carousel-thumbnails.mjml"),
+            include_str!("../../../../test/mj-carousel-thumbnails.html"),
+        );
+    }
 }

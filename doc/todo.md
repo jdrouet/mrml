@@ -57,7 +57,7 @@
     - [x] with text-transform
     - [x] with vertical-align (default: middle)
     - [x] with width
-  - [ ] mj-carousel
+  - [x] mj-carousel
     - [x] without attributes
     - [x] with align (default: center)
     - [x] with border-radius
@@ -70,7 +70,7 @@
     - [x] with tb-hover-border-color (default: none)
     - [x] with tb-selected-border-color (default: none)
     - [x] with tb-width (default: null)
-    - [ ] with thumbnails
+    - [x] with thumbnails
   - [x] mj-carousel-image
     - [x] with alt
     - [x] with css-class
