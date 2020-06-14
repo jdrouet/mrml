@@ -32,10 +32,10 @@
     - [x] with width
   - [ ] mj-accordion
     - [x] without attribute
-    - [ ] with border
-    - [ ] with container-background-color
-    - [ ] with css-class
-    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with border
+    - [x] with container-background-color
+    - [x] with css-class
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with icon-align (default: middle)
     - [ ] with icon-height (default: 32px)
     - [ ] with icon-position (default: right)
@@ -44,13 +44,13 @@
     - [ ] with icon-width (default: 32px)
     - [ ] with icon-wrapped-alt (default: +)
     - [ ] with icon-wrapped-url (default: https://i.imgur.com/bIXv1bk.png)
-    - [ ] with padding (default: 10px 25px)
-    - [ ] with padding-(top|right|bottom|left)
+    - [x] with padding (default: 10px 25px)
+    - [x] with padding-(top|right|bottom|left)
   - [ ] mj-accordion-element
     - [x] without attribute
-    - [ ] with background-color
-    - [ ] with css-class
-    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with background-color
+    - [x] with css-class
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with icon-align (default: middle)
     - [ ] with icon-height (default: 32px)
     - [ ] with icon-position (default: right)
@@ -61,18 +61,18 @@
     - [ ] with icon-wrapped-url (default: https://i.imgur.com/bIXv1bk.png)
   - [ ] mj-accordion-title
     - [x] without attribute
-    - [ ] with background-color
-    - [ ] with color
-    - [ ] with css-class
+    - [x] with background-color
+    - [x] with color
+    - [x] with css-class
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)
     - [ ] with padding (default: 16px)
     - [ ] with padding-(top|right|bottom|left)
   - [ ] mj-accordion-text
     - [x] without attribute
-    - [ ] with background-color
-    - [ ] with color
-    - [ ] with css-class
+    - [x] with background-color
+    - [x] with color
+    - [x] with css-class
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
     - [ ] with font-size (default: 13px)
     - [ ] with padding (default: 16px)

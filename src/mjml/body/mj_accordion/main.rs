@@ -190,4 +190,12 @@ pub mod tests {
             include_str!("../../../../test/mj-accordion.html"),
         );
     }
+
+    #[test]
+    fn with_others() {
+        compare_render(
+            include_str!("../../../../test/mj-accordion-other.mjml"),
+            include_str!("../../../../test/mj-accordion-other.html"),
+        );
+    }
 }
