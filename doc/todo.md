@@ -31,7 +31,7 @@
     - [x] with css-class
     - [x] with width
   - [ ] mj-accordion
-    - [ ] without attribute
+    - [x] without attribute
     - [ ] with border
     - [ ] with container-background-color
     - [ ] with css-class
@@ -47,7 +47,7 @@
     - [ ] with padding (default: 10px 25px)
     - [ ] with padding-(top|right|bottom|left)
   - [ ] mj-accordion-element
-    - [ ] without attribute
+    - [x] without attribute
     - [ ] with background-color
     - [ ] with css-class
     - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
@@ -60,7 +60,7 @@
     - [ ] with icon-wrapped-alt (default: +)
     - [ ] with icon-wrapped-url (default: https://i.imgur.com/bIXv1bk.png)
   - [ ] mj-accordion-title
-    - [ ] without attribute
+    - [x] without attribute
     - [ ] with background-color
     - [ ] with color
     - [ ] with css-class
@@ -69,7 +69,7 @@
     - [ ] with padding (default: 16px)
     - [ ] with padding-(top|right|bottom|left)
   - [ ] mj-accordion-text
-    - [ ] without attribute
+    - [x] without attribute
     - [ ] with background-color
     - [ ] with color
     - [ ] with css-class

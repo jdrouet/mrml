@@ -150,7 +150,7 @@ impl Component for MJGroup {
             .set_class(self.get_column_class().0)
             .set_class("mj-outlook-group-fix")
             .maybe_set_class(self.get_attribute("css-class"));
-        let table = Tag::table();
+        let table = Tag::table_presentation();
         let tr = Tag::new("tr");
         let mut res: Vec<String> = vec![];
         res.push(div.open());

@@ -156,7 +156,7 @@ impl MJSection {
         } else {
             content.join("")
         };
-        let table = Tag::table()
+        let table = Tag::table_presentation()
             .set_attribute("align", "center")
             .maybe_set_class(self.get_attribute("css-class"))
             .maybe_set_attribute("background", self.get_attribute("background-url"));
@@ -197,7 +197,7 @@ impl MJSection {
         });
         let div = self.set_style_div(div);
         let inner_div = self.set_style_inner_div(Tag::div());
-        let table = Tag::table()
+        let table = Tag::table_presentation()
             .set_attribute("align", "center")
             .maybe_set_attribute(
                 "background",
@@ -211,7 +211,7 @@ impl MJSection {
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_td(Tag::td());
-        let inner_table = Tag::table();
+        let inner_table = Tag::table_presentation();
         let has_bg = self.has_background();
         let mut res = vec![];
         res.push(div.open());

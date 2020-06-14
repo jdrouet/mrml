@@ -9,6 +9,13 @@ pub fn conditional_tag(input: String) -> String {
     format!("{}{}{}", START_CONDITIONAL_TAG, input, END_CONDITIONAL_TAG)
 }
 
+pub fn negation_conditional_tag(input: String) -> String {
+    format!(
+        "{}{}{}",
+        START_NEGATION_CONDITIONAL_TAG, input, END_NEGATION_CONDITIONAL_TAG
+    )
+}
+
 pub fn mso_conditional_tag(input: String) -> String {
     format!(
         "{}{}{}",
