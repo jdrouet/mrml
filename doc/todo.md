@@ -59,24 +59,24 @@
     - [x] with icon-width (default: 32px)
     - [x] with icon-wrapped-alt (default: +)
     - [x] with icon-wrapped-url (default: https://i.imgur.com/bIXv1bk.png)
-  - [ ] mj-accordion-title
+  - [x] mj-accordion-title
     - [x] without attribute
     - [x] with background-color
     - [x] with color
     - [x] with css-class
-    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
-    - [ ] with font-size (default: 13px)
-    - [ ] with padding (default: 16px)
-    - [ ] with padding-(top|right|bottom|left)
-  - [ ] mj-accordion-text
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with font-size (default: 13px)
+    - [x] with padding (default: 16px)
+    - [x] with padding-(top|right|bottom|left)
+  - [x] mj-accordion-text
     - [x] without attribute
     - [x] with background-color
     - [x] with color
     - [x] with css-class
-    - [ ] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
-    - [ ] with font-size (default: 13px)
-    - [ ] with padding (default: 16px)
-    - [ ] with padding-(top|right|bottom|left)
+    - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
+    - [x] with font-size (default: 13px)
+    - [x] with padding (default: 16px)
+    - [x] with padding-(top|right|bottom|left)
   - [ ] mj-button
     - [x] without attributes
     - [x] documentation example

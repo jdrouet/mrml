@@ -206,4 +206,12 @@ pub mod tests {
             include_str!("../../../../test/mj-accordion-icon.html"),
         );
     }
+
+    #[test]
+    fn with_font_padding() {
+        compare_render(
+            include_str!("../../../../test/mj-accordion-font-padding.mjml"),
+            include_str!("../../../../test/mj-accordion-font-padding.html"),
+        );
+    }
 }
