@@ -1,0 +1,28 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-accordion border="1px solid red" container-background-color="green" css-class="testing-accordion" font-family="Comic" padding="2px" padding-right="3px">
+          <mj-accordion-element background-color="red" css-class="testing-first" font-family="Arial">
+            <mj-accordion-title>Why use an accordion?</mj-accordion-title>
+            <mj-accordion-text>
+              <span>
+                Because emails with a lot of content are most of the time a very bad experience on mobile, mj-accordion comes handy when you want to deliver a lot of information in a concise way.
+              </span>
+            </mj-accordion-text>
+          </mj-accordion-element>
+          <mj-accordion-element>
+            <mj-accordion-title  background-color="orange" color="purple" css-class="testing-title">
+              How it works
+            </mj-accordion-title>
+            <mj-accordion-text  background-color="brown" color="red" css-class="testing-text">
+              <span>
+                Content is stacked into tabs and users can expand them at will. If responsive styles are not supported (mostly on desktop clients), tabs are then expanded and your content is readable at once.
+              </span>
+            </mj-accordion-text>
+          </mj-accordion-element>
+        </mj-accordion>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

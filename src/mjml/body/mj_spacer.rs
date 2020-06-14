@@ -40,7 +40,7 @@ impl Component for MJSpacer {
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
         let height = self.get_size_attribute("height");
-        let table = Tag::table();
+        let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
             .set_style("vertical-align", "top")

@@ -51,7 +51,7 @@ impl MJText {
     }
 
     fn render_with_height(&self, header: &Header, height: String) -> Result<String, Error> {
-        let table = Tag::table();
+        let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
             .set_attribute("height", &height)

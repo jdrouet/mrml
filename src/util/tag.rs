@@ -147,14 +147,10 @@ impl Tag {
 impl Tag {
     pub fn table() -> Self {
         Tag::new("table")
-            .set_attribute("border", "0")
-            .set_attribute("cellpadding", "0")
-            .set_attribute("cellspacing", "0")
-            .set_attribute("role", "presentation")
     }
 
     pub fn table_borderless() -> Self {
-        Tag::new("table")
+        Tag::table()
             .set_attribute("border", "0")
             .set_attribute("cellpadding", "0")
             .set_attribute("cellspacing", "0")

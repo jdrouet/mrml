@@ -1,6 +1,7 @@
 use roxmltree::Node;
 use std::collections::HashMap;
 
+pub mod mj_accordion;
 pub mod mj_body;
 pub mod mj_button;
 pub mod mj_carousel;
@@ -28,6 +29,8 @@ use prelude::BodyComponent;
 
 #[derive(Clone, Debug)]
 pub enum BodyElement {
+    MJAccordion(mj_accordion::MJAccordion),
+    MJAccordionElement(mj_accordion::MJAccordionElement),
     MJButton(mj_button::MJButton),
     MJCarousel(mj_carousel::MJCarousel),
     MJCarouselImage(mj_carousel::MJCarouselImage),
@@ -52,6 +55,8 @@ pub enum BodyElement {
 macro_rules! apply_fn {
     ($root:expr, $func:ident($($args:tt)*)) => {
         match $root {
+            BodyElement::MJAccordion(item) => item.$func($($args)*),
+            BodyElement::MJAccordionElement(item) => item.$func($($args)*),
             BodyElement::MJButton(item) => item.$func($($args)*),
             BodyElement::MJCarousel(item) => item.$func($($args)*),
             BodyElement::MJCarouselImage(item) => item.$func($($args)*),
@@ -120,6 +125,9 @@ impl BodyElement {
         extra: Option<&Attributes>,
     ) -> Result<BodyElement, Error> {
         let res = match node.tag_name().name() {
+            "mj-accordion" => {
+                BodyElement::MJAccordion(mj_accordion::MJAccordion::parse(node, opts)?)
+            }
             "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, opts)?),
             "mj-carousel" => BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(node, opts)?),
             "mj-carousel-image" => BodyElement::MJCarouselImage(
