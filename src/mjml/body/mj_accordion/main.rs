@@ -198,4 +198,12 @@ pub mod tests {
             include_str!("../../../../test/mj-accordion-other.html"),
         );
     }
+
+    #[test]
+    fn with_icon() {
+        compare_render(
+            include_str!("../../../../test/mj-accordion-icon.mjml"),
+            include_str!("../../../../test/mj-accordion-icon.html"),
+        );
+    }
 }

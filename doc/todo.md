@@ -30,35 +30,35 @@
     - [x] with background-color
     - [x] with css-class
     - [x] with width
-  - [ ] mj-accordion
+  - [x] mj-accordion
     - [x] without attribute
     - [x] with border
     - [x] with container-background-color
     - [x] with css-class
     - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
-    - [ ] with icon-align (default: middle)
-    - [ ] with icon-height (default: 32px)
-    - [ ] with icon-position (default: right)
-    - [ ] with icon-unwrapped-alt (default: -)
-    - [ ] with icon-unwrapped-url (default: https://i.imgur.com/w4uTygT.png)
-    - [ ] with icon-width (default: 32px)
-    - [ ] with icon-wrapped-alt (default: +)
-    - [ ] with icon-wrapped-url (default: https://i.imgur.com/bIXv1bk.png)
+    - [x] with icon-align (default: middle)
+    - [x] with icon-height (default: 32px)
+    - [x] with icon-position (default: right)
+    - [x] with icon-unwrapped-alt (default: -)
+    - [x] with icon-unwrapped-url (default: https://i.imgur.com/w4uTygT.png)
+    - [x] with icon-width (default: 32px)
+    - [x] with icon-wrapped-alt (default: +)
+    - [x] with icon-wrapped-url (default: https://i.imgur.com/bIXv1bk.png)
     - [x] with padding (default: 10px 25px)
     - [x] with padding-(top|right|bottom|left)
-  - [ ] mj-accordion-element
+  - [x] mj-accordion-element
     - [x] without attribute
     - [x] with background-color
     - [x] with css-class
     - [x] with font-family (default: Ubuntu, Helvetica, Arial, sans-serif)
-    - [ ] with icon-align (default: middle)
-    - [ ] with icon-height (default: 32px)
-    - [ ] with icon-position (default: right)
-    - [ ] with icon-unwrapped-alt (default: -)
-    - [ ] with icon-unwrapped-url (default: https://i.imgur.com/w4uTygT.png)
-    - [ ] with icon-width (default: 32px)
-    - [ ] with icon-wrapped-alt (default: +)
-    - [ ] with icon-wrapped-url (default: https://i.imgur.com/bIXv1bk.png)
+    - [x] with icon-align (default: middle)
+    - [x] with icon-height (default: 32px)
+    - [x] with icon-position (default: right)
+    - [x] with icon-unwrapped-alt (default: -)
+    - [x] with icon-unwrapped-url (default: https://i.imgur.com/w4uTygT.png)
+    - [x] with icon-width (default: 32px)
+    - [x] with icon-wrapped-alt (default: +)
+    - [x] with icon-wrapped-url (default: https://i.imgur.com/bIXv1bk.png)
   - [ ] mj-accordion-title
     - [x] without attribute
     - [x] with background-color

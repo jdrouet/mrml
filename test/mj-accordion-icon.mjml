@@ -1,0 +1,28 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-accordion icon-align="top" icon-height="30px" icon-width="30px" icon-position="left" icon-wrapped-url="http://wrapped-url" icon-wrapped-alt="w" icon-unwrapped-url="http://unwrapped-url" icon-unwrapped-alt="u">
+          <mj-accordion-element icon-align="bottom" icon-height="28px" icon-width="28px" icon-position="right" icon-wrapped-url="https://wrapped-url" icon-wrapped-alt="a" icon-unwrapped-url="https://unwrapped-url" icon-unwrapped-alt="b">
+            <mj-accordion-title>Why use an accordion?</mj-accordion-title>
+            <mj-accordion-text>
+              <span>
+                Because emails with a lot of content are most of the time a very bad experience on mobile, mj-accordion comes handy when you want to deliver a lot of information in a concise way.
+              </span>
+            </mj-accordion-text>
+          </mj-accordion-element>
+          <mj-accordion-element>
+            <mj-accordion-title>
+              How it works
+            </mj-accordion-title>
+            <mj-accordion-text>
+              <span>
+                Content is stacked into tabs and users can expand them at will. If responsive styles are not supported (mostly on desktop clients), tabs are then expanded and your content is readable at once.
+              </span>
+            </mj-accordion-text>
+          </mj-accordion-element>
+        </mj-accordion>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
