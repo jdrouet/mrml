@@ -60,14 +60,14 @@ impl Header {
         self.styles.insert(style.to_string());
     }
 
-    pub fn maybe_add_font_families(&mut self, font_family_list: Option<String>) {
+    pub fn maybe_add_font_families(&mut self, font_family_list: Option<&String>) {
         match font_family_list {
             Some(value) => self.add_font_families(value),
             None => (),
         }
     }
 
-    pub fn add_font_families(&mut self, font_family_list: String) {
+    pub fn add_font_families(&mut self, font_family_list: &String) {
         let result = font_family_list
             .split(",")
             .map(|v| v.trim().to_string())

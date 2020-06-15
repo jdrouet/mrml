@@ -1,31 +1,30 @@
 use super::prelude::*;
 use crate::mjml::error::Error;
 use crate::util::Header;
-use crate::Options;
 use roxmltree::Node;
 
 #[derive(Clone, Debug)]
 pub struct MJPreview {
-    content: String,
+    content: Option<String>,
 }
 
 impl MJPreview {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<Self, Error> {
-        let content = match node.text() {
-            Some(value) => value.to_string(),
-            None => "".into(),
-        };
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
+        let content = node.text().and_then(|value| Some(value.to_string()));
         Ok(Self { content })
     }
 
     pub fn get_content(&self) -> String {
-        self.content.clone()
+        match self.content.as_ref() {
+            Some(value) => value.to_string(),
+            None => "".into(),
+        }
     }
 }
 
 impl HeadComponent for MJPreview {
     fn update_header(&self, header: &mut Header) {
-        header.set_preview(self.content.clone());
+        header.set_preview(self.get_content());
     }
 }
 

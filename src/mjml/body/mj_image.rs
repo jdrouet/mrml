@@ -1,24 +1,31 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("align", "center")
+        .add("border", "0")
+        .add("height", "auto")
+        .add("padding", "10px 25px")
+        .add("target", "_blank")
+        .add("font-size", "13px")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJImage {
-    options: Options,
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
 }
 
 impl MJImage {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJImage, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<MJImage, Error> {
         Ok(MJImage {
-            options: opts.clone(),
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
         })
     }
@@ -177,21 +184,8 @@ impl Component for MJImage {
 }
 
 impl ComponentWithAttributes for MJImage {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("center".into()),
-            "border" => Some("0".into()),
-            "height" => Some("auto".into()),
-            "padding" => Some("10px 25px".into()),
-            "target" => Some("_blank".into()),
-            "font-size" => Some("13px".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

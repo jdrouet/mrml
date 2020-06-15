@@ -3,10 +3,8 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-// use crate::util::condition::*;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -22,9 +20,24 @@ const CHILDREN_ATTRIBUTES: [&'static str; 9] = [
     "icon-unwrapped-alt",
 ];
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("border", "2px solid black")
+        .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
+        .add("icon-align", "middle")
+        .add("icon-position", "right")
+        .add("icon-height", "32px")
+        .add("icon-width", "32px")
+        .add("icon-wrapped-url", "https://i.imgur.com/bIXv1bk.png")
+        .add("icon-wrapped-alt", "+")
+        .add("icon-unwrapped-url", "https://i.imgur.com/w4uTygT.png")
+        .add("icon-unwrapped-alt", "-")
+        .add("padding", "10px 25px")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJAccordion {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
 }
@@ -32,7 +45,7 @@ pub struct MJAccordion {
 impl MJAccordion {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJAccordion, Error> {
         let mut result = MJAccordion {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children: vec![],
         };
@@ -60,11 +73,11 @@ impl MJAccordion {
         Ok(result)
     }
 
-    fn get_children_attributes(&self) -> HashMap<String, String> {
-        let mut res = HashMap::new();
+    fn get_children_attributes(&self) -> Attributes {
+        let mut res = Attributes::new();
         for key in CHILDREN_ATTRIBUTES.iter() {
             if let Some(value) = self.get_attribute(key) {
-                res.insert(key.to_string(), value.to_string());
+                res.set(key, value);
             }
         }
         res
@@ -137,26 +150,8 @@ impl Component for MJAccordion {
 }
 
 impl ComponentWithAttributes for MJAccordion {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "border" => Some("2px solid black".into()),
-            "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif".into()),
-            "icon-align" => Some("middle".into()),
-            "icon-position" => Some("right".into()),
-            "icon-height" => Some("32px".into()),
-            "icon-width" => Some("32px".into()),
-            "icon-wrapped-url" => Some("https://i.imgur.com/bIXv1bk.png".into()),
-            "icon-wrapped-alt" => Some("+".into()),
-            "icon-unwrapped-url" => Some("https://i.imgur.com/w4uTygT.png".into()),
-            "icon-unwrapped-alt" => Some("-".into()),
-            "padding" => Some("10px 25px".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

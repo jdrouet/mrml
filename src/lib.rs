@@ -63,8 +63,7 @@ pub fn parse(input: &str, options: Options) -> Result<mjml::MJMLElement, Error> 
 /// ```
 pub fn to_title(input: &str, options: Options) -> Result<String, Error> {
     let element = parse(input, options)?;
-    let header = element.get_header();
-    Ok(element.get_title(&header))
+    Ok(element.get_title())
 }
 
 /// generate the preview from mjml
@@ -82,8 +81,7 @@ pub fn to_title(input: &str, options: Options) -> Result<String, Error> {
 /// ```
 pub fn to_preview(input: &str, options: Options) -> Result<String, Error> {
     let element = parse(input, options)?;
-    let header = element.get_header();
-    Ok(element.get_preview(&header))
+    Ok(element.get_preview())
 }
 
 /// generate the html from mjml
@@ -101,8 +99,7 @@ pub fn to_preview(input: &str, options: Options) -> Result<String, Error> {
 /// ```
 pub fn to_html(input: &str, options: Options) -> Result<String, Error> {
     let element = parse(input, options)?;
-    let header = element.get_header();
-    Ok(element.get_html(&header)?)
+    Ok(element.get_html()?)
 }
 
 #[derive(Clone, Debug)]
@@ -137,10 +134,9 @@ pub struct Email {
 /// ```
 pub fn to_email(input: &str, options: Options) -> Result<Email, Error> {
     let element = parse(input, options)?;
-    let header = element.get_header();
-    let subject = element.get_title(&header);
-    let text = element.get_preview(&header);
-    let html = element.get_html(&header)?;
+    let subject = element.get_title();
+    let text = element.get_preview();
+    let html = element.get_html()?;
     Ok(Email {
         subject,
         text,

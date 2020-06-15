@@ -26,21 +26,10 @@ pub trait Component {
 }
 
 pub trait ComponentWithAttributes: Component {
-    fn default_attribute(&self, _key: &str) -> Option<String> {
-        None
-    }
+    fn attributes(&self) -> Option<&HashMap<String, String>>;
 
-    fn source_attributes(&self) -> Option<&HashMap<String, String>>;
-
-    fn get_source_attribute(&self, key: &str) -> Option<String> {
-        self.source_attributes()
-            .and_then(|src| src.get(&key.to_string()))
-            .and_then(|value| Some(value.clone()))
-    }
-
-    fn get_attribute(&self, key: &str) -> Option<String> {
-        self.get_source_attribute(key)
-            .or_else(|| self.default_attribute(key))
+    fn get_attribute(&self, key: &str) -> Option<&String> {
+        self.attributes().and_then(|src| src.get(&key.to_string()))
     }
 }
 
@@ -91,7 +80,7 @@ pub mod tests {
     }
 
     impl ComponentWithAttributes for TestComponent {
-        fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        fn attributes(&self) -> Option<&HashMap<String, String>> {
             Some(&self.attributes)
         }
     }
@@ -104,8 +93,8 @@ pub mod tests {
         };
         assert_eq!(item.context().is_none(), true);
         item.set_context(Context::default());
-        assert_eq!(item.source_attributes(), Some(&item.attributes));
-        assert_eq!(item.default_attribute("nothing"), None);
+        assert_eq!(item.attributes(), Some(&item.attributes));
+        assert_eq!(item.get_attribute("nothing"), None);
         assert_eq!(item.render(&header).unwrap(), "nothing");
     }
 }

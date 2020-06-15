@@ -4,13 +4,18 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("direction", "ltr")
+        .add("vertical-align", "top")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJColumn {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
 }
@@ -25,13 +30,12 @@ impl MJColumn {
         for child in node.children() {
             children.push(BodyElement::parse(&child, opts, None)?);
         }
-        let mut attributes = match extra {
-            Some(attrs) => attrs.inner().clone(),
-            None => HashMap::new(),
-        };
-        add_node_attributes(&mut attributes, &node);
+        let mut attributes = create_default_attributes();
+        if let Some(extra) = extra {
+            attributes.merge(extra);
+        }
         Ok(MJColumn {
-            attributes,
+            attributes: attributes.add_node(node),
             context: None,
             children,
         })
@@ -240,17 +244,8 @@ impl Component for MJColumn {
 }
 
 impl ComponentWithAttributes for MJColumn {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "direction" => Some("ltr".into()),
-            "vertical-align" => Some("top".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

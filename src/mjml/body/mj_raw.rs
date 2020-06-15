@@ -47,7 +47,7 @@ impl Component for MJRaw {
 impl BodyComponent for MJRaw {}
 impl BodyContainedComponent for MJRaw {}
 impl ComponentWithAttributes for MJRaw {
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
         None
     }
 }

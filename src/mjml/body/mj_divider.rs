@@ -2,24 +2,30 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::conditional_tag;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("border-color", "#000000")
+        .add("border-style", "solid")
+        .add("border-width", "4px")
+        .add("padding", "10px 25px")
+        .add("width", "100%")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJDivider {
-    options: Options,
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
 }
 
 impl MJDivider {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJDivider, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<MJDivider, Error> {
         Ok(MJDivider {
-            options: opts.clone(),
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
         })
     }
@@ -94,20 +100,8 @@ impl Component for MJDivider {
 }
 
 impl ComponentWithAttributes for MJDivider {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "border-color" => Some("#000000".into()),
-            "border-style" => Some("solid".into()),
-            "border-width" => Some("4px".into()),
-            "padding" => Some("10px 25px".into()),
-            "width" => Some("100%".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

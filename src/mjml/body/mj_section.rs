@@ -3,15 +3,24 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::{suffix_css_classes, Context, Header, Size, Tag};
+use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("background-repeat", "repeat")
+        .add("background-size", "auto")
+        .add("direction", "ltr")
+        .add("padding", "20px 0")
+        .add("text-align", "center")
+        .add("text-padding", "4px 4px 4px 0")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJSection {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
 }
@@ -23,16 +32,16 @@ impl MJSection {
             children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJSection {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children,
         })
     }
 
     fn get_background(&self) -> Option<String> {
-        let mut res = vec![];
+        let mut res: Vec<String> = vec![];
         if let Some(color) = self.get_attribute("background-color") {
-            res.push(color);
+            res.push(color.to_string());
         }
         if let Some(url) = self.get_attribute("background-url") {
             res.push(format!("url({})", url));
@@ -42,7 +51,7 @@ impl MJSection {
                 self.get_attribute("background-size").unwrap()
             ));
             // has default value
-            res.push(self.get_attribute("background-repeat").unwrap());
+            res.push(self.get_attribute("background-repeat").unwrap().to_string());
         }
         if res.len() > 0 {
             Some(res.join(" "))
@@ -112,11 +121,11 @@ impl MJSection {
     }
 
     fn has_background(&self) -> bool {
-        self.attributes.contains_key("background-url")
+        self.attributes.has("background-url")
     }
 
     fn is_full_width(&self) -> bool {
-        self.attributes.contains_key("full-width")
+        self.attributes.has("full-width")
     }
 
     fn render_wrap(&self, content: String) -> String {
@@ -324,21 +333,8 @@ impl Component for MJSection {
 }
 
 impl ComponentWithAttributes for MJSection {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "background-repeat" => Some("repeat".into()),
-            "background-size" => Some("auto".into()),
-            "direction" => Some("ltr".into()),
-            "padding" => Some("20px 0".into()),
-            "text-align" => Some("center".into()),
-            "text-padding" => Some("4px 4px 4px 0".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

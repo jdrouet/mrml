@@ -55,47 +55,53 @@ p {
 
 #[derive(Debug, Clone)]
 pub struct MJHead {
-    options: Options,
     attributes: HashMap<String, String>,
     context: Option<Context>,
     children: Vec<HeadElement>,
+    header: Header,
 }
 
 impl MJHead {
     pub fn empty(opts: &Options) -> MJHead {
         debug!("create empty");
         MJHead {
-            options: opts.clone(),
             attributes: HashMap::new(),
             context: None,
             children: vec![],
+            header: Header::from(opts),
         }
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
-        let children = HeadElement::parse_all(node.children().collect(), opts)?;
+        let children = HeadElement::parse_all(node.children().collect())?;
+        let mut header = Header::from(opts);
+        for child in children.iter() {
+            child.update_header(&mut header);
+        }
         Ok(MJHead {
-            options: opts.clone(),
             attributes: get_node_attributes(&node),
             context: None,
             children,
+            header,
         })
     }
 
-    pub fn update_header(&self, header: &mut Header) {
-        for item in self.children.iter() {
-            item.update_header(header);
-        }
+    pub fn get_header(&self) -> &Header {
+        &self.header
     }
 
-    pub fn get_title(&self, header: &Header) -> String {
-        match header.title() {
+    pub fn get_mut_header(&mut self) -> &mut Header {
+        &mut self.header
+    }
+
+    pub fn get_title(&self) -> String {
+        match self.header.title() {
             Some(value) => value.clone(),
             None => "".into(),
         }
     }
 
-    pub fn get_preview(&self, _header: &Header) -> String {
+    pub fn get_preview(&self) -> String {
         for child in self.children.iter() {
             match child {
                 HeadElement::MJPreview(element) => return element.get_content(),
@@ -105,19 +111,23 @@ impl MJHead {
         "".into()
     }
 
-    fn get_media_queries(&self, header: &Header) -> String {
-        if !header.has_media_queries() {
+    fn get_media_queries(&self) -> String {
+        if !self.header.has_media_queries() {
             return "".into();
         }
         let mut res = vec![];
         res.push(format!(
             "@media only screen and (min-width:{}) {{ ",
-            header.breakpoint().to_string()
+            self.header.breakpoint().to_string()
         ));
-        let mut classnames: Vec<&String> = header.get_media_queries().keys().collect();
+        let mut classnames: Vec<&String> = self.header.get_media_queries().keys().collect();
         classnames.sort();
         for classname in classnames.iter() {
-            let size = header.get_media_queries().get(classname.clone()).unwrap();
+            let size = self
+                .header
+                .get_media_queries()
+                .get(classname.clone())
+                .unwrap();
             res.push(format!(
                 ".{} {{ width:{} !important; max-width: {}; }}",
                 classname,
@@ -131,9 +141,9 @@ impl MJHead {
             .render(res.join("\n"))
     }
 
-    fn get_font_families(&self, header: &Header) -> String {
+    fn get_font_families(&self) -> String {
         let tag = Tag::new("style").set_attribute("type", "text/css");
-        let font_urls = header.get_used_font_families();
+        let font_urls = self.header.get_used_font_families();
         if font_urls.is_empty() {
             return "".into();
         }
@@ -151,8 +161,8 @@ impl MJHead {
         res.join("")
     }
 
-    fn get_styles(&self, header: &Header) -> String {
-        let styles = header.get_styles();
+    fn get_styles(&self) -> String {
+        let styles = self.header.get_styles();
         if styles.is_empty() {
             "".into()
         } else {
@@ -172,12 +182,12 @@ impl Component for MJHead {
         self.context = Some(ctx);
     }
 
-    fn render(&self, header: &Header) -> Result<String, Error> {
+    fn render(&self, _header: &Header) -> Result<String, Error> {
         debug!("render");
         let head = Tag::new("head");
         let mut res: Vec<String> = vec![];
         res.push(head.open());
-        res.push(Tag::new("title").render(self.get_title(header)));
+        res.push(Tag::new("title").render(self.get_title()));
         res.push("<!--[if !mso]><!-- -->".into());
         res.push(
             Tag::new("meta")
@@ -199,9 +209,9 @@ impl Component for MJHead {
                 .open(),
         );
         res.push(STYLE_BASE.into());
-        res.push(self.get_font_families(header));
-        res.push(self.get_media_queries(header));
-        res.push(self.get_styles(header));
+        res.push(self.get_font_families());
+        res.push(self.get_media_queries());
+        res.push(self.get_styles());
         res.push(head.close());
         Ok(res.join(""))
     }

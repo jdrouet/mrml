@@ -2,15 +2,29 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::raw::RawElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{Context, Header, Tag};
+use crate::util::{Attributes, Context, Header, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("align", "left")
+        .add("border", "none")
+        .add("cellpadding", "0")
+        .add("cellspacing", "0")
+        .add("color", "#000000")
+        .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
+        .add("font-size", "13px")
+        .add("line-height", "22px")
+        .add("padding", "10px 25px")
+        .add("table-layout", "auto")
+        .add("width", "100%")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJTable {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<RawElement>,
 }
@@ -22,7 +36,7 @@ impl MJTable {
             children.push(RawElement::conditional_parse(&child, opts, true)?);
         }
         Ok(MJTable {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children,
         })
@@ -70,26 +84,8 @@ impl Component for MJTable {
 impl BodyComponent for MJTable {}
 impl BodyContainedComponent for MJTable {}
 impl ComponentWithAttributes for MJTable {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("left".into()),
-            "border" => Some("none".into()),
-            "cellpadding" => Some("0".into()),
-            "cellspacing" => Some("0".into()),
-            "color" => Some("#000000".into()),
-            "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif".into()),
-            "font-size" => Some("13px".into()),
-            "line-height" => Some("22px".into()),
-            "padding" => Some("10px 25px".into()),
-            "table-layout" => Some("auto".into()),
-            "width" => Some("100%".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 impl ComponentWithSizeAttribute for MJTable {}

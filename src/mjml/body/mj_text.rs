@@ -3,15 +3,24 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Tag};
+use crate::util::{Attributes, Context, Header, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("align", "left")
+        .add("color", "#000000")
+        .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
+        .add("font-size", "13px")
+        .add("line-height", "1")
+        .add("padding", "10px 25px")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJText {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
 }
@@ -23,11 +32,12 @@ impl MJText {
             children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJText {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children,
         })
     }
+
     fn set_style_text(&self, tag: Tag) -> Tag {
         tag.maybe_set_style("font-family", self.get_attribute("font-family"))
             .maybe_set_style("font-size", self.get_attribute("font-size"))
@@ -50,12 +60,12 @@ impl MJText {
         Ok(self.set_style_text(Tag::div()).render(res.join("")))
     }
 
-    fn render_with_height(&self, header: &Header, height: String) -> Result<String, Error> {
+    fn render_with_height(&self, header: &Header, height: &String) -> Result<String, Error> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
-            .set_attribute("height", &height)
-            .set_style("height", &height)
+            .set_attribute("height", height)
+            .set_style("height", height)
             .set_style("vertical-align", "top");
         Ok(conditional_tag(table.render(
             tr.render(td.render(self.render_content(header)?)),
@@ -85,21 +95,8 @@ impl Component for MJText {
 }
 
 impl ComponentWithAttributes for MJText {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("left".into()),
-            "color" => Some("#000000".into()),
-            "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif".into()),
-            "font-size" => Some("13px".into()),
-            "line-height" => Some("1".into()),
-            "padding" => Some("10px 25px".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

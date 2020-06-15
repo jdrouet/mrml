@@ -3,9 +3,8 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Tag};
+use crate::util::{Attributes, Context, Header, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -23,7 +22,7 @@ const CHILDREN_ATTR: [&'static str; 9] = [
 
 #[derive(Clone, Debug)]
 pub struct MJAccordionElement {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     title: Option<MJAccordionTitle>,
     text: Option<MJAccordionText>,
@@ -33,7 +32,7 @@ impl MJAccordionElement {
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
         opts: &Options,
-        attrs: &HashMap<String, String>,
+        attrs: &Attributes,
     ) -> Result<MJAccordionElement, Error> {
         if node.tag_name().name() != "mj-accordion-element" {
             return Err(Error::ParseError(format!(
@@ -42,7 +41,7 @@ impl MJAccordionElement {
             )));
         }
         let mut attributes = attrs.clone();
-        add_node_attributes(&mut attributes, &node);
+        attributes.merge_node(node);
         let mut element = MJAccordionElement {
             attributes,
             context: None,
@@ -143,15 +142,8 @@ impl Component for MJAccordionElement {
 }
 
 impl ComponentWithAttributes for MJAccordionElement {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

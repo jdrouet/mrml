@@ -2,15 +2,33 @@ use super::BodyElement;
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("align", "center")
+        .add("background-color", "#414141")
+        .add("border", "none")
+        .add("border-radius", "3px")
+        .add("color", "#ffffff")
+        .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
+        .add("font-size", "13px")
+        .add("font-weight", "normal")
+        .add("inner-padding", "10px 25px")
+        .add("line-height", "120%")
+        .add("padding", "10px 25px")
+        .add("target", "_blank")
+        .add("text-decoration", "none")
+        .add("text-transform", "none")
+        .add("vertical-align", "middle")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJButton {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
 }
@@ -22,7 +40,7 @@ impl MJButton {
             children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJButton {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children,
         })
@@ -142,30 +160,8 @@ impl Component for MJButton {
 }
 
 impl ComponentWithAttributes for MJButton {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("center".into()),
-            "background-color" => Some("#414141".into()),
-            "border" => Some("none".into()),
-            "border-radius" => Some("3px".into()),
-            "color" => Some("#ffffff".into()),
-            "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif".into()),
-            "font-size" => Some("13px".into()),
-            "font-weight" => Some("normal".into()),
-            "inner-padding" => Some("10px 25px".into()),
-            "line-height" => Some("120%".into()),
-            "padding" => Some("10px 25px".into()),
-            "target" => Some("_blank".into()),
-            "text-decoration" => Some("none".into()),
-            "text-transform" => Some("none".into()),
-            "vertical-align" => Some("middle".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

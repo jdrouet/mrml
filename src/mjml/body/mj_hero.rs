@@ -3,15 +3,24 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("background-color", "#ffffff")
+        .add("background-position", "center center")
+        .add("height", "0px")
+        .add("mode", "fixed-height")
+        .add("padding", "0px")
+        .add("vertical-align", "top")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJHero {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
 }
@@ -23,7 +32,7 @@ impl MJHero {
             children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJHero {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children,
         })
@@ -97,6 +106,7 @@ impl MJHero {
             .maybe_set_style(
                 "width",
                 self.get_attribute("background-width")
+                    .and_then(|value| Some(value.to_string()))
                     .or_else(|| self.get_container_width_str()),
             )
             .set_style("z-index", "-3")
@@ -119,7 +129,7 @@ impl MJHero {
                 // has default value
                 self.get_attribute("background-position").unwrap()
             )),
-            None => bg_color,
+            None => bg_color.cloned(),
         }
     }
 
@@ -308,21 +318,8 @@ impl Component for MJHero {
 }
 
 impl ComponentWithAttributes for MJHero {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "background-color" => Some("#ffffff".into()),
-            "background-position" => Some("center center".into()),
-            "height" => Some("0px".into()),
-            "mode" => Some("fixed-height".into()),
-            "padding" => Some("0px".into()),
-            "vertical-align" => Some("top".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

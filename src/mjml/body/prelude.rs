@@ -235,7 +235,7 @@ pub mod tests {
     }
 
     impl ComponentWithAttributes for TestComponent {
-        fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+        fn attributes(&self) -> Option<&HashMap<String, String>> {
             Some(&self.attributes)
         }
     }
@@ -247,7 +247,7 @@ pub mod tests {
         let item = TestComponent {
             attributes: HashMap::new(),
         };
-        assert_eq!(item.default_attribute("nothing"), None);
+        assert_eq!(item.get_attribute("nothing"), None);
         assert_eq!(item.set_style("nothing", Tag::new("a")).open(), "<a>");
     }
 

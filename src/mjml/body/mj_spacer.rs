@@ -2,24 +2,25 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
-use crate::util::{Context, Header, Tag};
+use crate::util::{Attributes, Context, Header, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new().add("height", "20px")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJSpacer {
-    options: Options,
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
 }
 
 impl MJSpacer {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJSpacer, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<MJSpacer, Error> {
         Ok(MJSpacer {
-            options: opts.clone(),
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
         })
     }
@@ -64,16 +65,8 @@ impl Component for MJSpacer {
 }
 
 impl ComponentWithAttributes for MJSpacer {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "height" => Some("20px".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 
