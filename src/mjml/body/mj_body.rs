@@ -2,24 +2,28 @@ use super::prelude::*;
 use super::BodyElement;
 use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new().add("width", "600px")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJBody {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
     exists: bool,
 }
 
 impl MJBody {
-    pub fn empty<'a, 'b>(_opts: &Options) -> MJBody {
+    pub fn empty<'a, 'b>() -> MJBody {
         MJBody {
-            attributes: HashMap::new(),
+            attributes: create_default_attributes(),
             children: vec![],
             context: None,
             exists: false,
@@ -32,7 +36,7 @@ impl MJBody {
             children.push(BodyElement::parse(&child, opts, None)?);
         }
         Ok(MJBody {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             children,
             context: None,
             exists: true,
@@ -107,16 +111,8 @@ impl Component for MJBody {
 }
 
 impl ComponentWithAttributes for MJBody {
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
-    }
-
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "width" => Some("600px".into()),
-            _ => None,
-        }
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

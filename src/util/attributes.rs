@@ -1,7 +1,9 @@
 use super::sort_by_key;
+use roxmltree::Node;
 use std::collections::HashMap;
 use std::string::ToString;
 
+#[derive(Clone, Debug)]
 pub struct Attributes(HashMap<String, String>);
 
 impl Attributes {
@@ -11,6 +13,35 @@ impl Attributes {
 
     pub fn inner(&self) -> &HashMap<String, String> {
         &self.0
+    }
+
+    pub fn merge(&mut self, other: &Attributes) {
+        for (key, value) in other.inner().iter() {
+            self.set(key, value);
+        }
+    }
+
+    pub fn merge_with(self, other: &Attributes) -> Self {
+        other
+            .inner()
+            .iter()
+            .fold(self, |res, (key, value)| res.add(key, value))
+    }
+
+    pub fn merge_node<'a, 'b>(&mut self, node: &Node<'a, 'b>) {
+        for item in node.attributes().iter() {
+            self.set(item.name(), item.value());
+        }
+    }
+
+    pub fn add_node<'a, 'b>(self, node: &Node<'a, 'b>) -> Self {
+        node.attributes()
+            .iter()
+            .fold(self, |res, item| res.add(item.name(), item.value()))
+    }
+
+    pub fn has<K: ToString>(&self, key: K) -> bool {
+        self.0.contains_key(&key.to_string())
     }
 
     pub fn get<K: ToString>(&self, key: K) -> Option<&String> {
@@ -48,6 +79,12 @@ impl From<&Attributes> for Attributes {
     }
 }
 
+impl<'a, 'b> From<&Node<'a, 'b>> for Attributes {
+    fn from(node: &Node) -> Self {
+        Self::new().add_node(node)
+    }
+}
+
 impl ToString for Attributes {
     fn to_string(&self) -> String {
         let mut entries = self.entries();
@@ -60,11 +97,11 @@ impl ToString for Attributes {
     }
 }
 
-pub fn suffix_unit(input: Option<String>, suffix: &str) -> Option<String> {
+pub fn suffix_unit(input: Option<&String>, suffix: &str) -> Option<String> {
     input.and_then(|v| Some(format!("{}{}", v, suffix)))
 }
 
-pub fn suffix_css_classes(input: Option<String>, suffix: &str) -> Option<String> {
+pub fn suffix_css_classes(input: Option<&String>, suffix: &str) -> Option<String> {
     if let Some(value) = input {
         let value: Vec<String> = value
             .split(" ")
@@ -91,13 +128,13 @@ mod tests {
 
     #[test]
     fn suffix_css_classes_some_empty() {
-        assert_eq!(suffix_css_classes(Some("".into()), "whatever"), None);
+        assert_eq!(suffix_css_classes(Some(&"".into()), "whatever"), None);
     }
 
     #[test]
     fn suffix_css_classes_with_values() {
         assert_eq!(
-            suffix_css_classes(Some("toto tutu".into()), "whatever"),
+            suffix_css_classes(Some(&"toto tutu".into()), "whatever"),
             Some("toto-whatever tutu-whatever".into())
         );
     }

@@ -4,13 +4,25 @@ use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::{suffix_css_classes, Attributes, Context, Header, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("color", "#000000")
+        .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
+        .add("font-size", "13px")
+        .add("font-weight", "normal")
+        .add("line-height", "22px")
+        .add("padding", "15px 10px")
+        .add("target", "_blank")
+        .add("text-decoration", "none")
+        .add("text-transform", "uppercase")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJNavbarLink {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     content: Option<String>,
 }
@@ -39,11 +51,11 @@ impl MJNavbarLink {
         } else {
             Some(content.join(""))
         };
-        let mut attributes = match extra {
-            Some(value) => value.inner().clone(),
-            None => HashMap::new(),
-        };
-        add_node_attributes(&mut attributes, &node);
+        let mut attributes = create_default_attributes();
+        if let Some(extra) = extra {
+            attributes.merge(extra);
+        }
+        attributes.merge_node(node);
         Ok(MJNavbarLink {
             attributes,
             context: None,
@@ -96,7 +108,7 @@ impl MJNavbarLink {
         self.get_attribute("href").as_ref().and_then(|href| {
             self.get_attribute("navbar-base-url")
                 .and_then(move |base| Some(format!("{}{}", base, href)))
-                .or_else(|| Some(href.clone()))
+                .or_else(|| Some(href.to_string()))
         })
     }
 
@@ -147,24 +159,8 @@ impl Component for MJNavbarLink {
 }
 
 impl ComponentWithAttributes for MJNavbarLink {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "color" => Some("#000000".into()),
-            "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif".into()),
-            "font-size" => Some("13px".into()),
-            "font-weight" => Some("normal".into()),
-            "line-height" => Some("22px".into()),
-            "padding" => Some("15px 10px".into()),
-            "target" => Some("_blank".into()),
-            "text-decoration" => Some("none".into()),
-            "text-transform" => Some("uppercase".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

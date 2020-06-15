@@ -2,7 +2,7 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::BodyElement;
 use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
-use crate::util::{Context, Header, Tag};
+use crate::util::{Attributes, Context, Header, Tag};
 use crate::Options;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -75,7 +75,7 @@ impl Component for TextElement {
 
 #[derive(Clone, Debug)]
 pub struct NodeElement {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
     tag: String,
@@ -102,7 +102,7 @@ impl NodeElement {
             }
         }
         Ok(NodeElement {
-            attributes: get_node_attributes(&node),
+            attributes: Attributes::from(node),
             context: None,
             children,
             tag: node.tag_name().name().to_string(),
@@ -124,7 +124,7 @@ impl Component for NodeElement {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let tag = Tag::new(self.tag.as_str()).insert_attributes(&self.attributes);
+        let tag = Tag::new(self.tag.as_str()).insert_attributes(self.attributes.inner());
         if self.closed_element() {
             Ok(tag.closed())
         } else {
@@ -138,8 +138,8 @@ impl Component for NodeElement {
 }
 
 impl ComponentWithAttributes for NodeElement {
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 
@@ -214,9 +214,9 @@ impl Component for RawElement {
 }
 
 impl ComponentWithAttributes for RawElement {
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
         match self {
-            RawElement::Node(node) => node.source_attributes(),
+            RawElement::Node(node) => node.attributes(),
             _ => None,
         }
     }

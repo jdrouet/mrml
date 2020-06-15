@@ -99,11 +99,11 @@ impl Component for BodyElement {
 }
 
 impl ComponentWithAttributes for BodyElement {
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        apply_fn!(self, source_attributes())
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        apply_fn!(self, attributes())
     }
 
-    fn get_attribute(&self, key: &str) -> Option<String> {
+    fn get_attribute(&self, key: &str) -> Option<&String> {
         apply_fn!(self, get_attribute(key))
     }
 }

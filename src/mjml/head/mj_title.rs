@@ -1,28 +1,31 @@
 use super::prelude::*;
 use crate::mjml::error::Error;
 use crate::util::Header;
-use crate::Options;
 use roxmltree::Node;
 
 #[derive(Clone, Debug)]
 pub struct MJTitle {
-    content: String,
+    content: Option<String>,
 }
 
 impl MJTitle {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<Self, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
         Ok(Self {
-            content: match node.text() {
-                Some(value) => value.to_string(),
-                None => String::from(""),
-            },
+            content: node.text().and_then(|value| Some(value.to_string())),
         })
+    }
+
+    pub fn get_content(&self) -> String {
+        match self.content.as_ref() {
+            Some(value) => value.to_string(),
+            None => "".into(),
+        }
     }
 }
 
 impl HeadComponent for MJTitle {
     fn update_header(&self, header: &mut Header) {
-        header.set_title(self.content.clone());
+        header.set_title(self.get_content());
     }
 }
 

@@ -3,7 +3,6 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -172,9 +171,22 @@ impl SocialNetwork {
     }
 }
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("align", "left")
+        .add("color", "#000")
+        .add("border-radius", "3px")
+        .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
+        .add("font-size", "13px")
+        .add("line-height", "1")
+        .add("padding", "4px")
+        .add("target", "_blank")
+        .add("text-decoration", "none")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJSocialElement {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     content: Option<String>,
     social_network: Option<SocialNetwork>,
@@ -207,13 +219,12 @@ impl MJSocialElement {
         let social_network = node
             .attribute("name")
             .and_then(|name| SocialNetwork::find(name));
-        let mut attributes = match extra {
-            Some(value) => value.inner().clone(),
-            None => HashMap::new(),
-        };
-        add_node_attributes(&mut attributes, &node);
+        let mut attributes = create_default_attributes();
+        if let Some(extra) = extra {
+            attributes.merge(extra);
+        }
         Ok(MJSocialElement {
-            attributes,
+            attributes: attributes.add_node(node),
             context: None,
             content,
             social_network,
@@ -237,7 +248,7 @@ impl MJSocialElement {
 
     fn get_background_color(&self) -> Option<String> {
         if let Some(bg) = self.get_attribute("background-color") {
-            return Some(bg);
+            return Some(bg.to_string());
         }
         self.social_network
             .as_ref()
@@ -254,7 +265,7 @@ impl MJSocialElement {
 
     fn get_icon_src(&self) -> Option<String> {
         if let Some(src) = self.get_attribute("src") {
-            return Some(src);
+            return Some(src.to_string());
         }
         self.social_network
             .as_ref()
@@ -308,7 +319,7 @@ impl MJSocialElement {
                 .as_ref()
                 .and_then(|net| net.share_url.clone())
                 .and_then(move |url| Some(url.replace("[[URL]]", href)))
-                .or_else(move || Some(href.clone()))
+                .or_else(move || Some(href.to_string()))
         } else {
             None
         }
@@ -397,24 +408,8 @@ impl Component for MJSocialElement {
 }
 
 impl ComponentWithAttributes for MJSocialElement {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("lef".into()),
-            "color" => Some("#000".into()),
-            "border-radius" => Some("3px".into()),
-            "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif".into()),
-            "font-size" => Some("13px".into()),
-            "line-height" => Some("1".into()),
-            "padding" => Some("4px".into()),
-            "target" => Some("_blank".into()),
-            "text-decoration" => Some("none".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

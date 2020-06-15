@@ -1,30 +1,27 @@
 use super::prelude::*;
 use crate::mjml::error::Error;
 use crate::util::{Header, Size};
-use crate::Options;
 use roxmltree::Node;
 
 #[derive(Clone, Debug)]
 pub struct MJBreakpoint {
-    value: Size,
+    value: Option<Size>,
 }
 
 impl MJBreakpoint {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<Self, Error> {
-        let value = match node
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
+        let value = node
             .attribute("width")
-            .and_then(|attr| attr.parse::<Size>().ok())
-        {
-            Some(value) => value,
-            None => opts.breakpoint.clone(),
-        };
+            .and_then(|attr| attr.parse::<Size>().ok());
         Ok(Self { value })
     }
 }
 
 impl HeadComponent for MJBreakpoint {
     fn update_header(&self, header: &mut Header) {
-        header.set_breakpoint(self.value.clone());
+        if let Some(value) = self.value.as_ref() {
+            header.set_breakpoint(value.clone());
+        }
     }
 }
 

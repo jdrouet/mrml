@@ -5,14 +5,17 @@ use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 use std::str::FromStr;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new().add("direction", "ltr")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJGroup {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
 }
@@ -30,7 +33,7 @@ impl MJGroup {
             children.push(BodyElement::parse(&child, opts, Some(&attrs))?);
         }
         Ok(MJGroup {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children,
         })
@@ -169,16 +172,8 @@ impl Component for MJGroup {
 }
 
 impl ComponentWithAttributes for MJGroup {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "direction" => Some("ltr".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

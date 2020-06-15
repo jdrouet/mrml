@@ -6,9 +6,22 @@ use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::{generate_id, Attributes, Context, Header, Size, Style, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
+
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("align", "center")
+        .add("border-radius", "6px")
+        .add("icon-width", "44px")
+        .add("left-icon", "https://i.imgur.com/xTh3hln.png")
+        .add("right-icon", "https://i.imgur.com/os7o9kz.png")
+        .add("thumbnails", "visible")
+        .add("tb-border", "2px solid transparent")
+        .add("tb-border-radius", "6px")
+        .add("tb-hover-border-color", "#fead0d")
+        .add("tb-selected-border-color", "#cccccc")
+}
 
 fn repeat(count: usize, value: &str) -> String {
     (0..count).map(|_idx| value).collect::<Vec<_>>().join("")
@@ -24,7 +37,7 @@ fn create_id() -> String {
 
 #[derive(Clone, Debug)]
 pub struct MJCarousel {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
     id: String,
@@ -33,7 +46,7 @@ pub struct MJCarousel {
 impl MJCarousel {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJCarousel, Error> {
         let mut result = MJCarousel {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children: vec![],
             id: create_id(),
@@ -146,7 +159,10 @@ impl MJCarousel {
     }
 
     fn render_thumbnails(&self) -> String {
-        if self.get_attribute("thumbnails") != Some("visible".into()) {
+        let thumbnails = self
+            .get_attribute("thumbnails")
+            .and_then(|value| Some(value.as_str()));
+        if thumbnails != Some("visible") {
             "".into()
         } else {
             let width = self.get_thumbnails_width();
@@ -431,25 +447,8 @@ impl Component for MJCarousel {
 }
 
 impl ComponentWithAttributes for MJCarousel {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("center".into()),
-            "border-radius" => Some("6px".into()),
-            "icon-width" => Some("44px".into()),
-            "left-icon" => Some("https://i.imgur.com/xTh3hln.png".into()),
-            "right-icon" => Some("https://i.imgur.com/os7o9kz.png".into()),
-            "thumbnails" => Some("visible".into()),
-            "tb-border" => Some("2px solid transparent".into()),
-            "tb-border-radius" => Some("6px".into()),
-            "tb-hover-border-color" => Some("#fead0d".into()),
-            "tb-selected-border-color" => Some("#cccccc".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

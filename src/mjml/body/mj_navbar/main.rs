@@ -6,13 +6,27 @@ use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::{generate_id, Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("align", "center")
+        .add("ico-align", "center")
+        .add("ico-open", "&#9776;")
+        .add("ico-close", "&#8855;")
+        .add("ico-color", "#000000")
+        .add("ico-font-family", "Ubuntu, Helvetica, Arial, sans-serif")
+        .add("ico-font-size", "30px")
+        .add("ico-text-transform", "uppercase")
+        .add("ico-padding", "10px")
+        .add("ico-text-decoration", "none")
+        .add("ico-line-height", "30px")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJNavbar {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
     id: String,
@@ -28,8 +42,10 @@ fn create_id() -> String {
 
 impl MJNavbar {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJNavbar, Error> {
+        let mut attributes = create_default_attributes();
+        attributes.merge_node(node);
         let mut result = MJNavbar {
-            attributes: get_node_attributes(&node),
+            attributes,
             context: None,
             children: vec![],
             id: create_id(),
@@ -140,8 +156,8 @@ impl MJNavbar {
         res.push(mso_negation_conditional_tag(input.closed()));
         res.push(div.open());
         res.push(label.open());
-        res.push(span_open.render(self.get_attribute("ico-open").unwrap_or("".into())));
-        res.push(span_close.render(self.get_attribute("ico-close").unwrap_or("".into())));
+        res.push(span_open.render(self.get_attribute("ico-open").unwrap_or(&"".into())));
+        res.push(span_close.render(self.get_attribute("ico-close").unwrap_or(&"".into())));
         res.push(label.close());
         res.push(div.close());
         Ok(res.join(""))
@@ -210,26 +226,8 @@ impl Component for MJNavbar {
 }
 
 impl ComponentWithAttributes for MJNavbar {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("center".into()),
-            "ico-align" => Some("center".into()),
-            "ico-open" => Some("&#9776;".into()),
-            "ico-close" => Some("&#8855;".into()),
-            "ico-color" => Some("#000000".into()),
-            "ico-font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif".into()),
-            "ico-font-size" => Some("30px".into()),
-            "ico-text-transform" => Some("uppercase".into()),
-            "ico-padding" => Some("10px".into()),
-            "ico-text-decoration" => Some("none".into()),
-            "ico-line-height" => Some("30px".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

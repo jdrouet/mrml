@@ -1,6 +1,5 @@
 use crate::mjml::error::Error;
 use crate::util::Header;
-use crate::Options;
 use roxmltree::Node;
 
 pub mod mj_breakpoint;
@@ -33,29 +32,24 @@ macro_rules! apply_fn {
 }
 
 impl HeadElement {
-    pub fn parse_all<'a, 'b>(
-        nodes: Vec<Node<'a, 'b>>,
-        opts: &Options,
-    ) -> Result<Vec<HeadElement>, Error> {
+    pub fn parse_all<'a, 'b>(nodes: Vec<Node<'a, 'b>>) -> Result<Vec<HeadElement>, Error> {
         let mut res = vec![];
         for item in nodes {
             if !item.tag_name().name().is_empty() {
-                res.push(HeadElement::parse(&item, opts)?);
+                res.push(HeadElement::parse(&item)?);
             }
         }
         Ok(res)
     }
 
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<HeadElement, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<HeadElement, Error> {
         let tag_name = node.tag_name().name();
         let res = match tag_name {
-            "mj-breakpoint" => {
-                HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node, opts)?)
-            }
-            "mj-font" => HeadElement::MJFont(mj_font::MJFont::parse(node, opts)?),
-            "mj-preview" => HeadElement::MJPreview(mj_preview::MJPreview::parse(node, opts)?),
-            "mj-style" => HeadElement::MJStyle(mj_style::MJStyle::parse(node, opts)?),
-            "mj-title" => HeadElement::MJTitle(mj_title::MJTitle::parse(node, opts)?),
+            "mj-breakpoint" => HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node)?),
+            "mj-font" => HeadElement::MJFont(mj_font::MJFont::parse(node)?),
+            "mj-preview" => HeadElement::MJPreview(mj_preview::MJPreview::parse(node)?),
+            "mj-style" => HeadElement::MJStyle(mj_style::MJStyle::parse(node)?),
+            "mj-title" => HeadElement::MJTitle(mj_title::MJTitle::parse(node)?),
             _ => return Err(Error::ParseError(format!("{} tag not known", tag_name))),
         };
         Ok(res)

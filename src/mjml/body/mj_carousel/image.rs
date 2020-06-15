@@ -3,13 +3,16 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new().add("target", "_blank")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJCarouselImage {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     carousel_id: String,
     context: Option<Context>,
     content: Option<String>,
@@ -47,11 +50,11 @@ impl MJCarouselImage {
         } else {
             Some(content.join(""))
         };
-        let mut attributes = match extra {
-            Some(value) => value.inner().clone(),
-            None => HashMap::new(),
-        };
-        add_node_attributes(&mut attributes, &node);
+        let mut attributes = create_default_attributes();
+        if let Some(extra) = extra {
+            attributes.merge(extra);
+        }
+        attributes.merge_node(node);
         Ok(MJCarouselImage {
             attributes,
             carousel_id: carousel_id.to_string(),
@@ -73,10 +76,6 @@ impl MJCarouselImage {
             attrs.set("text-padding", "4px 4px 4px 0");
         }
         Self::parse_image(node, opts, Some(&attrs))
-    }
-
-    pub fn set_attribute<K: ToString, V: ToString>(&mut self, key: K, value: V) {
-        self.attributes.insert(key.to_string(), value.to_string());
     }
 
     fn set_style_images_img(&self, tag: Tag) -> Tag {
@@ -224,16 +223,8 @@ impl Component for MJCarouselImage {
 }
 
 impl ComponentWithAttributes for MJCarouselImage {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "target" => Some("_blank".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 

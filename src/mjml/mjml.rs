@@ -13,7 +13,6 @@ const HTML_CLOSE: &str = "</html>";
 
 #[derive(Clone, Debug)]
 pub struct MJMLElement {
-    options: Options,
     context: Option<Context>,
     head: MJHead,
     body: MJBody,
@@ -28,52 +27,47 @@ fn get_head<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error
     Ok(MJHead::empty(&opts))
 }
 
-fn get_body<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error> {
+fn get_body<'a, 'b>(
+    node: &Node<'a, 'b>,
+    opts: &Options,
+    _header: &mut Header,
+) -> Result<MJBody, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-body" {
             return MJBody::parse(&child, opts);
         }
     }
-    Ok(MJBody::empty(opts))
+    Ok(MJBody::empty())
 }
 
 impl MJMLElement {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJMLElement, Error> {
-        let head = get_head(node, opts)?;
-        let body = get_body(node, opts)?;
-        let mut element = MJMLElement {
-            options: opts.clone(),
+        let mut head = get_head(node, opts)?;
+        let mut header = head.get_mut_header();
+        let mut body = get_body(node, opts, &mut header)?;
+        body.set_context(Context::default());
+        body.update_header(&mut header);
+        let element = MJMLElement {
             context: None,
             head,
             body,
         };
-        element.digest();
         Ok(element)
     }
 
-    pub fn digest(&mut self) {
-        self.body.set_context(Context::default());
-    }
-
-    pub fn get_header(&self) -> Header {
-        let mut header = Header::from(&self.options);
-        self.head.update_header(&mut header);
-        self.body.update_header(&mut header);
-        header
-    }
-
-    pub fn get_title(&self, header: &Header) -> String {
+    pub fn get_title(&self) -> String {
         debug!("get_title");
-        self.head.get_title(header)
+        self.head.get_title()
     }
 
-    pub fn get_preview(&self, header: &Header) -> String {
+    pub fn get_preview(&self) -> String {
         debug!("get_preview");
-        self.head.get_preview(header)
+        self.head.get_preview()
     }
 
-    pub fn get_html(&self, header: &Header) -> Result<String, Error> {
+    pub fn get_html(&self) -> Result<String, Error> {
         debug!("get_html");
+        let header = self.head.get_header();
         let mut res: Vec<String> = vec![];
         res.push(DOCTYPE.into());
         res.push(HTML_OPEN.into());

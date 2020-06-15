@@ -4,9 +4,21 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::{Context, Header, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
+
+fn create_default_attributes() -> HashMap<String, String> {
+    let mut res = HashMap::new();
+    res.insert("font-size".into(), "13px".into());
+    res.insert("padding".into(), "16px".into());
+    res
+}
+
+fn append_attributes(target: &mut HashMap<String, String>, attrs: &HashMap<String, String>) {
+    for (key, value) in attrs.iter() {
+        target.insert(key.clone(), value.clone());
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct MJAccordionText {
@@ -27,7 +39,8 @@ impl MJAccordionText {
                 node.tag_name().name()
             )));
         }
-        let mut attributes = attrs.clone();
+        let mut attributes = create_default_attributes();
+        append_attributes(&mut attributes, attrs);
         add_node_attributes(&mut attributes, &node);
         let mut element = MJAccordionText::new(attributes);
         for child in node.children() {
@@ -98,16 +111,7 @@ impl Component for MJAccordionText {
 }
 
 impl ComponentWithAttributes for MJAccordionText {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "font-size" => Some("13px".into()),
-            "padding" => Some("16px".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
         Some(&self.attributes)
     }
 }

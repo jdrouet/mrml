@@ -1,7 +1,6 @@
 use super::prelude::*;
 use crate::mjml::error::Error;
 use crate::util::Header;
-use crate::Options;
 use roxmltree::Node;
 
 #[derive(Clone, Debug)]
@@ -11,7 +10,7 @@ pub struct MJFont {
 }
 
 impl MJFont {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<Self, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
         let name = match node.attribute("name") {
             Some(value) => value.to_string(),
             None => return Err(Error::ParseError("name attribute missing".into())),

@@ -6,13 +6,26 @@ use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::{Attributes, Context, Header, Size, Tag};
 use crate::Options;
-use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("align", "center")
+        .add("border-radius", "3px")
+        .add("color", "#333333")
+        .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
+        .add("font-size", "13px")
+        .add("icon-size", "20px")
+        .add("line-height", "22px")
+        .add("mode", "horizontal")
+        .add("padding", "10px 25px")
+        .add("text-decoration", "none")
+}
+
 #[derive(Clone, Debug)]
 pub struct MJSocial {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<BodyElement>,
 }
@@ -20,7 +33,7 @@ pub struct MJSocial {
 impl MJSocial {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJSocial, Error> {
         let mut result = MJSocial {
-            attributes: get_node_attributes(&node),
+            attributes: create_default_attributes().add_node(node),
             context: None,
             children: vec![],
         };
@@ -145,25 +158,8 @@ impl Component for MJSocial {
 }
 
 impl ComponentWithAttributes for MJSocial {
-    fn default_attribute(&self, key: &str) -> Option<String> {
-        debug!("default_attribute {}", key);
-        match key {
-            "align" => Some("center".into()),
-            "border-radius" => Some("3px".into()),
-            "color" => Some("#333333".into()),
-            "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif".into()),
-            "font-size" => Some("13px".into()),
-            "icon-size" => Some("20px".into()),
-            "line-height" => Some("22px".into()),
-            "mode" => Some("horizontal".into()),
-            "padding" => Some("10px 25px".into()),
-            "text-decoration" => Some("none".into()),
-            _ => None,
-        }
-    }
-
-    fn source_attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(self.attributes.inner())
     }
 }
 
