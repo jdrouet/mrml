@@ -1,6 +1,20 @@
 use crate::mjml::prelude::*;
-use crate::util::{Size, Spacing, Tag};
+use crate::util::attributes::*;
+use crate::util::{Header, Size, Spacing, Tag};
 use regex::Regex;
+use roxmltree::Node;
+
+pub trait ParsedBodyComponent {
+    fn default_attributes() -> Attributes {
+        Attributes::new()
+    }
+
+    fn create_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .get_attributes(node, Self::default_attributes())
+    }
+}
 
 pub trait BodyComponent: Component {
     fn set_style(&self, _key: &str, tag: Tag) -> Tag {

@@ -25,20 +25,20 @@ pub struct MJWrapper {
     children: Vec<BodyElement>,
 }
 
-impl MJWrapper {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
-        header
-            .default_attributes()
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
+impl ParsedBodyComponent for MJWrapper {
+    fn default_attributes() -> Attributes {
+        DEFAULT_ATTRIBUTES.clone()
     }
+}
 
+impl MJWrapper {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJWrapper, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
         Ok(MJWrapper {
-            attributes: MJWrapper::default_attributes(node, header).concat(node),
+            attributes: MJWrapper::create_attributes(node, header).concat(node),
             context: None,
             children,
         })

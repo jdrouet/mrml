@@ -25,20 +25,20 @@ pub struct MJText {
     children: Vec<BodyElement>,
 }
 
-impl MJText {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
-        header
-            .default_attributes()
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
+impl ParsedBodyComponent for MJText {
+    fn default_attributes() -> Attributes {
+        DEFAULT_ATTRIBUTES.clone()
     }
+}
 
+impl MJText {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJText, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
         Ok(MJText {
-            attributes: MJText::default_attributes(node, header).concat(node),
+            attributes: MJText::create_attributes(node, header).concat(node),
             context: None,
             children,
         })
