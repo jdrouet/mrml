@@ -1,8 +1,8 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::attributes::*;
+use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -23,9 +23,9 @@ pub struct MJImage {
 }
 
 impl MJImage {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<MJImage, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _header: &Header) -> Result<MJImage, Error> {
         Ok(MJImage {
-            attributes: create_default_attributes().add_node(node),
+            attributes: create_default_attributes().concat(node),
             context: None,
         })
     }

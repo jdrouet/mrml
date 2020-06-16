@@ -2,8 +2,8 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::raw::RawElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{Attributes, Context, Header, Tag};
-use crate::Options;
+use crate::util::attributes::*;
+use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -30,13 +30,13 @@ pub struct MJTable {
 }
 
 impl MJTable {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJTable, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJTable, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(RawElement::conditional_parse(&child, opts, true)?);
+            children.push(RawElement::conditional_parse(&child, header, true)?);
         }
         Ok(MJTable {
-            attributes: create_default_attributes().add_node(node),
+            attributes: create_default_attributes().concat(node),
             context: None,
             children,
         })

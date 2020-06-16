@@ -1,9 +1,9 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{suffix_css_classes, Attributes, Context, Header, Tag};
-use crate::Options;
+use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -30,7 +30,7 @@ pub struct MJNavbarLink {
 impl MJNavbarLink {
     pub fn parse_link<'a, 'b>(
         node: &Node<'a, 'b>,
-        _opts: &Options,
+        _header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {
         if node.tag_name().name() != "mj-navbar-link" {
@@ -55,7 +55,7 @@ impl MJNavbarLink {
         if let Some(extra) = extra {
             attributes.merge(extra);
         }
-        attributes.merge_node(node);
+        attributes.merge(node);
         Ok(MJNavbarLink {
             attributes,
             context: None,
@@ -65,7 +65,7 @@ impl MJNavbarLink {
 
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
-        opts: &Options,
+        header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {
         let mut attrs = match extra {
@@ -75,7 +75,7 @@ impl MJNavbarLink {
         if attrs.get("text-padding").is_none() {
             attrs.set("text-padding", "4px 4px 4px 0");
         }
-        Self::parse_link(node, opts, Some(&attrs))
+        Self::parse_link(node, header, Some(&attrs))
     }
 
     fn set_style_a(&self, tag: Tag) -> Tag {

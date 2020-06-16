@@ -27,14 +27,10 @@ fn get_head<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error
     Ok(MJHead::empty(&opts))
 }
 
-fn get_body<'a, 'b>(
-    node: &Node<'a, 'b>,
-    opts: &Options,
-    _header: &mut Header,
-) -> Result<MJBody, Error> {
+fn get_body<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJBody, Error> {
     for child in node.children() {
         if child.tag_name().name() == "mj-body" {
-            return MJBody::parse(&child, opts);
+            return MJBody::parse(&child, header);
         }
     }
     Ok(MJBody::empty())
@@ -43,10 +39,9 @@ fn get_body<'a, 'b>(
 impl MJMLElement {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJMLElement, Error> {
         let mut head = get_head(node, opts)?;
-        let mut header = head.get_mut_header();
-        let mut body = get_body(node, opts, &mut header)?;
+        let mut body = get_body(node, head.get_header())?;
         body.set_context(Context::default());
-        body.update_header(&mut header);
+        body.update_header(head.get_mut_header());
         let element = MJMLElement {
             context: None,
             head,

@@ -6,6 +6,11 @@ use std::string::ToString;
 #[derive(Clone, Debug)]
 pub struct Attributes(HashMap<String, String>);
 
+pub trait Merge<Other> {
+    fn concat(self, other: &Other) -> Self;
+    fn merge(&mut self, other: &Other);
+}
+
 impl Attributes {
     pub fn new() -> Self {
         Self(HashMap::new())
@@ -15,29 +20,24 @@ impl Attributes {
         &self.0
     }
 
-    pub fn merge(&mut self, other: &Attributes) {
-        for (key, value) in other.inner().iter() {
+    pub fn concat_iter<K, V, I>(self, items: I) -> Self
+    where
+        K: ToString,
+        V: ToString,
+        I: Iterator<Item = (K, V)>,
+    {
+        items.fold(self, |res, (key, value)| res.add(key, value))
+    }
+
+    pub fn merge_iter<K, V, I>(&mut self, items: I)
+    where
+        K: ToString,
+        V: ToString,
+        I: Iterator<Item = (K, V)>,
+    {
+        for (key, value) in items {
             self.set(key, value);
         }
-    }
-
-    pub fn merge_with(self, other: &Attributes) -> Self {
-        other
-            .inner()
-            .iter()
-            .fold(self, |res, (key, value)| res.add(key, value))
-    }
-
-    pub fn merge_node<'a, 'b>(&mut self, node: &Node<'a, 'b>) {
-        for item in node.attributes().iter() {
-            self.set(item.name(), item.value());
-        }
-    }
-
-    pub fn add_node<'a, 'b>(self, node: &Node<'a, 'b>) -> Self {
-        node.attributes()
-            .iter()
-            .fold(self, |res, item| res.add(item.name(), item.value()))
     }
 
     pub fn has<K: ToString>(&self, key: K) -> bool {
@@ -73,6 +73,36 @@ impl Attributes {
     }
 }
 
+impl Merge<Attributes> for Attributes {
+    fn concat(self, other: &Attributes) -> Self {
+        self.concat_iter(other.0.iter())
+    }
+
+    fn merge(&mut self, other: &Attributes) {
+        self.merge_iter(other.0.iter())
+    }
+}
+
+impl<'a, 'b> Merge<Node<'a, 'b>> for Attributes {
+    fn concat(self, other: &Node<'a, 'b>) -> Self {
+        self.concat_iter(
+            other
+                .attributes()
+                .iter()
+                .map(|attr| (attr.name(), attr.value())),
+        )
+    }
+
+    fn merge(&mut self, other: &Node<'a, 'b>) {
+        self.merge_iter(
+            other
+                .attributes()
+                .iter()
+                .map(|attr| (attr.name(), attr.value())),
+        )
+    }
+}
+
 impl From<&Attributes> for Attributes {
     fn from(value: &Attributes) -> Self {
         Self(value.0.clone())
@@ -81,7 +111,7 @@ impl From<&Attributes> for Attributes {
 
 impl<'a, 'b> From<&Node<'a, 'b>> for Attributes {
     fn from(node: &Node) -> Self {
-        Self::new().add_node(node)
+        Self::new().concat(node)
     }
 }
 

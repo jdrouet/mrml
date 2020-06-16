@@ -3,7 +3,6 @@ use crate::mjml::body::raw::RawElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::{Context, Header};
-use crate::Options;
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -14,10 +13,10 @@ pub struct MJRaw {
 }
 
 impl MJRaw {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJRaw, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJRaw, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(RawElement::conditional_parse(&child, opts, true)?);
+            children.push(RawElement::conditional_parse(&child, header, true)?);
         }
         Ok(MJRaw {
             context: None,

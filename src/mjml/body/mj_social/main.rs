@@ -3,9 +3,9 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -31,9 +31,9 @@ pub struct MJSocial {
 }
 
 impl MJSocial {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJSocial, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJSocial, Error> {
         let mut result = MJSocial {
-            attributes: create_default_attributes().add_node(node),
+            attributes: create_default_attributes().concat(node),
             context: None,
             children: vec![],
         };
@@ -52,7 +52,7 @@ impl MJSocial {
                     tag_name
                 )));
             } else {
-                let element = MJSocialElement::parse_social_child(&child, opts, Some(&attrs))?;
+                let element = MJSocialElement::parse_social_child(&child, header, Some(&attrs))?;
                 result.children.push(BodyElement::MJSocialElement(element));
             }
         }

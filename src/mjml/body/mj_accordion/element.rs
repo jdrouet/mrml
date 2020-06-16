@@ -2,9 +2,9 @@ use super::{MJAccordionText, MJAccordionTitle};
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Attributes, Context, Header, Tag};
-use crate::Options;
+use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -31,7 +31,7 @@ pub struct MJAccordionElement {
 impl MJAccordionElement {
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
-        opts: &Options,
+        header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionElement, Error> {
         if node.tag_name().name() != "mj-accordion-element" {
@@ -40,10 +40,8 @@ impl MJAccordionElement {
                 node.tag_name().name()
             )));
         }
-        let mut attributes = attrs.clone();
-        attributes.merge_node(node);
         let mut element = MJAccordionElement {
-            attributes,
+            attributes: attrs.clone().concat(node),
             context: None,
             title: None,
             text: None,
@@ -52,10 +50,10 @@ impl MJAccordionElement {
         for child in node.children() {
             match child.tag_name().name() {
                 "mj-accordion-title" => {
-                    element.title = Some(MJAccordionTitle::parse(&child, opts, &children_attr)?);
+                    element.title = Some(MJAccordionTitle::parse(&child, header, &children_attr)?);
                 }
                 "mj-accordion-text" => {
-                    element.text = Some(MJAccordionText::parse(&child, opts, &children_attr)?);
+                    element.text = Some(MJAccordionText::parse(&child, header, &children_attr)?);
                 }
                 _ => (),
             };

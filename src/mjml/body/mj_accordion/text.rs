@@ -3,7 +3,6 @@ use crate::mjml::body::raw::RawElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::{Context, Header, Tag};
-use crate::Options;
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -30,7 +29,7 @@ pub struct MJAccordionText {
 impl MJAccordionText {
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
-        opts: &Options,
+        header: &Header,
         attrs: &HashMap<String, String>,
     ) -> Result<MJAccordionText, Error> {
         if node.tag_name().name() != "mj-accordion-text" {
@@ -46,7 +45,7 @@ impl MJAccordionText {
         for child in node.children() {
             element
                 .children
-                .push(RawElement::conditional_parse(&child, opts, true)?);
+                .push(RawElement::conditional_parse(&child, header, true)?);
         }
         Ok(element)
     }

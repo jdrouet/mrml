@@ -3,7 +3,6 @@ use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
 use crate::util::condition::*;
 use crate::util::{Context, Header, Tag};
-use crate::Options;
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -30,7 +29,7 @@ pub struct MJAccordionTitle {
 impl MJAccordionTitle {
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
-        _opts: &Options,
+        _header: &Header,
         attrs: &HashMap<String, String>,
     ) -> Result<MJAccordionTitle, Error> {
         if node.tag_name().name() != "mj-accordion-title" {

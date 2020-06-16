@@ -3,9 +3,9 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{generate_id, Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::{generate_id, Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -41,11 +41,9 @@ fn create_id() -> String {
 }
 
 impl MJNavbar {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJNavbar, Error> {
-        let mut attributes = create_default_attributes();
-        attributes.merge_node(node);
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJNavbar, Error> {
         let mut result = MJNavbar {
-            attributes,
+            attributes: create_default_attributes().concat(node),
             context: None,
             children: vec![],
             id: create_id(),
@@ -65,7 +63,7 @@ impl MJNavbar {
                     tag_name
                 )));
             } else {
-                let element = MJNavbarLink::parse_link(&child, opts, Some(&attrs))?;
+                let element = MJNavbarLink::parse_link(&child, header, Some(&attrs))?;
                 result.children.push(BodyElement::MJNavbarLink(element));
             }
         }

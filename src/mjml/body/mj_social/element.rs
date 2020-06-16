@@ -1,8 +1,8 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::attributes::*;
+use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -195,7 +195,7 @@ pub struct MJSocialElement {
 impl MJSocialElement {
     pub fn parse_social_child<'a, 'b>(
         node: &Node<'a, 'b>,
-        _opts: &Options,
+        _header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
         if node.tag_name().name() != "mj-social-element" {
@@ -224,7 +224,7 @@ impl MJSocialElement {
             attributes.merge(extra);
         }
         Ok(MJSocialElement {
-            attributes: attributes.add_node(node),
+            attributes: attributes.concat(node),
             context: None,
             content,
             social_network,
@@ -233,7 +233,7 @@ impl MJSocialElement {
 
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
-        opts: &Options,
+        header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
         let mut attrs = match extra {
@@ -243,7 +243,7 @@ impl MJSocialElement {
         if attrs.get("text-padding").is_none() {
             attrs.set("text-padding", "4px 4px 4px 0");
         }
-        Self::parse_social_child(node, opts, Some(&attrs))
+        Self::parse_social_child(node, header, Some(&attrs))
     }
 
     fn get_background_color(&self) -> Option<String> {

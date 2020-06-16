@@ -2,9 +2,9 @@ use super::BodyElement;
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -26,13 +26,13 @@ pub struct MJWrapper {
 }
 
 impl MJWrapper {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJWrapper, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJWrapper, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(&child, opts, None)?);
+            children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
         Ok(MJWrapper {
-            attributes: create_default_attributes().add_node(node),
+            attributes: create_default_attributes().concat(node),
             context: None,
             children,
         })

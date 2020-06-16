@@ -3,8 +3,8 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::BodyElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::attributes::*;
+use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -43,9 +43,9 @@ pub struct MJAccordion {
 }
 
 impl MJAccordion {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJAccordion, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJAccordion, Error> {
         let mut result = MJAccordion {
-            attributes: create_default_attributes().add_node(node),
+            attributes: create_default_attributes().concat(node),
             context: None,
             children: vec![],
         };
@@ -64,7 +64,7 @@ impl MJAccordion {
                     tag_name
                 )));
             } else {
-                let element = MJAccordionElement::parse(&child, opts, &child_attrs)?;
+                let element = MJAccordionElement::parse(&child, header, &child_attrs)?;
                 result
                     .children
                     .push(BodyElement::MJAccordionElement(element));
