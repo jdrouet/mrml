@@ -28,10 +28,10 @@ pub struct MJNavbarLink {
 }
 
 impl MJNavbarLink {
-    fn default_attributes(header: &Header) -> Attributes {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .set_element_attributes("mj-navbar-link", create_default_attributes())
+            .get_attributes(node, create_default_attributes())
     }
 
     pub fn parse_link<'a, 'b>(
@@ -57,7 +57,7 @@ impl MJNavbarLink {
         } else {
             Some(content.join(""))
         };
-        let mut attributes = Self::default_attributes(header);
+        let mut attributes = Self::default_attributes(node, header);
         if let Some(extra) = extra {
             attributes.merge(extra);
         }

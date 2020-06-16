@@ -2,6 +2,7 @@ use super::attributes::{Attributes, Merge};
 use super::fonts::FontRegistry;
 use super::Size;
 use crate::Options;
+use roxmltree::Node;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::string::ToString;
@@ -82,6 +83,25 @@ impl DefaultAttributes {
             Some(attrs) => other.concat(attrs),
             None => other,
         }
+    }
+
+    pub fn get_attributes<'a, 'b>(&self, node: &Node<'a, 'b>, base: Attributes) -> Attributes {
+        let tag_name = node.tag_name().name();
+        let mut result = base.concat(&self.all);
+        if let Some(element) = self.elements.get(tag_name) {
+            result.merge(element);
+        }
+        if let Some(classes) = node
+            .attribute("mj-class")
+            .and_then(|value| Some(value.split(" ").collect::<Vec<&str>>()))
+        {
+            for classname in classes {
+                if let Some(attrs) = self.classes.get(classname) {
+                    result.merge(attrs);
+                }
+            }
+        }
+        result
     }
 }
 

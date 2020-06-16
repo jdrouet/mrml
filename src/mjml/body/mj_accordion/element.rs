@@ -29,10 +29,10 @@ pub struct MJAccordionElement {
 }
 
 impl MJAccordionElement {
-    fn default_attributes(header: &Header) -> Attributes {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .set_element_attributes("mj-accordion-element", Attributes::new())
+            .get_attributes(node, Attributes::new())
     }
 
     pub fn parse<'a, 'b>(
@@ -47,7 +47,9 @@ impl MJAccordionElement {
             )));
         }
         let mut element = MJAccordionElement {
-            attributes: Self::default_attributes(header).concat(attrs).concat(node),
+            attributes: Self::default_attributes(node, header)
+                .concat(attrs)
+                .concat(node),
             context: None,
             title: None,
             text: None,

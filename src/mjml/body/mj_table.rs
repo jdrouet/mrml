@@ -30,10 +30,10 @@ pub struct MJTable {
 }
 
 impl MJTable {
-    fn default_attributes(header: &Header) -> Attributes {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .set_element_attributes("mj-table", create_default_attributes())
+            .get_attributes(node, create_default_attributes())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJTable, Error> {
@@ -42,7 +42,7 @@ impl MJTable {
             children.push(RawElement::conditional_parse(&child, header, true)?);
         }
         Ok(MJTable {
-            attributes: Self::default_attributes(header).concat(node),
+            attributes: Self::default_attributes(node, header).concat(node),
             context: None,
             children,
         })

@@ -26,10 +26,10 @@ pub struct MJWrapper {
 }
 
 impl MJWrapper {
-    fn default_attributes(header: &Header) -> Attributes {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .set_element_attributes("mj-wrapper", create_default_attributes())
+            .get_attributes(node, create_default_attributes())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJWrapper, Error> {
@@ -38,7 +38,7 @@ impl MJWrapper {
             children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
         Ok(MJWrapper {
-            attributes: MJWrapper::default_attributes(header).concat(node),
+            attributes: MJWrapper::default_attributes(node, header).concat(node),
             context: None,
             children,
         })

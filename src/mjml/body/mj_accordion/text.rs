@@ -21,10 +21,10 @@ pub struct MJAccordionText {
 }
 
 impl MJAccordionText {
-    fn default_attributes(header: &Header) -> Attributes {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .set_element_attributes("mj-accordion-text", create_default_attributes())
+            .get_attributes(node, create_default_attributes())
     }
 
     pub fn parse<'a, 'b>(
@@ -38,7 +38,9 @@ impl MJAccordionText {
                 node.tag_name().name()
             )));
         }
-        let attributes = Self::default_attributes(header).concat(attrs).concat(node);
+        let attributes = Self::default_attributes(node, header)
+            .concat(attrs)
+            .concat(node);
         let mut element = MJAccordionText::new(attributes);
         for child in node.children() {
             element

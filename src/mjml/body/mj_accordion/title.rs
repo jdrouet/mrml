@@ -21,10 +21,10 @@ pub struct MJAccordionTitle {
 }
 
 impl MJAccordionTitle {
-    fn default_attributes(header: &Header) -> Attributes {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .set_element_attributes("mj-accordion-title", create_default_attributes())
+            .get_attributes(node, create_default_attributes())
     }
 
     pub fn parse<'a, 'b>(
@@ -43,7 +43,7 @@ impl MJAccordionTitle {
             .filter(|child| child.is_text())
             .filter_map(|child| child.text())
             .collect::<String>();
-        let attributes = Self::default_attributes(header)
+        let attributes = Self::default_attributes(node, header)
             .concat(attrs)
             .concat(node);
         Ok(MJAccordionTitle {

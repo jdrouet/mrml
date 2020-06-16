@@ -26,10 +26,10 @@ pub struct MJSection {
 }
 
 impl MJSection {
-    fn default_attributes(header: &Header) -> Attributes {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .set_element_attributes("mj-section", create_default_attributes())
+            .get_attributes(node, create_default_attributes())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJSection, Error> {
@@ -38,7 +38,7 @@ impl MJSection {
             children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
         Ok(MJSection {
-            attributes: Self::default_attributes(header).concat(node),
+            attributes: Self::default_attributes(node, header).concat(node),
             context: None,
             children,
         })
