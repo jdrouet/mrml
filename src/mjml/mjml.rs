@@ -33,7 +33,7 @@ fn get_body<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJBody, Erro
             return MJBody::parse(&child, header);
         }
     }
-    Ok(MJBody::empty())
+    Ok(MJBody::empty(header))
 }
 
 impl MJMLElement {

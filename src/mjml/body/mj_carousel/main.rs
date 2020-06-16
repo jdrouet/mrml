@@ -44,9 +44,15 @@ pub struct MJCarousel {
 }
 
 impl MJCarousel {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-carousel", create_default_attributes())
+    }
+
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJCarousel, Error> {
         let mut result = MJCarousel {
-            attributes: create_default_attributes().concat(node),
+            attributes: Self::default_attributes(header).concat(node),
             context: None,
             children: vec![],
             id: create_id(),

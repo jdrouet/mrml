@@ -21,6 +21,12 @@ pub struct MJColumn {
 }
 
 impl MJColumn {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-column", create_default_attributes())
+    }
+
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
         header: &Header,
@@ -30,7 +36,7 @@ impl MJColumn {
         for child in node.children() {
             children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
-        let mut attributes = create_default_attributes();
+        let mut attributes = Self::default_attributes(header);
         if let Some(extra) = extra {
             attributes.merge(extra);
         }

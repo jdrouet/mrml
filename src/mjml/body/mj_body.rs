@@ -21,9 +21,15 @@ pub struct MJBody {
 }
 
 impl MJBody {
-    pub fn empty<'a, 'b>() -> MJBody {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-body", create_default_attributes())
+    }
+
+    pub fn empty<'a, 'b>(header: &Header) -> MJBody {
         MJBody {
-            attributes: create_default_attributes(),
+            attributes: Self::default_attributes(header),
             children: vec![],
             context: None,
             exists: false,
@@ -36,7 +42,7 @@ impl MJBody {
             children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
         Ok(MJBody {
-            attributes: create_default_attributes().concat(node),
+            attributes: Self::default_attributes(header).concat(node),
             children,
             context: None,
             exists: true,

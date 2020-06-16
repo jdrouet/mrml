@@ -1,36 +1,36 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> HashMap<String, String> {
-    let mut res = HashMap::new();
-    res.insert("font-size".into(), "13px".into());
-    res.insert("padding".into(), "16px".into());
-    res
-}
-
-fn append_attributes(target: &mut HashMap<String, String>, attrs: &HashMap<String, String>) {
-    for (key, value) in attrs.iter() {
-        target.insert(key.clone(), value.clone());
-    }
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("font-size", "13px")
+        .add("padding", "16px")
 }
 
 #[derive(Clone, Debug)]
 pub struct MJAccordionTitle {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     content: String,
 }
 
 impl MJAccordionTitle {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-accordion-title", create_default_attributes())
+    }
+
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
-        _header: &Header,
-        attrs: &HashMap<String, String>,
+        header: &Header,
+        attrs: &Attributes,
     ) -> Result<MJAccordionTitle, Error> {
         if node.tag_name().name() != "mj-accordion-title" {
             return Err(Error::ParseError(format!(
@@ -43,9 +43,9 @@ impl MJAccordionTitle {
             .filter(|child| child.is_text())
             .filter_map(|child| child.text())
             .collect::<String>();
-        let mut attributes = create_default_attributes();
-        append_attributes(&mut attributes, attrs);
-        add_node_attributes(&mut attributes, &node);
+        let attributes = Self::default_attributes(header)
+            .concat(attrs)
+            .concat(node);
         Ok(MJAccordionTitle {
             attributes,
             context: None,
@@ -53,7 +53,7 @@ impl MJAccordionTitle {
         })
     }
 
-    pub fn new(attributes: HashMap<String, String>) -> Self {
+    pub fn new(attributes: Attributes) -> Self {
         MJAccordionTitle {
             attributes,
             context: None,
@@ -142,7 +142,7 @@ impl Component for MJAccordionTitle {
 
 impl ComponentWithAttributes for MJAccordionTitle {
     fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+        Some(&self.attributes.inner())
     }
 }
 

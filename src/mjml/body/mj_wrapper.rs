@@ -26,13 +26,19 @@ pub struct MJWrapper {
 }
 
 impl MJWrapper {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-wrapper", create_default_attributes())
+    }
+
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJWrapper, Error> {
         let mut children = vec![];
         for child in node.children() {
             children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
         Ok(MJWrapper {
-            attributes: create_default_attributes().concat(node),
+            attributes: MJWrapper::default_attributes(header).concat(node),
             context: None,
             children,
         })

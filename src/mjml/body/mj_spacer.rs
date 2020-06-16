@@ -18,9 +18,15 @@ pub struct MJSpacer {
 }
 
 impl MJSpacer {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _header: &Header) -> Result<MJSpacer, Error> {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-spacer", create_default_attributes())
+    }
+
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJSpacer, Error> {
         Ok(MJSpacer {
-            attributes: create_default_attributes().concat(node),
+            attributes: Self::default_attributes(header).concat(node),
             context: None,
         })
     }

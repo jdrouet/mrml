@@ -193,9 +193,15 @@ pub struct MJSocialElement {
 }
 
 impl MJSocialElement {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-social-element", create_default_attributes())
+    }
+
     pub fn parse_social_child<'a, 'b>(
         node: &Node<'a, 'b>,
-        _header: &Header,
+        header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
         if node.tag_name().name() != "mj-social-element" {
@@ -219,7 +225,7 @@ impl MJSocialElement {
         let social_network = node
             .attribute("name")
             .and_then(|name| SocialNetwork::find(name));
-        let mut attributes = create_default_attributes();
+        let mut attributes = Self::default_attributes(header);
         if let Some(extra) = extra {
             attributes.merge(extra);
         }

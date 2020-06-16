@@ -2,35 +2,35 @@ use crate::mjml::body::prelude::*;
 use crate::mjml::body::raw::RawElement;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> HashMap<String, String> {
-    let mut res = HashMap::new();
-    res.insert("font-size".into(), "13px".into());
-    res.insert("padding".into(), "16px".into());
-    res
-}
-
-fn append_attributes(target: &mut HashMap<String, String>, attrs: &HashMap<String, String>) {
-    for (key, value) in attrs.iter() {
-        target.insert(key.clone(), value.clone());
-    }
+fn create_default_attributes() -> Attributes {
+    Attributes::new()
+        .add("font-size", "13px")
+        .add("padding", "16px")
 }
 
 #[derive(Clone, Debug)]
 pub struct MJAccordionText {
-    attributes: HashMap<String, String>,
+    attributes: Attributes,
     context: Option<Context>,
     children: Vec<RawElement>,
 }
 
 impl MJAccordionText {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-accordion-text", create_default_attributes())
+    }
+
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
         header: &Header,
-        attrs: &HashMap<String, String>,
+        attrs: &Attributes,
     ) -> Result<MJAccordionText, Error> {
         if node.tag_name().name() != "mj-accordion-text" {
             return Err(Error::ParseError(format!(
@@ -38,9 +38,7 @@ impl MJAccordionText {
                 node.tag_name().name()
             )));
         }
-        let mut attributes = create_default_attributes();
-        append_attributes(&mut attributes, attrs);
-        add_node_attributes(&mut attributes, &node);
+        let attributes = Self::default_attributes(header).concat(attrs).concat(node);
         let mut element = MJAccordionText::new(attributes);
         for child in node.children() {
             element
@@ -50,7 +48,7 @@ impl MJAccordionText {
         Ok(element)
     }
 
-    pub fn new(attributes: HashMap<String, String>) -> Self {
+    pub fn new(attributes: Attributes) -> Self {
         MJAccordionText {
             attributes,
             context: None,
@@ -111,7 +109,7 @@ impl Component for MJAccordionText {
 
 impl ComponentWithAttributes for MJAccordionText {
     fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes)
+        Some(self.attributes.inner())
     }
 }
 

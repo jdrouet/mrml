@@ -19,9 +19,15 @@ pub struct MJCarouselImage {
 }
 
 impl MJCarouselImage {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-carousel-image", create_default_attributes())
+    }
+
     pub fn parse_image<'a, 'b>(
         node: &Node<'a, 'b>,
-        _header: &Header,
+        header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJCarouselImage, Error> {
         if node.tag_name().name() != "mj-carousel-image" {
@@ -50,7 +56,7 @@ impl MJCarouselImage {
         } else {
             Some(content.join(""))
         };
-        let mut attributes = create_default_attributes();
+        let mut attributes = Self::default_attributes(header);
         if let Some(extra) = extra {
             attributes.merge(extra);
         }

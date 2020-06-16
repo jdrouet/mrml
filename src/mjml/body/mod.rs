@@ -132,7 +132,7 @@ impl BodyElement {
             "mj-carousel" => BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(node, header)?),
             "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, header, extra)?),
             "mj-divider" => BodyElement::MJDivider(mj_divider::MJDivider::parse(node, header)?),
-            "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, header, extra)?),
+            "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, header)?),
             "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, header)?),
             "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, header)?),
             "mj-navbar" => BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(node, header)?),

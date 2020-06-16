@@ -41,9 +41,15 @@ fn create_id() -> String {
 }
 
 impl MJNavbar {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-navbar", create_default_attributes())
+    }
+
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJNavbar, Error> {
         let mut result = MJNavbar {
-            attributes: create_default_attributes().concat(node),
+            attributes: Self::default_attributes(header).concat(node),
             context: None,
             children: vec![],
             id: create_id(),

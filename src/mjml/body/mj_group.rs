@@ -21,10 +21,15 @@ pub struct MJGroup {
 }
 
 impl MJGroup {
+    fn default_attributes(header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .set_element_attributes("mj-group", create_default_attributes())
+    }
+
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
         header: &Header,
-        _extra: Option<&Attributes>,
     ) -> Result<MJGroup, Error> {
         let mut children = vec![];
         let mut attrs = Attributes::new();
@@ -33,7 +38,7 @@ impl MJGroup {
             children.push(BodyElement::parse(&child, header, Some(&attrs))?);
         }
         Ok(MJGroup {
-            attributes: create_default_attributes().concat(node),
+            attributes: Self::default_attributes(header).concat(node),
             context: None,
             children,
         })
