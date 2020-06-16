@@ -6,8 +6,8 @@ use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new().add("target", "_blank")
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new().add("target", "_blank");
 }
 
 #[derive(Clone, Debug)]
@@ -22,7 +22,7 @@ impl MJCarouselImage {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse_image<'a, 'b>(

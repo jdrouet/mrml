@@ -20,8 +20,8 @@ const CHILDREN_ATTRIBUTES: [&'static str; 9] = [
     "icon-unwrapped-alt",
 ];
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("border", "2px solid black")
         .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
         .add("icon-align", "middle")
@@ -32,7 +32,7 @@ fn create_default_attributes() -> Attributes {
         .add("icon-wrapped-alt", "+")
         .add("icon-unwrapped-url", "https://i.imgur.com/w4uTygT.png")
         .add("icon-unwrapped-alt", "-")
-        .add("padding", "10px 25px")
+        .add("padding", "10px 25px");
 }
 
 #[derive(Clone, Debug)]
@@ -46,7 +46,7 @@ impl MJAccordion {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJAccordion, Error> {

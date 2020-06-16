@@ -2,6 +2,9 @@
 #[macro_use(assert_diff)]
 extern crate difference;
 
+#[macro_use]
+extern crate lazy_static;
+
 use roxmltree::Document;
 use std::default::Default;
 

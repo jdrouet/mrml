@@ -9,8 +9,8 @@ use crate::util::{generate_id, Context, Header, Size, Style, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("align", "center")
         .add("border-radius", "6px")
         .add("icon-width", "44px")
@@ -20,7 +20,7 @@ fn create_default_attributes() -> Attributes {
         .add("tb-border", "2px solid transparent")
         .add("tb-border-radius", "6px")
         .add("tb-hover-border-color", "#fead0d")
-        .add("tb-selected-border-color", "#cccccc")
+        .add("tb-selected-border-color", "#cccccc");
 }
 
 fn repeat(count: usize, value: &str) -> String {
@@ -47,7 +47,7 @@ impl MJCarousel {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJCarousel, Error> {

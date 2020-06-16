@@ -8,8 +8,8 @@ use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new().add("width", "600px")
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new().add("width", "600px");
 }
 
 #[derive(Clone, Debug)]
@@ -24,7 +24,7 @@ impl MJBody {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn empty<'a, 'b>() -> MJBody {

@@ -19,6 +19,7 @@ circle-ci = { repository = "jdrouet/mrml" }
 codecov = { repository = "jdrouet/mrml" }
 
 [dependencies]
+lazy_static = "1.4"
 log = "0.4"
 rand = { default-features = false, features = ["std"], version = "0.7" }
 regex = "1"

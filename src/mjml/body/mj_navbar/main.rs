@@ -9,8 +9,8 @@ use crate::util::{generate_id, Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("align", "center")
         .add("ico-align", "center")
         .add("ico-open", "&#9776;")
@@ -21,7 +21,7 @@ fn create_default_attributes() -> Attributes {
         .add("ico-text-transform", "uppercase")
         .add("ico-padding", "10px")
         .add("ico-text-decoration", "none")
-        .add("ico-line-height", "30px")
+        .add("ico-line-height", "30px");
 }
 
 #[derive(Clone, Debug)]
@@ -44,7 +44,7 @@ impl MJNavbar {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJNavbar, Error> {

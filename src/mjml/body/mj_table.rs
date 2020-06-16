@@ -7,8 +7,8 @@ use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("align", "left")
         .add("border", "none")
         .add("cellpadding", "0")
@@ -19,7 +19,7 @@ fn create_default_attributes() -> Attributes {
         .add("line-height", "22px")
         .add("padding", "10px 25px")
         .add("table-layout", "auto")
-        .add("width", "100%")
+        .add("width", "100%");
 }
 
 #[derive(Clone, Debug)]
@@ -33,7 +33,7 @@ impl MJTable {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJTable, Error> {

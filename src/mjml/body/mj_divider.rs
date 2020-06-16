@@ -7,13 +7,13 @@ use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("border-color", "#000000")
         .add("border-style", "solid")
         .add("border-width", "4px")
         .add("padding", "10px 25px")
-        .add("width", "100%")
+        .add("width", "100%");
 }
 
 #[derive(Clone, Debug)]
@@ -26,7 +26,7 @@ impl MJDivider {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJDivider, Error> {
