@@ -7,8 +7,8 @@ use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("align", "center")
         .add("background-color", "#414141")
         .add("border", "none")
@@ -23,7 +23,7 @@ fn create_default_attributes() -> Attributes {
         .add("target", "_blank")
         .add("text-decoration", "none")
         .add("text-transform", "none")
-        .add("vertical-align", "middle")
+        .add("vertical-align", "middle");
 }
 
 #[derive(Clone, Debug)]
@@ -37,7 +37,7 @@ impl MJButton {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJButton, Error> {

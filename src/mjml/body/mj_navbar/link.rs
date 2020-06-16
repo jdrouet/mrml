@@ -7,8 +7,8 @@ use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("color", "#000000")
         .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
         .add("font-size", "13px")
@@ -17,7 +17,7 @@ fn create_default_attributes() -> Attributes {
         .add("padding", "15px 10px")
         .add("target", "_blank")
         .add("text-decoration", "none")
-        .add("text-transform", "uppercase")
+        .add("text-transform", "uppercase");
 }
 
 #[derive(Clone, Debug)]
@@ -31,7 +31,7 @@ impl MJNavbarLink {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse_link<'a, 'b>(

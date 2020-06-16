@@ -7,10 +7,10 @@ use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("direction", "ltr")
-        .add("vertical-align", "top")
+        .add("vertical-align", "top");
 }
 
 #[derive(Clone, Debug)]
@@ -24,7 +24,7 @@ impl MJColumn {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(

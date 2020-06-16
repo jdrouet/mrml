@@ -6,14 +6,14 @@ use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("align", "center")
         .add("border", "0")
         .add("height", "auto")
         .add("padding", "10px 25px")
         .add("target", "_blank")
-        .add("font-size", "13px")
+        .add("font-size", "13px");
 }
 
 #[derive(Clone, Debug)]
@@ -26,7 +26,7 @@ impl MJImage {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJImage, Error> {

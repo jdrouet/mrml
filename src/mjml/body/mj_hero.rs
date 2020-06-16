@@ -8,14 +8,14 @@ use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("background-color", "#ffffff")
         .add("background-position", "center center")
         .add("height", "0px")
         .add("mode", "fixed-height")
         .add("padding", "0px")
-        .add("vertical-align", "top")
+        .add("vertical-align", "top");
 }
 
 #[derive(Clone, Debug)]
@@ -29,7 +29,7 @@ impl MJHero {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJHero, Error> {

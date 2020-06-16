@@ -9,8 +9,8 @@ use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("align", "center")
         .add("border-radius", "3px")
         .add("color", "#333333")
@@ -20,7 +20,7 @@ fn create_default_attributes() -> Attributes {
         .add("line-height", "22px")
         .add("mode", "horizontal")
         .add("padding", "10px 25px")
-        .add("text-decoration", "none")
+        .add("text-decoration", "none");
 }
 
 #[derive(Clone, Debug)]
@@ -34,7 +34,7 @@ impl MJSocial {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJSocial, Error> {

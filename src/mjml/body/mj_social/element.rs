@@ -171,8 +171,8 @@ impl SocialNetwork {
     }
 }
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("align", "left")
         .add("color", "#000")
         .add("border-radius", "3px")
@@ -181,7 +181,7 @@ fn create_default_attributes() -> Attributes {
         .add("line-height", "1")
         .add("padding", "4px")
         .add("target", "_blank")
-        .add("text-decoration", "none")
+        .add("text-decoration", "none");
 }
 
 #[derive(Clone, Debug)]
@@ -196,7 +196,7 @@ impl MJSocialElement {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse_social_child<'a, 'b>(

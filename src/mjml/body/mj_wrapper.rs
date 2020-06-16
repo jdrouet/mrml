@@ -8,14 +8,14 @@ use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
-fn create_default_attributes() -> Attributes {
-    Attributes::new()
+lazy_static! {
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
         .add("background-repeat", "repeat")
         .add("background-size", "auto")
         .add("direction", "ltr")
         .add("padding", "20px 0")
         .add("text-align", "center")
-        .add("text-padding", "4px 4px 4px 0")
+        .add("text-padding", "4px 4px 4px 0");
 }
 
 #[derive(Clone, Debug)]
@@ -29,7 +29,7 @@ impl MJWrapper {
     fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, create_default_attributes())
+            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJWrapper, Error> {
