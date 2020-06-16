@@ -2,9 +2,9 @@ use super::{MJAccordionText, MJAccordionTitle};
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Attributes, Context, Header, Tag};
-use crate::Options;
+use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -29,9 +29,15 @@ pub struct MJAccordionElement {
 }
 
 impl MJAccordionElement {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .get_attributes(node, Attributes::new())
+    }
+
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
-        opts: &Options,
+        header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionElement, Error> {
         if node.tag_name().name() != "mj-accordion-element" {
@@ -40,10 +46,10 @@ impl MJAccordionElement {
                 node.tag_name().name()
             )));
         }
-        let mut attributes = attrs.clone();
-        attributes.merge_node(node);
         let mut element = MJAccordionElement {
-            attributes,
+            attributes: Self::default_attributes(node, header)
+                .concat(attrs)
+                .concat(node),
             context: None,
             title: None,
             text: None,
@@ -52,10 +58,10 @@ impl MJAccordionElement {
         for child in node.children() {
             match child.tag_name().name() {
                 "mj-accordion-title" => {
-                    element.title = Some(MJAccordionTitle::parse(&child, opts, &children_attr)?);
+                    element.title = Some(MJAccordionTitle::parse(&child, header, &children_attr)?);
                 }
                 "mj-accordion-text" => {
-                    element.text = Some(MJAccordionText::parse(&child, opts, &children_attr)?);
+                    element.text = Some(MJAccordionText::parse(&child, header, &children_attr)?);
                 }
                 _ => (),
             };
@@ -63,32 +69,24 @@ impl MJAccordionElement {
         Ok(element)
     }
 
-    fn get_children_attributes(&self) -> HashMap<String, String> {
-        let mut result: HashMap<String, String> = HashMap::new();
+    fn get_children_attributes(&self) -> Attributes {
+        let mut result = Attributes::new();
         for key in CHILDREN_ATTR.iter() {
             if let Some(value) = self.get_attribute(key) {
-                result.insert(key.to_string(), value.to_string());
+                result.set(key, value);
             }
         }
         result
     }
 
-    fn render_text(
-        &self,
-        header: &Header,
-        attributes: &HashMap<String, String>,
-    ) -> Result<String, Error> {
+    fn render_text(&self, header: &Header, attributes: &Attributes) -> Result<String, Error> {
         match self.text.as_ref() {
             Some(content) => content.render(header),
             None => MJAccordionText::new(attributes.clone()).render(header),
         }
     }
 
-    fn render_title(
-        &self,
-        header: &Header,
-        attributes: &HashMap<String, String>,
-    ) -> Result<String, Error> {
+    fn render_title(&self, header: &Header, attributes: &Attributes) -> Result<String, Error> {
         match self.title.as_ref() {
             Some(content) => content.render(header),
             None => MJAccordionTitle::new(attributes.clone()).render(header),

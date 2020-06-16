@@ -1,8 +1,8 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
-use crate::util::{suffix_css_classes, Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::attributes::*;
+use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -19,9 +19,15 @@ pub struct MJCarouselImage {
 }
 
 impl MJCarouselImage {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .get_attributes(node, create_default_attributes())
+    }
+
     pub fn parse_image<'a, 'b>(
         node: &Node<'a, 'b>,
-        _opts: &Options,
+        header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJCarouselImage, Error> {
         if node.tag_name().name() != "mj-carousel-image" {
@@ -50,11 +56,11 @@ impl MJCarouselImage {
         } else {
             Some(content.join(""))
         };
-        let mut attributes = create_default_attributes();
+        let mut attributes = Self::default_attributes(node, header);
         if let Some(extra) = extra {
             attributes.merge(extra);
         }
-        attributes.merge_node(node);
+        attributes.merge(node);
         Ok(MJCarouselImage {
             attributes,
             carousel_id: carousel_id.to_string(),
@@ -65,7 +71,7 @@ impl MJCarouselImage {
 
     pub fn parse<'a, 'b>(
         node: &Node<'a, 'b>,
-        opts: &Options,
+        header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJCarouselImage, Error> {
         let mut attrs = match extra {
@@ -75,7 +81,7 @@ impl MJCarouselImage {
         if attrs.get("text-padding").is_none() {
             attrs.set("text-padding", "4px 4px 4px 0");
         }
-        Self::parse_image(node, opts, Some(&attrs))
+        Self::parse_image(node, header, Some(&attrs))
     }
 
     fn set_style_images_img(&self, tag: Tag) -> Tag {

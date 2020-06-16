@@ -1,9 +1,9 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::conditional_tag;
-use crate::util::{Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -23,9 +23,15 @@ pub struct MJDivider {
 }
 
 impl MJDivider {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<MJDivider, Error> {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .get_attributes(node, create_default_attributes())
+    }
+
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJDivider, Error> {
         Ok(MJDivider {
-            attributes: create_default_attributes().add_node(node),
+            attributes: Self::default_attributes(node, header).concat(node),
             context: None,
         })
     }

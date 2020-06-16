@@ -2,8 +2,8 @@ use super::prelude::*;
 use super::BodyElement;
 use crate::mjml::prelude::*;
 use crate::mjml::{Component, Error};
-use crate::util::{Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::attributes::*;
+use crate::util::{Context, Header, Size, Tag};
 use log::debug;
 use roxmltree::Node;
 use std::collections::HashMap;
@@ -21,22 +21,28 @@ pub struct MJBody {
 }
 
 impl MJBody {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .get_attributes(node, create_default_attributes())
+    }
+
     pub fn empty<'a, 'b>() -> MJBody {
         MJBody {
-            attributes: create_default_attributes(),
+            attributes: Attributes::new(),
             children: vec![],
             context: None,
             exists: false,
         }
     }
 
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJBody, Error> {
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJBody, Error> {
         let mut children = vec![];
         for child in node.children() {
-            children.push(BodyElement::parse(&child, opts, None)?);
+            children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
         }
         Ok(MJBody {
-            attributes: create_default_attributes().add_node(node),
+            attributes: Self::default_attributes(node, header).concat(node),
             children,
             context: None,
             exists: true,

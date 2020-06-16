@@ -2,6 +2,7 @@ use crate::mjml::error::Error;
 use crate::util::Header;
 use roxmltree::Node;
 
+pub mod mj_attributes;
 pub mod mj_breakpoint;
 pub mod mj_font;
 pub mod mj_head;
@@ -12,6 +13,7 @@ pub mod prelude;
 
 #[derive(Clone, Debug)]
 pub enum HeadElement {
+    MJAttributes(mj_attributes::MJAttributes),
     MJBreakpoint(mj_breakpoint::MJBreakpoint),
     MJFont(mj_font::MJFont),
     MJPreview(mj_preview::MJPreview),
@@ -22,6 +24,7 @@ pub enum HeadElement {
 macro_rules! apply_fn {
     ($root:expr, $func:ident($($args:tt)*)) => {
         match $root {
+            HeadElement::MJAttributes(item) => item.$func($($args)*),
             HeadElement::MJBreakpoint(item) => item.$func($($args)*),
             HeadElement::MJFont(item) => item.$func($($args)*),
             HeadElement::MJPreview(item) => item.$func($($args)*),
@@ -45,6 +48,7 @@ impl HeadElement {
     pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<HeadElement, Error> {
         let tag_name = node.tag_name().name();
         let res = match tag_name {
+            "mj-attributes" => HeadElement::MJAttributes(mj_attributes::MJAttributes::parse(node)?),
             "mj-breakpoint" => HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node)?),
             "mj-font" => HeadElement::MJFont(mj_font::MJFont::parse(node)?),
             "mj-preview" => HeadElement::MJPreview(mj_preview::MJPreview::parse(node)?),

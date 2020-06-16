@@ -1,15 +1,14 @@
-mod attributes;
+pub mod attributes;
 pub mod condition;
 mod context;
 pub mod fonts;
-mod header;
+pub mod header;
 mod id;
 mod size;
 mod spacing;
 mod style;
 mod tag;
 
-pub use attributes::{suffix_css_classes, suffix_unit, Attributes};
 pub use context::Context;
 pub use header::Header;
 pub use id::generate as generate_id;

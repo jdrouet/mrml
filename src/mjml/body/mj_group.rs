@@ -2,9 +2,9 @@ use super::BodyElement;
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Attributes, Context, Header, Size, Tag};
-use crate::Options;
+use crate::util::{Context, Header, Size, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -21,19 +21,21 @@ pub struct MJGroup {
 }
 
 impl MJGroup {
-    pub fn parse<'a, 'b>(
-        node: &Node<'a, 'b>,
-        opts: &Options,
-        _extra: Option<&Attributes>,
-    ) -> Result<MJGroup, Error> {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .get_attributes(node, create_default_attributes())
+    }
+
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJGroup, Error> {
         let mut children = vec![];
         let mut attrs = Attributes::new();
         attrs.set("mobile-width", "mobile-width");
         for child in node.children() {
-            children.push(BodyElement::parse(&child, opts, Some(&attrs))?);
+            children.push(BodyElement::parse(&child, header, Some(&attrs))?);
         }
         Ok(MJGroup {
-            attributes: create_default_attributes().add_node(node),
+            attributes: Self::default_attributes(node, header).concat(node),
             context: None,
             children,
         })

@@ -1,9 +1,9 @@
 use crate::mjml::body::prelude::*;
 use crate::mjml::error::Error;
 use crate::mjml::prelude::*;
+use crate::util::attributes::*;
 use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
-use crate::util::{Attributes, Context, Header, Tag};
-use crate::Options;
+use crate::util::{Context, Header, Tag};
 use roxmltree::Node;
 use std::collections::HashMap;
 
@@ -18,9 +18,15 @@ pub struct MJSpacer {
 }
 
 impl MJSpacer {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _opts: &Options) -> Result<MJSpacer, Error> {
+    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+        header
+            .default_attributes()
+            .get_attributes(node, create_default_attributes())
+    }
+
+    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJSpacer, Error> {
         Ok(MJSpacer {
-            attributes: create_default_attributes().add_node(node),
+            attributes: Self::default_attributes(node, header).concat(node),
             context: None,
         })
     }
