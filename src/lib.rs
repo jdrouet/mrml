@@ -10,6 +10,7 @@ use std::default::Default;
 
 pub mod elements;
 mod error;
+pub mod parser;
 pub mod util;
 
 pub use error::Error;
