@@ -8,8 +8,8 @@ extern crate lazy_static;
 use roxmltree::Document;
 use std::default::Default;
 
+pub mod elements;
 mod error;
-pub mod mjml;
 pub mod util;
 
 pub use error::Error;
@@ -37,10 +37,10 @@ impl Default for Options {
     }
 }
 
-pub fn parse(input: &str, options: Options) -> Result<mjml::MJMLElement, Error> {
+pub fn parse(input: &str, options: Options) -> Result<elements::MJMLElement, Error> {
     let doc = Document::parse(input)?;
     let root = doc.root_element();
-    let element = mjml::parse(&root, &options)?;
+    let element = elements::parse(&root, &options)?;
     Ok(element)
 }
 

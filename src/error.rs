@@ -1,4 +1,4 @@
-use crate::mjml::error::Error as MJMLError;
+use crate::elements::error::Error as MJMLError;
 use roxmltree::Error as XMLError;
 
 #[derive(Debug)]
