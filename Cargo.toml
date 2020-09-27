@@ -23,7 +23,6 @@ lazy_static = "1.4"
 log = "0.4"
 rand = { default-features = false, features = ["std"], version = "0.7" }
 regex = "1"
-roxmltree = "0.11"
 xmlparser = "0.13"
 
 [dev-dependencies]

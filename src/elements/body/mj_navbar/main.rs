@@ -3,10 +3,10 @@ use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{generate_id, Context, Header, Size, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
 
 lazy_static! {
@@ -41,13 +41,13 @@ fn create_id() -> String {
 }
 
 impl MJNavbar {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJNavbar, Error> {
+    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJNavbar, Error> {
         let mut result = MJNavbar {
             attributes: Self::default_attributes(node, header).concat(node),
             context: None,
@@ -55,22 +55,18 @@ impl MJNavbar {
             id: create_id(),
         };
         let attrs = result.get_children_attributes();
-        for child in node.children() {
-            let tag_name = child.tag_name().name();
-            if tag_name == "" {
-                if let Some(content) = child.text() {
-                    if content.len() == 0 {
-                        continue;
-                    }
+        for child in node.children.iter() {
+            if let Some(child_node) = child.as_node() {
+                let tag_name = child_node.name.as_str();
+                if tag_name != "mj-navbar-link" {
+                    return Err(Error::ParseError(format!(
+                        "expect only 'mj-navbar-link', not '{}'",
+                        tag_name
+                    )));
+                } else {
+                    let element = MJNavbarLink::parse_link(&child_node, header, Some(&attrs))?;
+                    result.children.push(BodyElement::MJNavbarLink(element));
                 }
-            } else if tag_name != "mj-navbar-link" {
-                return Err(Error::ParseError(format!(
-                    "expect only 'mj-navbar-link', not '{}'",
-                    tag_name
-                )));
-            } else {
-                let element = MJNavbarLink::parse_link(&child, header, Some(&attrs))?;
-                result.children.push(BodyElement::MJNavbarLink(element));
             }
         }
         Ok(result)

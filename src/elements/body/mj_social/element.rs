@@ -1,9 +1,9 @@
 use crate::elements::body::prelude::*;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::{Context, Header, Size, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
 
 const IMAGE_ORIGIN: &'static str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
@@ -193,38 +193,34 @@ pub struct MJSocialElement {
 }
 
 impl MJSocialElement {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse_social_child<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse_social_child<'a>(
+        node: &Node<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
-        if node.tag_name().name() != "mj-social-element" {
+        if node.name.as_str() != "mj-social-element" {
             return Err(Error::ParseError(format!(
                 "element should be 'mj-social-element' no '{}'",
-                node.tag_name().name()
+                node.name.as_str()
             )));
         }
-        let content: Vec<&str> = node
-            .children()
-            .filter(|child| child.is_text())
-            .map(|child| child.text())
-            .filter(|child| child.is_some())
-            .map(|child| child.unwrap())
-            .collect();
-        let content = if content.len() == 0 {
-            None
-        } else {
-            Some(content.join(""))
-        };
+        let content = node
+            .children
+            .iter()
+            .filter_map(|child| child.as_text())
+            .map(|child| child.as_str())
+            .collect::<String>();
         let social_network = node
-            .attribute("name")
-            .and_then(|name| SocialNetwork::find(name));
+            .attributes
+            .iter()
+            .find(|(key, _value)| key.as_str() == "name")
+            .and_then(|(_key, value)| SocialNetwork::find(value.as_str()));
         let mut attributes = Self::default_attributes(node, header);
         if let Some(extra) = extra {
             attributes.merge(extra);
@@ -232,13 +228,17 @@ impl MJSocialElement {
         Ok(MJSocialElement {
             attributes: attributes.concat(node),
             context: None,
-            content,
+            content: if content.is_empty() {
+                None
+            } else {
+                Some(content)
+            },
             social_network,
         })
     }
 
-    pub fn parse<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse<'a>(
+        node: &Node<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {

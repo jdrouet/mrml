@@ -1,4 +1,9 @@
-use roxmltree::Node;
+use crate::elements::error::Error;
+use crate::elements::prelude::*;
+use crate::parser::Element;
+use crate::util::attributes::Attributes;
+use crate::util::{Context, Header, Size, Tag};
+use prelude::BodyComponent;
 use std::collections::HashMap;
 
 pub mod mj_accordion;
@@ -20,12 +25,6 @@ pub mod mj_text;
 pub mod mj_wrapper;
 pub mod prelude;
 pub mod raw;
-
-use crate::elements::error::Error;
-use crate::elements::prelude::*;
-use crate::util::attributes::Attributes;
-use crate::util::{Context, Header, Size, Tag};
-use prelude::BodyComponent;
 
 #[derive(Clone, Debug)]
 pub enum BodyElement {
@@ -119,31 +118,38 @@ impl BodyComponent for BodyElement {
 }
 
 impl BodyElement {
-    pub fn parse<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse<'a>(
+        element: &Element<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<BodyElement, Error> {
-        let res = match node.tag_name().name() {
-            "mj-accordion" => {
-                BodyElement::MJAccordion(mj_accordion::MJAccordion::parse(node, header)?)
-            }
-            "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, header)?),
-            "mj-carousel" => BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(node, header)?),
-            "mj-column" => BodyElement::MJColumn(mj_column::MJColumn::parse(node, header, extra)?),
-            "mj-divider" => BodyElement::MJDivider(mj_divider::MJDivider::parse(node, header)?),
-            "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, header)?),
-            "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, header)?),
-            "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, header)?),
-            "mj-navbar" => BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(node, header)?),
-            "mj-raw" => BodyElement::MJRaw(mj_raw::MJRaw::parse(node, header)?),
-            "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, header)?),
-            "mj-social" => BodyElement::MJSocial(mj_social::MJSocial::parse(node, header)?),
-            "mj-spacer" => BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(node, header)?),
-            "mj-table" => BodyElement::MJTable(mj_table::MJTable::parse(node, header)?),
-            "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, header)?),
-            "mj-wrapper" => BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(node, header)?),
-            _ => BodyElement::Raw(raw::RawElement::parse(node, header)?),
+        let res = match element {
+            Element::Node(node) => match node.name.as_str() {
+                "mj-accordion" => {
+                    BodyElement::MJAccordion(mj_accordion::MJAccordion::parse(node, header)?)
+                }
+                "mj-button" => BodyElement::MJButton(mj_button::MJButton::parse(node, header)?),
+                "mj-carousel" => {
+                    BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(node, header)?)
+                }
+                "mj-column" => {
+                    BodyElement::MJColumn(mj_column::MJColumn::parse(node, header, extra)?)
+                }
+                "mj-divider" => BodyElement::MJDivider(mj_divider::MJDivider::parse(node, header)?),
+                "mj-group" => BodyElement::MJGroup(mj_group::MJGroup::parse(node, header)?),
+                "mj-hero" => BodyElement::MJHero(mj_hero::MJHero::parse(node, header)?),
+                "mj-image" => BodyElement::MJImage(mj_image::MJImage::parse(node, header)?),
+                "mj-navbar" => BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(node, header)?),
+                "mj-raw" => BodyElement::MJRaw(mj_raw::MJRaw::parse(node, header)?),
+                "mj-section" => BodyElement::MJSection(mj_section::MJSection::parse(node, header)?),
+                "mj-social" => BodyElement::MJSocial(mj_social::MJSocial::parse(node, header)?),
+                "mj-spacer" => BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(node, header)?),
+                "mj-table" => BodyElement::MJTable(mj_table::MJTable::parse(node, header)?),
+                "mj-text" => BodyElement::MJText(mj_text::MJText::parse(node, header)?),
+                "mj-wrapper" => BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(node, header)?),
+                _ => BodyElement::Raw(raw::RawElement::parse(element, header)?),
+            },
+            _ => BodyElement::Raw(raw::RawElement::parse(element, header)?),
         };
         Ok(res)
     }

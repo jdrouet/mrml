@@ -22,7 +22,7 @@ impl From<xmlparser::Error> for Error {
 
 #[derive(Debug, Default)]
 pub struct Options {
-    pub keep_comment: bool,
+    pub keep_comments: bool,
 }
 
 pub struct Node<'a> {
@@ -99,6 +99,42 @@ pub enum Element<'a> {
 }
 
 impl<'a> Element<'a> {
+    pub fn is_comment(&self) -> bool {
+        match self {
+            Element::Comment(_) => true,
+            _ => false,
+        }
+    }
+    pub fn as_comment(&self) -> Option<&StrSpan<'a>> {
+        match self {
+            Element::Comment(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn is_node(&self) -> bool {
+        match self {
+            Element::Node(_) => true,
+            _ => false,
+        }
+    }
+    pub fn as_node(&self) -> Option<&Node<'a>> {
+        match self {
+            Element::Node(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn is_text(&self) -> bool {
+        match self {
+            Element::Text(_) => true,
+            _ => false,
+        }
+    }
+    pub fn as_text(&self) -> Option<&StrSpan<'a>> {
+        match self {
+            Element::Text(value) => Some(value),
+            _ => None,
+        }
+    }
     fn parse_children(
         parser: &mut Tokenizer<'a>,
         tag: StrSpan<'a>,
@@ -137,7 +173,7 @@ impl<'a> Element<'a> {
                 },
                 // TODO handle comments
                 Token::Comment { text, span: _ } => {
-                    if opts.keep_comment {
+                    if opts.keep_comments {
                         children.push(Element::Comment(text));
                     }
                 }
@@ -156,12 +192,12 @@ impl<'a> Element<'a> {
 ///             <mj-title>Something</mj-title>
 ///         </mj-head>
 ///     </mjml>
-/// "#);
+/// "#, mrml::Options::default());
 /// assert!(result.is_ok());
 /// ```
 ///
 /// ```rust
-/// let result = mrml::parse("<mjml");
+/// let result = mrml::parse("<mjml", mrml::Options::default());
 /// assert!(result.is_err());
 /// ```
 pub fn parse<'a>(text: &'a str, opts: Options) -> Result<Node<'a>, Error> {
@@ -220,7 +256,7 @@ mod tests {
     #[test]
     fn parse_with_comment() {
         let mut opts = Options::default();
-        opts.keep_comment = true;
+        opts.keep_comments = true;
         let root = parse(
             "<mjml><mj-body><!--<a href=\"toto\">yolo</a>--></mj-body></mjml>",
             opts,

@@ -1,30 +1,34 @@
 use super::prelude::*;
 use crate::elements::error::Error;
+use crate::parser::{Element, Node};
 use crate::util::Header;
-use roxmltree::Node;
 
 #[derive(Clone, Debug)]
 pub struct MJPreview {
-    content: Option<String>,
+    pub content: String,
 }
 
 impl MJPreview {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
-        let content = node.text().and_then(|value| Some(value.to_string()));
-        Ok(Self { content })
-    }
-
-    pub fn get_content(&self) -> String {
-        match self.content.as_ref() {
-            Some(value) => value.to_string(),
-            None => "".into(),
+    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+        for child in node.children.iter() {
+            match child {
+                Element::Text(value) => {
+                    return Ok(Self {
+                        content: value.as_str().into(),
+                    });
+                }
+                _ => return Err(Error::ParseError("invalid child".into())),
+            };
         }
+        Ok(Self {
+            content: String::new(),
+        })
     }
 }
 
 impl HeadComponent for MJPreview {
     fn update_header(&self, header: &mut Header) {
-        header.set_preview(self.get_content());
+        header.set_preview(self.content.clone());
     }
 }
 

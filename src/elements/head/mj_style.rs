@@ -1,7 +1,7 @@
 use super::prelude::*;
 use crate::elements::error::Error;
+use crate::parser::{Element, Node};
 use crate::util::Header;
-use roxmltree::Node;
 
 #[derive(Clone, Debug)]
 pub struct MJStyle {
@@ -10,15 +10,23 @@ pub struct MJStyle {
 }
 
 impl MJStyle {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
-        let inline = match node.attribute("inline") {
-            Some(value) => value == "inline",
-            None => false,
-        };
-        let content = match node.text() {
-            Some(value) => value.to_string(),
-            None => "".into(),
-        };
+    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+        let mut content = String::new();
+        let mut inline = false;
+        for (key, _value) in node.attributes.iter() {
+            match key.as_str() {
+                "inline" => {
+                    inline = true;
+                }
+                _ => return Err(Error::ParseError("unexpected attribute".into())),
+            };
+        }
+        for child in node.children.iter() {
+            match child {
+                Element::Text(value) => content.push_str(value.as_str()),
+                _ => return Err(Error::ParseError("unexpected child".into())),
+            };
+        }
         Ok(Self { inline, content })
     }
 }

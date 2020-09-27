@@ -3,9 +3,9 @@ use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::{Element, Node};
 use crate::util::attributes::*;
 use crate::util::{Context, Header, Size, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
 
 const CHILDREN_ATTRIBUTES: [&'static str; 9] = [
@@ -43,38 +43,32 @@ pub struct MJAccordion {
 }
 
 impl MJAccordion {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJAccordion, Error> {
+    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJAccordion, Error> {
         let mut result = MJAccordion {
             attributes: Self::default_attributes(node, header).concat(node),
             context: None,
             children: vec![],
         };
         let child_attrs = result.get_children_attributes();
-        for child in node.children() {
-            let tag_name = child.tag_name().name();
-            if tag_name == "" {
-                if let Some(content) = child.text() {
-                    if content.len() == 0 {
-                        continue;
+        for child in node.children.iter() {
+            match child {
+                Element::Node(node) => match node.name.as_str() {
+                    "mj-accordion-element" => {
+                        let element = MJAccordionElement::parse(node, header, &child_attrs)?;
+                        result
+                            .children
+                            .push(BodyElement::MJAccordionElement(element));
                     }
-                }
-            } else if tag_name != "mj-accordion-element" {
-                return Err(Error::ParseError(format!(
-                    "expect only 'mj-accordion-element', not '{}'",
-                    tag_name
-                )));
-            } else {
-                let element = MJAccordionElement::parse(&child, header, &child_attrs)?;
-                result
-                    .children
-                    .push(BodyElement::MJAccordionElement(element));
-            }
+                    _ => return Err(Error::ParseError("unexpected child".into())),
+                },
+                _ => return Err(Error::ParseError("unexpected child".into())),
+            };
         }
         Ok(result)
     }

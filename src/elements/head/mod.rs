@@ -1,6 +1,6 @@
 use crate::elements::error::Error;
+use crate::parser::{Element, Node};
 use crate::util::Header;
-use roxmltree::Node;
 
 pub mod mj_attributes;
 pub mod mj_breakpoint;
@@ -35,18 +35,21 @@ macro_rules! apply_fn {
 }
 
 impl HeadElement {
-    pub fn parse_all<'a, 'b>(nodes: Vec<Node<'a, 'b>>) -> Result<Vec<HeadElement>, Error> {
+    pub fn parse_all<'a>(elements: &Vec<Element<'a>>) -> Result<Vec<HeadElement>, Error> {
         let mut res = vec![];
-        for item in nodes {
-            if !item.tag_name().name().is_empty() {
-                res.push(HeadElement::parse(&item)?);
+        for elt in elements {
+            match elt {
+                Element::Node(node) => {
+                    res.push(HeadElement::parse(&node)?);
+                }
+                _ => return Err(Error::ParseError("expected node".into())),
             }
         }
         Ok(res)
     }
 
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<HeadElement, Error> {
-        let tag_name = node.tag_name().name();
+    pub fn parse<'a>(node: &Node<'a>) -> Result<HeadElement, Error> {
+        let tag_name = node.name.as_str();
         let res = match tag_name {
             "mj-attributes" => HeadElement::MJAttributes(mj_attributes::MJAttributes::parse(node)?),
             "mj-breakpoint" => HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node)?),

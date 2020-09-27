@@ -1,10 +1,10 @@
 use crate::elements::body::prelude::*;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{Context, Header, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
 
 lazy_static! {
@@ -21,27 +21,28 @@ pub struct MJAccordionTitle {
 }
 
 impl MJAccordionTitle {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse<'a>(
+        node: &Node<'a>,
         header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionTitle, Error> {
-        if node.tag_name().name() != "mj-accordion-title" {
+        if node.name.as_str() != "mj-accordion-title" {
             return Err(Error::ParseError(format!(
                 "element should be 'mj-accordion-title' not '{}'",
-                node.tag_name().name()
+                node.name.as_str()
             )));
         }
         let content: String = node
-            .children()
-            .filter(|child| child.is_text())
-            .filter_map(|child| child.text())
+            .children
+            .iter()
+            .filter_map(|child| child.as_text())
+            .map(|value| value.as_str())
             .collect::<String>();
         let attributes = Self::default_attributes(node, header)
             .concat(attrs)

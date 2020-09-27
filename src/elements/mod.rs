@@ -1,5 +1,5 @@
+use crate::parser::Node;
 use crate::Options;
-use roxmltree::Node;
 
 pub mod body;
 pub mod error;
@@ -12,6 +12,6 @@ use prelude::Component;
 
 pub use mjml::MJMLElement;
 
-pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<mjml::MJMLElement, Error> {
+pub fn parse<'a>(node: &Node<'a>, opts: Options) -> Result<mjml::MJMLElement<'a>, Error> {
     mjml::MJMLElement::parse(node, opts)
 }

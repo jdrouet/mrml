@@ -1,7 +1,7 @@
 use super::prelude::*;
 use crate::elements::error::Error;
+use crate::parser::Node;
 use crate::util::{Header, Size};
-use roxmltree::Node;
 
 #[derive(Clone, Debug)]
 pub struct MJBreakpoint {
@@ -9,10 +9,12 @@ pub struct MJBreakpoint {
 }
 
 impl MJBreakpoint {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
+    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
         let value = node
-            .attribute("width")
-            .and_then(|attr| attr.parse::<Size>().ok());
+            .attributes
+            .iter()
+            .find(|(key, _value)| key.as_str() == "width")
+            .and_then(|(_key, value)| value.as_str().parse::<Size>().ok());
         Ok(Self { value })
     }
 }

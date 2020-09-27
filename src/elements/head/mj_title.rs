@@ -1,25 +1,27 @@
 use super::prelude::*;
 use crate::elements::error::Error;
+use crate::parser::{Element, Node};
 use crate::util::Header;
-use roxmltree::Node;
 
 #[derive(Clone, Debug)]
 pub struct MJTitle {
-    content: Option<String>,
+    content: String,
 }
 
 impl MJTitle {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
-        Ok(Self {
-            content: node.text().and_then(|value| Some(value.to_string())),
-        })
+    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+        let mut content = String::new();
+        for child in node.children.iter() {
+            match child {
+                Element::Text(value) => content.push_str(value.as_str()),
+                _ => return Err(Error::ParseError("Unexpected child".into())),
+            }
+        }
+        Ok(Self { content })
     }
 
     pub fn get_content(&self) -> String {
-        match self.content.as_ref() {
-            Some(value) => value.to_string(),
-            None => "".into(),
-        }
+        self.content.clone()
     }
 }
 

@@ -1,10 +1,10 @@
 use crate::elements::error::Error as MJMLError;
-use roxmltree::Error as XMLError;
+use crate::parser::Error as ParserError;
 
 #[derive(Debug)]
 pub enum Error {
     MJMLError(MJMLError),
-    XMLError(XMLError),
+    ParserError(ParserError),
 }
 
 impl Error {
@@ -22,8 +22,8 @@ impl From<MJMLError> for Error {
     }
 }
 
-impl From<XMLError> for Error {
-    fn from(error: XMLError) -> Error {
-        Error::XMLError(error)
+impl From<ParserError> for Error {
+    fn from(error: ParserError) -> Error {
+        Error::ParserError(error)
     }
 }

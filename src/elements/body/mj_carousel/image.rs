@@ -1,9 +1,9 @@
 use crate::elements::body::prelude::*;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::{Context, Header, Size, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
 
 lazy_static! {
@@ -19,21 +19,21 @@ pub struct MJCarouselImage {
 }
 
 impl MJCarouselImage {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse_image<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse_image<'a>(
+        node: &Node<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJCarouselImage, Error> {
-        if node.tag_name().name() != "mj-carousel-image" {
+        if node.name.as_str() != "mj-carousel-image" {
             return Err(Error::ParseError(format!(
                 "element should be 'mj-carousel-image' no '{}'",
-                node.tag_name().name()
+                node.name.as_str()
             )));
         }
         let carousel_id = match extra.and_then(|attrs| attrs.get("carousel-id")) {
@@ -45,11 +45,10 @@ impl MJCarouselImage {
             }
         };
         let content: Vec<&str> = node
-            .children()
-            .filter(|child| child.is_text())
-            .map(|child| child.text())
-            .filter(|child| child.is_some())
-            .map(|child| child.unwrap())
+            .children
+            .iter()
+            .filter_map(|child| child.as_text())
+            .map(|value| value.as_str())
             .collect();
         let content = if content.len() == 0 {
             None
@@ -69,8 +68,8 @@ impl MJCarouselImage {
         })
     }
 
-    pub fn parse<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse<'a>(
+        node: &Node<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJCarouselImage, Error> {

@@ -2,42 +2,52 @@ use super::body::mj_body::MJBody;
 use super::head::mj_head::MJHead;
 use super::prelude::*;
 use super::Error;
+use crate::parser::{Element, Node};
 use crate::util::{Context, Header};
 use crate::Options;
 use log::debug;
-use roxmltree::Node;
 
 const DOCTYPE: &str = "<!doctype html>";
 const HTML_OPEN: &str = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">";
 const HTML_CLOSE: &str = "</html>";
 
 #[derive(Clone, Debug)]
-pub struct MJMLElement {
+pub struct MJMLElement<'a> {
     context: Option<Context>,
-    head: MJHead,
+    head: MJHead<'a>,
     body: MJBody,
 }
 
-fn get_head<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
-    for child in node.children() {
-        if child.tag_name().name() == "mj-head" {
-            return MJHead::parse(&child, &opts);
+fn get_head<'a>(node: &Node<'a>, opts: Options) -> Result<MJHead<'a>, Error> {
+    for child in node.children.iter() {
+        match child {
+            Element::Node(node) => {
+                if node.name.as_str() == "mj-head" {
+                    return MJHead::parse(&node, opts);
+                }
+            }
+            _ => (),
         }
     }
-    Ok(MJHead::empty(&opts))
+    Ok(MJHead::empty(opts))
 }
 
-fn get_body<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<MJBody, Error> {
-    for child in node.children() {
-        if child.tag_name().name() == "mj-body" {
-            return MJBody::parse(&child, header);
+fn get_body<'a>(node: &Node<'a>, header: &Header) -> Result<MJBody, Error> {
+    for child in node.children.iter() {
+        match child {
+            Element::Node(node) => {
+                if node.name.as_str() == "mj-body" {
+                    return MJBody::parse(&node, &header);
+                }
+            }
+            _ => (),
         }
     }
     Ok(MJBody::empty())
 }
 
-impl MJMLElement {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJMLElement, Error> {
+impl<'a> MJMLElement<'a> {
+    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJMLElement<'a>, Error> {
         let mut head = get_head(node, opts)?;
         let mut body = get_body(node, head.get_header())?;
         body.set_context(Context::default());

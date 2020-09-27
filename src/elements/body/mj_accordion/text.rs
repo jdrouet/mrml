@@ -2,9 +2,9 @@ use crate::elements::body::prelude::*;
 use crate::elements::body::raw::RawElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::{Context, Header, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
 
 lazy_static! {
@@ -21,28 +21,28 @@ pub struct MJAccordionText {
 }
 
 impl MJAccordionText {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse<'a>(
+        node: &Node<'a>,
         header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionText, Error> {
-        if node.tag_name().name() != "mj-accordion-text" {
+        if node.name.as_str() != "mj-accordion-text" {
             return Err(Error::ParseError(format!(
                 "element should be 'mj-accordion-text' not '{}'",
-                node.tag_name().name()
+                node.name.as_str()
             )));
         }
         let attributes = Self::default_attributes(node, header)
             .concat(attrs)
             .concat(node);
         let mut element = MJAccordionText::new(attributes);
-        for child in node.children() {
+        for child in node.children.iter() {
             element
                 .children
                 .push(RawElement::conditional_parse(&child, header, true)?);

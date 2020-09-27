@@ -1,7 +1,7 @@
 use super::prelude::*;
 use crate::elements::error::Error;
+use crate::parser::Node;
 use crate::util::Header;
-use roxmltree::Node;
 
 #[derive(Clone, Debug)]
 pub struct MJFont {
@@ -10,15 +10,29 @@ pub struct MJFont {
 }
 
 impl MJFont {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>) -> Result<Self, Error> {
-        let name = match node.attribute("name") {
-            Some(value) => value.to_string(),
-            None => return Err(Error::ParseError("name attribute missing".into())),
-        };
-        let href = match node.attribute("href") {
-            Some(value) => value.to_string(),
-            None => return Err(Error::ParseError("href attribute missing".into())),
-        };
+    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+        let mut name: Option<String> = None;
+        let mut href: Option<String> = None;
+        for (key, value) in node.attributes.iter() {
+            let key = key.as_str();
+            match key {
+                "name" => {
+                    name = Some(value.as_str().into());
+                }
+                "href" => {
+                    href = Some(value.as_str().into());
+                }
+                _ => return Err(Error::ParseError("unexpected parameter".into())),
+            };
+        }
+        if name.is_none() {
+            return Err(Error::ParseError("name attribute missing".into()));
+        }
+        if href.is_none() {
+            return Err(Error::ParseError("href attribute missing".into()));
+        }
+        let name = name.unwrap();
+        let href = href.unwrap();
         Ok(Self { name, href })
     }
 }

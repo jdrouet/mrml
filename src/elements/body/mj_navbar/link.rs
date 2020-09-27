@@ -1,10 +1,10 @@
 use crate::elements::body::prelude::*;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{Context, Header, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
 
 lazy_static! {
@@ -28,35 +28,29 @@ pub struct MJNavbarLink {
 }
 
 impl MJNavbarLink {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse_link<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse_link<'a>(
+        node: &Node<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {
-        if node.tag_name().name() != "mj-navbar-link" {
+        if node.name.as_str() != "mj-navbar-link" {
             return Err(Error::ParseError(format!(
                 "element should be 'mj-navbar-link' no '{}'",
-                node.tag_name().name()
+                node.name.as_str()
             )));
         }
-        let content: Vec<&str> = node
-            .children()
-            .filter(|child| child.is_text())
-            .map(|child| child.text())
-            .filter(|child| child.is_some())
-            .map(|child| child.unwrap())
-            .collect();
-        let content = if content.len() == 0 {
-            None
-        } else {
-            Some(content.join(""))
-        };
+        let content = node
+            .children
+            .iter()
+            .filter_map(|child| child.as_text())
+            .map(|child| child.as_str())
+            .collect::<String>();
         let mut attributes = Self::default_attributes(node, header);
         if let Some(extra) = extra {
             attributes.merge(extra);
@@ -65,12 +59,16 @@ impl MJNavbarLink {
         Ok(MJNavbarLink {
             attributes,
             context: None,
-            content,
+            content: if content.is_empty() {
+                None
+            } else {
+                Some(content)
+            },
         })
     }
 
-    pub fn parse<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse<'a>(
+        node: &Node<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {

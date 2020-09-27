@@ -2,11 +2,11 @@ use super::HeadElement;
 use crate::elements::head::prelude::HeadComponent;
 use crate::elements::prelude::*;
 use crate::elements::Error;
+use crate::parser::Node;
 use crate::util::fonts::{url_to_import, url_to_link};
 use crate::util::{Context, Header, Tag};
 use crate::Options;
 use log::debug;
-use roxmltree::Node;
 use std::collections::HashMap;
 
 const STYLE_BASE: &str = r#"
@@ -54,15 +54,15 @@ p {
 "#;
 
 #[derive(Debug, Clone)]
-pub struct MJHead {
-    attributes: HashMap<String, String>,
+pub struct MJHead<'a> {
+    attributes: HashMap<&'a str, &'a str>,
     context: Option<Context>,
     children: Vec<HeadElement>,
     header: Header,
 }
 
-impl MJHead {
-    pub fn empty(opts: &Options) -> MJHead {
+impl<'a> MJHead<'a> {
+    pub fn empty(opts: Options) -> MJHead<'a> {
         debug!("create empty");
         MJHead {
             attributes: HashMap::new(),
@@ -72,14 +72,20 @@ impl MJHead {
         }
     }
 
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, opts: &Options) -> Result<MJHead, Error> {
-        let children = HeadElement::parse_all(node.children().collect())?;
+    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJHead<'a>, Error> {
+        let children = HeadElement::parse_all(&node.children)?;
         let mut header = Header::from(opts);
         for child in children.iter() {
             child.update_header(&mut header);
         }
         Ok(MJHead {
-            attributes: get_node_attributes(&node),
+            attributes: node
+                .attributes
+                .iter()
+                .fold(HashMap::new(), |mut res, (key, value)| {
+                    res.insert(key.as_str(), value.as_str());
+                    res
+                }),
             context: None,
             children,
             header,
@@ -104,7 +110,7 @@ impl MJHead {
     pub fn get_preview(&self) -> String {
         for child in self.children.iter() {
             match child {
-                HeadElement::MJPreview(element) => return element.get_content(),
+                HeadElement::MJPreview(element) => return element.content.clone(),
                 _ => (),
             };
         }
@@ -173,7 +179,7 @@ impl MJHead {
     }
 }
 
-impl Component for MJHead {
+impl<'a> Component for MJHead<'a> {
     fn context(&self) -> Option<&Context> {
         self.context.as_ref()
     }

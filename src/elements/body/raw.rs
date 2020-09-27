@@ -2,74 +2,10 @@ use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
 use crate::elements::prelude::*;
 use crate::elements::{Component, Error};
+use crate::parser::{Element, Node};
 use crate::util::attributes::*;
 use crate::util::{Context, Header, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
-
-fn empty_str() -> String {
-    "".into()
-}
-
-fn get_node_text<'a, 'b>(node: &Node<'a, 'b>) -> String {
-    node.text()
-        .and_then(|txt| Some(txt.to_string()))
-        .or_else(|| Some(empty_str()))
-        .unwrap()
-}
-
-#[derive(Clone, Debug)]
-pub struct CommentElement {
-    content: String,
-}
-
-impl CommentElement {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _header: &Header) -> Result<CommentElement, Error> {
-        Ok(Self {
-            content: get_node_text(node),
-        })
-    }
-}
-
-impl Component for CommentElement {
-    fn context(&self) -> Option<&Context> {
-        None
-    }
-
-    fn set_context(&mut self, _ctx: Context) {
-        // noop
-    }
-
-    fn render(&self, header: &Header) -> Result<String, Error> {
-        if !header.keep_comments() || self.content.len() == 0 {
-            return Ok(empty_str());
-        }
-        Ok(format!("<!--{}-->", self.content))
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct TextElement(String);
-
-impl TextElement {
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, _header: &Header) -> Result<TextElement, Error> {
-        Ok(Self(get_node_text(node)))
-    }
-}
-
-impl Component for TextElement {
-    fn context(&self) -> Option<&Context> {
-        None
-    }
-
-    fn set_context(&mut self, _ctx: Context) {
-        // noop
-    }
-
-    fn render(&self, _header: &Header) -> Result<String, Error> {
-        Ok(self.0.clone())
-    }
-}
 
 #[derive(Clone, Debug)]
 pub struct NodeElement {
@@ -80,20 +16,20 @@ pub struct NodeElement {
 }
 
 impl NodeElement {
-    fn conditional_parse<'a, 'b>(
-        node: &Node<'a, 'b>,
+    fn conditional_parse<'a>(
+        node: &Node<'a>,
         header: &Header,
         only_raw: bool,
     ) -> Result<NodeElement, Error> {
-        let tag = node.tag_name().name();
+        let tag = node.name.as_str();
         if only_raw && tag.starts_with("mj-") {
             return Err(Error::ParseError(format!("'{}' is not allowed", tag)));
         }
         let mut children = vec![];
-        for child in node.children() {
+        for child in node.children.iter() {
             if only_raw {
                 children.push(BodyElement::Raw(RawElement::conditional_parse(
-                    &child, header, true,
+                    child, header, true,
                 )?))
             } else {
                 children.push(BodyElement::parse(&child, header, None)?);
@@ -103,7 +39,7 @@ impl NodeElement {
             attributes: Attributes::from(node),
             context: None,
             children,
-            tag: node.tag_name().name().to_string(),
+            tag: node.name.as_str().to_string(),
         })
     }
 
@@ -143,44 +79,27 @@ impl ComponentWithAttributes for NodeElement {
 
 #[derive(Clone, Debug)]
 pub enum RawElement {
-    Comment(CommentElement),
+    Comment(String),
     Node(NodeElement),
-    Text(TextElement),
+    Text(String),
 }
 
 impl RawElement {
-    fn parse_comment<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<RawElement, Error> {
-        CommentElement::parse(node, header).and_then(|item| Ok(RawElement::Comment(item)))
+    pub fn parse<'a>(element: &Element<'a>, header: &Header) -> Result<RawElement, Error> {
+        RawElement::conditional_parse(element, header, false)
     }
 
-    fn parse_text<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<RawElement, Error> {
-        TextElement::parse(node, header).and_then(|item| Ok(RawElement::Text(item)))
-    }
-
-    fn parse_node<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn conditional_parse<'a>(
+        element: &Element<'a>,
         header: &Header,
         only_raw: bool,
     ) -> Result<RawElement, Error> {
-        NodeElement::conditional_parse(node, header, only_raw)
-            .and_then(|item| Ok(RawElement::Node(item)))
-    }
-
-    pub fn parse<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Result<RawElement, Error> {
-        RawElement::conditional_parse(node, header, false)
-    }
-
-    pub fn conditional_parse<'a, 'b>(
-        node: &Node<'a, 'b>,
-        header: &Header,
-        only_raw: bool,
-    ) -> Result<RawElement, Error> {
-        if node.is_comment() {
-            RawElement::parse_comment(node, header)
-        } else if node.is_text() {
-            RawElement::parse_text(node, header)
-        } else {
-            RawElement::parse_node(node, header, only_raw)
+        match element {
+            Element::Text(value) => Ok(RawElement::Text(value.as_str().into())),
+            Element::Comment(value) => Ok(RawElement::Comment(value.as_str().into())),
+            Element::Node(node) => Ok(RawElement::Node(NodeElement::conditional_parse(
+                node, header, only_raw,
+            )?)),
         }
     }
 }
@@ -188,25 +107,23 @@ impl RawElement {
 impl Component for RawElement {
     fn context(&self) -> Option<&Context> {
         match self {
-            RawElement::Comment(comment) => comment.context(),
             RawElement::Node(node) => node.context(),
-            RawElement::Text(_) => None,
+            _ => None,
         }
     }
 
     fn set_context(&mut self, ctx: Context) {
         match self {
-            RawElement::Comment(comment) => comment.set_context(ctx),
             RawElement::Node(node) => node.set_context(ctx),
-            RawElement::Text(_) => (),
+            _ => (),
         };
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         match self {
-            RawElement::Comment(comment) => comment.render(header),
+            RawElement::Comment(value) => Ok(format!("<!-- {} -->", value)),
             RawElement::Node(node) => node.render(header),
-            RawElement::Text(element) => element.render(header),
+            RawElement::Text(value) => Ok(value.clone()),
         }
     }
 }

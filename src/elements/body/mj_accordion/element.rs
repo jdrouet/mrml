@@ -2,10 +2,10 @@ use super::{MJAccordionText, MJAccordionTitle};
 use crate::elements::body::prelude::*;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::{Element, Node};
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{Context, Header, Tag};
-use roxmltree::Node;
 use std::collections::HashMap;
 
 const CHILDREN_ATTR: [&'static str; 9] = [
@@ -29,21 +29,21 @@ pub struct MJAccordionElement {
 }
 
 impl MJAccordionElement {
-    fn default_attributes<'a, 'b>(node: &Node<'a, 'b>, header: &Header) -> Attributes {
+    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
             .get_attributes(node, Attributes::new())
     }
 
-    pub fn parse<'a, 'b>(
-        node: &Node<'a, 'b>,
+    pub fn parse<'a>(
+        node: &Node<'a>,
         header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionElement, Error> {
-        if node.tag_name().name() != "mj-accordion-element" {
+        if node.name.as_str() != "mj-accordion-element" {
             return Err(Error::ParseError(format!(
                 "element should be 'mj-accordion-element' no '{}'",
-                node.tag_name().name()
+                node.name.as_str()
             )));
         }
         let mut element = MJAccordionElement {
@@ -55,14 +55,18 @@ impl MJAccordionElement {
             text: None,
         };
         let children_attr = element.get_children_attributes();
-        for child in node.children() {
-            match child.tag_name().name() {
-                "mj-accordion-title" => {
-                    element.title = Some(MJAccordionTitle::parse(&child, header, &children_attr)?);
-                }
-                "mj-accordion-text" => {
-                    element.text = Some(MJAccordionText::parse(&child, header, &children_attr)?);
-                }
+        for child in node.children.iter() {
+            match child {
+                Element::Node(node) => match node.name.as_str() {
+                    "mj-accordion-title" => {
+                        element.title =
+                            Some(MJAccordionTitle::parse(node, header, &children_attr)?);
+                    }
+                    "mj-accordion-text" => {
+                        element.text = Some(MJAccordionText::parse(node, header, &children_attr)?);
+                    }
+                    _ => (),
+                },
                 _ => (),
             };
         }
