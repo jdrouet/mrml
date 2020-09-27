@@ -4,21 +4,24 @@ workflows:
   version: 2
   workflow:
     jobs:
+      - lint
       - test
       - bench
 
 jobs:
-  test:
+  lint:
     docker:
       - image: jdrouet/rust-nightly:buster-slim-dev
     steps:
       - checkout
       - run: rustfmt --check src/{**/,}*.rs
-      - run:
-          command: bash script/run-coverage.sh
-          environment:
-            BASIC_DIFF: "true"
-      - run: bash script/push-coverage.sh
+
+  test:
+    machine: true
+    steps:
+      - checkout
+      - run: docker run --env BASIC_DIFF=true --security-opt seccomp=unconfined --volume "${PWD}:/volume" xd009642/tarpaulin cargo tarpaulin --ciserver circle-ci --coveralls $CODECOV_TOKEN --out Lcov
+      - run: bash <(curl -s https://codecov.io/bash) -f lcov.info
 
   bench:
     docker:
