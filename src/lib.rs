@@ -5,11 +5,11 @@ extern crate difference;
 #[macro_use]
 extern crate lazy_static;
 
-use roxmltree::Document;
 use std::default::Default;
 
+pub mod elements;
 mod error;
-pub mod mjml;
+pub mod parser;
 pub mod util;
 
 pub use error::Error;
@@ -27,6 +27,14 @@ pub struct Options {
     pub keep_comments: bool,
 }
 
+impl Into<parser::Options> for Options {
+    fn into(self) -> parser::Options {
+        parser::Options {
+            keep_comments: self.keep_comments,
+        }
+    }
+}
+
 impl Default for Options {
     fn default() -> Self {
         Self {
@@ -37,10 +45,11 @@ impl Default for Options {
     }
 }
 
-pub fn parse(input: &str, options: Options) -> Result<mjml::MJMLElement, Error> {
-    let doc = Document::parse(input)?;
-    let root = doc.root_element();
-    let element = mjml::parse(&root, &options)?;
+pub fn parse(input: &str, options: Options) -> Result<elements::MJMLElement, Error> {
+    let render_options = options.clone();
+    let parser_options: parser::Options = options.into();
+    let root = parser::parse(input, parser_options)?;
+    let element = elements::parse(&root, render_options)?;
     Ok(element)
 }
 

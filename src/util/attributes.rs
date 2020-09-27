@@ -1,5 +1,5 @@
 use super::sort_by_key;
-use roxmltree::Node;
+use crate::parser::Node;
 use std::collections::HashMap;
 use std::string::ToString;
 
@@ -83,22 +83,22 @@ impl Merge<Attributes> for Attributes {
     }
 }
 
-impl<'a, 'b> Merge<Node<'a, 'b>> for Attributes {
-    fn concat(self, other: &Node<'a, 'b>) -> Self {
+impl<'a> Merge<Node<'a>> for Attributes {
+    fn concat(self, other: &Node<'a>) -> Self {
         self.concat_iter(
             other
-                .attributes()
+                .attributes
                 .iter()
-                .map(|attr| (attr.name(), attr.value())),
+                .map(|(key, value)| (key.as_str(), value.as_str())),
         )
     }
 
-    fn merge(&mut self, other: &Node<'a, 'b>) {
+    fn merge(&mut self, other: &Node<'a>) {
         self.merge_iter(
             other
-                .attributes()
+                .attributes
                 .iter()
-                .map(|attr| (attr.name(), attr.value())),
+                .map(|(key, value)| (key.as_str(), value.as_str())),
         )
     }
 }
@@ -109,7 +109,7 @@ impl From<&Attributes> for Attributes {
     }
 }
 
-impl<'a, 'b> From<&Node<'a, 'b>> for Attributes {
+impl<'a> From<&Node<'a>> for Attributes {
     fn from(node: &Node) -> Self {
         Self::new().concat(node)
     }

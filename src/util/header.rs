@@ -1,8 +1,8 @@
 use super::attributes::{Attributes, Merge};
 use super::fonts::FontRegistry;
 use super::Size;
+use crate::parser::Node;
 use crate::Options;
-use roxmltree::Node;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::string::ToString;
@@ -85,15 +85,17 @@ impl DefaultAttributes {
         }
     }
 
-    pub fn get_attributes<'a, 'b>(&self, node: &Node<'a, 'b>, base: Attributes) -> Attributes {
-        let tag_name = node.tag_name().name();
+    pub fn get_attributes<'a>(&self, node: &Node<'a>, base: Attributes) -> Attributes {
+        let tag_name = node.name.as_str();
         let mut result = base.concat(&self.all);
         if let Some(element) = self.elements.get(tag_name) {
             result.merge(element);
         }
         if let Some(classes) = node
-            .attribute("mj-class")
-            .and_then(|value| Some(value.split(" ").collect::<Vec<&str>>()))
+            .attributes
+            .iter()
+            .find(|(key, _value)| key.as_str() == "mj-class")
+            .and_then(|(_key, value)| Some(value.as_str().split(" ").collect::<Vec<&str>>()))
         {
             for classname in classes {
                 if let Some(attrs) = self.classes.get(classname) {
@@ -218,8 +220,8 @@ impl Header {
     }
 }
 
-impl From<&Options> for Header {
-    fn from(value: &Options) -> Self {
+impl From<Options> for Header {
+    fn from(value: Options) -> Self {
         Header {
             breakpoint: value.breakpoint.clone(),
             default_attributes: DefaultAttributes::new(),
