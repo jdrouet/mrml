@@ -27,14 +27,6 @@ pub struct Options {
     pub keep_comments: bool,
 }
 
-impl Into<parser::Options> for Options {
-    fn into(self) -> parser::Options {
-        parser::Options {
-            keep_comments: self.keep_comments,
-        }
-    }
-}
-
 impl Default for Options {
     fn default() -> Self {
         Self {
@@ -46,10 +38,8 @@ impl Default for Options {
 }
 
 pub fn parse(input: &str, options: Options) -> Result<elements::MJMLElement, Error> {
-    let render_options = options.clone();
-    let parser_options: parser::Options = options.into();
-    let root = parser::parse(input, parser_options)?;
-    let element = elements::parse(&root, render_options)?;
+    let root = parser::parse(input)?;
+    let element = elements::parse(&root, options)?;
     Ok(element)
 }
 

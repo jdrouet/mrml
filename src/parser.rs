@@ -20,11 +20,6 @@ impl From<xmlparser::Error> for Error {
     }
 }
 
-#[derive(Debug, Default)]
-pub struct Options {
-    pub keep_comments: bool,
-}
-
 pub struct Node<'a> {
     pub name: StrSpan<'a>,
     pub attributes: Attributes<'a>,
@@ -40,7 +35,7 @@ impl<'a> Node<'a> {
         }
     }
 
-    fn parse(parser: &mut Tokenizer<'a>, tag: StrSpan<'a>, opts: &Options) -> Result<Self, Error> {
+    fn parse(parser: &mut Tokenizer<'a>, tag: StrSpan<'a>) -> Result<Self, Error> {
         let mut attributes = vec![];
         loop {
             let token = match parser.next() {
@@ -65,7 +60,7 @@ impl<'a> Node<'a> {
                         return Ok(Node::new(
                             tag,
                             attributes,
-                            Element::parse_children(parser, tag, opts)?,
+                            Element::parse_children(parser, tag)?,
                         ));
                     }
                     _ => return Err(Error::InvalidFormat),
@@ -75,7 +70,7 @@ impl<'a> Node<'a> {
         }
     }
 
-    pub fn parse_root(parser: &mut Tokenizer<'a>, opts: &Options) -> Result<Self, Error> {
+    pub fn parse_root(parser: &mut Tokenizer<'a>) -> Result<Self, Error> {
         let token = match parser.next() {
             Some(value) => value,
             None => return Err(Error::NoRootNode),
@@ -86,7 +81,7 @@ impl<'a> Node<'a> {
                 local,
                 prefix: _,
                 span: _,
-            } => Node::parse(parser, local, opts),
+            } => Node::parse(parser, local),
             _ => Err(Error::NoRootNode),
         }
     }
@@ -135,11 +130,7 @@ impl<'a> Element<'a> {
             _ => None,
         }
     }
-    fn parse_children(
-        parser: &mut Tokenizer<'a>,
-        tag: StrSpan<'a>,
-        opts: &Options,
-    ) -> Result<Vec<Self>, Error> {
+    fn parse_children(parser: &mut Tokenizer<'a>, tag: StrSpan<'a>) -> Result<Vec<Self>, Error> {
         let mut children: Vec<Element<'a>> = vec![];
         loop {
             let token = match parser.next() {
@@ -154,7 +145,7 @@ impl<'a> Element<'a> {
                     prefix: _,
                     span: _,
                 } => {
-                    children.push(Element::Node(Node::parse(parser, local, opts)?));
+                    children.push(Element::Node(Node::parse(parser, local)?));
                 }
                 Token::Text { text } => {
                     if text.as_str().trim().len() != 0 {
@@ -173,9 +164,7 @@ impl<'a> Element<'a> {
                 },
                 // TODO handle comments
                 Token::Comment { text, span: _ } => {
-                    if opts.keep_comments {
-                        children.push(Element::Comment(text));
-                    }
+                    children.push(Element::Comment(text));
                 }
                 _ => return Err(Error::InvalidFormat),
             };
@@ -200,12 +189,12 @@ impl<'a> Element<'a> {
 /// let result = mrml::parse("<mjml", mrml::Options::default());
 /// assert!(result.is_err());
 /// ```
-pub fn parse<'a>(text: &'a str, opts: Options) -> Result<Node<'a>, Error> {
+pub fn parse<'a>(text: &'a str) -> Result<Node<'a>, Error> {
     if text.len() > std::u32::MAX as usize {
         return Err(Error::SizeLimit);
     }
     let mut parser = Tokenizer::from(text);
-    Node::parse_root(&mut parser, &opts)
+    Node::parse_root(&mut parser)
 }
 
 #[cfg(test)]
@@ -214,53 +203,26 @@ mod tests {
 
     #[test]
     fn parse_simple_root() {
-        let root = parse(
-            "<mjml><mj-head></mj-head><mj-body /></mjml>",
-            Options::default(),
-        );
+        let root = parse("<mjml><mj-head></mj-head><mj-body /></mjml>");
         let root = root.unwrap();
         assert_eq!(root.children.len(), 2);
     }
 
     #[test]
     fn parse_with_weird_text() {
-        let root = parse("<mjml><mj-body>&copy;</mj-body></mjml>", Options::default());
+        let root = parse("<mjml><mj-body>&copy;</mj-body></mjml>");
         assert!(root.is_ok());
     }
 
     #[test]
     fn parse_with_html() {
-        let root = parse(
-            "<mjml><mj-body><a href=\"toto\">yolo</a></mj-body></mjml>",
-            Options::default(),
-        );
+        let root = parse("<mjml><mj-body><a href=\"toto\">yolo</a></mj-body></mjml>");
         assert!(root.is_ok());
-    }
-
-    #[test]
-    fn parse_without_comment() {
-        let root = parse(
-            "<mjml><mj-body><!--<a href=\"toto\">yolo</a>--></mj-body></mjml>",
-            Options::default(),
-        );
-        assert!(root.is_ok());
-        let root = root.unwrap();
-        match root.children.get(0).as_ref().unwrap() {
-            Element::Node(node) => {
-                assert_eq!(node.children.len(), 0);
-            }
-            _ => assert!(false),
-        };
     }
 
     #[test]
     fn parse_with_comment() {
-        let mut opts = Options::default();
-        opts.keep_comments = true;
-        let root = parse(
-            "<mjml><mj-body><!--<a href=\"toto\">yolo</a>--></mj-body></mjml>",
-            opts,
-        );
+        let root = parse("<mjml><mj-body><!--<a href=\"toto\">yolo</a>--></mj-body></mjml>");
         assert!(root.is_ok());
         let root = root.unwrap();
         match root.children.get(0).as_ref().unwrap() {

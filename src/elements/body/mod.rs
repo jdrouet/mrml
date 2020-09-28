@@ -149,6 +149,9 @@ impl BodyElement {
                 "mj-wrapper" => BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(node, header)?),
                 _ => BodyElement::Raw(raw::RawElement::parse(element, header)?),
             },
+            Element::Comment(text) => {
+                BodyElement::Raw(raw::RawElement::Comment(text.as_str().to_string()))
+            }
             _ => BodyElement::Raw(raw::RawElement::parse(element, header)?),
         };
         Ok(res)
