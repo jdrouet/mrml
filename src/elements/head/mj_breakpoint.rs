@@ -29,13 +29,33 @@ impl HeadComponent for MJBreakpoint {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tests::compare_render;
+    use crate::tests::{compare_render, compare_render_with_options};
+    use crate::Options;
 
     #[test]
     fn base() {
         compare_render(
             include_str!("../../../test/mj-breakpoint.mjml"),
             include_str!("../../../test/mj-breakpoint.html"),
+        );
+    }
+
+    #[test]
+    fn default_options() {
+        compare_render(
+            include_str!("../../../test/mj-breakpoint-default.mjml"),
+            include_str!("../../../test/mj-breakpoint-default.html"),
+        );
+    }
+
+    #[test]
+    fn with_options() {
+        let mut opts = Options::default();
+        opts.breakpoint = crate::util::Size::Pixel(800.0);
+        compare_render_with_options(
+            include_str!("../../../test/mj-breakpoint-options.mjml"),
+            include_str!("../../../test/mj-breakpoint-options.html"),
+            opts,
         );
     }
 }
