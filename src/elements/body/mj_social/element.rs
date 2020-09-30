@@ -3,7 +3,10 @@ use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 const IMAGE_ORIGIN: &'static str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 

@@ -4,7 +4,10 @@ use crate::elements::prelude::*;
 use crate::elements::{Component, Error};
 use crate::parser::Node;
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 use log::debug;
 
 lazy_static! {

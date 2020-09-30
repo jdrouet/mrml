@@ -5,7 +5,9 @@ use crate::elements::prelude::*;
 use crate::parser::{Element, Node};
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Tag};
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::tag::Tag;
 
 const CHILDREN_ATTR: [&'static str; 9] = [
     "border",

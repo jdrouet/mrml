@@ -1,6 +1,6 @@
 use super::attributes::{Attributes, Merge};
 use super::fonts::FontRegistry;
-use super::Size;
+use super::size::Size;
 use crate::parser::Node;
 use crate::Options;
 use std::collections::HashMap;

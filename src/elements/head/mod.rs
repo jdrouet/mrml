@@ -1,6 +1,6 @@
 use crate::elements::error::Error;
 use crate::parser::{Element, Node};
-use crate::util::Header;
+use crate::util::header::Header;
 
 pub mod mj_attributes;
 pub mod mj_breakpoint;

@@ -4,7 +4,8 @@ use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::Attributes;
-use crate::util::{Context, Header};
+use crate::util::context::Context;
+use crate::util::header::Header;
 
 #[derive(Clone, Debug)]
 pub struct MJRaw {

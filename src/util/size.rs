@@ -11,7 +11,7 @@ pub enum ParseSizeError {
 /// representation of size
 ///
 /// ```rust
-/// use mrml::util::Size;
+/// use mrml::util::size::Size;
 /// let size = Size::Percent(12.34);
 /// assert_eq!(size.value(), 12.34);
 /// ```

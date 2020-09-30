@@ -1,8 +1,7 @@
 use super::prelude::*;
 use crate::elements::error::Error;
 use crate::parser::{Element, Node};
-use crate::util::header::DefaultAttributes;
-use crate::util::Header;
+use crate::util::header::{DefaultAttributes, Header};
 
 #[derive(Clone, Debug)]
 pub struct MJAttributes(DefaultAttributes);

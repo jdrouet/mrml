@@ -5,7 +5,10 @@ use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::{Element, Node};
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 const CHILDREN_ATTRIBUTES: [&'static str; 9] = [
     "border",

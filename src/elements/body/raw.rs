@@ -3,8 +3,10 @@ use crate::elements::body::BodyElement;
 use crate::elements::prelude::*;
 use crate::elements::{Component, Error};
 use crate::parser::{Element, Node};
-use crate::util::attributes::*;
-use crate::util::{Context, Header, Tag};
+use crate::util::attributes::Attributes;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::tag::Tag;
 
 #[derive(Clone, Debug)]
 pub struct NodeElement {

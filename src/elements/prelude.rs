@@ -2,7 +2,9 @@ use super::body::BodyElement;
 use super::error::Error;
 use crate::parser::Node;
 use crate::util::attributes::Attributes;
-use crate::util::{Context, Header, Size};
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
 use std::collections::HashMap;
 use std::string::ToString;
 

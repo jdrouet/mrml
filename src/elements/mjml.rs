@@ -3,7 +3,8 @@ use super::head::mj_head::MJHead;
 use super::prelude::*;
 use super::Error;
 use crate::parser::{Element, Node};
-use crate::util::{Context, Header};
+use crate::util::context::Context;
+use crate::util::header::Header;
 use crate::Options;
 use log::debug;
 

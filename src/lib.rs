@@ -14,7 +14,7 @@ pub mod util;
 
 pub use error::Error;
 use util::fonts::FontRegistry;
-use util::Size;
+use util::size::Size;
 
 /// global options for renderer
 #[derive(Clone, Debug)]

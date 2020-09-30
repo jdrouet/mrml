@@ -1,5 +1,7 @@
 use crate::elements::prelude::*;
-use crate::util::{Size, Spacing, Tag};
+use crate::util::size::Size;
+use crate::util::spacing::Spacing;
+use crate::util::tag::Tag;
 use regex::Regex;
 
 pub trait BodyComponent: Component {
@@ -214,7 +216,9 @@ pub mod tests {
     use super::*;
     use crate::elements::error::Error;
     use crate::util::attributes::Attributes;
-    use crate::util::{Context, Header, Tag};
+    use crate::util::context::Context;
+    use crate::util::header::Header;
+    use crate::util::tag::Tag;
 
     struct TestComponent {
         attributes: Attributes,

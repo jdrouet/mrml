@@ -1,21 +1,13 @@
 pub mod attributes;
 pub mod condition;
-mod context;
+pub mod context;
 pub mod fonts;
 pub mod header;
-mod id;
-mod size;
-mod spacing;
-mod style;
-mod tag;
-
-pub use context::Context;
-pub use header::Header;
-pub use id::generate as generate_id;
-pub use size::Size;
-pub use spacing::Spacing;
-pub use style::Style;
-pub use tag::Tag;
+pub mod id;
+pub mod size;
+pub mod spacing;
+pub mod style;
+pub mod tag;
 
 use std::cmp::Ordering;
 
