@@ -4,11 +4,13 @@ use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "center")
         .add("background-color", "#414141")
         .add("border", "none")
@@ -135,7 +137,7 @@ impl Component for MJButton {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -165,13 +167,19 @@ impl Component for MJButton {
     }
 }
 
-impl ComponentWithAttributes for MJButton {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJButton {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "table" => self.set_style_table(tag),
@@ -181,10 +189,6 @@ impl BodyComponent for MJButton {
         }
     }
 }
-
-impl ComponentWithSizeAttribute for MJButton {}
-impl BodyComponentWithPadding for MJButton {}
-impl BodyContainedComponent for MJButton {}
 
 #[cfg(test)]
 pub mod tests {

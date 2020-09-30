@@ -1,14 +1,17 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("font-size", "13px")
         .add("padding", "16px");
 }
@@ -33,10 +36,7 @@ impl MJAccordionTitle {
         attrs: &Attributes,
     ) -> Result<MJAccordionTitle, Error> {
         if node.name.as_str() != "mj-accordion-title" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-accordion-title' not '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let content: String = node
             .children
@@ -117,14 +117,14 @@ impl Component for MJAccordionTitle {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
         let mut content = vec![self.render_title(), self.render_icons()];
         let icon_position = self
             .get_attribute("icon-position")
-            .and_then(|value| Some(value.as_str()));
+            .map(|value| value.as_str());
         if icon_position != Some("right") {
             content.reverse();
         }
@@ -141,12 +141,16 @@ impl Component for MJAccordionTitle {
     }
 }
 
-impl ComponentWithAttributes for MJAccordionTitle {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(&self.attributes.inner())
+impl BodyComponent for MJAccordionTitle {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
     }
 }
-
-impl BodyComponent for MJAccordionTitle {}
-impl BodyContainedComponent for MJAccordionTitle {}
-impl ComponentWithSizeAttribute for MJAccordionTitle {}

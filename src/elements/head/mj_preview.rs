@@ -1,28 +1,24 @@
 use super::prelude::*;
 use crate::elements::error::Error;
 use crate::parser::{Element, Node};
-use crate::util::Header;
+use crate::util::header::Header;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct MJPreview {
     pub content: String,
 }
 
 impl MJPreview {
     pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
-        for child in node.children.iter() {
-            match child {
-                Element::Text(value) => {
-                    return Ok(Self {
-                        content: value.as_str().into(),
-                    });
-                }
-                _ => return Err(Error::ParseError("invalid child".into())),
-            };
+        match node.children.first() {
+            Some(element) => match element {
+                Element::Text(value) => Ok(Self {
+                    content: value.as_str().into(),
+                }),
+                _ => Err(Error::InvalidChild),
+            },
+            None => Ok(Self::default()),
         }
-        Ok(Self {
-            content: String::new(),
-        })
     }
 }
 

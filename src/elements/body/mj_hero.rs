@@ -5,11 +5,13 @@ use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("background-color", "#ffffff")
         .add("background-position", "center center")
         .add("height", "0px")
@@ -62,7 +64,7 @@ impl MJHero {
             .get_size_attribute("background-height")
             .and_then(|height| {
                 self.get_size_attribute("background-width")
-                    .and_then(|width| Some(height.value() * 100.0 / width.value()))
+                    .map(|width| height.value() * 100.0 / width.value())
             });
         tag.set_style("mso-padding-bottom-alt", "0")
             .maybe_set_style("padding-bottom", bg_ratio)
@@ -112,7 +114,7 @@ impl MJHero {
             .maybe_set_style(
                 "width",
                 self.get_attribute("background-width")
-                    .and_then(|value| Some(value.to_string()))
+                    .map(|value| value.to_string())
                     .or_else(|| self.get_container_width_str()),
             )
             .set_style("z-index", "-3")
@@ -271,7 +273,7 @@ impl Component for MJHero {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),
@@ -323,13 +325,19 @@ impl Component for MJHero {
     }
 }
 
-impl ComponentWithAttributes for MJHero {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJHero {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        self.context().and_then(|ctx| ctx.container_width())
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "div" => self.set_style_div(tag),
@@ -348,20 +356,6 @@ impl BodyComponent for MJHero {
         }
     }
 }
-
-impl ComponentWithChildren for MJHero {
-    fn get_children(&self) -> &Vec<BodyElement> {
-        &self.children
-    }
-
-    fn get_current_width(&self) -> Option<Size> {
-        self.context().and_then(|ctx| ctx.container_width())
-    }
-}
-
-impl BodyContainedComponent for MJHero {}
-impl ComponentWithSizeAttribute for MJHero {}
-impl BodyComponentWithPadding for MJHero {}
 
 #[cfg(test)]
 pub mod tests {

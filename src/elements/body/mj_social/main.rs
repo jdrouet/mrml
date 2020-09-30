@@ -6,11 +6,13 @@ use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "center")
         .add("border-radius", "3px")
         .add("color", "#333333")
@@ -48,10 +50,7 @@ impl MJSocial {
             if let Some(child_node) = child.as_node() {
                 let tag_name = child_node.name.as_str();
                 if tag_name != "mj-social-element" {
-                    return Err(Error::ParseError(format!(
-                        "expect only 'mj-social-element', not '{}'",
-                        tag_name
-                    )));
+                    return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
                     let element =
                         MJSocialElement::parse_social_child(&child_node, header, Some(&attrs))?;
@@ -67,7 +66,7 @@ impl MJSocial {
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        let mut attrs = Attributes::new();
+        let mut attrs = Attributes::default();
         attrs.maybe_set("padding", self.get_attribute("inner-padding"));
         attrs.maybe_set("border-radius", self.get_attribute("border-radius"));
         attrs.maybe_set("color", self.get_attribute("color"));
@@ -86,7 +85,7 @@ impl MJSocial {
 
     fn is_horizontal(&self) -> bool {
         self.get_attribute("mode")
-            .and_then(|mode| Some(mode == "horizontal"))
+            .map(|mode| mode == "horizontal")
             .unwrap_or(true)
     }
 
@@ -139,7 +138,7 @@ impl Component for MJSocial {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),
@@ -160,22 +159,7 @@ impl Component for MJSocial {
     }
 }
 
-impl ComponentWithAttributes for MJSocial {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJSocial {
-    fn set_style(&self, name: &str, tag: Tag) -> Tag {
-        match name {
-            "table-vertical" => self.set_style_table_vertical(tag),
-            _ => tag,
-        }
-    }
-}
-
-impl ComponentWithChildren for MJSocial {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -183,9 +167,18 @@ impl ComponentWithChildren for MJSocial {
     fn get_current_width(&self) -> Option<Size> {
         self.context().and_then(|ctx| ctx.container_width())
     }
-}
 
-impl BodyContainedComponent for MJSocial {}
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
+        match name {
+            "table-vertical" => self.set_style_table_vertical(tag),
+            _ => tag,
+        }
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

@@ -1,7 +1,8 @@
 use super::prelude::*;
 use crate::elements::error::Error;
 use crate::parser::Node;
-use crate::util::{Header, Size};
+use crate::util::header::Header;
+use crate::util::size::Size;
 
 #[derive(Clone, Debug)]
 pub struct MJBreakpoint {
@@ -30,6 +31,7 @@ impl HeadComponent for MJBreakpoint {
 #[cfg(test)]
 pub mod tests {
     use crate::tests::{compare_render, compare_render_with_options};
+    use crate::util::size::Size;
     use crate::Options;
 
     #[test]
@@ -51,7 +53,7 @@ pub mod tests {
     #[test]
     fn with_options() {
         let mut opts = Options::default();
-        opts.breakpoint = crate::util::Size::Pixel(800.0);
+        opts.breakpoint = Size::Pixel(800.0);
         compare_render_with_options(
             include_str!("../../../test/mj-breakpoint-options.mjml"),
             include_str!("../../../test/mj-breakpoint-options.html"),

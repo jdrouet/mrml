@@ -4,11 +4,13 @@ use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("direction", "ltr")
         .add("vertical-align", "top");
 }
@@ -62,26 +64,25 @@ impl MJColumn {
         }
         let width = self.get_size_attribute("width");
         if width.is_none() {
-            return self
-                .context()
-                .and_then(|ctx| Some(ctx.non_raw_siblings()))
-                .and_then(|count| Some(Size::Percent(100.0 / (count as f32))));
+            self.context()
+                .map(|ctx| ctx.non_raw_siblings())
+                .map(|count| Size::Percent(100.0 / (count as f32)))
+        } else {
+            width.and_then(|width| match width {
+                Size::Percent(_) => Some(width),
+                _ => match self.get_container_width() {
+                    Some(container) => Some(Size::Percent(width.value() / container.value())),
+                    None => None,
+                },
+            })
         }
-        return width.and_then(|width| match width {
-            Size::Percent(_) => Some(width),
-            _ => match self.get_container_width() {
-                Some(container) => Some(Size::Percent(width.value() / container.value())),
-                None => None,
-            },
-        });
     }
 
     fn get_parsed_width(&self) -> Size {
         let non_raw_siblings = self
             .context()
-            .and_then(|ctx| Some(ctx.non_raw_siblings()))
-            .or(Some(1))
-            .unwrap();
+            .map(|ctx| ctx.non_raw_siblings())
+            .unwrap_or(1);
         match self.get_size_attribute("width") {
             Some(size) => size,
             None => Size::Percent(100.0 / (non_raw_siblings as f32)),
@@ -220,7 +221,7 @@ impl Component for MJColumn {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_current_width(),
             self.get_siblings(),
@@ -236,10 +237,7 @@ impl Component for MJColumn {
         Ok(self
             .set_style_div(Tag::new("div"))
             .set_class("mj-outlook-group-fix")
-            .maybe_set_class(
-                self.get_column_class()
-                    .and_then(|(classname, _size)| Some(classname)),
-            )
+            .maybe_set_class(self.get_column_class().map(|(classname, _size)| classname))
             .maybe_set_class(self.get_attribute("css-class"))
             .render(if self.has_gutter() {
                 self.render_gutter(header)?
@@ -249,36 +247,11 @@ impl Component for MJColumn {
     }
 }
 
-impl ComponentWithAttributes for MJColumn {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJColumn {
-    fn set_style(&self, key: &str, tag: Tag) -> Tag {
-        match key {
-            "div" => self.set_style_div(tag),
-            "table" => self.set_style_table(tag),
-            "td-outlook" => self.set_style_td_outlook(tag),
-            "gutter" => self.set_style_gutter(tag),
-            _ => tag,
-        }
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
 
-    fn get_width(&self) -> Option<Size> {
-        self.get_container_width().and_then(|container_width| {
-            let parsed_width = self.get_parsed_width();
-            let result = match parsed_width {
-                Size::Percent(value) => Size::Pixel(container_width.value() * value / 100.0),
-                _ => parsed_width,
-            };
-            Some(result)
-        })
-    }
-}
-
-impl ComponentWithChildren for MJColumn {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -315,13 +288,27 @@ impl ComponentWithChildren for MJColumn {
             Some(Size::Pixel(container_width.value() - all_paddings))
         }
     }
-}
 
-impl ComponentWithSizeAttribute for MJColumn {}
-impl BodyContainedComponent for MJColumn {}
-impl BodyComponentWithBorder for MJColumn {}
-impl BodyComponentWithBoxWidths for MJColumn {}
-impl BodyComponentWithPadding for MJColumn {}
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
+        match key {
+            "div" => self.set_style_div(tag),
+            "table" => self.set_style_table(tag),
+            "td-outlook" => self.set_style_td_outlook(tag),
+            "gutter" => self.set_style_gutter(tag),
+            _ => tag,
+        }
+    }
+
+    fn get_width(&self) -> Option<Size> {
+        self.get_container_width().map(|container_width| {
+            let parsed_width = self.get_parsed_width();
+            match parsed_width {
+                Size::Percent(value) => Size::Pixel(container_width.value() * value / 100.0),
+                _ => parsed_width,
+            }
+        })
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

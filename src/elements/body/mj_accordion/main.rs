@@ -5,10 +5,12 @@ use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::{Element, Node};
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
-const CHILDREN_ATTRIBUTES: [&'static str; 9] = [
+const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
     "icon-align",
     "icon-width",
@@ -21,7 +23,7 @@ const CHILDREN_ATTRIBUTES: [&'static str; 9] = [
 ];
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("border", "2px solid black")
         .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
         .add("icon-align", "middle")
@@ -65,16 +67,18 @@ impl MJAccordion {
                             .children
                             .push(BodyElement::MJAccordionElement(element));
                     }
-                    _ => return Err(Error::ParseError("unexpected child".into())),
+                    name => return Err(Error::UnexpectedElement(name.into())),
                 },
-                _ => return Err(Error::ParseError("unexpected child".into())),
+                // TODO handle comments
+                Element::Comment(_) => (),
+                Element::Text(_) => return Err(Error::UnexpectedText),
             };
         }
         Ok(result)
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        let mut res = Attributes::new();
+        let mut res = Attributes::default();
         for key in CHILDREN_ATTRIBUTES.iter() {
             if let Some(value) = self.get_attribute(key) {
                 res.set(key, value);
@@ -117,7 +121,7 @@ impl Component for MJAccordion {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),
@@ -149,19 +153,11 @@ impl Component for MJAccordion {
     }
 }
 
-impl ComponentWithAttributes for MJAccordion {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJAccordion {
-    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
-        tag
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
-}
 
-impl ComponentWithChildren for MJAccordion {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -169,10 +165,11 @@ impl ComponentWithChildren for MJAccordion {
     fn get_current_width(&self) -> Option<Size> {
         self.context().and_then(|ctx| ctx.container_width())
     }
-}
 
-impl BodyContainedComponent for MJAccordion {}
-impl ComponentWithSizeAttribute for MJAccordion {}
+    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
+        tag
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

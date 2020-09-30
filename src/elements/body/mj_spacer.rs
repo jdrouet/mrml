@@ -1,14 +1,17 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
-use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new().add("height", "20px");
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("height", "20px");
 }
 
 #[derive(Clone, Debug)]
@@ -42,7 +45,7 @@ impl Component for MJSpacer {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
@@ -52,7 +55,7 @@ impl Component for MJSpacer {
         let td = Tag::td()
             .set_style("vertical-align", "top")
             .maybe_set_style("height", height.clone())
-            .maybe_set_attribute("height", height.and_then(|h| Some(h.value())));
+            .maybe_set_attribute("height", height.map(|h| h.value()));
         let div = self.set_style_div(Tag::div());
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());
@@ -70,13 +73,19 @@ impl Component for MJSpacer {
     }
 }
 
-impl ComponentWithAttributes for MJSpacer {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJSpacer {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "div" => self.set_style_div(tag),
@@ -84,12 +93,6 @@ impl BodyComponent for MJSpacer {
         }
     }
 }
-
-impl BodyContainedComponent for MJSpacer {}
-impl ComponentWithSizeAttribute for MJSpacer {}
-impl BodyComponentWithBorder for MJSpacer {}
-impl BodyComponentWithPadding for MJSpacer {}
-impl BodyComponentWithBoxWidths for MJSpacer {}
 
 #[cfg(test)]
 pub mod tests {

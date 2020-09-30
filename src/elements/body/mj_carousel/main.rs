@@ -6,11 +6,15 @@ use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{generate_id, Context, Header, Size, Style, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::id::generate as generate_id;
+use crate::util::size::Size;
+use crate::util::style::Style;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "center")
         .add("border-radius", "6px")
         .add("icon-width", "44px")
@@ -62,10 +66,7 @@ impl MJCarousel {
             if let Some(child_node) = child.as_node() {
                 let tag_name = child_node.name.as_str();
                 if tag_name != "mj-carousel-image" {
-                    return Err(Error::ParseError(format!(
-                        "expect only 'mj-carousel-image', not '{}'",
-                        tag_name
-                    )));
+                    return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
                     let element = MJCarouselImage::parse(&child_node, header, Some(&attrs))?;
                     result.children.push(BodyElement::MJCarouselImage(element));
@@ -94,12 +95,12 @@ impl MJCarousel {
                 .or_else(|| {
                     self.context()
                         .and_then(|ctx| ctx.container_width())
-                        .and_then(|width| {
+                        .map(|width| {
                             let value = width.value() / (count as f32);
                             if value < 110.0 {
-                                Some(Size::Pixel(value))
+                                Size::Pixel(value)
                             } else {
-                                Some(Size::Pixel(110.0))
+                                Size::Pixel(110.0)
                             }
                         })
                 })
@@ -108,7 +109,7 @@ impl MJCarousel {
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        Attributes::new()
+        Attributes::default()
             .add("carousel-id", self.id.as_str())
             .maybe_add("border-radius", self.get_attribute("border-radius"))
             .maybe_add("tb-border", self.get_attribute("tb-border"))
@@ -161,11 +162,9 @@ impl MJCarousel {
     }
 
     fn render_thumbnails(&self) -> String {
-        let thumbnails = self
-            .get_attribute("thumbnails")
-            .and_then(|value| Some(value.as_str()));
+        let thumbnails = self.get_attribute("thumbnails").map(|value| value.as_str());
         if thumbnails != Some("visible") {
-            "".into()
+            String::new()
         } else {
             let width = self.get_thumbnails_width();
             self.get_images()
@@ -179,7 +178,7 @@ impl MJCarousel {
     fn render_controls(&self, direction: &str, icon: &str) -> Result<String, Error> {
         let icon_width = self
             .get_size_attribute("icon-width")
-            .and_then(|value| Some(value.value()));
+            .map(|value| value.value());
         let items = self
             .children
             .iter()
@@ -256,7 +255,7 @@ impl Component for MJCarousel {
         }
         let mut style = vec![];
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel")
                 .add_str_content("-webkit-user-select: none;")
                 .add_str_content("-moz-user-select: none;")
@@ -264,7 +263,7 @@ impl Component for MJCarousel {
                 .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_selector(format!(".mj-carousel-{}-icons-cell", self.id))
                 .add_str_content("display: table-cell !important;")
                 .add_content(format!(
@@ -274,7 +273,7 @@ impl Component for MJCarousel {
                 .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel-radio")
                 .add_str_selector(".mj-carousel-next")
                 .add_str_selector(".mj-carousel-previous")
@@ -282,7 +281,7 @@ impl Component for MJCarousel {
                 .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel-thumbnail")
                 .add_str_selector(".mj-carousel-next")
                 .add_str_selector(".mj-carousel-previous")
@@ -291,7 +290,7 @@ impl Component for MJCarousel {
         );
         style.push(
             (0..length)
-                .fold(Style::new(), |res, idx| {
+                .fold(Style::default(), |res, idx| {
                     let ext = repeat(idx, "+ * ");
                     res.add_selector(format!(
                         ".mj-carousel-{}-radio:checked {}+ .mj-carousel-content .mj-carousel-image",
@@ -303,7 +302,7 @@ impl Component for MJCarousel {
         );
         style.push(
             (0..length)
-                .fold(Style::new(), |res, idx| {
+                .fold(Style::default(), |res, idx| {
                     let ext = repeat(length - idx - 1, "+ * ");
                     res.add_selector(format!(
                         ".mj-carousel-{}-radio-{}:checked {}+ .mj-carousel-content .mj-carousel-image-{}",
@@ -312,7 +311,7 @@ impl Component for MJCarousel {
                 })
                 .add_str_content("display: block !important;").to_string(),
         );
-        let base = Style::new()
+        let base = Style::default()
             .add_str_selector(".mj-carousel-previous-icons")
             .add_str_selector(".mj-carousel-next-icons");
         let base =
@@ -336,7 +335,7 @@ impl Component for MJCarousel {
             base.add_str_content("display: block !important;")
                 .to_string(),
         );
-        let base = (0..length).fold(Style::new(), |res, idx| {
+        let base = (0..length).fold(Style::default(), |res, idx| {
             let ext = repeat(length - idx - 1, "+ * ");
             res.add_selector(format!(".mj-carousel-{}-radio-{}:checked {}+ .mj-carousel-content .mj-carousel-{}-thumbnail-{}", self.id, idx + 1, ext, self.id, idx + 1))
         });
@@ -348,7 +347,7 @@ impl Component for MJCarousel {
             .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel-image img + div")
                 .add_str_selector(".mj-carousel-thumbnail img + div")
                 .add_str_content("display: none !important;")
@@ -356,7 +355,7 @@ impl Component for MJCarousel {
         );
         style.push(
             (0..length)
-                .fold(Style::new(), |res, idx| {
+                .fold(Style::default(), |res, idx| {
                     let ext = repeat(length - idx - 1, "+ * ");
                     res.add_selector(format!(
                         ".mj-carousel-{}-thumbnail:hover {}+ .mj-carousel-main .mj-carousel-image",
@@ -367,7 +366,7 @@ impl Component for MJCarousel {
                 .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel-thumbnail:hover")
                 .add_content(format!(
                     "border-color: {} !important;",
@@ -375,7 +374,7 @@ impl Component for MJCarousel {
                 ))
                 .to_string(),
         );
-        style.push((0..length).fold(Style::new(), |res, idx| {
+        style.push((0..length).fold(Style::default(), |res, idx| {
             let ext = repeat(length - idx - 1, "+ * ");
             res.add_selector(format!(".mj-carousel-{}-thumbnail-{}:hover {}+ .mj-carousel-main .mj-carousel-image-{}", self.id, idx + 1, ext, idx + 1))
         }).add_str_content("display: block !important;").to_string());
@@ -418,7 +417,7 @@ impl Component for MJCarousel {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),
@@ -448,19 +447,7 @@ impl Component for MJCarousel {
     }
 }
 
-impl ComponentWithAttributes for MJCarousel {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJCarousel {
-    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
-        tag
-    }
-}
-
-impl ComponentWithChildren for MJCarousel {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -468,10 +455,15 @@ impl ComponentWithChildren for MJCarousel {
     fn get_current_width(&self) -> Option<Size> {
         self.context().and_then(|ctx| ctx.container_width())
     }
-}
 
-impl BodyContainedComponent for MJCarousel {}
-impl ComponentWithSizeAttribute for MJCarousel {}
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
+        tag
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

@@ -11,7 +11,7 @@ pub enum ParseSizeError {
 /// representation of size
 ///
 /// ```rust
-/// use mrml::util::Size;
+/// use mrml::util::size::Size;
 /// let size = Size::Percent(12.34);
 /// assert_eq!(size.value(), 12.34);
 /// ```
@@ -46,24 +46,15 @@ impl Size {
     }
 
     pub fn is_raw(&self) -> bool {
-        match self {
-            Size::Raw(_) => true,
-            _ => false,
-        }
+        matches!(self, Size::Raw(_))
     }
 
     pub fn is_percent(&self) -> bool {
-        match self {
-            Size::Percent(_) => true,
-            _ => false,
-        }
+        matches!(self, Size::Percent(_))
     }
 
     pub fn is_pixel(&self) -> bool {
-        match self {
-            Size::Pixel(_) => true,
-            _ => false,
-        }
+        matches!(self, Size::Pixel(_))
     }
 
     fn parse_pixel(input: &str) -> Option<Size> {
@@ -71,7 +62,7 @@ impl Size {
         re.captures(input)
             .and_then(|list| list.get(1))
             .and_then(|first| first.as_str().parse::<f32>().ok())
-            .and_then(|value| Some(Size::Pixel(value)))
+            .map(Size::Pixel)
     }
 
     fn parse_percent(input: &str) -> Option<Size> {
@@ -79,21 +70,18 @@ impl Size {
         re.captures(input)
             .and_then(|list| list.get(1))
             .and_then(|first| first.as_str().parse::<f32>().ok())
-            .and_then(|value| Some(Size::Percent(value)))
+            .map(Size::Percent)
     }
 
     fn parse_raw(input: &str) -> Option<Size> {
-        input
-            .parse::<f32>()
-            .ok()
-            .and_then(|value| Some(Size::Raw(value)))
+        input.parse::<f32>().ok().map(Size::Raw)
     }
 
     pub fn value(&self) -> f32 {
         match self {
-            Size::Percent(value) => value.clone(),
-            Size::Pixel(value) => value.clone(),
-            Size::Raw(value) => value.clone(),
+            Size::Percent(value) => *value,
+            Size::Pixel(value) => *value,
+            Size::Raw(value) => *value,
         }
     }
 }

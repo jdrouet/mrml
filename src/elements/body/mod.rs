@@ -2,9 +2,11 @@ use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Element;
 use crate::util::attributes::Attributes;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 use prelude::BodyComponent;
-use std::collections::HashMap;
 
 pub mod mj_accordion;
 pub mod mj_body;
@@ -51,73 +53,80 @@ pub enum BodyElement {
     Raw(raw::RawElement),
 }
 
-macro_rules! apply_fn {
-    ($root:expr, $func:ident($($args:tt)*)) => {
+macro_rules! inner_element {
+    ($root:expr) => {
         match $root {
-            BodyElement::MJAccordion(item) => item.$func($($args)*),
-            BodyElement::MJAccordionElement(item) => item.$func($($args)*),
-            BodyElement::MJButton(item) => item.$func($($args)*),
-            BodyElement::MJCarousel(item) => item.$func($($args)*),
-            BodyElement::MJCarouselImage(item) => item.$func($($args)*),
-            BodyElement::MJColumn(item) => item.$func($($args)*),
-            BodyElement::MJDivider(item) => item.$func($($args)*),
-            BodyElement::MJGroup(item) => item.$func($($args)*),
-            BodyElement::MJHero(item) => item.$func($($args)*),
-            BodyElement::MJImage(item) => item.$func($($args)*),
-            BodyElement::MJNavbar(item) => item.$func($($args)*),
-            BodyElement::MJNavbarLink(item) => item.$func($($args)*),
-            BodyElement::MJRaw(item) => item.$func($($args)*),
-            BodyElement::MJSection(item) => item.$func($($args)*),
-            BodyElement::MJSocial(item) => item.$func($($args)*),
-            BodyElement::MJSocialElement(item) => item.$func($($args)*),
-            BodyElement::MJSpacer(item) => item.$func($($args)*),
-            BodyElement::MJTable(item) => item.$func($($args)*),
-            BodyElement::MJText(item) => item.$func($($args)*),
-            BodyElement::MJWrapper(item) => item.$func($($args)*),
-            BodyElement::Raw(item) => item.$func($($args)*),
+            BodyElement::MJAccordion(item) => item,
+            BodyElement::MJAccordionElement(item) => item,
+            BodyElement::MJButton(item) => item,
+            BodyElement::MJCarousel(item) => item,
+            BodyElement::MJCarouselImage(item) => item,
+            BodyElement::MJColumn(item) => item,
+            BodyElement::MJDivider(item) => item,
+            BodyElement::MJGroup(item) => item,
+            BodyElement::MJHero(item) => item,
+            BodyElement::MJImage(item) => item,
+            BodyElement::MJNavbar(item) => item,
+            BodyElement::MJNavbarLink(item) => item,
+            BodyElement::MJRaw(item) => item,
+            BodyElement::MJSection(item) => item,
+            BodyElement::MJSocial(item) => item,
+            BodyElement::MJSocialElement(item) => item,
+            BodyElement::MJSpacer(item) => item,
+            BodyElement::MJTable(item) => item,
+            BodyElement::MJText(item) => item,
+            BodyElement::MJWrapper(item) => item,
+            BodyElement::Raw(item) => item,
         }
     };
 }
 
 impl Component for BodyElement {
     fn update_header(&self, header: &mut Header) {
-        apply_fn!(self, update_header(header))
+        self.inner().update_header(header)
     }
 
     fn context(&self) -> Option<&Context> {
-        apply_fn!(self, context())
+        self.inner().context()
     }
 
     fn set_context(&mut self, ctx: Context) {
-        apply_fn!(self, set_context(ctx))
+        self.inner_mut().set_context(ctx)
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        apply_fn!(self, render(header))
-    }
-}
-
-impl ComponentWithAttributes for BodyElement {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        apply_fn!(self, attributes())
-    }
-
-    fn get_attribute(&self, key: &str) -> Option<&String> {
-        apply_fn!(self, get_attribute(key))
+        self.inner().render(header)
     }
 }
 
 impl BodyComponent for BodyElement {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        self.inner().get_children()
+    }
+    fn get_current_width(&self) -> Option<Size> {
+        self.inner().get_current_width()
+    }
+    fn attributes(&self) -> Option<&Attributes> {
+        self.inner().attributes()
+    }
     fn set_style(&self, key: &str, tag: Tag) -> Tag {
-        apply_fn!(self, set_style(key, tag))
+        self.inner().set_style(key, tag)
     }
 
     fn get_width(&self) -> Option<Size> {
-        apply_fn!(self, get_width())
+        self.inner().get_width()
     }
 }
 
 impl BodyElement {
+    pub fn inner_mut(&mut self) -> &mut dyn BodyComponent {
+        inner_element!(self)
+    }
+
+    pub fn inner(&self) -> &dyn BodyComponent {
+        inner_element!(self)
+    }
+
     pub fn parse<'a>(
         element: &Element<'a>,
         header: &Header,
@@ -158,9 +167,6 @@ impl BodyElement {
     }
 
     pub fn is_raw(&self) -> bool {
-        match self {
-            BodyElement::Raw(_) => true,
-            _ => false,
-        }
+        matches!(self, BodyElement::Raw(_))
     }
 }

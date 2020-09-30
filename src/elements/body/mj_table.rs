@@ -1,14 +1,17 @@
 use crate::elements::body::prelude::*;
 use crate::elements::body::raw::RawElement;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "left")
         .add("border", "none")
         .add("cellpadding", "0")
@@ -26,7 +29,7 @@ lazy_static! {
 pub struct MJTable {
     attributes: Attributes,
     context: Option<Context>,
-    children: Vec<RawElement>,
+    children: Vec<BodyElement>,
 }
 
 impl MJTable {
@@ -39,7 +42,9 @@ impl MJTable {
     pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJTable, Error> {
         let mut children = vec![];
         for child in node.children.iter() {
-            children.push(RawElement::conditional_parse(&child, header, true)?);
+            children.push(BodyElement::Raw(RawElement::conditional_parse(
+                &child, header, true,
+            )?));
         }
         Ok(MJTable {
             attributes: Self::default_attributes(node, header).concat(node),
@@ -69,7 +74,7 @@ impl Component for MJTable {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -87,14 +92,19 @@ impl Component for MJTable {
     }
 }
 
-impl BodyComponent for MJTable {}
-impl BodyContainedComponent for MJTable {}
-impl ComponentWithAttributes for MJTable {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+impl BodyComponent for MJTable {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
     }
 }
-impl ComponentWithSizeAttribute for MJTable {}
 
 #[cfg(test)]
 pub mod tests {

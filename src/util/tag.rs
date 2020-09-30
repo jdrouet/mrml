@@ -27,10 +27,9 @@ impl Tag {
         if self.classes.is_empty() {
             None
         } else {
-            let mut classes: Vec<String> = self.classes.iter().cloned().collect();
-            classes.sort_by(|a, b| a.cmp(&b));
-            let classes = classes.join(" ");
-            Some(classes)
+            let mut classes: Vec<&str> = self.classes.iter().map(|value| value.as_str()).collect();
+            classes.sort_unstable();
+            Some(classes.join(" "))
         }
     }
 }

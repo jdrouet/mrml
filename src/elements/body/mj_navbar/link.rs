@@ -1,14 +1,17 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("color", "#000000")
         .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
         .add("font-size", "13px")
@@ -40,10 +43,7 @@ impl MJNavbarLink {
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {
         if node.name.as_str() != "mj-navbar-link" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-navbar-link' no '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let content = node
             .children
@@ -74,7 +74,7 @@ impl MJNavbarLink {
     ) -> Result<MJNavbarLink, Error> {
         let mut attrs = match extra {
             Some(value) => value.into(),
-            None => Attributes::new(),
+            None => Attributes::default(),
         };
         if attrs.get("text-padding").is_none() {
             attrs.set("text-padding", "4px 4px 4px 0");
@@ -111,7 +111,7 @@ impl MJNavbarLink {
     fn get_link(&self) -> Option<String> {
         self.get_attribute("href").as_ref().and_then(|href| {
             self.get_attribute("navbar-base-url")
-                .and_then(move |base| Some(format!("{}{}", base, href)))
+                .map(move |base| format!("{}{}", base, href))
                 .or_else(|| Some(href.to_string()))
         })
     }
@@ -125,12 +125,7 @@ impl MJNavbarLink {
             .maybe_set_attribute("rel", self.get_attribute("rel"))
             .maybe_set_attribute("target", self.get_attribute("target"))
             .maybe_set_attribute("name", self.get_attribute("name"));
-        Ok(link.render(
-            self.content
-                .as_ref()
-                .and_then(|value| Some(value.as_str()))
-                .unwrap_or(""),
-        ))
+        Ok(link.render(self.content.as_deref().unwrap_or("")))
     }
 }
 
@@ -144,7 +139,7 @@ impl Component for MJNavbarLink {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -162,13 +157,18 @@ impl Component for MJNavbarLink {
     }
 }
 
-impl ComponentWithAttributes for MJNavbarLink {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJNavbarLink {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "a" => self.set_style_a(tag),
@@ -177,6 +177,3 @@ impl BodyComponent for MJNavbarLink {
         }
     }
 }
-
-impl BodyContainedComponent for MJNavbarLink {}
-impl ComponentWithSizeAttribute for MJNavbarLink {}

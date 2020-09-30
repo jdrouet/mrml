@@ -1,15 +1,16 @@
 use super::prelude::*;
 use super::BodyElement;
-use crate::elements::prelude::*;
 use crate::elements::{Component, Error};
 use crate::parser::Node;
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Size, Tag};
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 use log::debug;
-use std::collections::HashMap;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new().add("width", "600px");
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("width", "600px");
 }
 
 #[derive(Clone, Debug)]
@@ -27,9 +28,9 @@ impl MJBody {
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn empty<'a>() -> MJBody {
+    pub fn empty() -> MJBody {
         MJBody {
-            attributes: Attributes::new(),
+            attributes: Attributes::default(),
             children: vec![],
             context: None,
             exists: false,
@@ -83,7 +84,7 @@ impl Component for MJBody {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_current_width(),
             self.get_siblings(),
@@ -116,22 +117,11 @@ impl Component for MJBody {
     }
 }
 
-impl ComponentWithAttributes for MJBody {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJBody {
-    fn set_style(&self, key: &str, tag: Tag) -> Tag {
-        match key {
-            "body" | "div" => self.set_style_body(tag),
-            _ => tag,
-        }
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
-}
 
-impl ComponentWithChildren for MJBody {
     fn get_current_width(&self) -> Option<Size> {
         self.get_size_attribute("width")
     }
@@ -139,9 +129,14 @@ impl ComponentWithChildren for MJBody {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
-}
 
-impl ComponentWithSizeAttribute for MJBody {}
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
+        match key {
+            "body" | "div" => self.set_style_body(tag),
+            _ => tag,
+        }
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

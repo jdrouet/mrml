@@ -1,12 +1,15 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
-use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
-const IMAGE_ORIGIN: &'static str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
+const IMAGE_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
 #[derive(Clone, Debug)]
 struct SocialNetwork {
@@ -172,7 +175,7 @@ impl SocialNetwork {
 }
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "left")
         .add("color", "#000")
         .add("border-radius", "3px")
@@ -205,10 +208,7 @@ impl MJSocialElement {
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
         if node.name.as_str() != "mj-social-element" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-social-element' no '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let content = node
             .children
@@ -244,7 +244,7 @@ impl MJSocialElement {
     ) -> Result<MJSocialElement, Error> {
         let mut attrs = match extra {
             Some(value) => value.into(),
-            None => Attributes::new(),
+            None => Attributes::default(),
         };
         if attrs.get("text-padding").is_none() {
             attrs.set("text-padding", "4px 4px 4px 0");
@@ -258,7 +258,7 @@ impl MJSocialElement {
         }
         self.social_network
             .as_ref()
-            .and_then(|net| Some(net.background_color.clone()))
+            .map(|net| net.background_color.clone())
     }
 
     fn get_icon_size(&self) -> Option<Size> {
@@ -273,9 +273,7 @@ impl MJSocialElement {
         if let Some(src) = self.get_attribute("src") {
             return Some(src.to_string());
         }
-        self.social_network
-            .as_ref()
-            .and_then(|net| Some(net.src.clone()))
+        self.social_network.as_ref().map(|net| net.src.clone())
     }
 
     fn set_style_img(&self, tag: Tag) -> Tag {
@@ -324,7 +322,7 @@ impl MJSocialElement {
             self.social_network
                 .as_ref()
                 .and_then(|net| net.share_url.clone())
-                .and_then(move |url| Some(url.replace("[[URL]]", href)))
+                .map(move |url| url.replace("[[URL]]", href))
                 .or_else(move || Some(href.to_string()))
         } else {
             None
@@ -347,13 +345,10 @@ impl MJSocialElement {
                 "height",
                 self.get_icon_height()
                     .or_else(|| self.get_icon_size())
-                    .and_then(|size| Some(size.value())),
+                    .map(|size| size.value()),
             )
             .maybe_set_attribute("src", self.get_icon_src())
-            .maybe_set_attribute(
-                "width",
-                self.get_icon_size().and_then(|size| Some(size.value())),
-            );
+            .maybe_set_attribute("width", self.get_icon_size().map(|size| size.value()));
 
         table.render(tr.render(td.render(if href.is_some() {
             a.render(img.closed())
@@ -373,14 +368,7 @@ impl MJSocialElement {
             Tag::new("span")
         };
         let wrapper = self.set_style_text(wrapper);
-        td.render(
-            wrapper.render(
-                self.content
-                    .as_ref()
-                    .and_then(|v| Some(v.as_str()))
-                    .unwrap_or(""),
-            ),
-        )
+        td.render(wrapper.render(self.content.as_deref().unwrap_or("")))
     }
 }
 
@@ -394,7 +382,7 @@ impl Component for MJSocialElement {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
@@ -413,13 +401,19 @@ impl Component for MJSocialElement {
     }
 }
 
-impl ComponentWithAttributes for MJSocialElement {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJSocialElement {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "table" => self.set_style_table(tag),
@@ -432,6 +426,3 @@ impl BodyComponent for MJSocialElement {
         }
     }
 }
-
-impl BodyContainedComponent for MJSocialElement {}
-impl ComponentWithSizeAttribute for MJSocialElement {}

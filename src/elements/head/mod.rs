@@ -1,6 +1,6 @@
 use crate::elements::error::Error;
 use crate::parser::{Element, Node};
-use crate::util::Header;
+use crate::util::header::Header;
 
 pub mod mj_attributes;
 pub mod mj_breakpoint;
@@ -35,14 +35,15 @@ macro_rules! apply_fn {
 }
 
 impl HeadElement {
-    pub fn parse_all<'a>(elements: &Vec<Element<'a>>) -> Result<Vec<HeadElement>, Error> {
+    pub fn parse_all<'a>(elements: &[Element<'a>]) -> Result<Vec<HeadElement>, Error> {
         let mut res = vec![];
         for elt in elements {
             match elt {
                 Element::Node(node) => {
                     res.push(HeadElement::parse(&node)?);
                 }
-                _ => return Err(Error::ParseError("expected node".into())),
+                Element::Comment(_) => (),
+                _ => return Err(Error::UnexpectedText),
             }
         }
         Ok(res)
@@ -57,7 +58,7 @@ impl HeadElement {
             "mj-preview" => HeadElement::MJPreview(mj_preview::MJPreview::parse(node)?),
             "mj-style" => HeadElement::MJStyle(mj_style::MJStyle::parse(node)?),
             "mj-title" => HeadElement::MJTitle(mj_title::MJTitle::parse(node)?),
-            _ => return Err(Error::ParseError(format!("{} tag not known", tag_name))),
+            _ => return Err(Error::UnexpectedElement(tag_name.into())),
         };
         Ok(res)
     }

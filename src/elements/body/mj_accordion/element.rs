@@ -1,14 +1,17 @@
 use super::{MJAccordionText, MJAccordionTitle};
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::{Element, Node};
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
-const CHILDREN_ATTR: [&'static str; 9] = [
+const CHILDREN_ATTR: [&str; 9] = [
     "border",
     "icon-align",
     "icon-width",
@@ -32,7 +35,7 @@ impl MJAccordionElement {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, Attributes::new())
+            .get_attributes(node, Attributes::default())
     }
 
     pub fn parse<'a>(
@@ -41,10 +44,7 @@ impl MJAccordionElement {
         attrs: &Attributes,
     ) -> Result<MJAccordionElement, Error> {
         if node.name.as_str() != "mj-accordion-element" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-accordion-element' no '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let mut element = MJAccordionElement {
             attributes: Self::default_attributes(node, header)
@@ -65,16 +65,18 @@ impl MJAccordionElement {
                     "mj-accordion-text" => {
                         element.text = Some(MJAccordionText::parse(node, header, &children_attr)?);
                     }
-                    _ => (),
+                    name => return Err(Error::UnexpectedElement(name.into())),
                 },
-                _ => (),
+                // TODO handle comments
+                Element::Comment(_) => (),
+                Element::Text(_) => return Err(Error::UnexpectedText),
             };
         }
         Ok(element)
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        let mut result = Attributes::new();
+        let mut result = Attributes::default();
         for key in CHILDREN_ATTR.iter() {
             if let Some(value) = self.get_attribute(key) {
                 result.set(key, value);
@@ -115,7 +117,7 @@ impl Component for MJAccordionElement {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -143,12 +145,14 @@ impl Component for MJAccordionElement {
     }
 }
 
-impl ComponentWithAttributes for MJAccordionElement {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+impl BodyComponent for MJAccordionElement {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+    fn get_current_width(&self) -> Option<Size> {
+        None
     }
 }
-
-impl BodyComponent for MJAccordionElement {}
-impl BodyContainedComponent for MJAccordionElement {}
-impl ComponentWithSizeAttribute for MJAccordionElement {}

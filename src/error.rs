@@ -9,10 +9,7 @@ pub enum Error {
 
 impl Error {
     pub fn is_mjml_error(&self) -> bool {
-        match self {
-            Error::MJMLError(_) => true,
-            _ => false,
-        }
+        matches!(self, Error::MJMLError(_))
     }
 }
 

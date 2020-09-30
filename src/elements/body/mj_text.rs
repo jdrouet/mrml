@@ -5,11 +5,13 @@ use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "left")
         .add("color", "#000000")
         .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
@@ -66,7 +68,7 @@ impl MJText {
         Ok(self.set_style_text(Tag::div()).render(res.join("")))
     }
 
-    fn render_with_height(&self, header: &Header, height: &String) -> Result<String, Error> {
+    fn render_with_height(&self, header: &Header, height: &str) -> Result<String, Error> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
@@ -89,7 +91,7 @@ impl Component for MJText {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -100,13 +102,19 @@ impl Component for MJText {
     }
 }
 
-impl ComponentWithAttributes for MJText {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJText {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "text" => self.set_style_text(tag),
@@ -114,8 +122,6 @@ impl BodyComponent for MJText {
         }
     }
 }
-
-impl BodyContainedComponent for MJText {}
 
 #[cfg(test)]
 pub mod tests {

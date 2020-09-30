@@ -3,13 +3,9 @@ use super::head::mj_head::MJHead;
 use super::prelude::*;
 use super::Error;
 use crate::parser::{Element, Node};
-use crate::util::{Context, Header};
+use crate::util::context::Context;
 use crate::Options;
 use log::debug;
-
-const DOCTYPE: &str = "<!doctype html>";
-const HTML_OPEN: &str = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">";
-const HTML_CLOSE: &str = "</html>";
 
 #[derive(Clone, Debug)]
 pub struct MJMLElement<'a> {
@@ -18,38 +14,30 @@ pub struct MJMLElement<'a> {
     body: MJBody,
 }
 
-fn get_head<'a>(node: &Node<'a>, opts: Options) -> Result<MJHead<'a>, Error> {
-    for child in node.children.iter() {
-        match child {
-            Element::Node(node) => {
-                if node.name.as_str() == "mj-head" {
-                    return MJHead::parse(&node, opts);
-                }
-            }
-            _ => (),
-        }
-    }
-    Ok(MJHead::empty(opts))
-}
-
-fn get_body<'a>(node: &Node<'a>, header: &Header) -> Result<MJBody, Error> {
-    for child in node.children.iter() {
-        match child {
-            Element::Node(node) => {
-                if node.name.as_str() == "mj-body" {
-                    return MJBody::parse(&node, &header);
-                }
-            }
-            _ => (),
-        }
-    }
-    Ok(MJBody::empty())
-}
-
 impl<'a> MJMLElement<'a> {
     pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJMLElement<'a>, Error> {
-        let mut head = get_head(node, opts)?;
-        let mut body = get_body(node, head.get_header())?;
+        let mut head: Option<&Node<'a>> = None;
+        let mut body: Option<&Node<'a>> = None;
+        for item in node.children.iter() {
+            match item {
+                Element::Node(node) => match node.name.as_str() {
+                    "mj-head" => head = Some(node),
+                    "mj-body" => body = Some(node),
+                    name => return Err(Error::UnexpectedElement(name.into())),
+                },
+                // TODO handle comments in <mjml>
+                Element::Comment(_) => (),
+                Element::Text(_) => return Err(Error::UnexpectedText),
+            };
+        }
+        let mut head = match head {
+            Some(node) => MJHead::parse(node, opts)?,
+            None => MJHead::empty(opts),
+        };
+        let mut body = match body {
+            Some(node) => MJBody::parse(node, head.get_header())?,
+            None => MJBody::empty(),
+        };
         body.set_context(Context::default());
         body.update_header(head.get_mut_header());
         let element = MJMLElement {
@@ -73,13 +61,11 @@ impl<'a> MJMLElement<'a> {
     pub fn get_html(&self) -> Result<String, Error> {
         debug!("get_html");
         let header = self.head.get_header();
-        let mut res: Vec<String> = vec![];
-        res.push(DOCTYPE.into());
-        res.push(HTML_OPEN.into());
-        res.push(self.head.render(&header)?);
-        res.push(self.body.render(&header)?);
-        res.push(HTML_CLOSE.into());
-        Ok(res.join(""))
+        Ok(String::from("<!doctype html>")
+            + "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">"
+            + self.head.render(&header)?.as_str()
+            + self.body.render(&header)?.as_str()
+            + "</html>")
     }
 }
 

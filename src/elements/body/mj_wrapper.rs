@@ -5,11 +5,13 @@ use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("background-repeat", "repeat")
         .add("background-size", "auto")
         .add("direction", "ltr")
@@ -59,10 +61,10 @@ impl MJWrapper {
             // has default value
             res.push(self.get_attribute("background-repeat").unwrap().to_string());
         }
-        if res.len() > 0 {
-            Some(res.join(" "))
-        } else {
+        if res.is_empty() {
             None
+        } else {
+            Some(res.join(" "))
         }
     }
 
@@ -321,7 +323,7 @@ impl Component for MJWrapper {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_box_widths(),
             self.get_siblings(),
@@ -342,13 +344,19 @@ impl Component for MJWrapper {
     }
 }
 
-impl ComponentWithAttributes for MJWrapper {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJWrapper {
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        self.context().and_then(|ctx| ctx.container_width())
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "div" => self.set_style_div(tag),
@@ -360,22 +368,6 @@ impl BodyComponent for MJWrapper {
         }
     }
 }
-
-impl ComponentWithChildren for MJWrapper {
-    fn get_children(&self) -> &Vec<BodyElement> {
-        &self.children
-    }
-
-    fn get_current_width(&self) -> Option<Size> {
-        self.context().and_then(|ctx| ctx.container_width())
-    }
-}
-
-impl BodyContainedComponent for MJWrapper {}
-impl ComponentWithSizeAttribute for MJWrapper {}
-impl BodyComponentWithBorder for MJWrapper {}
-impl BodyComponentWithPadding for MJWrapper {}
-impl BodyComponentWithBoxWidths for MJWrapper {}
 
 #[cfg(test)]
 pub mod tests {

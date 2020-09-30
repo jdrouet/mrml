@@ -14,7 +14,7 @@ pub mod util;
 
 pub use error::Error;
 use util::fonts::FontRegistry;
-use util::Size;
+use util::size::Size;
 
 /// global options for renderer
 #[derive(Clone, Debug)]
@@ -31,7 +31,7 @@ impl Default for Options {
     fn default() -> Self {
         Self {
             breakpoint: Size::Pixel(480.0),
-            fonts: FontRegistry::default(),
+            fonts: FontRegistry::new(),
             keep_comments: true,
         }
     }

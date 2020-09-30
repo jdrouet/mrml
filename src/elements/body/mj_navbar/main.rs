@@ -6,11 +6,14 @@ use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
-use crate::util::{generate_id, Context, Header, Size, Tag};
-use std::collections::HashMap;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::id::generate as generate_id;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "center")
         .add("ico-align", "center")
         .add("ico-open", "&#9776;")
@@ -59,10 +62,7 @@ impl MJNavbar {
             if let Some(child_node) = child.as_node() {
                 let tag_name = child_node.name.as_str();
                 if tag_name != "mj-navbar-link" {
-                    return Err(Error::ParseError(format!(
-                        "expect only 'mj-navbar-link', not '{}'",
-                        tag_name
-                    )));
+                    return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
                     let element = MJNavbarLink::parse_link(&child_node, header, Some(&attrs))?;
                     result.children.push(BodyElement::MJNavbarLink(element));
@@ -73,7 +73,7 @@ impl MJNavbar {
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        let mut attrs = Attributes::new();
+        let mut attrs = Attributes::default();
         attrs.maybe_set("navbar-base-url", self.get_attribute("base-url"));
         attrs
     }
@@ -187,7 +187,7 @@ impl Component for MJNavbar {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),
@@ -225,19 +225,11 @@ impl Component for MJNavbar {
     }
 }
 
-impl ComponentWithAttributes for MJNavbar {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
-    }
-}
-
 impl BodyComponent for MJNavbar {
-    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
-        tag
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
-}
 
-impl ComponentWithChildren for MJNavbar {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -245,9 +237,11 @@ impl ComponentWithChildren for MJNavbar {
     fn get_current_width(&self) -> Option<Size> {
         self.context().and_then(|ctx| ctx.container_width())
     }
-}
 
-impl BodyContainedComponent for MJNavbar {}
+    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
+        tag
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

@@ -3,8 +3,10 @@ use crate::elements::head::prelude::HeadComponent;
 use crate::elements::prelude::*;
 use crate::elements::Error;
 use crate::parser::Node;
+use crate::util::context::Context;
 use crate::util::fonts::{url_to_import, url_to_link};
-use crate::util::{Context, Header, Tag};
+use crate::util::header::Header;
+use crate::util::tag::Tag;
 use crate::Options;
 use log::debug;
 use std::collections::HashMap;
@@ -109,12 +111,11 @@ impl<'a> MJHead<'a> {
 
     pub fn get_preview(&self) -> String {
         for child in self.children.iter() {
-            match child {
-                HeadElement::MJPreview(element) => return element.content.clone(),
-                _ => (),
-            };
+            if let HeadElement::MJPreview(element) = child {
+                return element.content.clone();
+            }
         }
-        "".into()
+        String::new()
     }
 
     fn get_media_queries(&self) -> String {
@@ -132,7 +133,7 @@ impl<'a> MJHead<'a> {
             let size = self
                 .header
                 .get_media_queries()
-                .get(classname.clone())
+                .get(&(*classname).clone())
                 .unwrap();
             res.push(format!(
                 ".{} {{ width:{} !important; max-width: {}; }}",

@@ -1,7 +1,7 @@
 use super::prelude::*;
 use crate::elements::error::Error;
 use crate::parser::Node;
-use crate::util::Header;
+use crate::util::header::Header;
 
 #[derive(Clone, Debug)]
 pub struct MJFont {
@@ -22,14 +22,14 @@ impl MJFont {
                 "href" => {
                     href = Some(value.as_str().into());
                 }
-                _ => return Err(Error::ParseError("unexpected parameter".into())),
+                _ => return Err(Error::UnexpectedAttribute(key.into())),
             };
         }
         if name.is_none() {
-            return Err(Error::ParseError("name attribute missing".into()));
+            return Err(Error::MissingAttribute("name".into()));
         }
         if href.is_none() {
-            return Err(Error::ParseError("href attribute missing".into()));
+            return Err(Error::MissingAttribute("href".into()));
         }
         let name = name.unwrap();
         let href = href.unwrap();

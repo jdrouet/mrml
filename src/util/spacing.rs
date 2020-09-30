@@ -22,7 +22,8 @@ impl From<ParseSizeError> for Error {
 /// representation of spacing
 ///
 /// ```rust
-/// use mrml::util::{Size, Spacing};
+/// use mrml::util::size::Size;
+/// use mrml::util::spacing::Spacing;
 /// use std::str::FromStr;
 /// let res = Spacing::from_str("1px 2px 3% 4px");
 /// assert!(res.is_ok(), true);
@@ -49,20 +50,15 @@ impl Spacing {
     }
 
     pub fn from_3d(top: Size, horizontal: Size, bottom: Size) -> Self {
-        Self::from_4d(top, horizontal.clone(), bottom, horizontal.clone())
+        Self::from_4d(top, horizontal.clone(), bottom, horizontal)
     }
 
     pub fn from_2d(vertical: Size, horizontal: Size) -> Self {
-        Self::from_4d(
-            vertical.clone(),
-            horizontal.clone(),
-            vertical.clone(),
-            horizontal.clone(),
-        )
+        Self::from_4d(vertical.clone(), horizontal.clone(), vertical, horizontal)
     }
 
     pub fn from_1d(size: Size) -> Self {
-        Self::from_4d(size.clone(), size.clone(), size.clone(), size.clone())
+        Self::from_4d(size.clone(), size.clone(), size.clone(), size)
     }
 
     pub fn get(&self, direction: &str) -> Option<Size> {
@@ -81,7 +77,7 @@ impl FromStr for Spacing {
 
     fn from_str(input: &str) -> Result<Self, Error> {
         let mut sizes: Vec<Size> = vec![];
-        for section in input.split(" ") {
+        for section in input.split(' ') {
             sizes.push(Size::from_str(section)?);
         }
         match sizes.len() {
