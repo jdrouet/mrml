@@ -1,4 +1,5 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
@@ -107,13 +108,18 @@ impl Component for MJDivider {
     }
 }
 
-impl ComponentWithAttributes for MJDivider {
+impl BodyComponent for MJDivider {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJDivider {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "p" => self.set_style_p(tag),
@@ -122,12 +128,6 @@ impl BodyComponent for MJDivider {
         }
     }
 }
-
-impl BodyContainedComponent for MJDivider {}
-impl ComponentWithSizeAttribute for MJDivider {}
-impl BodyComponentWithBorder for MJDivider {}
-impl BodyComponentWithPadding for MJDivider {}
-impl BodyComponentWithBoxWidths for MJDivider {}
 
 #[cfg(test)]
 pub mod tests {

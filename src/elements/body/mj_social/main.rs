@@ -162,22 +162,7 @@ impl Component for MJSocial {
     }
 }
 
-impl ComponentWithAttributes for MJSocial {
-    fn attributes(&self) -> Option<&Attributes> {
-        Some(&self.attributes)
-    }
-}
-
 impl BodyComponent for MJSocial {
-    fn set_style(&self, name: &str, tag: Tag) -> Tag {
-        match name {
-            "table-vertical" => self.set_style_table_vertical(tag),
-            _ => tag,
-        }
-    }
-}
-
-impl ComponentWithChildren for MJSocial {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -185,9 +170,18 @@ impl ComponentWithChildren for MJSocial {
     fn get_current_width(&self) -> Option<Size> {
         self.context().and_then(|ctx| ctx.container_width())
     }
-}
 
-impl BodyContainedComponent for MJSocial {}
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
+        match name {
+            "table-vertical" => self.set_style_table_vertical(tag),
+            _ => tag,
+        }
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

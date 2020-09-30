@@ -1,11 +1,11 @@
 use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
-use crate::elements::prelude::*;
 use crate::elements::{Component, Error};
 use crate::parser::{Element, Node};
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
 use crate::util::header::Header;
+use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 #[derive(Clone, Debug)]
@@ -72,9 +72,16 @@ impl Component for NodeElement {
     }
 }
 
-impl ComponentWithAttributes for NodeElement {
+impl BodyComponent for NodeElement {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
+    }
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
     }
 }
 
@@ -88,6 +95,13 @@ pub enum RawElement {
 impl RawElement {
     pub fn parse<'a>(element: &Element<'a>, header: &Header) -> Result<RawElement, Error> {
         RawElement::conditional_parse(element, header, false)
+    }
+
+    pub fn as_node(&self) -> Option<&NodeElement> {
+        match self {
+            RawElement::Node(node) => Some(node),
+            _ => None,
+        }
     }
 
     pub fn conditional_parse<'a>(
@@ -107,10 +121,7 @@ impl RawElement {
 
 impl Component for RawElement {
     fn context(&self) -> Option<&Context> {
-        match self {
-            RawElement::Node(node) => node.context(),
-            _ => None,
-        }
+        self.as_node().and_then(|node| node.context())
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -135,13 +146,18 @@ impl Component for RawElement {
     }
 }
 
-impl ComponentWithAttributes for RawElement {
+impl BodyComponent for RawElement {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        self.as_node()
+            .and_then(|node| Some(node.get_children()))
+            .unwrap_or(&EMPTY_CHILDREN)
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        self.as_node().and_then(|node| node.get_current_width())
+    }
+
     fn attributes(&self) -> Option<&Attributes> {
-        match self {
-            RawElement::Node(node) => node.attributes(),
-            _ => None,
-        }
+        self.as_node().and_then(|node| node.attributes())
     }
 }
-
-impl BodyComponent for RawElement {}

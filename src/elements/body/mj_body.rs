@@ -1,6 +1,5 @@
 use super::prelude::*;
 use super::BodyElement;
-use crate::elements::prelude::*;
 use crate::elements::{Component, Error};
 use crate::parser::Node;
 use crate::util::attributes::*;
@@ -118,22 +117,11 @@ impl Component for MJBody {
     }
 }
 
-impl ComponentWithAttributes for MJBody {
+impl BodyComponent for MJBody {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJBody {
-    fn set_style(&self, key: &str, tag: Tag) -> Tag {
-        match key {
-            "body" | "div" => self.set_style_body(tag),
-            _ => tag,
-        }
-    }
-}
-
-impl ComponentWithChildren for MJBody {
     fn get_current_width(&self) -> Option<Size> {
         self.get_size_attribute("width")
     }
@@ -141,9 +129,14 @@ impl ComponentWithChildren for MJBody {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
-}
 
-impl ComponentWithSizeAttribute for MJBody {}
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
+        match key {
+            "body" | "div" => self.set_style_body(tag),
+            _ => tag,
+        }
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

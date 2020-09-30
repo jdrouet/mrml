@@ -344,13 +344,19 @@ impl Component for MJWrapper {
     }
 }
 
-impl ComponentWithAttributes for MJWrapper {
+impl BodyComponent for MJWrapper {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJWrapper {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        self.context().and_then(|ctx| ctx.container_width())
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "div" => self.set_style_div(tag),
@@ -362,22 +368,6 @@ impl BodyComponent for MJWrapper {
         }
     }
 }
-
-impl ComponentWithChildren for MJWrapper {
-    fn get_children(&self) -> &Vec<BodyElement> {
-        &self.children
-    }
-
-    fn get_current_width(&self) -> Option<Size> {
-        self.context().and_then(|ctx| ctx.container_width())
-    }
-}
-
-impl BodyContainedComponent for MJWrapper {}
-impl ComponentWithSizeAttribute for MJWrapper {}
-impl BodyComponentWithBorder for MJWrapper {}
-impl BodyComponentWithPadding for MJWrapper {}
-impl BodyComponentWithBoxWidths for MJWrapper {}
 
 #[cfg(test)]
 pub mod tests {

@@ -1,4 +1,5 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
@@ -229,12 +230,16 @@ impl Component for MJCarouselImage {
     }
 }
 
-impl ComponentWithAttributes for MJCarouselImage {
+impl BodyComponent for MJCarouselImage {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJCarouselImage {}
-impl BodyContainedComponent for MJCarouselImage {}
-impl ComponentWithSizeAttribute for MJCarouselImage {}
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+}

@@ -452,19 +452,7 @@ impl Component for MJCarousel {
     }
 }
 
-impl ComponentWithAttributes for MJCarousel {
-    fn attributes(&self) -> Option<&Attributes> {
-        Some(&self.attributes)
-    }
-}
-
 impl BodyComponent for MJCarousel {
-    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
-        tag
-    }
-}
-
-impl ComponentWithChildren for MJCarousel {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -472,10 +460,15 @@ impl ComponentWithChildren for MJCarousel {
     fn get_current_width(&self) -> Option<Size> {
         self.context().and_then(|ctx| ctx.container_width())
     }
-}
 
-impl BodyContainedComponent for MJCarousel {}
-impl ComponentWithSizeAttribute for MJCarousel {}
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
+    }
+
+    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
+        tag
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

@@ -340,13 +340,19 @@ impl Component for MJSection {
     }
 }
 
-impl ComponentWithAttributes for MJSection {
+impl BodyComponent for MJSection {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJSection {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        self.context().and_then(|ctx| ctx.container_width())
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "div" => self.set_style_div(tag),
@@ -358,18 +364,6 @@ impl BodyComponent for MJSection {
         }
     }
 }
-
-impl ComponentWithChildren for MJSection {
-    fn get_children(&self) -> &Vec<BodyElement> {
-        &self.children
-    }
-
-    fn get_current_width(&self) -> Option<Size> {
-        self.context().and_then(|ctx| ctx.container_width())
-    }
-}
-
-impl BodyContainedComponent for MJSection {}
 
 #[cfg(test)]
 pub mod tests {

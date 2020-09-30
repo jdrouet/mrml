@@ -1,5 +1,6 @@
 use super::{MJAccordionText, MJAccordionTitle};
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::{Element, Node};
@@ -7,6 +8,7 @@ use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
+use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 const CHILDREN_ATTR: [&'static str; 9] = [
@@ -144,12 +146,14 @@ impl Component for MJAccordionElement {
     }
 }
 
-impl ComponentWithAttributes for MJAccordionElement {
+impl BodyComponent for MJAccordionElement {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
 }
-
-impl BodyComponent for MJAccordionElement {}
-impl BodyContainedComponent for MJAccordionElement {}
-impl ComponentWithSizeAttribute for MJAccordionElement {}

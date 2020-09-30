@@ -1,10 +1,38 @@
+use super::BodyElement;
 use crate::elements::prelude::*;
+use crate::util::attributes::Attributes;
 use crate::util::size::Size;
 use crate::util::spacing::Spacing;
 use crate::util::tag::Tag;
 use regex::Regex;
 
+lazy_static! {
+    pub static ref EMPTY_CHILDREN: Vec<BodyElement> = vec![];
+}
+
 pub trait BodyComponent: Component {
+    fn attributes(&self) -> Option<&Attributes>;
+
+    fn get_attribute(&self, key: &str) -> Option<&String> {
+        self.attributes().and_then(|src| src.get(&key.to_string()))
+    }
+    fn get_size_attribute(&self, name: &str) -> Option<Size> {
+        self.get_attribute(name)
+            .and_then(|value| value.parse::<Size>().ok())
+    }
+    fn get_children(&self) -> &Vec<BodyElement>;
+    fn get_current_width(&self) -> Option<Size>;
+
+    fn get_siblings(&self) -> usize {
+        self.get_children().len()
+    }
+
+    fn get_raw_siblings(&self) -> usize {
+        self.get_children()
+            .iter()
+            .fold(0, |res, item| if item.is_raw() { res + 1 } else { res })
+    }
+
     fn set_style(&self, _key: &str, tag: Tag) -> Tag {
         tag
     }
@@ -12,9 +40,7 @@ pub trait BodyComponent: Component {
     fn get_width(&self) -> Option<Size> {
         None
     }
-}
 
-pub trait BodyComponentWithBorder: ComponentWithAttributes {
     fn get_border_by_name(&self, name: &str) -> Option<Size> {
         self.get_attribute(name).and_then(|border| {
             let re = Regex::new(r"(\d+)").unwrap();
@@ -70,9 +96,7 @@ pub trait BodyComponentWithBorder: ComponentWithAttributes {
         self.get_border_by_name(format!("{}-border-right", prefix).as_str())
             .or_else(|| self.get_border_by_name(format!("{}-border", prefix).as_str()))
     }
-}
 
-pub trait BodyComponentWithPadding: Component + ComponentWithSizeAttribute {
     fn get_padding_global_by_name(&self, name: &str) -> Option<Spacing> {
         self.get_attribute(name)
             .and_then(|value| value.parse::<Spacing>().ok())
@@ -147,9 +171,7 @@ pub trait BodyComponentWithPadding: Component + ComponentWithSizeAttribute {
             })
         })
     }
-}
 
-pub trait BodyContainedComponent: Component {
     fn get_container_width(&self) -> Option<Size> {
         self.context().and_then(|ctx| ctx.container_width())
     }
@@ -163,11 +185,7 @@ pub trait BodyContainedComponent: Component {
         self.get_container_width()
             .and_then(|width| Some(width.value() as usize))
     }
-}
 
-pub trait BodyComponentWithBoxWidths:
-    BodyComponentWithBorder + BodyComponentWithPadding + BodyContainedComponent
-{
     fn get_border_horizontal_width(&self) -> Size {
         let left = match self.get_border_left() {
             Some(value) => value,
@@ -238,13 +256,17 @@ pub mod tests {
         }
     }
 
-    impl ComponentWithAttributes for TestComponent {
+    impl BodyComponent for TestComponent {
+        fn get_current_width(&self) -> Option<Size> {
+            None
+        }
+        fn get_children(&self) -> &Vec<BodyElement> {
+            &EMPTY_CHILDREN
+        }
         fn attributes(&self) -> Option<&Attributes> {
             Some(&self.attributes)
         }
     }
-
-    impl BodyComponent for TestComponent {}
 
     #[test]
     fn basic_component_default_values() {
@@ -254,8 +276,6 @@ pub mod tests {
         assert_eq!(item.get_attribute("nothing"), None);
         assert_eq!(item.set_style("nothing", Tag::new("a")).open(), "<a>");
     }
-
-    impl BodyComponentWithBorder for TestComponent {}
 
     #[test]
     fn component_with_border_default_values() {
@@ -289,8 +309,6 @@ pub mod tests {
         );
     }
 
-    impl ComponentWithSizeAttribute for TestComponent {}
-
     #[test]
     fn component_with_size_attribute() {
         let attributes = Attributes::new()
@@ -303,8 +321,6 @@ pub mod tests {
         );
         assert_eq!(item.get_size_attribute("padding-bottom"), None);
     }
-
-    impl BodyComponentWithPadding for TestComponent {}
 
     #[test]
     fn component_with_padding_normal() {
@@ -343,9 +359,6 @@ pub mod tests {
             Some(Size::Pixel(2.0))
         );
     }
-
-    impl BodyContainedComponent for TestComponent {}
-    impl BodyComponentWithBoxWidths for TestComponent {}
 
     #[test]
     fn component_with_box_widths() {

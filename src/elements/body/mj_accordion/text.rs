@@ -1,4 +1,5 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::body::raw::RawElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -7,6 +8,7 @@ use crate::util::attributes::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
 use crate::util::tag::Tag;
+use crate::util::size::Size;
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
@@ -110,12 +112,16 @@ impl Component for MJAccordionText {
     }
 }
 
-impl ComponentWithAttributes for MJAccordionText {
+impl BodyComponent for MJAccordionText {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJAccordionText {}
-impl BodyContainedComponent for MJAccordionText {}
-impl ComponentWithSizeAttribute for MJAccordionText {}
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+}

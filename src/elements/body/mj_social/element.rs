@@ -1,4 +1,5 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
@@ -415,13 +416,19 @@ impl Component for MJSocialElement {
     }
 }
 
-impl ComponentWithAttributes for MJSocialElement {
+impl BodyComponent for MJSocialElement {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJSocialElement {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "table" => self.set_style_table(tag),
@@ -434,6 +441,3 @@ impl BodyComponent for MJSocialElement {
         }
     }
 }
-
-impl BodyContainedComponent for MJSocialElement {}
-impl ComponentWithSizeAttribute for MJSocialElement {}

@@ -1,23 +1,27 @@
 use crate::elements::body::prelude::*;
 use crate::elements::body::raw::RawElement;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
 use crate::util::header::Header;
+use crate::util::size::Size;
 
 #[derive(Clone, Debug)]
 pub struct MJRaw {
     context: Option<Context>,
-    children: Vec<RawElement>,
+    children: Vec<BodyElement>,
 }
 
 impl MJRaw {
     pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJRaw, Error> {
         let mut children = vec![];
         for child in node.children.iter() {
-            children.push(RawElement::conditional_parse(&child, header, true)?);
+            children.push(BodyElement::Raw(RawElement::conditional_parse(
+                &child, header, true,
+            )?));
         }
         Ok(MJRaw {
             context: None,
@@ -44,10 +48,16 @@ impl Component for MJRaw {
     }
 }
 
-impl BodyComponent for MJRaw {}
-impl BodyContainedComponent for MJRaw {}
-impl ComponentWithAttributes for MJRaw {
+impl BodyComponent for MJRaw {
     fn attributes(&self) -> Option<&Attributes> {
+        None
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
         None
     }
 }

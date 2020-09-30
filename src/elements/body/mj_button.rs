@@ -167,13 +167,19 @@ impl Component for MJButton {
     }
 }
 
-impl ComponentWithAttributes for MJButton {
+impl BodyComponent for MJButton {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJButton {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "table" => self.set_style_table(tag),
@@ -183,10 +189,6 @@ impl BodyComponent for MJButton {
         }
     }
 }
-
-impl ComponentWithSizeAttribute for MJButton {}
-impl BodyComponentWithPadding for MJButton {}
-impl BodyContainedComponent for MJButton {}
 
 #[cfg(test)]
 pub mod tests {

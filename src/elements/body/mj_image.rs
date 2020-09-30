@@ -1,4 +1,5 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
@@ -191,13 +192,19 @@ impl Component for MJImage {
     }
 }
 
-impl ComponentWithAttributes for MJImage {
+impl BodyComponent for MJImage {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJImage {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "img" => self.set_style_img(tag),
@@ -207,12 +214,6 @@ impl BodyComponent for MJImage {
         }
     }
 }
-
-impl BodyContainedComponent for MJImage {}
-impl ComponentWithSizeAttribute for MJImage {}
-impl BodyComponentWithBorder for MJImage {}
-impl BodyComponentWithPadding for MJImage {}
-impl BodyComponentWithBoxWidths for MJImage {}
 
 #[cfg(test)]
 pub mod tests {

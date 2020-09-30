@@ -151,19 +151,11 @@ impl Component for MJAccordion {
     }
 }
 
-impl ComponentWithAttributes for MJAccordion {
+impl BodyComponent for MJAccordion {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJAccordion {
-    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
-        tag
-    }
-}
-
-impl ComponentWithChildren for MJAccordion {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -171,10 +163,11 @@ impl ComponentWithChildren for MJAccordion {
     fn get_current_width(&self) -> Option<Size> {
         self.context().and_then(|ctx| ctx.container_width())
     }
-}
 
-impl BodyContainedComponent for MJAccordion {}
-impl ComponentWithSizeAttribute for MJAccordion {}
+    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
+        tag
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

@@ -1,4 +1,5 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
@@ -6,6 +7,7 @@ use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
+use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
@@ -142,12 +144,16 @@ impl Component for MJAccordionTitle {
     }
 }
 
-impl ComponentWithAttributes for MJAccordionTitle {
+impl BodyComponent for MJAccordionTitle {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJAccordionTitle {}
-impl BodyContainedComponent for MJAccordionTitle {}
-impl ComponentWithSizeAttribute for MJAccordionTitle {}
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+}

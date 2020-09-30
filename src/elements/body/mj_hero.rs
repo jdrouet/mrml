@@ -325,13 +325,19 @@ impl Component for MJHero {
     }
 }
 
-impl ComponentWithAttributes for MJHero {
+impl BodyComponent for MJHero {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJHero {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &self.children
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        self.context().and_then(|ctx| ctx.container_width())
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "div" => self.set_style_div(tag),
@@ -350,20 +356,6 @@ impl BodyComponent for MJHero {
         }
     }
 }
-
-impl ComponentWithChildren for MJHero {
-    fn get_children(&self) -> &Vec<BodyElement> {
-        &self.children
-    }
-
-    fn get_current_width(&self) -> Option<Size> {
-        self.context().and_then(|ctx| ctx.container_width())
-    }
-}
-
-impl BodyContainedComponent for MJHero {}
-impl ComponentWithSizeAttribute for MJHero {}
-impl BodyComponentWithPadding for MJHero {}
 
 #[cfg(test)]
 pub mod tests {

@@ -175,23 +175,10 @@ impl Component for MJGroup {
     }
 }
 
-impl ComponentWithAttributes for MJGroup {
+impl BodyComponent for MJGroup {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
-
-impl BodyComponent for MJGroup {
-    fn set_style(&self, key: &str, tag: Tag) -> Tag {
-        match key {
-            "div" => self.set_style_div(tag),
-            "td-outlook" => self.set_style_td_outlook(tag),
-            _ => tag,
-        }
-    }
-}
-
-impl ComponentWithChildren for MJGroup {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -228,13 +215,15 @@ impl ComponentWithChildren for MJGroup {
             Some(Size::Pixel(container_width.value() - all_paddings))
         }
     }
-}
 
-impl ComponentWithSizeAttribute for MJGroup {}
-impl BodyContainedComponent for MJGroup {}
-impl BodyComponentWithBorder for MJGroup {}
-impl BodyComponentWithBoxWidths for MJGroup {}
-impl BodyComponentWithPadding for MJGroup {}
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
+        match key {
+            "div" => self.set_style_div(tag),
+            "td-outlook" => self.set_style_td_outlook(tag),
+            _ => tag,
+        }
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

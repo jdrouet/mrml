@@ -251,36 +251,11 @@ impl Component for MJColumn {
     }
 }
 
-impl ComponentWithAttributes for MJColumn {
+impl BodyComponent for MJColumn {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJColumn {
-    fn set_style(&self, key: &str, tag: Tag) -> Tag {
-        match key {
-            "div" => self.set_style_div(tag),
-            "table" => self.set_style_table(tag),
-            "td-outlook" => self.set_style_td_outlook(tag),
-            "gutter" => self.set_style_gutter(tag),
-            _ => tag,
-        }
-    }
-
-    fn get_width(&self) -> Option<Size> {
-        self.get_container_width().and_then(|container_width| {
-            let parsed_width = self.get_parsed_width();
-            let result = match parsed_width {
-                Size::Percent(value) => Size::Pixel(container_width.value() * value / 100.0),
-                _ => parsed_width,
-            };
-            Some(result)
-        })
-    }
-}
-
-impl ComponentWithChildren for MJColumn {
     fn get_children(&self) -> &Vec<BodyElement> {
         &self.children
     }
@@ -317,13 +292,28 @@ impl ComponentWithChildren for MJColumn {
             Some(Size::Pixel(container_width.value() - all_paddings))
         }
     }
-}
 
-impl ComponentWithSizeAttribute for MJColumn {}
-impl BodyContainedComponent for MJColumn {}
-impl BodyComponentWithBorder for MJColumn {}
-impl BodyComponentWithBoxWidths for MJColumn {}
-impl BodyComponentWithPadding for MJColumn {}
+    fn set_style(&self, key: &str, tag: Tag) -> Tag {
+        match key {
+            "div" => self.set_style_div(tag),
+            "table" => self.set_style_table(tag),
+            "td-outlook" => self.set_style_td_outlook(tag),
+            "gutter" => self.set_style_gutter(tag),
+            _ => tag,
+        }
+    }
+
+    fn get_width(&self) -> Option<Size> {
+        self.get_container_width().and_then(|container_width| {
+            let parsed_width = self.get_parsed_width();
+            let result = match parsed_width {
+                Size::Percent(value) => Size::Pixel(container_width.value() * value / 100.0),
+                _ => parsed_width,
+            };
+            Some(result)
+        })
+    }
+}
 
 #[cfg(test)]
 pub mod tests {

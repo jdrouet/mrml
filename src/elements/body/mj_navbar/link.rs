@@ -1,4 +1,5 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
@@ -6,6 +7,7 @@ use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
+use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
@@ -163,13 +165,18 @@ impl Component for MJNavbarLink {
     }
 }
 
-impl ComponentWithAttributes for MJNavbarLink {
+impl BodyComponent for MJNavbarLink {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJNavbarLink {
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "a" => self.set_style_a(tag),
@@ -178,6 +185,3 @@ impl BodyComponent for MJNavbarLink {
         }
     }
 }
-
-impl BodyContainedComponent for MJNavbarLink {}
-impl ComponentWithSizeAttribute for MJNavbarLink {}

@@ -1,4 +1,5 @@
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
@@ -6,6 +7,7 @@ use crate::util::attributes::*;
 use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::util::context::Context;
 use crate::util::header::Header;
+use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
@@ -71,13 +73,19 @@ impl Component for MJSpacer {
     }
 }
 
-impl ComponentWithAttributes for MJSpacer {
+impl BodyComponent for MJSpacer {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJSpacer {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "div" => self.set_style_div(tag),
@@ -85,12 +93,6 @@ impl BodyComponent for MJSpacer {
         }
     }
 }
-
-impl BodyContainedComponent for MJSpacer {}
-impl ComponentWithSizeAttribute for MJSpacer {}
-impl BodyComponentWithBorder for MJSpacer {}
-impl BodyComponentWithPadding for MJSpacer {}
-impl BodyComponentWithBoxWidths for MJSpacer {}
 
 #[cfg(test)]
 pub mod tests {

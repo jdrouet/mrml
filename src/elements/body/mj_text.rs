@@ -7,6 +7,7 @@ use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
+use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
@@ -101,13 +102,19 @@ impl Component for MJText {
     }
 }
 
-impl ComponentWithAttributes for MJText {
+impl BodyComponent for MJText {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-}
 
-impl BodyComponent for MJText {
+    fn get_children(&self) -> &Vec<BodyElement> {
+        &EMPTY_CHILDREN
+    }
+
+    fn get_current_width(&self) -> Option<Size> {
+        None
+    }
+
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "text" => self.set_style_text(tag),
@@ -115,8 +122,6 @@ impl BodyComponent for MJText {
         }
     }
 }
-
-impl BodyContainedComponent for MJText {}
 
 #[cfg(test)]
 pub mod tests {
