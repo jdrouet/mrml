@@ -4,7 +4,6 @@ use crate::parser::Element;
 use crate::util::attributes::Attributes;
 use crate::util::{Context, Header, Size, Tag};
 use prelude::BodyComponent;
-use std::collections::HashMap;
 
 pub mod mj_accordion;
 pub mod mj_body;
@@ -98,7 +97,7 @@ impl Component for BodyElement {
 }
 
 impl ComponentWithAttributes for BodyElement {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Attributes> {
         apply_fn!(self, attributes())
     }
 

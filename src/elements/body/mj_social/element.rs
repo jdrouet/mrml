@@ -4,7 +4,6 @@ use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
 
 const IMAGE_ORIGIN: &'static str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
@@ -414,8 +413,8 @@ impl Component for MJSocialElement {
 }
 
 impl ComponentWithAttributes for MJSocialElement {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
 }
 

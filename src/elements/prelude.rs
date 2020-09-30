@@ -1,6 +1,7 @@
 use super::body::BodyElement;
 use super::error::Error;
 use crate::parser::Node;
+use crate::util::attributes::Attributes;
 use crate::util::{Context, Header, Size};
 use std::collections::HashMap;
 use std::string::ToString;
@@ -26,7 +27,7 @@ pub trait Component {
 }
 
 pub trait ComponentWithAttributes: Component {
-    fn attributes(&self) -> Option<&HashMap<String, String>>;
+    fn attributes(&self) -> Option<&Attributes>;
 
     fn get_attribute(&self, key: &str) -> Option<&String> {
         self.attributes().and_then(|src| src.get(&key.to_string()))
@@ -62,7 +63,7 @@ pub mod tests {
     use crate::Options;
 
     struct TestComponent {
-        attributes: HashMap<String, String>,
+        attributes: Attributes,
     }
 
     impl Component for TestComponent {
@@ -80,7 +81,7 @@ pub mod tests {
     }
 
     impl ComponentWithAttributes for TestComponent {
-        fn attributes(&self) -> Option<&HashMap<String, String>> {
+        fn attributes(&self) -> Option<&Attributes> {
             Some(&self.attributes)
         }
     }
@@ -89,11 +90,10 @@ pub mod tests {
     fn basic_component_default_values() {
         let header = Header::from(Options::default());
         let mut item = TestComponent {
-            attributes: HashMap::new(),
+            attributes: Attributes::new(),
         };
         assert_eq!(item.context().is_none(), true);
         item.set_context(Context::default());
-        assert_eq!(item.attributes(), Some(&item.attributes));
         assert_eq!(item.get_attribute("nothing"), None);
         assert_eq!(item.render(&header).unwrap(), "nothing");
     }

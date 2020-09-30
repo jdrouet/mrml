@@ -213,11 +213,11 @@ pub trait BodyComponentWithBoxWidths:
 pub mod tests {
     use super::*;
     use crate::elements::error::Error;
+    use crate::util::attributes::Attributes;
     use crate::util::{Context, Header, Tag};
-    use std::collections::HashMap;
 
     struct TestComponent {
-        attributes: HashMap<String, String>,
+        attributes: Attributes,
     }
 
     impl Component for TestComponent {
@@ -235,7 +235,7 @@ pub mod tests {
     }
 
     impl ComponentWithAttributes for TestComponent {
-        fn attributes(&self) -> Option<&HashMap<String, String>> {
+        fn attributes(&self) -> Option<&Attributes> {
             Some(&self.attributes)
         }
     }
@@ -245,7 +245,7 @@ pub mod tests {
     #[test]
     fn basic_component_default_values() {
         let item = TestComponent {
-            attributes: HashMap::new(),
+            attributes: Attributes::new(),
         };
         assert_eq!(item.get_attribute("nothing"), None);
         assert_eq!(item.set_style("nothing", Tag::new("a")).open(), "<a>");
@@ -255,14 +255,11 @@ pub mod tests {
 
     #[test]
     fn component_with_border_default_values() {
-        let mut attributes = HashMap::new();
-        attributes.insert("border-top".to_string(), "1px solid red".to_string());
-        attributes.insert("border-bottom".to_string(), "2px solid blue".to_string());
-        attributes.insert("toto-border-top".to_string(), "3px solid red".to_string());
-        attributes.insert(
-            "toto-border-bottom".to_string(),
-            "4px solid blue".to_string(),
-        );
+        let attributes = Attributes::new()
+            .add("border-top", "1px solid red")
+            .add("border-bottom", "2px solid blue")
+            .add("toto-border-top", "3px solid red")
+            .add("toto-border-bottom", "4px solid blue");
         let item = TestComponent { attributes };
         assert_eq!(item.get_border_top(), Some(Size::Pixel(1.0)));
         assert_eq!(item.get_border_bottom(), Some(Size::Pixel(2.0)));
@@ -275,9 +272,9 @@ pub mod tests {
 
     #[test]
     fn component_with_border_common_border() {
-        let mut attributes = HashMap::new();
-        attributes.insert("border".to_string(), "1px solid red".to_string());
-        attributes.insert("toto-border".to_string(), "2px solid red".to_string());
+        let attributes = Attributes::new()
+            .add("border", "1px solid red")
+            .add("toto-border", "2px solid red");
         let item = TestComponent { attributes };
         assert_eq!(item.get_border_top(), Some(Size::Pixel(1.0)));
         assert_eq!(item.get_border_bottom(), Some(Size::Pixel(1.0)));
@@ -292,9 +289,9 @@ pub mod tests {
 
     #[test]
     fn component_with_size_attribute() {
-        let mut attributes = HashMap::new();
-        attributes.insert("padding-top".to_string(), "1px".to_string());
-        attributes.insert("padding-bottom".to_string(), "something".to_string());
+        let attributes = Attributes::new()
+            .add("padding-top", "1px")
+            .add("padding-bottom", "something");
         let item = TestComponent { attributes };
         assert_eq!(
             item.get_size_attribute("padding-top"),
@@ -307,11 +304,11 @@ pub mod tests {
 
     #[test]
     fn component_with_padding_normal() {
-        let mut attributes = HashMap::new();
-        attributes.insert("padding-top".to_string(), "1px".to_string());
-        attributes.insert("padding-bottom".to_string(), "2px".to_string());
-        attributes.insert("toto-padding-top".to_string(), "3px".to_string());
-        attributes.insert("toto-padding-bottom".to_string(), "4px".to_string());
+        let attributes = Attributes::new()
+            .add("padding-top", "1px")
+            .add("padding-bottom", "2px")
+            .add("toto-padding-top", "3px")
+            .add("toto-padding-bottom", "4px");
         let item = TestComponent { attributes };
         assert_eq!(item.get_padding_top(), Some(Size::Pixel(1.0)));
         assert_eq!(item.get_padding_bottom(), Some(Size::Pixel(2.0)));
@@ -327,9 +324,9 @@ pub mod tests {
 
     #[test]
     fn component_with_padding_common() {
-        let mut attributes = HashMap::new();
-        attributes.insert("padding".to_string(), "1px".to_string());
-        attributes.insert("toto-padding".to_string(), "2px".to_string());
+        let attributes = Attributes::new()
+            .add("padding", "1px")
+            .add("toto-padding", "2px");
         let item = TestComponent { attributes };
         assert_eq!(item.get_padding_top(), Some(Size::Pixel(1.0)));
         assert_eq!(item.get_padding_bottom(), Some(Size::Pixel(1.0)));
@@ -348,11 +345,11 @@ pub mod tests {
 
     #[test]
     fn component_with_box_widths() {
-        let mut attributes = HashMap::new();
-        attributes.insert("border-left".to_string(), "2% solid blue".to_string());
-        attributes.insert("border-right".to_string(), "2px solid blue".to_string());
-        attributes.insert("padding-left".to_string(), "2%".to_string());
-        attributes.insert("padding-right".to_string(), "2px".to_string());
+        let attributes = Attributes::new()
+            .add("border-left", "2% solid blue")
+            .add("border-right", "2px solid blue")
+            .add("padding-left", "2%")
+            .add("padding-right", "2px");
         let item = TestComponent { attributes };
         assert_eq!(item.get_border_horizontal_width(), Size::Pixel(0.0));
         assert_eq!(item.get_padding_horizontal_width(), Size::Pixel(0.0));

@@ -7,7 +7,6 @@ use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{generate_id, Context, Header, Size, Style, Tag};
-use std::collections::HashMap;
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
@@ -449,8 +448,8 @@ impl Component for MJCarousel {
 }
 
 impl ComponentWithAttributes for MJCarousel {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
 }
 

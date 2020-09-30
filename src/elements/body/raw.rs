@@ -5,7 +5,6 @@ use crate::elements::{Component, Error};
 use crate::parser::{Element, Node};
 use crate::util::attributes::*;
 use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct NodeElement {
@@ -72,8 +71,8 @@ impl Component for NodeElement {
 }
 
 impl ComponentWithAttributes for NodeElement {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
 }
 
@@ -135,7 +134,7 @@ impl Component for RawElement {
 }
 
 impl ComponentWithAttributes for RawElement {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Attributes> {
         match self {
             RawElement::Node(node) => node.attributes(),
             _ => None,

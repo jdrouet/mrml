@@ -6,7 +6,6 @@ use crate::parser::{Element, Node};
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
 
 const CHILDREN_ATTR: [&'static str; 9] = [
     "border",
@@ -144,8 +143,8 @@ impl Component for MJAccordionElement {
 }
 
 impl ComponentWithAttributes for MJAccordionElement {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
 }
 

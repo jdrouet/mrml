@@ -6,7 +6,6 @@ use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
 use std::str::FromStr;
 
 lazy_static! {
@@ -174,8 +173,8 @@ impl Component for MJGroup {
 }
 
 impl ComponentWithAttributes for MJGroup {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
 }
 

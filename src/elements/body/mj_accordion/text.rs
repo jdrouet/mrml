@@ -5,7 +5,6 @@ use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::{Context, Header, Tag};
-use std::collections::HashMap;
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
@@ -110,8 +109,8 @@ impl Component for MJAccordionText {
 }
 
 impl ComponentWithAttributes for MJAccordionText {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
 }
 

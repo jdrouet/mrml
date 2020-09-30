@@ -3,8 +3,8 @@ use crate::elements::body::raw::RawElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
+use crate::util::attributes::Attributes;
 use crate::util::{Context, Header};
-use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct MJRaw {
@@ -46,7 +46,7 @@ impl Component for MJRaw {
 impl BodyComponent for MJRaw {}
 impl BodyContainedComponent for MJRaw {}
 impl ComponentWithAttributes for MJRaw {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Attributes> {
         None
     }
 }

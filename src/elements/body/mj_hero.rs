@@ -6,7 +6,6 @@ use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::{Context, Header, Size, Tag};
-use std::collections::HashMap;
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
@@ -324,8 +323,8 @@ impl Component for MJHero {
 }
 
 impl ComponentWithAttributes for MJHero {
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
-        Some(self.attributes.inner())
+    fn attributes(&self) -> Option<&Attributes> {
+        Some(&self.attributes)
     }
 }
 
