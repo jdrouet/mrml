@@ -1,16 +1,10 @@
+#[derive(Default)]
 pub struct Style {
     selectors: Vec<String>,
     content: Vec<String>,
 }
 
 impl Style {
-    pub fn new() -> Self {
-        Self {
-            selectors: vec![],
-            content: vec![],
-        }
-    }
-
     pub fn add_content(mut self, value: String) -> Self {
         self.content.push(value);
         self
@@ -44,7 +38,7 @@ mod tests {
 
     #[test]
     fn basic() {
-        let result = Style::new()
+        let result = Style::default()
             .add_selector("body".into())
             .add_str_selector("main")
             .add_content("background: red;".into())

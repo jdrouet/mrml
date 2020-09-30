@@ -257,7 +257,7 @@ impl Component for MJCarousel {
         }
         let mut style = vec![];
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel")
                 .add_str_content("-webkit-user-select: none;")
                 .add_str_content("-moz-user-select: none;")
@@ -265,7 +265,7 @@ impl Component for MJCarousel {
                 .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_selector(format!(".mj-carousel-{}-icons-cell", self.id))
                 .add_str_content("display: table-cell !important;")
                 .add_content(format!(
@@ -275,7 +275,7 @@ impl Component for MJCarousel {
                 .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel-radio")
                 .add_str_selector(".mj-carousel-next")
                 .add_str_selector(".mj-carousel-previous")
@@ -283,7 +283,7 @@ impl Component for MJCarousel {
                 .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel-thumbnail")
                 .add_str_selector(".mj-carousel-next")
                 .add_str_selector(".mj-carousel-previous")
@@ -292,7 +292,7 @@ impl Component for MJCarousel {
         );
         style.push(
             (0..length)
-                .fold(Style::new(), |res, idx| {
+                .fold(Style::default(), |res, idx| {
                     let ext = repeat(idx, "+ * ");
                     res.add_selector(format!(
                         ".mj-carousel-{}-radio:checked {}+ .mj-carousel-content .mj-carousel-image",
@@ -304,7 +304,7 @@ impl Component for MJCarousel {
         );
         style.push(
             (0..length)
-                .fold(Style::new(), |res, idx| {
+                .fold(Style::default(), |res, idx| {
                     let ext = repeat(length - idx - 1, "+ * ");
                     res.add_selector(format!(
                         ".mj-carousel-{}-radio-{}:checked {}+ .mj-carousel-content .mj-carousel-image-{}",
@@ -313,7 +313,7 @@ impl Component for MJCarousel {
                 })
                 .add_str_content("display: block !important;").to_string(),
         );
-        let base = Style::new()
+        let base = Style::default()
             .add_str_selector(".mj-carousel-previous-icons")
             .add_str_selector(".mj-carousel-next-icons");
         let base =
@@ -337,7 +337,7 @@ impl Component for MJCarousel {
             base.add_str_content("display: block !important;")
                 .to_string(),
         );
-        let base = (0..length).fold(Style::new(), |res, idx| {
+        let base = (0..length).fold(Style::default(), |res, idx| {
             let ext = repeat(length - idx - 1, "+ * ");
             res.add_selector(format!(".mj-carousel-{}-radio-{}:checked {}+ .mj-carousel-content .mj-carousel-{}-thumbnail-{}", self.id, idx + 1, ext, self.id, idx + 1))
         });
@@ -349,7 +349,7 @@ impl Component for MJCarousel {
             .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel-image img + div")
                 .add_str_selector(".mj-carousel-thumbnail img + div")
                 .add_str_content("display: none !important;")
@@ -357,7 +357,7 @@ impl Component for MJCarousel {
         );
         style.push(
             (0..length)
-                .fold(Style::new(), |res, idx| {
+                .fold(Style::default(), |res, idx| {
                     let ext = repeat(length - idx - 1, "+ * ");
                     res.add_selector(format!(
                         ".mj-carousel-{}-thumbnail:hover {}+ .mj-carousel-main .mj-carousel-image",
@@ -368,7 +368,7 @@ impl Component for MJCarousel {
                 .to_string(),
         );
         style.push(
-            Style::new()
+            Style::default()
                 .add_str_selector(".mj-carousel-thumbnail:hover")
                 .add_content(format!(
                     "border-color: {} !important;",
@@ -376,7 +376,7 @@ impl Component for MJCarousel {
                 ))
                 .to_string(),
         );
-        style.push((0..length).fold(Style::new(), |res, idx| {
+        style.push((0..length).fold(Style::default(), |res, idx| {
             let ext = repeat(length - idx - 1, "+ * ");
             res.add_selector(format!(".mj-carousel-{}-thumbnail-{}:hover {}+ .mj-carousel-main .mj-carousel-image-{}", self.id, idx + 1, ext, idx + 1))
         }).add_str_content("display: block !important;").to_string());
