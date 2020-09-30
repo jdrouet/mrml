@@ -8,10 +8,6 @@ use crate::util::header::Header;
 use crate::Options;
 use log::debug;
 
-const DOCTYPE: &str = "<!doctype html>";
-const HTML_OPEN: &str = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">";
-const HTML_CLOSE: &str = "</html>";
-
 #[derive(Clone, Debug)]
 pub struct MJMLElement<'a> {
     context: Option<Context>,
@@ -74,13 +70,11 @@ impl<'a> MJMLElement<'a> {
     pub fn get_html(&self) -> Result<String, Error> {
         debug!("get_html");
         let header = self.head.get_header();
-        let mut res: Vec<String> = vec![];
-        res.push(DOCTYPE.into());
-        res.push(HTML_OPEN.into());
-        res.push(self.head.render(&header)?);
-        res.push(self.body.render(&header)?);
-        res.push(HTML_CLOSE.into());
-        Ok(res.join(""))
+        Ok(String::from("<!doctype html>")
+            + "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">"
+            + self.head.render(&header)?.as_str()
+            + self.body.render(&header)?.as_str()
+            + "</html>")
     }
 }
 
