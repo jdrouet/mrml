@@ -66,10 +66,7 @@ impl MJCarousel {
             if let Some(child_node) = child.as_node() {
                 let tag_name = child_node.name.as_str();
                 if tag_name != "mj-carousel-image" {
-                    return Err(Error::ParseError(format!(
-                        "expect only 'mj-carousel-image', not '{}'",
-                        tag_name
-                    )));
+                    return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
                     let element = MJCarouselImage::parse(&child_node, header, Some(&attrs))?;
                     result.children.push(BodyElement::MJCarouselImage(element));

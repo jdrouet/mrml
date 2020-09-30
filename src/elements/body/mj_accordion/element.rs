@@ -44,10 +44,7 @@ impl MJAccordionElement {
         attrs: &Attributes,
     ) -> Result<MJAccordionElement, Error> {
         if node.name.as_str() != "mj-accordion-element" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-accordion-element' no '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let mut element = MJAccordionElement {
             attributes: Self::default_attributes(node, header)
@@ -68,9 +65,11 @@ impl MJAccordionElement {
                     "mj-accordion-text" => {
                         element.text = Some(MJAccordionText::parse(node, header, &children_attr)?);
                     }
-                    _ => (),
+                    name => return Err(Error::UnexpectedElement(name.into())),
                 },
-                _ => (),
+                // TODO handle comments
+                Element::Comment(_) => (),
+                Element::Text(_) => return Err(Error::UnexpectedText),
             };
         }
         Ok(element)

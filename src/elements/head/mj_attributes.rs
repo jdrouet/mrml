@@ -26,7 +26,9 @@ impl MJAttributes {
                 "mj-class" => self.parse_class(node),
                 _ => self.parse_element(node),
             },
-            _ => return Err(Error::ParseError("expected header element".into())),
+            // TODO handle comments
+            Element::Comment(_) => (),
+            Element::Text(_) => return Err(Error::UnexpectedText),
         };
         Ok(())
     }

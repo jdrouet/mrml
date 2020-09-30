@@ -50,10 +50,7 @@ impl MJSocial {
             if let Some(child_node) = child.as_node() {
                 let tag_name = child_node.name.as_str();
                 if tag_name != "mj-social-element" {
-                    return Err(Error::ParseError(format!(
-                        "expect only 'mj-social-element', not '{}'",
-                        tag_name
-                    )));
+                    return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
                     let element =
                         MJSocialElement::parse_social_child(&child_node, header, Some(&attrs))?;

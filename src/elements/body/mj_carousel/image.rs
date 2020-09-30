@@ -34,18 +34,11 @@ impl MJCarouselImage {
         extra: Option<&Attributes>,
     ) -> Result<MJCarouselImage, Error> {
         if node.name.as_str() != "mj-carousel-image" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-carousel-image' no '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let carousel_id = match extra.and_then(|attrs| attrs.get("carousel-id")) {
             Some(id) => id,
-            None => {
-                return Err(Error::ParseError(
-                    "mj-carousel-image should have carousel id".into(),
-                ))
-            }
+            None => return Err(Error::MissingAttribute("carousel-id".into())),
         };
         let content: Vec<&str> = node
             .children

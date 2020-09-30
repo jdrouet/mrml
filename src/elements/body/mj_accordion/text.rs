@@ -1,14 +1,14 @@
 use crate::elements::body::prelude::*;
-use crate::elements::body::BodyElement;
 use crate::elements::body::raw::RawElement;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
-use crate::util::tag::Tag;
 use crate::util::size::Size;
+use crate::util::tag::Tag;
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
@@ -36,10 +36,7 @@ impl MJAccordionText {
         attrs: &Attributes,
     ) -> Result<MJAccordionText, Error> {
         if node.name.as_str() != "mj-accordion-text" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-accordion-text' not '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let attributes = Self::default_attributes(node, header)
             .concat(attrs)

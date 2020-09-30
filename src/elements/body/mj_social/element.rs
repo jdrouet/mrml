@@ -208,10 +208,7 @@ impl MJSocialElement {
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
         if node.name.as_str() != "mj-social-element" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-social-element' no '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let content = node
             .children

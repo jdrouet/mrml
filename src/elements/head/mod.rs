@@ -42,7 +42,8 @@ impl HeadElement {
                 Element::Node(node) => {
                     res.push(HeadElement::parse(&node)?);
                 }
-                _ => return Err(Error::ParseError("expected node".into())),
+                Element::Comment(_) => (),
+                _ => return Err(Error::UnexpectedText),
             }
         }
         Ok(res)
@@ -57,7 +58,7 @@ impl HeadElement {
             "mj-preview" => HeadElement::MJPreview(mj_preview::MJPreview::parse(node)?),
             "mj-style" => HeadElement::MJStyle(mj_style::MJStyle::parse(node)?),
             "mj-title" => HeadElement::MJTitle(mj_title::MJTitle::parse(node)?),
-            _ => return Err(Error::ParseError(format!("{} tag not known", tag_name))),
+            _ => return Err(Error::UnexpectedElement(tag_name.into())),
         };
         Ok(res)
     }

@@ -36,10 +36,7 @@ impl MJAccordionTitle {
         attrs: &Attributes,
     ) -> Result<MJAccordionTitle, Error> {
         if node.name.as_str() != "mj-accordion-title" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-accordion-title' not '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let content: String = node
             .children

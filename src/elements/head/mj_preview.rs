@@ -17,7 +17,7 @@ impl MJPreview {
                         content: value.as_str().into(),
                     });
                 }
-                _ => return Err(Error::ParseError("invalid child".into())),
+                _ => return Err(Error::InvalidChild),
             };
         }
         Ok(Self {

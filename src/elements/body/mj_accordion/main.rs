@@ -67,9 +67,11 @@ impl MJAccordion {
                             .children
                             .push(BodyElement::MJAccordionElement(element));
                     }
-                    _ => return Err(Error::ParseError("unexpected child".into())),
+                    name => return Err(Error::UnexpectedElement(name.into())),
                 },
-                _ => return Err(Error::ParseError("unexpected child".into())),
+                // TODO handle comments
+                Element::Comment(_) => (),
+                Element::Text(_) => return Err(Error::UnexpectedText),
             };
         }
         Ok(result)

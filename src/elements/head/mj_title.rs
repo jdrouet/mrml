@@ -14,7 +14,7 @@ impl MJTitle {
         for child in node.children.iter() {
             match child {
                 Element::Text(value) => content.push_str(value.as_str()),
-                _ => return Err(Error::ParseError("Unexpected child".into())),
+                _ => return Err(Error::InvalidChild),
             }
         }
         Ok(Self { content })

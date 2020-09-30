@@ -24,7 +24,7 @@ impl NodeElement {
     ) -> Result<NodeElement, Error> {
         let tag = node.name.as_str();
         if only_raw && tag.starts_with("mj-") {
-            return Err(Error::ParseError(format!("'{}' is not allowed", tag)));
+            return Err(Error::UnexpectedElement(tag.into()));
         }
         let mut children = vec![];
         for child in node.children.iter() {

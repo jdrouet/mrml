@@ -43,10 +43,7 @@ impl MJNavbarLink {
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {
         if node.name.as_str() != "mj-navbar-link" {
-            return Err(Error::ParseError(format!(
-                "element should be 'mj-navbar-link' no '{}'",
-                node.name.as_str()
-            )));
+            return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
         let content = node
             .children
