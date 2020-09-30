@@ -111,12 +111,11 @@ impl<'a> MJHead<'a> {
 
     pub fn get_preview(&self) -> String {
         for child in self.children.iter() {
-            match child {
-                HeadElement::MJPreview(element) => return element.content.clone(),
-                _ => (),
-            };
+            if let HeadElement::MJPreview(element) = child {
+                return element.content.clone();
+            }
         }
-        "".into()
+        String::new()
     }
 
     fn get_media_queries(&self) -> String {
@@ -134,7 +133,7 @@ impl<'a> MJHead<'a> {
             let size = self
                 .header
                 .get_media_queries()
-                .get(classname.clone())
+                .get(&(*classname).clone())
                 .unwrap();
             res.push(format!(
                 ".{} {{ width:{} !important; max-width: {}; }}",

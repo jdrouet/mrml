@@ -125,10 +125,9 @@ impl Component for RawElement {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        match self {
-            RawElement::Node(node) => node.set_context(ctx),
-            _ => (),
-        };
+        if let RawElement::Node(node) = self {
+            node.set_context(ctx);
+        }
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -149,7 +148,7 @@ impl Component for RawElement {
 impl BodyComponent for RawElement {
     fn get_children(&self) -> &Vec<BodyElement> {
         self.as_node()
-            .and_then(|node| Some(node.get_children()))
+            .map(|node| node.get_children())
             .unwrap_or(&EMPTY_CHILDREN)
     }
 

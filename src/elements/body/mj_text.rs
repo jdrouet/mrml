@@ -11,7 +11,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "left")
         .add("color", "#000000")
         .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
@@ -68,7 +68,7 @@ impl MJText {
         Ok(self.set_style_text(Tag::div()).render(res.join("")))
     }
 
-    fn render_with_height(&self, header: &Header, height: &String) -> Result<String, Error> {
+    fn render_with_height(&self, header: &Header, height: &str) -> Result<String, Error> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
@@ -91,7 +91,7 @@ impl Component for MJText {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {

@@ -11,7 +11,7 @@ use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
 
-const CHILDREN_ATTR: [&'static str; 9] = [
+const CHILDREN_ATTR: [&str; 9] = [
     "border",
     "icon-align",
     "icon-width",
@@ -35,7 +35,7 @@ impl MJAccordionElement {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes()
-            .get_attributes(node, Attributes::new())
+            .get_attributes(node, Attributes::default())
     }
 
     pub fn parse<'a>(
@@ -76,7 +76,7 @@ impl MJAccordionElement {
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        let mut result = Attributes::new();
+        let mut result = Attributes::default();
         for key in CHILDREN_ATTR.iter() {
             if let Some(value) = self.get_attribute(key) {
                 result.set(key, value);
@@ -117,7 +117,7 @@ impl Component for MJAccordionElement {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {

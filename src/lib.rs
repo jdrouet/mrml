@@ -31,7 +31,7 @@ impl Default for Options {
     fn default() -> Self {
         Self {
             breakpoint: Size::Pixel(480.0),
-            fonts: FontRegistry::default(),
+            fonts: FontRegistry::new(),
             keep_comments: true,
         }
     }

@@ -35,7 +35,7 @@ macro_rules! apply_fn {
 }
 
 impl HeadElement {
-    pub fn parse_all<'a>(elements: &Vec<Element<'a>>) -> Result<Vec<HeadElement>, Error> {
+    pub fn parse_all<'a>(elements: &[Element<'a>]) -> Result<Vec<HeadElement>, Error> {
         let mut res = vec![];
         for elt in elements {
             match elt {

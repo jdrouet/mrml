@@ -2,7 +2,7 @@ use super::tag::Tag;
 use std::collections::HashMap;
 use std::string::ToString;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct FontRegistry {
     inner: HashMap<String, String>,
 }
@@ -21,13 +21,7 @@ pub fn url_to_import(url: &str) -> String {
 
 impl FontRegistry {
     pub fn new() -> Self {
-        Self {
-            inner: HashMap::new(),
-        }
-    }
-
-    pub fn default() -> Self {
-        let mut item = Self::new();
+        let mut item = Self::default();
         item.add_google_fonts("Open Sans");
         item.add_google_fonts("Droid Sans");
         item.add_google_fonts("Lato");
@@ -48,7 +42,7 @@ impl FontRegistry {
         self.inner.insert(name.to_string(), url);
     }
 
-    pub fn get(&self, name: &String) -> Option<&String> {
+    pub fn get(&self, name: &str) -> Option<&String> {
         self.inner.get(name)
     }
 }

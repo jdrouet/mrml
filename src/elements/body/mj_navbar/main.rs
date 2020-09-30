@@ -13,7 +13,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "center")
         .add("ico-align", "center")
         .add("ico-open", "&#9776;")
@@ -73,7 +73,7 @@ impl MJNavbar {
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        let mut attrs = Attributes::new();
+        let mut attrs = Attributes::default();
         attrs.maybe_set("navbar-base-url", self.get_attribute("base-url"));
         attrs
     }
@@ -187,7 +187,7 @@ impl Component for MJNavbar {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),

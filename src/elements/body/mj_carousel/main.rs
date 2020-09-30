@@ -14,7 +14,7 @@ use crate::util::style::Style;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "center")
         .add("border-radius", "6px")
         .add("icon-width", "44px")
@@ -95,12 +95,12 @@ impl MJCarousel {
                 .or_else(|| {
                     self.context()
                         .and_then(|ctx| ctx.container_width())
-                        .and_then(|width| {
+                        .map(|width| {
                             let value = width.value() / (count as f32);
                             if value < 110.0 {
-                                Some(Size::Pixel(value))
+                                Size::Pixel(value)
                             } else {
-                                Some(Size::Pixel(110.0))
+                                Size::Pixel(110.0)
                             }
                         })
                 })
@@ -109,7 +109,7 @@ impl MJCarousel {
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        Attributes::new()
+        Attributes::default()
             .add("carousel-id", self.id.as_str())
             .maybe_add("border-radius", self.get_attribute("border-radius"))
             .maybe_add("tb-border", self.get_attribute("tb-border"))
@@ -162,11 +162,9 @@ impl MJCarousel {
     }
 
     fn render_thumbnails(&self) -> String {
-        let thumbnails = self
-            .get_attribute("thumbnails")
-            .and_then(|value| Some(value.as_str()));
+        let thumbnails = self.get_attribute("thumbnails").map(|value| value.as_str());
         if thumbnails != Some("visible") {
-            "".into()
+            String::new()
         } else {
             let width = self.get_thumbnails_width();
             self.get_images()
@@ -180,7 +178,7 @@ impl MJCarousel {
     fn render_controls(&self, direction: &str, icon: &str) -> Result<String, Error> {
         let icon_width = self
             .get_size_attribute("icon-width")
-            .and_then(|value| Some(value.value()));
+            .map(|value| value.value());
         let items = self
             .children
             .iter()
@@ -419,7 +417,7 @@ impl Component for MJCarousel {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),

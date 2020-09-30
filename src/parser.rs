@@ -95,10 +95,7 @@ pub enum Element<'a> {
 
 impl<'a> Element<'a> {
     pub fn is_comment(&self) -> bool {
-        match self {
-            Element::Comment(_) => true,
-            _ => false,
-        }
+        matches!(self, Element::Comment(_))
     }
     pub fn as_comment(&self) -> Option<&StrSpan<'a>> {
         match self {
@@ -107,10 +104,7 @@ impl<'a> Element<'a> {
         }
     }
     pub fn is_node(&self) -> bool {
-        match self {
-            Element::Node(_) => true,
-            _ => false,
-        }
+        matches!(self, Element::Node(_))
     }
     pub fn as_node(&self) -> Option<&Node<'a>> {
         match self {
@@ -119,10 +113,7 @@ impl<'a> Element<'a> {
         }
     }
     pub fn is_text(&self) -> bool {
-        match self {
-            Element::Text(_) => true,
-            _ => false,
-        }
+        matches!(self, Element::Text(_))
     }
     pub fn as_text(&self) -> Option<&StrSpan<'a>> {
         match self {
@@ -148,7 +139,7 @@ impl<'a> Element<'a> {
                     children.push(Element::Node(Node::parse(parser, local)?));
                 }
                 Token::Text { text } => {
-                    if text.as_str().trim().len() != 0 {
+                    if !text.as_str().trim().is_empty() {
                         children.push(Element::Text(text));
                     }
                 }
@@ -189,7 +180,7 @@ impl<'a> Element<'a> {
 /// let result = mrml::parse("<mjml", mrml::Options::default());
 /// assert!(result.is_err());
 /// ```
-pub fn parse<'a>(text: &'a str) -> Result<Node<'a>, Error> {
+pub fn parse(text: &'_ str) -> Result<Node<'_>, Error> {
     if text.len() > std::u32::MAX as usize {
         return Err(Error::SizeLimit);
     }

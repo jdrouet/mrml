@@ -12,7 +12,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "center")
         .add("border-radius", "3px")
         .add("color", "#333333")
@@ -66,7 +66,7 @@ impl MJSocial {
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        let mut attrs = Attributes::new();
+        let mut attrs = Attributes::default();
         attrs.maybe_set("padding", self.get_attribute("inner-padding"));
         attrs.maybe_set("border-radius", self.get_attribute("border-radius"));
         attrs.maybe_set("color", self.get_attribute("color"));
@@ -85,7 +85,7 @@ impl MJSocial {
 
     fn is_horizontal(&self) -> bool {
         self.get_attribute("mode")
-            .and_then(|mode| Some(mode == "horizontal"))
+            .map(|mode| mode == "horizontal")
             .unwrap_or(true)
     }
 
@@ -138,7 +138,7 @@ impl Component for MJSocial {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),

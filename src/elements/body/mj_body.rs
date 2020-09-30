@@ -10,7 +10,7 @@ use crate::util::tag::Tag;
 use log::debug;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new().add("width", "600px");
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("width", "600px");
 }
 
 #[derive(Clone, Debug)]
@@ -28,9 +28,9 @@ impl MJBody {
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn empty<'a>() -> MJBody {
+    pub fn empty() -> MJBody {
         MJBody {
-            attributes: Attributes::new(),
+            attributes: Attributes::default(),
             children: vec![],
             context: None,
             exists: false,
@@ -84,7 +84,7 @@ impl Component for MJBody {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_current_width(),
             self.get_siblings(),

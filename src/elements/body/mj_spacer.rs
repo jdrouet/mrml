@@ -11,7 +11,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new().add("height", "20px");
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("height", "20px");
 }
 
 #[derive(Clone, Debug)]
@@ -45,7 +45,7 @@ impl Component for MJSpacer {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
@@ -55,7 +55,7 @@ impl Component for MJSpacer {
         let td = Tag::td()
             .set_style("vertical-align", "top")
             .maybe_set_style("height", height.clone())
-            .maybe_set_attribute("height", height.and_then(|h| Some(h.value())));
+            .maybe_set_attribute("height", height.map(|h| h.value()));
         let div = self.set_style_div(Tag::div());
         let mut res = vec![];
         res.push(START_CONDITIONAL_TAG.into());

@@ -11,7 +11,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("background-repeat", "repeat")
         .add("background-size", "auto")
         .add("direction", "ltr")
@@ -61,10 +61,10 @@ impl MJWrapper {
             // has default value
             res.push(self.get_attribute("background-repeat").unwrap().to_string());
         }
-        if res.len() > 0 {
-            Some(res.join(" "))
-        } else {
+        if res.is_empty() {
             None
+        } else {
+            Some(res.join(" "))
         }
     }
 
@@ -323,7 +323,7 @@ impl Component for MJWrapper {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_box_widths(),
             self.get_siblings(),

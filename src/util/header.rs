@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::string::ToString;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct DefaultAttributes {
     all: Attributes,
     classes: HashMap<String, Attributes>,
@@ -15,14 +15,6 @@ pub struct DefaultAttributes {
 }
 
 impl DefaultAttributes {
-    pub fn new() -> Self {
-        Self {
-            all: Attributes::new(),
-            classes: HashMap::new(),
-            elements: HashMap::new(),
-        }
-    }
-
     pub fn add_all_content<K, V, I>(&mut self, items: I)
     where
         K: ToString,
@@ -34,7 +26,8 @@ impl DefaultAttributes {
 
     fn get_mut_element(&mut self, name: &str) -> &mut Attributes {
         if !self.elements.contains_key(name) {
-            self.elements.insert(name.to_string(), Attributes::new());
+            self.elements
+                .insert(name.to_string(), Attributes::default());
         }
         self.elements.get_mut(name).unwrap()
     }
@@ -53,7 +46,7 @@ impl DefaultAttributes {
 
     fn get_mut_class(&mut self, name: &str) -> &mut Attributes {
         if !self.classes.contains_key(name) {
-            self.classes.insert(name.to_string(), Attributes::new());
+            self.classes.insert(name.to_string(), Attributes::default());
         }
         self.classes.get_mut(name).unwrap()
     }
@@ -95,7 +88,7 @@ impl DefaultAttributes {
             .attributes
             .iter()
             .find(|(key, _value)| key.as_str() == "mj-class")
-            .and_then(|(_key, value)| Some(value.as_str().split(" ").collect::<Vec<&str>>()))
+            .map(|(_key, value)| value.as_str().split(' ').collect::<Vec<&str>>())
         {
             for classname in classes {
                 if let Some(attrs) = self.classes.get(classname) {
@@ -166,9 +159,8 @@ impl Header {
     }
 
     pub fn maybe_add_style<K: ToString>(&mut self, style: Option<K>) {
-        match style {
-            Some(value) => self.add_style(value),
-            None => (),
+        if let Some(value) = style {
+            self.add_style(value);
         }
     }
 
@@ -177,15 +169,14 @@ impl Header {
     }
 
     pub fn maybe_add_font_families(&mut self, font_family_list: Option<&String>) {
-        match font_family_list {
-            Some(value) => self.add_font_families(value),
-            None => (),
+        if let Some(value) = font_family_list {
+            self.add_font_families(value);
         }
     }
 
-    pub fn add_font_families(&mut self, font_family_list: &String) {
+    pub fn add_font_families(&mut self, font_family_list: &str) {
         let result = font_family_list
-            .split(",")
+            .split(',')
             .map(|v| v.trim().to_string())
             .collect::<Vec<String>>();
         for item in result {
@@ -224,7 +215,7 @@ impl From<Options> for Header {
     fn from(value: Options) -> Self {
         Header {
             breakpoint: value.breakpoint.clone(),
-            default_attributes: DefaultAttributes::new(),
+            default_attributes: DefaultAttributes::default(),
             font_families: HashSet::new(),
             font_registry: value.fonts.clone(),
             keep_comments: value.keep_comments,

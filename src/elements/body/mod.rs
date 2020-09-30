@@ -167,9 +167,6 @@ impl BodyElement {
     }
 
     pub fn is_raw(&self) -> bool {
-        match self {
-            BodyElement::Raw(_) => true,
-            _ => false,
-        }
+        matches!(self, BodyElement::Raw(_))
     }
 }

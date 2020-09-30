@@ -10,7 +10,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("align", "center")
         .add("border", "0")
         .add("height", "auto")
@@ -55,15 +55,15 @@ impl MJImage {
 
     fn get_content_width(&self) -> Option<Size> {
         self.get_size_attribute("width")
-            .and_then(|width| match self.get_box_widths() {
+            .map(|width| match self.get_box_widths() {
                 Some(box_size) => {
                     if width.value() < box_size.value() {
-                        Some(width)
+                        width
                     } else {
-                        Some(box_size)
+                        box_size
                     }
                 }
-                None => Some(width),
+                None => width,
             })
             // when no width given
             .or_else(|| self.get_box_widths())
@@ -118,16 +118,13 @@ impl MJImage {
             .set_attribute(
                 "height",
                 self.get_size_attribute("height")
-                    .and_then(|size| Some(size.value().to_string()))
-                    .unwrap_or("auto".into()),
+                    .map(|size| size.value().to_string())
+                    .unwrap_or_else(|| "auto".into()),
             )
             .maybe_set_attribute("src", self.get_attribute("src"))
             .maybe_set_attribute("srcset", self.get_attribute("srcset"))
             .maybe_set_attribute("title", self.get_attribute("title"))
-            .maybe_set_attribute(
-                "width",
-                self.get_content_width().and_then(|size| Some(size.value())),
-            )
+            .maybe_set_attribute("width", self.get_content_width().map(|size| size.value()))
             .maybe_set_attribute("usemap", self.get_attribute("usemap"));
         self.set_style_img(img).closed()
     }
@@ -159,7 +156,7 @@ impl Component for MJImage {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {

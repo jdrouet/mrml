@@ -8,7 +8,7 @@ pub struct MJAttributes(DefaultAttributes);
 
 impl MJAttributes {
     fn new() -> Self {
-        Self(DefaultAttributes::new())
+        Self(DefaultAttributes::default())
     }
 
     pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
@@ -46,7 +46,7 @@ impl MJAttributes {
             .attributes
             .iter()
             .find(|(key, _value)| key.as_str() == "name")
-            .and_then(|(_key, value)| Some(value.as_str()));
+            .map(|(_key, value)| value.as_str());
         if let Some(name) = name {
             self.0.add_class_content(
                 name,

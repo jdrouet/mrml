@@ -10,7 +10,7 @@ use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
 
-const CHILDREN_ATTRIBUTES: [&'static str; 9] = [
+const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
     "icon-align",
     "icon-width",
@@ -23,7 +23,7 @@ const CHILDREN_ATTRIBUTES: [&'static str; 9] = [
 ];
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("border", "2px solid black")
         .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
         .add("icon-align", "middle")
@@ -78,7 +78,7 @@ impl MJAccordion {
     }
 
     fn get_children_attributes(&self) -> Attributes {
-        let mut res = Attributes::new();
+        let mut res = Attributes::default();
         for key in CHILDREN_ATTRIBUTES.iter() {
             if let Some(value) = self.get_attribute(key) {
                 res.set(key, value);
@@ -121,7 +121,7 @@ impl Component for MJAccordion {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),

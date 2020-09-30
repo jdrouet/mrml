@@ -11,7 +11,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("background-color", "#ffffff")
         .add("background-position", "center center")
         .add("height", "0px")
@@ -64,7 +64,7 @@ impl MJHero {
             .get_size_attribute("background-height")
             .and_then(|height| {
                 self.get_size_attribute("background-width")
-                    .and_then(|width| Some(height.value() * 100.0 / width.value()))
+                    .map(|width| height.value() * 100.0 / width.value())
             });
         tag.set_style("mso-padding-bottom-alt", "0")
             .maybe_set_style("padding-bottom", bg_ratio)
@@ -114,7 +114,7 @@ impl MJHero {
             .maybe_set_style(
                 "width",
                 self.get_attribute("background-width")
-                    .and_then(|value| Some(value.to_string()))
+                    .map(|value| value.to_string())
                     .or_else(|| self.get_container_width_str()),
             )
             .set_style("z-index", "-3")
@@ -273,7 +273,7 @@ impl Component for MJHero {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_container_width(),
             self.get_siblings(),

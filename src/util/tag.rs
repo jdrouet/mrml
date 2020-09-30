@@ -28,7 +28,7 @@ impl Tag {
             None
         } else {
             let mut classes: Vec<&str> = self.classes.iter().map(|value| value.as_str()).collect();
-            classes.sort();
+            classes.sort_unstable();
             Some(classes.join(" "))
         }
     }

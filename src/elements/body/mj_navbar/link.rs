@@ -11,7 +11,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("color", "#000000")
         .add("font-family", "Ubuntu, Helvetica, Arial, sans-serif")
         .add("font-size", "13px")
@@ -74,7 +74,7 @@ impl MJNavbarLink {
     ) -> Result<MJNavbarLink, Error> {
         let mut attrs = match extra {
             Some(value) => value.into(),
-            None => Attributes::new(),
+            None => Attributes::default(),
         };
         if attrs.get("text-padding").is_none() {
             attrs.set("text-padding", "4px 4px 4px 0");
@@ -111,7 +111,7 @@ impl MJNavbarLink {
     fn get_link(&self) -> Option<String> {
         self.get_attribute("href").as_ref().and_then(|href| {
             self.get_attribute("navbar-base-url")
-                .and_then(move |base| Some(format!("{}{}", base, href)))
+                .map(move |base| format!("{}{}", base, href))
                 .or_else(|| Some(href.to_string()))
         })
     }
@@ -125,12 +125,7 @@ impl MJNavbarLink {
             .maybe_set_attribute("rel", self.get_attribute("rel"))
             .maybe_set_attribute("target", self.get_attribute("target"))
             .maybe_set_attribute("name", self.get_attribute("name"));
-        Ok(link.render(
-            self.content
-                .as_ref()
-                .and_then(|value| Some(value.as_str()))
-                .unwrap_or(""),
-        ))
+        Ok(link.render(self.content.as_deref().unwrap_or("")))
     }
 }
 
@@ -144,7 +139,7 @@ impl Component for MJNavbarLink {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {

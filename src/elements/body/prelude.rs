@@ -47,11 +47,11 @@ pub trait BodyComponent: Component {
             re.captures(border.as_str())
                 .and_then(|list| list.get(1))
                 .and_then(|first| first.as_str().parse::<f32>().ok())
-                .and_then(move |value| {
-                    if border.contains("%") {
-                        Some(Size::Percent(value))
+                .map(move |value| {
+                    if border.contains('%') {
+                        Size::Percent(value)
                     } else {
-                        Some(Size::Pixel(value))
+                        Size::Pixel(value)
                     }
                 })
         })
@@ -177,13 +177,12 @@ pub trait BodyComponent: Component {
     }
 
     fn get_container_width_str(&self) -> Option<String> {
-        self.get_container_width()
-            .and_then(|width| Some(width.to_string()))
+        self.get_container_width().map(|width| width.to_string())
     }
 
     fn get_container_width_value(&self) -> Option<usize> {
         self.get_container_width()
-            .and_then(|width| Some(width.value() as usize))
+            .map(|width| width.value() as usize)
     }
 
     fn get_border_horizontal_width(&self) -> Size {
@@ -219,12 +218,10 @@ pub trait BodyComponent: Component {
     }
 
     fn get_box_widths(&self) -> Option<Size> {
-        self.get_container_width().and_then(|width| {
+        self.get_container_width().map(|width| {
             let paddings = self.get_padding_horizontal_width();
             let borders = self.get_border_horizontal_width();
-            Some(Size::Pixel(
-                width.value() - paddings.value() - borders.value(),
-            ))
+            Size::Pixel(width.value() - paddings.value() - borders.value())
         })
     }
 }
@@ -271,7 +268,7 @@ pub mod tests {
     #[test]
     fn basic_component_default_values() {
         let item = TestComponent {
-            attributes: Attributes::new(),
+            attributes: Attributes::default(),
         };
         assert_eq!(item.get_attribute("nothing"), None);
         assert_eq!(item.set_style("nothing", Tag::new("a")).open(), "<a>");
@@ -279,7 +276,7 @@ pub mod tests {
 
     #[test]
     fn component_with_border_default_values() {
-        let attributes = Attributes::new()
+        let attributes = Attributes::default()
             .add("border-top", "1px solid red")
             .add("border-bottom", "2px solid blue")
             .add("toto-border-top", "3px solid red")
@@ -296,7 +293,7 @@ pub mod tests {
 
     #[test]
     fn component_with_border_common_border() {
-        let attributes = Attributes::new()
+        let attributes = Attributes::default()
             .add("border", "1px solid red")
             .add("toto-border", "2px solid red");
         let item = TestComponent { attributes };
@@ -311,7 +308,7 @@ pub mod tests {
 
     #[test]
     fn component_with_size_attribute() {
-        let attributes = Attributes::new()
+        let attributes = Attributes::default()
             .add("padding-top", "1px")
             .add("padding-bottom", "something");
         let item = TestComponent { attributes };
@@ -324,7 +321,7 @@ pub mod tests {
 
     #[test]
     fn component_with_padding_normal() {
-        let attributes = Attributes::new()
+        let attributes = Attributes::default()
             .add("padding-top", "1px")
             .add("padding-bottom", "2px")
             .add("toto-padding-top", "3px")
@@ -344,7 +341,7 @@ pub mod tests {
 
     #[test]
     fn component_with_padding_common() {
-        let attributes = Attributes::new()
+        let attributes = Attributes::default()
             .add("padding", "1px")
             .add("toto-padding", "2px");
         let item = TestComponent { attributes };
@@ -362,7 +359,7 @@ pub mod tests {
 
     #[test]
     fn component_with_box_widths() {
-        let attributes = Attributes::new()
+        let attributes = Attributes::default()
             .add("border-left", "2% solid blue")
             .add("border-right", "2px solid blue")
             .add("padding-left", "2%")

@@ -11,7 +11,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new()
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
         .add("font-size", "13px")
         .add("padding", "16px");
 }
@@ -117,14 +117,14 @@ impl Component for MJAccordionTitle {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
         let mut content = vec![self.render_title(), self.render_icons()];
         let icon_position = self
             .get_attribute("icon-position")
-            .and_then(|value| Some(value.as_str()));
+            .map(|value| value.as_str());
         if icon_position != Some("right") {
             content.reverse();
         }

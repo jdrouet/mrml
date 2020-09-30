@@ -3,7 +3,7 @@ use crate::parser::Node;
 use std::collections::HashMap;
 use std::string::ToString;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Attributes(HashMap<String, String>);
 
 pub trait Merge<Other> {
@@ -128,14 +128,14 @@ impl ToString for Attributes {
 }
 
 pub fn suffix_unit(input: Option<&String>, suffix: &str) -> Option<String> {
-    input.and_then(|v| Some(format!("{}{}", v, suffix)))
+    input.map(|v| format!("{}{}", v, suffix))
 }
 
 pub fn suffix_css_classes(input: Option<&String>, suffix: &str) -> Option<String> {
     if let Some(value) = input {
         let value: Vec<String> = value
-            .split(" ")
-            .filter(|v| v.len() > 0)
+            .split(' ')
+            .filter(|v| !v.is_empty())
             .map(|v| format!("{}-{}", v, suffix))
             .collect();
         if value.is_empty() {

@@ -10,7 +10,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new().add("target", "_blank");
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("target", "_blank");
 }
 
 #[derive(Clone, Debug)]
@@ -46,7 +46,7 @@ impl MJCarouselImage {
             .filter_map(|child| child.as_text())
             .map(|value| value.as_str())
             .collect();
-        let content = if content.len() == 0 {
+        let content = if content.is_empty() {
             None
         } else {
             Some(content.join(""))
@@ -71,7 +71,7 @@ impl MJCarouselImage {
     ) -> Result<MJCarouselImage, Error> {
         let mut attrs = match extra {
             Some(value) => value.into(),
-            None => Attributes::new(),
+            None => Attributes::default(),
         };
         if attrs.get("text-padding").is_none() {
             attrs.set("text-padding", "4px 4px 4px 0");
@@ -106,10 +106,7 @@ impl MJCarouselImage {
     }
 
     pub fn render_radio(&self) -> String {
-        let index = self
-            .context()
-            .and_then(|ctx| Some(ctx.index()))
-            .unwrap_or(0);
+        let index = self.context().map(|ctx| ctx.index()).unwrap_or(0);
         self.set_style_radio_input(Tag::new("input"))
             .set_class("mj-carousel-radio")
             .set_class(format!("mj-carousel-{}-radio", self.carousel_id))
@@ -129,11 +126,7 @@ impl MJCarouselImage {
     }
 
     pub fn render_thumbnail(&self, width: &Size) -> String {
-        let index = self
-            .context()
-            .and_then(|ctx| Some(ctx.index()))
-            .unwrap_or(0)
-            + 1;
+        let index = self.context().map(|ctx| ctx.index()).unwrap_or(0) + 1;
         let img = self
             .set_style_thumbnails_img(Tag::new("img"))
             .maybe_set_attribute(
@@ -178,14 +171,11 @@ impl Component for MJCarouselImage {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
-        let index = self
-            .context()
-            .and_then(|ctx| Some(ctx.index()))
-            .unwrap_or(0);
+        let index = self.context().map(|ctx| ctx.index()).unwrap_or(0);
         let width = self.context().and_then(|ctx| ctx.container_width());
         let img = self
             .set_style_images_img(Tag::new("img"))
@@ -193,10 +183,7 @@ impl Component for MJCarouselImage {
             .maybe_set_attribute("alt", self.get_attribute("alt"))
             .maybe_set_attribute("src", self.get_attribute("src"))
             .maybe_set_attribute("title", self.get_attribute("title"))
-            .maybe_set_attribute(
-                "width",
-                width.as_ref().and_then(|width| Some(width.value())),
-            )
+            .maybe_set_attribute("width", width.as_ref().map(|width| width.value()))
             .maybe_set_style("width", width)
             .closed();
         let link = match self.get_attribute("href") {

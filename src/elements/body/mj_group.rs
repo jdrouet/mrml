@@ -12,7 +12,7 @@ use crate::util::tag::Tag;
 use std::str::FromStr;
 
 lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::new().add("direction", "ltr");
+    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("direction", "ltr");
 }
 
 #[derive(Clone, Debug)]
@@ -31,7 +31,7 @@ impl MJGroup {
 
     pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJGroup, Error> {
         let mut children = vec![];
-        let mut attrs = Attributes::new();
+        let mut attrs = Attributes::default();
         attrs.set("mobile-width", "mobile-width");
         for child in node.children.iter() {
             children.push(BodyElement::parse(&child, header, Some(&attrs))?);
@@ -46,9 +46,8 @@ impl MJGroup {
     fn get_width(&self) -> Option<Size> {
         self.get_current_width().and_then(|width| {
             if width.is_percent() {
-                self.get_container_width().and_then(|container| {
-                    Some(Size::Pixel(container.value() * width.value() / 100.0))
-                })
+                self.get_container_width()
+                    .map(|container| Size::Pixel(container.value() * width.value() / 100.0))
             } else {
                 Some(width)
             }
@@ -74,9 +73,8 @@ impl MJGroup {
     fn get_parsed_width(&self) -> Size {
         let non_raw_siblings = self
             .context()
-            .and_then(|ctx| Some(ctx.non_raw_siblings()))
-            .or(Some(1))
-            .unwrap();
+            .map(|ctx| ctx.non_raw_siblings())
+            .unwrap_or(1);
         match self.get_size_attribute("width") {
             Some(size) => size,
             None => Size::Percent(100.0 / (non_raw_siblings as f32)),
@@ -139,7 +137,7 @@ impl Component for MJGroup {
     }
 
     fn set_context(&mut self, ctx: Context) {
-        self.context = Some(ctx.clone());
+        self.context = Some(ctx);
         let child_base = Context::new(
             self.get_current_width(),
             self.get_siblings(),
