@@ -2,6 +2,7 @@ FROM rust:slim-buster AS builder
 
 COPY Cargo.toml /code/Cargo.toml
 COPY src /code/src
+COPY benches /code/benches
 WORKDIR /code
 RUN cargo build
 COPY example/mrml-actix/Cargo.toml /code/example/mrml-actix/Cargo.toml
