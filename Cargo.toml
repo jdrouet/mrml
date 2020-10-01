@@ -14,11 +14,25 @@ include = [
 ]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "mrml"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mrml-cli"
+path = "src/main.rs"
+doc = false
+required-features = ["cli"]
+
 [badges]
 circle-ci = { repository = "jdrouet/mrml" }
 codecov = { repository = "jdrouet/mrml" }
 
+[features]
+cli = ["clap"]
+
 [dependencies]
+clap = { version = "3.0.0-beta.2", optional = true }
 lazy_static = "1.4"
 log = "0.4"
 rand = { default-features = false, features = ["std"], version = "0.7" }
