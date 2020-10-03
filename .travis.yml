@@ -5,10 +5,45 @@ rust:
   - beta
   - nightly
 
+addons:
+  apt:
+    packages:
+      - libssl-dev
+
+matrix:
+  allow_failures:
+    - rust: nightly
+
+before_script: |
+  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    cargo install cargo-tarpaulin
+    rustup component add clippy
+    rustup component add rustfmt
+  fi
+
 cache: cargo
 
 env:
   - BASIC_DIFF=true
 
 script:
+  - |
+    if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+      rustfmt --check src/{**/,}*.rs
+    fi
+  - |
+    if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+      cargo clippy -- -D warnings
+    fi
+  - cargo bench
   - cargo test
+
+after_success: |
+  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    # Uncomment the following line for coveralls.io
+    cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
+
+    # Uncomment the following two lines create and upload a report for codecov.io
+    cargo tarpaulin --out Xml
+    bash <(curl -s https://codecov.io/bash)
+  fi
