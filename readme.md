@@ -27,13 +27,22 @@ fn main() {
 
 ## Performance
 
-As of today, on a mac book pro from 2017.
+With the same linux amd64 machine, to render the amario template
 
-|                        | Rust   | Node     |
-| ---------------------- | ------ | -------- |
-| Requests per seconds   | 520.50 | 272.61   |
-| CPU usage at boot time | 0.20%  | 1.74%    |
-| CPU usage under bench  | 49.81% | 136.83%  |
-| RAM usage at boot time | 1.12MB | 17.27MB  |
-| RAM usage under bench  | 2.85MB | 128.32MB |
-| Docker image size      | 77.3MB | 178MB    |
+- Node: 62.803ms
+- Rust: 13.180ms
+
+To reproduce those results:
+
+- Node, in `example/mjml-bench` run `npm start -- ../../test/template-amario.mjml`
+- Rust, run `cargo bench amario`
+
+> With a web server, as of today, on a mac book pro from 2017. (Old result)
+> | | Rust | Node |
+> | ---------------------- | ------ | -------- |
+> | Requests per seconds | 520.50 | 272.61 |
+> | CPU usage at boot time | 0.20% | 1.74% |
+> | CPU usage under bench | 49.81% | 136.83% |
+> | RAM usage at boot time | 1.12MB | 17.27MB |
+> | RAM usage under bench | 2.85MB | 128.32MB |
+> | Docker image size | 77.3MB | 178MB |
