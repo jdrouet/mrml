@@ -1,6 +1,6 @@
 # MRML
 
-[![CircleCI](https://circleci.com/gh/jdrouet/mrml.svg?style=shield)](https://app.circleci.com/pipelines/github/jdrouet/mrml)
+[![Build Status](https://travis-ci.com/jdrouet/mrml.svg?branch=master)](https://travis-ci.com/jdrouet/mrml)
 [![codecov](https://codecov.io/gh/jdrouet/mrml/branch/master/graph/badge.svg?token=L3LKpV3RpR)](https://codecov.io/gh/jdrouet/mrml)
 
 ## Introduction
@@ -29,11 +29,11 @@ fn main() {
 
 As of today, on a mac book pro from 2017.
 
-|                         | Rust     | Node     |
-|-------------------------|----------|----------|
-| Requests per seconds    | 520.50   | 272.61   |
-| CPU usage at boot time  | 0.20%    | 1.74%    |
-| CPU usage under bench   | 49.81%   | 136.83%  |
-| RAM usage at boot time  | 1.12MB   | 17.27MB  |
-| RAM usage under bench   | 2.85MB   | 128.32MB |
-| Docker image size       | 77.3MB   | 178MB    |
+|                        | Rust   | Node     |
+| ---------------------- | ------ | -------- |
+| Requests per seconds   | 520.50 | 272.61   |
+| CPU usage at boot time | 0.20%  | 1.74%    |
+| CPU usage under bench  | 49.81% | 136.83%  |
+| RAM usage at boot time | 1.12MB | 17.27MB  |
+| RAM usage under bench  | 2.85MB | 128.32MB |
+| Docker image size      | 77.3MB | 178MB    |
