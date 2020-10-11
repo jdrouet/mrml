@@ -1,54 +1,5 @@
-[package]
-name = "mrml"
-description = "Rust implementation of MJML renderer"
-keywords = ["email", "mjml"]
-version = "0.3.0"
-authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
-license-file = "license.md"
-edition = "2018"
-readme = "readme.md"
-
-include = [
-  "src/*",
-  "Cargo.toml",
+[workspace]
+members = [
+  "packages/library",
+  "packages/cli"
 ]
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[lib]
-name = "mrml"
-path = "src/lib.rs"
-
-[[bin]]
-name = "mrml-cli"
-path = "src/main.rs"
-doc = false
-required-features = ["cli"]
-
-[badges]
-circle-ci = { repository = "jdrouet/mrml" }
-codecov = { repository = "jdrouet/mrml" }
-
-[features]
-cli = ["clap"]
-
-[dependencies]
-clap = { version = "3.0.0-beta.2", optional = true }
-lazy_static = "1.4"
-log = "0.4"
-rand = { default-features = false, features = ["std"], version = "0.7" }
-regex = "1"
-xmlparser = "0.13"
-
-[dev-dependencies]
-criterion = "0.3"
-difference = "2.0"
-
-[[bench]]
-name = "basic"
-path = "benches/basic.rs"
-harness = false
-
-[[bench]]
-name = "template"
-path = "benches/template.rs"
-harness = false

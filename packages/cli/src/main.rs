@@ -1,4 +1,4 @@
-use clap::Clap;
+use clap::{crate_authors, crate_version, Clap};
 use mrml::util::size::Size::Pixel;
 use std::fs::File;
 use std::io::prelude::*;
@@ -6,8 +6,8 @@ use std::io::Error as IOError;
 
 #[derive(Clap, Debug)]
 #[clap(
-    version = "0.3.0",
-    author = "Jeremie Drouet <jeremie.drouet@gmail.com>"
+    version = crate_version!(),
+    author = crate_authors!()
 )]
 struct Options {
     #[clap(short, long, about = "Keeps comments from mjml in output")]
@@ -29,7 +29,7 @@ impl Into<mrml::Options> for Options {
     }
 }
 
-fn read_file(path: &String) -> Result<String, IOError> {
+fn read_file(path: &str) -> Result<String, IOError> {
     let mut file = File::open(path)?;
     let mut content = String::new();
     file.read_to_string(&mut content)?;

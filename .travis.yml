@@ -29,7 +29,8 @@ env:
 script:
   - |
     if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-      rustfmt --check src/{**/,}*.rs
+      rustfmt --check packages/library/src/{**/,}*.rs
+      rustfmt --check packages/cli/src/*.rs
     fi
   - |
     if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
@@ -47,6 +48,7 @@ deploy:
 
 after_success: |
   if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    cd packages/library
     cargo tarpaulin --out Xml
     bash <(curl -s https://codecov.io/bash)
   fi
