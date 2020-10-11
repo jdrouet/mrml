@@ -39,16 +39,17 @@ script:
   - cargo bench
   - cargo test
 
-deploy:
-  - provider: cargo
-    token:
-      secure: BHZhu/iQhJveNCmEH1dN76/hpyKXgWOOtscnIJLGlwwVpr+aFlzQyBhe6BbjqLd0S9vWwKDYpLmjPzOzwIHTEJ/lEop1J36Jz07S2ChwOOUsP/DOrqHwc6jepzJPzSeyNX5tpNK8D4VGxU6VzyhFA/kTdxD+bBIlz8uTNGw9O7MICUfnHpi2g6h7RZFODML+dLWRxYWdcfWYkPLDmcSkzllcYXOhZnxfuHomCuvWsUyC6hLZheq6IHoG4QWRTCcZXOy5el79Tix7wIoMq3zMb1na7AKt9KhgX6cqX+wRui6e5mJ4glSRGPgU+Sp1xxMi0pDTIzwODRWb88/eUugoqvSeGX38vFUde3/odb64wMlcmoRxb0bDXzeRTdPnQQMcPIQomR7jdKvLv40ogRwXg3AIb2jYHjS4+Hs0SY+l9hjPcIJEongJvckMrerzCO1e7/MRer8/DEaMzfLp2c5PwUHgvUXEXFzDXJoHIlLFo3wFMxP/ycSNgJ0wVAVsDyugwxbkEtNIcuFGEwgBSdf9EaQsFlXUPBwu6AoW8lb/a/fe7tPJTpb+rsK8ULdN/vShpwLyHPI0Xa/3BjnpGuflNW52Mbje9RLRxLlGBUxhIqgkl4CYkccYMgFVWNBZkc7+d+Kkw58dEG+NH462x233JwaF/xrC8l2FoZo52oCvjrA=
-    on:
-      tags: true
-
 after_success: |
   if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
     cd packages/library
     cargo tarpaulin --out Xml
     bash <(curl -s https://codecov.io/bash)
   fi
+  git clean -xdf
+
+deploy:
+  - provider: cargo
+    token:
+      secure: BHZhu/iQhJveNCmEH1dN76/hpyKXgWOOtscnIJLGlwwVpr+aFlzQyBhe6BbjqLd0S9vWwKDYpLmjPzOzwIHTEJ/lEop1J36Jz07S2ChwOOUsP/DOrqHwc6jepzJPzSeyNX5tpNK8D4VGxU6VzyhFA/kTdxD+bBIlz8uTNGw9O7MICUfnHpi2g6h7RZFODML+dLWRxYWdcfWYkPLDmcSkzllcYXOhZnxfuHomCuvWsUyC6hLZheq6IHoG4QWRTCcZXOy5el79Tix7wIoMq3zMb1na7AKt9KhgX6cqX+wRui6e5mJ4glSRGPgU+Sp1xxMi0pDTIzwODRWb88/eUugoqvSeGX38vFUde3/odb64wMlcmoRxb0bDXzeRTdPnQQMcPIQomR7jdKvLv40ogRwXg3AIb2jYHjS4+Hs0SY+l9hjPcIJEongJvckMrerzCO1e7/MRer8/DEaMzfLp2c5PwUHgvUXEXFzDXJoHIlLFo3wFMxP/ycSNgJ0wVAVsDyugwxbkEtNIcuFGEwgBSdf9EaQsFlXUPBwu6AoW8lb/a/fe7tPJTpb+rsK8ULdN/vShpwLyHPI0Xa/3BjnpGuflNW52Mbje9RLRxLlGBUxhIqgkl4CYkccYMgFVWNBZkc7+d+Kkw58dEG+NH462x233JwaF/xrC8l2FoZo52oCvjrA=
+    on:
+      tags: true
