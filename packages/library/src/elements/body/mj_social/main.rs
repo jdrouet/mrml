@@ -193,6 +193,14 @@ pub mod tests {
     }
 
     #[test]
+    fn link() {
+        compare_render(
+            include_str!("../../../../test/mj-social-link.mjml"),
+            include_str!("../../../../test/mj-social-link.html"),
+        );
+    }
+
+    #[test]
     fn with_align() {
         compare_render(
             include_str!("../../../../test/mj-social-align.mjml"),
