@@ -1,3 +1,5 @@
+#![feature(bool_to_option)]
+
 #[cfg(test)]
 #[macro_use(assert_diff)]
 extern crate difference;
