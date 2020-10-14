@@ -2,7 +2,7 @@
 name = "mrml-wasm"
 description = "Web Assembly interface for MRML"
 repository = "https://github.com/jdrouet/mrml"
-version = "0.3.1"
+version = "0.3.3"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2018"
 license-file = "license.md"
