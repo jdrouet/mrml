@@ -1,5 +1,6 @@
 [workspace]
 members = [
   "packages/library",
-  "packages/cli"
+  "packages/cli",
+  "packages/wasm"
 ]
