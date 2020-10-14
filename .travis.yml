@@ -5,6 +5,9 @@ rust:
   - beta
   - nightly
 
+node_js:
+  - lts/*
+
 addons:
   apt:
     packages:
@@ -16,6 +19,9 @@ matrix:
 
 before_script: |
   if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    nvm install 14
+    nvm use 14
+    make -C packages/wasm requirements
     cargo install cargo-tarpaulin
     rustup component add clippy
     rustup component add rustfmt
@@ -31,6 +37,7 @@ script:
     if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
       rustfmt --check packages/library/src/{**/,}*.rs
       rustfmt --check packages/cli/src/*.rs
+      make -C packages/wasm format
     fi
   - |
     if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
@@ -38,6 +45,10 @@ script:
     fi
   - cargo bench
   - cargo test
+  - |
+    if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+      make -C packages/wasm test
+    fi
 
 after_success: |
   if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
