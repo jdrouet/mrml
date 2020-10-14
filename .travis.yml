@@ -5,13 +5,7 @@ rust:
   - beta
   - nightly
 
-node_js:
-  - lts/*
-
-addons:
-  apt:
-    packages:
-      - libssl-dev
+node_js: 14
 
 matrix:
   allow_failures:
@@ -19,12 +13,8 @@ matrix:
 
 before_script: |
   if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-    nvm install 14
-    nvm use 14
-    make -C packages/wasm requirements
-    cargo install cargo-tarpaulin
-    rustup component add clippy
-    rustup component add rustfmt
+    node --version
+    make ci-install-deps
   fi
 
 cache: cargo
@@ -35,13 +25,11 @@ env:
 script:
   - |
     if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-      rustfmt --check packages/library/src/{**/,}*.rs
-      rustfmt --check packages/cli/src/*.rs
-      make -C packages/wasm format
+      make format
     fi
   - |
     if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-      cargo clippy -- -D warnings
+      make quality
     fi
   - cargo bench
   - cargo test
@@ -52,11 +40,8 @@ script:
 
 after_success: |
   if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-    cd packages/library
-    cargo tarpaulin --out Xml
-    bash <(curl -s https://codecov.io/bash)
+    make -C packages/library ci-coverage
   fi
-  git clean -xdf
 
 deploy:
   - provider: cargo

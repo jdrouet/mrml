@@ -1,7 +1,13 @@
+NODE_VERSION?=14
+
 ${HOME}/.cargo/bin/wasm-pack:
 	curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-requirements: ${HOME}/.cargo/bin/wasm-pack
+install-node:
+	nvm install ${NODE_VERSION}
+	nvm use ${NODE_VERSION}
+
+ci-install-deps: ${HOME}/.cargo/bin/wasm-pack install-node
 
 format:
 	rustfmt --check src/*.rs
