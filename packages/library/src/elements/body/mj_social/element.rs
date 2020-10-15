@@ -8,204 +8,95 @@ use crate::util::context::Context;
 use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
+use std::collections::HashMap;
+use std::str::FromStr;
 
 const IMAGE_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
+const FACEBOOK_SHARE_URL: &str = "https://www.facebook.com/sharer/sharer.php?u=[[URL]]";
+const GOOGLE_SHARE_URL: &str = "https://plus.google.com/share?url=[[URL]]";
+const LINKEDIN_SHARE_URL: &str =
+    "https://www.linkedin.com/shareArticle?mini=true&url=[[URL]]&title=&summary=&source=";
+const PINTEREST_SHARE_URL: &str =
+    "https://pinterest.com/pin/create/button/?url=[[URL]]&media=&description=";
+const TUMBLR_SHARE_URL: &str = "https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]";
+const TWITTER_SHARE_URL: &str = "https://twitter.com/home?status=[[URL]]";
+const XING_SHARE_URL: &str = "https://www.xing.com/app/user?op=share&url=[[URL]]";
 
-#[derive(Clone, Debug)]
+lazy_static! {
+    static ref SOCIAL_NETWORKS: HashMap<&'static str, (&'static str, &'static str, Option<&'static str>)> =
+        vec![
+            ("dribbble", ("dribbble.png", "#D95988", None)),
+            (
+                "facebook",
+                ("facebook.png", "#3b5998", Some(FACEBOOK_SHARE_URL))
+            ),
+            ("github", ("github.png", "#000000", None)),
+            (
+                "google",
+                ("google-plus.png", "#dc4e41", Some(GOOGLE_SHARE_URL))
+            ),
+            ("instagram", ("instagram.png", "#3f729b", None)),
+            (
+                "linkedin",
+                ("linkedin.png", "#0077b5", Some(LINKEDIN_SHARE_URL))
+            ),
+            ("medium", ("medium.png", "#000000", None)),
+            (
+                "pinterest",
+                ("pinterest.png", "#bd081c", Some(PINTEREST_SHARE_URL))
+            ),
+            ("snapchat", ("snapchat.png", "#FFFA54", None)),
+            ("soundcloud", ("soundcloud.png", "#EF7F31", None)),
+            ("tumblr", ("tumblr.png", "#344356", Some(TUMBLR_SHARE_URL))),
+            (
+                "twitter",
+                ("twitter.png", "#55acee", Some(TWITTER_SHARE_URL))
+            ),
+            ("vimeo", ("vimeo.png", "#53B4E7", None)),
+            ("web", ("web.png", "#4BADE9", None)),
+            ("xing", ("xing.png", "#296366", Some(XING_SHARE_URL))),
+            ("youtube", ("youtube.png", "#EB3323", None)),
+        ]
+        .into_iter()
+        .collect();
+}
+
+#[derive(Debug, Clone)]
 struct SocialNetwork {
-    pub background_color: String,
-    pub share_url: Option<String>,
-    pub src: String,
+    background_color: &'static str,
+    share_url: Option<&'static str>,
+    image_name: &'static str,
 }
 
 impl SocialNetwork {
-    pub fn find(name: &str) -> Option<Self> {
-        let (name, noshare) = if name.ends_with("-noshare") {
+    fn get_img_src(&self) -> String {
+        format!("{}{}", IMAGE_ORIGIN, self.image_name)
+    }
+}
+
+impl FromStr for SocialNetwork {
+    type Err = String;
+
+    fn from_str(name: &str) -> Result<Self, Self::Err> {
+        let (name, no_share) = if name.ends_with("-noshare") {
             let (label, _noshare) = name.split_at(name.len() - 8);
             (label, true)
         } else {
             (name, false)
         };
 
-        match name {
-            "dribbble" => Some(Self::dribbble()),
-            "facebook" => Some(Self::facebook(noshare)),
-            "github" => Some(Self::github()),
-            "google" => Some(Self::google(noshare)),
-            "instagram" => Some(Self::instagram()),
-            "linkedin" => Some(Self::linkedin(noshare)),
-            "medium" => Some(Self::medium()),
-            "pinterest" => Some(Self::pinterest(noshare)),
-            "snapchat" => Some(Self::snapchat()),
-            "soundcloud" => Some(Self::soundcloud()),
-            "tumblr" => Some(Self::tumblr(noshare)),
-            "twitter" => Some(Self::twitter(noshare)),
-            "vimeo" => Some(Self::vimeo()),
-            "web" => Some(Self::web()),
-            "xing" => Some(Self::xing(noshare)),
-            "youtube" => Some(Self::youtube()),
-            _ => None,
-        }
-    }
+        SOCIAL_NETWORKS
+            .get(name)
+            .map(|(image_name, background_color, share_url)| {
+                let share_url = if no_share { None } else { *share_url };
 
-    fn dribbble() -> Self {
-        Self {
-            background_color: "#D95988".into(),
-            share_url: None,
-            src: format!("{}dribbble.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn facebook(noshare: bool) -> Self {
-        Self {
-            background_color: "#3b5998".into(),
-            share_url: if noshare {
-                None
-            } else {
-                Some("https://www.facebook.com/sharer/sharer.php?u=[[URL]]".into())
-            },
-            src: format!("{}facebook.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn github() -> Self {
-        Self {
-            background_color: "#000000".into(),
-            share_url: None,
-            src: format!("{}github.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn google(noshare: bool) -> Self {
-        Self {
-            background_color: "#dc4e41".into(),
-            share_url: if noshare {
-                None
-            } else {
-                Some("https://plus.google.com/share?url=[[URL]]".into())
-            },
-            src: format!("{}google-plus.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn instagram() -> Self {
-        Self {
-            background_color: "#3f729b".into(),
-            share_url: None,
-            src: format!("{}instagram.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn linkedin(noshare: bool) -> Self {
-        Self {
-            background_color: "#0077b5".into(),
-            share_url: if noshare {
-                None
-            } else {
-                Some("https://www.linkedin.com/shareArticle?mini=true&url=[[URL]]&title=&summary=&source="
-            .into())
-            },
-            src: format!("{}linkedin.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn medium() -> Self {
-        Self {
-            background_color: "#000000".into(),
-            share_url: None,
-            src: format!("{}medium.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn pinterest(noshare: bool) -> Self {
-        Self {
-            background_color: "#bd081c".into(),
-            share_url: if noshare {
-                None
-            } else {
-                Some(
-                    "https://pinterest.com/pin/create/button/?url=[[URL]]&media=&description="
-                        .into(),
-                )
-            },
-            src: format!("{}pinterest.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn snapchat() -> Self {
-        Self {
-            background_color: "#FFFA54".into(),
-            share_url: None,
-            src: format!("{}snapchat.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn soundcloud() -> Self {
-        Self {
-            background_color: "#EF7F31".into(),
-            share_url: None,
-            src: format!("{}soundcloud.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn tumblr(noshare: bool) -> Self {
-        Self {
-            background_color: "#344356".into(),
-            share_url: if noshare {
-                None
-            } else {
-                Some("https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]".into())
-            },
-            src: format!("{}tumblr.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn twitter(noshare: bool) -> Self {
-        Self {
-            background_color: "#55acee".into(),
-            share_url: if noshare {
-                None
-            } else {
-                Some("https://twitter.com/home?status=[[URL]]".into())
-            },
-            src: format!("{}twitter.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn vimeo() -> Self {
-        Self {
-            background_color: "#53B4E7".into(),
-            share_url: None,
-            src: format!("{}vimeo.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn web() -> Self {
-        Self {
-            background_color: "#4BADE9".into(),
-            share_url: None,
-            src: format!("{}web.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn xing(noshare: bool) -> Self {
-        Self {
-            background_color: "#296366".into(),
-            share_url: if noshare {
-                None
-            } else {
-                Some("https://www.xing.com/app/user?op=share&url=[[URL]]".into())
-            },
-            src: format!("{}xing.png", IMAGE_ORIGIN),
-        }
-    }
-
-    fn youtube() -> Self {
-        Self {
-            background_color: "#EB3323".into(),
-            share_url: None,
-            src: format!("{}youtube.png", IMAGE_ORIGIN),
-        }
+                SocialNetwork {
+                    background_color,
+                    share_url,
+                    image_name,
+                }
+            })
+            .ok_or(format!("unable to found a social network named {}", name))
     }
 }
 
@@ -255,7 +146,7 @@ impl MJSocialElement {
             .attributes
             .iter()
             .find(|(key, _value)| key.as_str() == "name")
-            .and_then(|(_key, value)| SocialNetwork::find(value.as_str()));
+            .and_then(|(_key, value)| SocialNetwork::from_str(value.as_str()).ok());
         let mut attributes = Self::default_attributes(node, header);
         if let Some(extra) = extra {
             attributes.merge(extra);
@@ -293,7 +184,7 @@ impl MJSocialElement {
         }
         self.social_network
             .as_ref()
-            .map(|net| net.background_color.clone())
+            .map(|net| net.background_color.to_string())
     }
 
     fn get_icon_size(&self) -> Option<Size> {
@@ -308,7 +199,7 @@ impl MJSocialElement {
         if let Some(src) = self.get_attribute("src") {
             return Some(src.to_string());
         }
-        self.social_network.as_ref().map(|net| net.src.clone())
+        self.social_network.as_ref().map(|net| net.get_img_src())
     }
 
     fn set_style_img(&self, tag: Tag) -> Tag {
@@ -357,7 +248,7 @@ impl MJSocialElement {
             .map(|href| {
                 self.social_network
                     .as_ref()
-                    .and_then(|net| net.share_url.clone())
+                    .and_then(|net| net.share_url)
                     .map(move |url| url.replace("[[URL]]", href))
                     .or_else(move || Some(href.to_string()))
             })
