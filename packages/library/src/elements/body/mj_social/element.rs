@@ -22,9 +22,9 @@ impl SocialNetwork {
     pub fn find(name: &str) -> Option<Self> {
         let (name, noshare) = if name.ends_with("-noshare") {
             let (label, _noshare) = name.split_at(name.len() - 8);
-            (label, false)
+            (label, true)
         } else {
-            (name, true)
+            (name, false)
         };
 
         match name {
@@ -57,12 +57,13 @@ impl SocialNetwork {
     }
 
     fn facebook(noshare: bool) -> Self {
-        let share_url =
-            noshare.then_some("https://www.facebook.com/sharer/sharer.php?u=[[URL]]".into());
-
         Self {
             background_color: "#3b5998".into(),
-            share_url,
+            share_url: if noshare {
+                None
+            } else {
+                Some("https://www.facebook.com/sharer/sharer.php?u=[[URL]]".into())
+            },
             src: format!("{}facebook.png", IMAGE_ORIGIN),
         }
     }
@@ -76,11 +77,13 @@ impl SocialNetwork {
     }
 
     fn google(noshare: bool) -> Self {
-        let share_url = noshare.then_some("https://plus.google.com/share?url=[[URL]]".into());
-
         Self {
             background_color: "#dc4e41".into(),
-            share_url,
+            share_url: if noshare {
+                None
+            } else {
+                Some("https://plus.google.com/share?url=[[URL]]".into())
+            },
             src: format!("{}google-plus.png", IMAGE_ORIGIN),
         }
     }
@@ -94,14 +97,14 @@ impl SocialNetwork {
     }
 
     fn linkedin(noshare: bool) -> Self {
-        let share_url = noshare.then_some(
-            "https://www.linkedin.com/shareArticle?mini=true&url=[[URL]]&title=&summary=&source="
-                .into(),
-        );
-
         Self {
             background_color: "#0077b5".into(),
-            share_url,
+            share_url: if noshare {
+                None
+            } else {
+                Some("https://www.linkedin.com/shareArticle?mini=true&url=[[URL]]&title=&summary=&source="
+            .into())
+            },
             src: format!("{}linkedin.png", IMAGE_ORIGIN),
         }
     }
@@ -115,13 +118,16 @@ impl SocialNetwork {
     }
 
     fn pinterest(noshare: bool) -> Self {
-        let share_url = noshare.then_some(
-            "https://pinterest.com/pin/create/button/?url=[[URL]]&media=&description=".into(),
-        );
-
         Self {
             background_color: "#bd081c".into(),
-            share_url,
+            share_url: if noshare {
+                None
+            } else {
+                Some(
+                    "https://pinterest.com/pin/create/button/?url=[[URL]]&media=&description="
+                        .into(),
+                )
+            },
             src: format!("{}pinterest.png", IMAGE_ORIGIN),
         }
     }
@@ -143,22 +149,25 @@ impl SocialNetwork {
     }
 
     fn tumblr(noshare: bool) -> Self {
-        let share_url = noshare
-            .then_some("https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]".into());
-
         Self {
             background_color: "#344356".into(),
-            share_url,
+            share_url: if noshare {
+                None
+            } else {
+                Some("https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]".into())
+            },
             src: format!("{}tumblr.png", IMAGE_ORIGIN),
         }
     }
 
     fn twitter(noshare: bool) -> Self {
-        let share_url = noshare.then_some("https://twitter.com/home?status=[[URL]]".into());
-
         Self {
             background_color: "#55acee".into(),
-            share_url,
+            share_url: if noshare {
+                None
+            } else {
+                Some("https://twitter.com/home?status=[[URL]]".into())
+            },
             src: format!("{}twitter.png", IMAGE_ORIGIN),
         }
     }
@@ -180,12 +189,13 @@ impl SocialNetwork {
     }
 
     fn xing(noshare: bool) -> Self {
-        let share_url =
-            noshare.then_some("https://www.xing.com/app/user?op=share&url=[[URL]]".into());
-
         Self {
             background_color: "#296366".into(),
-            share_url,
+            share_url: if noshare {
+                None
+            } else {
+                Some("https://www.xing.com/app/user?op=share&url=[[URL]]".into())
+            },
             src: format!("{}xing.png", IMAGE_ORIGIN),
         }
     }
@@ -344,7 +354,6 @@ impl MJSocialElement {
 
     fn get_href(&self) -> Option<String> {
         self.get_attribute("href")
-            .as_ref()
             .map(|href| {
                 self.social_network
                     .as_ref()
