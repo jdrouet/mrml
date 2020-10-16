@@ -1,0 +1,7 @@
+main {
+  display: flex;
+}
+main textarea {
+  flex: 1;
+  height: 100vh;
+}

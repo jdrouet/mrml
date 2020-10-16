@@ -9,11 +9,19 @@ format:
 clean:
 	rm -rf pkg
 
-build: clean
-	wasm-pack build --out-name mrml
+build-bundler:
+	wasm-pack build --out-name mrml --out-dir pkg/bundler --target bundler
+
+build-node:
+	wasm-pack build --out-name mrml --out-dir pkg/node --target nodejs
+
+build: clean build-bundler build-node
+	mv pkg/node/mrml.d.ts pkg/
+	cp license.md pkg/
+	cp package.json pkg/
+	cp readme.md pkg/
 
 publish: build
-	sed -i pkg/package.json -e 's/mrml-wasm/mrml/g'
 	wasm-pack publish
 
 test:

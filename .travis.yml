@@ -8,59 +8,67 @@ rust:
 node_js:
   - lts/*
 
-addons:
-  apt:
-    packages:
-      - libssl-dev
-
-matrix:
-  allow_failures:
-    - rust: nightly
-
-before_script: |
-  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-    nvm install 14
-    nvm use 14
-    make -C packages/wasm requirements
-    cargo install cargo-tarpaulin
-    rustup component add clippy
-    rustup component add rustfmt
-  fi
-
 cache: cargo
 
 env:
   - BASIC_DIFF=true
 
-script:
-  - |
-    if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-      rustfmt --check packages/library/src/{**/,}*.rs
-      rustfmt --check packages/cli/src/*.rs
-      make -C packages/wasm format
-    fi
-  - |
-    if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-      cargo clippy -- -D warnings
-    fi
-  - cargo bench
-  - cargo test
-  - |
-    if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-      make -C packages/wasm test
-    fi
+stages:
+  - lint
+  - test
+  - build
+  - deploy
 
-after_success: |
-  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-    cd packages/library
-    cargo tarpaulin --out Xml
-    bash <(curl -s https://codecov.io/bash)
-  fi
-  git clean -xdf
+jobs:
+  include:
+    - stage: lint
+      name: run clippy
+      rust: stable
+      script:
+        - rustup component add clippy
+        - cargo clippy -- -D warnings
 
-deploy:
-  - provider: cargo
-    token:
-      secure: BHZhu/iQhJveNCmEH1dN76/hpyKXgWOOtscnIJLGlwwVpr+aFlzQyBhe6BbjqLd0S9vWwKDYpLmjPzOzwIHTEJ/lEop1J36Jz07S2ChwOOUsP/DOrqHwc6jepzJPzSeyNX5tpNK8D4VGxU6VzyhFA/kTdxD+bBIlz8uTNGw9O7MICUfnHpi2g6h7RZFODML+dLWRxYWdcfWYkPLDmcSkzllcYXOhZnxfuHomCuvWsUyC6hLZheq6IHoG4QWRTCcZXOy5el79Tix7wIoMq3zMb1na7AKt9KhgX6cqX+wRui6e5mJ4glSRGPgU+Sp1xxMi0pDTIzwODRWb88/eUugoqvSeGX38vFUde3/odb64wMlcmoRxb0bDXzeRTdPnQQMcPIQomR7jdKvLv40ogRwXg3AIb2jYHjS4+Hs0SY+l9hjPcIJEongJvckMrerzCO1e7/MRer8/DEaMzfLp2c5PwUHgvUXEXFzDXJoHIlLFo3wFMxP/ycSNgJ0wVAVsDyugwxbkEtNIcuFGEwgBSdf9EaQsFlXUPBwu6AoW8lb/a/fe7tPJTpb+rsK8ULdN/vShpwLyHPI0Xa/3BjnpGuflNW52Mbje9RLRxLlGBUxhIqgkl4CYkccYMgFVWNBZkc7+d+Kkw58dEG+NH462x233JwaF/xrC8l2FoZo52oCvjrA=
-    on:
-      tags: true
+    - stage: lint
+      name: run rustfmt
+      rust: stable
+      script:
+        - rustup component add rustfmt
+        - rustfmt --check packages/library/src/{**/,}*.rs
+        - rustfmt --check packages/cli/src/*.rs
+        - make -C packages/wasm format
+
+    - stage: test
+      name: run bench
+      script: cargo bench
+
+    - stage: test
+      name: run test
+      script: cargo test
+
+    - stage: test
+      name: run coverage
+      rust: stable
+      script: |
+        cargo install cargo-tarpaulin
+        cd packages/library
+        cargo tarpaulin --out Xml
+        bash <(curl -s https://codecov.io/bash)
+
+    - stage: test
+      name: run wasm tests
+      rust: stable
+      script:
+        - nvm install 14
+        - nvm use 14
+        - make -C packages/wasm requirements
+        - make -C packages/wasm test
+
+    - stage: build
+      name: build wasm and run examples
+      rust: stable
+      script:
+        - nvm install 14
+        - nvm use 14
+        - make -C packages/wasm build
+        - make -C examples/mrml-browser run
+        - make -C examples/mrml-node run

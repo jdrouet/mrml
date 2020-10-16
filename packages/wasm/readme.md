@@ -4,8 +4,14 @@ This project is a reimplementation of the nice `MJML` markup language in Rust, b
 
 To have more information, take a look at [the repository](https://github.com/jdrouet/mrml).
 
-## Usage
+## Usage on the browser
 
 ```js
-import { to_html } from "mrml-wasm";
+import { toHtml } from "mrml";
+```
+
+## Usage on node
+
+```js
+const { toHtml } = require("mrml/node/mrml");
 ```
