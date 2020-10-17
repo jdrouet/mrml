@@ -4,7 +4,7 @@
     "Jérémie Drouet <jeremie.drouet@gmail.com>"
   ],
   "description": "Web Assembly interface for MRML",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "license": "SEE LICENSE IN license.md",
   "repository": {
     "type": "git",

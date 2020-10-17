@@ -20,6 +20,10 @@ build: clean build-bundler build-node
 	cp license.md pkg/
 	cp package.json pkg/
 	cp readme.md pkg/
+	rm \
+		pkg/bundler/license.md pkg/node/license.md \
+		pkg/bundler/package.json pkg/node/package.json \
+		pkg/bundler/.gitignore pkg/node/.gitignore
 
 publish: build
 	wasm-pack publish
