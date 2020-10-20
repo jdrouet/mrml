@@ -1,0 +1,46 @@
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/packages/library"
+    schedule:
+      interval: "daily"
+    labels:
+      - "packages"
+      - "library"
+      - "dependencies"
+
+  - package-ecosystem: "cargo"
+    directory: "/packages/cli"
+    schedule:
+      interval: "daily"
+    labels:
+      - "packages"
+      - "cli"
+      - "dependencies"
+
+  - package-ecosystem: "cargo"
+    directory: "/packages/wasm"
+    schedule:
+      interval: "daily"
+    labels:
+      - "packages"
+      - "wasm"
+      - "dependencies"
+
+  - package-ecosystem: "npm"
+    directory: "/examples/mrml-node"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "examples"
+      - "mrml-node"
+      - "dependencies"
+
+  - package-ecosystem: "npm"
+    directory: "/examples/mrml-browser"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "examples"
+      - "mrml-browser"
+      - "dependencies"
