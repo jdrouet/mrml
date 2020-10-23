@@ -24,7 +24,7 @@ pub struct MJBody {
 impl MJBody {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
-            .default_attributes()
+            .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
@@ -55,9 +55,9 @@ impl MJBody {
     }
 
     pub fn render_preview(&self, header: &Header) -> String {
-        let preview = match header.preview() {
+        let preview = match header.preview.as_ref() {
             Some(value) => value,
-            None => return "".into(),
+            None => return String::new(),
         };
         Tag::new("div")
             .set_style("display", "none")

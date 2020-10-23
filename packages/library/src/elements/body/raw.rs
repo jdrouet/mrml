@@ -133,7 +133,7 @@ impl Component for RawElement {
     fn render(&self, header: &Header) -> Result<String, Error> {
         match self {
             RawElement::Comment(value) => {
-                if header.keep_comments() {
+                if header.keep_comments {
                     Ok(format!("<!-- {} -->", value))
                 } else {
                     Ok(String::new())

@@ -102,53 +102,29 @@ impl DefaultAttributes {
 
 #[derive(Clone, Debug)]
 pub struct Header {
-    breakpoint: Size,
-    default_attributes: DefaultAttributes,
-    font_families: HashSet<String>,
-    font_registry: FontRegistry,
-    keep_comments: bool,
-    media_queries: HashMap<String, Size>,
-    preview: Option<String>,
-    title: Option<String>,
-    styles: HashSet<String>,
-    social_icon_origin: String,
+    pub breakpoint: Size,
+    pub default_attributes: DefaultAttributes,
+    pub font_families: HashSet<String>,
+    pub font_registry: FontRegistry,
+    pub keep_comments: bool,
+    pub media_queries: HashMap<String, Size>,
+    pub preview: Option<String>,
+    pub title: Option<String>,
+    pub styles: HashSet<String>,
+    pub social_icon_origin: String,
 }
 
 impl Header {
-    pub fn keep_comments(&self) -> bool {
-        self.keep_comments
-    }
-
-    pub fn title(&self) -> Option<&String> {
-        self.title.as_ref()
-    }
-
     pub fn set_title(&mut self, title: String) {
         self.title = Some(title);
-    }
-
-    pub fn breakpoint(&self) -> &Size {
-        &self.breakpoint
-    }
-
-    pub fn social_icon_origin(&self) -> &String {
-        &self.social_icon_origin
     }
 
     pub fn set_breakpoint(&mut self, value: Size) {
         self.breakpoint = value;
     }
 
-    pub fn default_attributes(&self) -> &DefaultAttributes {
-        &self.default_attributes
-    }
-
     pub fn set_default_attributes(&mut self, value: DefaultAttributes) {
         self.default_attributes = value;
-    }
-
-    pub fn preview(&self) -> Option<&String> {
-        self.preview.as_ref()
     }
 
     pub fn set_preview(&mut self, preview: String) {
@@ -209,10 +185,6 @@ impl Header {
             }
         }
         res
-    }
-
-    pub fn get_media_queries(&self) -> &HashMap<String, Size> {
-        &self.media_queries
     }
 }
 

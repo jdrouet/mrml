@@ -231,7 +231,7 @@ pub struct MJSocialElement {
 impl MJSocialElement {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
-            .default_attributes()
+            .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
@@ -254,7 +254,7 @@ impl MJSocialElement {
             .iter()
             .find(|(key, _value)| key.as_str() == "name")
             .and_then(|(_key, value)| {
-                SocialNetwork::find(header.social_icon_origin(), value.as_str())
+                SocialNetwork::find(header.social_icon_origin.as_str(), value.as_str())
             });
         let mut attributes = Self::default_attributes(node, header);
         if let Some(extra) = extra {

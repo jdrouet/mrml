@@ -38,7 +38,7 @@ pub struct MJButton {
 impl MJButton {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
-            .default_attributes()
+            .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 

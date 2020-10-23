@@ -46,7 +46,7 @@ fn create_id() -> String {
 impl MJNavbar {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
-            .default_attributes()
+            .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
@@ -176,7 +176,7 @@ impl Component for MJNavbar {
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-close {{ display:block!important; }}
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
         }}
-        "#, header.breakpoint().to_string()));
+        "#, header.breakpoint.to_string()));
         for child in self.children.iter() {
             child.update_header(header);
         }
