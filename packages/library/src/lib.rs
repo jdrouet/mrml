@@ -25,6 +25,8 @@ pub struct Options {
     pub fonts: FontRegistry,
     /// rather the comments should be kept
     pub keep_comments: bool,
+    /// base url for the social icons
+    pub social_icon_origin: String,
 }
 
 impl Default for Options {
@@ -33,6 +35,9 @@ impl Default for Options {
             breakpoint: Size::Pixel(480.0),
             fonts: FontRegistry::new(),
             keep_comments: true,
+            social_icon_origin: String::from(
+                "https://www.mailjet.com/images/theme/v1/icons/ico-social/",
+            ),
         }
     }
 }

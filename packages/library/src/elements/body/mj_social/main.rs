@@ -182,13 +182,28 @@ impl BodyComponent for MJSocial {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tests::compare_render;
+    use crate::tests::{compare_render, compare_render_with_options};
 
     #[test]
     fn base() {
         compare_render(
             include_str!("../../../../test/mj-social.mjml"),
             include_str!("../../../../test/mj-social.html"),
+        );
+    }
+
+    #[test]
+    fn different_origin() {
+        let result = include_str!("../../../../test/mj-social.html").replace(
+            "https://www.mailjet.com/images/theme/v1/icons/ico-social/",
+            "http://my.origin.rust/",
+        );
+        let mut opts = crate::Options::default();
+        opts.social_icon_origin = String::from("http://my.origin.rust/");
+        compare_render_with_options(
+            include_str!("../../../../test/mj-social.mjml"),
+            result.as_str(),
+            opts,
         );
     }
 

@@ -111,6 +111,7 @@ pub struct Header {
     preview: Option<String>,
     title: Option<String>,
     styles: HashSet<String>,
+    social_icon_origin: String,
 }
 
 impl Header {
@@ -128,6 +129,10 @@ impl Header {
 
     pub fn breakpoint(&self) -> &Size {
         &self.breakpoint
+    }
+
+    pub fn social_icon_origin(&self) -> &String {
+        &self.social_icon_origin
     }
 
     pub fn set_breakpoint(&mut self, value: Size) {
@@ -223,6 +228,7 @@ impl From<Options> for Header {
             preview: None,
             title: None,
             styles: HashSet::new(),
+            social_icon_origin: value.social_icon_origin,
         }
     }
 }

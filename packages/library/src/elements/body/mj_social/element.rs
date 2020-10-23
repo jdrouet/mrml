@@ -9,8 +9,6 @@ use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
 
-const IMAGE_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
-
 #[derive(Clone, Debug)]
 struct SocialNetwork {
     pub background_color: String,
@@ -19,7 +17,7 @@ struct SocialNetwork {
 }
 
 impl SocialNetwork {
-    pub fn find(name: &str) -> Option<Self> {
+    pub fn find(icon_origin: &str, name: &str) -> Option<Self> {
         let (name, noshare) = if name.ends_with("-noshare") {
             let (label, _noshare) = name.split_at(name.len() - 8);
             (label, true)
@@ -28,35 +26,35 @@ impl SocialNetwork {
         };
 
         match name {
-            "dribbble" => Some(Self::dribbble()),
-            "facebook" => Some(Self::facebook(noshare)),
-            "github" => Some(Self::github()),
-            "google" => Some(Self::google(noshare)),
-            "instagram" => Some(Self::instagram()),
-            "linkedin" => Some(Self::linkedin(noshare)),
-            "medium" => Some(Self::medium()),
-            "pinterest" => Some(Self::pinterest(noshare)),
-            "snapchat" => Some(Self::snapchat()),
-            "soundcloud" => Some(Self::soundcloud()),
-            "tumblr" => Some(Self::tumblr(noshare)),
-            "twitter" => Some(Self::twitter(noshare)),
-            "vimeo" => Some(Self::vimeo()),
-            "web" => Some(Self::web()),
-            "xing" => Some(Self::xing(noshare)),
-            "youtube" => Some(Self::youtube()),
+            "dribbble" => Some(Self::dribbble(icon_origin)),
+            "facebook" => Some(Self::facebook(icon_origin, noshare)),
+            "github" => Some(Self::github(icon_origin)),
+            "google" => Some(Self::google(icon_origin, noshare)),
+            "instagram" => Some(Self::instagram(icon_origin)),
+            "linkedin" => Some(Self::linkedin(icon_origin, noshare)),
+            "medium" => Some(Self::medium(icon_origin)),
+            "pinterest" => Some(Self::pinterest(icon_origin, noshare)),
+            "snapchat" => Some(Self::snapchat(icon_origin)),
+            "soundcloud" => Some(Self::soundcloud(icon_origin)),
+            "tumblr" => Some(Self::tumblr(icon_origin, noshare)),
+            "twitter" => Some(Self::twitter(icon_origin, noshare)),
+            "vimeo" => Some(Self::vimeo(icon_origin)),
+            "web" => Some(Self::web(icon_origin)),
+            "xing" => Some(Self::xing(icon_origin, noshare)),
+            "youtube" => Some(Self::youtube(icon_origin)),
             _ => None,
         }
     }
 
-    fn dribbble() -> Self {
+    fn dribbble(icon_origin: &str) -> Self {
         Self {
             background_color: "#D95988".into(),
             share_url: None,
-            src: format!("{}dribbble.png", IMAGE_ORIGIN),
+            src: format!("{}dribbble.png", icon_origin),
         }
     }
 
-    fn facebook(noshare: bool) -> Self {
+    fn facebook(icon_origin: &str, noshare: bool) -> Self {
         Self {
             background_color: "#3b5998".into(),
             share_url: if noshare {
@@ -64,19 +62,19 @@ impl SocialNetwork {
             } else {
                 Some("https://www.facebook.com/sharer/sharer.php?u=[[URL]]".into())
             },
-            src: format!("{}facebook.png", IMAGE_ORIGIN),
+            src: format!("{}facebook.png", icon_origin),
         }
     }
 
-    fn github() -> Self {
+    fn github(icon_origin: &str) -> Self {
         Self {
             background_color: "#000000".into(),
             share_url: None,
-            src: format!("{}github.png", IMAGE_ORIGIN),
+            src: format!("{}github.png", icon_origin),
         }
     }
 
-    fn google(noshare: bool) -> Self {
+    fn google(icon_origin: &str, noshare: bool) -> Self {
         Self {
             background_color: "#dc4e41".into(),
             share_url: if noshare {
@@ -84,19 +82,19 @@ impl SocialNetwork {
             } else {
                 Some("https://plus.google.com/share?url=[[URL]]".into())
             },
-            src: format!("{}google-plus.png", IMAGE_ORIGIN),
+            src: format!("{}google-plus.png", icon_origin),
         }
     }
 
-    fn instagram() -> Self {
+    fn instagram(icon_origin: &str) -> Self {
         Self {
             background_color: "#3f729b".into(),
             share_url: None,
-            src: format!("{}instagram.png", IMAGE_ORIGIN),
+            src: format!("{}instagram.png", icon_origin),
         }
     }
 
-    fn linkedin(noshare: bool) -> Self {
+    fn linkedin(icon_origin: &str, noshare: bool) -> Self {
         Self {
             background_color: "#0077b5".into(),
             share_url: if noshare {
@@ -105,19 +103,19 @@ impl SocialNetwork {
                 Some("https://www.linkedin.com/shareArticle?mini=true&url=[[URL]]&title=&summary=&source="
             .into())
             },
-            src: format!("{}linkedin.png", IMAGE_ORIGIN),
+            src: format!("{}linkedin.png", icon_origin),
         }
     }
 
-    fn medium() -> Self {
+    fn medium(icon_origin: &str) -> Self {
         Self {
             background_color: "#000000".into(),
             share_url: None,
-            src: format!("{}medium.png", IMAGE_ORIGIN),
+            src: format!("{}medium.png", icon_origin),
         }
     }
 
-    fn pinterest(noshare: bool) -> Self {
+    fn pinterest(icon_origin: &str, noshare: bool) -> Self {
         Self {
             background_color: "#bd081c".into(),
             share_url: if noshare {
@@ -128,27 +126,27 @@ impl SocialNetwork {
                         .into(),
                 )
             },
-            src: format!("{}pinterest.png", IMAGE_ORIGIN),
+            src: format!("{}pinterest.png", icon_origin),
         }
     }
 
-    fn snapchat() -> Self {
+    fn snapchat(icon_origin: &str) -> Self {
         Self {
             background_color: "#FFFA54".into(),
             share_url: None,
-            src: format!("{}snapchat.png", IMAGE_ORIGIN),
+            src: format!("{}snapchat.png", icon_origin),
         }
     }
 
-    fn soundcloud() -> Self {
+    fn soundcloud(icon_origin: &str) -> Self {
         Self {
             background_color: "#EF7F31".into(),
             share_url: None,
-            src: format!("{}soundcloud.png", IMAGE_ORIGIN),
+            src: format!("{}soundcloud.png", icon_origin),
         }
     }
 
-    fn tumblr(noshare: bool) -> Self {
+    fn tumblr(icon_origin: &str, noshare: bool) -> Self {
         Self {
             background_color: "#344356".into(),
             share_url: if noshare {
@@ -156,11 +154,11 @@ impl SocialNetwork {
             } else {
                 Some("https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]".into())
             },
-            src: format!("{}tumblr.png", IMAGE_ORIGIN),
+            src: format!("{}tumblr.png", icon_origin),
         }
     }
 
-    fn twitter(noshare: bool) -> Self {
+    fn twitter(icon_origin: &str, noshare: bool) -> Self {
         Self {
             background_color: "#55acee".into(),
             share_url: if noshare {
@@ -168,27 +166,27 @@ impl SocialNetwork {
             } else {
                 Some("https://twitter.com/home?status=[[URL]]".into())
             },
-            src: format!("{}twitter.png", IMAGE_ORIGIN),
+            src: format!("{}twitter.png", icon_origin),
         }
     }
 
-    fn vimeo() -> Self {
+    fn vimeo(icon_origin: &str) -> Self {
         Self {
             background_color: "#53B4E7".into(),
             share_url: None,
-            src: format!("{}vimeo.png", IMAGE_ORIGIN),
+            src: format!("{}vimeo.png", icon_origin),
         }
     }
 
-    fn web() -> Self {
+    fn web(icon_origin: &str) -> Self {
         Self {
             background_color: "#4BADE9".into(),
             share_url: None,
-            src: format!("{}web.png", IMAGE_ORIGIN),
+            src: format!("{}web.png", icon_origin),
         }
     }
 
-    fn xing(noshare: bool) -> Self {
+    fn xing(icon_origin: &str, noshare: bool) -> Self {
         Self {
             background_color: "#296366".into(),
             share_url: if noshare {
@@ -196,15 +194,15 @@ impl SocialNetwork {
             } else {
                 Some("https://www.xing.com/app/user?op=share&url=[[URL]]".into())
             },
-            src: format!("{}xing.png", IMAGE_ORIGIN),
+            src: format!("{}xing.png", icon_origin),
         }
     }
 
-    fn youtube() -> Self {
+    fn youtube(icon_origin: &str) -> Self {
         Self {
             background_color: "#EB3323".into(),
             share_url: None,
-            src: format!("{}youtube.png", IMAGE_ORIGIN),
+            src: format!("{}youtube.png", icon_origin),
         }
     }
 }
@@ -255,7 +253,9 @@ impl MJSocialElement {
             .attributes
             .iter()
             .find(|(key, _value)| key.as_str() == "name")
-            .and_then(|(_key, value)| SocialNetwork::find(value.as_str()));
+            .and_then(|(_key, value)| {
+                SocialNetwork::find(header.social_icon_origin(), value.as_str())
+            });
         let mut attributes = Self::default_attributes(node, header);
         if let Some(extra) = extra {
             attributes.merge(extra);
