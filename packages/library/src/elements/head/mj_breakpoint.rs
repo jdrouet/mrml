@@ -10,7 +10,7 @@ pub struct MJBreakpoint {
 }
 
 impl MJBreakpoint {
-    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+    pub fn parse(node: &Node) -> Result<Self, Error> {
         let value = node
             .attributes
             .iter()

@@ -9,7 +9,7 @@ pub struct MJTitle {
 }
 
 impl MJTitle {
-    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+    pub fn parse(node: &Node) -> Result<Self, Error> {
         let mut content = String::new();
         for child in node.children.iter() {
             match child {

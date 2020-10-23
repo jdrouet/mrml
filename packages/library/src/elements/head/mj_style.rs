@@ -10,7 +10,7 @@ pub struct MJStyle {
 }
 
 impl MJStyle {
-    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+    pub fn parse(node: &Node) -> Result<Self, Error> {
         let mut content = String::new();
         let mut inline = false;
         for (key, _value) in node.attributes.iter() {
