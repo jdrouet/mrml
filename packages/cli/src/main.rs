@@ -14,6 +14,8 @@ struct Options {
     pub keep_comments: bool,
     #[clap(short, long, about = "Size of the breakpoint in pixels")]
     pub breakpoint: Option<f32>,
+    #[clap(short, long, about = "Base url for social icons")]
+    pub social_icon_origin: Option<String>,
     #[clap(about = "Path to your mjml file")]
     pub input: String,
 }
