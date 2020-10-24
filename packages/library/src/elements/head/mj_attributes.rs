@@ -11,7 +11,7 @@ impl MJAttributes {
         Self(DefaultAttributes::default())
     }
 
-    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+    pub fn parse(node: &Node) -> Result<Self, Error> {
         let mut element = Self::new();
         for child in node.children.iter() {
             element.parse_child(&child)?;

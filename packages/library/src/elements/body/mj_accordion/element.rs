@@ -34,7 +34,7 @@ pub struct MJAccordionElement {
 impl MJAccordionElement {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
-            .default_attributes()
+            .default_attributes
             .get_attributes(node, Attributes::default())
     }
 

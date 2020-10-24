@@ -9,7 +9,7 @@ pub struct MJPreview {
 }
 
 impl MJPreview {
-    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+    pub fn parse(node: &Node) -> Result<Self, Error> {
         match node.children.first() {
             Some(element) => match element {
                 Element::Text(value) => Ok(Self {

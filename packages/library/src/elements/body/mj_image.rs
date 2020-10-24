@@ -28,7 +28,7 @@ pub struct MJImage {
 impl MJImage {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
-            .default_attributes()
+            .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
@@ -143,7 +143,7 @@ impl Component for MJImage {
     fn update_header(&self, header: &mut Header) {
         let mut style = format!(
             "@media only screen and (max-width:{}) {{\n",
-            header.breakpoint().to_string(),
+            header.breakpoint.to_string(),
         );
         style.push_str("table.mj-full-width-mobile { width: 100% !important; }\n");
         style.push_str("td.mj-full-width-mobile { width: auto !important; }\n");

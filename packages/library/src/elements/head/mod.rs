@@ -35,7 +35,7 @@ macro_rules! apply_fn {
 }
 
 impl HeadElement {
-    pub fn parse_all<'a>(elements: &[Element<'a>]) -> Result<Vec<HeadElement>, Error> {
+    pub fn parse_all(elements: &[Element<'_>]) -> Result<Vec<HeadElement>, Error> {
         let mut res = vec![];
         for elt in elements {
             match elt {
@@ -49,7 +49,7 @@ impl HeadElement {
         Ok(res)
     }
 
-    pub fn parse<'a>(node: &Node<'a>) -> Result<HeadElement, Error> {
+    pub fn parse(node: &Node) -> Result<HeadElement, Error> {
         let tag_name = node.name.as_str();
         let res = match tag_name {
             "mj-attributes" => HeadElement::MJAttributes(mj_attributes::MJAttributes::parse(node)?),

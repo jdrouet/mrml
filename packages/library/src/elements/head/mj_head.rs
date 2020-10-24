@@ -103,10 +103,7 @@ impl<'a> MJHead<'a> {
     }
 
     pub fn get_title(&self) -> String {
-        match self.header.title() {
-            Some(value) => value.clone(),
-            None => "".into(),
-        }
+        self.header.title.as_ref().cloned().unwrap_or_default()
     }
 
     pub fn get_preview(&self) -> String {
@@ -125,14 +122,14 @@ impl<'a> MJHead<'a> {
         let mut res = vec![];
         res.push(format!(
             "@media only screen and (min-width:{}) {{ ",
-            self.header.breakpoint().to_string()
+            self.header.breakpoint.to_string()
         ));
-        let mut classnames: Vec<&String> = self.header.get_media_queries().keys().collect();
+        let mut classnames: Vec<&String> = self.header.media_queries.keys().collect();
         classnames.sort();
         for classname in classnames.iter() {
             let size = self
                 .header
-                .get_media_queries()
+                .media_queries
                 .get(&(*classname).clone())
                 .unwrap();
             res.push(format!(

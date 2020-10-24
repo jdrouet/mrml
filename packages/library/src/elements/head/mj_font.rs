@@ -10,7 +10,7 @@ pub struct MJFont {
 }
 
 impl MJFont {
-    pub fn parse<'a>(node: &Node<'a>) -> Result<Self, Error> {
+    pub fn parse(node: &Node) -> Result<Self, Error> {
         let mut name: Option<String> = None;
         let mut href: Option<String> = None;
         for (key, value) in node.attributes.iter() {
