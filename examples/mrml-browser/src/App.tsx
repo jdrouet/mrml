@@ -10,8 +10,11 @@ function App() {
   }, [setMrml]);
   React.useEffect(() => {
     if (!mrml) return;
+    const opts = new mrml.Options();
+    opts.breakpoint = "800px";
+    opts.keep_comments = false;
     try {
-      setResult(mrml.toHtml(template));
+      setResult(mrml.toHtmlWithOptions(template, opts));
     } catch (err) {
       console.error(err);
     }
