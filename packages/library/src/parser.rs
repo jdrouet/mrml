@@ -5,7 +5,9 @@ pub type Children<'a> = Vec<Element<'a>>;
 
 #[derive(Debug)]
 pub enum Error {
-    InvalidFormat,
+    InvalidFormat {
+        position: usize,
+    },
     /// The input string should be smaller than 4GiB.
     SizeLimit,
     /// Errors detected by the `xmlparser` crate.
@@ -36,36 +38,43 @@ impl<'a> Node<'a> {
     }
 
     fn parse(parser: &mut Tokenizer<'a>, tag: StrSpan<'a>) -> Result<Self, Error> {
+        let mut position = tag.end();
         let mut attributes = vec![];
         loop {
             let token = match parser.next() {
                 Some(value) => value,
-                None => return Err(Error::InvalidFormat),
+                // end before having the closing element
+                None => return Err(Error::InvalidFormat { position }),
             };
             let token = token?;
             match token {
                 Token::Attribute {
                     local,
                     value,
-                    span: _,
+                    span,
                     prefix: _,
                 } => {
+                    position = span.end();
                     attributes.push((local, value));
                 }
-                Token::ElementEnd { end, span: _ } => match end {
-                    xmlparser::ElementEnd::Empty => {
-                        return Ok(Node::new(tag, attributes, vec![]));
+                Token::ElementEnd { end, span } => {
+                    position = span.end();
+                    match end {
+                        xmlparser::ElementEnd::Empty => {
+                            return Ok(Node::new(tag, attributes, vec![]));
+                        }
+                        xmlparser::ElementEnd::Open => {
+                            return Ok(Node::new(
+                                tag,
+                                attributes,
+                                Element::parse_children(parser, tag)?,
+                            ));
+                        }
+                        // unexpected
+                        _ => return Err(Error::InvalidFormat { position }),
                     }
-                    xmlparser::ElementEnd::Open => {
-                        return Ok(Node::new(
-                            tag,
-                            attributes,
-                            Element::parse_children(parser, tag)?,
-                        ));
-                    }
-                    _ => return Err(Error::InvalidFormat),
-                },
-                _ => return Err(Error::InvalidFormat),
+                }
+                _ => return Err(Error::InvalidFormat { position }),
             };
         }
     }
@@ -122,42 +131,49 @@ impl<'a> Element<'a> {
         }
     }
     fn parse_children(parser: &mut Tokenizer<'a>, tag: StrSpan<'a>) -> Result<Vec<Self>, Error> {
+        let mut position = tag.end();
         let mut children: Vec<Element<'a>> = vec![];
         loop {
             let token = match parser.next() {
                 Some(value) => value,
                 // end before having the closing element
-                None => return Err(Error::InvalidFormat),
+                None => return Err(Error::InvalidFormat { position }),
             };
             let token = token?;
             match token {
                 Token::ElementStart {
                     local,
                     prefix: _,
-                    span: _,
+                    span,
                 } => {
+                    position = span.end();
                     children.push(Element::Node(Node::parse(parser, local)?));
                 }
                 Token::Text { text } => {
+                    position = text.end();
                     if !text.as_str().trim().is_empty() {
                         children.push(Element::Text(text));
                     }
                 }
-                Token::ElementEnd { end, span: _ } => match end {
-                    xmlparser::ElementEnd::Close(_prefix, local) => {
-                        if local.as_str() == tag.as_str() {
-                            return Ok(children);
+                Token::ElementEnd { end, span } => {
+                    position = span.end();
+                    match end {
+                        xmlparser::ElementEnd::Close(_prefix, local) => {
+                            if local.as_str() == tag.as_str() {
+                                return Ok(children);
+                            }
+                            // end before having the closing element
+                            return Err(Error::InvalidFormat { position });
                         }
-                        // end before having the closing element
-                        return Err(Error::InvalidFormat);
+                        _ => return Err(Error::InvalidFormat { position }),
                     }
-                    _ => return Err(Error::InvalidFormat),
-                },
+                }
                 // TODO handle comments
-                Token::Comment { text, span: _ } => {
+                Token::Comment { text, span } => {
+                    position = span.end();
                     children.push(Element::Comment(text));
                 }
-                _ => return Err(Error::InvalidFormat),
+                _ => return Err(Error::InvalidFormat { position }),
             };
         }
     }
@@ -209,6 +225,27 @@ mod tests {
     fn parse_with_html() {
         let root = parse("<mjml><mj-body><a href=\"toto\">yolo</a></mj-body></mjml>");
         assert!(root.is_ok());
+    }
+
+    fn parse_with_invalid_format(template: &str, pos: usize) {
+        let root = parse(template);
+        if let Err(error) = root {
+            println!("error: {:?}", error);
+            if let Error::InvalidFormat { position } = error {
+                assert_eq!(position, pos);
+            } else {
+                panic!();
+            }
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn parse_with_error() {
+        parse_with_invalid_format("<mjml", 5);
+        parse_with_invalid_format("<mjml attr=\"val\"><toto></mjml>", 30);
+        parse_with_invalid_format("<mjml attr=\"val\"></toto></mjml>", 24);
     }
 
     #[test]
