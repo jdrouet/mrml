@@ -8,8 +8,6 @@ rust:
 node_js:
   - lts/*
 
-cache: cargo
-
 env:
   - BASIC_DIFF=true
 
