@@ -40,16 +40,3 @@ impl HeadComponent for MJStyle {
         }
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::compare_render;
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../test/mj-style.mjml"),
-            include_str!("../../../test/mj-style.html"),
-        );
-    }
-}

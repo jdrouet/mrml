@@ -77,16 +77,3 @@ impl HeadComponent for MJAttributes {
         header.set_default_attributes(self.0.clone());
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::compare_render;
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../test/mj-attributes.mjml"),
-            include_str!("../../../test/mj-attributes.html"),
-        );
-    }
-}

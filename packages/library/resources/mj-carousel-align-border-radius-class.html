@@ -70,7 +70,7 @@
       user-select: none;
     }
 
-    .mj-carousel-carousel_id-icons-cell {
+    .mj-carousel-aaaaaaaa-icons-cell {
       display: table-cell !important;
       width: 44px !important;
     }
@@ -87,27 +87,32 @@
       touch-action: manipulation;
     }
 
-    .mj-carousel-carousel_id-radio:checked+.mj-carousel-content .mj-carousel-image,
-    .mj-carousel-carousel_id-radio:checked+*+.mj-carousel-content .mj-carousel-image {
+    .mj-carousel-aaaaaaaa-radio:checked+.mj-carousel-content .mj-carousel-image,
+    .mj-carousel-aaaaaaaa-radio:checked+*+.mj-carousel-content .mj-carousel-image,
+    .mj-carousel-aaaaaaaa-radio:checked+*+*+.mj-carousel-content .mj-carousel-image {
       display: none !important;
     }
 
-    .mj-carousel-carousel_id-radio-1:checked+*+.mj-carousel-content .mj-carousel-image-1,
-    .mj-carousel-carousel_id-radio-2:checked+.mj-carousel-content .mj-carousel-image-2 {
+    .mj-carousel-aaaaaaaa-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-image-1,
+    .mj-carousel-aaaaaaaa-radio-2:checked+*+.mj-carousel-content .mj-carousel-image-2,
+    .mj-carousel-aaaaaaaa-radio-3:checked+.mj-carousel-content .mj-carousel-image-3 {
       display: block !important;
     }
 
     .mj-carousel-previous-icons,
     .mj-carousel-next-icons,
-    .mj-carousel-carousel_id-radio-1:checked+*+.mj-carousel-content .mj-carousel-next-2,
-    .mj-carousel-carousel_id-radio-2:checked+.mj-carousel-content .mj-carousel-next-1,
-    .mj-carousel-carousel_id-radio-1:checked+*+.mj-carousel-content .mj-carousel-previous-2,
-    .mj-carousel-carousel_id-radio-2:checked+.mj-carousel-content .mj-carousel-previous-1 {
+    .mj-carousel-aaaaaaaa-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-next-2,
+    .mj-carousel-aaaaaaaa-radio-2:checked+*+.mj-carousel-content .mj-carousel-next-3,
+    .mj-carousel-aaaaaaaa-radio-3:checked+.mj-carousel-content .mj-carousel-next-1,
+    .mj-carousel-aaaaaaaa-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-previous-3,
+    .mj-carousel-aaaaaaaa-radio-2:checked+*+.mj-carousel-content .mj-carousel-previous-1,
+    .mj-carousel-aaaaaaaa-radio-3:checked+.mj-carousel-content .mj-carousel-previous-2 {
       display: block !important;
     }
 
-    .mj-carousel-carousel_id-radio-1:checked+*+.mj-carousel-content .mj-carousel-carousel_id-thumbnail-1,
-    .mj-carousel-carousel_id-radio-2:checked+.mj-carousel-content .mj-carousel-carousel_id-thumbnail-2 {
+    .mj-carousel-aaaaaaaa-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-aaaaaaaa-thumbnail-1,
+    .mj-carousel-aaaaaaaa-radio-2:checked+*+.mj-carousel-content .mj-carousel-aaaaaaaa-thumbnail-2,
+    .mj-carousel-aaaaaaaa-radio-3:checked+.mj-carousel-content .mj-carousel-aaaaaaaa-thumbnail-3 {
       border-color: #cccccc !important;
     }
 
@@ -116,8 +121,9 @@
       display: none !important;
     }
 
-    .mj-carousel-carousel_id-thumbnail:hover+*+.mj-carousel-main .mj-carousel-image,
-    .mj-carousel-carousel_id-thumbnail:hover+.mj-carousel-main .mj-carousel-image {
+    .mj-carousel-aaaaaaaa-thumbnail:hover+*+*+.mj-carousel-main .mj-carousel-image,
+    .mj-carousel-aaaaaaaa-thumbnail:hover+*+.mj-carousel-main .mj-carousel-image,
+    .mj-carousel-aaaaaaaa-thumbnail:hover+.mj-carousel-main .mj-carousel-image {
       display: none !important;
     }
 
@@ -125,8 +131,9 @@
       border-color: #fead0d !important;
     }
 
-    .mj-carousel-carousel_id-thumbnail-1:hover+*+.mj-carousel-main .mj-carousel-image-1,
-    .mj-carousel-carousel_id-thumbnail-2:hover+.mj-carousel-main .mj-carousel-image-2 {
+    .mj-carousel-aaaaaaaa-thumbnail-1:hover+*+*+.mj-carousel-main .mj-carousel-image-1,
+    .mj-carousel-aaaaaaaa-thumbnail-2:hover+*+.mj-carousel-main .mj-carousel-image-2,
+    .mj-carousel-aaaaaaaa-thumbnail-3:hover+.mj-carousel-main .mj-carousel-image-3 {
       display: block !important;
     }
 
@@ -149,13 +156,13 @@
 
     @media screen yahoo {
 
-      .mj-carousel-carousel_id-icons-cell,
+      .mj-carousel-aaaaaaaa-icons-cell,
       .mj-carousel-previous-icons,
       .mj-carousel-next-icons {
         display: none !important;
       }
 
-      .mj-carousel-carousel_id-radio-1:checked+*+.mj-carousel-content .mj-carousel-carousel_id-thumbnail-1 {
+      .mj-carousel-aaaaaaaa-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-aaaaaaaa-thumbnail-1 {
         border-color: transparent;
       }
     }
@@ -190,32 +197,70 @@
                 <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;"
                   width="100%">
                   <tr>
-                    <td align="center" style="font-size:0px;word-break:break-word;">
+                    <td align="right" class="container" style="font-size:0px;word-break:break-word;">
                       <!--[if !mso><!-->
                       <div class="mj-carousel">
                         <input checked="checked"
-                          class="mj-carousel-carousel_id-radio mj-carousel-carousel_id-radio-1 mj-carousel-radio"
-                          id="mj-carousel-carousel_id-radio-1" name="mj-carousel-radio-carousel_id"
+                          class="mj-carousel-aaaaaaaa-radio mj-carousel-aaaaaaaa-radio-1 mj-carousel-radio"
+                          id="mj-carousel-aaaaaaaa-radio-1" name="mj-carousel-radio-aaaaaaaa"
                           style="display:none;mso-hide:all;" type="radio" />
-                        <input class="mj-carousel-carousel_id-radio mj-carousel-carousel_id-radio-2 mj-carousel-radio"
-                          id="mj-carousel-carousel_id-radio-2" name="mj-carousel-radio-carousel_id"
+                        <input class="mj-carousel-aaaaaaaa-radio mj-carousel-aaaaaaaa-radio-2 mj-carousel-radio"
+                          id="mj-carousel-aaaaaaaa-radio-2" name="mj-carousel-radio-aaaaaaaa"
                           style="display:none;mso-hide:all;" type="radio" />
-                        <div class="mj-carousel-carousel_id-content mj-carousel-content"
+                        <input class="mj-carousel-aaaaaaaa-radio mj-carousel-aaaaaaaa-radio-3 mj-carousel-radio"
+                          id="mj-carousel-aaaaaaaa-radio-3" name="mj-carousel-radio-aaaaaaaa"
+                          style="display:none;mso-hide:all;" type="radio" />
+                        <div class="mj-carousel-aaaaaaaa-content mj-carousel-content"
                           style="display:table;font-size:0px;table-layout:fixed;text-align:center;width:100%;">
-                          <table border="0" cellpadding="0" cellspacing="0" class="mj-carousel-main" role="presentation"
+                          <a class="mj-carousel-aaaaaaaa-thumbnail mj-carousel-aaaaaaaa-thumbnail-1 mj-carousel-thumbnail"
+                            href="#1"
+                            style="border:2px solid transparent;border-radius:6px;display:inline-block;overflow:hidden;width:110px;"
+                            target="_blank">
+                            <label for="mj-carousel-aaaaaaaa-radio-1">
+                              <img alt="first"
+                                src="https://www.mailjet.com/wp-content/uploads/2016/11/ecommerce-guide.jpg"
+                                style="display:block;height:auto;width:100%;" width="110" />
+                            </label>
+                          </a>
+                          <a class="middle-thumbnail mj-carousel-aaaaaaaa-thumbnail mj-carousel-aaaaaaaa-thumbnail-2 mj-carousel-thumbnail"
+                            href="#2"
+                            style="border:2px solid transparent;border-radius:6px;display:inline-block;overflow:hidden;width:110px;"
+                            target="_blank">
+                            <label for="mj-carousel-aaaaaaaa-radio-2">
+                              <img src="https://www.mailjet.com/wp-content/uploads/2016/09/3@1x.png"
+                                style="display:block;height:auto;width:100%;" width="110" />
+                            </label>
+                          </a>
+                          <a class="mj-carousel-aaaaaaaa-thumbnail mj-carousel-aaaaaaaa-thumbnail-3 mj-carousel-thumbnail"
+                            href="#3"
+                            style="border:2px solid transparent;border-radius:6px;display:inline-block;overflow:hidden;width:110px;"
+                            target="_blank">
+
+                            <label for="mj-carousel-aaaaaaaa-radio-3">
+                              <img src="https://www.mailjet.com/wp-content/uploads/2016/09/1@1x.png"
+                                style="display:block;height:auto;width:100%;" width="110" />
+                            </label>
+                          </a>
+                          <table border="0" cellpadding="0" cellspacing="0" class="mj-carousel-main"
+                            role="presentation"
                             style="caption-side:top;display:table-caption;table-layout:fixed;width:100%;" width="100%">
                             <tbody>
                               <tr>
-                                <td class="mj-carousel-carousel_id-icons-cell"
+                                <td class="mj-carousel-aaaaaaaa-icons-cell"
                                   style="display:none;font-size:0px;mso-hide:all;padding:0px;">
                                   <div class="mj-carousel-previous-icons" style="display:none;mso-hide:all;">
                                     <label class="mj-carousel-previous mj-carousel-previous-1"
-                                      for="mj-carousel-carousel_id-radio-1">
+                                      for="mj-carousel-aaaaaaaa-radio-1">
                                       <img alt="previous" src="https://i.imgur.com/xTh3hln.png"
                                         style="display:block;height:auto;width:44px;" width="44" />
                                     </label>
                                     <label class="mj-carousel-previous mj-carousel-previous-2"
-                                      for="mj-carousel-carousel_id-radio-2">
+                                      for="mj-carousel-aaaaaaaa-radio-2">
+                                      <img alt="previous" src="https://i.imgur.com/xTh3hln.png"
+                                        style="display:block;height:auto;width:44px;" width="44" />
+                                    </label>
+                                    <label class="mj-carousel-previous mj-carousel-previous-3"
+                                      for="mj-carousel-aaaaaaaa-radio-3">
                                       <img alt="previous" src="https://i.imgur.com/xTh3hln.png"
                                         style="display:block;height:auto;width:44px;" width="44" />
                                     </label>
@@ -224,28 +269,43 @@
                                 <td style="padding:0px;">
                                   <div class="mj-carousel-images">
                                     <div class="mj-carousel-image mj-carousel-image-1 " style="">
-                                      <img border="0" src="https://www.mailjet.com/wp-content/uploads/2016/11/ecommerce-guide.jpg"
-                                        style="border-radius:6px;display:block;height:auto;max-width:100%;width:600px;"
+                                      <img alt="first" border="0"
+                                        src="https://www.mailjet.com/wp-content/uploads/2016/11/ecommerce-guide.jpg"
+                                        style="border-radius:2px;display:block;height:auto;max-width:100%;width:600px;"
                                         width="600" />
                                     </div>
-                                    <div class="mj-carousel-image mj-carousel-image-2 "
+                                    <div class="middle mj-carousel-image mj-carousel-image-2"
                                       style="display:none;mso-hide:all;">
                                       <img border="0" src="https://www.mailjet.com/wp-content/uploads/2016/09/3@1x.png"
-                                        style="border-radius:6px;display:block;height:auto;max-width:100%;width:600px;"
+                                        style="border-radius:2px;display:block;height:auto;max-width:100%;width:600px;"
                                         width="600" />
+                                    </div>
+                                    <div class="mj-carousel-image mj-carousel-image-3 "
+                                      style="display:none;mso-hide:all;">
+                                      <a href="https://jolimail.io" target="_blank">
+                                        <img border="0"
+                                          src="https://www.mailjet.com/wp-content/uploads/2016/09/1@1x.png"
+                                          style="border-radius:2px;display:block;height:auto;max-width:100%;width:600px;"
+                                          width="600" />
+                                      </a>
                                     </div>
                                   </div>
                                 </td>
-                                <td class="mj-carousel-carousel_id-icons-cell"
+                                <td class="mj-carousel-aaaaaaaa-icons-cell"
                                   style="display:none;font-size:0px;mso-hide:all;padding:0px;">
                                   <div class="mj-carousel-next-icons" style="display:none;mso-hide:all;">
                                     <label class="mj-carousel-next mj-carousel-next-1"
-                                      for="mj-carousel-carousel_id-radio-1">
+                                      for="mj-carousel-aaaaaaaa-radio-1">
                                       <img alt="next" src="https://i.imgur.com/os7o9kz.png"
                                         style="display:block;height:auto;width:44px;" width="44" />
                                     </label>
                                     <label class="mj-carousel-next mj-carousel-next-2"
-                                      for="mj-carousel-carousel_id-radio-2">
+                                      for="mj-carousel-aaaaaaaa-radio-2">
+                                      <img alt="next" src="https://i.imgur.com/os7o9kz.png"
+                                        style="display:block;height:auto;width:44px;" width="44" />
+                                    </label>
+                                    <label class="mj-carousel-next mj-carousel-next-3"
+                                      for="mj-carousel-aaaaaaaa-radio-3">
                                       <img alt="next" src="https://i.imgur.com/os7o9kz.png"
                                         style="display:block;height:auto;width:44px;" width="44" />
                                     </label>
@@ -263,8 +323,8 @@
          class="mj-carousel-image mj-carousel-image-1 " style=""
       >
 
-      <img border="0"
-         src="https://www.mailjet.com/wp-content/uploads/2016/11/ecommerce-guide.jpg" style="border-radius:6px;display:block;height:auto;max-width:100%;width:600px;" width="600" />
+      <img
+          alt="first" border="0" src="https://www.mailjet.com/wp-content/uploads/2016/11/ecommerce-guide.jpg" style="border-radius:2px;display:block;height:auto;max-width:100%;width:600px;" width="600" />
 
       </div>
 

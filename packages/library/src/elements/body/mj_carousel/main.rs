@@ -8,7 +8,7 @@ use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
-use crate::util::id::generate as generate_id;
+use crate::util::id::Generator as IdGenerator;
 use crate::util::size::Size;
 use crate::util::style::Style;
 use crate::util::tag::Tag;
@@ -31,14 +31,6 @@ fn repeat(count: usize, value: &str) -> String {
     (0..count).map(|_idx| value).collect::<Vec<_>>().join("")
 }
 
-fn create_id() -> String {
-    if cfg!(test) {
-        "carousel_id".into()
-    } else {
-        generate_id(8)
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct MJCarousel {
     attributes: Attributes,
@@ -55,11 +47,12 @@ impl MJCarousel {
     }
 
     pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJCarousel, Error> {
+        let generate: IdGenerator = header.id_generator;
         let mut result = MJCarousel {
             attributes: Self::default_attributes(node, header).concat(node),
             context: None,
             children: vec![],
-            id: create_id(),
+            id: generate(8),
         };
         let attrs = result.get_children_attributes();
         for child in node.children.iter() {
@@ -462,50 +455,5 @@ impl BodyComponent for MJCarousel {
 
     fn set_style(&self, _name: &str, tag: Tag) -> Tag {
         tag
-    }
-}
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::compare_render;
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../../test/mj-carousel.mjml"),
-            include_str!("../../../../test/mj-carousel.html"),
-        );
-    }
-
-    #[test]
-    fn with_align_border_radius_css_class() {
-        compare_render(
-            include_str!("../../../../test/mj-carousel-align-border-radius-class.mjml"),
-            include_str!("../../../../test/mj-carousel-align-border-radius-class.html"),
-        );
-    }
-
-    #[test]
-    fn with_icon() {
-        compare_render(
-            include_str!("../../../../test/mj-carousel-icon.mjml"),
-            include_str!("../../../../test/mj-carousel-icon.html"),
-        );
-    }
-
-    #[test]
-    fn with_tb() {
-        compare_render(
-            include_str!("../../../../test/mj-carousel-tb.mjml"),
-            include_str!("../../../../test/mj-carousel-tb.html"),
-        );
-    }
-
-    #[test]
-    fn with_thumbnail() {
-        compare_render(
-            include_str!("../../../../test/mj-carousel-thumbnails.mjml"),
-            include_str!("../../../../test/mj-carousel-thumbnails.html"),
-        );
     }
 }

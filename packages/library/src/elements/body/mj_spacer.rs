@@ -93,16 +93,3 @@ impl BodyComponent for MJSpacer {
         }
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::compare_render;
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../test/mj-spacer.mjml"),
-            include_str!("../../../test/mj-spacer.html"),
-        );
-    }
-}

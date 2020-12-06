@@ -68,24 +68,3 @@ impl<'a> MJMLElement<'a> {
             + "</html>")
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::compare_render;
-    use crate::{to_html, Options};
-
-    #[test]
-    fn basic() {
-        compare_render(
-            include_str!("../../test/mjml.mjml"),
-            include_str!("../../test/mjml.html"),
-        );
-    }
-
-    #[test]
-    fn debug() {
-        let template = include_str!("../../test/mjml.mjml");
-        let result = to_html(template, Options::default()).unwrap();
-        println!("result: {:?}", result);
-    }
-}

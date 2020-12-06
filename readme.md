@@ -43,7 +43,7 @@ With the same linux amd64 machine, to render the amario template
 
 To reproduce those results:
 
-- Node, in `example/mjml-bench` run `npm start -- ../../test/template-amario.mjml`
+- Node, in `example/mjml-bench` run `npm start -- ../../resources/template-amario.mjml`
 - Rust, run `cargo bench amario`
 
 > With a web server, as of today, on a mac book pro from 2017. (Old result)

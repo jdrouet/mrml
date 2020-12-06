@@ -61,16 +61,3 @@ impl BodyComponent for MJRaw {
         None
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::compare_render;
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../test/mj-raw.mjml"),
-            include_str!("../../../test/mj-raw.html"),
-        );
-    }
-}

@@ -8,7 +8,7 @@ use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
-use crate::util::id::generate as generate_id;
+use crate::util::id::Generator as IdGenerator;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
 
@@ -35,14 +35,6 @@ pub struct MJNavbar {
     id: String,
 }
 
-fn create_id() -> String {
-    if cfg!(test) {
-        "navbar_toggle".into()
-    } else {
-        generate_id(8)
-    }
-}
-
 impl MJNavbar {
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
@@ -51,11 +43,12 @@ impl MJNavbar {
     }
 
     pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJNavbar, Error> {
+        let generate: IdGenerator = header.id_generator;
         let mut result = MJNavbar {
             attributes: Self::default_attributes(node, header).concat(node),
             context: None,
             children: vec![],
-            id: create_id(),
+            id: generate(8),
         };
         let attrs = result.get_children_attributes();
         for child in node.children.iter() {
@@ -240,34 +233,5 @@ impl BodyComponent for MJNavbar {
 
     fn set_style(&self, _name: &str, tag: Tag) -> Tag {
         tag
-    }
-}
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::compare_render;
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../../test/mj-navbar.mjml"),
-            include_str!("../../../../test/mj-navbar.html"),
-        );
-    }
-
-    #[test]
-    fn with_align_and_class() {
-        compare_render(
-            include_str!("../../../../test/mj-navbar-align-class.mjml"),
-            include_str!("../../../../test/mj-navbar-align-class.html"),
-        );
-    }
-
-    #[test]
-    fn with_ico_and_link() {
-        compare_render(
-            include_str!("../../../../test/mj-navbar-ico.mjml"),
-            include_str!("../../../../test/mj-navbar-ico.html"),
-        );
     }
 }

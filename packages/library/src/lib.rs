@@ -27,6 +27,8 @@ pub struct Options {
     pub keep_comments: bool,
     /// base url for the social icons
     pub social_icon_origin: String,
+    /// util function to generate ids
+    pub id_generator: util::id::Generator,
 }
 
 impl Default for Options {
@@ -38,6 +40,7 @@ impl Default for Options {
             social_icon_origin: String::from(
                 "https://www.mailjet.com/images/theme/v1/icons/ico-social/",
             ),
+            id_generator: util::id::generate,
         }
     }
 }

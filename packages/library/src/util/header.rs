@@ -1,5 +1,6 @@
 use super::attributes::{Attributes, Merge};
 use super::fonts::FontRegistry;
+use super::id::Generator as IdGenerator;
 use super::size::Size;
 use crate::parser::Node;
 use crate::Options;
@@ -112,6 +113,7 @@ pub struct Header {
     pub title: Option<String>,
     pub styles: HashSet<String>,
     pub social_icon_origin: String,
+    pub id_generator: IdGenerator,
 }
 
 impl Header {
@@ -201,6 +203,7 @@ impl From<Options> for Header {
             title: None,
             styles: HashSet::new(),
             social_icon_origin: value.social_icon_origin,
+            id_generator: value.id_generator,
         }
     }
 }

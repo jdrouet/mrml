@@ -42,16 +42,3 @@ impl HeadComponent for MJFont {
         header.register_font(self.name.as_str(), self.href.as_str());
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::compare_render;
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../test/mj-font.mjml"),
-            include_str!("../../../test/mj-font.html"),
-        );
-    }
-}

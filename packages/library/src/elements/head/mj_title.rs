@@ -30,21 +30,3 @@ impl HeadComponent for MJTitle {
         header.set_title(self.get_content());
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::{compare_render, compare_title};
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../test/mj-title.mjml"),
-            include_str!("../../../test/mj-title.html"),
-        );
-    }
-
-    #[test]
-    fn to_title() {
-        compare_title(include_str!("../../../test/mj-title.mjml"), "Hello MJML");
-    }
-}

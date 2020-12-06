@@ -27,21 +27,3 @@ impl HeadComponent for MJPreview {
         header.set_preview(self.content.clone());
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::tests::{compare_preview, compare_render};
-
-    #[test]
-    fn base() {
-        compare_render(
-            include_str!("../../../test/mj-preview.mjml"),
-            include_str!("../../../test/mj-preview.html"),
-        );
-    }
-
-    #[test]
-    fn to_preview() {
-        compare_preview(include_str!("../../../test/mj-preview.mjml"), "Hello MJML");
-    }
-}

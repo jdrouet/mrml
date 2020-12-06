@@ -253,11 +253,10 @@ mod tests {
         let root = parse("<mjml><mj-body><!--<a href=\"toto\">yolo</a>--></mj-body></mjml>");
         assert!(root.is_ok());
         let root = root.unwrap();
-        match root.children.get(0).as_ref().unwrap() {
-            Element::Node(node) => {
-                assert_eq!(node.children.len(), 1);
-            }
-            _ => assert!(false),
-        };
+        if let Element::Node(node) = root.children.get(0).as_ref().unwrap() {
+            assert_eq!(node.children.len(), 1);
+        } else {
+            panic!("should have node");
+        }
     }
 }
