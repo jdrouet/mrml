@@ -20,6 +20,20 @@ fn clean_text(input: &str) -> String {
         .collect::<String>()
 }
 
+fn compare_style(path: &str, result: &str, expected: &str) {
+    let mut result = result
+        .split(';')
+        .filter(|value| !value.is_empty())
+        .collect::<Vec<_>>();
+    let mut expected = expected
+        .split(';')
+        .filter(|value| !value.is_empty())
+        .collect::<Vec<_>>();
+    result.sort();
+    expected.sort();
+    assert_eq!(result, expected, "{} styles mismatch", path);
+}
+
 fn compare_text(_path: &str, result: &str, expected: &str) {
     let result = clean_text(result);
     let expected = clean_text(expected);
@@ -30,10 +44,14 @@ fn clean_attribute(input: &str) -> String {
     input.split_whitespace().collect::<String>()
 }
 
-fn compare_attribute(_path: &str, result: &str, expected: &str) {
+fn compare_attribute(path: &str, name: &str, result: &str, expected: &str) {
     let result = clean_attribute(result);
     let expected = clean_attribute(expected);
-    compare_str(result.as_str(), expected.as_str());
+    if name == "style" {
+        compare_style(path, result.as_str(), expected.as_str());
+    } else {
+        compare_str(result.as_str(), expected.as_str());
+    }
 }
 
 fn filter_empty_attributes(entry: &(&String, &Option<String>)) -> bool {
@@ -70,9 +88,10 @@ fn compare_attributes(
         let expected_value = expected_entry.1.as_ref().unwrap();
         compare_attribute(
             path.as_str(),
+            result_entry.0.as_str(),
             result_value.as_str(),
             expected_value.as_str(),
-        )
+        );
     }
 }
 
