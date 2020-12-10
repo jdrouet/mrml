@@ -10,8 +10,11 @@ use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
 
+const DEFAULT_BACKGROUND_POSITION: &str = "top center";
+
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
+        .add("background-position", DEFAULT_BACKGROUND_POSITION)
         .add("background-repeat", "repeat")
         .add("background-size", "auto")
         .add("direction", "ltr")
@@ -46,6 +49,34 @@ impl MJSection {
         })
     }
 
+    fn get_background_position(&self) -> String {
+        let positions = self
+            .get_attribute("background-position")
+            .map(|value| value.split_whitespace().collect::<Vec<_>>());
+        let first = positions.as_ref().and_then(|list| list.get(0));
+        let second = positions.as_ref().and_then(|list| list.get(1));
+        if let Some(first) = first {
+            if let Some(second) = second {
+                if first == &"top"
+                    || first == &"bottom"
+                    || (first == &"center" && (second == &"left" || second == &"right"))
+                {
+                    format!("{} {}", second, first)
+                } else {
+                    format!("{} {}", first, second)
+                }
+            } else {
+                if first == &"top" || first == &"bottom" {
+                    format!("center {}", first)
+                } else {
+                    format!("{} center", first)
+                }
+            }
+        } else {
+            String::from(DEFAULT_BACKGROUND_POSITION)
+        }
+    }
+
     fn get_background(&self) -> Option<String> {
         let mut res: Vec<String> = vec![];
         if let Some(color) = self.get_attribute("background-color") {
@@ -55,7 +86,8 @@ impl MJSection {
             res.push(format!("url({})", url));
             // has default value
             res.push(format!(
-                "top center / {}",
+                "{} / {}",
+                self.get_background_position(),
                 self.get_attribute("background-size").unwrap()
             ));
             // has default value
@@ -71,6 +103,9 @@ impl MJSection {
     fn set_background_style(&self, tag: Tag) -> Tag {
         if self.get_attribute("background-url").is_some() {
             tag.maybe_set_style("background", self.get_background())
+                .set_style("background-position", self.get_background_position())
+                .maybe_set_style("background-repeat", self.get_attribute("background-repeat"))
+                .maybe_set_style("background-size", self.get_attribute("background-size"))
         } else {
             tag.maybe_set_style("background", self.get_attribute("background-color"))
                 .maybe_set_style("background-color", self.get_attribute("background-color"))
