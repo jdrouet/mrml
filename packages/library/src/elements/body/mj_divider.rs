@@ -49,7 +49,7 @@ impl MJDivider {
                 self.get_attribute("border-color").unwrap()
             ),
         )
-        .set_style("font-size", "1")
+        .set_style("font-size", "1px")
         .set_style("margin", "0px auto")
         .maybe_set_style("width", self.get_attribute("width"))
     }
