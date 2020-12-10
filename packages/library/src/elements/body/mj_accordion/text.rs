@@ -12,6 +12,7 @@ use crate::util::tag::Tag;
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
+        .add("line-height", "1")
         .add("font-size", "13px")
         .add("padding", "16px");
 }
@@ -73,6 +74,7 @@ impl MJAccordionText {
             .maybe_set_style("color", self.get_attribute("color"))
             .maybe_set_style("font-family", self.get_attribute("font-family"))
             .maybe_set_style("font-size", self.get_attribute("font-size"))
+            .maybe_set_style("line-height", self.get_attribute("line-height"))
             .maybe_set_style("padding", self.get_attribute("padding"))
             .maybe_set_style("padding-top", self.get_attribute("padding-top"))
             .maybe_set_style("padding-right", self.get_attribute("padding-right"))
@@ -99,8 +101,8 @@ impl Component for MJAccordionText {
         let tr = Tag::tr().render(self.render_content(header)?);
         let tbody = Tag::tbody().render(tr);
         let table = Tag::table()
-            .set_attribute("cellspacing", 0)
-            .set_attribute("cellpadding", 0)
+            .set_attribute("cell-spacing", 0)
+            .set_attribute("cell-padding", 0)
             .set_style("width", "100%")
             .maybe_set_style("border-bottom", self.get_attribute("border"))
             .render(tbody);
