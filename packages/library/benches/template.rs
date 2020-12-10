@@ -6,7 +6,7 @@ fn render(input: &str) {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let data = include_str!("../resources/template-amario.mjml");
+    let data = include_str!("../resources/template/amario.mjml");
     c.bench_function("amario", |b| b.iter(|| render(black_box(data))));
 }
 

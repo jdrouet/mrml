@@ -69,17 +69,3 @@ impl prelude::HeadComponent for HeadElement {
         apply_fn!(self, update_header(header));
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use crate::{to_html, Options};
-
-    #[test]
-    fn unknown_tag() {
-        let content = include_str!("../../../resources/mj-head-unknown-tag.mjml");
-        let result = to_html(content, Options::default());
-        assert_eq!(result.is_err(), true);
-        let error = result.unwrap_err();
-        assert_eq!(error.is_mjml_error(), true);
-    }
-}

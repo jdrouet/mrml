@@ -4,8 +4,36 @@ use mrml::{to_html, to_preview, to_title, Options};
 use std::collections::HashMap;
 use test_generator::test_resources;
 
+fn compare_str(result: &str, expected: &str) {
+    if std::env::var("CI").is_ok() {
+        assert_eq!(expected, result);
+    } else {
+        assert_diff!(expected, result, "", 0);
+    }
+}
+
+fn clean_text(input: &str) -> String {
+    input
+        .replace("\n", " ")
+        .replace("\t", "")
+        .split_whitespace()
+        .collect::<String>()
+}
+
 fn compare_text(_path: &str, result: &str, expected: &str) {
-    assert_diff!(result, expected, "", 0);
+    let result = clean_text(result);
+    let expected = clean_text(expected);
+    compare_str(result.as_str(), expected.as_str());
+}
+
+fn clean_attribute(input: &str) -> String {
+    input.split_whitespace().collect::<String>()
+}
+
+fn compare_attribute(_path: &str, result: &str, expected: &str) {
+    let result = clean_attribute(result);
+    let expected = clean_attribute(expected);
+    compare_str(result.as_str(), expected.as_str());
 }
 
 fn filter_empty_attributes(entry: &(&String, &Option<String>)) -> bool {
@@ -31,7 +59,21 @@ fn compare_attributes(
         .collect::<Vec<_>>();
     result.sort();
     expected.sort();
-    assert_eq!(result, expected, "{} attributes mismatch", path);
+    for (result_entry, expected_entry) in result.iter().zip(expected.iter()) {
+        assert_eq!(
+            result_entry.0, expected_entry.0,
+            "{} attributes mismatch",
+            path
+        );
+        let path = format!("{} [{}]", path, result_entry.0);
+        let result_value = result_entry.1.as_ref().unwrap();
+        let expected_value = expected_entry.1.as_ref().unwrap();
+        compare_attribute(
+            path.as_str(),
+            result_value.as_str(),
+            expected_value.as_str(),
+        )
+    }
 }
 
 fn compare_classes(path: &str, result: &Vec<String>, expected: &Vec<String>) {
@@ -47,6 +89,7 @@ fn compare_element(path: &str, result: &Element, expected: &Element) {
     assert_eq!(result.id, expected.id, "{} id mismatch", path);
     compare_classes(path, &result.classes, &expected.classes);
     compare_attributes(path, &result.attributes, &expected.attributes);
+    compare_children(path, &result.children, &expected.children);
 }
 
 fn compare_child(path: &str, result: &Node, expected: &Node) {
@@ -103,23 +146,19 @@ fn build_options() -> Options {
 }
 
 fn get_template_name(mjml_file: &str) -> String {
-    mjml_file
-        .strip_suffix(".mjml")
-        .and_then(|value| value.strip_prefix("resources/"))
-        .map(String::from)
-        .unwrap()
+    mjml_file.strip_suffix(".mjml").map(String::from).unwrap()
 }
 
 fn get_mjml_content(name: &str) -> Option<String> {
-    std::fs::read_to_string(format!("resources/{}.mjml", name)).ok()
+    std::fs::read_to_string(format!("{}.mjml", name)).ok()
 }
 
 fn get_html_content(name: &str) -> Option<String> {
-    std::fs::read_to_string(format!("resources/{}.html", name)).ok()
+    std::fs::read_to_string(format!("{}.html", name)).ok()
 }
 
-#[test_resources("resources/*.mjml")]
-fn verify_resource(mjml_file: &str) {
+#[test_resources("resources/compare/success/*.mjml")]
+fn compare_success(mjml_file: &str) {
     let name = get_template_name(mjml_file);
     let mjml_content = get_mjml_content(name.as_str()).unwrap();
     let html_content = match get_html_content(name.as_str()) {
@@ -133,9 +172,18 @@ fn verify_resource(mjml_file: &str) {
     compare_html(result.as_str(), html_content.as_str());
 }
 
+#[test_resources("resources/compare/error/*.mjml")]
+fn compare_error(mjml_file: &str) {
+    let name = get_template_name(mjml_file);
+    let mjml_content = get_mjml_content(name.as_str()).unwrap();
+    if let Ok(_) = to_html(mjml_content.as_str(), build_options()) {
+        panic!("should panic");
+    }
+}
+
 #[test]
 fn mj_social_with_different_origin() {
-    let name = "mj-social";
+    let name = "resources/compare/success/mj-social";
     let mjml_content = get_mjml_content(name).unwrap();
     let html_content = get_html_content(name).unwrap();
     let html_content = html_content.replace(
@@ -150,8 +198,8 @@ fn mj_social_with_different_origin() {
 
 #[test]
 fn mj_body_without_comments() {
-    let mjml_content = get_mjml_content("mj-body").unwrap();
-    let html_content = get_html_content("mj-body-without-comments").unwrap();
+    let mjml_content = get_mjml_content("resources/compare/success/mj-body").unwrap();
+    let html_content = get_html_content("resources/compare/mj-body-without-comments").unwrap();
     let mut opts = build_options();
     opts.keep_comments = false;
     let result = to_html(mjml_content.as_str(), opts).unwrap();
@@ -159,15 +207,23 @@ fn mj_body_without_comments() {
 }
 
 #[test]
+#[should_panic]
+fn mj_body_with_unknown_tag() {
+    let mjml_content =
+        std::fs::read_to_string("resources/compare/error/mj-head-unknown-tag.mjml").unwrap();
+    to_html(mjml_content.as_str(), build_options()).unwrap();
+}
+
+#[test]
 fn mj_preview() {
-    let mjml_content = get_mjml_content("mj-preview").unwrap();
+    let mjml_content = get_mjml_content("resources/compare/success/mj-preview").unwrap();
     let result = to_preview(mjml_content.as_str(), build_options()).unwrap();
     assert_diff!(result.as_str(), "Hello MJML", "", 0);
 }
 
 #[test]
 fn mj_title() {
-    let mjml_content = get_mjml_content("mj-title").unwrap();
+    let mjml_content = get_mjml_content("resources/compare/success/mj-title").unwrap();
     let result = to_title(mjml_content.as_str(), build_options()).unwrap();
     assert_diff!(result.as_str(), "Hello MJML", "", 0);
 }

@@ -6,7 +6,7 @@ fn render(input: &str) {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let data = include_str!("../resources/mj-button.mjml");
+    let data = include_str!("../resources/compare/success/mj-button.mjml");
     c.bench_function("render button", |b| b.iter(|| render(black_box(data))));
 }
 
