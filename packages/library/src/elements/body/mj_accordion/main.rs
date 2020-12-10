@@ -145,8 +145,8 @@ impl Component for MJAccordion {
             .maybe_set_style("border", self.get_attribute("border"))
             .set_style("border-bottom", "none")
             .maybe_set_style("font-family", self.get_attribute("font-family"))
-            .set_attribute("cellspacing", 0)
-            .set_attribute("cellpadding", 0)
+            .set_attribute("cell-spacing", 0)
+            .set_attribute("cell-padding", 0)
             .set_class("mj-accordion")
             .render(tbody);
         Ok(table)

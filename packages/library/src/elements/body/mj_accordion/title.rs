@@ -132,8 +132,8 @@ impl Component for MJAccordionTitle {
         let tr = Tag::tr().render(content);
         let tbody = Tag::tbody().render(tr);
         let table = Tag::table()
-            .set_attribute("cellspacing", 0)
-            .set_attribute("cellpadding", 0)
+            .set_attribute("cell-spacing", 0)
+            .set_attribute("cell-padding", 0)
             .set_style("width", "100%")
             .maybe_set_style("border-bottom", self.get_attribute("border"))
             .render(tbody);
