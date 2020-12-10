@@ -217,7 +217,8 @@ lazy_static! {
         .add("line-height", "1")
         .add("padding", "4px")
         .add("target", "_blank")
-        .add("text-decoration", "none");
+        .add("text-decoration", "none")
+        .add("vertical-align", "middle");
 }
 
 #[derive(Clone, Debug)]
@@ -335,6 +336,7 @@ impl MJSocialElement {
 
     fn set_style_td(&self, tag: Tag) -> Tag {
         tag.maybe_set_style("padding", self.get_attribute("padding"))
+            .maybe_set_style("vertical-align", self.get_attribute("vertical-align"))
     }
 
     fn set_style_td_text(&self, tag: Tag) -> Tag {
