@@ -1,0 +1,39 @@
+stages:
+  - lint
+  - test
+
+lint-clippy:
+  stage: lint
+  image: rust:latest
+  before_script:
+    - rustup component add clippy
+  script:
+    - cargo clippy -- -D warnings
+
+lint-rustfmt:
+  stage: lint
+  image: rust:latest
+  before_script:
+    - rustup component add rustfmt
+  script:
+    - rustfmt --check packages/library/src/{**/,}*.rs
+    - rustfmt --check packages/cli/src/*.rs
+    - make -C packages/wasm format
+
+test-bench:
+  stage: test
+  image: rust:latest
+  script: cargo bench
+
+test-coverage:
+  stage: test
+  image: xd009642/tarpaulin
+  script:
+    - make -C packages/library coverage
+
+test-wasm:
+  stage: test
+  image: jdrouet/wasm-pack
+  script:
+    - make -C packages/wasm requirements
+    - make -C packages/wasm test
