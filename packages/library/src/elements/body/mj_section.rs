@@ -65,12 +65,10 @@ impl MJSection {
                 } else {
                     format!("{} {}", first, second)
                 }
+            } else if first == &"top" || first == &"bottom" {
+                format!("center {}", first)
             } else {
-                if first == &"top" || first == &"bottom" {
-                    format!("center {}", first)
-                } else {
-                    format!("{} center", first)
-                }
+                format!("{} center", first)
             }
         } else {
             String::from(DEFAULT_BACKGROUND_POSITION)
