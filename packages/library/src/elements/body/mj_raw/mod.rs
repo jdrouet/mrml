@@ -1,9 +1,9 @@
+mod parser;
+
 use crate::elements::body::prelude::*;
-use crate::elements::body::raw::RawElement;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
-use crate::parser::Node;
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
 use crate::util::header::Header;
@@ -13,21 +13,6 @@ use crate::util::size::Size;
 pub struct MJRaw {
     context: Option<Context>,
     children: Vec<BodyElement>,
-}
-
-impl MJRaw {
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJRaw, Error> {
-        let mut children = vec![];
-        for child in node.children.iter() {
-            children.push(BodyElement::Raw(RawElement::conditional_parse(
-                &child, header, true,
-            )?));
-        }
-        Ok(MJRaw {
-            context: None,
-            children,
-        })
-    }
 }
 
 impl Component for MJRaw {

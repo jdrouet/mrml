@@ -1,17 +1,14 @@
+mod parser;
+
 use super::prelude::*;
 use super::BodyElement;
 use crate::elements::{Component, Error};
-use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
 use log::debug;
-
-lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("width", "600px");
-}
 
 #[derive(Clone, Debug)]
 pub struct MJBody {
@@ -22,12 +19,6 @@ pub struct MJBody {
 }
 
 impl MJBody {
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
-            .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
-    }
-
     pub fn empty() -> MJBody {
         MJBody {
             attributes: Attributes::default(),
@@ -35,19 +26,6 @@ impl MJBody {
             context: None,
             exists: false,
         }
-    }
-
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJBody, Error> {
-        let mut children = vec![];
-        for child in node.children.iter() {
-            children.push(BodyElement::parse(child, header, None::<&Attributes>)?);
-        }
-        Ok(MJBody {
-            attributes: Self::default_attributes(node, header).concat(node),
-            children,
-            context: None,
-            exists: true,
-        })
     }
 
     fn set_style_body(&self, tag: Tag) -> Tag {

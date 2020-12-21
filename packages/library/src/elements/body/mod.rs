@@ -9,18 +9,24 @@ use crate::util::tag::Tag;
 use prelude::BodyComponent;
 
 pub mod mj_accordion;
+pub mod mj_accordion_element;
+pub mod mj_accordion_text;
+pub mod mj_accordion_title;
 pub mod mj_body;
 pub mod mj_button;
 pub mod mj_carousel;
+pub mod mj_carousel_image;
 pub mod mj_column;
 pub mod mj_divider;
 pub mod mj_group;
 pub mod mj_hero;
 pub mod mj_image;
 pub mod mj_navbar;
+pub mod mj_navbar_link;
 pub mod mj_raw;
 pub mod mj_section;
 pub mod mj_social;
+pub mod mj_social_element;
 pub mod mj_spacer;
 pub mod mj_table;
 pub mod mj_text;
@@ -31,21 +37,21 @@ pub mod raw;
 #[derive(Clone, Debug)]
 pub enum BodyElement {
     MJAccordion(mj_accordion::MJAccordion),
-    MJAccordionElement(mj_accordion::MJAccordionElement),
+    MJAccordionElement(mj_accordion_element::MJAccordionElement),
     MJButton(mj_button::MJButton),
     MJCarousel(mj_carousel::MJCarousel),
-    MJCarouselImage(mj_carousel::MJCarouselImage),
+    MJCarouselImage(mj_carousel_image::MJCarouselImage),
     MJColumn(mj_column::MJColumn),
     MJDivider(mj_divider::MJDivider),
     MJGroup(mj_group::MJGroup),
     MJHero(mj_hero::MJHero),
     MJImage(mj_image::MJImage),
     MJNavbar(mj_navbar::MJNavbar),
-    MJNavbarLink(mj_navbar::MJNavbarLink),
+    MJNavbarLink(mj_navbar_link::MJNavbarLink),
     MJRaw(mj_raw::MJRaw),
     MJSection(mj_section::MJSection),
     MJSocial(mj_social::MJSocial),
-    MJSocialElement(mj_social::MJSocialElement),
+    MJSocialElement(mj_social_element::MJSocialElement),
     MJSpacer(mj_spacer::MJSpacer),
     MJTable(mj_table::MJTable),
     MJText(mj_text::MJText),
