@@ -18,7 +18,7 @@ travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 [dependencies]
 lazy_static = "1.4"
 log = "0.4"
-rand = { default-features = false, features = ["std"], version = "0.7" }
+rand = { default-features = false, features = ["std"], version = "0.8" }
 regex = "1"
 xmlparser = "0.13"
 
