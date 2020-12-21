@@ -1,6 +1,6 @@
+mod parser;
+
 use super::prelude::*;
-use crate::elements::error::Error;
-use crate::parser::{Element, Node};
 use crate::util::header::Header;
 
 #[derive(Clone, Debug)]
@@ -9,17 +9,6 @@ pub struct MJTitle {
 }
 
 impl MJTitle {
-    pub fn parse(node: &Node) -> Result<Self, Error> {
-        let mut content = String::new();
-        for child in node.children.iter() {
-            match child {
-                Element::Text(value) => content.push_str(value.as_str()),
-                _ => return Err(Error::InvalidChild),
-            }
-        }
-        Ok(Self { content })
-    }
-
     pub fn get_content(&self) -> String {
         self.content.clone()
     }

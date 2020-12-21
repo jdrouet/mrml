@@ -1,8 +1,8 @@
+mod parser;
+
 use super::HeadElement;
-use crate::elements::head::prelude::HeadComponent;
 use crate::elements::prelude::*;
 use crate::elements::Error;
-use crate::parser::Node;
 use crate::util::context::Context;
 use crate::util::fonts::{url_to_import, url_to_link};
 use crate::util::header::Header;
@@ -72,26 +72,6 @@ impl<'a> MJHead<'a> {
             children: vec![],
             header: Header::from(opts),
         }
-    }
-
-    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJHead<'a>, Error> {
-        let children = HeadElement::parse_all(&node.children)?;
-        let mut header = Header::from(opts);
-        for child in children.iter() {
-            child.update_header(&mut header);
-        }
-        Ok(MJHead {
-            attributes: node
-                .attributes
-                .iter()
-                .fold(HashMap::new(), |mut res, (key, value)| {
-                    res.insert(key.as_str(), value.as_str());
-                    res
-                }),
-            context: None,
-            children,
-            header,
-        })
     }
 
     pub fn get_header(&self) -> &Header {
