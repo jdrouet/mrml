@@ -1,24 +1,15 @@
-use super::BodyElement;
+mod parser;
+
 use crate::elements::body::prelude::*;
+use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
-use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
-
-lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
-        .add("background-color", "#ffffff")
-        .add("background-position", "center center")
-        .add("height", "0px")
-        .add("mode", "fixed-height")
-        .add("padding", "0px")
-        .add("vertical-align", "top");
-}
 
 #[derive(Clone, Debug)]
 pub struct MJHero {
@@ -28,24 +19,6 @@ pub struct MJHero {
 }
 
 impl MJHero {
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
-            .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
-    }
-
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJHero, Error> {
-        let mut children = vec![];
-        for child in node.children.iter() {
-            children.push(BodyElement::parse(&child, header, None::<&Attributes>)?);
-        }
-        Ok(MJHero {
-            attributes: Self::default_attributes(node, header).concat(node),
-            context: None,
-            children,
-        })
-    }
-
     fn set_style_div(&self, tag: Tag) -> Tag {
         tag.set_style("margin", "0 auto")
             .maybe_set_style("max-width", self.get_container_width_str())

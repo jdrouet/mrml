@@ -1,20 +1,15 @@
+mod parser;
+
 use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
-use crate::parser::Node;
 use crate::util::attributes::*;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
-
-lazy_static! {
-    static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
-        .add("font-size", "13px")
-        .add("padding", "16px");
-}
 
 #[derive(Clone, Debug)]
 pub struct MJAccordionTitle {
@@ -24,36 +19,6 @@ pub struct MJAccordionTitle {
 }
 
 impl MJAccordionTitle {
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
-            .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
-    }
-
-    pub fn parse<'a>(
-        node: &Node<'a>,
-        header: &Header,
-        attrs: &Attributes,
-    ) -> Result<MJAccordionTitle, Error> {
-        if node.name.as_str() != "mj-accordion-title" {
-            return Err(Error::UnexpectedElement(node.name.as_str().into()));
-        }
-        let content: String = node
-            .children
-            .iter()
-            .filter_map(|child| child.as_text())
-            .map(|value| value.as_str())
-            .collect::<String>();
-        let attributes = Self::default_attributes(node, header)
-            .concat(attrs)
-            .concat(node);
-        Ok(MJAccordionTitle {
-            attributes,
-            context: None,
-            content,
-        })
-    }
-
     pub fn new(attributes: Attributes) -> Self {
         MJAccordionTitle {
             attributes,
