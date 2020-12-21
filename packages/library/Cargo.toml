@@ -25,7 +25,7 @@ xmlparser = "0.13"
 [dev-dependencies]
 criterion = "0.3"
 difference = "2.0"
-html_parser = "0.5.0"
+html_parser = "0.6.0"
 test-generator = "0.3.0"
 
 [[bench]]
