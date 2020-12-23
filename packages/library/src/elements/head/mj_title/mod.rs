@@ -1,7 +1,5 @@
 mod parser;
-
-use super::prelude::*;
-use crate::util::header::Header;
+mod renderer;
 
 #[derive(Clone, Debug)]
 pub struct MJTitle {
@@ -11,11 +9,5 @@ pub struct MJTitle {
 impl MJTitle {
     pub fn get_content(&self) -> String {
         self.content.clone()
-    }
-}
-
-impl HeadComponent for MJTitle {
-    fn update_header(&self, header: &mut Header) {
-        header.set_title(self.get_content());
     }
 }
