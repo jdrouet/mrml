@@ -27,7 +27,7 @@ test-bench:
 
 test-coverage:
   stage: test
-  image: xd009642/tarpaulin
+  image: xd009642/tarpaulin:develop-nightly
   script:
     - make -C packages/library coverage
 
