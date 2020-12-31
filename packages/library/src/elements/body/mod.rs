@@ -62,7 +62,6 @@ pub enum BodyElement {
     MJTable(mj_table::MJTable),
     MJText(mj_text::MJText),
     MJWrapper(mj_wrapper::MJWrapper),
-    // Raw(raw::RawElement),
 }
 
 macro_rules! inner_element {
@@ -91,7 +90,6 @@ macro_rules! inner_element {
             BodyElement::MJTable(item) => item,
             BodyElement::MJText(item) => item,
             BodyElement::MJWrapper(item) => item,
-            // BodyElement::Raw(item) => item,
         }
     };
 }

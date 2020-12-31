@@ -24,7 +24,7 @@ impl Style {
     }
 }
 
-impl std::string::ToString for Style {
+impl ToString for Style {
     fn to_string(&self) -> String {
         let selectors = self.selectors.join(",\n");
         let content = self.content.join("\n");
