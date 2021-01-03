@@ -22,8 +22,10 @@ struct Options {
 
 impl Into<mrml::Options> for Options {
     fn into(self) -> mrml::Options {
-        let mut res = mrml::Options::default();
-        res.keep_comments = self.keep_comments;
+        let mut res = mrml::Options {
+            keep_comments: self.keep_comments,
+            ..Default::default()
+        };
         if let Some(bp) = self.breakpoint {
             res.breakpoint = Pixel(bp);
         }
