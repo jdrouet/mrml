@@ -11,13 +11,9 @@ use crate::util::tag::Tag;
 
 impl MJImage {
     fn is_fluid_on_mobile(&self) -> bool {
-        match self
-            .get_attribute("fluid-on-mobile")
+        self.get_attribute("fluid-on-mobile")
             .and_then(|value| value.parse::<bool>().ok())
-        {
-            Some(value) => value,
-            None => false,
-        }
+            .unwrap_or(false)
     }
 
     fn is_full_width(&self) -> bool {
