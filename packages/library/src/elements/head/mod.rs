@@ -3,6 +3,9 @@ use crate::parser::{Element, Node};
 use crate::util::header::Header;
 
 pub mod mj_attributes;
+pub mod mj_attributes_all;
+pub mod mj_attributes_class;
+pub mod mj_attributes_element;
 pub mod mj_breakpoint;
 pub mod mj_font;
 pub mod mj_head;

@@ -1,5 +1,6 @@
 use super::MJAttributes;
 use crate::elements::error::Error;
+use crate::elements::head::{mj_attributes_all, mj_attributes_class, mj_attributes_element};
 use crate::parser::{Element, Node};
 
 impl MJAttributes {
@@ -14,52 +15,31 @@ impl MJAttributes {
     fn parse_child<'a>(&mut self, element: &Element<'a>) -> Result<(), Error> {
         match element {
             Element::Node(node) => match node.name.as_str() {
-                "mj-all" => self.parse_all(node),
-                "mj-class" => self.parse_class(node),
+                mj_attributes_all::NAME => self.parse_all(node),
+                mj_attributes_class::NAME => self.parse_class(node),
                 _ => self.parse_element(node),
             },
             // TODO handle comments
-            Element::Comment(_) => (),
-            Element::Text(_) => return Err(Error::UnexpectedText),
-        };
-        Ok(())
-    }
-
-    fn parse_all<'a>(&mut self, node: &Node<'a>) {
-        self.0.add_all_content(
-            node.attributes
-                .iter()
-                .map(|(key, value)| (key.as_str(), value.as_str())),
-        );
-    }
-
-    fn parse_class<'a>(&mut self, node: &Node<'a>) {
-        let name = node
-            .attributes
-            .iter()
-            .find(|(key, _value)| key.as_str() == "name")
-            .map(|(_key, value)| value.as_str());
-        if let Some(name) = name {
-            self.0.add_class_content(
-                name,
-                node.attributes.iter().filter_map(|(key, value)| {
-                    let key = key.as_str();
-                    if key == "name" {
-                        None
-                    } else {
-                        Some((key, value.as_str()))
-                    }
-                }),
-            )
+            Element::Comment(_) => Ok(()),
+            Element::Text(_) => Err(Error::UnexpectedText),
         }
     }
 
-    fn parse_element<'a>(&mut self, node: &Node<'a>) {
-        self.0.add_element_content(
-            node.name.as_str(),
-            node.attributes
-                .iter()
-                .map(|(key, value)| (key.as_str(), value.as_str())),
-        );
+    fn parse_all<'a>(&mut self, node: &Node<'a>) -> Result<(), Error> {
+        self.children
+            .push(mj_attributes_all::MJAttributesAll::parse(node)?.into());
+        Ok(())
+    }
+
+    fn parse_class<'a>(&mut self, node: &Node<'a>) -> Result<(), Error> {
+        self.children
+            .push(mj_attributes_class::MJAttributesClass::parse(node)?.into());
+        Ok(())
+    }
+
+    fn parse_element<'a>(&mut self, node: &Node<'a>) -> Result<(), Error> {
+        self.children
+            .push(mj_attributes_element::MJAttributesElement::parse(node)?.into());
+        Ok(())
     }
 }
