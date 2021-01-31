@@ -2,6 +2,11 @@ stages:
   - lint
   - test
 
+expose-env:
+  stage: lint
+  image: debian:latest
+  script: env
+
 lint-clippy:
   stage: lint
   image: rust:latest
