@@ -23,7 +23,11 @@ lint-rustfmt:
 test-bench:
   stage: test
   image: rust:latest
-  script: cargo bench
+  script:
+    - cargo bench
+    - curl -o codebench-cli https://app.codebench.cloud/static/bin/codebench-cli-amd64
+    - chmod +x codebench-cli
+    - ./codebench-cli --token $CODEBENCH_TOKEN target/criterion
 
 test-coverage:
   stage: test
