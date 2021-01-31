@@ -5,6 +5,8 @@ stages:
 expose-env:
   stage: lint
   image: debian:latest
+  only:
+    - external_pull_requests
   script: env
 
 lint-clippy:
