@@ -17,7 +17,7 @@ crate-type = ["cdylib", "rlib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-mrml = { path = "../library", version = "0.4.0" }
+mrml = { path = "../library", version = "0.5.0" }
 getrandom = { version = "0.2", features = ["js"] }
 wasm-bindgen = "0.2.63"
 
