@@ -1,12 +1,14 @@
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 use std::iter;
 
 pub type Generator = fn(size: usize) -> String;
 
 pub fn generate(size: usize) -> String {
-    use rand::Rng;
-    let mut rng = rand::thread_rng();
+    let mut rng = thread_rng();
     iter::repeat(())
-        .map(|()| rng.sample(rand::distributions::Alphanumeric))
+        .map(|()| rng.sample(Alphanumeric))
+        .map(char::from)
         .take(size)
         .collect::<String>()
 }
