@@ -65,7 +65,7 @@ impl MJNavbar {
             .is_some()
     }
 
-    fn render_hamburger(&self, _header: &Header) -> Result<String, Error> {
+    fn render_hamburger(&self, _header: &Header) -> String {
         let input = self
             .set_style_input(Tag::new("input"))
             .set_class("mj-menu-checkbox")
@@ -93,7 +93,7 @@ impl MJNavbar {
         res.push(span_close.render(self.get_attribute("ico-close").unwrap_or(&"".into())));
         res.push(label.close());
         res.push(div.close());
-        Ok(res.join(""))
+        res.join("")
     }
 }
 
@@ -139,7 +139,7 @@ impl Component for MJNavbar {
         let tr = Tag::tr();
         let mut res: Vec<String> = vec![];
         if self.has_hamburger() {
-            res.push(self.render_hamburger(header)?);
+            res.push(self.render_hamburger(header));
         }
         res.push(div.open());
         res.push(START_CONDITIONAL_TAG.into());
