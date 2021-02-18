@@ -164,7 +164,7 @@ impl MJSection {
         let mut content: Vec<String> = vec![];
         content.push(self.render_wrap(self.render_section(header)?));
         let content = if self.has_background() {
-            self.render_with_background(content.join(""))?
+            self.render_with_background(content.join(""))
         } else {
             content.join("")
         };
@@ -249,7 +249,7 @@ impl MJSection {
         Ok(res.join(""))
     }
 
-    fn render_with_background(&self, content: String) -> Result<String, Error> {
+    fn render_with_background(&self, content: String) -> String {
         let full_width = self.is_full_width();
         let vrect = Tag::new("v:rect")
             .maybe_set_attribute(
@@ -287,14 +287,14 @@ impl MJSection {
         res.push(vtextbox.close());
         res.push(vrect.close());
         res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
+        res.join("")
     }
 
     fn render_simple(&self, header: &Header) -> Result<String, Error> {
         let section = self.render_section(header)?;
 
         Ok(self.render_wrap(if self.has_background() {
-            self.render_with_background(section)?
+            self.render_with_background(section)
         } else {
             section
         }))

@@ -10,13 +10,13 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 
 impl MJColumn {
-    fn get_column_class(&self) -> Option<(String, Size)> {
+    fn get_column_class(&self) -> (String, Size) {
         let parsed_width = self.get_parsed_width();
         let classname = match parsed_width {
             Size::Percent(value) => format!("mj-column-per-{}", value),
             _ => format!("mj-column-px-{}", parsed_width.value()),
         };
-        Some((classname.replace(".", "-"), parsed_width))
+        (classname.replace(".", "-"), parsed_width)
     }
 
     fn get_mobile_width(&self) -> Option<Size> {
@@ -170,9 +170,8 @@ impl Component for MJColumn {
     }
 
     fn update_header(&self, header: &mut Header) {
-        if let Some((classname, size)) = self.get_column_class() {
-            header.add_media_query(classname, size);
-        }
+        let (classname, size) = self.get_column_class();
+        header.add_media_query(classname, size);
         for child in self.children.iter() {
             child.update_header(header);
         }
@@ -192,10 +191,11 @@ impl Component for MJColumn {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
+        let (classname, _size) = self.get_column_class();
         Ok(self
             .set_style_div(Tag::div())
             .set_class("mj-outlook-group-fix")
-            .maybe_set_class(self.get_column_class().map(|(classname, _size)| classname))
+            .set_class(classname)
             .maybe_set_class(self.get_attribute("css-class"))
             .render(if self.has_gutter() {
                 self.render_gutter(header)?

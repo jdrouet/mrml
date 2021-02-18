@@ -108,7 +108,7 @@ impl MJCarousel {
         }
     }
 
-    fn render_controls(&self, direction: &str, icon: &str) -> Result<String, Error> {
+    fn render_controls(&self, direction: &str, icon: &str) -> String {
         let icon_width = self
             .get_size_attribute("icon-width")
             .map(|value| value.value());
@@ -135,11 +135,9 @@ impl MJCarousel {
             .set_style_controls_div(Tag::div())
             .set_class(format!("mj-carousel-{}-icons", direction))
             .render(items);
-        let td = self
-            .set_style_controls_td(Tag::td())
+        self.set_style_controls_td(Tag::td())
             .set_class(format!("mj-carousel-{}-icons-cell", self.id))
-            .render(div);
-        Ok(td)
+            .render(div)
     }
 
     fn render_images(&self, header: &Header) -> Result<String, Error> {
@@ -158,10 +156,9 @@ impl MJCarousel {
         let previous = self.render_controls(
             "previous",
             self.get_attribute("left-icon").unwrap().as_str(),
-        )?;
+        );
         let images = self.render_images(header)?;
-        let next =
-            self.render_controls("next", self.get_attribute("right-icon").unwrap().as_str())?;
+        let next = self.render_controls("next", self.get_attribute("right-icon").unwrap().as_str());
         let tr = Tag::tr().render(previous + &images + &next);
         let tbody = Tag::tbody().render(tr);
         let table = self

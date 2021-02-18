@@ -45,7 +45,7 @@ impl MJNavbarLink {
         })
     }
 
-    fn render_content(&self, _header: &Header) -> Result<String, Error> {
+    fn render_content(&self, _header: &Header) -> String {
         let link = self
             .set_style_a(Tag::new("a"))
             .set_class("mj-link")
@@ -54,7 +54,7 @@ impl MJNavbarLink {
             .maybe_set_attribute("rel", self.get_attribute("rel"))
             .maybe_set_attribute("target", self.get_attribute("target"))
             .maybe_set_attribute("name", self.get_attribute("name"));
-        Ok(link.render(self.content.as_deref().unwrap_or("")))
+        link.render(self.content.as_deref().unwrap_or(""))
     }
 }
 
@@ -80,7 +80,7 @@ impl Component for MJNavbarLink {
             ));
         let mut res: Vec<String> = vec![];
         res.push(conditional_tag(td.open()));
-        res.push(self.render_content(header)?);
+        res.push(self.render_content(header));
         res.push(conditional_tag(td.close()));
         Ok(res.join(""))
     }
