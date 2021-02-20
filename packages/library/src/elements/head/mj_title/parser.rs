@@ -1,16 +1,35 @@
 use super::MJTitle;
 use crate::elements::error::Error;
-use crate::parser::{Element, Node};
+use crate::parser::{MJMLParser, Node};
+
+#[derive(Default)]
+struct MJTitleParser {
+    content: Option<String>,
+}
+
+impl MJMLParser for MJTitleParser {
+    type Output = MJTitle;
+
+    fn build(self) -> Result<Self::Output, Error> {
+        Ok(MJTitle {
+            content: self.content.unwrap_or_default(),
+        })
+    }
+
+    fn parse(mut self, node: &Node) -> Result<Self, Error> {
+        self.content = node
+            .children
+            .iter()
+            .filter_map(|item| item.as_text())
+            .map(|item| item.to_string())
+            .next();
+
+        Ok(self)
+    }
+}
 
 impl MJTitle {
     pub fn parse(node: &Node) -> Result<Self, Error> {
-        let mut content = String::new();
-        for child in node.children.iter() {
-            match child {
-                Element::Text(value) => content.push_str(value.as_str()),
-                _ => return Err(Error::InvalidChild),
-            }
-        }
-        Ok(Self { content })
+        MJTitleParser::default().parse(node)?.build()
     }
 }

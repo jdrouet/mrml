@@ -1,6 +1,6 @@
 use super::{MJSocialElement, SocialNetwork, NAME as MJ_SOCIAL_ELEMENT};
 use crate::elements::error::Error;
-use crate::parser::Node;
+use crate::parser::{MJMLParser, Node};
 use crate::util::attributes::*;
 use crate::util::header::Header;
 
@@ -89,7 +89,7 @@ impl SocialNetwork {
                 None
             } else {
                 Some("https://www.linkedin.com/shareArticle?mini=true&url=[[URL]]&title=&summary=&source="
-            .into())
+                     .into())
             },
             src: format!("{}linkedin.png", icon_origin),
         }
@@ -209,62 +209,85 @@ lazy_static! {
         .add("vertical-align", "middle");
 }
 
-impl MJSocialElement {
+struct MJSocialElementParser<'h, 'p> {
+    header: &'h Header,
+    parent_attributes: Option<&'p Attributes>,
+    attributes: Attributes,
+    content: String,
+    social_network: Option<SocialNetwork>,
+}
+
+impl<'h, 'p> MJSocialElementParser<'h, 'p> {
+    pub fn new(header: &'h Header, parent_attributes: Option<&'p Attributes>) -> Self {
+        Self {
+            header,
+            parent_attributes,
+            attributes: Attributes::new(),
+            content: String::new(),
+            social_network: None,
+        }
+    }
+
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse_social_child<'a>(
-        node: &Node<'a>,
-        header: &Header,
-        extra: Option<&Attributes>,
-    ) -> Result<MJSocialElement, Error> {
+    fn parse_social_child<'a>(mut self, node: &Node<'a>, extra: Attributes) -> Result<Self, Error> {
         if node.name.as_str() != MJ_SOCIAL_ELEMENT {
             return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
-        let content = node
+        self.content = node
             .children
             .iter()
             .filter_map(|child| child.as_text())
             .map(|child| child.as_str())
             .collect::<String>();
-        let social_network = node
+        self.social_network = node
             .attributes
             .iter()
             .find(|(key, _value)| key.as_str() == "name")
             .and_then(|(_key, value)| {
-                SocialNetwork::find(header.social_icon_origin.as_str(), value.as_str())
+                SocialNetwork::find(self.header.social_icon_origin.as_str(), value.as_str())
             });
-        let mut attributes = Self::default_attributes(node, header);
-        if let Some(extra) = extra {
-            attributes.merge(extra);
-        }
+        self.attributes = Self::default_attributes(node, self.header);
+        self.attributes.merge(&extra);
+        self.attributes.merge(node);
+        Ok(self)
+    }
+}
+
+impl<'h, 'p> MJMLParser for MJSocialElementParser<'h, 'p> {
+    type Output = MJSocialElement;
+
+    fn build(self) -> Result<Self::Output, Error> {
         Ok(MJSocialElement {
-            attributes: attributes.concat(node),
+            attributes: self.attributes,
             context: None,
-            content: if content.is_empty() {
+            content: if self.content.is_empty() {
                 None
             } else {
-                Some(content)
+                Some(self.content)
             },
-            social_network,
+            social_network: self.social_network,
         })
     }
 
+    fn parse<'a>(self, node: &Node<'a>) -> Result<Self, Error> {
+        let attrs = self.parent_attributes.cloned().unwrap_or_default();
+        self.parse_social_child(node, attrs)
+    }
+}
+
+impl MJSocialElement {
     pub fn parse<'a>(
         node: &Node<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJSocialElement, Error> {
-        let mut attrs = match extra {
-            Some(value) => value.into(),
-            None => Attributes::default(),
-        };
-        if attrs.get("text-padding").is_none() {
-            attrs.set("text-padding", "4px 4px 4px 0");
-        }
-        Self::parse_social_child(node, header, Some(&attrs))
+        MJSocialElementParser::new(header, extra)
+            .parse(node)?
+            .build()
     }
 }
