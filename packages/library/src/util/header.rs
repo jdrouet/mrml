@@ -190,8 +190,8 @@ impl Header {
     }
 }
 
-impl From<Options> for Header {
-    fn from(value: Options) -> Self {
+impl From<&Options> for Header {
+    fn from(value: &Options) -> Self {
         Header {
             breakpoint: value.breakpoint.clone(),
             default_attributes: DefaultAttributes::default(),
@@ -202,7 +202,7 @@ impl From<Options> for Header {
             preview: None,
             title: None,
             styles: HashSet::new(),
-            social_icon_origin: value.social_icon_origin,
+            social_icon_origin: value.social_icon_origin.clone(),
             id_generator: value.id_generator,
         }
     }

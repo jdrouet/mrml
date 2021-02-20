@@ -25,7 +25,7 @@ impl MJHead {
             attributes: HashMap::new(),
             context: None,
             children: vec![],
-            header: Header::from(opts),
+            header: Header::from(&opts),
         }
     }
 

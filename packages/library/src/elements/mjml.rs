@@ -2,7 +2,7 @@ use super::body::mj_body::{MJBody, NAME as MJ_BODY};
 use super::head::mj_head::{MJHead, NAME as MJ_HEAD};
 use super::prelude::*;
 use super::Error;
-use crate::parser::{Element, Node};
+use crate::parser::{Element, MJMLParser, Node};
 use crate::util::context::Context;
 use crate::Options;
 use log::debug;
@@ -14,8 +14,36 @@ pub struct MJMLElement {
     body: MJBody,
 }
 
-impl<'a> MJMLElement {
-    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJMLElement, Error> {
+struct MJMLElementParser {
+    options: Options,
+    context: Option<Context>,
+    head: Option<MJHead>,
+    body: Option<MJBody>,
+}
+
+impl MJMLElementParser {
+    pub fn new(options: Options) -> Self {
+        Self {
+            options,
+            context: None,
+            head: None,
+            body: None,
+        }
+    }
+}
+
+impl MJMLParser for MJMLElementParser {
+    type Output = MJMLElement;
+
+    fn build(self) -> Result<Self::Output, Error> {
+        Ok(MJMLElement {
+            context: self.context,
+            head: self.head.unwrap(),
+            body: self.body.unwrap(),
+        })
+    }
+
+    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
         let mut head: Option<&Node<'a>> = None;
         let mut body: Option<&Node<'a>> = None;
         for item in node.children.iter() {
@@ -31,8 +59,8 @@ impl<'a> MJMLElement {
             };
         }
         let mut head = match head {
-            Some(node) => MJHead::parse(node, opts)?,
-            None => MJHead::empty(opts),
+            Some(node) => MJHead::parse(node, self.options.clone())?,
+            None => MJHead::empty(self.options.clone()),
         };
         let mut body = match body {
             Some(node) => MJBody::parse(node, head.get_header())?,
@@ -40,12 +68,15 @@ impl<'a> MJMLElement {
         };
         body.set_context(Context::default());
         body.update_header(head.get_mut_header());
-        let element = MJMLElement {
-            context: None,
-            head,
-            body,
-        };
-        Ok(element)
+        self.head = Some(head);
+        self.body = Some(body);
+        Ok(self)
+    }
+}
+
+impl<'a> MJMLElement {
+    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJMLElement, Error> {
+        MJMLElementParser::new(opts).parse(node)?.build()
     }
 
     pub fn get_title(&self) -> String {

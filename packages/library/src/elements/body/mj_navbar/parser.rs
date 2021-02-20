@@ -2,7 +2,7 @@ use super::MJNavbar;
 use crate::elements::body::mj_navbar_link::MJNavbarLink;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
-use crate::parser::Node;
+use crate::parser::{MJMLParser, Node};
 use crate::util::attributes::*;
 use crate::util::header::Header;
 use crate::util::id::Generator as IdGenerator;
@@ -22,17 +22,37 @@ lazy_static! {
         .add("ico-line-height", "30px");
 }
 
-impl MJNavbar {
+struct MJNavbarParser<'h> {
+    header: &'h Header,
+    result: Option<MJNavbar>,
+}
+
+impl<'h> MJNavbarParser<'h> {
+    pub fn new(header: &'h Header) -> Self {
+        Self {
+            header,
+            result: None,
+        }
+    }
+
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
+}
 
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJNavbar, Error> {
-        let generate: IdGenerator = header.id_generator;
+impl<'h> MJMLParser for MJNavbarParser<'h> {
+    type Output = MJNavbar;
+
+    fn build(self) -> Result<Self::Output, Error> {
+        Ok(self.result.unwrap())
+    }
+
+    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
+        let generate: IdGenerator = self.header.id_generator;
         let mut result = MJNavbar {
-            attributes: Self::default_attributes(node, header).concat(node),
+            attributes: Self::default_attributes(node, self.header).concat(node),
             context: None,
             children: vec![],
             id: generate(8),
@@ -44,11 +64,18 @@ impl MJNavbar {
                 if tag_name != "mj-navbar-link" {
                     return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
-                    let element = MJNavbarLink::parse_link(&child_node, header, Some(&attrs))?;
+                    let element = MJNavbarLink::parse_link(&child_node, self.header, Some(&attrs))?;
                     result.children.push(BodyElement::MJNavbarLink(element));
                 }
             }
         }
-        Ok(result)
+        self.result = Some(result);
+        Ok(self)
+    }
+}
+
+impl MJNavbar {
+    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJNavbar, Error> {
+        MJNavbarParser::new(header).parse(node)?.build()
     }
 }

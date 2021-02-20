@@ -1,6 +1,6 @@
 use super::MJNavbarLink;
 use crate::elements::error::Error;
-use crate::parser::Node;
+use crate::parser::{MJMLParser, Node};
 use crate::util::attributes::*;
 use crate::util::header::Header;
 
@@ -17,18 +17,30 @@ lazy_static! {
         .add("text-transform", "uppercase");
 }
 
-impl MJNavbarLink {
+struct MJNavbarLinkParser<'h> {
+    header: &'h Header,
+    extra: Attributes,
+    attributes: Attributes,
+    content: Option<String>,
+}
+
+impl<'h> MJNavbarLinkParser<'h> {
+    pub fn new(header: &'h Header, extra: Option<&Attributes>) -> Self {
+        Self {
+            header,
+            extra: extra.cloned().unwrap_or_default(),
+            attributes: Attributes::new(),
+            content: None,
+        }
+    }
+
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse_link<'a>(
-        node: &Node<'a>,
-        header: &Header,
-        extra: Option<&Attributes>,
-    ) -> Result<MJNavbarLink, Error> {
+    pub fn parse_link<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
         if node.name.as_str() != "mj-navbar-link" {
             return Err(Error::UnexpectedElement(node.name.as_str().into()));
         }
@@ -38,34 +50,53 @@ impl MJNavbarLink {
             .filter_map(|child| child.as_text())
             .map(|child| child.as_str())
             .collect::<String>();
-        let mut attributes = Self::default_attributes(node, header);
-        if let Some(extra) = extra {
-            attributes.merge(extra);
-        }
-        attributes.merge(node);
+        self.attributes = Self::default_attributes(node, self.header);
+        self.attributes.merge(&self.extra);
+        self.attributes.merge(node);
+        self.content = if content.is_empty() {
+            None
+        } else {
+            Some(content)
+        };
+        Ok(self)
+    }
+}
+
+impl<'h> MJMLParser for MJNavbarLinkParser<'h> {
+    type Output = MJNavbarLink;
+
+    fn build(self) -> Result<Self::Output, Error> {
         Ok(MJNavbarLink {
-            attributes,
+            attributes: self.attributes,
             context: None,
-            content: if content.is_empty() {
-                None
-            } else {
-                Some(content)
-            },
+            content: self.content,
         })
     }
 
+    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
+        if self.extra.get("text-padding").is_none() {
+            self.extra.set("text-padding", "4px 4px 4px 0");
+        }
+        self.parse_link(node)
+    }
+}
+
+impl MJNavbarLink {
     pub fn parse<'a>(
         node: &Node<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<MJNavbarLink, Error> {
-        let mut attrs = match extra {
-            Some(value) => value.into(),
-            None => Attributes::default(),
-        };
-        if attrs.get("text-padding").is_none() {
-            attrs.set("text-padding", "4px 4px 4px 0");
-        }
-        Self::parse_link(node, header, Some(&attrs))
+        MJNavbarLinkParser::new(header, extra).parse(node)?.build()
+    }
+
+    pub fn parse_link<'a>(
+        node: &Node<'a>,
+        header: &Header,
+        extra: Option<&Attributes>,
+    ) -> Result<MJNavbarLink, Error> {
+        MJNavbarLinkParser::new(header, extra)
+            .parse_link(node)?
+            .build()
     }
 }

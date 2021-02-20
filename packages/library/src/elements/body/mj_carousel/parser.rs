@@ -2,7 +2,7 @@ use super::MJCarousel;
 use crate::elements::body::mj_carousel_image::{MJCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
-use crate::parser::Node;
+use crate::parser::{MJMLParser, Node};
 use crate::util::attributes::*;
 use crate::util::header::Header;
 use crate::util::id::Generator as IdGenerator;
@@ -21,17 +21,37 @@ lazy_static! {
         .add("tb-selected-border-color", "#cccccc");
 }
 
-impl MJCarousel {
+struct MJCarouselParser<'h> {
+    header: &'h Header,
+    result: Option<MJCarousel>,
+}
+
+impl<'h> MJCarouselParser<'h> {
+    pub fn new(header: &'h Header) -> Self {
+        Self {
+            header,
+            result: None,
+        }
+    }
+
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
+}
 
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJCarousel, Error> {
-        let generate: IdGenerator = header.id_generator;
+impl<'h> MJMLParser for MJCarouselParser<'h> {
+    type Output = MJCarousel;
+
+    fn build(self) -> Result<Self::Output, Error> {
+        Ok(self.result.unwrap())
+    }
+
+    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
+        let generate: IdGenerator = self.header.id_generator;
         let mut result = MJCarousel {
-            attributes: Self::default_attributes(node, header).concat(node),
+            attributes: Self::default_attributes(node, self.header).concat(node),
             context: None,
             children: vec![],
             id: generate(8),
@@ -43,11 +63,18 @@ impl MJCarousel {
                 if tag_name != MJ_CAROUSEL_IMAGE {
                     return Err(Error::UnexpectedElement(tag_name.into()));
                 } else {
-                    let element = MJCarouselImage::parse(&child_node, header, Some(&attrs))?;
+                    let element = MJCarouselImage::parse(&child_node, self.header, Some(&attrs))?;
                     result.children.push(BodyElement::MJCarouselImage(element));
                 }
             }
         }
-        Ok(result)
+        self.result = Some(result);
+        Ok(self)
+    }
+}
+
+impl MJCarousel {
+    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJCarousel, Error> {
+        MJCarouselParser::new(header).parse(node)?.build()
     }
 }

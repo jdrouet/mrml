@@ -1,3 +1,4 @@
+use crate::elements::error::Error as ElementError;
 use xmlparser::{StrSpan, Token, Tokenizer};
 
 pub type Attributes<'a> = Vec<(StrSpan<'a>, StrSpan<'a>)>;
@@ -20,6 +21,13 @@ impl From<xmlparser::Error> for Error {
     fn from(err: xmlparser::Error) -> Self {
         Error::ParserError(err)
     }
+}
+
+pub trait MJMLParser: Sized {
+    type Output;
+
+    fn build(self) -> Result<Self::Output, ElementError>;
+    fn parse<'a>(self, node: &Node<'a>) -> Result<Self, ElementError>;
 }
 
 pub struct Node<'a> {

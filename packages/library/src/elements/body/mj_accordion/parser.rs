@@ -2,10 +2,9 @@ use super::MJAccordion;
 use crate::elements::body::mj_accordion_element::{
     MJAccordionElement, NAME as MJ_ACCORDION_ELEMENT,
 };
-use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
-use crate::parser::{Element, Node};
+use crate::parser::{Element, MJMLParser, Node};
 use crate::util::attributes::*;
 use crate::util::header::Header;
 
@@ -36,25 +35,55 @@ lazy_static! {
         .add("padding", "10px 25px");
 }
 
-impl MJAccordion {
+struct MJAccordionParser<'h> {
+    header: &'h Header,
+    result: Option<MJAccordion>,
+}
+
+impl<'h> MJAccordionParser<'h> {
+    pub fn new(header: &'h Header) -> Self {
+        Self {
+            header,
+            result: None,
+        }
+    }
+
     fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
         header
             .default_attributes
             .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJAccordion, Error> {
+    fn get_children_attributes(attrs: &Attributes) -> Attributes {
+        let mut res = Attributes::default();
+        for key in CHILDREN_ATTRIBUTES.iter() {
+            if let Some(value) = attrs.get(key) {
+                res.set(key, value);
+            }
+        }
+        res
+    }
+}
+
+impl<'h> MJMLParser for MJAccordionParser<'h> {
+    type Output = MJAccordion;
+
+    fn build(self) -> Result<Self::Output, Error> {
+        Ok(self.result.unwrap())
+    }
+
+    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
         let mut result = MJAccordion {
-            attributes: Self::default_attributes(node, header).concat(node),
+            attributes: Self::default_attributes(node, self.header).concat(node),
             context: None,
             children: vec![],
         };
-        let child_attrs = result.get_children_attributes();
+        let child_attrs = Self::get_children_attributes(&result.attributes);
         for child in node.children.iter() {
             match child {
                 Element::Node(node) => match node.name.as_str() {
                     MJ_ACCORDION_ELEMENT => {
-                        let element = MJAccordionElement::parse(node, header, &child_attrs)?;
+                        let element = MJAccordionElement::parse(node, self.header, &child_attrs)?;
                         result
                             .children
                             .push(BodyElement::MJAccordionElement(element));
@@ -66,16 +95,13 @@ impl MJAccordion {
                 Element::Text(_) => return Err(Error::UnexpectedText),
             };
         }
-        Ok(result)
+        self.result = Some(result);
+        Ok(self)
     }
+}
 
-    fn get_children_attributes(&self) -> Attributes {
-        let mut res = Attributes::default();
-        for key in CHILDREN_ATTRIBUTES.iter() {
-            if let Some(value) = self.get_attribute(key) {
-                res.set(key, value);
-            }
-        }
-        res
+impl MJAccordion {
+    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJAccordion, Error> {
+        MJAccordionParser::new(header).parse(node)?.build()
     }
 }
