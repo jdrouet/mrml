@@ -1,10 +1,11 @@
-use super::{MJAccordionElement, NAME as MJ_ACCORDION_ELEMENT};
+use super::MJAccordionElement;
 use crate::elements::body::mj_accordion_text::{MJAccordionText, NAME as MJ_ACCORDION_TEXT};
 use crate::elements::body::mj_accordion_title::{MJAccordionTitle, NAME as MJ_ACCORDION_TITLE};
 use crate::elements::error::Error;
-use crate::parser::{Element, MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::attributes::*;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default();
@@ -13,7 +14,9 @@ lazy_static! {
 struct MJAccordionElementParser<'h, 'p> {
     header: &'h Header,
     parent_attributes: &'p Attributes,
-    result: Option<MJAccordionElement>,
+    attributes: Attributes,
+    title: Option<MJAccordionTitle>,
+    text: Option<MJAccordionText>,
 }
 
 impl<'h, 'p> MJAccordionElementParser<'h, 'p> {
@@ -21,14 +24,18 @@ impl<'h, 'p> MJAccordionElementParser<'h, 'p> {
         Self {
             header,
             parent_attributes,
-            result: None,
+            attributes: Attributes::default(),
+            title: None,
+            text: None,
         }
     }
 
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
+    fn build_attributes(&self) -> Attributes {
+        self.header
             .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
+            .concat_attributes(super::NAME, &DEFAULT_ATTRIBUTES, &self.attributes)
+            .concat(self.parent_attributes)
+            .concat(&self.attributes)
     }
 }
 
@@ -36,53 +43,54 @@ impl<'h, 'p> MJMLParser for MJAccordionElementParser<'h, 'p> {
     type Output = MJAccordionElement;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.result.unwrap())
+        Ok(MJAccordionElement {
+            attributes: self.build_attributes(),
+            context: None,
+            title: self.title,
+            text: self.text,
+        })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        if node.name.as_str() != MJ_ACCORDION_ELEMENT {
-            return Err(Error::UnexpectedElement(node.name.as_str().into()));
-        }
-        let mut result = MJAccordionElement {
-            attributes: Self::default_attributes(node, self.header)
-                .concat(self.parent_attributes)
-                .concat(node),
-            context: None,
-            title: None,
-            text: None,
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        self.attributes.set(name, value);
+        Ok(())
+    }
+
+    fn parse_child_element<'a>(
+        &mut self,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+    ) -> Result<(), Error> {
+        let child_attrs = super::build_children_attributes(&self.build_attributes());
+        match tag.as_str() {
+            MJ_ACCORDION_TITLE => {
+                self.title = Some(MJAccordionTitle::parse(
+                    tokenizer,
+                    self.header,
+                    &child_attrs,
+                )?);
+            }
+            MJ_ACCORDION_TEXT => {
+                self.text = Some(MJAccordionText::parse(
+                    tokenizer,
+                    self.header,
+                    &child_attrs,
+                )?);
+            }
+            _ => return Err(Error::UnexpectedElement(tag.to_string())),
         };
-        let children_attr = result.get_children_attributes();
-        for child in node.children.iter() {
-            match child {
-                Element::Node(node) => match node.name.as_str() {
-                    MJ_ACCORDION_TITLE => {
-                        result.title =
-                            Some(MJAccordionTitle::parse(node, self.header, &children_attr)?);
-                    }
-                    MJ_ACCORDION_TEXT => {
-                        result.text =
-                            Some(MJAccordionText::parse(node, self.header, &children_attr)?);
-                    }
-                    name => return Err(Error::UnexpectedElement(name.into())),
-                },
-                // TODO handle comments
-                Element::Comment(_) => (),
-                Element::Text(_) => return Err(Error::UnexpectedText),
-            };
-        }
-        self.result = Some(result);
-        Ok(self)
+        Ok(())
     }
 }
 
 impl MJAccordionElement {
     pub fn parse<'a>(
-        node: &Node<'a>,
+        tokenizer: &mut Tokenizer<'a>,
         header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionElement, Error> {
         MJAccordionElementParser::new(header, attrs)
-            .parse(node)?
+            .parse(tokenizer)?
             .build()
     }
 }

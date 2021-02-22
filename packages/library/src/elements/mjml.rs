@@ -2,10 +2,11 @@ use super::body::mj_body::{MJBody, NAME as MJ_BODY};
 use super::head::mj_head::{MJHead, NAME as MJ_HEAD};
 use super::prelude::*;
 use super::Error;
-use crate::parser::{Element, MJMLParser, Node};
+use crate::parser::{next_token, MJMLParser};
 use crate::util::context::Context;
 use crate::Options;
 use log::debug;
+use xmlparser::{StrSpan, Token, Tokenizer};
 
 #[derive(Clone, Debug)]
 pub struct MJMLElement {
@@ -17,16 +18,16 @@ pub struct MJMLElement {
 struct MJMLElementParser {
     options: Options,
     context: Option<Context>,
-    head: Option<MJHead>,
+    head: MJHead,
     body: Option<MJBody>,
 }
 
 impl MJMLElementParser {
     pub fn new(options: Options) -> Self {
         Self {
-            options,
+            options: options.clone(),
             context: None,
-            head: None,
+            head: MJHead::empty(options),
             body: None,
         }
     }
@@ -35,48 +36,58 @@ impl MJMLElementParser {
 impl MJMLParser for MJMLElementParser {
     type Output = MJMLElement;
 
-    fn build(self) -> Result<Self::Output, Error> {
+    fn build(mut self) -> Result<Self::Output, Error> {
+        let mut body = self.body.unwrap_or_else(MJBody::empty);
+        body.set_context(Context::default());
+        body.update_header(self.head.get_mut_header());
         Ok(MJMLElement {
             context: self.context,
-            head: self.head.unwrap(),
-            body: self.body.unwrap(),
+            head: self.head,
+            body,
         })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        let mut head: Option<&Node<'a>> = None;
-        let mut body: Option<&Node<'a>> = None;
-        for item in node.children.iter() {
-            match item {
-                Element::Node(node) => match node.name.as_str() {
-                    MJ_HEAD => head = Some(node),
-                    MJ_BODY => body = Some(node),
-                    name => return Err(Error::UnexpectedElement(name.into())),
-                },
-                // TODO handle comments in <mjml>
-                Element::Comment(_) => (),
-                Element::Text(_) => return Err(Error::UnexpectedText),
-            };
-        }
-        let mut head = match head {
-            Some(node) => MJHead::parse(node, self.options.clone())?,
-            None => MJHead::empty(self.options.clone()),
+    fn parse_child_comment(&mut self, _value: StrSpan) -> Result<(), Error> {
+        log::warn!("comment ignored in mjml root element");
+        Ok(())
+    }
+
+    fn parse_child_element<'a>(
+        &mut self,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer,
+    ) -> Result<(), Error> {
+        match tag.as_str() {
+            MJ_HEAD => {
+                self.head = MJHead::parse(tokenizer, self.options.clone())?;
+            }
+            MJ_BODY => {
+                self.body = Some(MJBody::parse(tokenizer, self.head.get_header())?);
+            }
+            _ => return Err(Error::UnexpectedElement(tag.to_string())),
         };
-        let mut body = match body {
-            Some(node) => MJBody::parse(node, head.get_header())?,
-            None => MJBody::empty(),
-        };
-        body.set_context(Context::default());
-        body.update_header(head.get_mut_header());
-        self.head = Some(head);
-        self.body = Some(body);
-        Ok(self)
+        Ok(())
     }
 }
 
 impl<'a> MJMLElement {
-    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJMLElement, Error> {
-        MJMLElementParser::new(opts).parse(node)?.build()
+    pub fn parse(tokenizer: &mut Tokenizer<'a>, opts: Options) -> Result<MJMLElement, Error> {
+        MJMLElementParser::new(opts).parse(tokenizer)?.build()
+    }
+
+    pub fn parse_root(tokenizer: &mut Tokenizer<'a>, opts: Options) -> Result<MJMLElement, Error> {
+        let token = next_token(tokenizer)?;
+        match token {
+            Token::ElementStart {
+                prefix: _,
+                local,
+                span: _,
+            } => match local.as_str() {
+                "mjml" => Self::parse(tokenizer, opts),
+                _ => Err(Error::UnexpectedElement(local.to_string())),
+            },
+            _ => Err(Error::InvalidChild),
+        }
     }
 
     pub fn get_title(&self) -> String {
@@ -93,9 +104,9 @@ impl<'a> MJMLElement {
         debug!("get_html");
         let header = self.head.get_header();
         Ok(String::from("<!doctype html>")
-            + "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">"
-            + self.head.render(&header)?.as_str()
-            + self.body.render(&header)?.as_str()
-            + "</html>")
+           + "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">"
+           + self.head.render(&header)?.as_str()
+           + self.body.render(&header)?.as_str()
+           + "</html>")
     }
 }

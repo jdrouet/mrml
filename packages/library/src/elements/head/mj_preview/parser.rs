@@ -1,10 +1,11 @@
 use super::MJPreview;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
 struct MJPreviewParser {
-    content: Option<String>,
+    content: String,
 }
 
 impl MJMLParser for MJPreviewParser {
@@ -12,24 +13,18 @@ impl MJMLParser for MJPreviewParser {
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(MJPreview {
-            content: self.content.unwrap_or_default(),
+            content: self.content,
         })
     }
 
-    fn parse(mut self, node: &Node) -> Result<Self, Error> {
-        self.content = node
-            .children
-            .iter()
-            .filter_map(|item| item.as_text())
-            .map(|item| item.to_string())
-            .next();
-
-        Ok(self)
+    fn parse_child_text(&mut self, content: StrSpan) -> Result<(), Error> {
+        self.content.push_str(content.as_str());
+        Ok(())
     }
 }
 
 impl MJPreview {
-    pub fn parse(node: &Node) -> Result<Self, Error> {
-        MJPreviewParser::default().parse(node)?.build()
+    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+        MJPreviewParser::default().parse(tokenizer)?.build()
     }
 }

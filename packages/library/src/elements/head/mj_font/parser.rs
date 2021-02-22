@@ -1,6 +1,7 @@
 use super::MJFont;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
 struct MJFontParser {
@@ -23,24 +24,18 @@ impl MJMLParser for MJFontParser {
         }
     }
 
-    fn parse(mut self, node: &Node) -> Result<Self, Error> {
-        for (key, value) in node.attributes.iter() {
-            match key.as_str() {
-                "name" => {
-                    self.name = Some(value.to_string());
-                }
-                "href" => {
-                    self.href = Some(value.to_string());
-                }
-                _ => return Err(Error::UnexpectedAttribute(key.to_string())),
-            };
-        }
-        Ok(self)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        match name.as_str() {
+            "name" => self.name = Some(value.to_string()),
+            "href" => self.href = Some(value.to_string()),
+            _ => return Err(Error::UnexpectedAttribute(name.to_string())),
+        };
+        Ok(())
     }
 }
 
 impl MJFont {
-    pub fn parse(node: &Node) -> Result<Self, Error> {
-        MJFontParser::default().parse(node)?.build()
+    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+        MJFontParser::default().parse(tokenizer)?.build()
     }
 }

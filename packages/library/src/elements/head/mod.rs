@@ -1,6 +1,6 @@
 use crate::elements::error::Error;
-use crate::parser::{Element, Node};
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 pub mod mj_attributes;
 pub mod mj_attributes_all;
@@ -38,34 +38,22 @@ macro_rules! apply_fn {
 }
 
 impl HeadElement {
-    pub fn parse_all(elements: &[Element<'_>]) -> Result<Vec<HeadElement>, Error> {
-        let mut res = vec![];
-        for elt in elements {
-            match elt {
-                Element::Node(node) => {
-                    res.push(HeadElement::parse(&node)?);
-                }
-                Element::Comment(_) => (),
-                _ => return Err(Error::UnexpectedText),
-            }
-        }
-        Ok(res)
-    }
-
-    pub fn parse(node: &Node) -> Result<HeadElement, Error> {
-        let tag_name = node.name.as_str();
-        let res = match tag_name {
+    pub fn parse<'a>(
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+    ) -> Result<HeadElement, Error> {
+        let res = match tag.as_str() {
             mj_attributes::NAME => {
-                HeadElement::MJAttributes(mj_attributes::MJAttributes::parse(node)?)
+                HeadElement::MJAttributes(mj_attributes::MJAttributes::parse(tokenizer)?)
             }
             mj_breakpoint::NAME => {
-                HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(node)?)
+                HeadElement::MJBreakpoint(mj_breakpoint::MJBreakpoint::parse(tokenizer)?)
             }
-            mj_font::NAME => HeadElement::MJFont(mj_font::MJFont::parse(node)?),
-            mj_preview::NAME => HeadElement::MJPreview(mj_preview::MJPreview::parse(node)?),
-            mj_style::NAME => HeadElement::MJStyle(mj_style::MJStyle::parse(node)?),
-            mj_title::NAME => HeadElement::MJTitle(mj_title::MJTitle::parse(node)?),
-            _ => return Err(Error::UnexpectedElement(tag_name.into())),
+            mj_font::NAME => HeadElement::MJFont(mj_font::MJFont::parse(tokenizer)?),
+            mj_preview::NAME => HeadElement::MJPreview(mj_preview::MJPreview::parse(tokenizer)?),
+            mj_style::NAME => HeadElement::MJStyle(mj_style::MJStyle::parse(tokenizer)?),
+            mj_title::NAME => HeadElement::MJTitle(mj_title::MJTitle::parse(tokenizer)?),
+            _ => return Err(Error::UnexpectedElement(tag.to_string())),
         };
         Ok(res)
     }
@@ -74,5 +62,21 @@ impl HeadElement {
 impl prelude::HeadComponent for HeadElement {
     fn update_header(&self, header: &mut Header) {
         apply_fn!(self, update_header(header));
+    }
+}
+
+impl HeadElement {
+    pub fn as_mj_preview(&self) -> Option<&mj_preview::MJPreview> {
+        match self {
+            Self::MJPreview(value) => Some(value),
+            _ => None,
+        }
+    }
+
+    pub fn as_mj_title(&self) -> Option<&mj_title::MJTitle> {
+        match self {
+            Self::MJTitle(value) => Some(value),
+            _ => None,
+        }
     }
 }

@@ -1,7 +1,8 @@
 use super::MJAttributesClass;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use std::collections::HashMap;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
 struct MJAttributesClassParser {
@@ -23,21 +24,18 @@ impl MJMLParser for MJAttributesClassParser {
         }
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        for (key, value) in node.attributes.iter() {
-            match key.as_str() {
-                "name" => self.name = Some(value.to_string()),
-                key_str => {
-                    self.content.insert(key_str.to_string(), value.to_string());
-                }
-            };
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        if name.as_str() == "name" {
+            self.name = Some(value.to_string());
+        } else {
+            self.content.insert(name.to_string(), value.to_string());
         }
-        Ok(self)
+        Ok(())
     }
 }
 
 impl MJAttributesClass {
-    pub fn parse(node: &Node) -> Result<Self, Error> {
-        MJAttributesClassParser::default().parse(node)?.build()
+    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+        MJAttributesClassParser::default().parse(tokenizer)?.build()
     }
 }

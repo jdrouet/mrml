@@ -1,12 +1,12 @@
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
-use crate::parser::Element;
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
 use crate::util::header::Header;
 use crate::util::size::Size;
 use crate::util::tag::Tag;
 use prelude::BodyComponent;
+use xmlparser::{StrSpan, Tokenizer};
 
 pub mod comment;
 pub mod mj_accordion;
@@ -141,46 +141,49 @@ impl BodyElement {
     }
 
     pub fn parse<'a>(
-        element: &Element<'a>,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
         header: &Header,
         extra: Option<&Attributes>,
     ) -> Result<BodyElement, Error> {
-        let res = match element {
-            Element::Node(node) => match node.name.as_str() {
-                mj_accordion::NAME => {
-                    BodyElement::MJAccordion(mj_accordion::MJAccordion::parse(node, header)?)
-                }
-                mj_button::NAME => BodyElement::MJButton(mj_button::MJButton::parse(node, header)?),
-                mj_carousel::NAME => {
-                    BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(node, header)?)
-                }
-                mj_column::NAME => {
-                    BodyElement::MJColumn(mj_column::MJColumn::parse(node, header, extra)?)
-                }
-                mj_divider::NAME => {
-                    BodyElement::MJDivider(mj_divider::MJDivider::parse(node, header)?)
-                }
-                mj_group::NAME => BodyElement::MJGroup(mj_group::MJGroup::parse(node, header)?),
-                mj_hero::NAME => BodyElement::MJHero(mj_hero::MJHero::parse(node, header)?),
-                mj_image::NAME => BodyElement::MJImage(mj_image::MJImage::parse(node, header)?),
-                mj_navbar::NAME => BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(node, header)?),
-                mj_raw::NAME => BodyElement::MJRaw(mj_raw::MJRaw::parse(node, header)?),
-                mj_section::NAME => {
-                    BodyElement::MJSection(mj_section::MJSection::parse(node, header)?)
-                }
-                mj_social::NAME => BodyElement::MJSocial(mj_social::MJSocial::parse(node, header)?),
-                mj_spacer::NAME => BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(node, header)?),
-                mj_table::NAME => BodyElement::MJTable(mj_table::MJTable::parse(node, header)?),
-                mj_text::NAME => BodyElement::MJText(mj_text::MJText::parse(node, header)?),
-                mj_wrapper::NAME => {
-                    BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(node, header)?)
-                }
-                _ => BodyElement::Node(node::Node::parse(node, header)?),
-            },
-            Element::Comment(content) => {
-                BodyElement::Comment(comment::Comment::from(content.to_string()))
+        let res = match tag.as_str() {
+            mj_accordion::NAME => {
+                BodyElement::MJAccordion(mj_accordion::MJAccordion::parse(tokenizer, header)?)
             }
-            Element::Text(content) => BodyElement::Text(text::Text::from(content.to_string())),
+            mj_button::NAME => {
+                BodyElement::MJButton(mj_button::MJButton::parse(tokenizer, header)?)
+            }
+            mj_carousel::NAME => {
+                BodyElement::MJCarousel(mj_carousel::MJCarousel::parse(tokenizer, header)?)
+            }
+            mj_column::NAME => {
+                BodyElement::MJColumn(mj_column::MJColumn::parse(tokenizer, header, extra)?)
+            }
+            mj_divider::NAME => {
+                BodyElement::MJDivider(mj_divider::MJDivider::parse(tokenizer, header)?)
+            }
+            mj_group::NAME => BodyElement::MJGroup(mj_group::MJGroup::parse(tokenizer, header)?),
+            mj_hero::NAME => BodyElement::MJHero(mj_hero::MJHero::parse(tokenizer, header)?),
+            mj_image::NAME => BodyElement::MJImage(mj_image::MJImage::parse(tokenizer, header)?),
+            mj_navbar::NAME => {
+                BodyElement::MJNavbar(mj_navbar::MJNavbar::parse(tokenizer, header)?)
+            }
+            mj_raw::NAME => BodyElement::MJRaw(mj_raw::MJRaw::parse(tokenizer, header)?),
+            mj_section::NAME => {
+                BodyElement::MJSection(mj_section::MJSection::parse(tokenizer, header)?)
+            }
+            mj_social::NAME => {
+                BodyElement::MJSocial(mj_social::MJSocial::parse(tokenizer, header)?)
+            }
+            mj_spacer::NAME => {
+                BodyElement::MJSpacer(mj_spacer::MJSpacer::parse(tokenizer, header)?)
+            }
+            mj_table::NAME => BodyElement::MJTable(mj_table::MJTable::parse(tokenizer, header)?),
+            mj_text::NAME => BodyElement::MJText(mj_text::MJText::parse(tokenizer, header)?),
+            mj_wrapper::NAME => {
+                BodyElement::MJWrapper(mj_wrapper::MJWrapper::parse(tokenizer, header)?)
+            }
+            _ => BodyElement::Node(node::Node::parse(tag, tokenizer, header)?),
         };
         Ok(res)
     }
@@ -189,5 +192,29 @@ impl BodyElement {
         matches!(self, BodyElement::Node(_))
             || matches!(self, BodyElement::Comment(_))
             || matches!(self, BodyElement::Text(_))
+    }
+}
+
+impl BodyElement {
+    pub fn comment(content: String) -> Self {
+        comment::Comment::from(content).into()
+    }
+}
+
+impl BodyElement {
+    pub fn text(content: String) -> Self {
+        text::Text::from(content).into()
+    }
+}
+
+impl From<comment::Comment> for BodyElement {
+    fn from(elt: comment::Comment) -> Self {
+        Self::Comment(elt)
+    }
+}
+
+impl From<text::Text> for BodyElement {
+    fn from(elt: text::Text) -> Self {
+        Self::Text(elt)
     }
 }

@@ -1,6 +1,7 @@
 use super::MJStyle;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
 struct MJStyleParser {
@@ -18,26 +19,23 @@ impl MJMLParser for MJStyleParser {
         })
     }
 
-    fn parse(mut self, node: &Node) -> Result<Self, Error> {
-        self.inline = node
-            .attributes
-            .iter()
-            .filter(|(key, _value)| key.as_str() == "inline")
-            .next()
-            .is_some();
-        self.content = node
-            .children
-            .iter()
-            .filter_map(|item| item.as_text())
-            .map(|item| item.to_string())
-            .collect();
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, _value: StrSpan<'a>) -> Result<(), Error> {
+        if name.as_str() == "inline" {
+            self.inline = true;
+            Ok(())
+        } else {
+            Err(Error::UnexpectedAttribute(name.to_string()))
+        }
+    }
 
-        Ok(self)
+    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.content.push(value.to_string());
+        Ok(())
     }
 }
 
 impl MJStyle {
-    pub fn parse(node: &Node) -> Result<Self, Error> {
-        MJStyleParser::default().parse(node)?.build()
+    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+        MJStyleParser::default().parse(tokenizer)?.build()
     }
 }

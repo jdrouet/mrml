@@ -2,8 +2,9 @@ use super::MJRaw;
 use crate::elements::body::raw::RawElement;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 struct MJRawParser<'h> {
     header: &'h Header,
@@ -29,17 +30,29 @@ impl<'h> MJMLParser for MJRawParser<'h> {
         })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        for child in node.children.iter() {
-            self.children
-                .push(RawElement::conditional_parse(&child, self.header, true)?.into());
-        }
-        Ok(self)
+    fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.children.push(BodyElement::comment(value.to_string()));
+        Ok(())
+    }
+
+    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.children.push(BodyElement::text(value.to_string()));
+        Ok(())
+    }
+
+    fn parse_child_element<'a>(
+        &mut self,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+    ) -> Result<(), Error> {
+        self.children
+            .push(RawElement::conditional_parse(tag, tokenizer, self.header, true)?.into());
+        Ok(())
     }
 }
 
 impl MJRaw {
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJRaw, Error> {
-        MJRawParser::new(header).parse(node)?.build()
+    pub fn parse<'a>(tokenizer: &mut Tokenizer<'a>, header: &Header) -> Result<MJRaw, Error> {
+        MJRawParser::new(header).parse(tokenizer)?.build()
     }
 }

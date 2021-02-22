@@ -13,6 +13,16 @@ pub enum RawElement {
     Text(Text),
 }
 
+impl RawElement {
+    pub fn comment(value: String) -> Self {
+        Self::Comment(Comment::from(value))
+    }
+
+    pub fn text(value: String) -> Self {
+        Self::Text(Text::from(value))
+    }
+}
+
 impl Into<BodyElement> for RawElement {
     fn into(self) -> BodyElement {
         match self {

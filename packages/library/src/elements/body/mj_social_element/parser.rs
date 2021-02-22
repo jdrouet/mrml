@@ -1,8 +1,9 @@
-use super::{MJSocialElement, SocialNetwork, NAME as MJ_SOCIAL_ELEMENT};
+use super::{MJSocialElement, SocialNetwork};
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::attributes::*;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 impl SocialNetwork {
     pub fn find(icon_origin: &str, name: &str) -> Option<Self> {
@@ -209,16 +210,16 @@ lazy_static! {
         .add("vertical-align", "middle");
 }
 
-struct MJSocialElementParser<'h, 'p> {
+struct MJSocialElementParser<'h> {
     header: &'h Header,
-    parent_attributes: Option<&'p Attributes>,
+    parent_attributes: Attributes,
     attributes: Attributes,
     content: String,
     social_network: Option<SocialNetwork>,
 }
 
-impl<'h, 'p> MJSocialElementParser<'h, 'p> {
-    pub fn new(header: &'h Header, parent_attributes: Option<&'p Attributes>) -> Self {
+impl<'h> MJSocialElementParser<'h> {
+    pub fn new(header: &'h Header, parent_attributes: Attributes) -> Self {
         Self {
             header,
             parent_attributes,
@@ -228,42 +229,21 @@ impl<'h, 'p> MJSocialElementParser<'h, 'p> {
         }
     }
 
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
+    fn build_attributes(&self) -> Attributes {
+        self.header
             .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
-    }
-
-    fn parse_social_child<'a>(mut self, node: &Node<'a>, extra: Attributes) -> Result<Self, Error> {
-        if node.name.as_str() != MJ_SOCIAL_ELEMENT {
-            return Err(Error::UnexpectedElement(node.name.as_str().into()));
-        }
-        self.content = node
-            .children
-            .iter()
-            .filter_map(|child| child.as_text())
-            .map(|child| child.as_str())
-            .collect::<String>();
-        self.social_network = node
-            .attributes
-            .iter()
-            .find(|(key, _value)| key.as_str() == "name")
-            .and_then(|(_key, value)| {
-                SocialNetwork::find(self.header.social_icon_origin.as_str(), value.as_str())
-            });
-        self.attributes = Self::default_attributes(node, self.header);
-        self.attributes.merge(&extra);
-        self.attributes.merge(node);
-        Ok(self)
+            .concat_attributes(super::NAME, &DEFAULT_ATTRIBUTES, &self.attributes)
+            .concat(&self.parent_attributes)
+            .concat(&self.attributes)
     }
 }
 
-impl<'h, 'p> MJMLParser for MJSocialElementParser<'h, 'p> {
+impl<'h> MJMLParser for MJSocialElementParser<'h> {
     type Output = MJSocialElement;
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(MJSocialElement {
-            attributes: self.attributes,
+            attributes: self.build_attributes(),
             context: None,
             content: if self.content.is_empty() {
                 None
@@ -274,20 +254,30 @@ impl<'h, 'p> MJMLParser for MJSocialElementParser<'h, 'p> {
         })
     }
 
-    fn parse<'a>(self, node: &Node<'a>) -> Result<Self, Error> {
-        let attrs = self.parent_attributes.cloned().unwrap_or_default();
-        self.parse_social_child(node, attrs)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        if name.as_str() == "name" {
+            self.social_network =
+                SocialNetwork::find(self.header.social_icon_origin.as_str(), value.as_str());
+        } else {
+            self.attributes.set(name, value);
+        }
+        Ok(())
+    }
+
+    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.content.push_str(value.as_str());
+        Ok(())
     }
 }
 
 impl MJSocialElement {
     pub fn parse<'a>(
-        node: &Node<'a>,
+        tokenizer: &mut Tokenizer<'a>,
         header: &Header,
-        extra: Option<&Attributes>,
+        extra: Attributes,
     ) -> Result<MJSocialElement, Error> {
         MJSocialElementParser::new(header, extra)
-            .parse(node)?
+            .parse(tokenizer)?
             .build()
     }
 }

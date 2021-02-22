@@ -5,5 +5,6 @@ pub enum Error {
     ParseError(String),
     UnexpectedText,
     UnexpectedElement(String),
+    UnexpectedComment,
     UnexpectedAttribute(String),
 }

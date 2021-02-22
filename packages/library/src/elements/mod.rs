@@ -1,5 +1,5 @@
-use crate::parser::Node;
 use crate::Options;
+use xmlparser::Tokenizer;
 
 pub mod body;
 pub mod error;
@@ -12,6 +12,6 @@ use prelude::Component;
 
 pub use mjml::MJMLElement;
 
-pub fn parse(node: &Node<'_>, opts: Options) -> Result<mjml::MJMLElement, Error> {
-    mjml::MJMLElement::parse(node, opts)
+pub fn parse(tokenizer: &mut Tokenizer, opts: Options) -> Result<mjml::MJMLElement, Error> {
+    mjml::MJMLElement::parse(tokenizer, opts)
 }

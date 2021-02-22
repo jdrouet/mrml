@@ -1,7 +1,6 @@
 mod parser;
 mod renderer;
 
-use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
 use crate::util::attributes::*;
 use crate::util::context::Context;
@@ -15,22 +14,20 @@ pub struct MJSocial {
     children: Vec<BodyElement>,
 }
 
-impl MJSocial {
-    fn get_children_attributes(&self) -> Attributes {
-        let mut attrs = Attributes::default();
-        attrs.maybe_set("padding", self.get_attribute("inner-padding"));
-        attrs.maybe_set("border-radius", self.get_attribute("border-radius"));
-        attrs.maybe_set("color", self.get_attribute("color"));
-        attrs.maybe_set("font-family", self.get_attribute("font-family"));
-        attrs.maybe_set("font-size", self.get_attribute("font-size"));
-        attrs.maybe_set("font-weight", self.get_attribute("font-weight"));
-        attrs.maybe_set("font-style", self.get_attribute("font-style"));
-        attrs.maybe_set("icon-size", self.get_attribute("icon-size"));
-        attrs.maybe_set("icon-height", self.get_attribute("icon-height"));
-        attrs.maybe_set("icon-padding", self.get_attribute("icon-padding"));
-        attrs.maybe_set("text-padding", self.get_attribute("text-padding"));
-        attrs.maybe_set("line-height", self.get_attribute("line-height"));
-        attrs.maybe_set("text-decoration", self.get_attribute("text-decoration"));
-        attrs
-    }
+fn build_children_attributes(attrs: &Attributes) -> Attributes {
+    let mut result = Attributes::default();
+    result.maybe_set("padding", attrs.get("inner-padding"));
+    result.maybe_set("border-radius", attrs.get("border-radius"));
+    result.maybe_set("color", attrs.get("color"));
+    result.maybe_set("font-family", attrs.get("font-family"));
+    result.maybe_set("font-size", attrs.get("font-size"));
+    result.maybe_set("font-weight", attrs.get("font-weight"));
+    result.maybe_set("font-style", attrs.get("font-style"));
+    result.maybe_set("icon-size", attrs.get("icon-size"));
+    result.maybe_set("icon-height", attrs.get("icon-height"));
+    result.maybe_set("icon-padding", attrs.get("icon-padding"));
+    result.maybe_set("text-padding", attrs.get("text-padding"));
+    result.maybe_set("line-height", attrs.get("line-height"));
+    result.maybe_set("text-decoration", attrs.get("text-decoration"));
+    result
 }

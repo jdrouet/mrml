@@ -2,20 +2,21 @@ use super::MJHead;
 use crate::elements::head::prelude::HeadComponent;
 use crate::elements::head::HeadElement;
 use crate::elements::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::header::Header;
 use crate::Options;
+use xmlparser::{StrSpan, Tokenizer};
 
 struct MJHeadParser {
     options: Options,
-    head: Option<MJHead>,
+    children: Vec<HeadElement>,
 }
 
 impl MJHeadParser {
     pub fn new(options: Options) -> Self {
         Self {
             options,
-            head: None,
+            children: Vec::new(),
         }
     }
 }
@@ -24,31 +25,29 @@ impl MJMLParser for MJHeadParser {
     type Output = MJHead;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.head.unwrap())
+        let mut header = Header::from(&self.options);
+        self.children
+            .iter()
+            .for_each(|item| item.update_header(&mut header));
+        Ok(MJHead {
+            header,
+            context: None,
+            children: self.children,
+        })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        let children = HeadElement::parse_all(&node.children)?;
-        let mut header = Header::from(&self.options);
-        for child in children.iter() {
-            child.update_header(&mut header);
-        }
-        self.head = Some(MJHead {
-            attributes: node
-                .attributes
-                .iter()
-                .map(|(key, value)| (key.to_string(), value.to_string()))
-                .collect(),
-            context: None,
-            children,
-            header,
-        });
-        Ok(self)
+    fn parse_child_element<'a>(
+        &mut self,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+    ) -> Result<(), Error> {
+        self.children.push(HeadElement::parse(tag, tokenizer)?);
+        Ok(())
     }
 }
 
 impl<'a> MJHead {
-    pub fn parse(node: &Node<'a>, opts: Options) -> Result<MJHead, Error> {
-        MJHeadParser::new(opts).parse(node)?.build()
+    pub fn parse(tokenizer: &mut Tokenizer<'a>, opts: Options) -> Result<MJHead, Error> {
+        MJHeadParser::new(opts).parse(tokenizer)?.build()
     }
 }

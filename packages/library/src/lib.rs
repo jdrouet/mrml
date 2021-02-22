@@ -12,6 +12,7 @@ mod error;
 pub mod parser;
 pub mod util;
 
+use crate::elements::MJMLElement;
 pub use error::Error;
 use util::fonts::FontRegistry;
 use util::size::Size;
@@ -45,10 +46,13 @@ impl Default for Options {
     }
 }
 
-pub fn parse(input: &str, options: Options) -> Result<elements::MJMLElement, Error> {
-    let root = parser::parse(input)?;
-    let element = elements::parse(&root, options)?;
-    Ok(element)
+pub fn parse(input: &str, options: Options) -> Result<MJMLElement, Error> {
+    if input.len() > std::u32::MAX as usize {
+        return Err(Error::ParserError(crate::parser::Error::SizeLimit));
+    }
+    let mut tokenizer = xmlparser::Tokenizer::from(input);
+    let result = MJMLElement::parse_root(&mut tokenizer, options)?;
+    Ok(result)
 }
 
 /// generate the title from mjml

@@ -1,7 +1,6 @@
 mod parser;
 mod renderer;
 
-use crate::elements::body::prelude::*;
 use crate::elements::body::BodyElement;
 use crate::util::attributes::*;
 use crate::util::context::Context;
@@ -16,10 +15,8 @@ pub struct MJNavbar {
     id: String,
 }
 
-impl MJNavbar {
-    fn get_children_attributes(&self) -> Attributes {
-        let mut attrs = Attributes::default();
-        attrs.maybe_set("navbar-base-url", self.get_attribute("base-url"));
-        attrs
-    }
+fn build_children_attributes(attrs: &Attributes) -> Attributes {
+    let mut result = Attributes::default();
+    result.maybe_set("navbar-base-url", attrs.get("base-url"));
+    result
 }
