@@ -4,9 +4,10 @@ use crate::elements::body::mj_accordion_element::{
 };
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
-use crate::parser::{Element, MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::attributes::*;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
@@ -37,25 +38,29 @@ lazy_static! {
 
 struct MJAccordionParser<'h> {
     header: &'h Header,
-    result: Option<MJAccordion>,
+    attributes: Attributes,
+    children: Vec<BodyElement>,
 }
 
 impl<'h> MJAccordionParser<'h> {
     pub fn new(header: &'h Header) -> Self {
         Self {
             header,
-            result: None,
+            attributes: Attributes::default(),
+            children: Vec::default(),
         }
     }
 
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
+    fn build_attributes(&self) -> Attributes {
+        self.header
             .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
+            .concat_attributes(super::NAME, &DEFAULT_ATTRIBUTES, &self.attributes)
+            .concat(&self.attributes)
     }
 
-    fn get_children_attributes(attrs: &Attributes) -> Attributes {
+    fn get_children_attributes(&self) -> Attributes {
         let mut res = Attributes::default();
+        let attrs = self.build_attributes();
         for key in CHILDREN_ATTRIBUTES.iter() {
             if let Some(value) = attrs.get(key) {
                 res.set(key, value);
@@ -69,39 +74,40 @@ impl<'h> MJMLParser for MJAccordionParser<'h> {
     type Output = MJAccordion;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.result.unwrap())
+        Ok(MJAccordion {
+            attributes: self.build_attributes(),
+            context: None,
+            children: self.children,
+        })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        let mut result = MJAccordion {
-            attributes: Self::default_attributes(node, self.header).concat(node),
-            context: None,
-            children: vec![],
-        };
-        let child_attrs = Self::get_children_attributes(&result.attributes);
-        for child in node.children.iter() {
-            match child {
-                Element::Node(node) => match node.name.as_str() {
-                    MJ_ACCORDION_ELEMENT => {
-                        let element = MJAccordionElement::parse(node, self.header, &child_attrs)?;
-                        result
-                            .children
-                            .push(BodyElement::MJAccordionElement(element));
-                    }
-                    name => return Err(Error::UnexpectedElement(name.into())),
-                },
-                // TODO handle comments
-                Element::Comment(_) => (),
-                Element::Text(_) => return Err(Error::UnexpectedText),
-            };
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        self.attributes.set(name, value);
+        Ok(())
+    }
+
+    fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.children.push(BodyElement::comment(value.to_string()));
+        Ok(())
+    }
+
+    fn parse_child_element<'a>(
+        &mut self,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+    ) -> Result<(), Error> {
+        if tag.as_str() != MJ_ACCORDION_ELEMENT {
+            return Err(Error::UnexpectedElement(tag.to_string()));
         }
-        self.result = Some(result);
-        Ok(self)
+        let child_attrs = self.get_children_attributes();
+        let element = MJAccordionElement::parse(tokenizer, self.header, &child_attrs)?;
+        self.children.push(BodyElement::MJAccordionElement(element));
+        Ok(())
     }
 }
 
 impl MJAccordion {
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJAccordion, Error> {
-        MJAccordionParser::new(header).parse(node)?.build()
+    pub fn parse<'a>(tokenizer: &mut Tokenizer<'a>, header: &Header) -> Result<MJAccordion, Error> {
+        MJAccordionParser::new(header).parse(tokenizer)?.build()
     }
 }

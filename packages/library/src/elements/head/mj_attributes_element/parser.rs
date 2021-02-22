@@ -1,13 +1,22 @@
-use std::collections::HashMap;
-
 use super::MJAttributesElement;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
+use std::collections::HashMap;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
 struct MJAttributesElementParser {
     name: String,
     content: HashMap<String, String>,
+}
+
+impl MJAttributesElementParser {
+    pub fn new(tag: StrSpan) -> Self {
+        Self {
+            name: tag.to_string(),
+            content: HashMap::default(),
+        }
+    }
 }
 
 impl MJMLParser for MJAttributesElementParser {
@@ -20,19 +29,16 @@ impl MJMLParser for MJAttributesElementParser {
         })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        self.name = node.name.to_string();
-        self.content = node
-            .attributes
-            .iter()
-            .map(|(key, value)| (key.to_string(), value.to_string()))
-            .collect::<HashMap<_, _>>();
-        Ok(self)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        self.content.insert(name.to_string(), value.to_string());
+        Ok(())
     }
 }
 
 impl MJAttributesElement {
-    pub fn parse(node: &Node) -> Result<Self, Error> {
-        MJAttributesElementParser::default().parse(node)?.build()
+    pub fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+        MJAttributesElementParser::new(tag)
+            .parse(tokenizer)?
+            .build()
     }
 }

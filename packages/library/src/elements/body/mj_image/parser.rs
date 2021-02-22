@@ -1,8 +1,9 @@
 use super::MJImage;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::attributes::*;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
@@ -26,12 +27,6 @@ impl<'h> MJImageParser<'h> {
             attributes: Attributes::default(),
         }
     }
-
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
-            .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
-    }
 }
 
 impl<'h> MJMLParser for MJImageParser<'h> {
@@ -39,19 +34,23 @@ impl<'h> MJMLParser for MJImageParser<'h> {
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(MJImage {
-            attributes: self.attributes,
+            attributes: self
+                .header
+                .default_attributes
+                .concat_attributes(super::NAME, &DEFAULT_ATTRIBUTES, &self.attributes)
+                .concat(&self.attributes),
             context: None,
         })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        self.attributes = Self::default_attributes(node, self.header).concat(node);
-        Ok(self)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        self.attributes.set(name, value);
+        Ok(())
     }
 }
 
 impl MJImage {
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJImage, Error> {
-        MJImageParser::new(header).parse(node)?.build()
+    pub fn parse<'a>(tokenizer: &mut Tokenizer<'a>, header: &Header) -> Result<MJImage, Error> {
+        MJImageParser::new(header).parse(tokenizer)?.build()
     }
 }

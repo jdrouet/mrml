@@ -1,55 +1,78 @@
 use super::MJBody;
 use crate::elements::body::BodyElement;
 use crate::elements::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::attributes::*;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("width", "600px");
 }
 
-struct MJBodyParser<'a> {
-    header: &'a Header,
-    body: Option<MJBody>,
+struct MJBodyParser<'h> {
+    header: &'h Header,
+    attributes: Attributes,
+    children: Vec<BodyElement>,
 }
 
-impl<'a> MJBodyParser<'a> {
-    fn new(header: &'a Header) -> Self {
-        Self { header, body: None }
+impl<'h> MJBodyParser<'h> {
+    fn new(header: &'h Header) -> Self {
+        Self {
+            header,
+            attributes: Attributes::default(),
+            children: Vec::default(),
+        }
     }
 
-    fn default_attributes<'b>(node: &Node<'b>, header: &Header) -> Attributes {
-        header
+    fn build_attributes(&self) -> Attributes {
+        self.header
             .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
+            .concat_attributes(super::NAME, &DEFAULT_ATTRIBUTES, &self.attributes)
+            .concat(&self.attributes)
     }
 }
 
-impl<'a> MJMLParser for MJBodyParser<'a> {
+impl<'h> MJMLParser for MJBodyParser<'h> {
     type Output = MJBody;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.body.unwrap())
+        Ok(MJBody {
+            attributes: self.build_attributes(),
+            context: None,
+            children: self.children,
+            exists: true,
+        })
     }
 
-    fn parse<'b>(mut self, node: &Node<'b>) -> Result<Self, Error> {
-        let mut children = vec![];
-        for child in node.children.iter() {
-            children.push(BodyElement::parse(child, self.header, None::<&Attributes>)?);
-        }
-        self.body = Some(MJBody {
-            attributes: Self::default_attributes(node, self.header).concat(node),
-            children,
-            context: None,
-            exists: true,
-        });
-        Ok(self)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        self.attributes.set(name, value);
+        Ok(())
+    }
+
+    fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.children.push(BodyElement::comment(value.to_string()));
+        Ok(())
+    }
+
+    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.children.push(BodyElement::text(value.to_string()));
+        Ok(())
+    }
+
+    fn parse_child_element<'a>(
+        &mut self,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+    ) -> Result<(), Error> {
+        self.children
+            .push(BodyElement::parse(tag, tokenizer, self.header, None)?);
+        Ok(())
     }
 }
 
 impl MJBody {
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJBody, Error> {
-        MJBodyParser::new(header).parse(node)?.build()
+    pub fn parse<'a>(tokenizer: &mut Tokenizer<'a>, header: &Header) -> Result<MJBody, Error> {
+        MJBodyParser::new(header).parse(tokenizer)?.build()
     }
 }

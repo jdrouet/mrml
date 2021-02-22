@@ -7,5 +7,5 @@ pub const NAME: &str = "mj-breakpoint";
 
 #[derive(Clone, Debug)]
 pub struct MJBreakpoint {
-    value: Option<Size>,
+    value: Size,
 }

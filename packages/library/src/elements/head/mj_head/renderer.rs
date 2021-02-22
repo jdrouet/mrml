@@ -1,5 +1,4 @@
 use super::MJHead;
-use crate::elements::head::HeadElement;
 use crate::elements::prelude::*;
 use crate::elements::Error;
 use crate::util::context::Context;
@@ -53,17 +52,30 @@ p {
 "#;
 
 impl MJHead {
+    fn get_title_from_children(&self) -> Option<String> {
+        self.children
+            .iter()
+            .filter_map(|item| item.as_mj_title())
+            .map(|item| item.get_content())
+            .next()
+    }
+
     pub fn get_title(&self) -> String {
-        self.header.title.as_ref().cloned().unwrap_or_default()
+        self.header
+            .title
+            .as_ref()
+            .cloned()
+            .or_else(|| self.get_title_from_children())
+            .unwrap_or_default()
     }
 
     pub fn get_preview(&self) -> String {
-        for child in self.children.iter() {
-            if let HeadElement::MJPreview(element) = child {
-                return element.content.clone();
-            }
-        }
-        String::new()
+        self.children
+            .iter()
+            .filter_map(|item| item.as_mj_preview())
+            .map(|item| item.content.clone())
+            .next()
+            .unwrap_or_default()
     }
 
     fn get_media_queries(&self) -> String {

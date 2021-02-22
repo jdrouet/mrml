@@ -1,9 +1,10 @@
 use super::MJGroup;
 use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::attributes::*;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("direction", "ltr");
@@ -12,6 +13,7 @@ lazy_static! {
 struct MJGroupParser<'h> {
     header: &'h Header,
     attributes: Attributes,
+    child_attributes: Attributes,
     children: Vec<BodyElement>,
 }
 
@@ -20,14 +22,9 @@ impl<'h> MJGroupParser<'h> {
         Self {
             header,
             attributes: Attributes::default(),
+            child_attributes: Attributes::default().add("mobile-width", "mobile-width"),
             children: Vec::new(),
         }
-    }
-
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
-            .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
     }
 }
 
@@ -36,25 +33,48 @@ impl<'h> MJMLParser for MJGroupParser<'h> {
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(MJGroup {
-            attributes: self.attributes,
+            attributes: self
+                .header
+                .default_attributes
+                .concat_attributes(super::NAME, &DEFAULT_ATTRIBUTES, &self.attributes)
+                .concat(&self.attributes),
             context: None,
             children: self.children,
         })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        self.attributes = Self::default_attributes(node, self.header).concat(node);
-        let child_attrs = Attributes::default().add("mobile-width", "mobile-width");
-        for child in node.children.iter() {
-            self.children
-                .push(BodyElement::parse(&child, self.header, Some(&child_attrs))?);
-        }
-        Ok(self)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        self.attributes.set(name, value);
+        Ok(())
+    }
+
+    fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.children.push(BodyElement::comment(value.to_string()));
+        Ok(())
+    }
+
+    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.children.push(BodyElement::text(value.to_string()));
+        Ok(())
+    }
+
+    fn parse_child_element<'a>(
+        &mut self,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+    ) -> Result<(), Error> {
+        self.children.push(BodyElement::parse(
+            tag,
+            tokenizer,
+            self.header,
+            Some(&self.child_attributes),
+        )?);
+        Ok(())
     }
 }
 
 impl MJGroup {
-    pub fn parse<'a>(node: &Node<'a>, header: &Header) -> Result<MJGroup, Error> {
-        MJGroupParser::new(header).parse(node)?.build()
+    pub fn parse<'a>(tokenizer: &mut Tokenizer<'a>, header: &Header) -> Result<MJGroup, Error> {
+        MJGroupParser::new(header).parse(tokenizer)?.build()
     }
 }

@@ -1,8 +1,9 @@
-use super::{MJCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
+use super::MJCarouselImage;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::attributes::*;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default().add("target", "_blank");
@@ -17,45 +18,18 @@ struct MJCarouselImageParser<'h> {
 }
 
 impl<'h> MJCarouselImageParser<'h> {
-    pub fn new(header: &'h Header, extra: Attributes) -> Self {
+    pub fn new(header: &'h Header, mut extra: Attributes) -> Self {
+        if extra.get("text-padding").is_none() {
+            extra.set("text-padding", "4px 4px 4px 0");
+        }
+        let carousel_id = extra.get("carousel-id").cloned().unwrap_or_default();
         Self {
             header,
             parent_attributes: extra,
-            carousel_id: String::default(),
+            carousel_id,
             attributes: Attributes::default(),
             content: None,
         }
-    }
-
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
-            .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
-    }
-
-    fn parse_image<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        if node.name.as_str() != MJ_CAROUSEL_IMAGE {
-            return Err(Error::UnexpectedElement(node.name.as_str().into()));
-        }
-        let carousel_id = match self.parent_attributes.get("carousel-id") {
-            Some(id) => id,
-            None => return Err(Error::MissingAttribute("carousel-id".into())),
-        };
-        let content = node
-            .children
-            .iter()
-            .filter_map(|child| child.as_text())
-            .map(|value| value.to_string())
-            .collect::<String>();
-        self.content = if content.is_empty() {
-            None
-        } else {
-            Some(content)
-        };
-        self.attributes = Self::default_attributes(node, self.header)
-            .concat(&self.parent_attributes)
-            .concat(node);
-        Ok(self)
     }
 }
 
@@ -64,29 +38,37 @@ impl<'h> MJMLParser for MJCarouselImageParser<'h> {
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(MJCarouselImage {
-            attributes: self.attributes,
+            attributes: self
+                .header
+                .default_attributes
+                .concat_attributes(super::NAME, &DEFAULT_ATTRIBUTES, &self.attributes)
+                .concat(&self.parent_attributes)
+                .concat(&self.attributes),
             carousel_id: self.carousel_id,
             context: None,
             content: self.content,
         })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        if self.parent_attributes.get("text-padding").is_none() {
-            self.parent_attributes.set("text-padding", "4px 4px 4px 0");
-        }
-        self.parse_image(node)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        self.attributes.set(name, value);
+        Ok(())
+    }
+
+    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.content = Some(value.to_string());
+        Ok(())
     }
 }
 
 impl MJCarouselImage {
     pub fn parse<'a>(
-        node: &Node<'a>,
+        tokenizer: &mut Tokenizer<'a>,
         header: &Header,
-        extra: Option<&Attributes>,
+        extra: &Attributes,
     ) -> Result<MJCarouselImage, Error> {
-        MJCarouselImageParser::new(header, extra.cloned().unwrap_or_default())
-            .parse(node)?
+        MJCarouselImageParser::new(header, extra.clone())
+            .parse(tokenizer)?
             .build()
     }
 }

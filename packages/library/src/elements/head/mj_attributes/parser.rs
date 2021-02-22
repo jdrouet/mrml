@@ -1,7 +1,8 @@
 use super::{MJAttributes, MjAttributesChild};
 use crate::elements::error::Error;
 use crate::elements::head::{mj_attributes_all, mj_attributes_class, mj_attributes_element};
-use crate::parser::{Element, MJMLParser, Node};
+use crate::parser::MJMLParser;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
 struct MJAttributesParser {
@@ -17,31 +18,24 @@ impl MJMLParser for MJAttributesParser {
         })
     }
 
-    fn parse(mut self, node: &Node) -> Result<Self, Error> {
-        for element in node.children.iter() {
-            match element {
-                Element::Node(node) => match node.name.as_str() {
-                    mj_attributes_all::NAME => self
-                        .children
-                        .push(mj_attributes_all::MJAttributesAll::parse(node)?.into()),
-                    mj_attributes_class::NAME => self
-                        .children
-                        .push(mj_attributes_class::MJAttributesClass::parse(node)?.into()),
-                    _ => self
-                        .children
-                        .push(mj_attributes_element::MJAttributesElement::parse(node)?.into()),
-                },
-                // TODO handle comments
-                Element::Comment(_) => {}
-                Element::Text(_) => return Err(Error::UnexpectedText),
-            };
-        }
-        Ok(self)
+    fn parse_child_element<'a>(
+        &mut self,
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer,
+    ) -> Result<(), Error> {
+        self.children.push(match tag.as_str() {
+            mj_attributes_all::NAME => mj_attributes_all::MJAttributesAll::parse(tokenizer)?.into(),
+            mj_attributes_class::NAME => {
+                mj_attributes_class::MJAttributesClass::parse(tokenizer)?.into()
+            }
+            _ => mj_attributes_element::MJAttributesElement::parse(tag, tokenizer)?.into(),
+        });
+        Ok(())
     }
 }
 
 impl MJAttributes {
-    pub fn parse(node: &Node) -> Result<Self, Error> {
-        MJAttributesParser::default().parse(node)?.build()
+    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+        MJAttributesParser::default().parse(tokenizer)?.build()
     }
 }

@@ -3,7 +3,6 @@ mod renderer;
 
 use crate::elements::body::mj_accordion_text::MJAccordionText;
 use crate::elements::body::mj_accordion_title::MJAccordionTitle;
-use crate::elements::body::prelude::*;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 
@@ -21,6 +20,16 @@ const CHILDREN_ATTR: [&str; 9] = [
     "icon-unwrapped-alt",
 ];
 
+fn build_children_attributes(attrs: &Attributes) -> Attributes {
+    let mut result = Attributes::default();
+    for key in CHILDREN_ATTR.iter() {
+        if let Some(value) = attrs.get(key) {
+            result.set(key, value);
+        }
+    }
+    result
+}
+
 #[derive(Clone, Debug)]
 pub struct MJAccordionElement {
     attributes: Attributes,
@@ -31,12 +40,6 @@ pub struct MJAccordionElement {
 
 impl MJAccordionElement {
     fn get_children_attributes(&self) -> Attributes {
-        let mut result = Attributes::default();
-        for key in CHILDREN_ATTR.iter() {
-            if let Some(value) = self.get_attribute(key) {
-                result.set(key, value);
-            }
-        }
-        result
+        build_children_attributes(&self.attributes)
     }
 }

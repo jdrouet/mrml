@@ -1,7 +1,8 @@
 use super::MJBreakpoint;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::size::Size;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
 struct MJBreakpointParser {
@@ -12,21 +13,27 @@ impl MJMLParser for MJBreakpointParser {
     type Output = MJBreakpoint;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(MJBreakpoint { value: self.width })
+        if let Some(value) = self.width {
+            Ok(MJBreakpoint { value })
+        } else {
+            Err(Error::MissingAttribute("expected width attribute".into()))
+        }
     }
 
-    fn parse(mut self, node: &Node) -> Result<Self, Error> {
-        self.width = node
-            .attributes
-            .iter()
-            .find(|(key, _value)| key.as_str() == "width")
-            .and_then(|(_key, value)| value.as_str().parse::<Size>().ok());
-        Ok(self)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        if name.as_str() == "width" {
+            self.width = Some(value.as_str().parse::<Size>().map_err(|_err| {
+                Error::UnexpectedAttribute("unable to parse width attribute".into())
+            })?);
+            Ok(())
+        } else {
+            Err(Error::UnexpectedAttribute(name.to_string()))
+        }
     }
 }
 
 impl MJBreakpoint {
-    pub fn parse(node: &Node) -> Result<Self, Error> {
-        MJBreakpointParser::default().parse(node)?.build()
+    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+        MJBreakpointParser::default().parse(tokenizer)?.build()
     }
 }

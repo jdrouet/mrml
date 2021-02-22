@@ -4,8 +4,7 @@ use crate::util::header::Header;
 
 impl HeadComponent for MJBreakpoint {
     fn update_header(&self, header: &mut Header) {
-        if let Some(value) = self.value.as_ref() {
-            header.set_breakpoint(value.clone());
-        }
+        println!("mj-breakpoint.update_header");
+        header.set_breakpoint(self.value.clone());
     }
 }

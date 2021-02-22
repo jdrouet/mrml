@@ -1,8 +1,9 @@
-use super::{MJAccordionTitle, NAME as MJ_ACCORDION_TITLE};
+use super::MJAccordionTitle;
 use crate::elements::error::Error;
-use crate::parser::{MJMLParser, Node};
+use crate::parser::MJMLParser;
 use crate::util::attributes::*;
 use crate::util::header::Header;
+use xmlparser::{StrSpan, Tokenizer};
 
 lazy_static! {
     static ref DEFAULT_ATTRIBUTES: Attributes = Attributes::default()
@@ -26,12 +27,6 @@ impl<'h, 'p> MJAccordionTitleParser<'h, 'p> {
             content: String::default(),
         }
     }
-
-    fn default_attributes<'a>(node: &Node<'a>, header: &Header) -> Attributes {
-        header
-            .default_attributes
-            .get_attributes(node, DEFAULT_ATTRIBUTES.clone())
-    }
 }
 
 impl<'h, 'p> MJMLParser for MJAccordionTitleParser<'h, 'p> {
@@ -39,37 +34,36 @@ impl<'h, 'p> MJMLParser for MJAccordionTitleParser<'h, 'p> {
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(MJAccordionTitle {
-            attributes: self.attributes,
+            attributes: self
+                .header
+                .default_attributes
+                .concat_attributes(super::NAME, &DEFAULT_ATTRIBUTES, &self.attributes)
+                .concat(self.parent_attributes)
+                .concat(&self.attributes),
             context: None,
             content: self.content,
         })
     }
 
-    fn parse<'a>(mut self, node: &Node<'a>) -> Result<Self, Error> {
-        if node.name.as_str() != MJ_ACCORDION_TITLE {
-            return Err(Error::UnexpectedElement(node.name.as_str().into()));
-        }
-        self.attributes = Self::default_attributes(node, self.header)
-            .concat(self.parent_attributes)
-            .concat(node);
-        self.content = node
-            .children
-            .iter()
-            .filter_map(|child| child.as_text())
-            .map(|value| value.as_str())
-            .collect::<String>();
-        Ok(self)
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        self.attributes.set(name, value);
+        Ok(())
+    }
+
+    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
+        self.content.push_str(value.as_str());
+        Ok(())
     }
 }
 
 impl MJAccordionTitle {
     pub fn parse<'a>(
-        node: &Node<'a>,
+        tokenizer: &mut Tokenizer<'a>,
         header: &Header,
         attrs: &Attributes,
     ) -> Result<MJAccordionTitle, Error> {
         MJAccordionTitleParser::new(header, attrs)
-            .parse(node)?
+            .parse(tokenizer)?
             .build()
     }
 }

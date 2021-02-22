@@ -99,6 +99,28 @@ impl DefaultAttributes {
         }
         result
     }
+
+    pub fn concat_attributes(
+        &self,
+        tag: &str,
+        default_attributes: &Attributes,
+        attributes: &Attributes,
+    ) -> Attributes {
+        let mut result = default_attributes.clone().concat(&self.all);
+        if let Some(elt) = self.elements.get(tag) {
+            result.merge(elt);
+        }
+        let classes = attributes
+            .get("mj-class")
+            .map(|v| v.split(' ').map(String::from).collect::<Vec<String>>())
+            .unwrap_or_default();
+        for classname in classes.iter() {
+            if let Some(attrs) = self.classes.get(classname) {
+                result.merge(attrs);
+            }
+        }
+        result
+    }
 }
 
 #[derive(Clone, Debug)]

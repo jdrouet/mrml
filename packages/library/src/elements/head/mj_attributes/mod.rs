@@ -36,9 +36,3 @@ impl From<MJAttributesElement> for MjAttributesChild {
 pub struct MJAttributes {
     children: Vec<MjAttributesChild>,
 }
-
-impl MJAttributes {
-    fn new() -> Self {
-        Self::default()
-    }
-}
