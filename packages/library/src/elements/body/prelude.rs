@@ -1,4 +1,4 @@
-use super::BodyElement;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::prelude::*;
 use crate::util::attributes::Attributes;
 use crate::util::size::Size;
@@ -7,7 +7,7 @@ use crate::util::tag::Tag;
 use regex::Regex;
 
 lazy_static! {
-    pub static ref EMPTY_CHILDREN: Vec<BodyElement> = vec![];
+    pub static ref EMPTY_CHILDREN: Vec<MJBodyChild> = vec![];
 }
 
 pub trait BodyComponent: Component {
@@ -20,7 +20,7 @@ pub trait BodyComponent: Component {
         self.get_attribute(name)
             .and_then(|value| value.parse::<Size>().ok())
     }
-    fn get_children(&self) -> &Vec<BodyElement>;
+    fn get_children(&self) -> &Vec<MJBodyChild>;
     fn get_current_width(&self) -> Option<Size>;
 
     fn get_siblings(&self) -> usize {
@@ -257,7 +257,7 @@ pub mod tests {
         fn get_current_width(&self) -> Option<Size> {
             None
         }
-        fn get_children(&self) -> &Vec<BodyElement> {
+        fn get_children(&self) -> &Vec<MJBodyChild> {
             &EMPTY_CHILDREN
         }
         fn attributes(&self) -> Option<&Attributes> {

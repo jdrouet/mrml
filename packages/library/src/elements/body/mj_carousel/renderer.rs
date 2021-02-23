@@ -1,7 +1,7 @@
 use super::MJCarousel;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::mj_carousel_image::MJCarouselImage;
 use crate::elements::body::prelude::*;
-use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
@@ -21,7 +21,7 @@ impl MJCarousel {
         self.children
             .iter()
             .filter_map(|item| match item {
-                BodyElement::MJCarouselImage(content) => Some(content),
+                MJBodyChild::MJCarouselImage(content) => Some(content),
                 _ => None,
             })
             .collect()
@@ -378,7 +378,7 @@ impl Component for MJCarousel {
 }
 
 impl BodyComponent for MJCarousel {
-    fn get_children(&self) -> &Vec<BodyElement> {
+    fn get_children(&self) -> &Vec<MJBodyChild> {
         &self.children
     }
 

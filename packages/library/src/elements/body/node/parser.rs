@@ -1,8 +1,8 @@
 use super::Node;
 use crate::elements::body::comment::Comment;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::raw::RawElement;
 use crate::elements::body::text::Text;
-use crate::elements::body::BodyElement;
 use crate::elements::Error;
 use crate::parser::MJMLParser;
 use crate::util::attributes::Attributes;
@@ -14,7 +14,7 @@ struct NodeParser<'h> {
     only_raw: bool,
     name: String,
     attributes: Attributes,
-    children: Vec<BodyElement>,
+    children: Vec<MJBodyChild>,
 }
 
 impl<'h> NodeParser<'h> {
@@ -67,7 +67,7 @@ impl<'h> MJMLParser for NodeParser<'h> {
         self.children.push(if self.only_raw {
             RawElement::conditional_parse(tag, tokenizer, self.header, true)?.into()
         } else {
-            BodyElement::parse(tag, tokenizer, self.header, None)?
+            MJBodyChild::parse(tag, tokenizer, self.header, None)?
         });
         Ok(())
     }

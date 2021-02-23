@@ -1,6 +1,6 @@
 use super::MJGroup;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::*;
-use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
@@ -59,7 +59,7 @@ impl MJGroup {
         (classname.replace(".", "-"), parsed_width)
     }
 
-    fn render_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
+    fn render_child(&self, header: &Header, child: &MJBodyChild) -> Result<String, Error> {
         let td = Tag::td()
             .maybe_set_style("align", child.get_attribute("align"))
             .maybe_set_style("vertical-align", child.get_attribute("vertical-align"))
@@ -146,7 +146,7 @@ impl BodyComponent for MJGroup {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-    fn get_children(&self) -> &Vec<BodyElement> {
+    fn get_children(&self) -> &Vec<MJBodyChild> {
         &self.children
     }
 

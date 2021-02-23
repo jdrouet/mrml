@@ -1,6 +1,6 @@
 use super::Node;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::*;
-use crate::elements::body::BodyElement;
 use crate::elements::{Component, Error};
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
@@ -41,7 +41,7 @@ impl BodyComponent for Node {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-    fn get_children(&self) -> &Vec<BodyElement> {
+    fn get_children(&self) -> &Vec<MJBodyChild> {
         &self.children
     }
 

@@ -2,9 +2,9 @@ mod parser;
 mod renderer;
 
 use crate::elements::body::comment::Comment;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::node::Node;
 use crate::elements::body::text::Text;
-use crate::elements::body::BodyElement;
 
 #[derive(Clone, Debug)]
 pub enum RawElement {
@@ -23,12 +23,12 @@ impl RawElement {
     }
 }
 
-impl Into<BodyElement> for RawElement {
-    fn into(self) -> BodyElement {
+impl Into<MJBodyChild> for RawElement {
+    fn into(self) -> MJBodyChild {
         match self {
-            Self::Comment(value) => BodyElement::Comment(value),
-            Self::Node(value) => BodyElement::Node(value),
-            Self::Text(value) => BodyElement::Text(value),
+            Self::Comment(value) => MJBodyChild::Comment(value),
+            Self::Node(value) => MJBodyChild::Node(value),
+            Self::Text(value) => MJBodyChild::Text(value),
         }
     }
 }
