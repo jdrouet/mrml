@@ -1,6 +1,6 @@
 use super::MJSocial;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::*;
-use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
@@ -92,7 +92,7 @@ impl Component for MJSocial {
 }
 
 impl BodyComponent for MJSocial {
-    fn get_children(&self) -> &Vec<BodyElement> {
+    fn get_children(&self) -> &Vec<MJBodyChild> {
         &self.children
     }
 

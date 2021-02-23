@@ -2,7 +2,7 @@ use super::MJAccordion;
 use crate::elements::body::mj_accordion_element::{
     MJAccordionElement, NAME as MJ_ACCORDION_ELEMENT,
 };
-use crate::elements::body::BodyElement;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::error::Error;
 use crate::parser::MJMLParser;
 use crate::util::attributes::*;
@@ -39,7 +39,7 @@ lazy_static! {
 struct MJAccordionParser<'h> {
     header: &'h Header,
     attributes: Attributes,
-    children: Vec<BodyElement>,
+    children: Vec<MJBodyChild>,
 }
 
 impl<'h> MJAccordionParser<'h> {
@@ -87,7 +87,7 @@ impl<'h> MJMLParser for MJAccordionParser<'h> {
     }
 
     fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(BodyElement::comment(value.to_string()));
+        self.children.push(MJBodyChild::comment(value.to_string()));
         Ok(())
     }
 
@@ -101,7 +101,7 @@ impl<'h> MJMLParser for MJAccordionParser<'h> {
         }
         let child_attrs = self.get_children_attributes();
         let element = MJAccordionElement::parse(tokenizer, self.header, &child_attrs)?;
-        self.children.push(BodyElement::MJAccordionElement(element));
+        self.children.push(MJBodyChild::MJAccordionElement(element));
         Ok(())
     }
 }

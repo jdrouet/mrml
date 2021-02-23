@@ -1,7 +1,7 @@
 mod parser;
 mod renderer;
 
-use super::BodyElement;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 
@@ -11,5 +11,5 @@ pub const NAME: &str = "mj-text";
 pub struct MJText {
     attributes: Attributes,
     context: Option<Context>,
-    children: Vec<BodyElement>,
+    children: Vec<MJBodyChild>,
 }

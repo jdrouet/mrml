@@ -1,5 +1,5 @@
 use super::MJGroup;
-use crate::elements::body::BodyElement;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::error::Error;
 use crate::parser::MJMLParser;
 use crate::util::attributes::*;
@@ -14,7 +14,7 @@ struct MJGroupParser<'h> {
     header: &'h Header,
     attributes: Attributes,
     child_attributes: Attributes,
-    children: Vec<BodyElement>,
+    children: Vec<MJBodyChild>,
 }
 
 impl<'h> MJGroupParser<'h> {
@@ -49,12 +49,12 @@ impl<'h> MJMLParser for MJGroupParser<'h> {
     }
 
     fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(BodyElement::comment(value.to_string()));
+        self.children.push(MJBodyChild::comment(value.to_string()));
         Ok(())
     }
 
     fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(BodyElement::text(value.to_string()));
+        self.children.push(MJBodyChild::text(value.to_string()));
         Ok(())
     }
 
@@ -63,7 +63,7 @@ impl<'h> MJMLParser for MJGroupParser<'h> {
         tag: StrSpan<'a>,
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
-        self.children.push(BodyElement::parse(
+        self.children.push(MJBodyChild::parse(
             tag,
             tokenizer,
             self.header,

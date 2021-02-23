@@ -1,6 +1,6 @@
 use super::Text;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::{BodyComponent, EMPTY_CHILDREN};
-use crate::elements::body::BodyElement;
 use crate::elements::{Component, Error};
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
@@ -25,7 +25,7 @@ impl BodyComponent for Text {
     fn attributes(&self) -> Option<&Attributes> {
         None
     }
-    fn get_children(&self) -> &Vec<BodyElement> {
+    fn get_children(&self) -> &Vec<MJBodyChild> {
         &EMPTY_CHILDREN
     }
 

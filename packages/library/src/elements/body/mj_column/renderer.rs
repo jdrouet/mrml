@@ -1,6 +1,6 @@
 use super::MJColumn;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::*;
-use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
@@ -126,7 +126,7 @@ impl MJColumn {
         Ok(table.render(tbody.render(tr.render(td.render(self.render_column(header)?)))))
     }
 
-    fn render_mj_child(&self, header: &Header, child: &BodyElement) -> Result<String, Error> {
+    fn render_mj_child(&self, header: &Header, child: &MJBodyChild) -> Result<String, Error> {
         let tr = Tag::tr();
         let td = Tag::td()
             .maybe_set_style(
@@ -210,7 +210,7 @@ impl BodyComponent for MJColumn {
         Some(&self.attributes)
     }
 
-    fn get_children(&self) -> &Vec<BodyElement> {
+    fn get_children(&self) -> &Vec<MJBodyChild> {
         &self.children
     }
 

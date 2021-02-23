@@ -1,6 +1,6 @@
 use super::MJRaw;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::raw::RawElement;
-use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::parser::MJMLParser;
 use crate::util::header::Header;
@@ -8,7 +8,7 @@ use xmlparser::{StrSpan, Tokenizer};
 
 struct MJRawParser<'h> {
     header: &'h Header,
-    children: Vec<BodyElement>,
+    children: Vec<MJBodyChild>,
 }
 
 impl<'h> MJRawParser<'h> {
@@ -31,12 +31,12 @@ impl<'h> MJMLParser for MJRawParser<'h> {
     }
 
     fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(BodyElement::comment(value.to_string()));
+        self.children.push(MJBodyChild::comment(value.to_string()));
         Ok(())
     }
 
     fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(BodyElement::text(value.to_string()));
+        self.children.push(MJBodyChild::text(value.to_string()));
         Ok(())
     }
 

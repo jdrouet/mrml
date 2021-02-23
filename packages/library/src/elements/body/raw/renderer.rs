@@ -1,7 +1,7 @@
 use super::RawElement;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::node::Node;
 use crate::elements::body::prelude::*;
-use crate::elements::body::BodyElement;
 use crate::elements::{Component, Error};
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
@@ -38,7 +38,7 @@ impl Component for RawElement {
 }
 
 impl BodyComponent for RawElement {
-    fn get_children(&self) -> &Vec<BodyElement> {
+    fn get_children(&self) -> &Vec<MJBodyChild> {
         self.as_node()
             .map(|node| node.get_children())
             .unwrap_or(&EMPTY_CHILDREN)

@@ -1,5 +1,5 @@
 use super::MJButton;
-use crate::elements::body::BodyElement;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::error::Error;
 use crate::parser::MJMLParser;
 use crate::util::attributes::*;
@@ -28,7 +28,7 @@ lazy_static! {
 struct MJButtonParser<'h> {
     header: &'h Header,
     attributes: Attributes,
-    children: Vec<BodyElement>,
+    children: Vec<MJBodyChild>,
 }
 
 impl<'h> MJButtonParser<'h> {
@@ -63,12 +63,12 @@ impl<'h> MJMLParser for MJButtonParser<'h> {
     }
 
     fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(BodyElement::comment(value.to_string()));
+        self.children.push(MJBodyChild::comment(value.to_string()));
         Ok(())
     }
 
     fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(BodyElement::text(value.to_string()));
+        self.children.push(MJBodyChild::text(value.to_string()));
         Ok(())
     }
 
@@ -78,7 +78,7 @@ impl<'h> MJMLParser for MJButtonParser<'h> {
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
         self.children
-            .push(BodyElement::parse(tag, tokenizer, self.header, None)?);
+            .push(MJBodyChild::parse(tag, tokenizer, self.header, None)?);
         Ok(())
     }
 }

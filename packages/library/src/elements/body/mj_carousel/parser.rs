@@ -1,6 +1,6 @@
 use super::MJCarousel;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::mj_carousel_image::{MJCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
-use crate::elements::body::BodyElement;
 use crate::elements::error::Error;
 use crate::parser::MJMLParser;
 use crate::util::attributes::*;
@@ -26,7 +26,7 @@ struct MJCarouselParser<'h> {
     header: &'h Header,
     id: String,
     attributes: Attributes,
-    children: Vec<BodyElement>,
+    children: Vec<MJBodyChild>,
 }
 
 impl<'h> MJCarouselParser<'h> {
@@ -74,7 +74,7 @@ impl<'h> MJMLParser for MJCarouselParser<'h> {
     }
 
     fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(BodyElement::comment(value.to_string()));
+        self.children.push(MJBodyChild::comment(value.to_string()));
         Ok(())
     }
 
@@ -88,7 +88,7 @@ impl<'h> MJMLParser for MJCarouselParser<'h> {
         }
         let child_attrs = self.get_children_attributes();
         let element = MJCarouselImage::parse(tokenizer, self.header, &child_attrs)?;
-        self.children.push(BodyElement::MJCarouselImage(element));
+        self.children.push(MJBodyChild::MJCarouselImage(element));
         Ok(())
     }
 }

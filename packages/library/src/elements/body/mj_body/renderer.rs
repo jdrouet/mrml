@@ -1,6 +1,6 @@
 use super::MJBody;
+use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::*;
-use crate::elements::body::BodyElement;
 use crate::elements::{Component, Error};
 use crate::util::attributes::*;
 use crate::util::context::Context;
@@ -86,7 +86,7 @@ impl BodyComponent for MJBody {
         self.get_size_attribute("width")
     }
 
-    fn get_children(&self) -> &Vec<BodyElement> {
+    fn get_children(&self) -> &Vec<MJBodyChild> {
         &self.children
     }
 

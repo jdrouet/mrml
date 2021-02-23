@@ -1,9 +1,10 @@
+pub mod children;
 mod parser;
 mod renderer;
 
-use super::BodyElement;
 use crate::util::attributes::*;
 use crate::util::context::Context;
+use children::MJBodyChild;
 
 pub const NAME: &str = "mj-body";
 
@@ -11,7 +12,7 @@ pub const NAME: &str = "mj-body";
 pub struct MJBody {
     attributes: Attributes,
     context: Option<Context>,
-    children: Vec<BodyElement>,
+    children: Vec<MJBodyChild>,
     exists: bool,
 }
 
