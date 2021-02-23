@@ -1,6 +1,6 @@
+use super::children::MJHeadChild;
 use super::MJHead;
 use crate::elements::head::prelude::HeadComponent;
-use crate::elements::head::HeadElement;
 use crate::elements::Error;
 use crate::parser::MJMLParser;
 use crate::util::header::Header;
@@ -9,7 +9,7 @@ use xmlparser::{StrSpan, Tokenizer};
 
 struct MJHeadParser {
     options: Options,
-    children: Vec<HeadElement>,
+    children: Vec<MJHeadChild>,
 }
 
 impl MJHeadParser {
@@ -41,7 +41,7 @@ impl MJMLParser for MJHeadParser {
         tag: StrSpan<'a>,
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
-        self.children.push(HeadElement::parse(tag, tokenizer)?);
+        self.children.push(MJHeadChild::parse(tag, tokenizer)?);
         Ok(())
     }
 }

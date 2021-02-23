@@ -1,10 +1,11 @@
+mod children;
 mod parser;
 mod renderer;
 
-use super::HeadElement;
 use crate::util::context::Context;
 use crate::util::header::Header;
 use crate::Options;
+use children::MJHeadChild;
 use log::debug;
 
 pub const NAME: &str = "mj-head";
@@ -12,7 +13,7 @@ pub const NAME: &str = "mj-head";
 #[derive(Debug, Clone)]
 pub struct MJHead {
     context: Option<Context>,
-    children: Vec<HeadElement>,
+    children: Vec<MJHeadChild>,
     header: Header,
 }
 

@@ -1,4 +1,5 @@
-use super::{MJAttributes, MjAttributesChild};
+use super::children::MJAttributesChild;
+use super::MJAttributes;
 use crate::elements::error::Error;
 use crate::elements::head::{mj_attributes_all, mj_attributes_class, mj_attributes_element};
 use crate::parser::MJMLParser;
@@ -6,7 +7,7 @@ use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
 struct MJAttributesParser {
-    children: Vec<MjAttributesChild>,
+    children: Vec<MJAttributesChild>,
 }
 
 impl MJMLParser for MJAttributesParser {
