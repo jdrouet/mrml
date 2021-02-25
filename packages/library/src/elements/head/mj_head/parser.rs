@@ -1,8 +1,7 @@
 use super::children::MJHeadChild;
 use super::MJHead;
 use crate::elements::head::prelude::HeadComponent;
-use crate::elements::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use crate::util::header::Header;
 use crate::Options;
 use xmlparser::{StrSpan, Tokenizer};

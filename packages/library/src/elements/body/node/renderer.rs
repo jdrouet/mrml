@@ -2,7 +2,8 @@ use super::Node;
 use crate::elements::body::prelude::{
     as_body_component, BodyComponent, BodyComponentChildIterator,
 };
-use crate::elements::{Component, Error};
+use crate::elements::error::Error;
+use crate::elements::prelude::Component;
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
 use crate::util::header::Header;

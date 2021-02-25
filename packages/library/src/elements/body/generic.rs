@@ -1,8 +1,8 @@
 use crate::elements::body::comment::Comment;
 use crate::elements::body::prelude::{BodyComponent, BodyComponentChildIterator};
 use crate::elements::body::text::Text;
+use crate::elements::error::Error;
 use crate::elements::prelude::Component;
-use crate::elements::Error;
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
 use crate::util::header::Header;

@@ -1,8 +1,7 @@
 use super::{MJCarousel, MJCarouselChild};
 use crate::elements::body::mj_carousel_image::{MJCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
-use crate::util::attributes::*;
+use crate::parser::{Error, MJMLParser};
+use crate::util::attributes::{Attributes, Merge};
 use crate::util::header::Header;
 use crate::util::id::Generator as IdGenerator;
 use xmlparser::{StrSpan, Tokenizer};
@@ -84,7 +83,7 @@ impl<'h> MJMLParser for MJCarouselParser<'h> {
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
         if tag.as_str() != MJ_CAROUSEL_IMAGE {
-            return Err(Error::UnexpectedElement(tag.to_string()));
+            return Err(Error::UnexpectedElement(tag.start()));
         }
         let child_attrs = self.get_children_attributes();
         let element = MJCarouselImage::parse(tokenizer, self.header, &child_attrs)?;

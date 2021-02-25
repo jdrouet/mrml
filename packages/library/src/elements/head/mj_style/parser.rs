@@ -1,6 +1,5 @@
 use super::MJStyle;
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
@@ -24,7 +23,7 @@ impl MJMLParser for MJStyleParser {
             self.inline = true;
             Ok(())
         } else {
-            Err(Error::UnexpectedAttribute(name.to_string()))
+            Err(Error::UnexpectedAttribute(name.start()))
         }
     }
 

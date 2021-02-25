@@ -1,8 +1,7 @@
 use super::{MJNavbar, MJNavbarChild};
 use crate::elements::body::mj_navbar_link::{MJNavbarLink, NAME as MJ_NAVBAR_LINK};
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
-use crate::util::attributes::*;
+use crate::parser::{Error, MJMLParser};
+use crate::util::attributes::{Attributes, Merge};
 use crate::util::header::Header;
 use crate::util::id::Generator as IdGenerator;
 use xmlparser::{StrSpan, Tokenizer};
@@ -75,7 +74,7 @@ impl<'h> MJMLParser for MJNavbarParser<'h> {
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
         if tag.as_str() != MJ_NAVBAR_LINK {
-            return Err(Error::UnexpectedElement(tag.to_string()));
+            return Err(Error::UnexpectedElement(tag.start()));
         }
         let child_attrs = self.get_children_attributes();
         let element = MJNavbarLink::parse(tokenizer, self.header, &child_attrs)?;

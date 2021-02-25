@@ -1,9 +1,8 @@
 use super::MJAccordionElement;
 use crate::elements::body::mj_accordion_text::{MJAccordionText, NAME as MJ_ACCORDION_TEXT};
 use crate::elements::body::mj_accordion_title::{MJAccordionTitle, NAME as MJ_ACCORDION_TITLE};
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
-use crate::util::attributes::*;
+use crate::parser::{Error, MJMLParser};
+use crate::util::attributes::{Attributes, Merge};
 use crate::util::header::Header;
 use xmlparser::{StrSpan, Tokenizer};
 
@@ -77,7 +76,7 @@ impl<'h, 'p> MJMLParser for MJAccordionElementParser<'h, 'p> {
                     &child_attrs,
                 )?);
             }
-            _ => return Err(Error::UnexpectedElement(tag.to_string())),
+            _ => return Err(Error::UnexpectedElement(tag.start())),
         };
         Ok(())
     }

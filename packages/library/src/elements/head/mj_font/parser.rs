@@ -1,6 +1,5 @@
 use super::MJFont;
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
@@ -17,10 +16,14 @@ impl MJMLParser for MJFontParser {
             if let Some(href) = self.href {
                 Ok(MJFont { name, href })
             } else {
-                Err(Error::MissingAttribute("href".into()))
+                Err(Error::InvalidElement(
+                    "mj-font should have a href attribute".into(),
+                ))
             }
         } else {
-            Err(Error::MissingAttribute("name".into()))
+            Err(Error::InvalidElement(
+                "mj-font should have a name attribute".into(),
+            ))
         }
     }
 
@@ -28,7 +31,7 @@ impl MJMLParser for MJFontParser {
         match name.as_str() {
             "name" => self.name = Some(value.to_string()),
             "href" => self.href = Some(value.to_string()),
-            _ => return Err(Error::UnexpectedAttribute(name.to_string())),
+            _ => return Err(Error::UnexpectedAttribute(name.start())),
         };
         Ok(())
     }

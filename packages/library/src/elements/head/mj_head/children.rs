@@ -1,4 +1,3 @@
-use crate::elements::error::Error;
 use crate::elements::head::mj_attributes::{MJAttributes, NAME as MJ_ATTRIBUTES};
 use crate::elements::head::mj_breakpoint::{MJBreakpoint, NAME as MJ_BREAKPOINT};
 use crate::elements::head::mj_font::{MJFont, NAME as MJ_FONT};
@@ -6,6 +5,7 @@ use crate::elements::head::mj_preview::{MJPreview, NAME as MJ_PREVIEW};
 use crate::elements::head::mj_style::{MJStyle, NAME as MJ_STYLE};
 use crate::elements::head::mj_title::{MJTitle, NAME as MJ_TITLE};
 use crate::elements::head::prelude::HeadComponent;
+use crate::parser::Error;
 use crate::util::header::Header;
 use xmlparser::{StrSpan, Tokenizer};
 
@@ -44,7 +44,7 @@ impl MJHeadChild {
             MJ_PREVIEW => Self::MJPreview(MJPreview::parse(tokenizer)?),
             MJ_STYLE => Self::MJStyle(MJStyle::parse(tokenizer)?),
             MJ_TITLE => Self::MJTitle(MJTitle::parse(tokenizer)?),
-            _ => return Err(Error::UnexpectedElement(tag.to_string())),
+            _ => return Err(Error::UnexpectedElement(tag.start())),
         })
     }
 

@@ -1,11 +1,13 @@
-use crate::elements::error::Error as ElementError;
 use xmlparser::{StrSpan, Token, Tokenizer};
 
 #[derive(Debug)]
 pub enum Error {
-    InvalidFormat {
-        position: usize,
-    },
+    UnexpectedAttribute(usize),
+    UnexpectedElement(usize),
+    UnexpectedComment(usize),
+    UnexpectedText(usize),
+    InvalidElement(String),
+    InvalidFormat,
     /// The input string should be smaller than 4GiB.
     SizeLimit,
     /// Errors detected by the `xmlparser` crate.
@@ -20,28 +22,24 @@ impl From<xmlparser::Error> for Error {
     }
 }
 
-pub fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, ElementError> {
+pub fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, Error> {
     if let Some(token) = tokenizer.next() {
-        token.map_err(|err| ElementError::ParseError(err.to_string()))
+        Ok(token?)
     } else {
-        Err(ElementError::ParseError("no more token found".into()))
+        Err(Error::InvalidFormat)
     }
 }
 
 pub trait MJMLParser: Sized {
     type Output;
 
-    fn build(self) -> Result<Self::Output, ElementError>;
+    fn build(self) -> Result<Self::Output, Error>;
 
-    fn parse_attribute<'a>(
-        &mut self,
-        name: StrSpan<'a>,
-        _value: StrSpan<'a>,
-    ) -> Result<(), ElementError> {
-        Err(ElementError::UnexpectedAttribute(name.to_string()))
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, _value: StrSpan<'a>) -> Result<(), Error> {
+        Err(Error::UnexpectedAttribute(name.start()))
     }
 
-    fn parse_children<'a>(&mut self, tokenizer: &mut Tokenizer<'a>) -> Result<(), ElementError> {
+    fn parse_children<'a>(&mut self, tokenizer: &mut Tokenizer<'a>) -> Result<(), Error> {
         loop {
             let token = next_token(tokenizer)?;
             match token {
@@ -61,7 +59,7 @@ pub trait MJMLParser: Sized {
                     self.parse_child_element(local, tokenizer)?;
                 }
                 Token::ElementEnd { end: _, span: _ } => return Ok(()),
-                _ => return Err(ElementError::ParseError("unexpected value".into())),
+                _ => return Err(Error::InvalidFormat),
             };
         }
     }
@@ -70,19 +68,19 @@ pub trait MJMLParser: Sized {
         &mut self,
         tag: StrSpan<'a>,
         _tokenizer: &mut Tokenizer<'a>,
-    ) -> Result<(), ElementError> {
-        Err(ElementError::UnexpectedElement(tag.to_string()))
+    ) -> Result<(), Error> {
+        Err(Error::UnexpectedElement(tag.start()))
     }
 
-    fn parse_child_comment(&mut self, _value: StrSpan) -> Result<(), ElementError> {
-        Err(ElementError::UnexpectedComment)
+    fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
+        Err(Error::UnexpectedComment(value.start()))
     }
 
-    fn parse_child_text(&mut self, _value: StrSpan) -> Result<(), ElementError> {
-        Err(ElementError::UnexpectedText)
+    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
+        Err(Error::UnexpectedText(value.start()))
     }
 
-    fn parse(mut self, tokenizer: &mut Tokenizer) -> Result<Self, ElementError> {
+    fn parse(mut self, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         loop {
             let token = next_token(tokenizer)?;
             match token {
@@ -104,11 +102,11 @@ pub trait MJMLParser: Sized {
                             return Ok(self);
                         }
                         // unexpected
-                        _ => return Err(ElementError::ParseError("invalid element".into())),
+                        _ => return Err(Error::InvalidFormat),
                     }
                 }
                 _ => {
-                    return Err(ElementError::ParseError("unexpected token".into()));
+                    return Err(Error::InvalidFormat);
                 }
             };
         }

@@ -1,6 +1,5 @@
 use super::MJAttributesAll;
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use std::collections::HashMap;
 use xmlparser::{StrSpan, Tokenizer};
 

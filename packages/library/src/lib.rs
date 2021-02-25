@@ -12,7 +12,7 @@ mod error;
 pub mod parser;
 pub mod util;
 
-use crate::elements::MJMLElement;
+use crate::elements::mjml::MJMLElement;
 pub use error::Error;
 use util::fonts::FontRegistry;
 use util::size::Size;
@@ -48,7 +48,7 @@ impl Default for Options {
 
 pub fn parse(input: &str, options: Options) -> Result<MJMLElement, Error> {
     if input.len() > std::u32::MAX as usize {
-        return Err(Error::ParserError(crate::parser::Error::SizeLimit));
+        return Err(crate::parser::Error::SizeLimit.into());
     }
     let mut tokenizer = xmlparser::Tokenizer::from(input);
     let result = MJMLElement::parse_root(&mut tokenizer, options)?;

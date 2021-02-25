@@ -26,6 +26,7 @@ use crate::elements::body::prelude::{BodyComponent, BodyComponentChildIterator};
 use crate::elements::body::text::Text;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
+use crate::parser::Error as ParserError;
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
 use crate::util::header::Header;
@@ -148,7 +149,7 @@ impl MJBodyChild {
         tokenizer: &mut Tokenizer<'a>,
         header: &Header,
         extra: Option<&Attributes>,
-    ) -> Result<MJBodyChild, Error> {
+    ) -> Result<MJBodyChild, ParserError> {
         let res = match tag.as_str() {
             MJ_ACCORDION => Self::MJAccordion(MJAccordion::parse(tokenizer, header)?),
             MJ_ACCORDION_ELEMENT => Self::MJAccordionElement(MJAccordionElement::parse(
