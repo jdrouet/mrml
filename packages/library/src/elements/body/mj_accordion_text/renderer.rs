@@ -1,5 +1,4 @@
 use super::MJAccordionText;
-use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::*;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -65,10 +64,6 @@ impl Component for MJAccordionText {
 impl BodyComponent for MJAccordionText {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
-    }
-
-    fn get_children(&self) -> &Vec<MJBodyChild> {
-        &EMPTY_CHILDREN
     }
 
     fn get_current_width(&self) -> Option<Size> {

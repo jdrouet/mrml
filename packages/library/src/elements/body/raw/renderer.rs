@@ -38,10 +38,20 @@ impl Component for RawElement {
 }
 
 impl BodyComponent for RawElement {
-    fn get_children(&self) -> &Vec<MJBodyChild> {
+    fn is_raw(&self) -> bool {
+        true
+    }
+
+    fn get_children_len(&self) -> usize {
+        self.as_node()
+            .map(|node| node.get_children_len())
+            .unwrap_or_default()
+    }
+
+    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
         self.as_node()
             .map(|node| node.get_children())
-            .unwrap_or(&EMPTY_CHILDREN)
+            .unwrap_or_else(|| Box::new(EMPTY_CHILDREN.iter()))
     }
 
     fn get_current_width(&self) -> Option<Size> {

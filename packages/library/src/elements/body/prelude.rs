@@ -13,23 +13,35 @@ lazy_static! {
 pub trait BodyComponent: Component {
     fn attributes(&self) -> Option<&Attributes>;
 
+    fn is_raw(&self) -> bool {
+        false
+    }
+
     fn get_attribute(&self, key: &str) -> Option<&String> {
         self.attributes().and_then(|src| src.get(&key.to_string()))
     }
+
     fn get_size_attribute(&self, name: &str) -> Option<Size> {
         self.get_attribute(name)
             .and_then(|value| value.parse::<Size>().ok())
     }
-    fn get_children(&self) -> &Vec<MJBodyChild>;
+
+    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
+        Box::new(EMPTY_CHILDREN.iter())
+    }
+
+    fn get_children_len(&self) -> usize {
+        0
+    }
+
     fn get_current_width(&self) -> Option<Size>;
 
     fn get_siblings(&self) -> usize {
-        self.get_children().len()
+        self.get_children_len()
     }
 
     fn get_raw_siblings(&self) -> usize {
         self.get_children()
-            .iter()
             .fold(0, |res, item| if item.is_raw() { res + 1 } else { res })
     }
 
@@ -257,9 +269,7 @@ pub mod tests {
         fn get_current_width(&self) -> Option<Size> {
             None
         }
-        fn get_children(&self) -> &Vec<MJBodyChild> {
-            &EMPTY_CHILDREN
-        }
+
         fn attributes(&self) -> Option<&Attributes> {
             Some(&self.attributes)
         }
