@@ -1,13 +1,3 @@
-use crate::elements::body::prelude::BodyComponent;
-use crate::elements::error::Error;
-use crate::elements::prelude::*;
-use crate::util::attributes::Attributes;
-use crate::util::context::Context;
-use crate::util::header::Header;
-use crate::util::size::Size;
-use crate::util::tag::Tag;
-use xmlparser::{StrSpan, Tokenizer};
-
 use crate::elements::body::comment::Comment;
 use crate::elements::body::mj_accordion::{MJAccordion, NAME as MJ_ACCORDION};
 use crate::elements::body::mj_accordion_element::{
@@ -32,7 +22,16 @@ use crate::elements::body::mj_table::{MJTable, NAME as MJ_TABLE};
 use crate::elements::body::mj_text::{MJText, NAME as MJ_TEXT};
 use crate::elements::body::mj_wrapper::{MJWrapper, NAME as MJ_WRAPPER};
 use crate::elements::body::node::Node;
+use crate::elements::body::prelude::{BodyComponent, BodyComponentChildIterator};
 use crate::elements::body::text::Text;
+use crate::elements::error::Error;
+use crate::elements::prelude::*;
+use crate::util::attributes::Attributes;
+use crate::util::context::Context;
+use crate::util::header::Header;
+use crate::util::size::Size;
+use crate::util::tag::Tag;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Clone, Debug)]
 pub enum MJBodyChild {
@@ -110,7 +109,7 @@ impl Component for MJBodyChild {
 }
 
 impl BodyComponent for MJBodyChild {
-    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
+    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
         self.inner().get_children()
     }
 

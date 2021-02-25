@@ -1,6 +1,7 @@
 use super::Node;
-use crate::elements::body::mj_body::children::MJBodyChild;
-use crate::elements::body::prelude::*;
+use crate::elements::body::prelude::{
+    as_body_component, BodyComponent, BodyComponentChildIterator,
+};
 use crate::elements::{Component, Error};
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
@@ -50,8 +51,8 @@ impl BodyComponent for Node {
         self.children.len()
     }
 
-    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
-        Box::new(self.children.iter())
+    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
+        Box::new(self.children.iter().map(as_body_component))
     }
 
     fn get_current_width(&self) -> Option<Size> {

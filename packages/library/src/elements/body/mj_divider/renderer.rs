@@ -1,5 +1,5 @@
 use super::MJDivider;
-use crate::elements::body::prelude::*;
+use crate::elements::body::prelude::BodyComponent;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
