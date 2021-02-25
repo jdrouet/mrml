@@ -8,7 +8,7 @@ use crate::Options;
 use log::debug;
 use xmlparser::{StrSpan, Token, Tokenizer};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJMLElement {
     context: Option<Context>,
     head: MJHead,

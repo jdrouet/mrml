@@ -6,7 +6,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-carousel-image";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJCarouselImage {
     attributes: Attributes,
     carousel_id: String,

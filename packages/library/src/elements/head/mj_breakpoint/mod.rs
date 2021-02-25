@@ -5,7 +5,7 @@ use crate::util::size::Size;
 
 pub const NAME: &str = "mj-breakpoint";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJBreakpoint {
     value: Size,
 }

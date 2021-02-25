@@ -1,6 +1,6 @@
 mod renderer;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Comment {
     content: String,
 }

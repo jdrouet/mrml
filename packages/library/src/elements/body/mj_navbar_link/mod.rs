@@ -6,7 +6,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-navbar-link";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJNavbarLink {
     attributes: Attributes,
     context: Option<Context>,

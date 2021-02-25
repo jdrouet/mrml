@@ -9,7 +9,7 @@ pub const NAME: &str = "mj-wrapper";
 
 const DEFAULT_BACKGROUND_POSITION: &str = "top center";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJWrapper {
     attributes: Attributes,
     context: Option<Context>,

@@ -10,7 +10,7 @@ pub const NAME: &str = "mj-accordion";
 
 pub type MJAccordionChild = ComponentOrComment<MJAccordionElement>;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJAccordion {
     attributes: Attributes,
     context: Option<Context>,

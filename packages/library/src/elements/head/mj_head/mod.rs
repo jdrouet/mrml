@@ -10,7 +10,7 @@ use log::debug;
 
 pub const NAME: &str = "mj-head";
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct MJHead {
     context: Option<Context>,
     children: Vec<MJHeadChild>,

@@ -6,14 +6,14 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-social-element";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 struct SocialNetwork {
     pub background_color: String,
     pub share_url: Option<String>,
     pub src: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJSocialElement {
     attributes: Attributes,
     context: Option<Context>,

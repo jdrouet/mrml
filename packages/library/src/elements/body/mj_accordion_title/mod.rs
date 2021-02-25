@@ -6,7 +6,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-accordion-title";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJAccordionTitle {
     attributes: Attributes,
     context: Option<Context>,

@@ -9,7 +9,7 @@ pub const NAME: &str = "mj-section";
 
 const DEFAULT_BACKGROUND_POSITION: &str = "top center";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJSection {
     attributes: Attributes,
     context: Option<Context>,

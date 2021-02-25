@@ -10,7 +10,7 @@ pub const NAME: &str = "mj-navbar";
 
 pub type MJNavbarChild = ComponentOrComment<MJNavbarLink>;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJNavbar {
     attributes: Attributes,
     context: Option<Context>,

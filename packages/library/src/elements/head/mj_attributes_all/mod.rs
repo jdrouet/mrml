@@ -5,7 +5,7 @@ mod renderer;
 
 pub const NAME: &str = "mj-all";
 
-#[derive(Clone, Debug, Default)]
+#[derive(Debug, Default)]
 pub struct MJAttributesAll {
     content: HashMap<String, String>,
 }

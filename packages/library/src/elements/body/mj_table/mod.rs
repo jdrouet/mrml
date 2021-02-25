@@ -7,7 +7,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-table";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJTable {
     attributes: Attributes,
     context: Option<Context>,

@@ -63,7 +63,7 @@ macro_rules! propagate_trait {
     };
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum ComponentOrComment<E: BodyComponent> {
     Comment(Comment),
     Element(E),
@@ -91,7 +91,7 @@ impl<E: BodyComponent> ComponentOrComment<E> {
 
 propagate_trait!(ComponentOrComment);
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum ComponentOrTextOrComment<E: BodyComponent> {
     Comment(Comment),
     Element(E),
