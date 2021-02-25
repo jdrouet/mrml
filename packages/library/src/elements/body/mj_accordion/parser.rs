@@ -3,8 +3,7 @@ use crate::elements::body::generic::ComponentOrComment;
 use crate::elements::body::mj_accordion_element::{
     MJAccordionElement, NAME as MJ_ACCORDION_ELEMENT,
 };
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use crate::util::attributes::*;
 use crate::util::header::Header;
 use xmlparser::{StrSpan, Tokenizer};
@@ -98,7 +97,7 @@ impl<'h> MJMLParser for MJAccordionParser<'h> {
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
         if tag.as_str() != MJ_ACCORDION_ELEMENT {
-            return Err(Error::UnexpectedElement(tag.to_string()));
+            return Err(Error::UnexpectedElement(tag.start()));
         }
         let child_attrs = self.get_children_attributes();
         let element = MJAccordionElement::parse(tokenizer, self.header, &child_attrs)?;

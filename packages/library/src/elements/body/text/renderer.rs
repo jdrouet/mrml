@@ -1,6 +1,7 @@
 use super::Text;
 use crate::elements::body::prelude::BodyComponent;
-use crate::elements::{Component, Error};
+use crate::elements::error::Error;
+use crate::elements::prelude::Component;
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
 use crate::util::header::Header;

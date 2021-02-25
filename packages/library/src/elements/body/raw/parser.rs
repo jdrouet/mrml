@@ -1,6 +1,6 @@
 use super::RawElement;
 use crate::elements::body::node::Node;
-use crate::elements::Error;
+use crate::parser::Error;
 use crate::util::header::Header;
 use xmlparser::{StrSpan, Tokenizer};
 

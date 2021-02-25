@@ -1,6 +1,6 @@
 use super::MJHead;
-use crate::elements::prelude::*;
-use crate::elements::Error;
+use crate::elements::error::Error;
+use crate::elements::prelude::Component;
 use crate::util::context::Context;
 use crate::util::fonts::{url_to_import, url_to_link};
 use crate::util::header::Header;

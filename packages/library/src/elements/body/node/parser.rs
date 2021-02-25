@@ -3,8 +3,7 @@ use crate::elements::body::comment::Comment;
 use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::raw::RawElement;
 use crate::elements::body::text::Text;
-use crate::elements::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use crate::util::attributes::Attributes;
 use crate::util::header::Header;
 use xmlparser::{StrSpan, Tokenizer};
@@ -18,14 +17,17 @@ struct NodeParser<'h> {
 }
 
 impl<'h> NodeParser<'h> {
-    pub fn new<'a>(tag: StrSpan<'a>, header: &'h Header, only_raw: bool) -> Self {
-        Self {
+    pub fn new<'a>(tag: StrSpan<'a>, header: &'h Header, only_raw: bool) -> Result<Self, Error> {
+        if only_raw && tag.as_str().starts_with("mj-") {
+            return Err(Error::UnexpectedElement(tag.start()));
+        }
+        Ok(Self {
             header,
             only_raw,
             name: tag.to_string(),
             attributes: Attributes::default(),
             children: Vec::new(),
-        }
+        })
     }
 }
 
@@ -33,9 +35,6 @@ impl<'h> MJMLParser for NodeParser<'h> {
     type Output = Node;
 
     fn build(self) -> Result<Self::Output, Error> {
-        if self.only_raw && self.name.starts_with("mj-") {
-            return Err(Error::UnexpectedElement(self.name));
-        }
         Ok(Node {
             name: self.name,
             attributes: self.attributes,
@@ -88,7 +87,7 @@ impl Node {
         header: &Header,
         only_raw: bool,
     ) -> Result<Node, Error> {
-        NodeParser::new(tag, header, only_raw)
+        NodeParser::new(tag, header, only_raw)?
             .parse(tokenizer)?
             .build()
     }

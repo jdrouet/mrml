@@ -1,6 +1,5 @@
 use super::MJBreakpoint;
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use crate::util::size::Size;
 use xmlparser::{StrSpan, Tokenizer};
 
@@ -16,18 +15,23 @@ impl MJMLParser for MJBreakpointParser {
         if let Some(value) = self.width {
             Ok(MJBreakpoint { value })
         } else {
-            Err(Error::MissingAttribute("expected width attribute".into()))
+            Err(Error::InvalidElement(
+                "mj-breakpoint expects a width attribute".into(),
+            ))
         }
     }
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
         if name.as_str() == "width" {
             self.width = Some(value.as_str().parse::<Size>().map_err(|_err| {
-                Error::UnexpectedAttribute("unable to parse width attribute".into())
+                Error::InvalidElement(format!(
+                    "mj-breakpoint width attribute is invalid at position {}",
+                    value.start()
+                ))
             })?);
             Ok(())
         } else {
-            Err(Error::UnexpectedAttribute(name.to_string()))
+            Err(Error::UnexpectedAttribute(name.start()))
         }
     }
 }

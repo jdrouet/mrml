@@ -1,6 +1,5 @@
 use super::MJAttributesClass;
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use std::collections::HashMap;
 use xmlparser::{StrSpan, Tokenizer};
 
@@ -20,7 +19,9 @@ impl MJMLParser for MJAttributesClassParser {
                 content: self.content,
             })
         } else {
-            Err(Error::MissingAttribute("name".into()))
+            Err(Error::InvalidElement(
+                "mj-class expects a name attribute".into(),
+            ))
         }
     }
 

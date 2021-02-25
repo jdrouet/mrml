@@ -1,8 +1,7 @@
 use super::{MJSocial, MJSocialChild};
 use crate::elements::body::mj_social_element::{MJSocialElement, NAME as MJ_SOCIAL_ELEMENT};
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
-use crate::util::attributes::*;
+use crate::parser::{Error, MJMLParser};
+use crate::util::attributes::{Attributes, Merge};
 use crate::util::header::Header;
 use xmlparser::{StrSpan, Tokenizer};
 
@@ -69,7 +68,7 @@ impl<'h> MJMLParser for MJSocialParser<'h> {
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
         if tag.as_str() != MJ_SOCIAL_ELEMENT {
-            return Err(Error::UnexpectedElement(tag.to_string()));
+            return Err(Error::UnexpectedElement(tag.start()));
         }
         let child_attrs = self.get_children_attributes();
         let element = MJSocialElement::parse(tokenizer, self.header, child_attrs)?;

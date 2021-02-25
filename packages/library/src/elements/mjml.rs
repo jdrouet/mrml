@@ -1,8 +1,8 @@
 use super::body::mj_body::{MJBody, NAME as MJ_BODY};
 use super::head::mj_head::{MJHead, NAME as MJ_HEAD};
-use super::prelude::*;
-use super::Error;
-use crate::parser::{next_token, MJMLParser};
+use crate::elements::error::Error;
+use crate::elements::prelude::Component;
+use crate::parser::{next_token, Error as ParserError, MJMLParser};
 use crate::util::context::Context;
 use crate::Options;
 use log::debug;
@@ -36,7 +36,7 @@ impl MJMLElementParser {
 impl MJMLParser for MJMLElementParser {
     type Output = MJMLElement;
 
-    fn build(mut self) -> Result<Self::Output, Error> {
+    fn build(mut self) -> Result<Self::Output, ParserError> {
         let mut body = self.body.unwrap_or_else(MJBody::empty);
         body.set_context(Context::default());
         body.update_header(self.head.get_mut_header());
@@ -47,7 +47,7 @@ impl MJMLParser for MJMLElementParser {
         })
     }
 
-    fn parse_child_comment(&mut self, _value: StrSpan) -> Result<(), Error> {
+    fn parse_child_comment(&mut self, _value: StrSpan) -> Result<(), ParserError> {
         log::warn!("comment ignored in mjml root element");
         Ok(())
     }
@@ -56,7 +56,7 @@ impl MJMLParser for MJMLElementParser {
         &mut self,
         tag: StrSpan<'a>,
         tokenizer: &mut Tokenizer,
-    ) -> Result<(), Error> {
+    ) -> Result<(), ParserError> {
         match tag.as_str() {
             MJ_HEAD => {
                 self.head = MJHead::parse(tokenizer, self.options.clone())?;
@@ -64,18 +64,21 @@ impl MJMLParser for MJMLElementParser {
             MJ_BODY => {
                 self.body = Some(MJBody::parse(tokenizer, self.head.get_header())?);
             }
-            _ => return Err(Error::UnexpectedElement(tag.to_string())),
+            _ => return Err(ParserError::UnexpectedElement(tag.start())),
         };
         Ok(())
     }
 }
 
 impl<'a> MJMLElement {
-    pub fn parse(tokenizer: &mut Tokenizer<'a>, opts: Options) -> Result<MJMLElement, Error> {
+    pub fn parse(tokenizer: &mut Tokenizer<'a>, opts: Options) -> Result<MJMLElement, ParserError> {
         MJMLElementParser::new(opts).parse(tokenizer)?.build()
     }
 
-    pub fn parse_root(tokenizer: &mut Tokenizer<'a>, opts: Options) -> Result<MJMLElement, Error> {
+    pub fn parse_root(
+        tokenizer: &mut Tokenizer<'a>,
+        opts: Options,
+    ) -> Result<MJMLElement, ParserError> {
         let token = next_token(tokenizer)?;
         match token {
             Token::ElementStart {
@@ -84,9 +87,9 @@ impl<'a> MJMLElement {
                 span: _,
             } => match local.as_str() {
                 "mjml" => Self::parse(tokenizer, opts),
-                _ => Err(Error::UnexpectedElement(local.to_string())),
+                _ => Err(ParserError::UnexpectedElement(local.start())),
             },
-            _ => Err(Error::InvalidChild),
+            _ => Err(ParserError::InvalidFormat),
         }
     }
 

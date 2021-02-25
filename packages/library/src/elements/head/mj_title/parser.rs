@@ -1,6 +1,5 @@
 use super::MJTitle;
-use crate::elements::error::Error;
-use crate::parser::MJMLParser;
+use crate::parser::{Error, MJMLParser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Default)]
