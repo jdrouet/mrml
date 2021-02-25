@@ -1,5 +1,4 @@
 use super::sort_by_key;
-use crate::parser::Node;
 use std::collections::HashMap;
 use std::string::ToString;
 
@@ -83,35 +82,9 @@ impl Merge<Attributes> for Attributes {
     }
 }
 
-impl<'a> Merge<Node<'a>> for Attributes {
-    fn concat(self, other: &Node<'a>) -> Self {
-        self.concat_iter(
-            other
-                .attributes
-                .iter()
-                .map(|(key, value)| (key.as_str(), value.as_str())),
-        )
-    }
-
-    fn merge(&mut self, other: &Node<'a>) {
-        self.merge_iter(
-            other
-                .attributes
-                .iter()
-                .map(|(key, value)| (key.as_str(), value.as_str())),
-        )
-    }
-}
-
 impl From<&Attributes> for Attributes {
     fn from(value: &Attributes) -> Self {
         Self(value.0.clone())
-    }
-}
-
-impl<'a> From<&Node<'a>> for Attributes {
-    fn from(node: &Node) -> Self {
-        Self::new().concat(node)
     }
 }
 
