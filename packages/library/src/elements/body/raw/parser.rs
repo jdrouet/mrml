@@ -19,7 +19,7 @@ impl RawElement {
         header: &Header,
         only_raw: bool,
     ) -> Result<RawElement, Error> {
-        Ok(RawElement::Node(Node::conditional_parse(
+        Ok(Self::from(Node::conditional_parse(
             tag, tokenizer, header, only_raw,
         )?))
     }

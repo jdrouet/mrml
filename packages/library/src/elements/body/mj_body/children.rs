@@ -109,7 +109,7 @@ impl Component for MJBodyChild {
 }
 
 impl BodyComponent for MJBodyChild {
-    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
+    fn get_children(&self) -> BodyComponentChildIterator {
         self.inner().get_children()
     }
 

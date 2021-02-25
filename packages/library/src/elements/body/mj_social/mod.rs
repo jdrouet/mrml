@@ -1,17 +1,20 @@
 mod parser;
 mod renderer;
 
-use crate::elements::body::mj_body::children::MJBodyChild;
+use crate::elements::body::generic::ComponentOrComment;
+use crate::elements::body::mj_social_element::MJSocialElement;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 
 pub const NAME: &str = "mj-social";
 
+pub type MJSocialChild = ComponentOrComment<MJSocialElement>;
+
 #[derive(Clone, Debug)]
 pub struct MJSocial {
     attributes: Attributes,
     context: Option<Context>,
-    children: Vec<MJBodyChild>,
+    children: Vec<MJSocialChild>,
 }
 
 fn build_children_attributes(attrs: &Attributes) -> Attributes {

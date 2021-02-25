@@ -155,7 +155,6 @@ impl MJColumn {
         let mut res = vec![];
         res.push(table.open());
         for child in self.children.iter() {
-            println!("mj-column.render_column() => {:?}", child);
             if child.is_raw() {
                 res.push(child.render(header)?);
             } else {
@@ -213,12 +212,11 @@ impl BodyComponent for MJColumn {
         Some(&self.attributes)
     }
 
-    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
+    fn get_children(&self) -> BodyComponentChildIterator {
         Box::new(self.children.iter().map(as_body_component))
     }
 
     fn get_children_len(&self) -> usize {
-        println!("MJColumn::get_children_len() => {}", self.children.len());
         self.children.len()
     }
 

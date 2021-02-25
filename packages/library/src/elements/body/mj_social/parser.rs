@@ -1,5 +1,4 @@
-use super::MJSocial;
-use crate::elements::body::mj_body::children::MJBodyChild;
+use super::{MJSocial, MJSocialChild};
 use crate::elements::body::mj_social_element::{MJSocialElement, NAME as MJ_SOCIAL_ELEMENT};
 use crate::elements::error::Error;
 use crate::parser::MJMLParser;
@@ -24,7 +23,7 @@ lazy_static! {
 struct MJSocialParser<'h> {
     header: &'h Header,
     attributes: Attributes,
-    children: Vec<MJBodyChild>,
+    children: Vec<MJSocialChild>,
 }
 
 impl<'h> MJSocialParser<'h> {
@@ -74,7 +73,7 @@ impl<'h> MJMLParser for MJSocialParser<'h> {
         }
         let child_attrs = self.get_children_attributes();
         let element = MJSocialElement::parse(tokenizer, self.header, child_attrs)?;
-        self.children.push(MJBodyChild::MJSocialElement(element));
+        self.children.push(MJSocialChild::from(element));
         Ok(())
     }
 }

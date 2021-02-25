@@ -1,8 +1,8 @@
-use super::MJAccordion;
+use super::{MJAccordion, MJAccordionChild};
+use crate::elements::body::generic::ComponentOrComment;
 use crate::elements::body::mj_accordion_element::{
     MJAccordionElement, NAME as MJ_ACCORDION_ELEMENT,
 };
-use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::error::Error;
 use crate::parser::MJMLParser;
 use crate::util::attributes::*;
@@ -39,7 +39,7 @@ lazy_static! {
 struct MJAccordionParser<'h> {
     header: &'h Header,
     attributes: Attributes,
-    children: Vec<MJBodyChild>,
+    children: Vec<MJAccordionChild>,
 }
 
 impl<'h> MJAccordionParser<'h> {
@@ -87,7 +87,8 @@ impl<'h> MJMLParser for MJAccordionParser<'h> {
     }
 
     fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.children.push(MJBodyChild::comment(value.to_string()));
+        self.children
+            .push(ComponentOrComment::comment(value.to_string()));
         Ok(())
     }
 
@@ -101,7 +102,7 @@ impl<'h> MJMLParser for MJAccordionParser<'h> {
         }
         let child_attrs = self.get_children_attributes();
         let element = MJAccordionElement::parse(tokenizer, self.header, &child_attrs)?;
-        self.children.push(MJBodyChild::MJAccordionElement(element));
+        self.children.push(ComponentOrComment::from(element));
         Ok(())
     }
 }

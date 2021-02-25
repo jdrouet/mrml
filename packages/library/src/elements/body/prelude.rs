@@ -37,7 +37,7 @@ pub trait BodyComponent: Component {
             .and_then(|value| value.parse::<Size>().ok())
     }
 
-    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
+    fn get_children(&self) -> BodyComponentChildIterator {
         Box::new(EMPTY_CHILDREN.iter().map(as_body_component))
     }
 

@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use mrml;
+
 
 fn render(input: &str) {
     mrml::to_html(input, mrml::Options::default()).unwrap();
