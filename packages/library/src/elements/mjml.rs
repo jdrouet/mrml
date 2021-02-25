@@ -15,17 +15,17 @@ pub struct MJMLElement {
     body: MJBody,
 }
 
-struct MJMLElementParser {
-    options: Options,
+struct MJMLElementParser<'o> {
+    options: &'o Options,
     context: Option<Context>,
     head: MJHead,
     body: Option<MJBody>,
 }
 
-impl MJMLElementParser {
-    pub fn new(options: Options) -> Self {
+impl<'o> MJMLElementParser<'o> {
+    pub fn new(options: &'o Options) -> Self {
         Self {
-            options: options.clone(),
+            options,
             context: None,
             head: MJHead::empty(options),
             body: None,
@@ -33,7 +33,7 @@ impl MJMLElementParser {
     }
 }
 
-impl MJMLParser for MJMLElementParser {
+impl<'o> MJMLParser for MJMLElementParser<'o> {
     type Output = MJMLElement;
 
     fn build(mut self) -> Result<Self::Output, ParserError> {
@@ -59,7 +59,7 @@ impl MJMLParser for MJMLElementParser {
     ) -> Result<(), ParserError> {
         match tag.as_str() {
             MJ_HEAD => {
-                self.head = MJHead::parse(tokenizer, self.options.clone())?;
+                self.head = MJHead::parse(tokenizer, self.options)?;
             }
             MJ_BODY => {
                 self.body = Some(MJBody::parse(tokenizer, self.head.get_header())?);
@@ -71,13 +71,16 @@ impl MJMLParser for MJMLElementParser {
 }
 
 impl<'a> MJMLElement {
-    pub fn parse(tokenizer: &mut Tokenizer<'a>, opts: Options) -> Result<MJMLElement, ParserError> {
+    pub fn parse(
+        tokenizer: &mut Tokenizer<'a>,
+        opts: &Options,
+    ) -> Result<MJMLElement, ParserError> {
         MJMLElementParser::new(opts).parse(tokenizer)?.build()
     }
 
     pub fn parse_root(
         tokenizer: &mut Tokenizer<'a>,
-        opts: Options,
+        opts: &Options,
     ) -> Result<MJMLElement, ParserError> {
         let token = next_token(tokenizer)?;
         match token {

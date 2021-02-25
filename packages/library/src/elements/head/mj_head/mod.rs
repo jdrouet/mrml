@@ -18,12 +18,12 @@ pub struct MJHead {
 }
 
 impl MJHead {
-    pub fn empty(opts: Options) -> MJHead {
+    pub fn empty(opts: &Options) -> MJHead {
         debug!("create empty");
         MJHead {
             context: None,
             children: vec![],
-            header: Header::from(&opts),
+            header: Header::from(opts),
         }
     }
 
