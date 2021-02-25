@@ -10,7 +10,7 @@ pub const NAME: &str = "mj-carousel";
 
 pub type MJCarouselChild = ComponentOrComment<MJCarouselImage>;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJCarousel {
     attributes: Attributes,
     context: Option<Context>,

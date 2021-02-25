@@ -7,7 +7,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-button";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJButton {
     attributes: Attributes,
     context: Option<Context>,

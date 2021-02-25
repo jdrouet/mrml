@@ -10,7 +10,7 @@ pub const NAME: &str = "mj-social";
 
 pub type MJSocialChild = ComponentOrComment<MJSocialElement>;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJSocial {
     attributes: Attributes,
     context: Option<Context>,

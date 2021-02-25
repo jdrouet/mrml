@@ -5,7 +5,7 @@ use crate::util::header::DefaultAttributes;
 
 pub const NAME: &str = "mj-attributes";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum MJAttributesChild {
     All(MJAttributesAll),
     Class(MJAttributesClass),

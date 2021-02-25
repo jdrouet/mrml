@@ -3,7 +3,7 @@ mod renderer;
 
 pub const NAME: &str = "mj-title";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJTitle {
     content: String,
 }

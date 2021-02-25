@@ -7,7 +7,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-accordion-text";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJAccordionText {
     attributes: Attributes,
     context: Option<Context>,

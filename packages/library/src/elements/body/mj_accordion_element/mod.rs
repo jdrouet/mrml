@@ -30,7 +30,7 @@ fn build_children_attributes(attrs: &Attributes) -> Attributes {
     result
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJAccordionElement {
     attributes: Attributes,
     context: Option<Context>,

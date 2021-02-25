@@ -6,7 +6,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-raw";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJRaw {
     context: Option<Context>,
     children: Vec<MJBodyChild>,

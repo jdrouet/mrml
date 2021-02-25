@@ -7,7 +7,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-group";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJGroup {
     attributes: Attributes,
     context: Option<Context>,

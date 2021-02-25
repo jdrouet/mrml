@@ -34,7 +34,7 @@ use crate::util::size::Size;
 use crate::util::tag::Tag;
 use xmlparser::{StrSpan, Tokenizer};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum MJBodyChild {
     Comment(Comment),
     Text(Text),

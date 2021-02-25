@@ -7,7 +7,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-text";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJText {
     attributes: Attributes,
     context: Option<Context>,

@@ -22,7 +22,7 @@ macro_rules! as_enum {
     };
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum MJHeadChild {
     MJAttributes(MJAttributes),
     MJBreakpoint(MJBreakpoint),

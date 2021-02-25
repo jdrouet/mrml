@@ -7,7 +7,7 @@ use crate::util::context::Context;
 
 pub const NAME: &str = "mj-hero";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJHero {
     attributes: Attributes,
     context: Option<Context>,

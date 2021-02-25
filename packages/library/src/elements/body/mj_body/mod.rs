@@ -8,7 +8,7 @@ use children::MJBodyChild;
 
 pub const NAME: &str = "mj-body";
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct MJBody {
     attributes: Attributes,
     context: Option<Context>,
