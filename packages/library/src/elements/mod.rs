@@ -8,6 +8,6 @@ pub mod head;
 pub mod mjml;
 pub mod prelude;
 
-pub fn parse(tokenizer: &mut Tokenizer, opts: Options) -> Result<mjml::MJMLElement, ParserError> {
+pub fn parse(tokenizer: &mut Tokenizer, opts: &Options) -> Result<mjml::MJMLElement, ParserError> {
     mjml::MJMLElement::parse(tokenizer, opts)
 }

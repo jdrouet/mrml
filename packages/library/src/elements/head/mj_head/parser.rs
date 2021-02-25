@@ -6,13 +6,13 @@ use crate::util::header::Header;
 use crate::Options;
 use xmlparser::{StrSpan, Tokenizer};
 
-struct MJHeadParser {
-    options: Options,
+struct MJHeadParser<'o> {
+    options: &'o Options,
     children: Vec<MJHeadChild>,
 }
 
-impl MJHeadParser {
-    pub fn new(options: Options) -> Self {
+impl<'o> MJHeadParser<'o> {
+    pub fn new(options: &'o Options) -> Self {
         Self {
             options,
             children: Vec::new(),
@@ -20,11 +20,11 @@ impl MJHeadParser {
     }
 }
 
-impl MJMLParser for MJHeadParser {
+impl<'o> MJMLParser for MJHeadParser<'o> {
     type Output = MJHead;
 
     fn build(self) -> Result<Self::Output, Error> {
-        let mut header = Header::from(&self.options);
+        let mut header = Header::from(self.options);
         self.children
             .iter()
             .for_each(|item| item.update_header(&mut header));
@@ -46,7 +46,7 @@ impl MJMLParser for MJHeadParser {
 }
 
 impl<'a> MJHead {
-    pub fn parse(tokenizer: &mut Tokenizer<'a>, opts: Options) -> Result<MJHead, Error> {
+    pub fn parse(tokenizer: &mut Tokenizer<'a>, opts: &Options) -> Result<MJHead, Error> {
         MJHeadParser::new(opts).parse(tokenizer)?.build()
     }
 }
