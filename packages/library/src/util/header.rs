@@ -2,7 +2,6 @@ use super::attributes::{Attributes, Merge};
 use super::fonts::FontRegistry;
 use super::id::Generator as IdGenerator;
 use super::size::Size;
-use crate::parser::Node;
 use crate::Options;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -77,27 +76,6 @@ impl DefaultAttributes {
             Some(attrs) => other.concat(attrs),
             None => other,
         }
-    }
-
-    pub fn get_attributes<'a>(&self, node: &Node<'a>, base: Attributes) -> Attributes {
-        let tag_name = node.name.as_str();
-        let mut result = base.concat(&self.all);
-        if let Some(element) = self.elements.get(tag_name) {
-            result.merge(element);
-        }
-        if let Some(classes) = node
-            .attributes
-            .iter()
-            .find(|(key, _value)| key.as_str() == "mj-class")
-            .map(|(_key, value)| value.as_str().split(' ').collect::<Vec<&str>>())
-        {
-            for classname in classes {
-                if let Some(attrs) = self.classes.get(classname) {
-                    result.merge(attrs);
-                }
-            }
-        }
-        result
     }
 
     pub fn concat_attributes(
