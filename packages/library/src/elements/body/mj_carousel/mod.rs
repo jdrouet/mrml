@@ -1,17 +1,20 @@
 mod parser;
 mod renderer;
 
-use crate::elements::body::mj_body::children::MJBodyChild;
+use crate::elements::body::generic::ComponentOrComment;
+use crate::elements::body::mj_carousel_image::MJCarouselImage;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 
 pub const NAME: &str = "mj-carousel";
 
+pub type MJCarouselChild = ComponentOrComment<MJCarouselImage>;
+
 #[derive(Clone, Debug)]
 pub struct MJCarousel {
     attributes: Attributes,
     context: Option<Context>,
-    children: Vec<MJBodyChild>,
+    children: Vec<MJCarouselChild>,
     id: String,
 }
 

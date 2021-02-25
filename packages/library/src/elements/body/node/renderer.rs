@@ -51,7 +51,7 @@ impl BodyComponent for Node {
         self.children.len()
     }
 
-    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
+    fn get_children(&self) -> BodyComponentChildIterator {
         Box::new(self.children.iter().map(as_body_component))
     }
 

@@ -1,5 +1,4 @@
-use super::MJNavbar;
-use crate::elements::body::mj_body::children::MJBodyChild;
+use super::{MJNavbar, MJNavbarChild};
 use crate::elements::body::mj_navbar_link::{MJNavbarLink, NAME as MJ_NAVBAR_LINK};
 use crate::elements::error::Error;
 use crate::parser::MJMLParser;
@@ -26,7 +25,7 @@ lazy_static! {
 struct MJNavbarParser<'h> {
     header: &'h Header,
     attributes: Attributes,
-    children: Vec<MJBodyChild>,
+    children: Vec<MJNavbarChild>,
     id: String,
 }
 
@@ -80,7 +79,7 @@ impl<'h> MJMLParser for MJNavbarParser<'h> {
         }
         let child_attrs = self.get_children_attributes();
         let element = MJNavbarLink::parse(tokenizer, self.header, &child_attrs)?;
-        self.children.push(MJBodyChild::MJNavbarLink(element));
+        self.children.push(MJNavbarChild::from(element));
         Ok(())
     }
 }

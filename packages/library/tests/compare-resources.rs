@@ -29,8 +29,8 @@ fn compare_style(path: &str, result: &str, expected: &str) {
         .split(';')
         .filter(|value| !value.is_empty())
         .collect::<Vec<_>>();
-    result.sort();
-    expected.sort();
+    result.sort_unstable();
+    expected.sort_unstable();
     assert_eq!(result, expected, "{} styles mismatch", path);
 }
 
@@ -195,7 +195,7 @@ fn compare_success(mjml_file: &str) {
 fn compare_error(mjml_file: &str) {
     let name = get_template_name(mjml_file);
     let mjml_content = get_mjml_content(name.as_str()).unwrap();
-    if let Ok(_) = to_html(mjml_content.as_str(), build_options()) {
+    if to_html(mjml_content.as_str(), build_options()).is_ok() {
         panic!("should panic");
     }
 }

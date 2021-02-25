@@ -1,4 +1,5 @@
 pub mod comment;
+pub mod generic;
 pub mod mj_accordion;
 pub mod mj_accordion_element;
 pub mod mj_accordion_text;

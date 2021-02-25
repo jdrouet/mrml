@@ -323,7 +323,6 @@ mod tests {
     fn parse_with_invalid_format(template: &str, pos: usize) {
         let root = parse(template);
         if let Err(error) = root {
-            println!("error: {:?}", error);
             if let Error::InvalidFormat { position } = error {
                 assert_eq!(position, pos);
             } else {
