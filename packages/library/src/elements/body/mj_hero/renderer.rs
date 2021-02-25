@@ -146,7 +146,7 @@ impl MJHero {
 
     fn render_children(&self, header: &Header) -> Result<String, Error> {
         let mut res = String::from("");
-        for child in self.get_children().iter() {
+        for child in self.get_children() {
             let result = if child.is_raw() {
                 child.render(header)?
             } else {
@@ -293,8 +293,12 @@ impl BodyComponent for MJHero {
         Some(&self.attributes)
     }
 
-    fn get_children(&self) -> &Vec<MJBodyChild> {
-        &self.children
+    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
+        Box::new(self.children.iter())
+    }
+
+    fn get_children_len(&self) -> usize {
+        self.children.len()
     }
 
     fn get_current_width(&self) -> Option<Size> {

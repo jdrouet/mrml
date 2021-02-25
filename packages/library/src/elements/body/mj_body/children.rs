@@ -110,8 +110,12 @@ impl Component for MJBodyChild {
 }
 
 impl BodyComponent for MJBodyChild {
-    fn get_children(&self) -> &Vec<MJBodyChild> {
+    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
         self.inner().get_children()
+    }
+
+    fn get_children_len(&self) -> usize {
+        self.inner().get_children_len()
     }
 
     fn get_current_width(&self) -> Option<Size> {

@@ -1,5 +1,4 @@
 use super::MJDivider;
-use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::*;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -81,10 +80,6 @@ impl Component for MJDivider {
 impl BodyComponent for MJDivider {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
-    }
-
-    fn get_children(&self) -> &Vec<MJBodyChild> {
-        &EMPTY_CHILDREN
     }
 
     fn get_current_width(&self) -> Option<Size> {

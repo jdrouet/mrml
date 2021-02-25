@@ -1,5 +1,4 @@
 use super::MJNavbarLink;
-use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::*;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -95,9 +94,6 @@ impl BodyComponent for MJNavbarLink {
         None
     }
 
-    fn get_children(&self) -> &Vec<MJBodyChild> {
-        &EMPTY_CHILDREN
-    }
     fn set_style(&self, name: &str, tag: Tag) -> Tag {
         match name {
             "a" => self.set_style_a(tag),

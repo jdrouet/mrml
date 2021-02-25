@@ -146,8 +146,13 @@ impl BodyComponent for MJGroup {
     fn attributes(&self) -> Option<&Attributes> {
         Some(&self.attributes)
     }
-    fn get_children(&self) -> &Vec<MJBodyChild> {
-        &self.children
+
+    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
+        Box::new(self.children.iter())
+    }
+
+    fn get_children_len(&self) -> usize {
+        self.children.len()
     }
 
     fn get_current_width(&self) -> Option<Size> {

@@ -1,6 +1,5 @@
 use super::Text;
-use crate::elements::body::mj_body::children::MJBodyChild;
-use crate::elements::body::prelude::{BodyComponent, EMPTY_CHILDREN};
+use crate::elements::body::prelude::BodyComponent;
 use crate::elements::{Component, Error};
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
@@ -22,11 +21,12 @@ impl Component for Text {
 }
 
 impl BodyComponent for Text {
+    fn is_raw(&self) -> bool {
+        true
+    }
+
     fn attributes(&self) -> Option<&Attributes> {
         None
-    }
-    fn get_children(&self) -> &Vec<MJBodyChild> {
-        &EMPTY_CHILDREN
     }
 
     fn get_current_width(&self) -> Option<Size> {
