@@ -1,6 +1,8 @@
 use super::MJColumn;
 use crate::elements::body::mj_body::children::MJBodyChild;
-use crate::elements::body::prelude::*;
+use crate::elements::body::prelude::{
+    as_body_component, BodyComponent, BodyComponentChildIterator,
+};
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
@@ -153,6 +155,7 @@ impl MJColumn {
         let mut res = vec![];
         res.push(table.open());
         for child in self.children.iter() {
+            println!("mj-column.render_column() => {:?}", child);
             if child.is_raw() {
                 res.push(child.render(header)?);
             } else {
@@ -210,11 +213,12 @@ impl BodyComponent for MJColumn {
         Some(&self.attributes)
     }
 
-    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
-        Box::new(self.children.iter())
+    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
+        Box::new(self.children.iter().map(as_body_component))
     }
 
     fn get_children_len(&self) -> usize {
+        println!("MJColumn::get_children_len() => {}", self.children.len());
         self.children.len()
     }
 

@@ -1,7 +1,8 @@
 use super::RawElement;
-use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::node::Node;
-use crate::elements::body::prelude::*;
+use crate::elements::body::prelude::{
+    empty_children_iterator, BodyComponent, BodyComponentChildIterator,
+};
 use crate::elements::{Component, Error};
 use crate::util::attributes::Attributes;
 use crate::util::context::Context;
@@ -48,10 +49,10 @@ impl BodyComponent for RawElement {
             .unwrap_or_default()
     }
 
-    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
+    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
         self.as_node()
             .map(|node| node.get_children())
-            .unwrap_or_else(|| Box::new(EMPTY_CHILDREN.iter()))
+            .unwrap_or_else(empty_children_iterator)
     }
 
     fn get_current_width(&self) -> Option<Size> {

@@ -1,6 +1,7 @@
 use super::MJButton;
-use crate::elements::body::mj_body::children::MJBodyChild;
-use crate::elements::body::prelude::*;
+use crate::elements::body::prelude::{
+    as_body_component, BodyComponent, BodyComponentChildIterator,
+};
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
@@ -124,8 +125,8 @@ impl Component for MJButton {
 }
 
 impl BodyComponent for MJButton {
-    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
-        Box::new(self.children.iter())
+    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
+        Box::new(self.children.iter().map(as_body_component))
     }
 
     fn get_children_len(&self) -> usize {

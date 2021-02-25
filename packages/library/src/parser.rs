@@ -52,7 +52,9 @@ pub trait MJMLParser: Sized {
                     self.parse_child_comment(text)?;
                 }
                 Token::Text { text } => {
-                    self.parse_child_text(text)?;
+                    if !text.trim().is_empty() {
+                        self.parse_child_text(text)?;
+                    }
                 }
                 Token::ElementStart {
                     prefix: _,
@@ -79,12 +81,8 @@ pub trait MJMLParser: Sized {
         Err(ElementError::UnexpectedComment)
     }
 
-    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), ElementError> {
-        if value.as_str().trim().is_empty() {
-            Ok(())
-        } else {
-            Err(ElementError::UnexpectedText)
-        }
+    fn parse_child_text(&mut self, _value: StrSpan) -> Result<(), ElementError> {
+        Err(ElementError::UnexpectedText)
     }
 
     fn parse(mut self, tokenizer: &mut Tokenizer) -> Result<Self, ElementError> {

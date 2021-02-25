@@ -10,6 +10,17 @@ lazy_static! {
     pub static ref EMPTY_CHILDREN: Vec<MJBodyChild> = vec![];
 }
 
+pub type BodyComponentChildIterator<'p> =
+    Box<dyn Iterator<Item = &'p (dyn BodyComponent + 'p)> + 'p>;
+
+pub fn empty_children_iterator<'p>() -> BodyComponentChildIterator<'p> {
+    Box::new(EMPTY_CHILDREN.iter().map(as_body_component))
+}
+
+pub fn as_body_component<'p, T: BodyComponent>(elt: &'p T) -> &'p (dyn BodyComponent + 'p) {
+    elt
+}
+
 pub trait BodyComponent: Component {
     fn attributes(&self) -> Option<&Attributes>;
 
@@ -26,8 +37,8 @@ pub trait BodyComponent: Component {
             .and_then(|value| value.parse::<Size>().ok())
     }
 
-    fn get_children<'p>(&'p self) -> Box<dyn Iterator<Item = &'p MJBodyChild> + 'p> {
-        Box::new(EMPTY_CHILDREN.iter())
+    fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
+        Box::new(EMPTY_CHILDREN.iter().map(as_body_component))
     }
 
     fn get_children_len(&self) -> usize {
