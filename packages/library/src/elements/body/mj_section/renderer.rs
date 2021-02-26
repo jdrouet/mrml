@@ -162,12 +162,11 @@ impl MJSection {
     }
 
     fn render_full_width(&self, header: &Header) -> Result<String, Error> {
-        let mut content: Vec<String> = vec![];
-        content.push(self.render_wrap(self.render_section(header)?));
+        let content = self.render_wrap(self.render_section(header)?);
         let content = if self.has_background() {
-            self.render_with_background(content.join(""))
+            self.render_with_background(content)
         } else {
-            content.join("")
+            content
         };
         let table = Tag::table_presentation()
             .set_attribute("align", "center")
@@ -235,9 +234,7 @@ impl MJSection {
         res.push(tr.open());
         res.push(td.open());
         res.push(conditional_tag(inner_table.open()));
-        // renderWrappedChildren()
         res.push(self.render_wrapped_children(header)?);
-        //
         res.push(conditional_tag(inner_table.close()));
         res.push(td.close());
         res.push(tr.close());

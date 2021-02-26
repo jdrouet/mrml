@@ -162,12 +162,11 @@ impl MJWrapper {
     }
 
     fn render_full_width(&self, header: &Header) -> Result<String, Error> {
-        let mut content: Vec<String> = vec![];
-        content.push(self.render_wrap(self.render_section(header)?));
+        let content = self.render_wrap(self.render_section(header)?);
         let content = if self.has_background() {
-            self.render_with_background(content.join(""))
+            self.render_with_background(content)
         } else {
-            content.join("")
+            content
         };
         let table = Tag::table_presentation()
             .set_attribute("align", "center")
