@@ -1,7 +1,7 @@
 use super::MJAccordionText;
 use crate::elements::body::prelude::BodyComponent;
 use crate::elements::error::Error;
-use crate::elements::prelude::*;
+use crate::elements::prelude::Component;
 use crate::util::attributes::*;
 use crate::util::context::Context;
 use crate::util::header::Header;
@@ -11,7 +11,7 @@ use crate::util::tag::Tag;
 impl MJAccordionText {
     fn render_children(&self, header: &Header) -> Result<String, Error> {
         let mut res = vec![];
-        for child in self.children.iter() {
+        for child in self.get_children() {
             res.push(child.render(header)?);
         }
         Ok(res.join(""))

@@ -1,6 +1,6 @@
 use super::MJNavbar;
 use crate::elements::body::prelude::{
-    to_children_iterator, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyChild, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -111,7 +111,7 @@ impl Component for MJNavbar {
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
         }}
         "#, header.breakpoint.to_string()));
-        for child in self.children.iter() {
+        for child in self.get_children() {
             child.update_header(header);
         }
     }
@@ -129,7 +129,9 @@ impl Component for MJNavbar {
             0,
         );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(child_base.clone().set_index(idx));
+            child
+                .inner_mut()
+                .set_context(child_base.clone().set_index(idx));
         }
     }
 
@@ -147,7 +149,7 @@ impl Component for MJNavbar {
         res.push(table.open());
         res.push(tr.open());
         res.push(END_CONDITIONAL_TAG.into());
-        for child in self.children.iter() {
+        for child in self.get_children() {
             res.push(child.render(header)?);
         }
         res.push(START_CONDITIONAL_TAG.into());
