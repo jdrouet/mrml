@@ -1,6 +1,6 @@
 use super::MJAccordion;
 use crate::elements::body::prelude::{
-    to_children_iterator, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyChild, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -33,7 +33,7 @@ impl Component for MJAccordion {
         @goodbye { @gmail }
         "#);
         header.maybe_add_font_families(self.get_attribute("font-family"));
-        for child in self.children.iter() {
+        for child in self.get_children() {
             child.update_header(header);
         }
     }
@@ -51,13 +51,15 @@ impl Component for MJAccordion {
             0,
         );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(child_base.clone().set_index(idx));
+            child
+                .inner_mut()
+                .set_context(child_base.clone().set_index(idx));
         }
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         let mut children = vec![];
-        for child in self.children.iter() {
+        for child in self.get_children() {
             children.push(child.render(header)?);
         }
         let tbody = Tag::tbody().render(children.join(""));

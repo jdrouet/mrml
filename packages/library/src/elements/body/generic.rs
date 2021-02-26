@@ -1,12 +1,6 @@
 use crate::elements::body::comment::Comment;
-use crate::elements::body::prelude::{BodyChild, BodyComponent, BodyComponentChildIterator};
+use crate::elements::body::prelude::{BodyChild, BodyComponent};
 use crate::elements::body::text::Text;
-use crate::elements::error::Error;
-use crate::elements::prelude::Component;
-use crate::util::attributes::Attributes;
-use crate::util::context::Context;
-use crate::util::header::Header;
-use crate::util::size::Size;
 
 macro_rules! propagate_trait {
     ($enum_name:ident) => {
@@ -22,46 +16,6 @@ macro_rules! propagate_trait {
         impl<E: BodyComponent> From<E> for $enum_name<E> {
             fn from(elt: E) -> Self {
                 Self::Element(elt)
-            }
-        }
-
-        impl<E: BodyComponent> Component for $enum_name<E> {
-            fn update_header(&self, header: &mut Header) {
-                self.inner().update_header(header)
-            }
-
-            fn render(&self, header: &Header) -> Result<String, Error> {
-                self.inner().render(header)
-            }
-
-            fn context(&self) -> Option<&Context> {
-                self.inner().context()
-            }
-
-            fn set_context(&mut self, ctx: Context) {
-                self.inner_mut().set_context(ctx)
-            }
-        }
-
-        impl<E: BodyComponent> BodyComponent for $enum_name<E> {
-            fn is_raw(&self) -> bool {
-                self.inner().is_raw()
-            }
-
-            fn attributes(&self) -> Option<&Attributes> {
-                self.inner().attributes()
-            }
-
-            fn get_children_len(&self) -> usize {
-                self.inner().get_children_len()
-            }
-
-            fn get_children<'p>(&'p self) -> BodyComponentChildIterator<'p> {
-                self.inner().get_children()
-            }
-
-            fn get_current_width(&self) -> Option<Size> {
-                self.inner().get_current_width()
             }
         }
     };

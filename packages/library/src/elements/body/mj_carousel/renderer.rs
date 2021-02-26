@@ -1,7 +1,7 @@
 use super::MJCarousel;
 use crate::elements::body::mj_carousel_image::MJCarouselImage;
 use crate::elements::body::prelude::{
-    to_children_iterator, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyChild, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -169,7 +169,7 @@ impl MJCarousel {
 
     fn render_fallback(&self, header: &Header) -> Result<String, Error> {
         match self.children.first() {
-            Some(child) => Ok(mso_conditional_tag(child.render(header)?)),
+            Some(child) => Ok(mso_conditional_tag(child.inner().render(header)?)),
             None => Ok("".into()),
         }
     }
@@ -335,7 +335,7 @@ impl Component for MJCarousel {
         ));
 
         header.add_style(style.join("\n"));
-        for child in self.children.iter() {
+        for child in self.get_children() {
             child.update_header(header);
         }
     }
@@ -353,7 +353,9 @@ impl Component for MJCarousel {
             0,
         );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(child_base.clone().set_index(idx));
+            child
+                .inner_mut()
+                .set_context(child_base.clone().set_index(idx));
         }
     }
 

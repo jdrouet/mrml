@@ -1,6 +1,6 @@
 use super::MJSocial;
 use crate::elements::body::prelude::{
-    to_children_iterator, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyChild, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -36,7 +36,7 @@ impl MJSocial {
         res.push(table.open());
         res.push(tr.open());
         res.push(END_CONDITIONAL_TAG.into());
-        for child in self.children.iter() {
+        for child in self.get_children() {
             res.push(conditional_tag(td.open()));
             res.push(inner_table.render(child.render(header)?));
             res.push(conditional_tag(td.close()));
@@ -51,7 +51,7 @@ impl MJSocial {
     fn render_vertical(&self, header: &Header) -> Result<String, Error> {
         let table = self.set_style_table_vertical(Tag::table_presentation());
         let mut res = vec![];
-        for child in self.children.iter() {
+        for child in self.get_children() {
             // TODO set child attributes
             res.push(child.render(header)?);
         }
@@ -61,7 +61,7 @@ impl MJSocial {
 
 impl Component for MJSocial {
     fn update_header(&self, header: &mut Header) {
-        for child in self.children.iter() {
+        for child in self.get_children() {
             child.update_header(header);
         }
     }
@@ -79,7 +79,9 @@ impl Component for MJSocial {
             0,
         );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(child_base.clone().set_index(idx));
+            child
+                .inner_mut()
+                .set_context(child_base.clone().set_index(idx));
         }
     }
 
