@@ -1,6 +1,6 @@
 use super::MJTable;
 use crate::elements::body::prelude::{
-    as_body_component, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -37,7 +37,7 @@ impl Component for MJTable {
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         let mut res = vec![];
-        for child in self.children.iter() {
+        for child in self.get_children() {
             res.push(child.render(header)?);
         }
         let table = self
@@ -60,7 +60,7 @@ impl BodyComponent for MJTable {
     }
 
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(self.children.iter().map(as_body_component))
+        to_children_iterator(&self.children)
     }
 
     fn get_children_len(&self) -> usize {

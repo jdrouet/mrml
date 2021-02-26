@@ -1,5 +1,7 @@
 use super::MJAccordion;
-use crate::elements::body::prelude::{BodyComponent, BodyComponentChildIterator};
+use crate::elements::body::prelude::{
+    to_children_iterator, BodyComponent, BodyComponentChildIterator,
+};
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
@@ -79,7 +81,7 @@ impl BodyComponent for MJAccordion {
     }
 
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(self.children.iter().map(|item| item.inner()))
+        to_children_iterator(&self.children)
     }
 
     fn get_children_len(&self) -> usize {

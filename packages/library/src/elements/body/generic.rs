@@ -1,5 +1,5 @@
 use crate::elements::body::comment::Comment;
-use crate::elements::body::prelude::{BodyComponent, BodyComponentChildIterator};
+use crate::elements::body::prelude::{BodyChild, BodyComponent, BodyComponentChildIterator};
 use crate::elements::body::text::Text;
 use crate::elements::error::Error;
 use crate::elements::prelude::Component;
@@ -26,6 +26,10 @@ macro_rules! propagate_trait {
         }
 
         impl<E: BodyComponent> Component for $enum_name<E> {
+            fn update_header(&self, header: &mut Header) {
+                self.inner().update_header(header)
+            }
+
             fn render(&self, header: &Header) -> Result<String, Error> {
                 self.inner().render(header)
             }
@@ -73,15 +77,17 @@ impl<E: BodyComponent> ComponentOrComment<E> {
     pub fn comment(cmt: String) -> Self {
         Self::Comment(cmt.into())
     }
+}
 
-    pub fn inner_mut<'p>(&'p mut self) -> &'p mut (dyn BodyComponent + 'p) {
+impl<E: BodyComponent> BodyChild for ComponentOrComment<E> {
+    fn inner_mut<'p>(&'p mut self) -> &'p mut (dyn BodyComponent + 'p) {
         match self {
             Self::Element(elt) => elt,
             Self::Comment(elt) => elt,
         }
     }
 
-    pub fn inner<'p>(&'p self) -> &'p (dyn BodyComponent + 'p) {
+    fn inner<'p>(&'p self) -> &'p (dyn BodyComponent + 'p) {
         match self {
             Self::Element(elt) => elt,
             Self::Comment(elt) => elt,
@@ -106,8 +112,10 @@ impl<E: BodyComponent> ComponentOrTextOrComment<E> {
     pub fn text(cmt: String) -> Self {
         Self::Text(cmt.into())
     }
+}
 
-    pub fn inner_mut<'p>(&'p mut self) -> &'p mut (dyn BodyComponent + 'p) {
+impl<E: BodyComponent> BodyChild for ComponentOrTextOrComment<E> {
+    fn inner_mut<'p>(&'p mut self) -> &'p mut (dyn BodyComponent + 'p) {
         match self {
             Self::Element(elt) => elt,
             Self::Comment(elt) => elt,
@@ -115,7 +123,7 @@ impl<E: BodyComponent> ComponentOrTextOrComment<E> {
         }
     }
 
-    pub fn inner<'p>(&'p self) -> &'p (dyn BodyComponent + 'p) {
+    fn inner<'p>(&'p self) -> &'p (dyn BodyComponent + 'p) {
         match self {
             Self::Element(elt) => elt,
             Self::Comment(elt) => elt,

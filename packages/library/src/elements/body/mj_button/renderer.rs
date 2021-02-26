@@ -1,6 +1,6 @@
 use super::MJButton;
 use crate::elements::body::prelude::{
-    as_body_component, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -13,7 +13,7 @@ use crate::util::tag::Tag;
 impl MJButton {
     fn get_content(&self, header: &Header) -> Result<String, Error> {
         let mut res = String::from("");
-        for item in self.children.iter() {
+        for item in self.get_children() {
             res.push_str(item.render(header)?.as_str());
         }
         Ok(res)
@@ -126,7 +126,7 @@ impl Component for MJButton {
 
 impl BodyComponent for MJButton {
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(self.children.iter().map(as_body_component))
+        to_children_iterator(&self.children)
     }
 
     fn get_children_len(&self) -> usize {
