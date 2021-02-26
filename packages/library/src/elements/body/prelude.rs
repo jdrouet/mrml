@@ -13,12 +13,17 @@ lazy_static! {
 pub type BodyComponentChildIterator<'p> =
     Box<dyn Iterator<Item = &'p (dyn BodyComponent + 'p)> + 'p>;
 
-pub fn empty_children_iterator<'p>() -> BodyComponentChildIterator<'p> {
-    Box::new(EMPTY_CHILDREN.iter().map(as_body_component))
+pub trait BodyChild {
+    fn inner<'p>(&'p self) -> &'p (dyn BodyComponent + 'p);
+    fn inner_mut<'p>(&'p mut self) -> &'p mut (dyn BodyComponent + 'p);
 }
 
-pub fn as_body_component<'p, T: BodyComponent>(elt: &'p T) -> &'p (dyn BodyComponent + 'p) {
-    elt
+pub fn empty_children_iterator<'p>() -> BodyComponentChildIterator<'p> {
+    to_children_iterator(&EMPTY_CHILDREN)
+}
+
+pub fn to_children_iterator<T: BodyChild>(list: &[T]) -> BodyComponentChildIterator {
+    Box::new(list.iter().map(|item| item.inner()))
 }
 
 pub trait BodyComponent: Component {
@@ -38,7 +43,7 @@ pub trait BodyComponent: Component {
     }
 
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(EMPTY_CHILDREN.iter().map(as_body_component))
+        empty_children_iterator()
     }
 
     fn get_children_len(&self) -> usize {
@@ -53,7 +58,8 @@ pub trait BodyComponent: Component {
 
     fn get_raw_siblings(&self) -> usize {
         self.get_children()
-            .fold(0, |res, item| if item.is_raw() { res + 1 } else { res })
+            .filter(|item| item.is_raw())
+            .fold(0, |res, _item| res + 1)
     }
 
     fn set_style(&self, _key: &str, tag: Tag) -> Tag {

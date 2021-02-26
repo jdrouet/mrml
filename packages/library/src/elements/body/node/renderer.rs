@@ -1,6 +1,6 @@
 use super::Node;
 use crate::elements::body::prelude::{
-    as_body_component, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::Component;
@@ -31,7 +31,7 @@ impl Component for Node {
             Ok(tag.closed())
         } else {
             let mut res = vec![];
-            for child in self.children.iter() {
+            for child in self.get_children() {
                 res.push(child.render(header)?);
             }
             Ok(tag.render(res.join("")))
@@ -53,7 +53,7 @@ impl BodyComponent for Node {
     }
 
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(self.children.iter().map(as_body_component))
+        to_children_iterator(&self.children)
     }
 
     fn get_current_width(&self) -> Option<Size> {

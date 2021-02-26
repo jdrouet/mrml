@@ -1,7 +1,5 @@
 use super::MJBody;
-use crate::elements::body::prelude::{
-    as_body_component, BodyComponent, BodyComponentChildIterator,
-};
+use crate::elements::body::prelude::{BodyChild, BodyComponent, BodyComponentChildIterator};
 use crate::elements::error::Error;
 use crate::elements::prelude::Component;
 use crate::util::attributes::*;
@@ -40,7 +38,7 @@ impl Component for MJBody {
     }
 
     fn update_header(&self, header: &mut Header) {
-        for child in self.children.iter() {
+        for child in self.get_children() {
             child.update_header(header);
         }
     }
@@ -54,7 +52,9 @@ impl Component for MJBody {
             0,
         );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(child_base.clone().set_index(idx));
+            child
+                .inner_mut()
+                .set_context(child_base.clone().set_index(idx));
         }
     }
 
@@ -69,7 +69,7 @@ impl Component for MJBody {
                 .set_style_body(Tag::div())
                 .maybe_set_class(self.get_attribute("css-class"));
             res.push(div.open());
-            for child in self.children.iter() {
+            for child in self.get_children() {
                 res.push(child.render(header)?);
             }
             res.push(div.close());
@@ -89,7 +89,7 @@ impl BodyComponent for MJBody {
     }
 
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(self.children.iter().map(as_body_component))
+        Box::new(self.children.iter().map(|item| item.inner()))
     }
 
     fn get_children_len(&self) -> usize {

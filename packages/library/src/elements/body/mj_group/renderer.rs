@@ -1,7 +1,6 @@
 use super::MJGroup;
-use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::{
-    as_body_component, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyChild, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -61,7 +60,7 @@ impl MJGroup {
         (classname.replace(".", "-"), parsed_width)
     }
 
-    fn render_child(&self, header: &Header, child: &MJBodyChild) -> Result<String, Error> {
+    fn render_child(&self, header: &Header, child: &dyn BodyComponent) -> Result<String, Error> {
         let td = Tag::td()
             .maybe_set_style("align", child.get_attribute("align"))
             .maybe_set_style("vertical-align", child.get_attribute("vertical-align"))
@@ -83,7 +82,7 @@ impl MJGroup {
 
     fn render_children(&self, header: &Header) -> Result<String, Error> {
         let mut res = vec![];
-        for child in self.children.iter() {
+        for child in self.get_children() {
             if child.is_raw() {
                 res.push(child.render(header)?);
             } else {
@@ -102,7 +101,7 @@ impl Component for MJGroup {
     fn update_header(&self, header: &mut Header) {
         let (classname, size) = self.get_column_class();
         header.add_media_query(classname, size);
-        for child in self.children.iter() {
+        for child in self.get_children() {
             child.update_header(header);
         }
     }
@@ -116,7 +115,9 @@ impl Component for MJGroup {
             0,
         );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(child_base.clone().set_index(idx));
+            child
+                .inner_mut()
+                .set_context(child_base.clone().set_index(idx));
         }
     }
 
@@ -150,7 +151,7 @@ impl BodyComponent for MJGroup {
     }
 
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(self.children.iter().map(as_body_component))
+        to_children_iterator(&self.children)
     }
 
     fn get_children_len(&self) -> usize {

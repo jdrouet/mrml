@@ -1,7 +1,6 @@
 use super::MJColumn;
-use crate::elements::body::mj_body::children::MJBodyChild;
 use crate::elements::body::prelude::{
-    as_body_component, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyChild, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -128,7 +127,7 @@ impl MJColumn {
         Ok(table.render(tbody.render(tr.render(td.render(self.render_column(header)?)))))
     }
 
-    fn render_mj_child(&self, header: &Header, child: &MJBodyChild) -> Result<String, Error> {
+    fn render_mj_child(&self, header: &Header, child: &dyn BodyComponent) -> Result<String, Error> {
         let tr = Tag::tr();
         let td = Tag::td()
             .maybe_set_style(
@@ -154,11 +153,11 @@ impl MJColumn {
             .set_attribute("width", "100%");
         let mut res = vec![];
         res.push(table.open());
-        for child in self.children.iter() {
+        for child in self.get_children() {
             if child.is_raw() {
                 res.push(child.render(header)?);
             } else {
-                res.push(self.render_mj_child(header, &child)?);
+                res.push(self.render_mj_child(header, child)?);
             }
         }
         res.push(table.close());
@@ -174,7 +173,7 @@ impl Component for MJColumn {
     fn update_header(&self, header: &mut Header) {
         let (classname, size) = self.get_column_class();
         header.add_media_query(classname, size);
-        for child in self.children.iter() {
+        for child in self.get_children() {
             child.update_header(header);
         }
     }
@@ -188,7 +187,9 @@ impl Component for MJColumn {
             0,
         );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(child_base.clone().set_index(idx));
+            child
+                .inner_mut()
+                .set_context(child_base.clone().set_index(idx));
         }
     }
 
@@ -213,7 +214,7 @@ impl BodyComponent for MJColumn {
     }
 
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(self.children.iter().map(as_body_component))
+        to_children_iterator(&self.children)
     }
 
     fn get_children_len(&self) -> usize {

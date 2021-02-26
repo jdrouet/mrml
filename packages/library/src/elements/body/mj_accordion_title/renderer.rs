@@ -1,8 +1,8 @@
 use super::MJAccordionTitle;
 use crate::elements::body::prelude::BodyComponent;
 use crate::elements::error::Error;
-use crate::elements::prelude::*;
-use crate::util::attributes::*;
+use crate::elements::prelude::Component;
+use crate::util::attributes::Attributes;
 use crate::util::condition::*;
 use crate::util::context::Context;
 use crate::util::header::Header;

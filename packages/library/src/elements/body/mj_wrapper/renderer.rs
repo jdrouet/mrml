@@ -1,6 +1,6 @@
 use super::{MJWrapper, DEFAULT_BACKGROUND_POSITION};
 use crate::elements::body::prelude::{
-    as_body_component, BodyComponent, BodyComponentChildIterator,
+    to_children_iterator, BodyChild, BodyComponent, BodyComponentChildIterator,
 };
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
@@ -181,7 +181,7 @@ impl MJWrapper {
         let container_width = self.get_container_width();
         let tr = Tag::tr();
         let mut res = vec![];
-        for child in self.children.iter() {
+        for child in self.get_children() {
             if child.is_raw() {
                 res.push(child.render(header)?);
             } else {
@@ -308,7 +308,7 @@ impl MJWrapper {
 
 impl Component for MJWrapper {
     fn update_header(&self, header: &mut Header) {
-        for child in self.children.iter() {
+        for child in self.get_children() {
             child.update_header(header);
         }
     }
@@ -326,7 +326,9 @@ impl Component for MJWrapper {
             0,
         );
         for (idx, child) in self.children.iter_mut().enumerate() {
-            child.set_context(child_base.clone().set_index(idx));
+            child
+                .inner_mut()
+                .set_context(child_base.clone().set_index(idx));
         }
     }
 
@@ -349,7 +351,7 @@ impl BodyComponent for MJWrapper {
     }
 
     fn get_children(&self) -> BodyComponentChildIterator {
-        Box::new(self.children.iter().map(as_body_component))
+        to_children_iterator(&self.children)
     }
 
     fn get_current_width(&self) -> Option<Size> {
