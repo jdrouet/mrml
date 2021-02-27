@@ -31,39 +31,34 @@ impl MJSocial {
             .maybe_set_attribute("align", self.get_attribute("align"))
             .set_style("display", "inline-table")
             .set_style("float", "none");
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(table.open());
-        res.push(tr.open());
-        res.push(END_CONDITIONAL_TAG.into());
-        for child in self.get_children() {
-            res.push(conditional_tag(td.open()));
-            res.push(inner_table.render(child.render(header)?));
-            res.push(conditional_tag(td.close()));
-        }
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(tr.close());
-        res.push(table.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
+        let before = conditional_tag(table.open() + &tr.open());
+        let after = conditional_tag(tr.close() + &table.close());
+        let content = self
+            .get_children()
+            .try_fold(String::default(), |res, child| {
+                Ok(res
+                    + &conditional_tag(td.open())
+                    + &inner_table.render(child.render(header)?)
+                    + &conditional_tag(td.close()))
+            })?;
+        Ok(before + &content + &after)
     }
 
     fn render_vertical(&self, header: &Header) -> Result<String, Error> {
         let table = self.set_style_table_vertical(Tag::table_presentation());
-        let mut res = vec![];
-        for child in self.get_children() {
-            // TODO set child attributes
-            res.push(child.render(header)?);
-        }
-        Ok(table.render(res.join("")))
+        let content = self
+            .get_children()
+            .try_fold(String::default(), |res, child| {
+                Ok(res + &child.render(header)?)
+            })?;
+        Ok(table.render(content))
     }
 }
 
 impl Component for MJSocial {
     fn update_header(&self, header: &mut Header) {
-        for child in self.get_children() {
-            child.update_header(header);
-        }
+        self.get_children()
+            .for_each(|child| child.update_header(header));
     }
 
     fn context(&self) -> Option<&Context> {
@@ -78,11 +73,14 @@ impl Component for MJSocial {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {

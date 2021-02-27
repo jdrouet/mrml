@@ -86,15 +86,10 @@ impl MJNavbar {
         let span_close = self
             .set_style_ico_close(Tag::new("span"))
             .set_class("mj-menu-icon-close");
-        let mut res: Vec<String> = vec![];
-        res.push(mso_negation_conditional_tag(input.closed()));
-        res.push(div.open());
-        res.push(label.open());
-        res.push(span_open.render(self.get_attribute("ico-open").unwrap_or(&"".into())));
-        res.push(span_close.render(self.get_attribute("ico-close").unwrap_or(&"".into())));
-        res.push(label.close());
-        res.push(div.close());
-        res.join("")
+        let content = span_open.render(self.get_attribute("ico-open").unwrap_or(&"".into()))
+            + &span_close.render(self.get_attribute("ico-close").unwrap_or(&"".into()));
+        let content = div.render(label.render(content));
+        mso_negation_conditional_tag(input.closed()) + &content
     }
 }
 
@@ -111,9 +106,9 @@ impl Component for MJNavbar {
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
         }}
         "#, header.breakpoint.to_string()));
-        for child in self.get_children() {
+        self.get_children().for_each(|child| {
             child.update_header(header);
-        }
+        });
     }
 
     fn context(&self) -> Option<&Context> {
@@ -128,11 +123,14 @@ impl Component for MJNavbar {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -140,24 +138,19 @@ impl Component for MJNavbar {
         let table =
             Tag::table_presentation().maybe_set_attribute("align", self.get_attribute("align"));
         let tr = Tag::tr();
-        let mut res: Vec<String> = vec![];
+        let content = self
+            .get_children()
+            .try_fold(String::default(), |res, child| {
+                Ok(res + &child.render(header)?)
+            })?;
+        let before = conditional_tag(table.open() + &tr.open());
+        let after = conditional_tag(tr.close() + &table.close());
+        let content = div.render(before + &content + &after);
         if self.has_hamburger() {
-            res.push(self.render_hamburger(header));
+            Ok(self.render_hamburger(header) + &content)
+        } else {
+            Ok(content)
         }
-        res.push(div.open());
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(table.open());
-        res.push(tr.open());
-        res.push(END_CONDITIONAL_TAG.into());
-        for child in self.get_children() {
-            res.push(child.render(header)?);
-        }
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(tr.close());
-        res.push(table.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(div.close());
-        Ok(res.join(""))
     }
 }
 

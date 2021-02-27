@@ -146,16 +146,15 @@ impl MJHero {
     }
 
     fn render_children(&self, header: &Header) -> Result<String, Error> {
-        let mut res = String::from("");
-        for child in self.get_children() {
-            let result = if child.is_raw() {
-                child.render(header)?
-            } else {
-                self.render_child(header, child)?
-            };
-            res.push_str(result.as_str());
-        }
-        Ok(res)
+        self.get_children()
+            .try_fold(String::default(), |res, child| {
+                let result = if child.is_raw() {
+                    child.render(header)?
+                } else {
+                    self.render_child(header, child)?
+                };
+                Ok(res + &result)
+            })
     }
 
     fn render_content(&self, header: &Header) -> Result<String, Error> {
@@ -170,21 +169,12 @@ impl MJHero {
             .maybe_set_attribute("width", self.get_attribute("align"))
             .set_class("mj-hero-content");
         let inner_table = self.set_style_inner_table(Tag::table_presentation());
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(table.open());
-        res.push(tr.open());
-        res.push(outlook_inner_td.open());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(outlook_inner_div.render(inner_table.render(
+        let content = outlook_inner_div.render(inner_table.render(
             tr.render(Tag::td().render(inner_table.render(self.render_children(header)?))),
-        )));
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(outlook_inner_td.close());
-        res.push(tr.close());
-        res.push(table.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
+        ));
+        let before = conditional_tag(table.open() + &tr.open() + &outlook_inner_td.open());
+        let after = conditional_tag(outlook_inner_td.close() + &tr.close() + &table.close());
+        Ok(before + &content + &after)
     }
 
     fn render_mode_fluid(&self, header: &Header) -> Result<String, Error> {
@@ -192,20 +182,16 @@ impl MJHero {
         let td = self
             .set_style_hero(Tag::td())
             .maybe_set_attribute("background", self.get_attribute("background-url"));
-        let mut res = vec![];
-        res.push(td_fluid.closed());
-        res.push(td.render(self.render_content(header)?));
-        res.push(td_fluid.closed());
-        Ok(res.join(""))
+        Ok(td_fluid.closed() + &td.render(self.render_content(header)?) + &td_fluid.closed())
     }
 
     fn render_mode_fixed(&self, header: &Header) -> Result<String, Error> {
         // has a default value
         let height = self.get_size_attribute("height").unwrap();
-        let padding = match self.get_padding_vertical() {
-            Some(value) => value.value(),
-            None => 0.0,
-        };
+        let padding = self
+            .get_padding_vertical()
+            .map(|s| s.value())
+            .unwrap_or(0.0);
         let height = Size::Pixel(height.value() - padding);
         let td = self
             .set_style_hero(Tag::td())
@@ -227,9 +213,9 @@ impl MJHero {
 
 impl Component for MJHero {
     fn update_header(&self, header: &mut Header) {
-        for child in self.get_children() {
+        self.get_children().for_each(|child| {
             child.update_header(header);
-        }
+        });
     }
 
     fn context(&self) -> Option<&Context> {
@@ -244,11 +230,14 @@ impl Component for MJHero {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -268,26 +257,14 @@ impl Component for MJHero {
             .maybe_set_class(self.get_attribute("css-class"));
         let table = self.set_style_table(Tag::table_presentation());
         let tr = self.set_style_tr(Tag::tr());
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(outlook_table.open());
-        res.push(outlook_tr.open());
-        res.push(outlook_td.open());
-        res.push(v_image.closed());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(div.open());
-        res.push(table.open());
-        res.push(tr.open());
-        res.push(self.render_mode(header)?);
-        res.push(tr.close());
-        res.push(table.close());
-        res.push(div.close());
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(outlook_td.close());
-        res.push(outlook_tr.close());
-        res.push(outlook_table.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
+        let content = self.render_mode(header)?;
+        let content = div.render(table.render(tr.render(content)));
+        let before = conditional_tag(
+            outlook_table.open() + &outlook_tr.open() + &outlook_td.open() + &v_image.closed(),
+        );
+        let after =
+            conditional_tag(outlook_td.close() + &outlook_tr.close() + &outlook_table.close());
+        Ok(before + &content + &after)
     }
 }
 

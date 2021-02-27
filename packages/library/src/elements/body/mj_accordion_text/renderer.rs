@@ -10,11 +10,10 @@ use crate::util::tag::Tag;
 
 impl MJAccordionText {
     fn render_children(&self, header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        for child in self.get_children() {
-            res.push(child.render(header)?);
-        }
-        Ok(res.join(""))
+        self.get_children()
+            .try_fold(String::default(), |res, child| {
+                Ok(res + &child.render(header)?)
+            })
     }
 
     fn render_content(&self, header: &Header) -> Result<String, Error> {

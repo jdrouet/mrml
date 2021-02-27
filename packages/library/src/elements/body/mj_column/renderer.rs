@@ -45,10 +45,8 @@ impl MJColumn {
             .context()
             .map(|ctx| ctx.non_raw_siblings())
             .unwrap_or(1);
-        match self.get_size_attribute("width") {
-            Some(size) => size,
-            None => Size::Percent(100.0 / (non_raw_siblings as f32)),
-        }
+        self.get_size_attribute("width")
+            .unwrap_or_else(|| Size::Percent(100.0 / (non_raw_siblings as f32)))
     }
 
     fn get_width_as_pixel(&self) -> String {
@@ -151,17 +149,17 @@ impl MJColumn {
         let table = self
             .set_style_table(Tag::table_presentation())
             .set_attribute("width", "100%");
-        let mut res = vec![];
-        res.push(table.open());
-        for child in self.get_children() {
-            if child.is_raw() {
-                res.push(child.render(header)?);
-            } else {
-                res.push(self.render_mj_child(header, child)?);
-            }
-        }
-        res.push(table.close());
-        Ok(res.join(""))
+        let content = self
+            .get_children()
+            .try_fold(String::default(), |res, child| {
+                let result = if child.is_raw() {
+                    child.render(header)?
+                } else {
+                    self.render_mj_child(header, child)?
+                };
+                Ok(res + &result)
+            })?;
+        Ok(table.render(content))
     }
 }
 
@@ -173,9 +171,9 @@ impl Component for MJColumn {
     fn update_header(&self, header: &mut Header) {
         let (classname, size) = self.get_column_class();
         header.add_media_query(classname, size);
-        for child in self.get_children() {
+        self.get_children().for_each(|child| {
             child.update_header(header);
-        }
+        });
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -186,11 +184,14 @@ impl Component for MJColumn {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
@@ -230,14 +231,14 @@ impl BodyComponent for MJColumn {
         let non_raw_siblings = ctx.non_raw_siblings();
         let borders = self.get_border_horizontal_width();
         let paddings = self.get_padding_horizontal_width();
-        let inner_border_left = match self.get_prefixed_border_left("inner") {
-            Some(size) => size.value(),
-            None => 0.0,
-        };
-        let inner_border_right = match self.get_prefixed_border_right("inner") {
-            Some(size) => size.value(),
-            None => 0.0,
-        };
+        let inner_border_left = self
+            .get_prefixed_border_left("inner")
+            .map(|size| size.value())
+            .unwrap_or(0.0);
+        let inner_border_right = self
+            .get_prefixed_border_right("inner")
+            .map(|size| size.value())
+            .unwrap_or(0.0);
         let inner_borders = inner_border_left + inner_border_right;
         let all_paddings = paddings.value() + borders.value() + inner_borders;
 

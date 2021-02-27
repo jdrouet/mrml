@@ -77,11 +77,11 @@ impl Component for MJNavbarLink {
                 self.get_attribute("css-class"),
                 "outlook",
             ));
-        let mut res: Vec<String> = vec![];
-        res.push(conditional_tag(td.open()));
-        res.push(self.render_content(header));
-        res.push(conditional_tag(td.close()));
-        Ok(res.join(""))
+        Ok(
+            conditional_tag(td.open())
+                + &self.render_content(header)
+                + &conditional_tag(td.close()),
+        )
     }
 }
 

@@ -148,14 +148,11 @@ impl Component for MJSocialElement {
         let tr = Tag::tr().maybe_set_class(self.get_attribute("css-class"));
         let td = self.set_style_td(Tag::td());
 
-        let mut res = vec![];
-        res.push(tr.open());
-        res.push(td.render(self.render_icon(&href)));
+        let mut res = td.render(self.render_icon(&href));
         if self.content.is_some() {
-            res.push(self.render_text(&href));
+            res.push_str(self.render_text(&href).as_str());
         }
-        res.push(tr.close());
-        Ok(res.join(""))
+        Ok(tr.render(res))
     }
 }
 

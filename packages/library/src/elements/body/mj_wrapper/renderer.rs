@@ -146,19 +146,9 @@ impl MJWrapper {
             .set_style("font-size", "0px")
             .set_style("line-height", "0px")
             .set_style("mso-line-height-rule", "exactly");
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(table.open());
-        res.push(tr.open());
-        res.push(td.open());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(content);
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(td.close());
-        res.push(tr.close());
-        res.push(table.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.join("")
+        let before = conditional_tag(table.open() + &tr.open() + &td.open());
+        let after = conditional_tag(td.close() + &tr.close() + &table.close());
+        before + &content + &after
     }
 
     fn render_full_width(&self, header: &Header) -> Result<String, Error> {
@@ -179,35 +169,27 @@ impl MJWrapper {
     fn render_wrapped_children(&self, header: &Header) -> Result<String, Error> {
         let container_width = self.get_container_width();
         let tr = Tag::tr();
-        let mut res = vec![];
-        for child in self.get_children() {
-            if child.is_raw() {
-                res.push(child.render(header)?);
-            } else {
-                let td = Tag::td()
-                    .maybe_set_attribute("align", child.get_attribute("align"))
-                    .maybe_set_class(suffix_css_classes(
-                        child.get_attribute("css-class"),
-                        "outlook",
-                    ))
-                    .maybe_set_attribute("width", container_width.clone());
-                let td = child.set_style("td-outlook", td);
-                res.push(START_CONDITIONAL_TAG.into());
-                res.push(tr.open());
-                res.push(td.open());
-                res.push(END_CONDITIONAL_TAG.into());
-                res.push(child.render(header)?);
-                res.push(START_CONDITIONAL_TAG.into());
-                res.push(td.close());
-                res.push(tr.close());
-                res.push(END_CONDITIONAL_TAG.into());
-            }
-        }
-        Ok(res.join(""))
+        self.get_children()
+            .try_fold(String::default(), |res, child| {
+                if child.is_raw() {
+                    Ok(res + &child.render(header)?)
+                } else {
+                    let td = Tag::td()
+                        .maybe_set_attribute("align", child.get_attribute("align"))
+                        .maybe_set_class(suffix_css_classes(
+                            child.get_attribute("css-class"),
+                            "outlook",
+                        ))
+                        .maybe_set_attribute("width", container_width.clone());
+                    let td = child.set_style("td-outlook", td);
+                    let before = conditional_tag(tr.open() + &td.open());
+                    let after = conditional_tag(td.close() + &tr.close());
+                    Ok(res + &before + &child.render(header)? + &after)
+                }
+            })
     }
 
     fn render_section(&self, header: &Header) -> Result<String, Error> {
-        let has_bg = self.has_background();
         let div = self.set_style_div(Tag::div().maybe_set_class(if self.is_full_width() {
             None
         } else {
@@ -230,27 +212,15 @@ impl MJWrapper {
         let tr = Tag::tr();
         let td = self.set_style_td(Tag::td());
         let inner_table = Tag::table_presentation();
-        let mut res = vec![];
-        res.push(div.open());
-        if has_bg {
-            res.push(inner_div.open());
-        }
-        res.push(table.open());
-        res.push(tbody.open());
-        res.push(tr.open());
-        res.push(td.open());
-        res.push(conditional_tag(inner_table.open()));
-        res.push(self.render_wrapped_children(header)?);
-        res.push(conditional_tag(inner_table.close()));
-        res.push(td.close());
-        res.push(tr.close());
-        res.push(tbody.close());
-        res.push(table.close());
-        if has_bg {
-            res.push(inner_div.close());
-        }
-        res.push(div.close());
-        Ok(res.join(""))
+        let content = conditional_tag(inner_table.open())
+            + &self.render_wrapped_children(header)?
+            + &conditional_tag(inner_table.close());
+        let content = table.render(tbody.render(tr.render(td.render(content))));
+        Ok(div.render(if self.has_background() {
+            inner_div.render(content)
+        } else {
+            content
+        }))
     }
 
     fn render_with_background(&self, content: String) -> String {
@@ -280,18 +250,9 @@ impl MJWrapper {
         let vtextbox = Tag::new("v:textbox")
             .set_attribute("inset", "0,0,0,0")
             .set_style("mso-fit-shape-to-text", "true");
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(vrect.open());
-        res.push(vfill.closed());
-        res.push(vtextbox.open());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(content);
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(vtextbox.close());
-        res.push(vrect.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.join("")
+        let before = conditional_tag(vrect.open() + &vfill.closed() + &vtextbox.open());
+        let after = conditional_tag(vtextbox.close() + &vrect.close());
+        before + &content + &after
     }
 
     fn render_simple(&self, header: &Header) -> Result<String, Error> {
@@ -307,9 +268,8 @@ impl MJWrapper {
 
 impl Component for MJWrapper {
     fn update_header(&self, header: &mut Header) {
-        for child in self.get_children() {
-            child.update_header(header);
-        }
+        self.get_children()
+            .for_each(|child| child.update_header(header));
     }
 
     fn context(&self) -> Option<&Context> {
@@ -324,11 +284,14 @@ impl Component for MJWrapper {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {

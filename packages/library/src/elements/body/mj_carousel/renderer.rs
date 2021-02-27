@@ -181,16 +181,13 @@ impl Component for MJCarousel {
         if length == 0 {
             return;
         }
-        let mut style = vec![];
-        style.push(
+        let mut style = vec![
             Style::default()
                 .add_str_selector(".mj-carousel")
                 .add_str_content("-webkit-user-select: none;")
                 .add_str_content("-moz-user-select: none;")
                 .add_str_content("user-select: none;")
                 .to_string(),
-        );
-        style.push(
             Style::default()
                 .add_selector(format!(".mj-carousel-{}-icons-cell", self.id))
                 .add_str_content("display: table-cell !important;")
@@ -199,23 +196,19 @@ impl Component for MJCarousel {
                     self.get_attribute("icon-width").unwrap()
                 ))
                 .to_string(),
-        );
-        style.push(
             Style::default()
                 .add_str_selector(".mj-carousel-radio")
                 .add_str_selector(".mj-carousel-next")
                 .add_str_selector(".mj-carousel-previous")
                 .add_str_content("display: none !important;")
                 .to_string(),
-        );
-        style.push(
             Style::default()
                 .add_str_selector(".mj-carousel-thumbnail")
                 .add_str_selector(".mj-carousel-next")
                 .add_str_selector(".mj-carousel-previous")
                 .add_str_content("touch-action: manipulation;")
                 .to_string(),
-        );
+        ];
         style.push(
             (0..length)
                 .fold(Style::default(), |res, idx| {
@@ -335,9 +328,9 @@ impl Component for MJCarousel {
         ));
 
         header.add_style(style.join("\n"));
-        for child in self.get_children() {
+        self.get_children().for_each(|child| {
             child.update_header(header);
-        }
+        });
     }
 
     fn context(&self) -> Option<&Context> {
@@ -352,11 +345,14 @@ impl Component for MJCarousel {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {

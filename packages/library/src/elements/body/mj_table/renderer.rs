@@ -36,17 +36,18 @@ impl Component for MJTable {
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        for child in self.get_children() {
-            res.push(child.render(header)?);
-        }
+        let res = self
+            .get_children()
+            .try_fold(String::default(), |res, child| {
+                Ok(res + &child.render(header)?)
+            })?;
         let table = self
             .set_style_table(Tag::new("table"))
             .set_attribute("border", 0)
             .maybe_set_attribute("cellpadding", self.get_attribute("cellpadding"))
             .maybe_set_attribute("cellspacing", self.get_attribute("cellspacing"))
             .maybe_set_attribute("width", self.get_attribute("width"));
-        Ok(table.render(res.join("")))
+        Ok(table.render(res))
     }
 }
 

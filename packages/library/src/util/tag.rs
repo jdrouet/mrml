@@ -60,8 +60,12 @@ impl Tag {
         } else {
             let mut style: Vec<(&String, &String)> = self.styles.iter().collect();
             style.sort_by(sort_by_key);
-            let style: Vec<String> = style.iter().map(|(k, v)| format!("{}:{};", k, v)).collect();
-            Some(style.join(""))
+            Some(
+                style
+                    .iter()
+                    .map(|(k, v)| format!("{}:{};", k, v))
+                    .collect::<String>(),
+            )
         }
     }
 }

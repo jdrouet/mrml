@@ -12,11 +12,11 @@ use crate::util::tag::Tag;
 
 impl MJButton {
     fn get_content(&self, header: &Header) -> Result<String, Error> {
-        let mut res = String::from("");
-        for item in self.get_children() {
-            res.push_str(item.render(header)?.as_str());
-        }
-        Ok(res)
+        self.get_children()
+            .try_fold(String::default(), |res, child| {
+                let content = child.render(header)?;
+                Ok(res + &content)
+            })
     }
 
     fn set_style_table(&self, tag: Tag) -> Tag {
@@ -71,14 +71,14 @@ impl MJButton {
         if !width.is_pixel() {
             return None;
         }
-        let pad_left = match self.get_prefixed_padding_left("inner") {
-            Some(value) => value.value(),
-            None => 0.0,
-        };
-        let pad_right = match self.get_prefixed_padding_right("inner") {
-            Some(value) => value.value(),
-            None => 0.0,
-        };
+        let pad_left = self
+            .get_prefixed_padding_left("inner")
+            .map(|value| value.value())
+            .unwrap_or(0.0);
+        let pad_right = self
+            .get_prefixed_padding_right("inner")
+            .map(|value| value.value())
+            .unwrap_or(0.0);
 
         Some(Size::Pixel(width.value() - pad_left - pad_right))
     }
@@ -106,18 +106,15 @@ impl Component for MJButton {
             .maybe_set_attribute("bgcolor", self.get_attribute("background-color"))
             .set_attribute("role", "presentation")
             .maybe_set_attribute("valign", self.get_attribute("vertical-align"));
-        let link = Tag::new(match self.get_attribute("href") {
-            Some(_) => "a",
-            None => "p",
-        })
-        .maybe_set_attribute("href", self.get_attribute("href"))
-        .maybe_set_attribute("rel", self.get_attribute("rel"))
-        .maybe_set_attribute("name", self.get_attribute("name"))
-        .maybe_set_attribute(
-            "target",
-            self.get_attribute("href")
-                .and_then(|_v| self.get_attribute("target")),
-        );
+        let link = Tag::new(self.get_attribute("href").map(|_| "a").unwrap_or("p"))
+            .maybe_set_attribute("href", self.get_attribute("href"))
+            .maybe_set_attribute("rel", self.get_attribute("rel"))
+            .maybe_set_attribute("name", self.get_attribute("name"))
+            .maybe_set_attribute(
+                "target",
+                self.get_attribute("href")
+                    .and_then(|_v| self.get_attribute("target")),
+            );
         let link = self.set_style_content(link);
 
         Ok(table.render(tr.render(td.render(link.render(self.get_content(header)?)))))
