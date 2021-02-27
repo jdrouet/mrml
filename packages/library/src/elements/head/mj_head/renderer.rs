@@ -4,6 +4,7 @@ use crate::elements::prelude::Component;
 use crate::util::context::Context;
 use crate::util::fonts::{url_to_import, url_to_link};
 use crate::util::header::Header;
+use crate::util::sort_by_key;
 use crate::util::tag::Tag;
 use log::debug;
 
@@ -86,21 +87,19 @@ impl MJHead {
             "@media only screen and (min-width:{}) {{ ",
             self.header.breakpoint.to_string()
         )];
-        let mut classnames: Vec<&String> = self.header.media_queries.keys().collect();
-        classnames.sort();
-        for classname in classnames.iter() {
-            let size = self
-                .header
-                .media_queries
-                .get(&(*classname).clone())
-                .unwrap();
+        let mut classnames: Vec<(&String, String)> = self
+            .header
+            .media_queries
+            .iter()
+            .map(|(key, value)| (key, value.to_string()))
+            .collect();
+        classnames.sort_by(sort_by_key);
+        classnames.iter().for_each(|(classname, size)| {
             res.push(format!(
                 ".{} {{ width:{} !important; max-width: {}; }}",
-                classname,
-                size.to_string(),
-                size.to_string()
-            ));
-        }
+                classname, size, size
+            ))
+        });
         res.push("}".into());
         Tag::new("style")
             .set_attribute("type", "text/css")
