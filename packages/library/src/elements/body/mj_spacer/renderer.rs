@@ -3,7 +3,7 @@ use crate::elements::body::prelude::BodyComponent;
 use crate::elements::error::Error;
 use crate::elements::prelude::*;
 use crate::util::attributes::*;
-use crate::util::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
+use crate::util::condition::conditional_tag;
 use crate::util::context::Context;
 use crate::util::header::Header;
 use crate::util::size::Size;
@@ -33,19 +33,9 @@ impl Component for MJSpacer {
             .maybe_set_style("height", height.clone())
             .maybe_set_attribute("height", height.map(|h| h.value()));
         let div = self.set_style_div(Tag::div());
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(table.open());
-        res.push(tr.open());
-        res.push(td.open());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(div.render("&nbsp;"));
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(td.close());
-        res.push(tr.close());
-        res.push(table.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        Ok(res.join(""))
+        let before = conditional_tag(table.open() + &tr.open() + &td.open());
+        let after = conditional_tag(td.close() + &tr.close() + &table.close());
+        Ok(before + &div.render("&nbsp;") + &after)
     }
 }
 

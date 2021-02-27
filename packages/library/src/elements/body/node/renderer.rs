@@ -30,11 +30,12 @@ impl Component for Node {
         if self.closed_element() {
             Ok(tag.closed())
         } else {
-            let mut res = vec![];
-            for child in self.get_children() {
-                res.push(child.render(header)?);
-            }
-            Ok(tag.render(res.join("")))
+            let res = self
+                .get_children()
+                .try_fold(String::default(), |res, child| {
+                    Ok(res + &child.render(header)?)
+                })?;
+            Ok(tag.render(res))
         }
     }
 }

@@ -38,9 +38,9 @@ impl Component for MJBody {
     }
 
     fn update_header(&self, header: &mut Header) {
-        for child in self.get_children() {
+        self.get_children().for_each(|child| {
             child.update_header(header);
-        }
+        })
     }
 
     fn set_context(&mut self, ctx: Context) {
@@ -51,31 +51,33 @@ impl Component for MJBody {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
         debug!("render");
         let body = self.set_style_body(Tag::new("body"));
-        let mut res: Vec<String> = vec![];
-        res.push(body.open());
-        res.push(self.render_preview(&header));
+        let preview = self.render_preview(&header);
         if self.exists {
             let div = self
                 .set_style_body(Tag::div())
                 .maybe_set_class(self.get_attribute("css-class"));
-            res.push(div.open());
-            for child in self.get_children() {
-                res.push(child.render(header)?);
-            }
-            res.push(div.close());
+            let content = self
+                .get_children()
+                .try_fold(String::default(), |res, child| {
+                    Ok(res + &child.render(header)?)
+                })?;
+            Ok(body.render(preview + &div.render(content)))
+        } else {
+            Ok(body.render(preview))
         }
-        res.push(body.close());
-        Ok(res.join(""))
     }
 }
 

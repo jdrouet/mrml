@@ -146,19 +146,9 @@ impl MJSection {
             .set_style("font-size", "0px")
             .set_style("line-height", "0px")
             .set_style("mso-line-height-rule", "exactly");
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(table.open());
-        res.push(tr.open());
-        res.push(td.open());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(content);
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(td.close());
-        res.push(tr.close());
-        res.push(table.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.join("")
+        let before = conditional_tag(table.open() + &tr.open() + &td.open());
+        let after = conditional_tag(td.close() + &tr.close() + &table.close());
+        before + &content + &after
     }
 
     fn render_full_width(&self, header: &Header) -> Result<String, Error> {
@@ -178,26 +168,26 @@ impl MJSection {
 
     fn render_wrapped_children(&self, header: &Header) -> Result<String, Error> {
         let tr = Tag::tr();
-        let mut res = vec![];
-        res.push(conditional_tag(tr.open()));
-        for child in self.get_children() {
-            if child.is_raw() {
-                res.push(child.render(header)?);
-            } else {
-                let td = Tag::td()
-                    .maybe_set_attribute("align", child.get_attribute("align"))
-                    .maybe_set_class(suffix_css_classes(
-                        child.get_attribute("css-class"),
-                        "outlook",
-                    ));
-                let td = child.set_style("td-outlook", td);
-                res.push(conditional_tag(td.open()));
-                res.push(child.render(header)?);
-                res.push(conditional_tag(td.close()));
-            }
-        }
-        res.push(conditional_tag(tr.close()));
-        Ok(res.join(""))
+        let content = self
+            .get_children()
+            .try_fold(String::default(), |res, child| {
+                if child.is_raw() {
+                    Ok(res + &child.render(header)?)
+                } else {
+                    let td = Tag::td()
+                        .maybe_set_attribute("align", child.get_attribute("align"))
+                        .maybe_set_class(suffix_css_classes(
+                            child.get_attribute("css-class"),
+                            "outlook",
+                        ));
+                    let td = child.set_style("td-outlook", td);
+                    Ok(res
+                        + &conditional_tag(td.open())
+                        + &child.render(header)?
+                        + &conditional_tag(td.close()))
+                }
+            })?;
+        Ok(conditional_tag(tr.open()) + &content + &conditional_tag(tr.close()))
     }
 
     fn render_section(&self, header: &Header) -> Result<String, Error> {
@@ -223,28 +213,15 @@ impl MJSection {
         let tr = Tag::tr();
         let td = self.set_style_td(Tag::td());
         let inner_table = Tag::table_presentation();
-        let has_bg = self.has_background();
-        let mut res = vec![];
-        res.push(div.open());
-        if has_bg {
-            res.push(inner_div.open());
-        }
-        res.push(table.open());
-        res.push(tbody.open());
-        res.push(tr.open());
-        res.push(td.open());
-        res.push(conditional_tag(inner_table.open()));
-        res.push(self.render_wrapped_children(header)?);
-        res.push(conditional_tag(inner_table.close()));
-        res.push(td.close());
-        res.push(tr.close());
-        res.push(tbody.close());
-        res.push(table.close());
-        if has_bg {
-            res.push(inner_div.close());
-        }
-        res.push(div.close());
-        Ok(res.join(""))
+        let content = conditional_tag(inner_table.open())
+            + &self.render_wrapped_children(header)?
+            + &conditional_tag(inner_table.close());
+        let content = table.render(tbody.render(tr.render(td.render(content))));
+        Ok(div.render(if self.has_background() {
+            inner_div.render(content)
+        } else {
+            content
+        }))
     }
 
     fn render_with_background(&self, content: String) -> String {
@@ -274,18 +251,9 @@ impl MJSection {
         let vtextbox = Tag::new("v:textbox")
             .set_attribute("inset", "0,0,0,0")
             .set_style("mso-fit-shape-to-text", "true");
-        let mut res = vec![];
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(vrect.open());
-        res.push(vfill.closed());
-        res.push(vtextbox.open());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.push(content);
-        res.push(START_CONDITIONAL_TAG.into());
-        res.push(vtextbox.close());
-        res.push(vrect.close());
-        res.push(END_CONDITIONAL_TAG.into());
-        res.join("")
+        let before = conditional_tag(vrect.open() + &vfill.closed() + &vtextbox.open());
+        let after = conditional_tag(vtextbox.close() + &vrect.close());
+        before + &content + &after
     }
 
     fn render_simple(&self, header: &Header) -> Result<String, Error> {
@@ -301,9 +269,9 @@ impl MJSection {
 
 impl Component for MJSection {
     fn update_header(&self, header: &mut Header) {
-        for child in self.get_children() {
+        self.get_children().for_each(|child| {
             child.update_header(header);
-        }
+        });
     }
 
     fn context(&self) -> Option<&Context> {
@@ -318,11 +286,14 @@ impl Component for MJSection {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {

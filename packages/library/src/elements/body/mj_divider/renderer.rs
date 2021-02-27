@@ -70,10 +70,7 @@ impl Component for MJDivider {
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        res.push(self.set_style_p(Tag::new("p")).render(""));
-        res.push(self.render_after());
-        Ok(res.join(""))
+        Ok(self.set_style_p(Tag::new("p")).render("") + &self.render_after())
     }
 }
 

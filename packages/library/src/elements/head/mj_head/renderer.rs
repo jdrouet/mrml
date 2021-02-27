@@ -82,11 +82,10 @@ impl MJHead {
         if !self.header.has_media_queries() {
             return "".into();
         }
-        let mut res = vec![];
-        res.push(format!(
+        let mut res = vec![format!(
             "@media only screen and (min-width:{}) {{ ",
             self.header.breakpoint.to_string()
-        ));
+        )];
         let mut classnames: Vec<&String> = self.header.media_queries.keys().collect();
         classnames.sort();
         for classname in classnames.iter() {
@@ -114,24 +113,24 @@ impl MJHead {
         if font_urls.is_empty() {
             return "".into();
         }
-        let mut res = vec![];
-        res.push("<!--[if !mso]><!-->".into());
-        for url in font_urls.iter() {
-            res.push(url_to_link(url.as_str()));
-        }
-        res.push(tag.open());
-        for url in font_urls.iter() {
-            res.push(url_to_import(url.as_str()));
-        }
-        res.push(tag.close());
-        res.push("<!--<![endif]-->".into());
-        res.join("")
+        let res = String::from("<!--[if !mso]><!-->");
+        let res = font_urls
+            .iter()
+            .fold(res, |res, url| res + &url_to_link(url.as_str()));
+        let res = res
+            + &tag.render(
+                font_urls
+                    .iter()
+                    .map(|url| url_to_import(url.as_str()))
+                    .collect::<String>(),
+            );
+        res + "<!--<![endif]-->"
     }
 
     fn get_styles(&self) -> String {
         let styles = self.header.get_styles();
         if styles.is_empty() {
-            "".into()
+            String::default()
         } else {
             Tag::new("style")
                 .set_attribute("type", "text/css")
@@ -151,35 +150,25 @@ impl Component for MJHead {
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
         debug!("render");
-        let head = Tag::new("head");
-        let mut res: Vec<String> = vec![];
-        res.push(head.open());
-        res.push(Tag::new("title").render(self.get_title()));
-        res.push("<!--[if !mso]><!-- -->".into());
-        res.push(
-            Tag::new("meta")
+        let result = Tag::new("title").render(self.get_title())
+            + "<!--[if !mso]><!-- -->"
+            + &Tag::new("meta")
                 .set_attribute("http-equiv", "X-UA-Compatible")
                 .set_attribute("content", "IE=edge")
-                .open(),
-        );
-        res.push("<!--<![endif]-->".into());
-        res.push(
-            Tag::new("meta")
+                .open()
+            + "<!--<![endif]-->"
+            + &Tag::new("meta")
                 .set_attribute("http-equiv", "Content-Type")
                 .set_attribute("content", "text/html; charset=UTF-8")
-                .open(),
-        );
-        res.push(
-            Tag::new("meta")
+                .open()
+            + &Tag::new("meta")
                 .set_attribute("name", "viewport")
                 .set_attribute("content", "width=device-width, initial-scale=1")
-                .open(),
-        );
-        res.push(STYLE_BASE.into());
-        res.push(self.get_font_families());
-        res.push(self.get_media_queries());
-        res.push(self.get_styles());
-        res.push(head.close());
-        Ok(res.join(""))
+                .open()
+            + STYLE_BASE
+            + &self.get_font_families()
+            + &self.get_media_queries()
+            + &self.get_styles();
+        Ok(Tag::new("head").render(result))
     }
 }

@@ -27,11 +27,12 @@ impl MJText {
     }
 
     fn render_content(&self, header: &Header) -> Result<String, Error> {
-        let mut res = vec![];
-        for child in self.get_children() {
-            res.push(child.render(header)?);
-        }
-        Ok(self.set_style_text(Tag::div()).render(res.join("")))
+        let res = self
+            .get_children()
+            .try_fold(String::default(), |res, child| {
+                Ok(res + &child.render(header)?)
+            })?;
+        Ok(self.set_style_text(Tag::div()).render(res))
     }
 
     fn render_with_height(&self, header: &Header, height: &str) -> Result<String, Error> {

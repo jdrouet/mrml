@@ -33,9 +33,9 @@ impl Component for MJAccordion {
         @goodbye { @gmail }
         "#);
         header.maybe_add_font_families(self.get_attribute("font-family"));
-        for child in self.get_children() {
+        self.get_children().for_each(|child| {
             child.update_header(header);
-        }
+        });
     }
 
     fn context(&self) -> Option<&Context> {
@@ -50,19 +50,23 @@ impl Component for MJAccordion {
             self.get_raw_siblings(),
             0,
         );
-        for (idx, child) in self.children.iter_mut().enumerate() {
-            child
-                .inner_mut()
-                .set_context(child_base.clone().set_index(idx));
-        }
+        self.children
+            .iter_mut()
+            .enumerate()
+            .for_each(|(idx, child)| {
+                child
+                    .inner_mut()
+                    .set_context(child_base.clone().set_index(idx));
+            });
     }
 
     fn render(&self, header: &Header) -> Result<String, Error> {
-        let mut children = vec![];
-        for child in self.get_children() {
-            children.push(child.render(header)?);
-        }
-        let tbody = Tag::tbody().render(children.join(""));
+        let children = self
+            .get_children()
+            .try_fold(String::default(), |res, child| {
+                Ok(res + &child.render(header)?)
+            })?;
+        let tbody = Tag::tbody().render(children);
         let table = Tag::table()
             .set_style("width", "100%")
             .set_style("border-collapse", "collapse")
