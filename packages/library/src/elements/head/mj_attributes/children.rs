@@ -3,8 +3,6 @@ use crate::elements::head::mj_attributes_class::MJAttributesClass;
 use crate::elements::head::mj_attributes_element::MJAttributesElement;
 use crate::util::header::DefaultAttributes;
 
-pub const NAME: &str = "mj-attributes";
-
 #[derive(Debug)]
 pub enum MJAttributesChild {
     All(MJAttributesAll),

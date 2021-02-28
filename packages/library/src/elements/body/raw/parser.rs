@@ -5,14 +5,6 @@ use crate::util::header::Header;
 use xmlparser::{StrSpan, Tokenizer};
 
 impl RawElement {
-    pub fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        header: &Header,
-    ) -> Result<RawElement, Error> {
-        RawElement::conditional_parse(tag, tokenizer, header, false)
-    }
-
     pub fn conditional_parse<'a>(
         tag: StrSpan<'a>,
         tokenizer: &mut Tokenizer<'a>,

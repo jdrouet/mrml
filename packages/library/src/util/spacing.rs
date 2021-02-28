@@ -1,4 +1,4 @@
-use super::size::{ParseSizeError, Size};
+use crate::util::size::{ParseSizeError, Size};
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -20,17 +20,6 @@ impl From<ParseSizeError> for Error {
 }
 
 /// representation of spacing
-///
-/// ```rust
-/// use mrml::util::size::Size;
-/// use mrml::util::spacing::Spacing;
-/// use std::str::FromStr;
-/// let res = Spacing::from_str("1px 2px 3% 4px");
-/// assert!(res.is_ok(), true);
-/// let spacing = res.unwrap();
-/// assert_eq!(spacing.top, Size::Pixel(1.0));
-/// assert_eq!(spacing.bottom, Size::Percent(3.0));
-/// ```
 #[derive(Clone, Debug)]
 pub struct Spacing {
     pub top: Size,

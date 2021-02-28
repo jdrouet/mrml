@@ -76,14 +76,4 @@ impl MJNavbarLink {
             .parse(tokenizer)?
             .build()
     }
-
-    pub fn parse_link<'a>(
-        tokenizer: &mut Tokenizer<'a>,
-        header: &Header,
-        extra: &Attributes,
-    ) -> Result<MJNavbarLink, Error> {
-        MJNavbarLinkParser::new(header, extra.clone())
-            .parse(tokenizer)?
-            .build()
-    }
 }

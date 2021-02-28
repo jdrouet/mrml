@@ -100,10 +100,6 @@ impl ToString for Attributes {
     }
 }
 
-pub fn suffix_unit(input: Option<&String>, suffix: &str) -> Option<String> {
-    input.map(|v| format!("{}{}", v, suffix))
-}
-
 pub fn suffix_css_classes(input: Option<&String>, suffix: &str) -> Option<String> {
     if let Some(value) = input {
         let value: Vec<String> = value
