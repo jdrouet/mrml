@@ -2,17 +2,8 @@ use crate::elements::body::comment::Comment;
 use crate::elements::body::prelude::{BodyChild, BodyComponent};
 use crate::elements::body::text::Text;
 
-macro_rules! propagate_trait {
+macro_rules! from_element {
     ($enum_name:ident) => {
-        impl<E: BodyComponent> $enum_name<E> {
-            pub fn as_element(&self) -> Option<&E> {
-                match self {
-                    Self::Element(elt) => Some(elt),
-                    _ => None,
-                }
-            }
-        }
-
         impl<E: BodyComponent> From<E> for $enum_name<E> {
             fn from(elt: E) -> Self {
                 Self::Element(elt)
@@ -33,6 +24,15 @@ impl<E: BodyComponent> ComponentOrComment<E> {
     }
 }
 
+impl<E: BodyComponent> ComponentOrComment<E> {
+    pub fn as_element(&self) -> Option<&E> {
+        match self {
+            Self::Element(elt) => Some(elt),
+            _ => None,
+        }
+    }
+}
+
 impl<E: BodyComponent> BodyChild for ComponentOrComment<E> {
     fn inner_mut<'p>(&'p mut self) -> &'p mut (dyn BodyComponent + 'p) {
         match self {
@@ -49,7 +49,7 @@ impl<E: BodyComponent> BodyChild for ComponentOrComment<E> {
     }
 }
 
-propagate_trait!(ComponentOrComment);
+from_element!(ComponentOrComment);
 
 #[derive(Debug)]
 pub enum ComponentOrTextOrComment<E: BodyComponent> {
@@ -86,4 +86,4 @@ impl<E: BodyComponent> BodyChild for ComponentOrTextOrComment<E> {
     }
 }
 
-propagate_trait!(ComponentOrTextOrComment);
+from_element!(ComponentOrTextOrComment);

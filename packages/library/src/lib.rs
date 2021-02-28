@@ -5,8 +5,6 @@ extern crate difference;
 #[macro_use]
 extern crate lazy_static;
 
-use std::default::Default;
-
 pub mod elements;
 mod error;
 pub mod parser;

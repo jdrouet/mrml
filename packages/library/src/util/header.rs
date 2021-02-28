@@ -63,21 +63,6 @@ impl DefaultAttributes {
         }
     }
 
-    pub fn set_element_attributes(&self, name: &str, other: Attributes) -> Attributes {
-        let result = other.concat(&self.all);
-        match self.elements.get(name) {
-            Some(attrs) => result.concat(attrs),
-            None => result,
-        }
-    }
-
-    pub fn set_class_attributes(&self, name: &str, other: Attributes) -> Attributes {
-        match self.classes.get(name) {
-            Some(attrs) => other.concat(attrs),
-            None => other,
-        }
-    }
-
     pub fn concat_attributes(
         &self,
         tag: &str,
@@ -141,12 +126,6 @@ impl Header {
         self.media_queries.insert(classname.to_string(), size);
     }
 
-    pub fn maybe_add_style<K: ToString>(&mut self, style: Option<K>) {
-        if let Some(value) = style {
-            self.add_style(value);
-        }
-    }
-
     pub fn add_style<K: ToString>(&mut self, style: K) {
         self.styles.insert(style.to_string());
     }
@@ -173,10 +152,6 @@ impl Header {
 
     pub fn get_styles(&self) -> Vec<String> {
         self.styles.iter().cloned().collect()
-    }
-
-    pub fn get_font_families(&self) -> Vec<String> {
-        self.font_families.iter().cloned().collect()
     }
 
     pub fn get_used_font_families(&self) -> Vec<&String> {
