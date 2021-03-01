@@ -18,7 +18,7 @@ impl MJAccordionTitle {
         MJAccordionTitle {
             attributes,
             context: None,
-            content: "".into(),
+            content: String::default(),
         }
     }
 }

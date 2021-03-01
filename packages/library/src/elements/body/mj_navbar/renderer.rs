@@ -86,8 +86,12 @@ impl MJNavbar {
         let span_close = self
             .set_style_ico_close(Tag::new("span"))
             .set_class("mj-menu-icon-close");
-        let content = span_open.render(self.get_attribute("ico-open").unwrap_or(&"".into()))
-            + &span_close.render(self.get_attribute("ico-close").unwrap_or(&"".into()));
+        let content = span_open
+            .render(self.get_attribute("ico-open").unwrap_or(&String::default()))
+            + &span_close.render(
+                self.get_attribute("ico-close")
+                    .unwrap_or(&String::default()),
+            );
         let content = div.render(label.render(content));
         mso_negation_conditional_tag(input.closed()) + &content
     }

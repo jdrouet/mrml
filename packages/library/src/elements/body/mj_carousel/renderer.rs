@@ -170,7 +170,7 @@ impl MJCarousel {
     fn render_fallback(&self, header: &Header) -> Result<String, Error> {
         match self.children.first() {
             Some(child) => Ok(mso_conditional_tag(child.inner().render(header)?)),
-            None => Ok("".into()),
+            None => Ok(String::default()),
         }
     }
 }

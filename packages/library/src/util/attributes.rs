@@ -127,7 +127,10 @@ mod tests {
 
     #[test]
     fn suffix_css_classes_some_empty() {
-        assert_eq!(suffix_css_classes(Some(&"".into()), "whatever"), None);
+        assert_eq!(
+            suffix_css_classes(Some(&String::default()), "whatever"),
+            None
+        );
     }
 
     #[test]
