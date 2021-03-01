@@ -6,7 +6,6 @@ use crate::util::fonts::{url_to_import, url_to_link};
 use crate::util::header::Header;
 use crate::util::sort_by_key;
 use crate::util::tag::Tag;
-use log::debug;
 
 const STYLE_BASE: &str = r#"
 <style type="text/css">
@@ -81,7 +80,7 @@ impl MJHead {
 
     fn get_media_queries(&self) -> String {
         if !self.header.has_media_queries() {
-            return "".into();
+            return String::default();
         }
         let mut res = vec![format!(
             "@media only screen and (min-width:{}) {{ ",
@@ -107,23 +106,22 @@ impl MJHead {
     }
 
     fn get_font_families(&self) -> String {
-        let tag = Tag::new("style").set_attribute("type", "text/css");
         let font_urls = self.header.get_used_font_families();
         if font_urls.is_empty() {
-            return "".into();
+            return String::default();
         }
-        let res = String::from("<!--[if !mso]><!-->");
-        let res = font_urls
-            .iter()
-            .fold(res, |res, url| res + &url_to_link(url.as_str()));
-        let res = res
-            + &tag.render(
-                font_urls
-                    .iter()
-                    .map(|url| url_to_import(url.as_str()))
-                    .collect::<String>(),
-            );
-        res + "<!--<![endif]-->"
+        String::from("<!--[if !mso]><!-->")
+            + &font_urls
+                .iter()
+                .map(|url| url_to_link(url.as_str()))
+                .collect::<String>()
+            + "<style type=\"text/css\">"
+            + &font_urls
+                .iter()
+                .map(|url| url_to_import(url.as_str()))
+                .collect::<String>()
+            + "</style>"
+            + "<!--<![endif]-->"
     }
 
     fn get_styles(&self) -> String {
@@ -131,9 +129,7 @@ impl MJHead {
         if styles.is_empty() {
             String::default()
         } else {
-            Tag::new("style")
-                .set_attribute("type", "text/css")
-                .render(styles.join(""))
+            format!("<style type=\"text/css\">{}</style>", styles.join(""))
         }
     }
 }
@@ -148,26 +144,19 @@ impl Component for MJHead {
     }
 
     fn render(&self, _header: &Header) -> Result<String, Error> {
-        debug!("render");
-        let result = Tag::new("title").render(self.get_title())
+        Ok(String::from("<head>")
+            + "<title>"
+            + &self.get_title()
+            + "</title>"
             + "<!--[if !mso]><!-- -->"
-            + &Tag::new("meta")
-                .set_attribute("http-equiv", "X-UA-Compatible")
-                .set_attribute("content", "IE=edge")
-                .open()
+            + "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">"
             + "<!--<![endif]-->"
-            + &Tag::new("meta")
-                .set_attribute("http-equiv", "Content-Type")
-                .set_attribute("content", "text/html; charset=UTF-8")
-                .open()
-            + &Tag::new("meta")
-                .set_attribute("name", "viewport")
-                .set_attribute("content", "width=device-width, initial-scale=1")
-                .open()
+            + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">"
+            + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
             + STYLE_BASE
             + &self.get_font_families()
             + &self.get_media_queries()
-            + &self.get_styles();
-        Ok(Tag::new("head").render(result))
+            + &self.get_styles()
+            + "</head>")
     }
 }
