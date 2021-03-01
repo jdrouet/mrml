@@ -81,7 +81,7 @@ impl MJHead {
 
     fn get_media_queries(&self) -> String {
         if !self.header.has_media_queries() {
-            return "".into();
+            return String::default();
         }
         let mut res = vec![format!(
             "@media only screen and (min-width:{}) {{ ",
@@ -110,7 +110,7 @@ impl MJHead {
         let tag = Tag::new("style").set_attribute("type", "text/css");
         let font_urls = self.header.get_used_font_families();
         if font_urls.is_empty() {
-            return "".into();
+            return String::default();
         }
         let res = String::from("<!--[if !mso]><!-->");
         let res = font_urls
