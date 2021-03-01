@@ -45,10 +45,9 @@ impl DefaultAttributes {
     }
 
     fn get_mut_class(&mut self, name: &str) -> &mut Attributes {
-        if !self.classes.contains_key(name) {
-            self.classes.insert(name.to_string(), Attributes::default());
-        }
-        self.classes.get_mut(name).unwrap()
+        self.classes
+            .entry(name.into())
+            .or_insert_with(Attributes::default)
     }
 
     pub fn add_class_content<K, V, I>(&mut self, name: &str, items: I)
@@ -77,11 +76,10 @@ impl DefaultAttributes {
             .get("mj-class")
             .map(|v| v.split(' ').map(String::from).collect::<Vec<String>>())
             .unwrap_or_default();
-        for classname in classes.iter() {
-            if let Some(attrs) = self.classes.get(classname) {
-                result.merge(attrs);
-            }
-        }
+        classes
+            .iter()
+            .filter_map(|cname| self.classes.get(cname))
+            .for_each(|attrs| result.merge(attrs));
         result
     }
 }
@@ -137,13 +135,12 @@ impl Header {
     }
 
     pub fn add_font_families(&mut self, font_family_list: &str) {
-        let result = font_family_list
+        font_family_list
             .split(',')
             .map(|v| v.trim().to_string())
-            .collect::<Vec<String>>();
-        for item in result {
-            self.font_families.insert(item);
-        }
+            .for_each(|item| {
+                self.font_families.insert(item);
+            });
     }
 
     pub fn register_font(&mut self, name: &str, href: &str) {
@@ -155,13 +152,10 @@ impl Header {
     }
 
     pub fn get_used_font_families(&self) -> Vec<&String> {
-        let mut res = vec![];
-        for name in self.font_families.iter() {
-            if let Some(url) = self.font_registry.get(name) {
-                res.push(url);
-            }
-        }
-        res
+        self.font_families
+            .iter()
+            .filter_map(|name| self.font_registry.get(name))
+            .collect()
     }
 }
 

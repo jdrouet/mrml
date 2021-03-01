@@ -94,14 +94,15 @@ impl Tag {
         }
         let mut attrs: Vec<(&String, &String)> = attrs.iter().collect();
         attrs.sort_by(sort_by_key);
-        let attrs: Vec<String> = attrs
+        let attrs: String = attrs
             .iter()
             .map(|(k, v)| format!("{}=\"{}\"", k, v))
-            .collect();
+            .collect::<Vec<_>>()
+            .join(" ");
         if attrs.is_empty() {
             None
         } else {
-            Some(attrs.join(" "))
+            Some(attrs)
         }
     }
 }
