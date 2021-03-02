@@ -1,19 +1,11 @@
-use super::body::mj_body::{MJBody, NAME as MJ_BODY};
-use super::head::mj_head::{MJHead, NAME as MJ_HEAD};
-use crate::elements::error::Error;
+use super::MJMLElement;
+use crate::elements::body::mj_body::{MJBody, NAME as MJ_BODY};
+use crate::elements::head::mj_head::{MJHead, NAME as MJ_HEAD};
 use crate::elements::prelude::Component;
 use crate::parser::{next_token, Error as ParserError, MJMLParser};
 use crate::util::context::Context;
 use crate::Options;
-use log::debug;
 use xmlparser::{StrSpan, Token, Tokenizer};
-
-#[derive(Debug)]
-pub struct MJMLElement {
-    context: Option<Context>,
-    head: MJHead,
-    body: MJBody,
-}
 
 struct MJMLElementParser<'o> {
     options: &'o Options,
@@ -94,25 +86,5 @@ impl<'a> MJMLElement {
             },
             _ => Err(ParserError::InvalidFormat),
         }
-    }
-
-    pub fn get_title(&self) -> String {
-        debug!("get_title");
-        self.head.get_title()
-    }
-
-    pub fn get_preview(&self) -> String {
-        debug!("get_preview");
-        self.head.get_preview()
-    }
-
-    pub fn get_html(&self) -> Result<String, Error> {
-        debug!("get_html");
-        let header = self.head.get_header();
-        Ok(String::from("<!doctype html>")
-           + "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">"
-           + self.head.render(&header)?.as_str()
-           + self.body.render(&header)?.as_str()
-           + "</html>")
     }
 }
