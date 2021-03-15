@@ -16,8 +16,8 @@ pub struct MJBody {
     exists: bool,
 }
 
-impl MJBody {
-    pub fn empty() -> MJBody {
+impl Default for MJBody {
+    fn default() -> MJBody {
         MJBody {
             attributes: Attributes::default(),
             children: vec![],

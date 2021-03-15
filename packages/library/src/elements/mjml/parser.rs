@@ -29,7 +29,7 @@ impl<'o> MJMLParser for MJMLElementParser<'o> {
     type Output = MJMLElement;
 
     fn build(mut self) -> Result<Self::Output, ParserError> {
-        let mut body = self.body.unwrap_or_else(MJBody::empty);
+        let mut body = self.body.unwrap_or_default();
         body.set_context(Context::default());
         body.update_header(self.head.get_mut_header());
         Ok(MJMLElement {
