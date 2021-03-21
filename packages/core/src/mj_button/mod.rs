@@ -1,6 +1,7 @@
 use crate::mj_body::MJBodyChild;
 use std::collections::HashMap;
 
+mod parse;
 mod print;
 
 pub const NAME: &str = "mj-button";

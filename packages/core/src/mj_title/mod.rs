@@ -1,8 +1,9 @@
+mod parse;
 mod print;
 
 pub const NAME: &str = "mj-title";
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct MJTitle(String);
 
 impl From<String> for MJTitle {
