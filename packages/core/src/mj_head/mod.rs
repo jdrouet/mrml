@@ -10,3 +10,9 @@ pub const NAME: &str = "mj-head";
 pub struct MJHead {
     children: Vec<MJHeadChild>,
 }
+
+impl MJHead {
+    pub fn children(&self) -> &Vec<MJHeadChild> {
+        &self.children
+    }
+}
