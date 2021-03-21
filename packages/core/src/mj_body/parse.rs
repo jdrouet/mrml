@@ -1,7 +1,7 @@
 use super::{MJBody, MJBodyChild};
 use crate::prelude::parse::{Error, Parser};
 use crate::{parse_child, parse_comment, parse_text};
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::Tokenizer;
 
 #[derive(Debug, Default)]
 struct MJBodyParser(MJBody);
