@@ -17,3 +17,13 @@ impl MJAttributesElement {
         }
     }
 }
+
+impl MJAttributesElement {
+    pub fn name(&self) -> &String {
+        &self.name
+    }
+
+    pub fn attributes(&self) -> &HashMap<String, String> {
+        &self.attributes
+    }
+}

@@ -10,3 +10,13 @@ pub struct MJAttributesClass {
     name: String,
     attributes: HashMap<String, String>,
 }
+
+impl MJAttributesClass {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn attributes(&self) -> &HashMap<String, String> {
+        &self.attributes
+    }
+}

@@ -2,6 +2,7 @@ use crate::mj_body::MJBodyChild;
 use std::collections::HashMap;
 
 mod print;
+mod render;
 
 #[derive(Debug)]
 pub struct Node {

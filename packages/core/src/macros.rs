@@ -10,6 +10,20 @@ macro_rules! from_child {
 }
 
 #[macro_export]
+macro_rules! as_child {
+    ($enum_name:ident, $child_name:ident, $func_name:ident) => {
+        impl $enum_name {
+            pub fn $func_name(&self) -> Option<&$child_name> {
+                match self {
+                    Self::$child_name(elt) => Some(elt),
+                    _ => None,
+                }
+            }
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! parse_attribute {
     () => {
         fn parse_attribute<'a>(
@@ -59,6 +73,45 @@ macro_rules! parse_text {
                 .children
                 .push(crate::text::Text::from(value.as_str()).into());
             Ok(())
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! write_attribute {
+    ($buf:ident, $name:expr, $value:expr) => {
+        $buf.push(' ');
+        $buf.push_str($name);
+        $buf.push_str("=\"");
+        $buf.push_str($value);
+        $buf.push('"');
+    };
+}
+
+#[macro_export]
+macro_rules! write_optional_attribute {
+    ($buf:ident, $name:expr, $value:expr) => {
+        if let Some(ref value) = $value {
+            write_attribute!($buf, $name, value);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! write_style {
+    ($buf:ident, $name:expr, $value:expr) => {
+        $buf.push_str($name);
+        $buf.push(':');
+        $buf.push_str($value);
+        $buf.push(';');
+    };
+}
+
+#[macro_export]
+macro_rules! write_optional_style {
+    ($buf:ident, $name:expr, $value:expr) => {
+        if let Some(ref value) = $value {
+            write_style!($buf, $name, value);
         }
     };
 }

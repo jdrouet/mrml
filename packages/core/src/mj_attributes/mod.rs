@@ -10,3 +10,9 @@ pub const NAME: &str = "mj-attributes";
 pub struct MJAttributes {
     children: Vec<MJAttributesChild>,
 }
+
+impl MJAttributes {
+    pub fn children(&self) -> &Vec<MJAttributesChild> {
+        &self.children
+    }
+}

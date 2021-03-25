@@ -2,5 +2,5 @@
 members = [
   "packages/library",
   "packages/cli",
-  "packages/wasm"
+  "packages/core"
 ]

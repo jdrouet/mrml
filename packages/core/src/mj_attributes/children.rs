@@ -1,10 +1,10 @@
-use crate::from_child;
 use crate::mj_attributes_all::MJAttributesAll;
 use crate::mj_attributes_all::NAME as MJ_ALL;
 use crate::mj_attributes_class::MJAttributesClass;
 use crate::mj_attributes_class::NAME as MJ_CLASS;
 use crate::mj_attributes_element::MJAttributesElement;
 use crate::prelude::parse::Error as ParserError;
+use crate::{as_child, from_child};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
@@ -14,8 +14,11 @@ pub enum MJAttributesChild {
     MJAttributesElement(MJAttributesElement),
 }
 
+as_child!(MJAttributesChild, MJAttributesAll, as_mj_all);
 from_child!(MJAttributesChild, MJAttributesAll);
+as_child!(MJAttributesChild, MJAttributesClass, as_mj_class);
 from_child!(MJAttributesChild, MJAttributesClass);
+as_child!(MJAttributesChild, MJAttributesElement, as_element);
 from_child!(MJAttributesChild, MJAttributesElement);
 
 impl MJAttributesChild {

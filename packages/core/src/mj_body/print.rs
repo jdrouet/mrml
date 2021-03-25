@@ -36,6 +36,7 @@ mod tests {
         assert_eq!("<mj-body></mj-body>", item.dense_print());
     }
 
+    /*
     #[test]
     fn with_children() {
         let mut item = crate::mj_body::MJBody::default();
@@ -50,4 +51,5 @@ mod tests {
             item.dense_print()
         );
     }
+    */
 }
