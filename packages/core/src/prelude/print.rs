@@ -20,7 +20,7 @@ pub trait Print {
 pub fn print_indent(f: &mut String, level: usize, indent_size: usize) {
     let spaces = level * indent_size;
     for _ in 0..spaces {
-        f.push_str(" ");
+        f.push(' ');
     }
 }
 
@@ -29,11 +29,11 @@ pub fn print_attributes(f: &mut String, attrs: Option<&HashMap<String, String>>)
         let mut entries: Vec<(&String, &String)> = attrs.iter().collect();
         entries.sort_by(sort_by_key);
         for (key, value) in attrs.iter() {
-            f.push_str(" ");
+            f.push(' ');
             f.push_str(key);
             f.push_str("=\"");
             f.push_str(value);
-            f.push_str("\"");
+            f.push('"');
         }
     }
 }
@@ -50,16 +50,16 @@ pub fn print_open(
     if pretty {
         print_indent(f, level, indent_size);
     }
-    f.push_str("<");
+    f.push('<');
     f.push_str(tag);
     print_attributes(f, attrs);
     if closed {
         f.push_str(" />");
     } else {
-        f.push_str(">");
+        f.push('>');
     }
     if pretty {
-        f.push_str("\n");
+        f.push('\n');
     }
 }
 
@@ -69,8 +69,8 @@ pub fn print_close(f: &mut String, tag: &str, pretty: bool, level: usize, indent
     }
     f.push_str("</");
     f.push_str(tag);
-    f.push_str(">");
+    f.push('>');
     if pretty {
-        f.push_str("\n");
+        f.push('\n');
     }
 }
