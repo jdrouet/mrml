@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 mod parse;
 mod print;
+mod render;
 
 pub const NAME: &str = "mj-button";
 

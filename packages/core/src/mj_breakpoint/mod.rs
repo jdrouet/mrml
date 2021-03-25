@@ -7,3 +7,9 @@ pub const NAME: &str = "mj-breakpoint";
 pub struct MJBreakpoint {
     value: String,
 }
+
+impl MJBreakpoint {
+    pub fn value(&self) -> &str {
+        &self.value
+    }
+}

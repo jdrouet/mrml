@@ -1,4 +1,5 @@
 mod print;
+mod render;
 
 #[derive(Debug)]
 pub struct Comment(String);

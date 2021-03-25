@@ -1,7 +1,11 @@
 mod children;
 mod parse;
 mod print;
+mod render;
 
+use crate::mj_breakpoint::MJBreakpoint;
+use crate::mj_preview::MJPreview;
+use crate::mj_title::MJTitle;
 pub use children::MJHeadChild;
 
 pub const NAME: &str = "mj-head";
@@ -12,6 +16,20 @@ pub struct MJHead {
 }
 
 impl MJHead {
+    pub fn breakpoint(&self) -> Option<&MJBreakpoint> {
+        self.children
+            .iter()
+            .find_map(|item| item.as_mj_breakpoint())
+    }
+
+    pub fn preview(&self) -> Option<&MJPreview> {
+        self.children.iter().find_map(|item| item.as_mj_preview())
+    }
+
+    pub fn title(&self) -> Option<&MJTitle> {
+        self.children.iter().find_map(|item| item.as_mj_title())
+    }
+
     pub fn children(&self) -> &Vec<MJHeadChild> {
         &self.children
     }

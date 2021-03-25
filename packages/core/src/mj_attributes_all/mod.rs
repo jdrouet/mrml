@@ -9,3 +9,9 @@ pub const NAME: &str = "mj-all";
 pub struct MJAttributesAll {
     attributes: HashMap<String, String>,
 }
+
+impl MJAttributesAll {
+    pub fn attributes(&self) -> &HashMap<String, String> {
+        &self.attributes
+    }
+}

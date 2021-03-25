@@ -3,6 +3,7 @@ use crate::mj_head::MJHead;
 
 mod parse;
 mod print;
+mod render;
 
 pub const NAME: &str = "mjml";
 
@@ -13,7 +14,7 @@ pub struct MJML {
 }
 
 impl MJML {
-    pub fn body(&self) -> Option<&MJBody> {
+    pub fn body<'e>(&'e self) -> Option<&'e MJBody> {
         self.body.as_ref()
     }
 

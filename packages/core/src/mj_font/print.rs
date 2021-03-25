@@ -1,22 +1,17 @@
 use super::MJFont;
-use crate::prelude::print::{print_open, Print};
-use std::collections::HashMap;
+use crate::prelude::print::{print_indent, Print};
 use std::fmt;
 
 impl Print for MJFont {
     fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
-        let mut attrs = HashMap::<String, String>::new();
-        attrs.insert("name".to_string(), self.name.clone());
-        attrs.insert("href".to_string(), self.href.clone());
-        print_open(
-            f,
-            super::NAME,
-            Some(&attrs),
-            true,
-            pretty,
-            level,
-            indent_size,
-        );
+        if pretty {
+            print_indent(f, level, indent_size);
+        }
+        f.push_str("<mj-font name=\"");
+        f.push_str(&self.name);
+        f.push_str("\" href=\"");
+        f.push_str(&self.href);
+        f.push_str("\" />");
         if pretty {
             f.push_str("\n");
         }
@@ -40,7 +35,7 @@ mod tests {
             href: String::from("http://localhost"),
         };
         assert_eq!(
-            "<mj-font href=\"http://localhost\" name=\"Comic sans MS\" />",
+            "<mj-font name=\"Comic sans MS\" href=\"http://localhost\" />",
             item.dense_print()
         );
     }

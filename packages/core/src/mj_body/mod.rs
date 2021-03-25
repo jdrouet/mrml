@@ -1,6 +1,7 @@
 mod children;
 mod parse;
 mod print;
+mod render;
 
 pub use children::MJBodyChild;
 use std::collections::HashMap;
