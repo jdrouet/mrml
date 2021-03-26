@@ -1,4 +1,5 @@
 use super::MJML;
+use crate::helper::buffer::Buffer;
 use crate::mj_head::MJHead;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
@@ -14,8 +15,8 @@ impl<'e, 'h> Render<'h> for MJMLRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut String) -> Result<(), Error> {
-        let mut body_content = String::default();
+    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
+        let mut body_content = Buffer::default();
         if let Some(body) = self.element.body() {
             body.renderer(Rc::clone(&self.header))
                 .render(&mut body_content)?;
@@ -31,7 +32,7 @@ impl<'e, 'h> Render<'h> for MJMLRender<'e, 'h> {
                 .renderer(Rc::clone(&self.header))
                 .render(buf)?;
         }
-        buf.push_str(body_content.as_str());
+        buf.push_str(body_content.content());
         buf.push_str("</html>");
         Ok(())
     }
@@ -49,9 +50,9 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJML {
 impl MJML {
     pub fn render(&self) -> Result<String, Error> {
         let header = Rc::new(RefCell::new(Header::new(&self.head)));
-        let mut buffer = String::default();
+        let mut buffer = Buffer::default();
         self.renderer(header).render(&mut buffer)?;
-        Ok(buffer)
+        Ok(buffer.content())
     }
 }
 

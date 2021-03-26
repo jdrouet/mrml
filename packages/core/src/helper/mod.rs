@@ -1,3 +1,4 @@
+pub mod buffer;
 pub mod size;
 pub mod sort;
 pub mod spacing;
