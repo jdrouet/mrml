@@ -1,48 +1,10 @@
+use crate::helper::buffer::Buffer;
 use crate::helper::size::{Pixel, Size};
 use crate::mj_head::MJHead;
 use std::cell::{Ref, RefCell};
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::rc::Rc;
-
-#[macro_export]
-macro_rules! write_attribute {
-    ($buf:ident, $name:expr, $value:expr) => {
-        $buf.push(' ');
-        $buf.push_str($name);
-        $buf.push_str("=\"");
-        $buf.push_str($value);
-        $buf.push('"');
-    };
-}
-
-#[macro_export]
-macro_rules! write_optional_attribute {
-    ($buf:ident, $name:expr, $value:expr) => {
-        if let Some(ref value) = $value {
-            write_attribute!($buf, $name, value);
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! write_style {
-    ($buf:ident, $name:expr, $value:expr) => {
-        $buf.push_str($name);
-        $buf.push(':');
-        $buf.push_str($value);
-        $buf.push(';');
-    };
-}
-
-#[macro_export]
-macro_rules! write_optional_style {
-    ($buf:ident, $name:expr, $value:expr) => {
-        if let Some(ref value) = $value {
-            write_style!($buf, $name, value);
-        }
-    };
-}
 
 #[derive(Debug)]
 pub enum Error {}
@@ -168,7 +130,7 @@ pub trait Render<'h> {
     fn set_siblings(&mut self, _count: usize) {}
     fn set_raw_siblings(&mut self, _count: usize) {}
 
-    fn render(&self, buf: &mut String) -> Result<(), Error>;
+    fn render(&self, buf: &mut Buffer) -> Result<(), Error>;
 }
 
 pub trait Renderable<'r, 'e: 'r, 'h: 'r> {

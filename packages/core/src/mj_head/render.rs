@@ -1,4 +1,5 @@
 use super::MJHead;
+use crate::helper::buffer::Buffer;
 use crate::helper::sort::sort_by_key;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
@@ -126,19 +127,19 @@ pub struct MJHeadRender<'e, 'h> {
 }
 
 impl<'e, 'h> MJHeadRender<'e, 'h> {
-    fn render_font_import(&self, buf: &mut String, href: &str) {
+    fn render_font_import(&self, buf: &mut Buffer, href: &str) {
         buf.push_str("@import url(");
         buf.push_str(href);
         buf.push_str(");");
     }
 
-    fn render_font_link(&self, buf: &mut String, href: &str) {
+    fn render_font_link(&self, buf: &mut Buffer, href: &str) {
         buf.push_str("<link href\"");
         buf.push_str(href);
         buf.push_str("\" rel=\"stylesheet\" type=\"text/css\">");
     }
 
-    fn render_font_families(&self, buf: &mut String) {
+    fn render_font_families(&self, buf: &mut Buffer) {
         let header = self.header.borrow();
         let used_font_families = header.used_font_families();
         if used_font_families.is_empty() {
@@ -170,7 +171,7 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
         buf.push_str("<!--<![endif]-->");
     }
 
-    fn render_media_queries(&self, buf: &mut String) {
+    fn render_media_queries(&self, buf: &mut Buffer) {
         let header = self.header.borrow();
         if header.media_queries().is_empty() {
             return;
@@ -200,7 +201,7 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
         buf.push_str("</style>");
     }
 
-    fn render_styles(&self, buf: &mut String) {
+    fn render_styles(&self, buf: &mut Buffer) {
         let header = self.header.borrow();
         if header.styles().is_empty() {
             return;
@@ -218,7 +219,7 @@ impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut String) -> Result<(), Error> {
+    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
         buf.push_str("<head>");
         // we write the title even though there is no content
         buf.push_str("<title>");

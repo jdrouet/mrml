@@ -1,8 +1,8 @@
 use super::{MJButton, NAME};
+use crate::helper::buffer::Buffer;
 use crate::helper::size::Pixel;
 use crate::helper::spacing::Spacing;
 use crate::prelude::render::{Error, Header, Render, Renderable};
-use crate::{write_attribute, write_optional_attribute, write_optional_style, write_style};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -62,49 +62,45 @@ impl<'e, 'h> Render<'h> for MJButtonRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut String) -> Result<(), Error> {
+    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
         if let Some(ref font_family) = self.attribute("font-family") {
             self.header.borrow_mut().add_used_font_family(font_family);
         }
         buf.push_str("<table role=\"presentation\" style=\"border-collapse:separate;");
-        if let Some(width) = self.attribute("width") {
-            buf.push_str("width:");
-            buf.push_str(width.as_str());
-            buf.push(';');
-        }
+        buf.push_optional_style("width", self.attribute("width"));
         buf.push_str("line-height:100%\">");
         buf.push_str("<tr>");
         buf.push_str("<td align=\"center\"");
-        write_optional_attribute!(buf, "bgcolor", self.attribute("background-color"));
+        buf.push_optional_attribute("bgcolor", self.attribute("background-color"));
         buf.push_str(" role=\"presentation\"");
-        write_optional_attribute!(buf, "valign", self.attribute("vertical-align"));
+        buf.push_optional_attribute("valign", self.attribute("vertical-align"));
         buf.push_str(">");
         let href = self.attribute("href");
         if let Some(ref href) = href {
             buf.push_str("<a href=\"");
             buf.push_str(href);
             buf.push('"');
-            write_optional_attribute!(buf, "target", self.attribute("target"));
+            buf.push_optional_attribute("target", self.attribute("target"));
         } else {
             buf.push_str("<p");
         }
-        write_optional_attribute!(buf, "rel", self.attribute("rel"));
-        write_optional_attribute!(buf, "name", self.attribute("name"));
+        buf.push_optional_attribute("rel", self.attribute("rel"));
+        buf.push_optional_attribute("name", self.attribute("name"));
         buf.push_str(" style=\"display:inline-block;");
-        write_optional_style!(buf, "width", self.content_width());
-        write_optional_style!(buf, "background", self.attribute("background-color"));
-        write_optional_style!(buf, "color", self.attribute("color"));
-        write_optional_style!(buf, "font-family", self.attribute("font-family"));
-        write_optional_style!(buf, "font-size", self.attribute("font-size"));
-        write_optional_style!(buf, "font-weight", self.attribute("font-weight"));
-        write_optional_style!(buf, "line-height", self.attribute("line-height"));
-        write_optional_style!(buf, "line-spacing", self.attribute("line-spacing"));
+        buf.push_optional_style("width", self.content_width());
+        buf.push_optional_style("background", self.attribute("background-color"));
+        buf.push_optional_style("color", self.attribute("color"));
+        buf.push_optional_style("font-family", self.attribute("font-family"));
+        buf.push_optional_style("font-size", self.attribute("font-size"));
+        buf.push_optional_style("font-weight", self.attribute("font-weight"));
+        buf.push_optional_style("line-height", self.attribute("line-height"));
+        buf.push_optional_style("line-spacing", self.attribute("line-spacing"));
         buf.push_str("margin:0;");
-        write_optional_style!(buf, "text-decoration", self.attribute("text-decoration"));
-        write_optional_style!(buf, "text-transform", self.attribute("text-transform"));
-        write_optional_style!(buf, "padding", self.attribute("inner-padding"));
+        buf.push_optional_style("text-decoration", self.attribute("text-decoration"));
+        buf.push_optional_style("text-transform", self.attribute("text-transform"));
+        buf.push_optional_style("padding", self.attribute("inner-padding"));
         buf.push_str("mso-padding-alt:0px;");
-        write_optional_style!(buf, "border-radius", self.attribute("border-radius"));
+        buf.push_optional_style("border-radius", self.attribute("border-radius"));
         buf.push('"');
         buf.push('>');
         // TODO

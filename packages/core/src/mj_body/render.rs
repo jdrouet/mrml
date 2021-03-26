@@ -1,6 +1,6 @@
 use super::MJBody;
+use crate::helper::buffer::Buffer;
 use crate::prelude::render::{Error, Header, Render, Renderable};
-use crate::{write_attribute, write_optional_attribute};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
@@ -14,7 +14,7 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
         self.element.attributes.get(name)
     }
 
-    fn push_body_style(&self, buf: &mut String) {
+    fn push_body_style(&self, buf: &mut Buffer) {
         if let Some(bg_color) = self.attribute("background-color") {
             buf.push_str(" style=\"background-color:");
             buf.push_str(bg_color);
@@ -22,7 +22,7 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
         }
     }
 
-    fn render_preview(&self, buf: &mut String) {
+    fn render_preview(&self, buf: &mut Buffer) {
         if let Some(value) = self
             .header
             .borrow()
@@ -37,9 +37,9 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
         }
     }
 
-    fn render_content(&self, buf: &mut String) -> Result<(), Error> {
+    fn render_content(&self, buf: &mut Buffer) -> Result<(), Error> {
         buf.push_str("<div");
-        write_optional_attribute!(buf, "class", self.attribute("css-class"));
+        buf.push_optional_attribute("close", self.attribute("css-class"));
         self.push_body_style(buf);
         buf.push('>');
         for child in self.element.children.iter() {
@@ -55,7 +55,7 @@ impl<'e, 'h> Render<'h> for MJBodyRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut String) -> Result<(), Error> {
+    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
         buf.push_str("<body");
         self.push_body_style(buf);
         buf.push('>');
