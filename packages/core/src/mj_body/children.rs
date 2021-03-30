@@ -2,6 +2,8 @@ use crate::comment::Comment;
 use crate::from_child;
 use crate::mj_button::MJButton;
 use crate::mj_button::NAME as MJ_BUTTON;
+use crate::mj_column::MJColumn;
+use crate::mj_column::NAME as MJ_COLUMN;
 use crate::mj_section::MJSection;
 use crate::mj_section::NAME as MJ_SECTION;
 // use crate::node::Node;
@@ -17,6 +19,7 @@ use xmlparser::{StrSpan, Tokenizer};
 pub enum MJBodyChild {
     Comment(Comment),
     MJButton(MJButton),
+    MJColumn(MJColumn),
     MJSection(MJSection),
     //     Node(Node),
     Text(Text),
@@ -24,6 +27,7 @@ pub enum MJBodyChild {
 
 from_child!(MJBodyChild, Comment);
 from_child!(MJBodyChild, MJButton);
+from_child!(MJBodyChild, MJColumn);
 from_child!(MJBodyChild, MJSection);
 //from_child!(MJBodyChild, Node);
 from_child!(MJBodyChild, Text);
@@ -33,6 +37,7 @@ impl MJBodyChild {
         match self {
             Self::Comment(elt) => elt,
             Self::MJButton(elt) => elt,
+            Self::MJColumn(elt) => elt,
             Self::MJSection(elt) => elt,
             // Self::Node(elt) => elt,
             Self::Text(elt) => elt,
@@ -44,6 +49,7 @@ impl MJBodyChild {
     pub fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {
             MJ_BUTTON => Ok(MJButton::parse(tokenizer)?.into()),
+            MJ_COLUMN => Ok(MJColumn::parse(tokenizer)?.into()),
             MJ_SECTION => Ok(MJSection::parse(tokenizer)?.into()),
             _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
@@ -55,6 +61,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
         match self {
             Self::Comment(elt) => elt.renderer(header),
             Self::MJButton(elt) => elt.renderer(header),
+            Self::MJColumn(elt) => elt.renderer(header),
             Self::MJSection(elt) => elt.renderer(header),
             // Self::Node(elt) => elt.renderer(header),
             Self::Text(elt) => elt.renderer(header),

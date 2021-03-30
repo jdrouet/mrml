@@ -152,14 +152,30 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
         before + content.as_ref() + &after
     }
 
+    fn get_siblings(&self) -> usize {
+        self.element.children.len()
+    }
+
+    fn get_raw_siblings(&self) -> usize {
+        self.element
+            .children
+            .iter()
+            .filter(|elt| elt.is_raw())
+            .count()
+    }
+
     fn render_wrapped_children(&self) -> Result<String, Error> {
         let tr = Tag::tr();
+        let siblings = self.get_siblings();
+        let raw_siblings = self.get_raw_siblings();
         let content = self
             .element
             .children
             .iter()
             .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
+                let mut renderer = child.renderer(Rc::clone(&self.header));
+                renderer.set_siblings(siblings);
+                renderer.set_raw_siblings(raw_siblings);
                 if child.is_raw() {
                     Ok(res + END_CONDITIONAL_TAG + &renderer.render()? + START_CONDITIONAL_TAG)
                 } else {
@@ -314,6 +330,7 @@ impl<'e, 'h> Render<'h> for MJSectionRender<'e, 'h> {
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
+        println!("set_container_width: {:?}", width);
         self.container_width = width;
     }
 

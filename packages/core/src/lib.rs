@@ -6,6 +6,7 @@ pub mod mj_attributes_element;
 pub mod mj_body;
 pub mod mj_breakpoint;
 pub mod mj_button;
+pub mod mj_column;
 pub mod mj_font;
 pub mod mj_head;
 pub mod mj_preview;

@@ -3,6 +3,7 @@ use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::rc::Rc;
 
@@ -12,14 +13,9 @@ struct MJBodyRender<'e, 'h> {
 }
 
 impl<'e, 'h> MJBodyRender<'e, 'h> {
-    fn attribute(&self, name: &str) -> Option<&String> {
-        self.element.attributes.get(name)
-    }
-
-    fn get_width(&self) -> Pixel {
+    fn get_width(&self) -> Option<Pixel> {
         self.attribute("width")
             .and_then(|value| Pixel::try_from(value.as_str()).ok())
-            .unwrap_or_else(|| self.header.borrow().breakpoint().clone())
     }
 
     fn get_body_tag(&self) -> Tag {
@@ -56,10 +52,20 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
     fn render_content(&self) -> Result<String, Error> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
+        println!("mj-body.element-width {:?}", element_width);
         let mut children = String::default();
-        for child in self.element.children.iter() {
+        let raw_siblings = self
+            .element
+            .children
+            .iter()
+            .filter(|item| item.is_raw())
+            .count();
+        for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(Rc::clone(&self.header));
-            renderer.set_container_width(Some(element_width.clone())); // TODO remove clone
+            renderer.set_container_width(element_width.clone());
+            renderer.set_index(index);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_siblings(self.element.children.len());
             children.push_str(&renderer.render()?);
         }
         Ok(div.render(children))
@@ -67,6 +73,18 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'h> for MJBodyRender<'e, 'h> {
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.element.attributes)
+    }
+
+    fn default_attribute(&self, key: &str) -> Option<&str> {
+        println!("default attribute: {}", key);
+        match key {
+            "width" => Some("600px"),
+            _ => None,
+        }
+    }
+
     fn header(&self) -> Ref<Header<'h>> {
         self.header.borrow()
     }

@@ -42,7 +42,7 @@ impl<'h> Header<'h> {
                 .as_ref()
                 .and_then(|h| h.breakpoint())
                 .and_then(|s| Pixel::try_from(s.value()).ok())
-                .unwrap_or_else(|| Pixel::new(600.0)),
+                .unwrap_or_else(|| Pixel::new(480.0)),
             font_families: head
                 .as_ref()
                 .map(|h| h.build_font_families())
@@ -117,6 +117,11 @@ pub trait Render<'h> {
     fn attribute_as_pixel(&self, name: &str) -> Option<Pixel> {
         self.attribute(name)
             .and_then(|value| Pixel::try_from(value.as_str()).ok())
+    }
+
+    fn attribute_as_size(&self, name: &str) -> Option<Size> {
+        self.attribute(name)
+            .and_then(|value| Size::try_from(value.as_str()).ok())
     }
 
     fn attribute_as_spacing(&self, name: &str) -> Option<Spacing> {

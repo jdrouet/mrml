@@ -8,6 +8,35 @@ pub enum Size {
 }
 
 impl Size {
+    pub fn percent(value: f32) -> Self {
+        Self::Percent(Percent::new(value))
+    }
+    pub fn pixel(value: f32) -> Self {
+        Self::Pixel(Pixel::new(value))
+    }
+
+    pub fn as_percent(&self) -> Option<&Percent> {
+        match self {
+            Self::Percent(value) => Some(value),
+            _ => None,
+        }
+    }
+
+    pub fn is_percent(&self) -> bool {
+        matches!(self, Self::Percent(_))
+    }
+
+    pub fn as_pixel(&self) -> Option<&Pixel> {
+        match self {
+            Self::Pixel(value) => Some(value),
+            _ => None,
+        }
+    }
+
+    pub fn is_pixel(&self) -> bool {
+        matches!(self, Self::Pixel(_))
+    }
+
     pub fn value(&self) -> f32 {
         match self {
             Self::Pixel(p) => p.value(),
