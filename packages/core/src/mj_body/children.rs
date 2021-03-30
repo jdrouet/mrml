@@ -4,11 +4,13 @@ use crate::mj_button::MJButton;
 use crate::mj_button::NAME as MJ_BUTTON;
 use crate::mj_column::MJColumn;
 use crate::mj_column::NAME as MJ_COLUMN;
+use crate::mj_divider::MJDivider;
+use crate::mj_divider::NAME as MJ_DIVIDER;
 use crate::mj_image::MJImage;
 use crate::mj_image::NAME as MJ_IMAGE;
 use crate::mj_section::MJSection;
 use crate::mj_section::NAME as MJ_SECTION;
-// use crate::node::Node;
+use crate::node::Node;
 use crate::prelude::parse::Error as ParserError;
 use crate::prelude::print::Print;
 use crate::prelude::render::{Header, Render, Renderable};
@@ -22,18 +24,20 @@ pub enum MJBodyChild {
     Comment(Comment),
     MJButton(MJButton),
     MJColumn(MJColumn),
+    MJDivider(MJDivider),
     MJImage(MJImage),
     MJSection(MJSection),
-    //     Node(Node),
+    Node(Node),
     Text(Text),
 }
 
 from_child!(MJBodyChild, Comment);
 from_child!(MJBodyChild, MJButton);
 from_child!(MJBodyChild, MJColumn);
+from_child!(MJBodyChild, MJDivider);
 from_child!(MJBodyChild, MJImage);
 from_child!(MJBodyChild, MJSection);
-//from_child!(MJBodyChild, Node);
+from_child!(MJBodyChild, Node);
 from_child!(MJBodyChild, Text);
 
 impl MJBodyChild {
@@ -42,9 +46,10 @@ impl MJBodyChild {
             Self::Comment(elt) => elt,
             Self::MJButton(elt) => elt,
             Self::MJColumn(elt) => elt,
+            Self::MJDivider(elt) => elt,
             Self::MJImage(elt) => elt,
             Self::MJSection(elt) => elt,
-            // Self::Node(elt) => elt,
+            Self::Node(elt) => elt,
             Self::Text(elt) => elt,
         }
     }
@@ -55,9 +60,11 @@ impl MJBodyChild {
         match tag.as_str() {
             MJ_BUTTON => Ok(MJButton::parse(tokenizer)?.into()),
             MJ_COLUMN => Ok(MJColumn::parse(tokenizer)?.into()),
+            MJ_DIVIDER => Ok(MJDivider::parse(tokenizer)?.into()),
             MJ_IMAGE => Ok(MJImage::parse(tokenizer)?.into()),
             MJ_SECTION => Ok(MJSection::parse(tokenizer)?.into()),
-            _ => Err(ParserError::UnexpectedElement(tag.start())),
+            _ => Ok(Node::parse(tag.to_string(), tokenizer)?.into()),
+            // _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
     }
 }
@@ -68,9 +75,10 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
             Self::Comment(elt) => elt.renderer(header),
             Self::MJButton(elt) => elt.renderer(header),
             Self::MJColumn(elt) => elt.renderer(header),
+            Self::MJDivider(elt) => elt.renderer(header),
             Self::MJImage(elt) => elt.renderer(header),
             Self::MJSection(elt) => elt.renderer(header),
-            // Self::Node(elt) => elt.renderer(header),
+            Self::Node(elt) => elt.renderer(header),
             Self::Text(elt) => elt.renderer(header),
         }
     }
