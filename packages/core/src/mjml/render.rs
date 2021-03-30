@@ -1,5 +1,4 @@
 use super::MJML;
-use crate::helper::buffer::Buffer;
 use crate::mj_head::MJHead;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
@@ -15,26 +14,26 @@ impl<'e, 'h> Render<'h> for MJMLRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
-        let mut body_content = Buffer::default();
-        if let Some(body) = self.element.body() {
-            body.renderer(Rc::clone(&self.header))
-                .render(&mut body_content)?;
+    fn render(&self) -> Result<String, Error> {
+        let body_content = if let Some(body) = self.element.body() {
+            body.renderer(Rc::clone(&self.header)).render()?
         } else {
-            body_content.push_str("<body></body>");
-        }
-        buf.push_str("<!doctype html>");
+            String::from("<body></body>")
+        };
+        let mut buf = String::from("<!doctype html>");
         buf.push_str("<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
         if let Some(head) = self.element.head() {
-            head.renderer(Rc::clone(&self.header)).render(buf)?;
+            buf.push_str(&head.renderer(Rc::clone(&self.header)).render()?);
         } else {
-            MJHead::default()
-                .renderer(Rc::clone(&self.header))
-                .render(buf)?;
+            buf.push_str(
+                &MJHead::default()
+                    .renderer(Rc::clone(&self.header))
+                    .render()?,
+            );
         }
-        buf.push_str(body_content.content());
+        buf.push_str(&body_content);
         buf.push_str("</html>");
-        Ok(())
+        Ok(buf)
     }
 }
 
@@ -50,9 +49,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJML {
 impl MJML {
     pub fn render(&self) -> Result<String, Error> {
         let header = Rc::new(RefCell::new(Header::new(&self.head)));
-        let mut buffer = Buffer::default();
-        self.renderer(header).render(&mut buffer)?;
-        Ok(buffer.content())
+        self.renderer(header).render()
     }
 }
 

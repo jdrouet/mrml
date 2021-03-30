@@ -1,11 +1,9 @@
 use super::{MJButton, NAME};
-use crate::helper::buffer::Buffer;
 use crate::helper::size::Pixel;
-use crate::helper::spacing::Spacing;
+use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
-use std::convert::TryFrom;
 use std::rc::Rc;
 
 struct MJButtonRender<'e, 'h> {
@@ -14,31 +12,21 @@ struct MJButtonRender<'e, 'h> {
 }
 
 impl<'e, 'h> MJButtonRender<'e, 'h> {
-    fn pixel_attribute(&self, name: &str) -> Option<Pixel> {
-        self.attribute(name)
-            .and_then(|value| Pixel::try_from(value.as_str()).ok())
-    }
-
-    fn spacing_attribute(&self, name: &str) -> Option<Spacing> {
-        self.attribute(name)
-            .and_then(|value| Spacing::try_from(value.as_str()).ok())
-    }
-
     fn content_width(&self) -> Option<String> {
-        if let Some(width) = self.pixel_attribute("width") {
+        if let Some(width) = self.attribute_as_pixel("width") {
             let pad_left = self
-                .pixel_attribute("inner-padding-left")
+                .attribute_as_pixel("inner-padding-left")
                 .map(|pad| pad.value())
                 .or_else(|| {
-                    self.spacing_attribute("inner-padding")
+                    self.attribute_as_spacing("inner-padding")
                         .map(|pad| pad.left().value())
                 })
                 .unwrap_or(0.0);
             let pad_right = self
-                .pixel_attribute("inner-padding-right")
+                .attribute_as_pixel("inner-padding-right")
                 .map(|pad| pad.value())
                 .or_else(|| {
-                    self.spacing_attribute("inner-padding")
+                    self.attribute_as_spacing("inner-padding")
                         .map(|pad| pad.right().value())
                 })
                 .unwrap_or(0.0);
@@ -46,6 +34,56 @@ impl<'e, 'h> MJButtonRender<'e, 'h> {
         } else {
             None
         }
+    }
+
+    fn render_children(&self) -> Result<String, Error> {
+        self.element
+            .children
+            .iter()
+            .try_fold(String::default(), |res, child| {
+                let renderer = child.renderer(Rc::clone(&self.header));
+                Ok(res + &renderer.render()?)
+            })
+    }
+
+    fn set_style_table(&self, tag: Tag) -> Tag {
+        tag.add_style("border-collapse", "separate")
+            .maybe_add_style("width", self.attribute("width"))
+            .add_style("line-height", "100%")
+    }
+
+    fn set_style_td(&self, tag: Tag) -> Tag {
+        tag.maybe_add_style("background", self.attribute("background-color"))
+            .maybe_add_style("border", self.attribute("border"))
+            .maybe_add_style("border-top", self.attribute("border-top"))
+            .maybe_add_style("border-right", self.attribute("border-right"))
+            .maybe_add_style("border-bottom", self.attribute("border-bottom"))
+            .maybe_add_style("border-left", self.attribute("border-left"))
+            .maybe_add_style("border-radius", self.attribute("border-radius"))
+            .add_style("cursor", "auto")
+            .maybe_add_style("font-style", self.attribute("font-style"))
+            .maybe_add_style("height", self.attribute("height"))
+            .maybe_add_style("mso-padding-alt", self.attribute("inner-padding"))
+            .maybe_add_style("text-align", self.attribute("text-align"))
+    }
+
+    fn set_style_content(&self, tag: Tag) -> Tag {
+        tag.add_style("display", "inline-block")
+            .maybe_add_style("width", self.content_width())
+            .maybe_add_style("background", self.attribute("background-color"))
+            .maybe_add_style("color", self.attribute("color"))
+            .maybe_add_style("font-family", self.attribute("font-family"))
+            .maybe_add_style("font-size", self.attribute("font-size"))
+            .maybe_add_style("font-style", self.attribute("font-style"))
+            .maybe_add_style("font-weight", self.attribute("font-weight"))
+            .maybe_add_style("line-height", self.attribute("line-height"))
+            .maybe_add_style("line-spacing", self.attribute("line-spacing"))
+            .add_style("margin", "0")
+            .maybe_add_style("text-decoration", self.attribute("text-decoration"))
+            .maybe_add_style("text-transform", self.attribute("text-transform"))
+            .maybe_add_style("padding", self.attribute("inner-padding"))
+            .add_style("mso-padding-alt", "0px")
+            .maybe_add_style("border-radius", self.attribute("border-radius"))
     }
 }
 
@@ -62,57 +100,27 @@ impl<'e, 'h> Render<'h> for MJButtonRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
-        if let Some(ref font_family) = self.attribute("font-family") {
-            self.header.borrow_mut().add_used_font_family(font_family);
-        }
-        buf.push_str("<table role=\"presentation\" style=\"border-collapse:separate;");
-        buf.push_optional_style("width", self.attribute("width"));
-        buf.push_str("line-height:100%\">");
-        buf.push_str("<tr>");
-        buf.push_str("<td align=\"center\"");
-        buf.push_optional_attribute("bgcolor", self.attribute("background-color"));
-        buf.push_str(" role=\"presentation\"");
-        buf.push_optional_attribute("valign", self.attribute("vertical-align"));
-        buf.push_str(">");
-        let href = self.attribute("href");
-        if let Some(ref href) = href {
-            buf.push_str("<a href=\"");
-            buf.push_str(href);
-            buf.push('"');
-            buf.push_optional_attribute("target", self.attribute("target"));
-        } else {
-            buf.push_str("<p");
-        }
-        buf.push_optional_attribute("rel", self.attribute("rel"));
-        buf.push_optional_attribute("name", self.attribute("name"));
-        buf.push_str(" style=\"display:inline-block;");
-        buf.push_optional_style("width", self.content_width());
-        buf.push_optional_style("background", self.attribute("background-color"));
-        buf.push_optional_style("color", self.attribute("color"));
-        buf.push_optional_style("font-family", self.attribute("font-family"));
-        buf.push_optional_style("font-size", self.attribute("font-size"));
-        buf.push_optional_style("font-weight", self.attribute("font-weight"));
-        buf.push_optional_style("line-height", self.attribute("line-height"));
-        buf.push_optional_style("line-spacing", self.attribute("line-spacing"));
-        buf.push_str("margin:0;");
-        buf.push_optional_style("text-decoration", self.attribute("text-decoration"));
-        buf.push_optional_style("text-transform", self.attribute("text-transform"));
-        buf.push_optional_style("padding", self.attribute("inner-padding"));
-        buf.push_str("mso-padding-alt:0px;");
-        buf.push_optional_style("border-radius", self.attribute("border-radius"));
-        buf.push('"');
-        buf.push('>');
-        // TODO
-        if href.is_some() {
-            buf.push_str("</a>");
-        } else {
-            buf.push_str("</p>");
-        }
-        buf.push_str("</td>");
-        buf.push_str("</tr>");
-        buf.push_str("</table");
-        Ok(())
+    fn render(&self) -> Result<String, Error> {
+        let table = self.set_style_table(Tag::table_presentation());
+        let tr = Tag::tr();
+        let td = self
+            .set_style_td(Tag::td())
+            .add_attribute("align", "center")
+            .maybe_add_attribute("bgcolor", self.attribute("background-color"))
+            .add_attribute("role", "presentation")
+            .maybe_add_attribute("valign", self.attribute("vertical-align"));
+        let link = Tag::new(self.attribute("href").map(|_| "a").unwrap_or("p"))
+            .maybe_add_attribute("href", self.attribute("href"))
+            .maybe_add_attribute("rel", self.attribute("rel"))
+            .maybe_add_attribute("name", self.attribute("name"))
+            .maybe_add_attribute(
+                "target",
+                self.attribute("href")
+                    .and_then(|_v| self.attribute("target")),
+            );
+        let link = self.set_style_content(link);
+
+        Ok(table.render(tr.render(td.render(link.render(self.render_children()?)))))
     }
 }
 
@@ -124,3 +132,21 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJButton {
         })
     }
 }
+
+// Requires mj-column to be implemented
+/*
+#[cfg(test)]
+mod tests {
+    use crate::helper::test::compare;
+    use crate::mjml::MJML;
+
+    #[test]
+    fn empty() {
+        let template = include_str!("../../resources/compare/success/mj-button.mjml");
+        let expected = include_str!("../../resources/compare/success/mj-button.html");
+        let root = MJML::parse(template.to_string()).unwrap();
+        let result = root.render().unwrap();
+        compare(expected, result.as_str());
+    }
+}
+*/

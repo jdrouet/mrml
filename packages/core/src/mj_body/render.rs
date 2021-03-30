@@ -1,7 +1,9 @@
 use super::MJBody;
-use crate::helper::buffer::Buffer;
+use crate::helper::size::Pixel;
+use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
+use std::convert::TryFrom;
 use std::rc::Rc;
 
 struct MJBodyRender<'e, 'h> {
@@ -14,15 +16,26 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
         self.element.attributes.get(name)
     }
 
-    fn push_body_style(&self, buf: &mut Buffer) {
-        if let Some(bg_color) = self.attribute("background-color") {
-            buf.push_str(" style=\"background-color:");
-            buf.push_str(bg_color);
-            buf.push('"');
-        }
+    fn get_width(&self) -> Pixel {
+        self.attribute("width")
+            .and_then(|value| Pixel::try_from(value.as_str()).ok())
+            .unwrap_or_else(|| self.header.borrow().breakpoint().clone())
     }
 
-    fn render_preview(&self, buf: &mut Buffer) {
+    fn get_body_tag(&self) -> Tag {
+        self.set_body_style(Tag::new("body"))
+    }
+
+    fn get_content_div_tag(&self) -> Tag {
+        self.set_body_style(Tag::new("div"))
+            .maybe_add_attribute("class", self.attribute("css-class"))
+    }
+
+    fn set_body_style(&self, tag: Tag) -> Tag {
+        tag.maybe_add_style("background-color", self.attribute("background-color"))
+    }
+
+    fn render_preview(&self) -> String {
         if let Some(value) = self
             .header
             .borrow()
@@ -31,22 +44,25 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
             .and_then(|h| h.preview())
             .map(|p| p.content())
         {
-            buf.push_str(r#"<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">"#);
-            buf.push_str(value);
-            buf.push_str("</div>");
+            String::from(
+                r#"<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">"#,
+            ) + value
+                + "</div>"
+        } else {
+            String::default()
         }
     }
 
-    fn render_content(&self, buf: &mut Buffer) -> Result<(), Error> {
-        buf.push_str("<div");
-        buf.push_optional_attribute("close", self.attribute("css-class"));
-        self.push_body_style(buf);
-        buf.push('>');
+    fn render_content(&self) -> Result<String, Error> {
+        let div = self.get_content_div_tag();
+        let element_width = self.get_width();
+        let mut children = String::default();
         for child in self.element.children.iter() {
-            child.renderer(Rc::clone(&self.header)).render(buf)?;
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_container_width(Some(element_width.clone())); // TODO remove clone
+            children.push_str(&renderer.render()?);
         }
-        buf.push_str("</div>");
-        Ok(())
+        Ok(div.render(children))
     }
 }
 
@@ -55,14 +71,9 @@ impl<'e, 'h> Render<'h> for MJBodyRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
-        buf.push_str("<body");
-        self.push_body_style(buf);
-        buf.push('>');
-        self.render_preview(buf);
-        self.render_content(buf)?;
-        buf.push_str("</body>");
-        Ok(())
+    fn render(&self) -> Result<String, Error> {
+        let body = self.get_body_tag();
+        Ok(body.render(self.render_preview() + &self.render_content()?))
     }
 }
 
@@ -77,7 +88,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBody {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::cleanup;
+    use crate::helper::test::compare;
     use crate::mjml::MJML;
 
     #[test]
@@ -85,8 +96,6 @@ mod tests {
         let template = include_str!("../../resources/compare/success/mj-body.mjml");
         let expected = include_str!("../../resources/compare/success/mj-body.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = cleanup(root.render().unwrap().as_str());
-        let expected = cleanup(expected);
-        assert_eq!(result, expected);
+        compare(expected, root.render().unwrap().as_str());
     }
 }
