@@ -1,8 +1,8 @@
-use super::MJSection;
+use super::MJColumn;
 use crate::prelude::print::{print_close, print_open, Print};
 use std::fmt;
 
-impl Print for MJSection {
+impl Print for MJColumn {
     fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
         print_open(
             f,
@@ -20,7 +20,7 @@ impl Print for MJSection {
     }
 }
 
-impl fmt::Display for MJSection {
+impl fmt::Display for MJColumn {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str(self.dense_print().as_str())
     }
@@ -32,7 +32,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_section::MJSection::default();
-        assert_eq!("<mj-section></mj-section>", item.dense_print());
+        let mut item = crate::mj_column::MJColumn::default();
+        assert_eq!("<mj-column></mj-column>", item.dense_print());
     }
 }
