@@ -176,6 +176,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
                 let mut renderer = child.renderer(Rc::clone(&self.header));
                 renderer.set_siblings(siblings);
                 renderer.set_raw_siblings(raw_siblings);
+                renderer.set_container_width(self.container_width.clone());
                 if child.is_raw() {
                     Ok(res + END_CONDITIONAL_TAG + &renderer.render()? + START_CONDITIONAL_TAG)
                 } else {
@@ -330,7 +331,6 @@ impl<'e, 'h> Render<'h> for MJSectionRender<'e, 'h> {
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        println!("set_container_width: {:?}", width);
         self.container_width = width;
     }
 

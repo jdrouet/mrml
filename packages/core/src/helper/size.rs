@@ -44,6 +44,13 @@ impl Size {
             Self::Raw(v) => *v,
         }
     }
+
+    pub fn from_border(input: &str) -> Option<Self> {
+        input
+            .split_whitespace()
+            .next()
+            .and_then(|value| Size::try_from(value).ok())
+    }
 }
 
 impl TryFrom<&str> for Size {
@@ -82,6 +89,13 @@ impl Pixel {
 
     pub fn value(&self) -> f32 {
         self.0
+    }
+
+    pub fn from_border(input: &str) -> Option<Self> {
+        input
+            .split_whitespace()
+            .next()
+            .and_then(|value| Self::try_from(value).ok())
     }
 }
 
