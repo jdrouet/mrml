@@ -1,5 +1,4 @@
 use super::Comment;
-use crate::helper::buffer::Buffer;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
@@ -14,15 +13,16 @@ impl<'e, 'h> Render<'h> for CommentRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
-        buf.push_str("<!--");
-        buf.push_str(&self.element.0);
-        buf.push_str("-->");
-        Ok(())
+    fn render(&self) -> Result<String, Error> {
+        Ok(String::from("<!--") + &self.element.0 + "-->")
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Comment {
+    fn is_raw(&'e self) -> bool {
+        true
+    }
+
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
         Box::new(CommentRender::<'e, 'h> {
             element: self,

@@ -1,5 +1,6 @@
-use crate::helper::buffer::Buffer;
 use crate::helper::size::{Pixel, Size};
+use crate::helper::spacing::Spacing;
+use crate::helper::tag::Tag;
 use crate::mj_head::MJHead;
 use std::cell::{Ref, RefCell};
 use std::collections::{HashMap, HashSet};
@@ -41,7 +42,7 @@ impl<'h> Header<'h> {
                 .as_ref()
                 .and_then(|h| h.breakpoint())
                 .and_then(|s| Pixel::try_from(s.value()).ok())
-                .unwrap_or_else(|| Pixel::new(480.0)),
+                .unwrap_or_else(|| Pixel::new(600.0)),
             font_families: head
                 .as_ref()
                 .map(|h| h.build_font_families())
@@ -108,7 +109,28 @@ pub trait Render<'h> {
     fn tag(&self) -> Option<&str> {
         None
     }
+
     fn attributes(&self) -> Option<&HashMap<String, String>> {
+        None
+    }
+
+    fn attribute_as_pixel(&self, name: &str) -> Option<Pixel> {
+        self.attribute(name)
+            .and_then(|value| Pixel::try_from(value.as_str()).ok())
+    }
+
+    fn attribute_as_spacing(&self, name: &str) -> Option<Spacing> {
+        self.attribute(name)
+            .and_then(|value| Spacing::try_from(value.as_str()).ok())
+    }
+
+    fn attribute_exists(&self, key: &str) -> bool {
+        self.attributes()
+            .map(|a| a.contains_key(key))
+            .unwrap_or(false)
+    }
+
+    fn default_attribute(&self, _key: &str) -> Option<&str> {
         None
     }
 
@@ -123,16 +145,38 @@ pub trait Render<'h> {
             }
         }
         // TODO handle classes
-        header.attribute_all(key).map(|item| item.to_string())
+        if let Some(value) = header.attribute_all(key) {
+            return Some(value.to_string());
+        }
+        self.default_attribute(key).map(|item| item.to_string())
     }
 
+    fn attribute_size(&self, key: &str) -> Option<Size> {
+        self.attribute(key)
+            .and_then(|value| Size::try_from(value.as_str()).ok())
+    }
+
+    fn attribute_pixel(&self, key: &str) -> Option<Pixel> {
+        self.attribute(key)
+            .and_then(|value| Pixel::try_from(value.as_str()).ok())
+    }
+
+    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
+        tag
+    }
+
+    fn set_container_width(&mut self, _width: Option<Pixel>) {}
     fn set_index(&mut self, _index: usize) {}
     fn set_siblings(&mut self, _count: usize) {}
     fn set_raw_siblings(&mut self, _count: usize) {}
 
-    fn render(&self, buf: &mut Buffer) -> Result<(), Error>;
+    fn render(&self) -> Result<String, Error>;
 }
 
 pub trait Renderable<'r, 'e: 'r, 'h: 'r> {
+    fn is_raw(&'e self) -> bool {
+        false
+    }
+
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r>;
 }

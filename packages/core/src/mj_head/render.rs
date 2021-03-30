@@ -1,5 +1,4 @@
 use super::MJHead;
-use crate::helper::buffer::Buffer;
 use crate::helper::sort::sort_by_key;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
@@ -127,57 +126,57 @@ pub struct MJHeadRender<'e, 'h> {
 }
 
 impl<'e, 'h> MJHeadRender<'e, 'h> {
-    fn render_font_import(&self, buf: &mut Buffer, href: &str) {
-        buf.push_str("@import url(");
-        buf.push_str(href);
-        buf.push_str(");");
+    fn render_font_import(&self, href: &str) -> String {
+        format!("@import url({})", href)
     }
 
-    fn render_font_link(&self, buf: &mut Buffer, href: &str) {
-        buf.push_str("<link href\"");
-        buf.push_str(href);
-        buf.push_str("\" rel=\"stylesheet\" type=\"text/css\">");
+    fn render_font_link(&self, href: &str) -> String {
+        format!(
+            "<link href=\"{}\" rel=\"stylesheet\" type=\"text/css\">",
+            href
+        )
     }
 
-    fn render_font_families(&self, buf: &mut Buffer) {
+    fn render_font_families(&self) -> String {
         let header = self.header.borrow();
         let used_font_families = header.used_font_families();
         if used_font_families.is_empty() {
-            return;
+            return String::default();
         }
-        buf.push_str("<!--[if !mso]><!-->");
+        let mut buf = String::from("<!--[if !mso]><!-->");
         header
             .used_font_families()
             .iter()
             .filter_map(|name| default_font(name))
-            .for_each(|href| self.render_font_link(buf, &href));
+            .for_each(|href| buf.push_str(&self.render_font_link(&href)));
         header
             .used_font_families()
             .iter()
             .filter_map(|name| header.font_families().get(name.as_str()))
-            .for_each(|href| self.render_font_link(buf, href));
+            .for_each(|href| buf.push_str(&self.render_font_link(href)));
         buf.push_str("<style type=\"text/css\">");
         header
             .used_font_families()
             .iter()
             .filter_map(|name| default_font(name))
-            .for_each(|href| self.render_font_import(buf, &href));
+            .for_each(|href| buf.push_str(&self.render_font_import(&href)));
         header
             .used_font_families()
             .iter()
             .filter_map(|name| header.font_families().get(name.as_str()))
-            .for_each(|href| self.render_font_import(buf, href));
+            .for_each(|href| buf.push_str(&self.render_font_import(href)));
         buf.push_str("</style>");
         buf.push_str("<!--<![endif]-->");
+        buf
     }
 
-    fn render_media_queries(&self, buf: &mut Buffer) {
+    fn render_media_queries(&self) -> String {
         let header = self.header.borrow();
         if header.media_queries().is_empty() {
-            return;
+            return String::default();
         }
         let breakpoint = header.breakpoint().to_string();
-        buf.push_str("<style type=\"text/css\">");
+        let mut buf = String::from("<style type=\"text/css\">");
         buf.push_str("@media only screen and (min-width:");
         buf.push_str(breakpoint.as_str());
         buf.push_str(") { ");
@@ -199,18 +198,20 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
         });
         buf.push_str(" }");
         buf.push_str("</style>");
+        buf
     }
 
-    fn render_styles(&self, buf: &mut Buffer) {
+    fn render_styles(&self) -> String {
         let header = self.header.borrow();
         if header.styles().is_empty() {
-            return;
+            return String::default();
         }
-        buf.push_str("<style type=\"text/css\">");
+        let mut buf = String::from("<style type=\"text/css\">");
         header.styles().iter().for_each(|style| {
             buf.push_str(style);
         });
         buf.push_str("</style>");
+        buf
     }
 }
 
@@ -219,8 +220,8 @@ impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, buf: &mut Buffer) -> Result<(), Error> {
-        buf.push_str("<head>");
+    fn render(&self) -> Result<String, Error> {
+        let mut buf = String::from("<head>");
         // we write the title even though there is no content
         buf.push_str("<title>");
         buf.push_str(
@@ -236,11 +237,11 @@ impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
         buf.push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
         buf.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
         buf.push_str(STYLE_BASE);
-        self.render_font_families(buf);
-        self.render_media_queries(buf);
-        self.render_styles(buf);
+        buf.push_str(&self.render_font_families());
+        buf.push_str(&self.render_media_queries());
+        buf.push_str(&self.render_styles());
         buf.push_str("</head>");
-        Ok(())
+        Ok(buf)
     }
 }
 
