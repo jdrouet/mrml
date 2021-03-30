@@ -135,6 +135,60 @@ pub trait Render<'h> {
             .unwrap_or(false)
     }
 
+    fn get_border_left(&self) -> Option<Pixel> {
+        self.attribute_as_pixel("border-left").or_else(|| {
+            self.attribute("border")
+                .and_then(|value| Pixel::from_border(&value))
+        })
+    }
+
+    fn get_border_right(&self) -> Option<Pixel> {
+        self.attribute_as_pixel("border-right").or_else(|| {
+            self.attribute("border")
+                .and_then(|value| Pixel::from_border(&value))
+        })
+    }
+
+    fn get_border_horizontal(&self) -> Pixel {
+        let left = self.get_border_left().map(|v| v.value()).unwrap_or(0.0);
+        let right = self.get_border_right().map(|v| v.value()).unwrap_or(0.0);
+        Pixel::new(left + right)
+    }
+
+    fn get_inner_border_left(&self) -> Option<Pixel> {
+        self.attribute_as_pixel("inner-border-left").or_else(|| {
+            self.attribute_as_spacing("inner-border")
+                .and_then(|s| s.left().as_pixel().cloned())
+        })
+    }
+
+    fn get_inner_border_right(&self) -> Option<Pixel> {
+        self.attribute_as_pixel("inner-border-right").or_else(|| {
+            self.attribute_as_spacing("inner-border")
+                .and_then(|s| s.right().as_pixel().cloned())
+        })
+    }
+
+    fn get_padding_left(&self) -> Option<Pixel> {
+        self.attribute_as_pixel("padding-left").or_else(|| {
+            self.attribute_as_spacing("padding")
+                .and_then(|s| s.left().as_pixel().cloned())
+        })
+    }
+
+    fn get_padding_right(&self) -> Option<Pixel> {
+        self.attribute_as_pixel("padding-right").or_else(|| {
+            self.attribute_as_spacing("padding")
+                .and_then(|s| s.right().as_pixel().cloned())
+        })
+    }
+
+    fn get_padding_horizontal(&self) -> Pixel {
+        let left = self.get_padding_left().map(|v| v.value()).unwrap_or(0.0);
+        let right = self.get_padding_right().map(|v| v.value()).unwrap_or(0.0);
+        Pixel::new(left + right)
+    }
+
     fn default_attribute(&self, _key: &str) -> Option<&str> {
         None
     }

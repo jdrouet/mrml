@@ -52,7 +52,6 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
     fn render_content(&self) -> Result<String, Error> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
-        println!("mj-body.element-width {:?}", element_width);
         let mut children = String::default();
         let raw_siblings = self
             .element
@@ -78,7 +77,6 @@ impl<'e, 'h> Render<'h> for MJBodyRender<'e, 'h> {
     }
 
     fn default_attribute(&self, key: &str) -> Option<&str> {
-        println!("default attribute: {}", key);
         match key {
             "width" => Some("600px"),
             _ => None,

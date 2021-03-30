@@ -15,6 +15,37 @@ struct MJColumnRender<'e, 'h> {
 }
 
 impl<'e, 'h> MJColumnRender<'e, 'h> {
+    fn current_width(&self) -> Option<Pixel> {
+        if self.container_width.is_none() {
+            return None;
+        }
+        let parent_width = self.container_width.as_ref().unwrap();
+        let non_raw_siblings = self.non_raw_siblings();
+        let borders = self.get_border_horizontal();
+        let paddings = self.get_padding_horizontal();
+        let inner_border_left = self
+            .get_inner_border_left()
+            .map(|size| size.value())
+            .unwrap_or(0.0);
+        let inner_border_right = self
+            .get_inner_border_right()
+            .map(|size| size.value())
+            .unwrap_or(0.0);
+        let inner_borders = inner_border_left + inner_border_right;
+        let all_paddings = paddings.value() + borders.value() + inner_borders;
+
+        let container_width = self
+            .attribute_as_size("width")
+            .unwrap_or_else(|| Size::pixel(parent_width.value() / (non_raw_siblings as f32)));
+        if let Size::Percent(pc) = container_width {
+            Some(Pixel::new(
+                (parent_width.value() * pc.value() / 100.0) - all_paddings,
+            ))
+        } else {
+            Some(Pixel::new(container_width.value() - all_paddings))
+        }
+    }
+
     fn non_raw_siblings(&self) -> usize {
         self.siblings - self.raw_siblings
     }
@@ -114,12 +145,17 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
         let table = self
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
+        let siblings = self.element.children.len();
+        let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
+        let current_width = self.current_width();
+        let content = self.element.children.iter().enumerate().try_fold(
+            String::default(),
+            |res, (index, child)| {
+                let mut renderer = child.renderer(Rc::clone(&self.header));
+                renderer.set_index(index);
+                renderer.set_raw_siblings(raw_siblings);
+                renderer.set_siblings(siblings);
+                renderer.set_container_width(current_width.clone());
                 let result = if child.is_raw() {
                     renderer.render()?
                 } else {
@@ -142,7 +178,8 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
                     tr.render(td.render(renderer.render()?))
                 };
                 Ok(res + &result)
-            })?;
+            },
+        )?;
         Ok(table.render(content))
     }
 }
