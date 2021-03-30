@@ -44,7 +44,8 @@ mod tests {
         let mut item = crate::node::Node::from("span");
         item.attributes
             .insert("color".to_string(), "red".to_string());
-        item.children.push(crate::node::Node::from("b").into());
+        item.children
+            .push(crate::node::Node::from("b".to_string()).into());
         assert_eq!("<span color=\"red\"><b></b></span>", item.dense_print());
     }
 }
