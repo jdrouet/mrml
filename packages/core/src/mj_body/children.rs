@@ -18,6 +18,8 @@ use crate::mj_spacer::MJSpacer;
 use crate::mj_spacer::NAME as MJ_SPACER;
 use crate::mj_text::MJText;
 use crate::mj_text::NAME as MJ_TEXT;
+use crate::mj_wrapper::MJWrapper;
+use crate::mj_wrapper::NAME as MJ_WRAPPER;
 use crate::node::Node;
 use crate::prelude::parse::Error as ParserError;
 use crate::prelude::print::Print;
@@ -39,6 +41,7 @@ pub enum MJBodyChild {
     MJSection(MJSection),
     MJSpacer(MJSpacer),
     MJText(MJText),
+    MJWrapper(MJWrapper),
     Node(Node),
     Text(Text),
 }
@@ -53,6 +56,7 @@ from_child!(MJBodyChild, MJImage);
 from_child!(MJBodyChild, MJSection);
 from_child!(MJBodyChild, MJSpacer);
 from_child!(MJBodyChild, MJText);
+from_child!(MJBodyChild, MJWrapper);
 from_child!(MJBodyChild, Node);
 from_child!(MJBodyChild, Text);
 
@@ -69,6 +73,7 @@ impl MJBodyChild {
             Self::MJSection(elt) => elt,
             Self::MJSpacer(elt) => elt,
             Self::MJText(elt) => elt,
+            Self::MJWrapper(elt) => elt,
             Self::Node(elt) => elt,
             Self::Text(elt) => elt,
         }
@@ -87,6 +92,7 @@ impl MJBodyChild {
             MJ_SECTION => Ok(MJSection::parse(tokenizer)?.into()),
             MJ_SPACER => Ok(MJSpacer::parse(tokenizer)?.into()),
             MJ_TEXT => Ok(MJText::parse(tokenizer)?.into()),
+            MJ_WRAPPER => Ok(MJWrapper::parse(tokenizer)?.into()),
             _ => Ok(Node::parse(tag.to_string(), tokenizer)?.into()),
             // _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
@@ -106,6 +112,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
             Self::MJSection(elt) => elt.renderer(header),
             Self::MJSpacer(elt) => elt.renderer(header),
             Self::MJText(elt) => elt.renderer(header),
+            Self::MJWrapper(elt) => elt.renderer(header),
             Self::Node(elt) => elt.renderer(header),
             Self::Text(elt) => elt.renderer(header),
         }
