@@ -13,6 +13,7 @@ pub mod mj_head;
 pub mod mj_image;
 pub mod mj_preview;
 pub mod mj_section;
+pub mod mj_text;
 pub mod mj_title;
 pub mod mjml;
 pub mod node;
