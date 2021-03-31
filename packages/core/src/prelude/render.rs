@@ -169,6 +169,20 @@ pub trait Render<'h> {
         })
     }
 
+    fn get_padding_top(&self) -> Option<Pixel> {
+        self.attribute_as_pixel("padding-top").or_else(|| {
+            self.attribute_as_spacing("padding")
+                .and_then(|s| s.top().as_pixel().cloned())
+        })
+    }
+
+    fn get_padding_bottom(&self) -> Option<Pixel> {
+        self.attribute_as_pixel("padding-bottom").or_else(|| {
+            self.attribute_as_spacing("padding")
+                .and_then(|s| s.bottom().as_pixel().cloned())
+        })
+    }
+
     fn get_padding_left(&self) -> Option<Pixel> {
         self.attribute_as_pixel("padding-left").or_else(|| {
             self.attribute_as_spacing("padding")
@@ -187,6 +201,12 @@ pub trait Render<'h> {
         let left = self.get_padding_left().map(|v| v.value()).unwrap_or(0.0);
         let right = self.get_padding_right().map(|v| v.value()).unwrap_or(0.0);
         Pixel::new(left + right)
+    }
+
+    fn get_padding_vertical(&self) -> Pixel {
+        let top = self.get_padding_top().map(|v| v.value()).unwrap_or(0.0);
+        let bottom = self.get_padding_bottom().map(|v| v.value()).unwrap_or(0.0);
+        Pixel::new(top + bottom)
     }
 
     fn default_attribute(&self, _key: &str) -> Option<&str> {
