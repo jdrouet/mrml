@@ -7,9 +7,7 @@ impl Print for Text {
         if pretty {
             print_indent(f, level, indent_size);
         }
-        f.push_str("<!--");
         f.push_str(&self.0);
-        f.push_str("-->");
         if pretty {
             f.push_str("\n");
         }
@@ -29,6 +27,6 @@ mod tests {
     #[test]
     fn empty() {
         let item = crate::text::Text::from("Hello World");
-        assert_eq!("<!--Hello World-->", item.dense_print());
+        assert_eq!("Hello World", item.dense_print());
     }
 }

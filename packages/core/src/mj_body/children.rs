@@ -10,6 +10,8 @@ use crate::mj_image::MJImage;
 use crate::mj_image::NAME as MJ_IMAGE;
 use crate::mj_section::MJSection;
 use crate::mj_section::NAME as MJ_SECTION;
+use crate::mj_text::MJText;
+use crate::mj_text::NAME as MJ_TEXT;
 use crate::node::Node;
 use crate::prelude::parse::Error as ParserError;
 use crate::prelude::print::Print;
@@ -27,6 +29,7 @@ pub enum MJBodyChild {
     MJDivider(MJDivider),
     MJImage(MJImage),
     MJSection(MJSection),
+    MJText(MJText),
     Node(Node),
     Text(Text),
 }
@@ -37,6 +40,7 @@ from_child!(MJBodyChild, MJColumn);
 from_child!(MJBodyChild, MJDivider);
 from_child!(MJBodyChild, MJImage);
 from_child!(MJBodyChild, MJSection);
+from_child!(MJBodyChild, MJText);
 from_child!(MJBodyChild, Node);
 from_child!(MJBodyChild, Text);
 
@@ -49,6 +53,7 @@ impl MJBodyChild {
             Self::MJDivider(elt) => elt,
             Self::MJImage(elt) => elt,
             Self::MJSection(elt) => elt,
+            Self::MJText(elt) => elt,
             Self::Node(elt) => elt,
             Self::Text(elt) => elt,
         }
@@ -63,6 +68,7 @@ impl MJBodyChild {
             MJ_DIVIDER => Ok(MJDivider::parse(tokenizer)?.into()),
             MJ_IMAGE => Ok(MJImage::parse(tokenizer)?.into()),
             MJ_SECTION => Ok(MJSection::parse(tokenizer)?.into()),
+            MJ_TEXT => Ok(MJText::parse(tokenizer)?.into()),
             _ => Ok(Node::parse(tag.to_string(), tokenizer)?.into()),
             // _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
@@ -78,6 +84,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
             Self::MJDivider(elt) => elt.renderer(header),
             Self::MJImage(elt) => elt.renderer(header),
             Self::MJSection(elt) => elt.renderer(header),
+            Self::MJText(elt) => elt.renderer(header),
             Self::Node(elt) => elt.renderer(header),
             Self::Text(elt) => elt.renderer(header),
         }
