@@ -114,6 +114,10 @@ pub trait Render<'h> {
         None
     }
 
+    fn extra_attributes(&self) -> Option<&HashMap<String, String>> {
+        None
+    }
+
     fn attribute_as_pixel(&self, name: &str) -> Option<Pixel> {
         self.attribute(name)
             .and_then(|value| Pixel::try_from(value.as_str()).ok())
@@ -130,9 +134,7 @@ pub trait Render<'h> {
     }
 
     fn attribute_exists(&self, key: &str) -> bool {
-        self.attributes()
-            .map(|a| a.contains_key(key))
-            .unwrap_or(false)
+        self.attribute(key).is_some()
     }
 
     fn get_border_left(&self) -> Option<Pixel> {
@@ -209,12 +211,19 @@ pub trait Render<'h> {
         Pixel::new(top + bottom)
     }
 
+    fn get_width(&self) -> Option<Size> {
+        self.attribute_as_size("width")
+    }
+
     fn default_attribute(&self, _key: &str) -> Option<&str> {
         None
     }
 
     fn attribute(&self, key: &str) -> Option<String> {
         if let Some(value) = self.attributes().and_then(|attrs| attrs.get(key)) {
+            return Some(value.clone());
+        }
+        if let Some(value) = self.extra_attributes().and_then(|attrs| attrs.get(key)) {
             return Some(value.clone());
         }
         let header = self.header();
@@ -248,6 +257,8 @@ pub trait Render<'h> {
     fn set_index(&mut self, _index: usize) {}
     fn set_siblings(&mut self, _count: usize) {}
     fn set_raw_siblings(&mut self, _count: usize) {}
+
+    fn add_extra_attribute(&mut self, _key: &str, _value: &str) {}
 
     fn render(&self) -> Result<String, Error>;
 }

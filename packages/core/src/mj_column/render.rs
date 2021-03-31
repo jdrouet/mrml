@@ -9,6 +9,8 @@ use std::rc::Rc;
 struct MJColumnRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
     element: &'e MJColumn,
+    // TODO change lifetime
+    extra: HashMap<String, String>,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
@@ -80,7 +82,7 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
                 None
             }
         } else {
-            Some(Size::pixel(100.0 / (self.non_raw_siblings() as f32)))
+            Some(Size::percent(100.0 / (self.non_raw_siblings() as f32)))
         }
     }
 
@@ -90,6 +92,25 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
             || self.attribute_exists("padding-left")
             || self.attribute_exists("padding-right")
             || self.attribute_exists("padding-top")
+    }
+
+    fn get_width_as_pixel(&self) -> String {
+        if let Some(ref container_width) = self.container_width {
+            let parsed_width = self.get_parsed_width();
+            match parsed_width {
+                Size::Percent(value) => {
+                    Pixel::new(container_width.value() * value.value() / 100.0).to_string()
+                }
+                _ => parsed_width.to_string(),
+            }
+        } else {
+            String::from("100%")
+        }
+    }
+
+    fn set_style_td_outlook(&self, tag: Tag) -> Tag {
+        tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
+            .add_style("width", self.get_width_as_pixel())
     }
 
     fn set_style_root_div(&self, tag: Tag) -> Tag {
@@ -193,8 +214,20 @@ impl<'e, 'h> Render<'h> for MJColumnRender<'e, 'h> {
         }
     }
 
+    fn get_width(&self) -> Option<Size> {
+        self.current_width().map(|w| Size::Pixel(w))
+    }
+
     fn attributes(&self) -> Option<&HashMap<String, String>> {
         Some(&self.element.attributes)
+    }
+
+    fn extra_attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.extra)
+    }
+
+    fn add_extra_attribute(&mut self, key: &str, value: &str) {
+        self.extra.insert(key.to_string(), value.to_string());
     }
 
     fn tag(&self) -> Option<&str> {
@@ -215,6 +248,13 @@ impl<'e, 'h> Render<'h> for MJColumnRender<'e, 'h> {
 
     fn set_raw_siblings(&mut self, value: usize) {
         self.raw_siblings = value;
+    }
+
+    fn set_style(&self, name: &str, tag: Tag) -> Tag {
+        match name {
+            "td-outlook" => self.set_style_td_outlook(tag),
+            _ => tag,
+        }
     }
 
     fn render(&self) -> Result<String, Error> {
@@ -242,6 +282,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJColumn {
             element: self,
             header,
             container_width: None,
+            extra: HashMap::new(),
             siblings: 1,
             raw_siblings: 0,
         })
