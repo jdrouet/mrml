@@ -14,6 +14,7 @@ pub mod mj_head;
 pub mod mj_hero;
 pub mod mj_image;
 pub mod mj_preview;
+pub mod mj_raw;
 pub mod mj_section;
 pub mod mj_spacer;
 pub mod mj_text;

@@ -14,11 +14,7 @@ pub struct Node {
 
 impl Node {
     pub fn new(tag: String) -> Self {
-        Self {
-            tag,
-            attributes: HashMap::new(),
-            children: Vec::new(),
-        }
+        Self::from(tag)
     }
 }
 

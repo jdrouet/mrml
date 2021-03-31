@@ -20,7 +20,13 @@ impl<'e, 'h> Render<'h> for NodeRender<'e, 'h> {
     fn render(&self) -> Result<String, Error> {
         let mut buf = String::from("<");
         buf.push_str(&self.element.tag);
-        // print_attributes(buf, Some(&self.element.attributes));
+        for (key, value) in self.element.attributes.iter() {
+            buf.push(' ');
+            buf.push_str(key);
+            buf.push_str("=\"");
+            buf.push_str(value);
+            buf.push('"');
+        }
         if self.element.children.is_empty() {
             buf.push_str(" />");
         } else {
