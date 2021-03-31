@@ -6,6 +6,8 @@ use crate::mj_column::MJColumn;
 use crate::mj_column::NAME as MJ_COLUMN;
 use crate::mj_divider::MJDivider;
 use crate::mj_divider::NAME as MJ_DIVIDER;
+use crate::mj_group::MJGroup;
+use crate::mj_group::NAME as MJ_GROUP;
 use crate::mj_hero::MJHero;
 use crate::mj_hero::NAME as MJ_HERO;
 use crate::mj_image::MJImage;
@@ -31,6 +33,7 @@ pub enum MJBodyChild {
     MJButton(MJButton),
     MJColumn(MJColumn),
     MJDivider(MJDivider),
+    MJGroup(MJGroup),
     MJHero(MJHero),
     MJImage(MJImage),
     MJSection(MJSection),
@@ -44,6 +47,7 @@ from_child!(MJBodyChild, Comment);
 from_child!(MJBodyChild, MJButton);
 from_child!(MJBodyChild, MJColumn);
 from_child!(MJBodyChild, MJDivider);
+from_child!(MJBodyChild, MJGroup);
 from_child!(MJBodyChild, MJHero);
 from_child!(MJBodyChild, MJImage);
 from_child!(MJBodyChild, MJSection);
@@ -59,6 +63,7 @@ impl MJBodyChild {
             Self::MJButton(elt) => elt,
             Self::MJColumn(elt) => elt,
             Self::MJDivider(elt) => elt,
+            Self::MJGroup(elt) => elt,
             Self::MJHero(elt) => elt,
             Self::MJImage(elt) => elt,
             Self::MJSection(elt) => elt,
@@ -76,6 +81,7 @@ impl MJBodyChild {
             MJ_BUTTON => Ok(MJButton::parse(tokenizer)?.into()),
             MJ_COLUMN => Ok(MJColumn::parse(tokenizer)?.into()),
             MJ_DIVIDER => Ok(MJDivider::parse(tokenizer)?.into()),
+            MJ_GROUP => Ok(MJGroup::parse(tokenizer)?.into()),
             MJ_HERO => Ok(MJHero::parse(tokenizer)?.into()),
             MJ_IMAGE => Ok(MJImage::parse(tokenizer)?.into()),
             MJ_SECTION => Ok(MJSection::parse(tokenizer)?.into()),
@@ -94,6 +100,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
             Self::MJButton(elt) => elt.renderer(header),
             Self::MJColumn(elt) => elt.renderer(header),
             Self::MJDivider(elt) => elt.renderer(header),
+            Self::MJGroup(elt) => elt.renderer(header),
             Self::MJHero(elt) => elt.renderer(header),
             Self::MJImage(elt) => elt.renderer(header),
             Self::MJSection(elt) => elt.renderer(header),

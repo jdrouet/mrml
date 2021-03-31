@@ -9,6 +9,7 @@ pub mod mj_button;
 pub mod mj_column;
 pub mod mj_divider;
 pub mod mj_font;
+pub mod mj_group;
 pub mod mj_head;
 pub mod mj_hero;
 pub mod mj_image;
