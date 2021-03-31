@@ -12,6 +12,8 @@ use crate::mj_hero::MJHero;
 use crate::mj_hero::NAME as MJ_HERO;
 use crate::mj_image::MJImage;
 use crate::mj_image::NAME as MJ_IMAGE;
+use crate::mj_raw::MJRaw;
+use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_section::MJSection;
 use crate::mj_section::NAME as MJ_SECTION;
 use crate::mj_spacer::MJSpacer;
@@ -38,6 +40,7 @@ pub enum MJBodyChild {
     MJGroup(MJGroup),
     MJHero(MJHero),
     MJImage(MJImage),
+    MJRaw(MJRaw),
     MJSection(MJSection),
     MJSpacer(MJSpacer),
     MJText(MJText),
@@ -53,6 +56,7 @@ from_child!(MJBodyChild, MJDivider);
 from_child!(MJBodyChild, MJGroup);
 from_child!(MJBodyChild, MJHero);
 from_child!(MJBodyChild, MJImage);
+from_child!(MJBodyChild, MJRaw);
 from_child!(MJBodyChild, MJSection);
 from_child!(MJBodyChild, MJSpacer);
 from_child!(MJBodyChild, MJText);
@@ -70,6 +74,7 @@ impl MJBodyChild {
             Self::MJGroup(elt) => elt,
             Self::MJHero(elt) => elt,
             Self::MJImage(elt) => elt,
+            Self::MJRaw(elt) => elt,
             Self::MJSection(elt) => elt,
             Self::MJSpacer(elt) => elt,
             Self::MJText(elt) => elt,
@@ -89,6 +94,7 @@ impl MJBodyChild {
             MJ_GROUP => Ok(MJGroup::parse(tokenizer)?.into()),
             MJ_HERO => Ok(MJHero::parse(tokenizer)?.into()),
             MJ_IMAGE => Ok(MJImage::parse(tokenizer)?.into()),
+            MJ_RAW => Ok(MJRaw::parse(tokenizer)?.into()),
             MJ_SECTION => Ok(MJSection::parse(tokenizer)?.into()),
             MJ_SPACER => Ok(MJSpacer::parse(tokenizer)?.into()),
             MJ_TEXT => Ok(MJText::parse(tokenizer)?.into()),
@@ -109,6 +115,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
             Self::MJGroup(elt) => elt.renderer(header),
             Self::MJHero(elt) => elt.renderer(header),
             Self::MJImage(elt) => elt.renderer(header),
+            Self::MJRaw(elt) => elt.renderer(header),
             Self::MJSection(elt) => elt.renderer(header),
             Self::MJSpacer(elt) => elt.renderer(header),
             Self::MJText(elt) => elt.renderer(header),
