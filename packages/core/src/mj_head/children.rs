@@ -9,7 +9,7 @@ use crate::mj_preview::MJPreview;
 use crate::mj_preview::NAME as MJ_PREVIEW;
 use crate::mj_title::MJTitle;
 use crate::mj_title::NAME as MJ_TITLE;
-use crate::prelude::parse::Error as ParserError;
+use crate::prelude::parse::{Error as ParserError, Parsable};
 use crate::prelude::print::Print;
 use crate::{as_child, from_child};
 use xmlparser::{StrSpan, Tokenizer};
@@ -49,14 +49,14 @@ impl MJHeadChild {
     }
 }
 
-impl MJHeadChild {
-    pub fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
+impl Parsable for MJHeadChild {
+    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {
-            MJ_ATTRIBUTES => Ok(MJAttributes::parse(tokenizer)?.into()),
-            MJ_BREAKPOINT => Ok(MJBreakpoint::parse(tokenizer)?.into()),
-            MJ_FONT => Ok(MJFont::parse(tokenizer)?.into()),
-            MJ_PREVIEW => Ok(MJPreview::parse(tokenizer)?.into()),
-            MJ_TITLE => Ok(MJTitle::parse(tokenizer)?.into()),
+            MJ_ATTRIBUTES => Ok(MJAttributes::parse(tag, tokenizer)?.into()),
+            MJ_BREAKPOINT => Ok(MJBreakpoint::parse(tag, tokenizer)?.into()),
+            MJ_FONT => Ok(MJFont::parse(tag, tokenizer)?.into()),
+            MJ_PREVIEW => Ok(MJPreview::parse(tag, tokenizer)?.into()),
+            MJ_TITLE => Ok(MJTitle::parse(tag, tokenizer)?.into()),
             _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
     }

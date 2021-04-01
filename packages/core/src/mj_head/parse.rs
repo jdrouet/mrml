@@ -1,5 +1,5 @@
 use super::{MJHead, MJHeadChild};
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
@@ -22,8 +22,8 @@ impl Parser for MJHeadParser {
     }
 }
 
-impl MJHead {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJHead {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJHeadParser::default().parse(tokenizer)?.build()
     }
 }

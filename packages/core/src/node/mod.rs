@@ -1,4 +1,3 @@
-use crate::mj_body::MJBodyChild;
 use std::collections::HashMap;
 
 mod parse;
@@ -6,19 +5,19 @@ mod print;
 mod render;
 
 #[derive(Debug, Default)]
-pub struct Node {
+pub struct Node<T> {
     tag: String,
     attributes: HashMap<String, String>,
-    children: Vec<MJBodyChild>,
+    children: Vec<T>,
 }
 
-impl Node {
+impl<T> Node<T> {
     pub fn new(tag: String) -> Self {
         Self::from(tag)
     }
 }
 
-impl From<String> for Node {
+impl<T> From<String> for Node<T> {
     fn from(tag: String) -> Self {
         Self {
             tag,
@@ -28,7 +27,7 @@ impl From<String> for Node {
     }
 }
 
-impl From<&str> for Node {
+impl<T> From<&str> for Node<T> {
     fn from(tag: &str) -> Self {
         Self::from(tag.to_string())
     }

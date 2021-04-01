@@ -1,5 +1,5 @@
 use super::MJFont;
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
@@ -27,8 +27,8 @@ impl Parser for MJFontParser {
     }
 }
 
-impl MJFont {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJFont {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJFontParser::default().parse(tokenizer)?.build()
     }
 }

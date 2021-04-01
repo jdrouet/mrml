@@ -1,7 +1,7 @@
 use super::MJAttributesAll;
 use crate::parse_attribute;
-use crate::prelude::parse::{Error, Parser};
-use xmlparser::Tokenizer;
+use crate::prelude::parse::{Error, Parsable, Parser};
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
 struct MJAttributesAllParser(MJAttributesAll);
@@ -16,8 +16,8 @@ impl Parser for MJAttributesAllParser {
     parse_attribute!();
 }
 
-impl MJAttributesAll {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJAttributesAll {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJAttributesAllParser::default().parse(tokenizer)?.build()
     }
 }

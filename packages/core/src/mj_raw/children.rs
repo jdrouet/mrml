@@ -1,7 +1,7 @@
 use crate::comment::Comment;
 use crate::from_child;
 use crate::node::Node;
-use crate::prelude::parse::Error as ParserError;
+use crate::prelude::parse::{Error as ParserError, Parsable};
 use crate::prelude::print::Print;
 use crate::prelude::render::{Header, Render, Renderable};
 use crate::text::Text;
@@ -12,13 +12,18 @@ use xmlparser::{StrSpan, Tokenizer};
 #[derive(Debug)]
 pub enum MJRawChild {
     Comment(Comment),
-    Node(Node),
+    Node(Node<MJRawChild>),
     Text(Text),
 }
 
 from_child!(MJRawChild, Comment);
-from_child!(MJRawChild, Node);
 from_child!(MJRawChild, Text);
+
+impl From<Node<MJRawChild>> for MJRawChild {
+    fn from(value: Node<MJRawChild>) -> Self {
+        Self::Node(value)
+    }
+}
 
 impl MJRawChild {
     pub fn as_print<'p>(&'p self) -> &'p (dyn Print + 'p) {
@@ -30,9 +35,15 @@ impl MJRawChild {
     }
 }
 
-impl MJRawChild {
-    pub fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
-        Ok(Node::parse(tag.to_string(), tokenizer)?.into())
+impl Print for MJRawChild {
+    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+        self.as_print().print(f, pretty, level, indent_size)
+    }
+}
+
+impl Parsable for MJRawChild {
+    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
+        Ok(Node::<MJRawChild>::parse(tag, tokenizer)?.into())
     }
 }
 
