@@ -33,7 +33,7 @@ where
         if self.element.children.is_empty() {
             buf.push_str(" />");
         } else {
-            buf.push_str(">");
+            buf.push('>');
             for (index, child) in self.element.children.iter().enumerate() {
                 // TODO children
                 let mut renderer = child.renderer(Rc::clone(&self.header));
@@ -42,7 +42,7 @@ where
             }
             buf.push_str("</");
             buf.push_str(&self.element.tag);
-            buf.push_str(">");
+            buf.push('>');
         }
         Ok(buf)
     }

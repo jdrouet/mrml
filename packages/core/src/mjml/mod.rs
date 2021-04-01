@@ -14,7 +14,7 @@ pub struct MJML {
 }
 
 impl MJML {
-    pub fn body<'e>(&'e self) -> Option<&'e MJBody> {
+    pub fn body(&self) -> Option<&MJBody> {
         self.body.as_ref()
     }
 
