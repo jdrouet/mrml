@@ -97,8 +97,6 @@ fn compare_dom(expected: &Dom, result: &Dom) {
 }
 
 pub fn compare(expected: &str, result: &str) {
-    println!("expected: {}", expected);
-    println!("result: {}", result);
     let expected_dom = Dom::parse(expected).unwrap();
     let result_dom = Dom::parse(result).unwrap();
     compare_dom(&expected_dom, &result_dom);

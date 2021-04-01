@@ -16,6 +16,8 @@ use crate::mj_raw::MJRaw;
 use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_section::MJSection;
 use crate::mj_section::NAME as MJ_SECTION;
+use crate::mj_social::MJSocial;
+use crate::mj_social::NAME as MJ_SOCIAL;
 use crate::mj_spacer::MJSpacer;
 use crate::mj_spacer::NAME as MJ_SPACER;
 use crate::mj_text::MJText;
@@ -42,6 +44,7 @@ pub enum MJBodyChild {
     MJImage(MJImage),
     MJRaw(MJRaw),
     MJSection(MJSection),
+    MJSocial(MJSocial),
     MJSpacer(MJSpacer),
     MJText(MJText),
     MJWrapper(MJWrapper),
@@ -58,6 +61,7 @@ from_child!(MJBodyChild, MJHero);
 from_child!(MJBodyChild, MJImage);
 from_child!(MJBodyChild, MJRaw);
 from_child!(MJBodyChild, MJSection);
+from_child!(MJBodyChild, MJSocial);
 from_child!(MJBodyChild, MJSpacer);
 from_child!(MJBodyChild, MJText);
 from_child!(MJBodyChild, MJWrapper);
@@ -81,6 +85,7 @@ impl MJBodyChild {
             Self::MJImage(elt) => elt,
             Self::MJRaw(elt) => elt,
             Self::MJSection(elt) => elt,
+            Self::MJSocial(elt) => elt,
             Self::MJSpacer(elt) => elt,
             Self::MJText(elt) => elt,
             Self::MJWrapper(elt) => elt,
@@ -107,6 +112,7 @@ impl Parsable for MJBodyChild {
             MJ_IMAGE => Ok(MJImage::parse(tag, tokenizer)?.into()),
             MJ_RAW => Ok(MJRaw::parse(tag, tokenizer)?.into()),
             MJ_SECTION => Ok(MJSection::parse(tag, tokenizer)?.into()),
+            MJ_SOCIAL => Ok(MJSocial::parse(tag, tokenizer)?.into()),
             MJ_SPACER => Ok(MJSpacer::parse(tag, tokenizer)?.into()),
             MJ_TEXT => Ok(MJText::parse(tag, tokenizer)?.into()),
             MJ_WRAPPER => Ok(MJWrapper::parse(tag, tokenizer)?.into()),
@@ -128,6 +134,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
             Self::MJImage(elt) => elt.renderer(header),
             Self::MJRaw(elt) => elt.renderer(header),
             Self::MJSection(elt) => elt.renderer(header),
+            Self::MJSocial(elt) => elt.renderer(header),
             Self::MJSpacer(elt) => elt.renderer(header),
             Self::MJText(elt) => elt.renderer(header),
             Self::MJWrapper(elt) => elt.renderer(header),

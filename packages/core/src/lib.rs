@@ -16,6 +16,8 @@ pub mod mj_image;
 pub mod mj_preview;
 pub mod mj_raw;
 pub mod mj_section;
+pub mod mj_social;
+pub mod mj_social_element;
 pub mod mj_spacer;
 pub mod mj_text;
 pub mod mj_title;

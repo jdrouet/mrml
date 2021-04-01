@@ -259,6 +259,11 @@ pub trait Render<'h> {
     fn set_raw_siblings(&mut self, _count: usize) {}
 
     fn add_extra_attribute(&mut self, _key: &str, _value: &str) {}
+    fn maybe_add_extra_attribute(&mut self, key: &str, value: Option<String>) {
+        if let Some(ref value) = value {
+            self.add_extra_attribute(key, value);
+        }
+    }
 
     fn render(&self) -> Result<String, Error>;
 }
