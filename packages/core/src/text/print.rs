@@ -9,7 +9,7 @@ impl Print for Text {
         }
         f.push_str(&self.0);
         if pretty {
-            f.push_str("\n");
+            f.push('\n');
         }
     }
 }

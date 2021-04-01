@@ -59,7 +59,7 @@ impl TryFrom<&str> for Size {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         if value.ends_with("px") {
             Ok(Self::Pixel(Pixel::try_from(value)?))
-        } else if value.ends_with("%") {
+        } else if value.ends_with('%') {
             Ok(Self::Percent(Percent::try_from(value)?))
         } else {
             Ok(Self::Raw(
@@ -103,8 +103,8 @@ impl TryFrom<&str> for Pixel {
     type Error = String;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        if value.ends_with("px") {
-            value[..value.len() - 2]
+        if let Some(value) = value.strip_suffix("px") {
+            value
                 .parse::<f32>()
                 .map(Pixel::new)
                 .map_err(|err| err.to_string())
@@ -143,8 +143,8 @@ impl TryFrom<&str> for Percent {
     type Error = String;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        if value.ends_with("%") {
-            value[..value.len() - 1]
+        if let Some(value) = value.strip_suffix('%') {
+            value
                 .parse::<f32>()
                 .map(Percent::new)
                 .map_err(|err| err.to_string())

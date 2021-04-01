@@ -70,7 +70,7 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
                 self.attribute("background-size").unwrap()
             ));
             // has default value
-            res.push(self.attribute("background-repeat").unwrap().to_string());
+            res.push(self.attribute("background-repeat").unwrap());
         }
 
         if res.is_empty() {

@@ -54,21 +54,21 @@ impl<'h> Header<'h> {
     }
 
     pub fn attribute_all(&self, key: &str) -> Option<&str> {
-        self.attributes_all.get(key).map(|value| *value)
+        self.attributes_all.get(key).copied()
     }
 
     pub fn attribute_class(&self, name: &str, key: &str) -> Option<&str> {
         self.attributes_class
             .get(name)
             .and_then(|class_map| class_map.get(key))
-            .map(|value| *value)
+            .copied()
     }
 
     pub fn attribute_element(&self, name: &str, key: &str) -> Option<&str> {
         self.attributes_element
             .get(name)
             .and_then(|elt| elt.get(key))
-            .map(|value| *value)
+            .copied()
     }
 
     pub fn head(&self) -> &Option<MJHead> {
