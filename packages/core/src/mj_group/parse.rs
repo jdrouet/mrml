@@ -1,8 +1,8 @@
 use super::MJGroup;
 use crate::mj_body::MJBodyChild;
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use crate::{parse_attribute, parse_child, parse_comment, parse_text};
-use xmlparser::Tokenizer;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
 struct MJGroupParser(MJGroup);
@@ -20,8 +20,8 @@ impl Parser for MJGroupParser {
     parse_text!();
 }
 
-impl MJGroup {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJGroup {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJGroupParser::default().parse(tokenizer)?.build()
     }
 }

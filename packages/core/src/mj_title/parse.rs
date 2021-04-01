@@ -1,5 +1,5 @@
 use super::MJTitle;
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
@@ -18,8 +18,8 @@ impl Parser for MJTitleParser {
     }
 }
 
-impl MJTitle {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJTitle {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJTitleParser::default().parse(tokenizer)?.build()
     }
 }

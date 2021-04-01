@@ -1,7 +1,7 @@
 use super::MJML;
 use crate::mj_body::{MJBody, NAME as MJ_BODY};
 use crate::mj_head::{MJHead, NAME as MJ_HEAD};
-use crate::prelude::parse::{is_element_start, next_token, Error, Parser};
+use crate::prelude::parse::{is_element_start, next_token, Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
@@ -21,11 +21,11 @@ impl Parser for MJMLParser {
     ) -> Result<(), Error> {
         match tag.as_str() {
             MJ_BODY => {
-                let elt = MJBody::parse(tokenizer)?;
+                let elt = MJBody::parse(tag, tokenizer)?;
                 self.0.body = Some(elt);
             }
             MJ_HEAD => {
-                let elt = MJHead::parse(tokenizer)?;
+                let elt = MJHead::parse(tag, tokenizer)?;
                 self.0.head = Some(elt);
             }
             _ => return Err(Error::UnexpectedElement(tag.start())),

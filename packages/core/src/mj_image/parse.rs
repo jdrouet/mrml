@@ -1,7 +1,7 @@
 use super::MJImage;
 use crate::parse_attribute;
-use crate::prelude::parse::{Error, Parser};
-use xmlparser::Tokenizer;
+use crate::prelude::parse::{Error, Parsable, Parser};
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
 struct MJImageParser(MJImage);
@@ -16,8 +16,8 @@ impl Parser for MJImageParser {
     parse_attribute!();
 }
 
-impl MJImage {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJImage {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJImageParser::default().parse(tokenizer)?.build()
     }
 }

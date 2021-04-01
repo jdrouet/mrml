@@ -1,7 +1,7 @@
 use super::{MJBody, MJBodyChild};
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use crate::{parse_attribute, parse_child, parse_comment, parse_text};
-use xmlparser::Tokenizer;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
 struct MJBodyParser(MJBody);
@@ -19,8 +19,8 @@ impl Parser for MJBodyParser {
     parse_child!(MJBodyChild);
 }
 
-impl MJBody {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJBody {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJBodyParser::default().parse(tokenizer)?.build()
     }
 }

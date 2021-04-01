@@ -1,7 +1,7 @@
 use super::MJDivider;
 use crate::parse_attribute;
-use crate::prelude::parse::{Error, Parser};
-use xmlparser::Tokenizer;
+use crate::prelude::parse::{Error, Parsable, Parser};
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
 struct MJDividerParser(MJDivider);
@@ -16,8 +16,8 @@ impl Parser for MJDividerParser {
     parse_attribute!();
 }
 
-impl MJDivider {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJDivider {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJDividerParser::default().parse(tokenizer)?.build()
     }
 }

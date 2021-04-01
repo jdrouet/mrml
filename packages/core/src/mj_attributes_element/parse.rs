@@ -1,5 +1,5 @@
 use super::MJAttributesElement;
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
@@ -30,8 +30,8 @@ impl Parser for MJAttributesElementParser {
     }
 }
 
-impl MJAttributesElement {
-    pub fn parse(tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJAttributesElement {
+    fn parse(tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJAttributesElementParser::new(tag.to_string())
             .parse(tokenizer)?
             .build()

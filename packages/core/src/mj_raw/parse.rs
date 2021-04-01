@@ -1,7 +1,7 @@
 use super::{MJRaw, MJRawChild};
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use crate::{parse_child, parse_comment, parse_text};
-use xmlparser::Tokenizer;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
 struct MJRawParser(MJRaw);
@@ -18,8 +18,8 @@ impl Parser for MJRawParser {
     parse_text!();
 }
 
-impl MJRaw {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJRaw {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJRawParser::default().parse(tokenizer)?.build()
     }
 }

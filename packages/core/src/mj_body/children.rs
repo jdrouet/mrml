@@ -23,7 +23,7 @@ use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::MJWrapper;
 use crate::mj_wrapper::NAME as MJ_WRAPPER;
 use crate::node::Node;
-use crate::prelude::parse::Error as ParserError;
+use crate::prelude::parse::{Error as ParserError, Parsable};
 use crate::prelude::print::Print;
 use crate::prelude::render::{Header, Render, Renderable};
 use crate::text::Text;
@@ -45,7 +45,7 @@ pub enum MJBodyChild {
     MJSpacer(MJSpacer),
     MJText(MJText),
     MJWrapper(MJWrapper),
-    Node(Node),
+    Node(Node<MJBodyChild>),
     Text(Text),
 }
 
@@ -61,8 +61,13 @@ from_child!(MJBodyChild, MJSection);
 from_child!(MJBodyChild, MJSpacer);
 from_child!(MJBodyChild, MJText);
 from_child!(MJBodyChild, MJWrapper);
-from_child!(MJBodyChild, Node);
 from_child!(MJBodyChild, Text);
+
+impl From<Node<MJBodyChild>> for MJBodyChild {
+    fn from(value: Node<MJBodyChild>) -> Self {
+        Self::Node(value)
+    }
+}
 
 impl MJBodyChild {
     pub fn as_print<'p>(&'p self) -> &'p (dyn Print + 'p) {
@@ -85,21 +90,27 @@ impl MJBodyChild {
     }
 }
 
-impl MJBodyChild {
-    pub fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
+impl Print for MJBodyChild {
+    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+        self.as_print().print(f, pretty, level, indent_size)
+    }
+}
+
+impl Parsable for MJBodyChild {
+    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {
-            MJ_BUTTON => Ok(MJButton::parse(tokenizer)?.into()),
-            MJ_COLUMN => Ok(MJColumn::parse(tokenizer)?.into()),
-            MJ_DIVIDER => Ok(MJDivider::parse(tokenizer)?.into()),
-            MJ_GROUP => Ok(MJGroup::parse(tokenizer)?.into()),
-            MJ_HERO => Ok(MJHero::parse(tokenizer)?.into()),
-            MJ_IMAGE => Ok(MJImage::parse(tokenizer)?.into()),
-            MJ_RAW => Ok(MJRaw::parse(tokenizer)?.into()),
-            MJ_SECTION => Ok(MJSection::parse(tokenizer)?.into()),
-            MJ_SPACER => Ok(MJSpacer::parse(tokenizer)?.into()),
-            MJ_TEXT => Ok(MJText::parse(tokenizer)?.into()),
-            MJ_WRAPPER => Ok(MJWrapper::parse(tokenizer)?.into()),
-            _ => Ok(Node::parse(tag.to_string(), tokenizer)?.into()),
+            MJ_BUTTON => Ok(MJButton::parse(tag, tokenizer)?.into()),
+            MJ_COLUMN => Ok(MJColumn::parse(tag, tokenizer)?.into()),
+            MJ_DIVIDER => Ok(MJDivider::parse(tag, tokenizer)?.into()),
+            MJ_GROUP => Ok(MJGroup::parse(tag, tokenizer)?.into()),
+            MJ_HERO => Ok(MJHero::parse(tag, tokenizer)?.into()),
+            MJ_IMAGE => Ok(MJImage::parse(tag, tokenizer)?.into()),
+            MJ_RAW => Ok(MJRaw::parse(tag, tokenizer)?.into()),
+            MJ_SECTION => Ok(MJSection::parse(tag, tokenizer)?.into()),
+            MJ_SPACER => Ok(MJSpacer::parse(tag, tokenizer)?.into()),
+            MJ_TEXT => Ok(MJText::parse(tag, tokenizer)?.into()),
+            MJ_WRAPPER => Ok(MJWrapper::parse(tag, tokenizer)?.into()),
+            _ => Ok(Node::<MJBodyChild>::parse(tag, tokenizer)?.into()),
             // _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
     }

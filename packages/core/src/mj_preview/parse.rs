@@ -1,5 +1,5 @@
 use super::MJPreview;
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
@@ -18,8 +18,8 @@ impl Parser for MJPreviewParser {
     }
 }
 
-impl MJPreview {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJPreview {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJPreviewParser::default().parse(tokenizer)?.build()
     }
 }

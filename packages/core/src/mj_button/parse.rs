@@ -1,8 +1,8 @@
 use super::MJButton;
 use crate::mj_body::MJBodyChild;
-use crate::prelude::parse::{Error, Parser};
+use crate::prelude::parse::{Error, Parsable, Parser};
 use crate::{parse_attribute, parse_child, parse_comment, parse_text};
-use xmlparser::Tokenizer;
+use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
 struct MJButtonParser(MJButton);
@@ -20,8 +20,8 @@ impl Parser for MJButtonParser {
     parse_text!();
 }
 
-impl MJButton {
-    pub fn parse(tokenizer: &mut Tokenizer) -> Result<Self, Error> {
+impl Parsable for MJButton {
+    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
         MJButtonParser::default().parse(tokenizer)?.build()
     }
 }

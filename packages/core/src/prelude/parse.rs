@@ -174,3 +174,7 @@ pub trait Parser: Sized {
         }
     }
 }
+
+pub trait Parsable: Sized {
+    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error>;
+}
