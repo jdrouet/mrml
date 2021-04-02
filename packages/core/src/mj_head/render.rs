@@ -55,7 +55,7 @@ impl MJHead {
                     .fold(result, |mut res, all| {
                         res.extend(
                             all.attributes()
-                                .into_iter()
+                                .iter()
                                 .map(|(k, v)| (k.as_str(), v.as_str())),
                         );
                         res
@@ -75,10 +75,10 @@ impl MJHead {
                         .iter()
                         .filter_map(|item| item.as_mj_class())
                         .fold(result, |mut res, class| {
-                            (*res.entry(class.name()).or_insert(HashMap::new())).extend(
+                            (*res.entry(class.name()).or_insert_with(HashMap::new)).extend(
                                 class
                                     .attributes()
-                                    .into_iter()
+                                    .iter()
                                     .map(|(k, v)| (k.as_str(), v.as_str())),
                             );
                             res
@@ -99,10 +99,10 @@ impl MJHead {
                         .iter()
                         .filter_map(|item| item.as_element())
                         .fold(result, |mut res, element| {
-                            (*res.entry(element.name()).or_insert(HashMap::new())).extend(
+                            (*res.entry(element.name()).or_insert_with(HashMap::new)).extend(
                                 element
                                     .attributes()
-                                    .into_iter()
+                                    .iter()
                                     .map(|(k, v)| (k.as_str(), v.as_str())),
                             );
                             res

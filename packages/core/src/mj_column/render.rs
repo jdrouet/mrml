@@ -18,10 +18,7 @@ struct MJColumnRender<'e, 'h> {
 
 impl<'e, 'h> MJColumnRender<'e, 'h> {
     fn current_width(&self) -> Option<Pixel> {
-        if self.container_width.is_none() {
-            return None;
-        }
-        let parent_width = self.container_width.as_ref().unwrap();
+        let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
         let borders = self.get_border_horizontal();
         let paddings = self.get_padding_horizontal();
@@ -215,7 +212,7 @@ impl<'e, 'h> Render<'h> for MJColumnRender<'e, 'h> {
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.current_width().map(|w| Size::Pixel(w))
+        self.current_width().map(Size::Pixel)
     }
 
     fn attributes(&self) -> Option<&HashMap<String, String>> {

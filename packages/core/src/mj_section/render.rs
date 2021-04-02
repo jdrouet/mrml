@@ -51,7 +51,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
     fn get_background(&self) -> Option<String> {
         let mut res = vec![];
         if let Some(color) = self.attribute("background-color") {
-            res.push(color.to_string());
+            res.push(color);
         }
         if let Some(url) = self.attribute("background-url") {
             res.push(format!("url({})", url));
@@ -62,7 +62,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
                 self.attribute("background-size").unwrap()
             ));
             // has default value
-            res.push(self.attribute("background-repeat").unwrap().to_string());
+            res.push(self.attribute("background-repeat").unwrap());
         }
 
         if res.is_empty() {

@@ -92,7 +92,7 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
                 self.network
                     .as_ref()
                     .and_then(|net| net.share_url(&href))
-                    .or_else(move || Some(href.to_string()))
+                    .or(Some(href))
             })
             .unwrap_or_default()
     }

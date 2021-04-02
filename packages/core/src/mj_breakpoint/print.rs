@@ -17,7 +17,7 @@ impl Print for MJBreakpoint {
             indent_size,
         );
         if pretty {
-            f.push_str("\n");
+            f.push('\n');
         }
     }
 }

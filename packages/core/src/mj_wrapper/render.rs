@@ -59,7 +59,7 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
     fn get_background(&self) -> Option<String> {
         let mut res = vec![];
         if let Some(color) = self.attribute("background-color") {
-            res.push(color.to_string());
+            res.push(color);
         }
         if let Some(url) = self.attribute("background-url") {
             res.push(format!("url({})", url));
