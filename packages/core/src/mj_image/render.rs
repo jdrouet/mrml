@@ -119,6 +119,17 @@ impl<'e, 'h> MJImageRender<'e, 'h> {
             .maybe_add_attribute("target", self.attribute("target"))
             .render(self.render_image())
     }
+
+    fn render_style(&self) -> String {
+        format!(
+            r#"@media only screen and (max-width:{}) {{
+                table.mj-full-width-mobile {{ width: 100% !important; }}
+                td.mj-full-width-mobile {{ width: auto !important; }}
+            }}
+            "#,
+            self.header.borrow().breakpoint().to_string(),
+        )
+    }
 }
 
 impl<'e, 'h> Render<'h> for MJImageRender<'e, 'h> {
@@ -151,6 +162,8 @@ impl<'e, 'h> Render<'h> for MJImageRender<'e, 'h> {
     }
 
     fn render(&self) -> Result<String, Error> {
+        let style = self.render_style();
+        self.header.borrow_mut().add_style(style);
         let class = if self.is_fluid_on_mobile() {
             Some("mj-full-width-mobile")
         } else {
