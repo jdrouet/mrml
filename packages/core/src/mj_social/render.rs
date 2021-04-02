@@ -165,6 +165,8 @@ impl<'e, 'h> Render<'h> for MJSocialRender<'e, 'h> {
     }
 
     fn render(&self) -> Result<String, Error> {
+        let font_families = self.attribute("font-family").unwrap_or_default(); // never happens
+        self.header.borrow_mut().add_font_families(font_families);
         if self.is_horizontal() {
             self.render_horizontal()
         } else {

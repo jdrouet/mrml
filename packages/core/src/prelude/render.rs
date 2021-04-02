@@ -83,6 +83,23 @@ impl<'h> Header<'h> {
         self.used_font_families.insert(value.to_string());
     }
 
+    pub fn add_font_families<T: AsRef<str>>(&mut self, value: T) {
+        for name in value
+            .as_ref()
+            .split(',')
+            .map(|item| item.trim())
+            .filter(|item| !item.is_empty())
+        {
+            self.add_used_font_family(name);
+        }
+    }
+
+    pub fn maybe_add_font_families<T: AsRef<str>>(&mut self, value: Option<T>) {
+        if let Some(value) = value {
+            self.add_font_families(value);
+        }
+    }
+
     pub fn used_font_families(&self) -> &HashSet<String> {
         &self.used_font_families
     }
@@ -131,6 +148,10 @@ pub trait Render<'h> {
     fn attribute_as_spacing(&self, name: &str) -> Option<Spacing> {
         self.attribute(name)
             .and_then(|value| Spacing::try_from(value.as_str()).ok())
+    }
+
+    fn attribute_equals(&self, key: &str, value: &str) -> bool {
+        self.attribute(key).map(|res| res == value).unwrap_or(false)
     }
 
     fn attribute_exists(&self, key: &str) -> bool {

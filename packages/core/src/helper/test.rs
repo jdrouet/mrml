@@ -1,13 +1,33 @@
 use html_parser::{Dom, Element, Node};
 use std::collections::HashSet;
 
-pub fn cleanup(input: &str) -> String {
-    input
-        .replace(" ", "")
-        .replace("\n", "")
-        .replace("<styletype=\"text/css\"></style>", "")
+fn trim_header_comment(input: &str) -> String {
+    if input.starts_with("<!-- FILE:") {
+        if let Some(index) = input.find("\n") {
+            return input.split_at(index).1.to_string();
+        }
+    }
+    input.to_string()
+}
+
+fn cleanup(input: &str) -> String {
+    trim_header_comment(input)
+        // conditions and comments
+        .replace("<!--[if !mso]><!-->", "")
+        .replace("<!--<![endif]-->", "")
+        .replace("<!--[if mso | IE]>", "")
+        .replace("<!--[if mso]>", "")
+        .replace("<!--[if !mso]>", "")
+        .replace("<!--[if lte mso 11]>", "")
+        .replace("<![endif]-->", "")
+        .replace("<!-->", "")
+        // empty style header blocks
+        .replace("<style type=\"text/css\">\n  </style>", "")
+        // empty style attributes
         .replace("style=\"\"", "")
+        // empty class attributes
         .replace("class=\"\"", "")
+        // empty divs
         .replace("<div></div>", "")
 }
 
@@ -40,9 +60,9 @@ fn compare_attribute(path: &str, key: &str, expected: Option<&String>, result: O
 }
 
 fn compare_element(path: &str, expected: &Element, result: &Element) {
-    assert_eq!(expected.name, result.name);
-    assert_eq!(expected.id, result.id);
-    let current_path = format!("{} > {}", path, result.name);
+    assert_eq!(expected.name, result.name, "different element in {}", path);
+    let current_path = format!("{} {}", path, result.name);
+    assert_eq!(expected.id, result.id, "different id in {}", current_path);
     for (key, value) in expected.attributes.iter() {
         compare_attribute(
             current_path.as_str(),
@@ -60,8 +80,14 @@ fn compare_element(path: &str, expected: &Element, result: &Element) {
             current_path
         );
     }
-    for (expected_child, result_child) in expected.children.iter().zip(result.children.iter()) {
-        compare_node(current_path.as_str(), expected_child, result_child);
+    for (index, (expected_child, result_child)) in expected
+        .children
+        .iter()
+        .zip(result.children.iter())
+        .enumerate()
+    {
+        let iterate_path = format!("{}[{}]", current_path, index);
+        compare_node(iterate_path.as_str(), expected_child, result_child);
     }
 }
 
@@ -97,7 +123,10 @@ fn compare_dom(expected: &Dom, result: &Dom) {
 }
 
 pub fn compare(expected: &str, result: &str) {
-    let expected_dom = Dom::parse(expected).unwrap();
-    let result_dom = Dom::parse(result).unwrap();
+    let expected = cleanup(expected);
+    let result = cleanup(result);
+    println!("result: {}", result);
+    let expected_dom = Dom::parse(&expected).unwrap();
+    let result_dom = Dom::parse(&result).unwrap();
     compare_dom(&expected_dom, &result_dom);
 }

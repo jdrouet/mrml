@@ -127,7 +127,7 @@ pub struct MJHeadRender<'e, 'h> {
 
 impl<'e, 'h> MJHeadRender<'e, 'h> {
     fn render_font_import(&self, href: &str) -> String {
-        format!("@import url({})", href)
+        format!("@import url({});", href)
     }
 
     fn render_font_link(&self, href: &str) -> String {
@@ -143,31 +143,41 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
         if used_font_families.is_empty() {
             return String::default();
         }
-        let mut buf = String::from("<!--[if !mso]><!-->");
+        let mut links = String::default();
         header
             .used_font_families()
             .iter()
             .filter_map(|name| default_font(name))
-            .for_each(|href| buf.push_str(&self.render_font_link(&href)));
+            .for_each(|href| links.push_str(&self.render_font_link(&href)));
         header
             .used_font_families()
             .iter()
             .filter_map(|name| header.font_families().get(name.as_str()))
-            .for_each(|href| buf.push_str(&self.render_font_link(href)));
-        buf.push_str("<style type=\"text/css\">");
+            .for_each(|href| links.push_str(&self.render_font_link(href)));
+        let mut imports = String::default();
         header
             .used_font_families()
             .iter()
             .filter_map(|name| default_font(name))
-            .for_each(|href| buf.push_str(&self.render_font_import(&href)));
+            .for_each(|href| imports.push_str(&self.render_font_import(&href)));
         header
             .used_font_families()
             .iter()
             .filter_map(|name| header.font_families().get(name.as_str()))
-            .for_each(|href| buf.push_str(&self.render_font_import(href)));
-        buf.push_str("</style>");
-        buf.push_str("<!--<![endif]-->");
-        buf
+            .for_each(|href| imports.push_str(&self.render_font_import(href)));
+        if links.is_empty() && imports.is_empty() {
+            String::default()
+        } else {
+            let mut buf = String::from("<!--[if !mso]><!-->");
+            buf.push_str(&links);
+            if !imports.is_empty() {
+                buf.push_str("<style type=\"text/css\">");
+                buf.push_str(&imports);
+                buf.push_str("</style>");
+            }
+            buf.push_str("<!--<![endif]-->");
+            buf
+        }
     }
 
     fn render_media_queries(&self) -> String {

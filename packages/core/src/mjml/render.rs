@@ -55,7 +55,7 @@ impl MJML {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::cleanup;
+    use crate::helper::test::compare;
     use crate::mjml::MJML;
 
     #[test]
@@ -63,8 +63,6 @@ mod tests {
         let template = include_str!("../../resources/compare/success/mjml.mjml");
         let expected = include_str!("../../resources/compare/success/mjml.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = cleanup(root.render().unwrap().as_str());
-        let expected = cleanup(expected);
-        assert_eq!(result, expected);
+        compare(expected, root.render().unwrap().as_str());
     }
 }
