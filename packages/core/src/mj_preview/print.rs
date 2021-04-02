@@ -10,7 +10,7 @@ impl Print for MJPreview {
         }
         f.push_str(self.0.as_str());
         if pretty {
-            f.push_str("\n");
+            f.push('\n');
         }
         print_close(f, super::NAME, pretty, level, indent_size);
     }

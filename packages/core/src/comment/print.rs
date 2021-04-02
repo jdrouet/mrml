@@ -11,7 +11,7 @@ impl Print for Comment {
         f.push_str(self.0.as_str());
         f.push_str("-->");
         if pretty {
-            f.push_str("\n");
+            f.push('\n');
         }
     }
 }

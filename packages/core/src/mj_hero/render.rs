@@ -84,7 +84,6 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
             .maybe_add_style(
                 "width",
                 self.attribute("background-width")
-                    .map(|value| value.to_string())
                     .or_else(|| self.container_width.as_ref().map(|w| w.to_string())),
             )
             .add_style("z-index", "-3")

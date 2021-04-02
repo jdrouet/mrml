@@ -139,7 +139,7 @@ impl<'e, 'h> Render<'h> for MJGroupRender<'e, 'h> {
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.current_width().map(|value| Size::Pixel(value))
+        self.current_width().map(Size::Pixel)
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {

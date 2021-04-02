@@ -13,7 +13,7 @@ impl Print for MJFont {
         f.push_str(&self.href);
         f.push_str("\" />");
         if pretty {
-            f.push_str("\n");
+            f.push('\n');
         }
     }
 }
