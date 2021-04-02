@@ -1,8 +1,10 @@
+use std::collections::{HashMap, HashSet};
+
 pub struct Tag {
     name: String,
-    attributes: String,
-    classes: String,
-    styles: String,
+    attributes: HashMap<String, String>,
+    classes: HashSet<String>,
+    styles: HashMap<String, String>,
 }
 
 impl Tag {
@@ -34,15 +36,14 @@ impl Tag {
     pub fn new<T: ToString>(name: T) -> Self {
         Self {
             name: name.to_string(),
-            attributes: String::new(),
-            classes: String::new(),
-            styles: String::new(),
+            attributes: HashMap::new(),
+            classes: HashSet::new(),
+            styles: HashMap::new(),
         }
     }
 
-    pub fn add_class<T: AsRef<str>>(mut self, value: T) -> Self {
-        self.classes.push(' ');
-        self.classes.push_str(value.as_ref());
+    pub fn add_class<T: ToString>(mut self, value: T) -> Self {
+        self.classes.insert(value.to_string());
         self
     }
 
@@ -58,7 +59,7 @@ impl Tag {
         }
     }
 
-    pub fn maybe_add_class<T: AsRef<str>>(self, value: Option<T>) -> Self {
+    pub fn maybe_add_class<T: ToString>(self, value: Option<T>) -> Self {
         if let Some(value) = value {
             self.add_class(value)
         } else {
@@ -66,16 +67,12 @@ impl Tag {
         }
     }
 
-    pub fn add_attribute<T: AsRef<str>>(mut self, name: &str, value: T) -> Self {
-        self.attributes.push(' ');
-        self.attributes.push_str(name);
-        self.attributes.push_str("=\"");
-        self.attributes.push_str(value.as_ref());
-        self.attributes.push('"');
+    pub fn add_attribute<V: ToString>(mut self, name: &str, value: V) -> Self {
+        self.attributes.insert(name.to_string(), value.to_string());
         self
     }
 
-    pub fn maybe_add_attribute<T: AsRef<str>>(self, name: &str, value: Option<T>) -> Self {
+    pub fn maybe_add_attribute<T: ToString>(self, name: &str, value: Option<T>) -> Self {
         if let Some(value) = value {
             self.add_attribute(name, value)
         } else {
@@ -83,15 +80,12 @@ impl Tag {
         }
     }
 
-    pub fn add_style<T: AsRef<str>>(mut self, name: &str, value: T) -> Self {
-        self.styles.push_str(name);
-        self.styles.push(':');
-        self.styles.push_str(value.as_ref());
-        self.styles.push(';');
+    pub fn add_style<T: ToString>(mut self, name: &str, value: T) -> Self {
+        self.styles.insert(name.to_string(), value.to_string());
         self
     }
 
-    pub fn maybe_add_style<T: AsRef<str>>(self, name: &str, value: Option<T>) -> Self {
+    pub fn maybe_add_style<T: ToString>(self, name: &str, value: Option<T>) -> Self {
         if let Some(value) = value {
             self.add_style(name, value)
         } else {
@@ -102,15 +96,31 @@ impl Tag {
     fn opening(&self) -> String {
         let mut res = String::from("<");
         res.push_str(&self.name);
-        res.push_str(&self.attributes);
+        for (key, value) in self.attributes.iter() {
+            res.push(' ');
+            res.push_str(key);
+            res.push_str("=\"");
+            res.push_str(value);
+            res.push('"');
+        }
         if !self.classes.is_empty() {
             res.push_str(" class=\"");
-            res.push_str(&self.classes);
+            for (index, classname) in self.classes.iter().enumerate() {
+                if index > 0 {
+                    res.push(' ');
+                }
+                res.push_str(classname);
+            }
             res.push('"');
         }
         if !self.styles.is_empty() {
             res.push_str(" style=\"");
-            res.push_str(&self.styles);
+            for (key, value) in self.styles.iter() {
+                res.push_str(key);
+                res.push(':');
+                res.push_str(value);
+                res.push(';');
+            }
             res.push('"');
         }
         res

@@ -171,7 +171,16 @@ impl<'e, 'h> Render<'h> for MJGroupRender<'e, 'h> {
             .add_class(classname)
             .add_class("mj-outlook-group-fix")
             .maybe_add_class(self.attribute("css-class"));
-        let table = Tag::table_presentation();
+        let table = Tag::table_presentation().maybe_add_attribute(
+            "bgcolor",
+            self.attribute("background-color").and_then(|color| {
+                if color == "none" {
+                    None
+                } else {
+                    Some(color)
+                }
+            }),
+        );
         let tr = Tag::tr();
         let content = conditional_tag(table.open() + &tr.open())
             + &self.render_children()?

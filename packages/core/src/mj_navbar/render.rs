@@ -184,6 +184,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJNavbar {
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use crate::helper::test::compare;
@@ -216,3 +217,4 @@ mod tests {
         compare(expected, result.as_str());
     }
 }
+*/

@@ -1,28 +1,27 @@
 use super::{MJSection, NAME};
 use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
-use crate::helper::size::Pixel;
+use crate::helper::size::{Percent, Pixel};
 use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::rc::Rc;
 
-struct MJSectionRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJSection,
-    container_width: Option<Pixel>,
+fn is_horizontal_position(value: &str) -> bool {
+    value == "left" || value == "right" || value == "center"
 }
 
-impl<'e, 'h> MJSectionRender<'e, 'h> {
-    fn is_full_width(&self) -> bool {
-        self.attribute_exists("full-width")
-    }
+fn is_vertical_position(value: &str) -> bool {
+    value == "top" || value == "bottom" || value == "center"
+}
 
+pub trait WithMJSectionBackground<'h>: Render<'h> {
     fn has_background(&self) -> bool {
         self.attribute_exists("background-url")
     }
 
-    fn get_background_position(&self) -> String {
+    fn parse_background_position(&self) -> (String, String) {
         // can be unwraped because has default value
         let position = self.attribute("background-position").unwrap();
         let positions = position.split_whitespace().collect::<Vec<_>>();
@@ -30,22 +29,32 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
         let second = positions.get(1);
         if let Some(first) = first {
             if let Some(second) = second {
-                if first == &"top"
-                    || first == &"bottom"
-                    || (first == &"center" && (second == &"left" || second == &"right"))
-                {
-                    format!("{} {}", second, first)
+                if is_vertical_position(first) && is_horizontal_position(second) {
+                    (second.to_string(), first.to_string())
                 } else {
-                    format!("{} {}", first, second)
+                    (first.to_string(), second.to_string())
                 }
-            } else if first == &"top" || first == &"bottom" {
-                format!("center {}", first)
+            } else if is_vertical_position(first) {
+                ("center".to_string(), first.to_string())
             } else {
-                format!("{} center", first)
+                (first.to_string(), "center".to_string())
             }
         } else {
-            position
+            ("center".to_string(), "top".to_string())
         }
+    }
+
+    fn get_background_position(&self) -> (String, String) {
+        let (x, y) = self.parse_background_position();
+        (
+            self.attribute("background-position-x").unwrap_or(x),
+            self.attribute("background-position-y").unwrap_or(y),
+        )
+    }
+
+    fn get_background_position_str(&self) -> String {
+        let position = self.get_background_position();
+        format!("{} {}", position.0, position.1)
     }
 
     fn get_background(&self) -> Option<String> {
@@ -58,7 +67,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             // has default value
             res.push(format!(
                 "{} / {}",
-                self.get_background_position(),
+                self.get_background_position_str(),
                 self.attribute("background-size").unwrap()
             ));
             // has default value
@@ -75,13 +84,128 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
     fn set_background_style(&self, tag: Tag) -> Tag {
         if self.has_background() {
             tag.maybe_add_style("background", self.get_background())
-                .add_style("background-position", self.get_background_position())
+                .add_style("background-position", self.get_background_position_str())
                 .maybe_add_style("background-repeat", self.attribute("background-repeat"))
                 .maybe_add_style("background-size", self.attribute("background-size"))
         } else {
             tag.maybe_add_style("background", self.attribute("background-color"))
                 .maybe_add_style("background-color", self.attribute("background-color"))
         }
+    }
+
+    fn get_vfill_position(&self) -> (String, String) {
+        if self.attribute_equals("background-size", "auto") {
+            return ("0.5, 0".to_string(), "0.5, 0".to_string());
+        }
+        let (bg_position_x, bg_position_y) = self.get_background_position();
+        let bg_repeat = self.attribute_equals("background-repeat", "repeat");
+        let bg_position_x = match bg_position_x.as_str() {
+            "left" => "0%".to_string(),
+            "center" => "50%".to_string(),
+            "right" => "100%".to_string(),
+            _ => {
+                if bg_position_x.ends_with('%') {
+                    bg_position_x
+                } else {
+                    "50%".to_string()
+                }
+            }
+        };
+        let bg_position_y = match bg_position_y.as_str() {
+            "top" => "0%".to_string(),
+            "center" => "50%".to_string(),
+            "bottom" => "100%".to_string(),
+            _ => {
+                if bg_position_y.ends_with('%') {
+                    bg_position_y
+                } else {
+                    "0%".to_string()
+                }
+            }
+        };
+        let position_x = if let Ok(position) = Percent::try_from(bg_position_x.as_str()) {
+            if bg_repeat {
+                position.value() * 0.01
+            } else {
+                (position.value() - 50.0) * 0.01
+            }
+        } else if bg_repeat {
+            0.5
+        } else {
+            0.0
+        };
+        let position_y = if let Ok(position) = Percent::try_from(bg_position_y.as_str()) {
+            if bg_repeat {
+                position.value() * 0.01
+            } else {
+                (position.value() - 50.0) * 0.01
+            }
+        } else if bg_repeat {
+            0.5
+        } else {
+            0.0
+        };
+        (
+            format!("{}, {}", position_x, position_y),
+            format!("{}, {}", position_x, position_y),
+        )
+    }
+
+    fn get_vfill_tag(&self) -> Tag {
+        let bg_no_repeat = self.attribute_equals("background-repeat", "no-repeat");
+        let bg_size = self.attribute("background-size");
+        let bg_size_auto = bg_size
+            .as_ref()
+            .map(|value| value == "auto")
+            .unwrap_or(false);
+        let vml_type = if bg_no_repeat && !bg_size_auto {
+            "frame"
+        } else {
+            "tile"
+        };
+        let vsize = match bg_size.as_deref() {
+            Some("cover") | Some("contain") => Some("1,1".to_string()),
+            Some("auto") => None,
+            Some(value) => Some(value.replace(" ", ",")),
+            None => None,
+        };
+        let aspect = match bg_size.as_deref() {
+            Some("cover") => Some("atleast".to_string()),
+            Some("contain") => Some("atmost".to_string()),
+            Some("auto") => None,
+            Some(other) => {
+                if other.split(' ').count() == 1 {
+                    Some("atmost".to_string())
+                } else {
+                    None
+                }
+            }
+            None => None,
+        };
+
+        let (vfill_position, vfill_origin) = self.get_vfill_position();
+        Tag::new("v:fill")
+            .add_attribute("position", vfill_position)
+            .add_attribute("origin", vfill_origin)
+            .maybe_add_attribute("src", self.attribute("background-url"))
+            .maybe_add_attribute("color", self.attribute("background-color"))
+            .maybe_add_attribute("size", vsize)
+            .add_attribute("type", vml_type)
+            .maybe_add_attribute("aspect", aspect)
+    }
+}
+
+struct MJSectionRender<'e, 'h> {
+    header: Rc<RefCell<Header<'h>>>,
+    element: &'e MJSection,
+    container_width: Option<Pixel>,
+}
+
+impl<'e, 'h> WithMJSectionBackground<'h> for MJSectionRender<'e, 'h> {}
+
+impl<'e, 'h> MJSectionRender<'e, 'h> {
+    fn is_full_width(&self) -> bool {
+        self.attribute_exists("full-width")
     }
 
     fn render_with_background<T: AsRef<str>>(&self, content: T) -> String {
@@ -102,12 +226,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             .add_attribute("xmlns:v", "urn:schemas-microsoft-com:vml")
             .add_attribute("fill", "true")
             .add_attribute("stroke", "false");
-        let vfill = Tag::new("v:fill")
-            .add_attribute("origin", "0.5, 0")
-            .add_attribute("position", "0.5, 0")
-            .maybe_add_attribute("src", self.attribute("background-url"))
-            .maybe_add_attribute("color", self.attribute("background-color"))
-            .add_attribute("type", "tile");
+        let vfill = self.get_vfill_tag();
         let vtextbox = Tag::new("v:textbox")
             .add_attribute("inset", "0,0,0,0")
             .add_style("mso-fit-shape-to-text", "true");

@@ -48,7 +48,6 @@ impl<'e, 'h> Render<'h> for MJSpacerRender<'e, 'h> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
-            .add_style("vertical-align", "top")
             .maybe_add_style("height", height.as_ref().map(|v| v.to_string()))
             .maybe_add_attribute("height", height.as_ref().map(|h| h.value().to_string()));
         let div = self.set_style_div(Tag::div());

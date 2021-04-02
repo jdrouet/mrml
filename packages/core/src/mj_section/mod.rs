@@ -5,6 +5,8 @@ mod parse;
 mod print;
 mod render;
 
+pub use render::WithMJSectionBackground;
+
 pub const NAME: &str = "mj-section";
 
 #[derive(Debug, Default)]

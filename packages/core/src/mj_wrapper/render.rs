@@ -2,6 +2,7 @@ use super::{MJWrapper, NAME};
 use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
+use crate::mj_section::WithMJSectionBackground;
 use crate::prelude::render::{Error, Header, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
@@ -12,6 +13,8 @@ struct MJWrapperRender<'e, 'h> {
     element: &'e MJWrapper,
     container_width: Option<Pixel>,
 }
+
+impl<'e, 'h> WithMJSectionBackground<'h> for MJWrapperRender<'e, 'h> {}
 
 impl<'e, 'h> MJWrapperRender<'e, 'h> {
     fn current_width(&self) -> Option<Pixel> {
@@ -24,72 +27,6 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
 
     fn is_full_width(&self) -> bool {
         self.attribute_exists("full-width")
-    }
-
-    fn has_background(&self) -> bool {
-        self.attribute_exists("background-url")
-    }
-
-    fn get_background_position(&self) -> String {
-        // can be unwraped because has default value
-        let position = self.attribute("background-position").unwrap();
-        let positions = position.split_whitespace().collect::<Vec<_>>();
-        let first = positions.get(0);
-        let second = positions.get(1);
-        if let Some(first) = first {
-            if let Some(second) = second {
-                if first == &"top"
-                    || first == &"bottom"
-                    || (first == &"center" && (second == &"left" || second == &"right"))
-                {
-                    format!("{} {}", second, first)
-                } else {
-                    format!("{} {}", first, second)
-                }
-            } else if first == &"top" || first == &"bottom" {
-                format!("center {}", first)
-            } else {
-                format!("{} center", first)
-            }
-        } else {
-            position
-        }
-    }
-
-    fn get_background(&self) -> Option<String> {
-        let mut res = vec![];
-        if let Some(color) = self.attribute("background-color") {
-            res.push(color);
-        }
-        if let Some(url) = self.attribute("background-url") {
-            res.push(format!("url({})", url));
-            // has default value
-            res.push(format!(
-                "{} / {}",
-                self.get_background_position(),
-                self.attribute("background-size").unwrap()
-            ));
-            // has default value
-            res.push(self.attribute("background-repeat").unwrap());
-        }
-
-        if res.is_empty() {
-            None
-        } else {
-            Some(res.join(" "))
-        }
-    }
-
-    fn set_background_style(&self, tag: Tag) -> Tag {
-        if self.has_background() {
-            tag.maybe_add_style("background", self.get_background())
-                .add_style("background-position", self.get_background_position())
-                .maybe_add_style("background-repeat", self.attribute("background-repeat"))
-                .maybe_add_style("background-size", self.attribute("background-size"))
-        } else {
-            tag.maybe_add_style("background", self.attribute("background-color"))
-                .maybe_add_style("background-color", self.attribute("background-color"))
-        }
     }
 
     fn render_with_background<T: AsRef<str>>(&self, content: T) -> String {
@@ -110,12 +47,7 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
             .add_attribute("xmlns:v", "urn:schemas-microsoft-com:vml")
             .add_attribute("fill", "true")
             .add_attribute("stroke", "false");
-        let vfill = Tag::new("v:fill")
-            .add_attribute("origin", "0.5, 0")
-            .add_attribute("position", "0.5, 0")
-            .maybe_add_attribute("src", self.attribute("background-url"))
-            .maybe_add_attribute("color", self.attribute("background-color"))
-            .add_attribute("type", "tile");
+        let vfill = self.get_vfill_tag();
         let vtextbox = Tag::new("v:textbox")
             .add_attribute("inset", "0,0,0,0")
             .add_style("mso-fit-shape-to-text", "true");
@@ -177,6 +109,7 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
         let current_width = self.current_width();
+        let container_width = self.container_width.as_ref().map(|v| v.to_string());
         let content = self
             .element
             .children
@@ -192,6 +125,7 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
                     let td = renderer
                         .set_style("td-outlook", Tag::td())
                         .maybe_add_attribute("align", renderer.attribute("align"))
+                        .maybe_add_attribute("width", container_width.as_ref())
                         .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
                     Ok(res
                         + &td.open()
