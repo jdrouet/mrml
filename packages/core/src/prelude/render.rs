@@ -8,7 +8,9 @@ use std::convert::TryFrom;
 use std::rc::Rc;
 
 #[derive(Debug)]
-pub enum Error {}
+pub enum Error {
+    UnknownFragment(String),
+}
 
 pub struct Header<'h> {
     head: &'h Option<MJHead>,
@@ -118,6 +120,16 @@ impl<'h> Header<'h> {
 
     pub fn styles(&self) -> &HashSet<String> {
         &self.styles
+    }
+
+    pub fn add_style(&mut self, value: String) {
+        self.styles.insert(value);
+    }
+
+    pub fn maybe_add_style(&mut self, value: Option<String>) {
+        if let Some(value) = value {
+            self.add_style(value);
+        }
     }
 }
 
@@ -283,6 +295,13 @@ pub trait Render<'h> {
     fn maybe_add_extra_attribute(&mut self, key: &str, value: Option<String>) {
         if let Some(ref value) = value {
             self.add_extra_attribute(key, value);
+        }
+    }
+
+    fn render_fragment(&self, name: &str) -> Result<String, Error> {
+        match name {
+            "main" => self.render(),
+            _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 

@@ -123,7 +123,6 @@ impl<'e, 'h> Render<'h> for MJButtonRender<'e, 'h> {
 
     fn render(&self) -> Result<String, Error> {
         let font_family = self.attribute("font-family");
-        println!("mj-button[font-family={:?}]", font_family);
         self.header
             .borrow_mut()
             .maybe_add_font_families(font_family);

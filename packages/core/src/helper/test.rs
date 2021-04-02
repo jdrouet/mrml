@@ -13,12 +13,16 @@ fn trim_header_comment(input: &str) -> String {
 fn cleanup(input: &str) -> String {
     trim_header_comment(input)
         // conditions and comments
+        .replace("<!--[if !mso]><!-- -->", "")
+        .replace("<!--[if !mso><!-->", "")
         .replace("<!--[if !mso]><!-->", "")
         .replace("<!--<![endif]-->", "")
         .replace("<!--[if mso | IE]>", "")
+        .replace("<!--[if !mso | IE]>", "")
         .replace("<!--[if mso]>", "")
         .replace("<!--[if !mso]>", "")
         .replace("<!--[if lte mso 11]>", "")
+        .replace("<!--<![endif]-->", "")
         .replace("<![endif]-->", "")
         .replace("<!-->", "")
         // empty style header blocks
@@ -61,7 +65,7 @@ fn compare_attribute(path: &str, key: &str, expected: Option<&String>, result: O
 
 fn compare_element(path: &str, expected: &Element, result: &Element) {
     assert_eq!(expected.name, result.name, "different element in {}", path);
-    let current_path = format!("{} {}", path, result.name);
+    let current_path = format!("{} {}.{}", path, result.name, result.classes.join("."));
     assert_eq!(expected.id, result.id, "different id in {}", current_path);
     for (key, value) in expected.attributes.iter() {
         compare_attribute(
@@ -71,7 +75,12 @@ fn compare_element(path: &str, expected: &Element, result: &Element) {
             result.attributes.get(key).and_then(|v| v.as_ref()),
         );
     }
-    assert_eq!(expected.classes.len(), result.classes.len());
+    assert_eq!(
+        expected.classes.len(),
+        result.classes.len(),
+        "classes mismatch in {}",
+        current_path
+    );
     for classname in expected.classes.iter() {
         assert!(
             result.classes.contains(classname),
@@ -80,6 +89,12 @@ fn compare_element(path: &str, expected: &Element, result: &Element) {
             current_path
         );
     }
+    assert_eq!(
+        expected.children.len(),
+        result.children.len(),
+        "children count mismatch in {}",
+        current_path
+    );
     for (index, (expected_child, result_child)) in expected
         .children
         .iter()
@@ -125,7 +140,6 @@ fn compare_dom(expected: &Dom, result: &Dom) {
 pub fn compare(expected: &str, result: &str) {
     let expected = cleanup(expected);
     let result = cleanup(result);
-    println!("result: {}", result);
     let expected_dom = Dom::parse(&expected).unwrap();
     let result_dom = Dom::parse(&result).unwrap();
     compare_dom(&expected_dom, &result_dom);

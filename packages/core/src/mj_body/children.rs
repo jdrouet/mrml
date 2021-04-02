@@ -2,6 +2,8 @@ use crate::comment::Comment;
 use crate::from_child;
 use crate::mj_button::MJButton;
 use crate::mj_button::NAME as MJ_BUTTON;
+use crate::mj_carousel::MJCarousel;
+use crate::mj_carousel::NAME as MJ_CAROUSEL;
 use crate::mj_column::MJColumn;
 use crate::mj_column::NAME as MJ_COLUMN;
 use crate::mj_divider::MJDivider;
@@ -39,6 +41,7 @@ use xmlparser::{StrSpan, Tokenizer};
 pub enum MJBodyChild {
     Comment(Comment),
     MJButton(MJButton),
+    MJCarousel(MJCarousel),
     MJColumn(MJColumn),
     MJDivider(MJDivider),
     MJGroup(MJGroup),
@@ -57,6 +60,7 @@ pub enum MJBodyChild {
 
 from_child!(MJBodyChild, Comment);
 from_child!(MJBodyChild, MJButton);
+from_child!(MJBodyChild, MJCarousel);
 from_child!(MJBodyChild, MJColumn);
 from_child!(MJBodyChild, MJDivider);
 from_child!(MJBodyChild, MJGroup);
@@ -71,17 +75,12 @@ from_child!(MJBodyChild, MJText);
 from_child!(MJBodyChild, MJWrapper);
 from_child!(MJBodyChild, Text);
 
-impl From<Node<MJBodyChild>> for MJBodyChild {
-    fn from(value: Node<MJBodyChild>) -> Self {
-        Self::Node(value)
-    }
-}
-
-impl MJBodyChild {
-    pub fn as_print<'p>(&'p self) -> &'p (dyn Print + 'p) {
-        match self {
+macro_rules! inner {
+    ($elt:ident) => {
+        match $elt {
             Self::Comment(elt) => elt,
             Self::MJButton(elt) => elt,
+            Self::MJCarousel(elt) => elt,
             Self::MJColumn(elt) => elt,
             Self::MJDivider(elt) => elt,
             Self::MJGroup(elt) => elt,
@@ -97,6 +96,22 @@ impl MJBodyChild {
             Self::Node(elt) => elt,
             Self::Text(elt) => elt,
         }
+    };
+}
+
+impl From<Node<MJBodyChild>> for MJBodyChild {
+    fn from(value: Node<MJBodyChild>) -> Self {
+        Self::Node(value)
+    }
+}
+
+impl MJBodyChild {
+    pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
+        inner!(self)
+    }
+
+    pub fn as_print<'p>(&'p self) -> &'p (dyn Print + 'p) {
+        inner!(self)
     }
 }
 
@@ -110,6 +125,7 @@ impl Parsable for MJBodyChild {
     fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {
             MJ_BUTTON => Ok(MJButton::parse(tag, tokenizer)?.into()),
+            MJ_CAROUSEL => Ok(MJCarousel::parse(tag, tokenizer)?.into()),
             MJ_COLUMN => Ok(MJColumn::parse(tag, tokenizer)?.into()),
             MJ_DIVIDER => Ok(MJDivider::parse(tag, tokenizer)?.into()),
             MJ_GROUP => Ok(MJGroup::parse(tag, tokenizer)?.into()),
@@ -129,24 +145,11 @@ impl Parsable for MJBodyChild {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
+    fn is_raw(&self) -> bool {
+        self.as_renderable().is_raw()
+    }
+
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        match self {
-            Self::Comment(elt) => elt.renderer(header),
-            Self::MJButton(elt) => elt.renderer(header),
-            Self::MJColumn(elt) => elt.renderer(header),
-            Self::MJDivider(elt) => elt.renderer(header),
-            Self::MJGroup(elt) => elt.renderer(header),
-            Self::MJHero(elt) => elt.renderer(header),
-            Self::MJImage(elt) => elt.renderer(header),
-            Self::MJNavbar(elt) => elt.renderer(header),
-            Self::MJRaw(elt) => elt.renderer(header),
-            Self::MJSection(elt) => elt.renderer(header),
-            Self::MJSocial(elt) => elt.renderer(header),
-            Self::MJSpacer(elt) => elt.renderer(header),
-            Self::MJText(elt) => elt.renderer(header),
-            Self::MJWrapper(elt) => elt.renderer(header),
-            Self::Node(elt) => elt.renderer(header),
-            Self::Text(elt) => elt.renderer(header),
-        }
+        self.as_renderable().renderer(header)
     }
 }
