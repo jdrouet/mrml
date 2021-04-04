@@ -111,6 +111,10 @@ impl<'e, 'h> Render<'h> for MJNavbarLinkRender<'e, 'h> {
     }
 
     fn render(&self, opts: &Options) -> Result<String, Error> {
+        let font_families = self.attribute("font-family");
+        self.header
+            .borrow_mut()
+            .maybe_add_font_families(font_families);
         let td = self
             .set_style_td(Tag::td())
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");

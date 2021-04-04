@@ -96,6 +96,24 @@ impl<'e, 'h> MJNavbarRender<'e, 'h> {
         let content = div.render(label.render(content));
         mso_negation_conditional_tag(input.closed()) + &content
     }
+
+    fn update_header(&self) {
+        let style = format!(
+            r#"
+        noinput.mj-menu-checkbox {{ display:block!important; max-height:none!important; visibility:visible!important; }}
+        @media only screen and (max-width:{}) {{
+          .mj-menu-checkbox[type="checkbox"] ~ .mj-inline-links {{ display:none!important; }}
+          .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-inline-links,
+          .mj-menu-checkbox[type="checkbox"] ~ .mj-menu-trigger {{ display:block!important; max-width:none!important; max-height:none!important; font-size:inherit!important; }}
+          .mj-menu-checkbox[type="checkbox"] ~ .mj-inline-links > a {{ display:block!important; }}
+          .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-close {{ display:block!important; }}
+          .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
+        }}
+        "#,
+            self.header.borrow().breakpoint().to_string()
+        );
+        self.header.borrow_mut().add_style(style);
+    }
 }
 
 impl<'e, 'h> Render<'h> for MJNavbarRender<'e, 'h> {
@@ -147,6 +165,7 @@ impl<'e, 'h> Render<'h> for MJNavbarRender<'e, 'h> {
     }
 
     fn render(&self, opts: &Options) -> Result<String, Error> {
+        self.update_header();
         let div = Tag::div().add_class("mj-inline-links");
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
@@ -184,37 +203,39 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJNavbar {
     }
 }
 
-/*
 #[cfg(test)]
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-navbar.mjml");
         let expected = include_str!("../../resources/compare/success/mj-navbar.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn align_class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-navbar-align-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-navbar-align-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn ico() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-navbar-ico.mjml");
         let expected = include_str!("../../resources/compare/success/mj-navbar-ico.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }
-*/
