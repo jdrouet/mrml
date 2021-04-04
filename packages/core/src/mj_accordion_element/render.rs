@@ -3,7 +3,7 @@ use crate::helper::condition::negation_conditional_tag;
 use crate::helper::tag::Tag;
 use crate::mj_accordion_text::MJAccordionText;
 use crate::mj_accordion_title::MJAccordionTitle;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -27,42 +27,42 @@ struct MJAccordionElementRender<'e, 'h> {
 }
 
 impl<'e, 'h> MJAccordionElementRender<'e, 'h> {
-    fn render_title(&self) -> Result<String, Error> {
+    fn render_title(&self, opts: &Options) -> Result<String, Error> {
         if let Some(ref child) = self.element.title {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render()
+            renderer.render(opts)
         } else {
             let child = MJAccordionTitle::default();
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render()
+            renderer.render(opts)
         }
     }
 
-    fn render_text(&self) -> Result<String, Error> {
+    fn render_text(&self, opts: &Options) -> Result<String, Error> {
         if let Some(ref child) = self.element.text {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render()
+            renderer.render(opts)
         } else {
             let child = MJAccordionText::default();
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render()
+            renderer.render(opts)
         }
     }
 
-    fn render_children(&self) -> Result<String, Error> {
-        Ok(self.render_title()? + &self.render_text()?)
+    fn render_children(&self, opts: &Options) -> Result<String, Error> {
+        Ok(self.render_title(opts)? + &self.render_text(opts)?)
     }
 }
 
@@ -87,7 +87,7 @@ impl<'e, 'h> Render<'h> for MJAccordionElementRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let input = negation_conditional_tag(
             Tag::new("input")
                 .add_attribute("type", "checkbox")
@@ -95,7 +95,7 @@ impl<'e, 'h> Render<'h> for MJAccordionElementRender<'e, 'h> {
                 .add_style("display", "none")
                 .closed(),
         );
-        let div = Tag::div().render(self.render_children()?);
+        let div = Tag::div().render(self.render_children(opts)?);
         let label = Tag::new("label")
             .add_class("mj-accordion-element")
             .add_style("font-size", "13px")

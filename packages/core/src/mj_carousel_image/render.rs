@@ -1,7 +1,7 @@
 use super::{MJCarouselImage, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -161,16 +161,16 @@ impl<'e, 'h> Render<'h> for MJCarouselImageRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render_fragment(&self, name: &str) -> Result<String, Error> {
+    fn render_fragment(&self, name: &str, opts: &Options) -> Result<String, Error> {
         match name {
-            "main" => self.render(),
+            "main" => self.render(opts),
             "radio" => self.render_radio(),
             "thumbnail" => self.render_thumbnail(),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, _opts: &Options) -> Result<String, Error> {
         let img = self
             .set_style_images_img(Tag::new("img"))
             .add_attribute("border", 0)

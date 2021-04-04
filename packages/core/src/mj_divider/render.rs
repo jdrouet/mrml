@@ -3,7 +3,7 @@ use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::size::Size;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -91,7 +91,7 @@ impl<'e, 'h> Render<'h> for MJDividerRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, _opts: &Options) -> Result<String, Error> {
         Ok(self.set_style_p(Tag::new("p")).render("") + &self.render_after())
     }
 }
@@ -110,27 +110,31 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJDivider {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-divider.mjml");
         let expected = include_str!("../../resources/compare/success/mj-divider.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-divider-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-divider-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn container_background_color() {
+        let opts = Options::default();
         let template = include_str!(
             "../../resources/compare/success/mj-divider-container-background-color.mjml"
         );
@@ -138,25 +142,27 @@ mod tests {
             "../../resources/compare/success/mj-divider-container-background-color.html"
         );
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn padding() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-divider-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-divider-padding.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn width() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-divider-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-divider-width.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

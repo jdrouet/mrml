@@ -1,7 +1,7 @@
 use super::{MJButton, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -36,13 +36,13 @@ impl<'e, 'h> MJButtonRender<'e, 'h> {
         }
     }
 
-    fn render_children(&self) -> Result<String, Error> {
+    fn render_children(&self, opts: &Options) -> Result<String, Error> {
         self.element
             .children
             .iter()
             .try_fold(String::default(), |res, child| {
                 let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render()?)
+                Ok(res + &renderer.render(opts)?)
             })
     }
 
@@ -121,7 +121,7 @@ impl<'e, 'h> Render<'h> for MJButtonRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let font_family = self.attribute("font-family");
         self.header
             .borrow_mut()
@@ -145,7 +145,7 @@ impl<'e, 'h> Render<'h> for MJButtonRender<'e, 'h> {
             );
         let link = self.set_style_content(link);
 
-        Ok(table.render(tr.render(td.render(link.render(self.render_children()?)))))
+        Ok(table.render(tr.render(td.render(link.render(self.render_children(opts)?)))))
     }
 }
 
@@ -162,72 +162,81 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJButton {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn align() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-align.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-background.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-background.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border_radius() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-border-radius.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-border-radius.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-border.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-border.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn color() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-color.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-color.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn container_background_color() {
+        let opts = Options::default();
         let template = include_str!(
             "../../resources/compare/success/mj-button-container-background-color.mjml"
         );
@@ -235,139 +244,153 @@ mod tests {
             "../../resources/compare/success/mj-button-container-background-color.html"
         );
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn example() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-example.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-example.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn font_family() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-font-family.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-font-family.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn font_size() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-font-size.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-font-size.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn font_style() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-font-style.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-font-style.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn font_weight() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-font-weight.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-font-weight.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn height() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-height.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-height.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn href() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-href.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-href.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn inner_padding() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-inner-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-inner-padding.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn line_height() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-line-height.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-line-height.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn padding() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-padding.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn text_decoration() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-button-text-decoration.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-button-text-decoration.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn text_transform() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-button-text-transform.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-button-text-transform.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn vertical_align() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-button-vertical-align.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-button-vertical-align.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn width() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-button-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-button-width.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

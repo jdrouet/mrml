@@ -2,7 +2,7 @@ use super::{MJNavbarLink, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -49,7 +49,7 @@ impl<'e, 'h> MJNavbarLinkRender<'e, 'h> {
         })
     }
 
-    fn render_content(&self) -> Result<String, Error> {
+    fn render_content(&self, opts: &Options) -> Result<String, Error> {
         let link = self
             .set_style_a(Tag::new("a"))
             .add_class("mj-link")
@@ -64,7 +64,7 @@ impl<'e, 'h> MJNavbarLinkRender<'e, 'h> {
             .iter()
             .try_fold(String::default(), |res, child| {
                 let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render()?)
+                Ok(res + &renderer.render(opts)?)
             })?;
         Ok(link.render(content))
     }
@@ -110,11 +110,11 @@ impl<'e, 'h> Render<'h> for MJNavbarLinkRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let td = self
             .set_style_td(Tag::td())
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
-        Ok(conditional_tag(td.open()) + &self.render_content()? + &conditional_tag(td.close()))
+        Ok(conditional_tag(td.open()) + &self.render_content(opts)? + &conditional_tag(td.close()))
     }
 }
 

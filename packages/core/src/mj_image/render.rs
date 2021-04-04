@@ -1,7 +1,7 @@
 use super::{MJImage, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -161,7 +161,7 @@ impl<'e, 'h> Render<'h> for MJImageRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, _opts: &Options) -> Result<String, Error> {
         let style = self.render_style();
         self.header.borrow_mut().add_style(style);
         let class = if self.is_fluid_on_mobile() {
@@ -198,54 +198,61 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJImage {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn align() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-align.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border_radius() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-border-radius.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-border-radius.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-border.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-border.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn container_background_color() {
+        let opts = Options::default();
         let template = include_str!(
             "../../resources/compare/success/mj-image-container-background-color.mjml"
         );
@@ -253,34 +260,37 @@ mod tests {
             "../../resources/compare/success/mj-image-container-background-color.html"
         );
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn height() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-height.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-height.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn href() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-href.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-href.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn padding() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-padding.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

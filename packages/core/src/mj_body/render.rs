@@ -1,7 +1,7 @@
 use super::MJBody;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -49,7 +49,7 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
         }
     }
 
-    fn render_content(&self) -> Result<String, Error> {
+    fn render_content(&self, opts: &Options) -> Result<String, Error> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
         let mut children = String::default();
@@ -65,7 +65,7 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(self.element.children.len());
-            children.push_str(&renderer.render()?);
+            children.push_str(&renderer.render(opts)?);
         }
         Ok(div.render(children))
     }
@@ -87,9 +87,9 @@ impl<'e, 'h> Render<'h> for MJBodyRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let body = self.get_body_tag();
-        Ok(body.render(self.render_preview() + &self.render_content()?))
+        Ok(body.render(self.render_preview() + &self.render_content(opts)?))
     }
 }
 
@@ -106,12 +106,14 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBody {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn empty() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-body.mjml");
         let expected = include_str!("../../resources/compare/success/mj-body.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        compare(expected, root.render().unwrap().as_str());
+        compare(expected, root.render(&opts).unwrap().as_str());
     }
 }

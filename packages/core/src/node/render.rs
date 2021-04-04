@@ -1,5 +1,5 @@
 use super::Node;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
@@ -20,7 +20,7 @@ where
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let mut buf = String::from("<");
         buf.push_str(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
@@ -38,7 +38,7 @@ where
                 // TODO children
                 let mut renderer = child.renderer(Rc::clone(&self.header));
                 renderer.set_index(index);
-                buf.push_str(&renderer.render()?);
+                buf.push_str(&renderer.render(opts)?);
             }
             buf.push_str("</");
             buf.push_str(&self.element.tag);

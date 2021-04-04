@@ -2,7 +2,7 @@ use super::network::SocialNetwork;
 use super::{MJSocialElement, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -34,11 +34,15 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
         self.attribute_as_size("icon-height")
     }
 
-    fn get_icon_src(&self) -> Option<String> {
+    fn get_icon_src(&self, opts: &Options) -> Option<String> {
         self.attribute("src").or_else(|| {
-            self.network
-                .as_ref()
-                .map(|net| net.icon_src(DEFAULT_ICON_ORIGIN))
+            self.network.as_ref().map(|net| {
+                if let Some(ref origin) = opts.social_icon_origin {
+                    net.icon_src(origin)
+                } else {
+                    net.icon_src(DEFAULT_ICON_ORIGIN)
+                }
+            })
         })
     }
 
@@ -97,7 +101,7 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
             .unwrap_or_default()
     }
 
-    fn render_icon(&self, href: &Option<String>) -> String {
+    fn render_icon(&self, href: &Option<String>, opts: &Options) -> String {
         let table = self.set_style_table(Tag::table_presentation());
         let tr = Tag::tr();
         let td = self.set_style_icon(Tag::td());
@@ -115,7 +119,7 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
                     .or_else(|| self.get_icon_size())
                     .map(|size| size.value().to_string()),
             )
-            .maybe_add_attribute("src", self.get_icon_src())
+            .maybe_add_attribute("src", self.get_icon_src(opts))
             .maybe_add_attribute(
                 "width",
                 self.get_icon_size().map(|size| size.value().to_string()),
@@ -128,7 +132,7 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
         })))
     }
 
-    fn render_text(&self, href: &Option<String>) -> Result<String, Error> {
+    fn render_text(&self, href: &Option<String>, opts: &Options) -> Result<String, Error> {
         let td = self.set_style_td_text(Tag::td());
         let wrapper = if href.is_some() {
             Tag::new("a")
@@ -145,7 +149,7 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
             .iter()
             .try_fold(String::default(), |res, child| {
                 let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render()?)
+                Ok(res + &renderer.render(opts)?)
             })?;
         Ok(td.render(wrapper.render(content)))
     }
@@ -192,14 +196,14 @@ impl<'e, 'h> Render<'h> for MJSocialElementRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let href = self.get_href();
         let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
         let td = self.set_style_td(Tag::td());
 
-        let mut res = td.render(self.render_icon(&href));
+        let mut res = td.render(self.render_icon(&href, opts));
         if !self.element.children.is_empty() {
-            res.push_str(&self.render_text(&href)?);
+            res.push_str(&self.render_text(&href, opts)?);
         }
         Ok(tr.render(res))
     }

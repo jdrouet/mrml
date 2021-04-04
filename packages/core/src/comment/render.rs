@@ -1,5 +1,5 @@
 use super::Comment;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
@@ -13,8 +13,12 @@ impl<'e, 'h> Render<'h> for CommentRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
-        Ok(String::from("<!--") + &self.element.0 + "-->")
+    fn render(&self, opts: &Options) -> Result<String, Error> {
+        if opts.disable_comments {
+            Ok(String::default())
+        } else {
+            Ok(String::from("<!--") + &self.element.0 + "-->")
+        }
     }
 }
 

@@ -2,7 +2,7 @@ use super::{MJGroup, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -79,7 +79,7 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
             .maybe_add_style("width", self.current_width().map(|w| w.to_string()))
     }
 
-    fn render_children(&self) -> Result<String, Error> {
+    fn render_children(&self, opts: &Options) -> Result<String, Error> {
         let current_width = self.current_width();
         let siblings = self.element.children.len();
         let raw_siblings = self
@@ -98,7 +98,7 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
                 renderer.set_container_width(current_width.clone());
                 renderer.add_extra_attribute("mobile-width", "mobile-width");
                 let result = if child.is_raw() {
-                    renderer.render()?
+                    renderer.render(opts)?
                 } else {
                     let td = Tag::td()
                         .maybe_add_style("align", renderer.attribute("align"))
@@ -110,7 +110,9 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
                                 .map(|w| w.to_string())
                                 .or_else(|| renderer.attribute("width")),
                         );
-                    conditional_tag(td.open()) + &renderer.render()? + &conditional_tag(td.close())
+                    conditional_tag(td.open())
+                        + &renderer.render(opts)?
+                        + &conditional_tag(td.close())
                 };
                 Ok(res + &result)
             },
@@ -161,7 +163,7 @@ impl<'e, 'h> Render<'h> for MJGroupRender<'e, 'h> {
         }
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let (classname, size) = self.get_column_class();
         self.header
             .borrow_mut()
@@ -183,7 +185,7 @@ impl<'e, 'h> Render<'h> for MJGroupRender<'e, 'h> {
         );
         let tr = Tag::tr();
         let content = conditional_tag(table.open() + &tr.open())
-            + &self.render_children()?
+            + &self.render_children(opts)?
             + &conditional_tag(tr.close() + &table.close());
         Ok(div.render(content))
     }
@@ -205,60 +207,67 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJGroup {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-group.mjml");
         let expected = include_str!("../../resources/compare/success/mj-group.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_color() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-group-background-color.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-group-background-color.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-group-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-group-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn direction() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-group-direction.mjml");
         let expected = include_str!("../../resources/compare/success/mj-group-direction.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn vertical_align() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-group-vertical-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-group-vertical-align.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn width() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-group-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-group-width.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

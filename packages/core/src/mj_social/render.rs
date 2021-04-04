@@ -2,7 +2,7 @@ use super::{MJSocial, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -71,7 +71,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
             .collect::<Vec<_>>()
     }
 
-    fn render_horizontal(&self) -> Result<String, Error> {
+    fn render_horizontal(&self, opts: &Options) -> Result<String, Error> {
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
         let td = Tag::td();
@@ -92,14 +92,14 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
                 });
                 Ok(res
                     + &conditional_tag(td.open())
-                    + &inner_table.render(renderer.render()?)
+                    + &inner_table.render(renderer.render(opts)?)
                     + &conditional_tag(td.close()))
             },
         )?;
         Ok(before + &content + &after)
     }
 
-    fn render_vertical(&self) -> Result<String, Error> {
+    fn render_vertical(&self, opts: &Options) -> Result<String, Error> {
         let table = self.set_style_table_vertical(Tag::table_presentation());
         let child_attributes = self.build_child_attributes();
         let content = self.element.children.iter().enumerate().try_fold(
@@ -110,7 +110,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
                 child_attributes.iter().for_each(|(key, value)| {
                     renderer.add_extra_attribute(key, &value);
                 });
-                Ok(res + &renderer.render()?)
+                Ok(res + &renderer.render(opts)?)
             },
         )?;
         Ok(table.render(content))
@@ -164,13 +164,13 @@ impl<'e, 'h> Render<'h> for MJSocialRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let font_families = self.attribute("font-family").unwrap_or_default(); // never happens
         self.header.borrow_mut().add_font_families(font_families);
         if self.is_horizontal() {
-            self.render_horizontal()
+            self.render_horizontal(opts)
         } else {
-            self.render_vertical()
+            self.render_vertical(opts)
         }
     }
 }
@@ -191,54 +191,61 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocial {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn align() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-align.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border_radius() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-border-radius.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-border-radius.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn color() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-color.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-color.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn container_background_color() {
+        let opts = Options::default();
         let template = include_str!(
             "../../resources/compare/success/mj-social-container-background-color.mjml"
         );
@@ -246,70 +253,77 @@ mod tests {
             "../../resources/compare/success/mj-social-container-background-color.html"
         );
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn font_family() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-font-family.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-font-family.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn font() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-font.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-font.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn icon() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-icon.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-icon.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn link() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-link.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-link.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn mode() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-mode.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-mode.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn padding() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-padding.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn text() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-text.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-text.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }
