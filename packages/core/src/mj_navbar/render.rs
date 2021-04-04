@@ -1,5 +1,6 @@
 use super::{MJNavbar, NAME};
 use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
+use crate::helper::random;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
@@ -195,7 +196,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJNavbar {
         Box::new(MJNavbarRender::<'e, 'h> {
             element: self,
             header,
-            id: String::from("aaaaaaaa"),
+            id: random::generate(8),
             container_width: None,
             siblings: 1,
             raw_siblings: 0,

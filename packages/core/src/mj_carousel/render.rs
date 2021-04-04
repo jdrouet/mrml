@@ -1,5 +1,6 @@
 use super::{MJCarousel, NAME};
 use crate::helper::condition::{mso_conditional_tag, mso_negation_conditional_tag};
+use crate::helper::random;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::style::Style;
 use crate::helper::tag::Tag;
@@ -452,7 +453,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJCarousel {
         Box::new(MJCarouselRender::<'e, 'h> {
             element: self,
             header,
-            id: String::from("aaaaaaaa"),
+            id: random::generate(8),
             container_width: None,
             siblings: 1,
             raw_siblings: 0,
