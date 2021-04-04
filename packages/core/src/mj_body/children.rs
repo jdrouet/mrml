@@ -1,5 +1,7 @@
 use crate::comment::Comment;
 use crate::from_child;
+use crate::mj_accordion::MJAccordion;
+use crate::mj_accordion::NAME as MJ_ACCORDION;
 use crate::mj_button::MJButton;
 use crate::mj_button::NAME as MJ_BUTTON;
 use crate::mj_carousel::MJCarousel;
@@ -40,6 +42,7 @@ use xmlparser::{StrSpan, Tokenizer};
 #[derive(Debug)]
 pub enum MJBodyChild {
     Comment(Comment),
+    MJAccordion(MJAccordion),
     MJButton(MJButton),
     MJCarousel(MJCarousel),
     MJColumn(MJColumn),
@@ -59,6 +62,7 @@ pub enum MJBodyChild {
 }
 
 from_child!(MJBodyChild, Comment);
+from_child!(MJBodyChild, MJAccordion);
 from_child!(MJBodyChild, MJButton);
 from_child!(MJBodyChild, MJCarousel);
 from_child!(MJBodyChild, MJColumn);
@@ -79,6 +83,7 @@ macro_rules! inner {
     ($elt:ident) => {
         match $elt {
             Self::Comment(elt) => elt,
+            Self::MJAccordion(elt) => elt,
             Self::MJButton(elt) => elt,
             Self::MJCarousel(elt) => elt,
             Self::MJColumn(elt) => elt,
@@ -124,6 +129,7 @@ impl Print for MJBodyChild {
 impl Parsable for MJBodyChild {
     fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {
+            MJ_ACCORDION => Ok(MJAccordion::parse(tag, tokenizer)?.into()),
             MJ_BUTTON => Ok(MJButton::parse(tag, tokenizer)?.into()),
             MJ_CAROUSEL => Ok(MJCarousel::parse(tag, tokenizer)?.into()),
             MJ_COLUMN => Ok(MJColumn::parse(tag, tokenizer)?.into()),

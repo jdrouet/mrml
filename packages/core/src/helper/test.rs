@@ -89,6 +89,10 @@ fn compare_element(path: &str, expected: &Element, result: &Element) {
             current_path
         );
     }
+    if expected.children.len() != result.children.len() {
+        println!("expected: {:#?}", expected.children);
+        println!("result: {:#?}", result.children);
+    }
     assert_eq!(
         expected.children.len(),
         result.children.len(),
