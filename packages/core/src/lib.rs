@@ -1,4 +1,8 @@
 pub mod comment;
+pub mod mj_accordion;
+pub mod mj_accordion_element;
+pub mod mj_accordion_text;
+pub mod mj_accordion_title;
 pub mod mj_attributes;
 pub mod mj_attributes_all;
 pub mod mj_attributes_class;
