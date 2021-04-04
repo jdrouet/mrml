@@ -13,12 +13,12 @@ impl Print for MJAccordionElement {
             level,
             indent_size,
         );
-        self.title.as_ref().map(|child| {
+        if let Some(ref child) = self.title {
             child.print(f, pretty, level + 1, indent_size);
-        });
-        self.text.as_ref().map(|child| {
+        }
+        if let Some(ref child) = self.text {
             child.print(f, pretty, level + 1, indent_size);
-        });
+        }
         print_close(f, super::NAME, pretty, level, indent_size);
     }
 }
