@@ -3,7 +3,7 @@ use crate::helper::condition::{mso_conditional_tag, mso_negation_conditional_tag
 use crate::helper::size::{Pixel, Size};
 use crate::helper::style::Style;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -79,7 +79,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
             .add_style("padding", "0px")
     }
 
-    fn render_radios(&self) -> Result<String, Error> {
+    fn render_radios(&self, opts: &Options) -> Result<String, Error> {
         self.element
             .children
             .iter()
@@ -96,11 +96,11 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
                     self.attribute("tb-border-radius"),
                 );
                 renderer.set_index(index);
-                Ok(res + &renderer.render_fragment("radio")?)
+                Ok(res + &renderer.render_fragment("radio", opts)?)
             })
     }
 
-    fn render_thumbnails(&self) -> Result<String, Error> {
+    fn render_thumbnails(&self, opts: &Options) -> Result<String, Error> {
         if self.attribute_equals("thumbnails", "visible") {
             let width = self.get_thumbnails_width();
             self.element
@@ -122,7 +122,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
                     );
                     renderer.set_index(index);
                     renderer.set_container_width(Some(width.clone()));
-                    Ok(res + &renderer.render_fragment("thumbnail")?)
+                    Ok(res + &renderer.render_fragment("thumbnail", opts)?)
                 })
         } else {
             Ok(String::default())
@@ -162,7 +162,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
             .render(div)
     }
 
-    fn render_images(&self) -> Result<String, Error> {
+    fn render_images(&self, opts: &Options) -> Result<String, Error> {
         let content = self
             .element
             .children
@@ -181,16 +181,16 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
                 );
                 renderer.set_index(index);
                 renderer.set_container_width(self.container_width.clone());
-                Ok(res + &renderer.render()?)
+                Ok(res + &renderer.render(opts)?)
             })?;
         let div = Tag::div().add_class("mj-carousel-images").render(content);
         Ok(self.set_style_images_td(Tag::td()).render(div))
     }
 
-    fn render_carousel(&self) -> Result<String, Error> {
+    fn render_carousel(&self, opts: &Options) -> Result<String, Error> {
         let previous =
             self.render_controls("previous", self.attribute("left-icon").unwrap().as_str());
-        let images = self.render_images()?;
+        let images = self.render_images(opts)?;
         let next = self.render_controls("next", self.attribute("right-icon").unwrap().as_str());
         let tr = Tag::tr().render(previous + &images + &next);
         let tbody = Tag::tbody().render(tr);
@@ -202,7 +202,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
         Ok(table)
     }
 
-    fn render_fallback(&self) -> Result<String, Error> {
+    fn render_fallback(&self, opts: &Options) -> Result<String, Error> {
         match self
             .element
             .children
@@ -220,7 +220,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
                     self.attribute("tb-border-radius"),
                 );
                 renderer.set_container_width(self.container_width.clone());
-                Ok(mso_conditional_tag(renderer.render()?))
+                Ok(mso_conditional_tag(renderer.render(opts)?))
             }
             None => Ok(String::default()),
         }
@@ -427,18 +427,18 @@ impl<'e, 'h> Render<'h> for MJCarouselRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let styles = self.render_style();
         self.header.borrow_mut().maybe_add_style(styles);
-        let radios = self.render_radios()?;
-        let thumbnails = self.render_thumbnails()?;
-        let carousel = self.render_carousel()?;
+        let radios = self.render_radios(opts)?;
+        let thumbnails = self.render_thumbnails(opts)?;
+        let carousel = self.render_carousel(opts)?;
         let inner_div = self
             .set_style_carousel_div(Tag::div())
             .add_class("mj-carousel-content")
             .add_class(format!("mj-carousel-{}-content", self.id))
             .render(thumbnails + &carousel);
-        let fallback = self.render_fallback()?;
+        let fallback = self.render_fallback(opts)?;
         Ok(mso_negation_conditional_tag(
             Tag::div()
                 .add_class("mj-carousel")
@@ -464,18 +464,21 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJCarousel {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-carousel.mjml");
         let expected = include_str!("../../resources/compare/success/mj-carousel.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn align_border_radius_class() {
+        let opts = Options::default();
         let template = include_str!(
             "../../resources/compare/success/mj-carousel-align-border-radius-class.mjml"
         );
@@ -483,34 +486,37 @@ mod tests {
             "../../resources/compare/success/mj-carousel-align-border-radius-class.html"
         );
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn icon() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-carousel-icon.mjml");
         let expected = include_str!("../../resources/compare/success/mj-carousel-icon.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn tb() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-carousel-tb.mjml");
         let expected = include_str!("../../resources/compare/success/mj-carousel-tb.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn thumbnails() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-carousel-thumbnails.mjml");
         let expected = include_str!("../../resources/compare/success/mj-carousel-thumbnails.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

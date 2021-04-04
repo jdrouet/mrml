@@ -1,7 +1,7 @@
 use super::{MJAccordion, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -108,7 +108,7 @@ impl<'e, 'h> Render<'h> for MJAccordionRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         self.update_header();
         let children = self
             .element
@@ -119,7 +119,7 @@ impl<'e, 'h> Render<'h> for MJAccordionRender<'e, 'h> {
                 CHILDREN_ATTRIBUTES.iter().for_each(|key| {
                     renderer.maybe_add_extra_attribute(key, self.attribute(key));
                 });
-                Ok(res + &renderer.render()?)
+                Ok(res + &renderer.render(opts)?)
             })?;
         let tbody = Tag::tbody().render(children);
         Ok(Tag::table()
@@ -151,42 +151,47 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordion {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
         let expected = include_str!("../../resources/compare/success/mj-accordion.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn font_padding() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-accordion-font-padding.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-accordion-font-padding.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn icon() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-accordion-icon.mjml");
         let expected = include_str!("../../resources/compare/success/mj-accordion-icon.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn other() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-accordion-other.mjml");
         let expected = include_str!("../../resources/compare/success/mj-accordion-other.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

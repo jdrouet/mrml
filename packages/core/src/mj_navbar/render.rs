@@ -2,7 +2,7 @@ use super::{MJNavbar, NAME};
 use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -146,7 +146,7 @@ impl<'e, 'h> Render<'h> for MJNavbarRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let div = Tag::div().add_class("mj-inline-links");
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
@@ -158,7 +158,7 @@ impl<'e, 'h> Render<'h> for MJNavbarRender<'e, 'h> {
             .try_fold(String::default(), |res, child| {
                 let mut renderer = child.renderer(Rc::clone(&self.header));
                 renderer.maybe_add_extra_attribute("navbar-base-url", base_url.clone());
-                Ok(res + &renderer.render()?)
+                Ok(res + &renderer.render(opts)?)
             })?;
         let before = conditional_tag(table.open() + &tr.open());
         let after = conditional_tag(tr.close() + &table.close());

@@ -2,7 +2,7 @@ use super::{MJSpacer, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -43,7 +43,7 @@ impl<'e, 'h> Render<'h> for MJSpacerRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, _opts: &Options) -> Result<String, Error> {
         let height = self.attribute_as_pixel("height");
         let table = Tag::table_presentation();
         let tr = Tag::tr();
@@ -71,13 +71,15 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSpacer {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-spacer.mjml");
         let expected = include_str!("../../resources/compare/success/mj-spacer.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

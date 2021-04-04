@@ -1,6 +1,6 @@
 use super::MJHead;
 use crate::helper::sort::sort_by_key;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -230,7 +230,7 @@ impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, _opts: &Options) -> Result<String, Error> {
         let mut buf = String::from("<head>");
         // we write the title even though there is no content
         buf.push_str("<title>");

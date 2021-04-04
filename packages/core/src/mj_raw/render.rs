@@ -1,6 +1,6 @@
 use super::{MJRaw, NAME};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
@@ -23,7 +23,7 @@ impl<'e, 'h> Render<'h> for MJRawRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let siblings = self.element.children.len();
         self.element.children.iter().enumerate().try_fold(
             String::default(),
@@ -33,7 +33,7 @@ impl<'e, 'h> Render<'h> for MJRawRender<'e, 'h> {
                 renderer.set_siblings(siblings);
                 renderer.set_raw_siblings(siblings);
                 renderer.set_container_width(self.container_width.clone());
-                Ok(res + &renderer.render()?)
+                Ok(res + &renderer.render(opts)?)
             },
         )
     }
@@ -53,13 +53,15 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJRaw {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-raw.mjml");
         let expected = include_str!("../../resources/compare/success/mj-raw.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

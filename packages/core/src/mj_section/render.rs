@@ -2,7 +2,7 @@ use super::{MJSection, NAME};
 use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Percent, Pixel};
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -283,7 +283,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             .count()
     }
 
-    fn render_wrapped_children(&self) -> Result<String, Error> {
+    fn render_wrapped_children(&self, opts: &Options) -> Result<String, Error> {
         let tr = Tag::tr();
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
@@ -297,7 +297,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
                 renderer.set_raw_siblings(raw_siblings);
                 renderer.set_container_width(self.container_width.clone());
                 if child.is_raw() {
-                    Ok(res + END_CONDITIONAL_TAG + &renderer.render()? + START_CONDITIONAL_TAG)
+                    Ok(res + END_CONDITIONAL_TAG + &renderer.render(opts)? + START_CONDITIONAL_TAG)
                 } else {
                     let td = renderer
                         .set_style("td-outlook", Tag::td())
@@ -306,7 +306,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
                     Ok(res
                         + &td.open()
                         + END_CONDITIONAL_TAG
-                        + &renderer.render()?
+                        + &renderer.render(opts)?
                         + START_CONDITIONAL_TAG
                         + &td.close())
                 }
@@ -345,7 +345,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             .maybe_add_style("text-align", self.attribute("text-align"))
     }
 
-    fn render_section(&self) -> Result<String, Error> {
+    fn render_section(&self, opts: &Options) -> Result<String, Error> {
         let is_full_width = self.is_full_width();
         let div = self
             .set_style_section_div(Tag::div())
@@ -371,7 +371,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
         let tr = Tag::tr();
         let td = self.set_style_section_td(Tag::td());
         let inner_table = Tag::table_presentation();
-        let content = conditional_tag(inner_table.render(self.render_wrapped_children()?));
+        let content = conditional_tag(inner_table.render(self.render_wrapped_children(opts)?));
         let content = table.render(tbody.render(tr.render(td.render(content))));
         Ok(div.render(if self.has_background() {
             inner_div.render(content)
@@ -397,12 +397,12 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             .maybe_add_attribute("background", self.attribute("background-url"))
     }
 
-    fn render_full_width(&self) -> Result<String, Error> {
+    fn render_full_width(&self, opts: &Options) -> Result<String, Error> {
         let table = self.get_full_width_table();
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = Tag::td();
-        let content = self.render_wrap(self.render_section()?);
+        let content = self.render_wrap(self.render_section(opts)?);
         let content = if self.has_background() {
             self.render_with_background(content)
         } else {
@@ -411,8 +411,8 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
         Ok(table.render(tbody.render(tr.render(td.render(content)))))
     }
 
-    fn render_simple(&self) -> Result<String, Error> {
-        let section = self.render_section()?;
+    fn render_simple(&self, opts: &Options) -> Result<String, Error> {
+        let section = self.render_section(opts)?;
 
         let section = if self.has_background() {
             self.render_with_background(section)
@@ -453,11 +453,11 @@ impl<'e, 'h> Render<'h> for MJSectionRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         if self.is_full_width() {
-            self.render_full_width()
+            self.render_full_width(opts)
         } else {
-            self.render_simple()
+            self.render_simple(opts)
         }
     }
 }
@@ -476,120 +476,133 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSection {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_color() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-section-background-color.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-section-background-color.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_url_full() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-section-background-url-full.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-section-background-url-full.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_url() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-section-background-url.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-section-background-url.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn body_width() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-body-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-body-width.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-border.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-border.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border_radius() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-section-border-radius.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-section-border-radius.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn direction() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-direction.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-direction.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn full_width() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-full-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-full-width.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn padding() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-padding.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn text_align() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-text-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-text-align.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

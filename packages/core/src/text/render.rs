@@ -1,5 +1,5 @@
 use super::Text;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
@@ -13,7 +13,7 @@ impl<'e, 'h> Render<'h> for TextRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, _opts: &Options) -> Result<String, Error> {
         Ok(self.element.0.clone())
     }
 }

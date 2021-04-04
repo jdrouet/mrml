@@ -1,7 +1,7 @@
 use super::{MJColumn, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -143,12 +143,12 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn render_gutter(&self) -> Result<String, Error> {
+    fn render_gutter(&self, opts: &Options) -> Result<String, Error> {
         let table = Tag::table_presentation().add_attribute("width", "100%");
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_gutter_td(Tag::td());
-        Ok(table.render(tbody.render(tr.render(td.render(self.render_column()?)))))
+        Ok(table.render(tbody.render(tr.render(td.render(self.render_column(opts)?)))))
     }
 
     fn set_style_table(&self, tag: Tag) -> Tag {
@@ -159,7 +159,7 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
         }
     }
 
-    fn render_column(&self) -> Result<String, Error> {
+    fn render_column(&self, opts: &Options) -> Result<String, Error> {
         let table = self
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
@@ -175,7 +175,7 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
                 renderer.set_siblings(siblings);
                 renderer.set_container_width(current_width.clone());
                 let result = if child.is_raw() {
-                    renderer.render()?
+                    renderer.render(opts)?
                 } else {
                     let tr = Tag::tr();
                     let td = Tag::td()
@@ -193,7 +193,7 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
                         .maybe_add_attribute("align", renderer.attribute("align"))
                         .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
                         .maybe_add_class(renderer.attribute("css-class"));
-                    tr.render(td.render(renderer.render()?))
+                    tr.render(td.render(renderer.render(opts)?))
                 };
                 Ok(res + &result)
             },
@@ -254,7 +254,7 @@ impl<'e, 'h> Render<'h> for MJColumnRender<'e, 'h> {
         }
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let (classname, size) = self.get_column_class();
         self.header
             .borrow_mut()
@@ -265,9 +265,9 @@ impl<'e, 'h> Render<'h> for MJColumnRender<'e, 'h> {
             .add_class(classname)
             .maybe_add_class(self.attribute("css-class"));
         let content = if self.has_gutter() {
-            self.render_gutter()?
+            self.render_gutter(opts)?
         } else {
-            self.render_column()?
+            self.render_column(opts)?
         };
         Ok(div.render(content))
     }
@@ -290,80 +290,89 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJColumn {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-column.mjml");
         let expected = include_str!("../../resources/compare/success/mj-column.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_color() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-column-background-color.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-column-background-color.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border_radius() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-column-border-radius.mjml");
         let expected = include_str!("../../resources/compare/success/mj-column-border-radius.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn border() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-column-border.mjml");
         let expected = include_str!("../../resources/compare/success/mj-column-border.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-column-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-column-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn padding() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-column-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-column-padding.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn vertical_align() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-column-vertical-align.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-column-vertical-align.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn width() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-column-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-column-width.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }

@@ -12,6 +12,12 @@ pub enum Error {
     UnknownFragment(String),
 }
 
+#[derive(Debug, Default)]
+pub struct Options {
+    pub disable_comments: bool,
+    pub social_icon_origin: Option<String>,
+}
+
 pub struct Header<'h> {
     head: &'h Option<MJHead>,
     attributes_all: HashMap<&'h str, &'h str>,
@@ -133,8 +139,8 @@ impl<'h> Header<'h> {
     }
 }
 
-pub trait Render<'h> {
-    fn header(&self) -> Ref<Header<'h>>;
+pub trait Render<'header> {
+    fn header(&self) -> Ref<Header<'header>>;
     fn tag(&self) -> Option<&str> {
         None
     }
@@ -298,20 +304,23 @@ pub trait Render<'h> {
         }
     }
 
-    fn render_fragment(&self, name: &str) -> Result<String, Error> {
+    fn render_fragment(&self, name: &str, opts: &Options) -> Result<String, Error> {
         match name {
-            "main" => self.render(),
+            "main" => self.render(opts),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self) -> Result<String, Error>;
+    fn render(&self, opts: &Options) -> Result<String, Error>;
 }
 
-pub trait Renderable<'r, 'e: 'r, 'h: 'r> {
-    fn is_raw(&'e self) -> bool {
+pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
+    fn is_raw(&'element self) -> bool {
         false
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r>;
+    fn renderer(
+        &'element self,
+        header: Rc<RefCell<Header<'header>>>,
+    ) -> Box<dyn Render<'header> + 'render>;
 }

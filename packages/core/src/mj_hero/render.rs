@@ -2,7 +2,7 @@ use super::{MJHero, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, Renderable};
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -122,7 +122,7 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn render_children(&self) -> Result<String, Error> {
+    fn render_children(&self, opts: &Options) -> Result<String, Error> {
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|c| c.is_raw()).count();
         self.element.children.iter().enumerate().try_fold(
@@ -133,7 +133,7 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
                 renderer.set_siblings(siblings);
                 renderer.set_raw_siblings(raw_siblings);
                 let result = if child.is_raw() {
-                    renderer.render()?
+                    renderer.render(opts)?
                 } else {
                     let tr = Tag::tr();
                     let td = Tag::td()
@@ -154,14 +154,14 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
                             renderer.attribute("container-background-color"),
                         )
                         .maybe_add_attribute("class", renderer.attribute("css-class"));
-                    tr.render(td.render(renderer.render()?))
+                    tr.render(td.render(renderer.render(opts)?))
                 };
                 Ok(res + &result)
             },
         )
     }
 
-    fn render_content(&self) -> Result<String, Error> {
+    fn render_content(&self, opts: &Options) -> Result<String, Error> {
         let table = self
             .set_style_outlook_inner_table(Tag::table_borderless())
             .maybe_add_attribute("align", self.attribute("align"))
@@ -176,24 +176,24 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
             .maybe_add_attribute("width", self.attribute("align"))
             .add_class("mj-hero-content");
         let inner_table = self.set_style_inner_table(Tag::table_presentation());
-        let content = outlook_inner_div.render(
-            inner_table
-                .render(tr.render(Tag::td().render(inner_table.render(self.render_children()?)))),
-        );
+        let content =
+            outlook_inner_div.render(inner_table.render(
+                tr.render(Tag::td().render(inner_table.render(self.render_children(opts)?))),
+            ));
         let before = conditional_tag(table.open() + &tr.open() + &outlook_inner_td.open());
         let after = conditional_tag(outlook_inner_td.close() + &tr.close() + &table.close());
         Ok(before + &content + &after)
     }
 
-    fn render_mode_fluid(&self) -> Result<String, Error> {
+    fn render_mode_fluid(&self, opts: &Options) -> Result<String, Error> {
         let td_fluid = self.set_style_td_fluid(Tag::td());
         let td = self
             .set_style_hero(Tag::td())
             .maybe_add_attribute("background", self.attribute("background-url"));
-        Ok(td_fluid.closed() + &td.render(self.render_content()?) + &td_fluid.closed())
+        Ok(td_fluid.closed() + &td.render(self.render_content(opts)?) + &td_fluid.closed())
     }
 
-    fn render_mode_fixed(&self) -> Result<String, Error> {
+    fn render_mode_fixed(&self, opts: &Options) -> Result<String, Error> {
         // has a default value
         let height = self.attribute_as_pixel("height").unwrap().value();
         let padding = self.get_padding_vertical().value();
@@ -202,16 +202,16 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
             .set_style_hero(Tag::td())
             .maybe_add_attribute("background", self.attribute("background-url"))
             .add_attribute("height", height.to_string());
-        Ok(td.render(self.render_content()?))
+        Ok(td.render(self.render_content(opts)?))
     }
 
-    fn render_mode(&self) -> Result<String, Error> {
+    fn render_mode(&self, opts: &Options) -> Result<String, Error> {
         if let Some(ref mode) = self.attribute("mode") {
             if mode == "fluid" {
-                return self.render_mode_fluid();
+                return self.render_mode_fluid(opts);
             }
         }
-        self.render_mode_fixed()
+        self.render_mode_fixed(opts)
     }
 }
 
@@ -252,7 +252,7 @@ impl<'e, 'h> Render<'h> for MJHeroRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let outlook_table = self
             .set_style_outlook_table(Tag::table_presentation())
             .add_attribute("align", "center")
@@ -272,7 +272,7 @@ impl<'e, 'h> Render<'h> for MJHeroRender<'e, 'h> {
             .maybe_add_class(self.attribute("css-class"));
         let table = self.set_style_table(Tag::table_presentation());
         let tr = self.set_style_tr(Tag::tr());
-        let content = self.render_mode()?;
+        let content = self.render_mode(opts)?;
         let content = div.render(table.render(tr.render(content)));
         let before = conditional_tag(
             outlook_table.open() + &outlook_tr.open() + &outlook_td.open() + &v_image.closed(),
@@ -299,111 +299,123 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJHero {
 mod tests {
     use crate::helper::test::compare;
     use crate::mjml::MJML;
+    use crate::prelude::render::Options;
 
     #[test]
     fn basic() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_color() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-hero-background-color.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-hero-background-color.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_height() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-hero-background-height.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-hero-background-height.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_position() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-hero-background-position.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-hero-background-position.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_url() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-background-url.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-background-url.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn background_width() {
+        let opts = Options::default();
         let template =
             include_str!("../../resources/compare/success/mj-hero-background-width.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-hero-background-width.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn class() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-class.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn height() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-height.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-height.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn mode() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-mode.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-mode.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn vertical_align() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-vertical-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-vertical-align.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 
     #[test]
     fn width() {
+        let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-width.html");
         let root = MJML::parse(template.to_string()).unwrap();
-        let result = root.render().unwrap();
+        let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
 }
