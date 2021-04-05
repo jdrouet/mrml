@@ -37,3 +37,7 @@ pub mod text;
 
 mod helper;
 mod macros;
+
+pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::MJML, prelude::parse::Error> {
+    mjml::MJML::parse(input)
+}

@@ -12,6 +12,14 @@ pub enum Error {
     UnknownFragment(String),
 }
 
+impl ToString for Error {
+    fn to_string(&self) -> String {
+        match self {
+            Self::UnknownFragment(name) => format!("unknown fragment {}", name),
+        }
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct Options {
     pub disable_comments: bool,

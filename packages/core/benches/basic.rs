@@ -1,8 +1,10 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-
+use mrml::prelude::render::Options;
 
 fn render(input: &str) {
-    mrml::to_html(input, mrml::Options::default()).unwrap();
+    let opts = Options::default();
+    let root = mrml::mjml::MJML::parse(input.to_string()).unwrap();
+    root.render(&opts).unwrap();
 }
 
 fn criterion_benchmark(c: &mut Criterion) {

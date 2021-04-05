@@ -1,5 +1,5 @@
 use clap::{crate_authors, crate_version, Clap};
-use mrml::util::size::Size::Pixel;
+use mrml::prelude::render::Options as RenderOptions;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::Error as IOError;
@@ -8,28 +8,22 @@ use std::io::Error as IOError;
 #[clap(
     version = crate_version!(),
     author = crate_authors!()
-)]
+    )]
 struct Options {
-    #[clap(short, long, about = "Keeps comments from mjml in output")]
-    pub keep_comments: bool,
-    #[clap(short, long, about = "Size of the breakpoint in pixels")]
-    pub breakpoint: Option<f32>,
+    #[clap(short, long, about = "Remove comments from html output")]
+    pub disable_comments: bool,
     #[clap(short, long, about = "Base url for social icons")]
     pub social_icon_origin: Option<String>,
     #[clap(about = "Path to your mjml file")]
     pub input: String,
 }
 
-impl Into<mrml::Options> for Options {
-    fn into(self) -> mrml::Options {
-        let mut res = mrml::Options {
-            keep_comments: self.keep_comments,
-            ..Default::default()
-        };
-        if let Some(bp) = self.breakpoint {
-            res.breakpoint = Pixel(bp);
+impl From<Options> for RenderOptions {
+    fn from(value: Options) -> Self {
+        Self {
+            disable_comments: value.disable_comments,
+            social_icon_origin: value.social_icon_origin,
         }
-        res
     }
 }
 
@@ -48,11 +42,8 @@ fn main() {
             panic!("couldn't read input file: {:?}", err);
         }
     };
-    let output = match mrml::to_html(content.as_str(), mrml::Options::default()) {
-        Ok(output) => output,
-        Err(err) => {
-            panic!("couldn't convert mjml: {:?}", err);
-        }
-    };
+    let root = mrml::mjml::MJML::parse(content).expect("parsing template");
+    let render_opts = RenderOptions::from(opts);
+    let output = root.render(&render_opts).expect("rendering");
     println!("{}", output);
 }

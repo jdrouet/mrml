@@ -76,6 +76,28 @@ impl From<xmlparser::Error> for Error {
     }
 }
 
+impl ToString for Error {
+    fn to_string(&self) -> String {
+        match self {
+            Self::UnexpectedAttribute(position) => {
+                format!("unexpected attribute at position {}", position)
+            }
+            Self::UnexpectedElement(position) => {
+                format!("unexpected element at position {}", position)
+            }
+            Self::UnexpectedComment(position) => {
+                format!("unexpected comment at position {}", position)
+            }
+            Self::UnexpectedText(position) => format!("unexpected text at position {}", position),
+            Self::InvalidElement(elt) => format!("invalid element: {}", elt),
+            Self::InvalidFormat => "invalid format".to_string(),
+            Self::SizeLimit => "size limit reached".to_string(),
+            Self::ParserError(inner) => format!("parsing error: {}", inner),
+            Self::NoRootNode => "no root not found".to_string(),
+        }
+    }
+}
+
 pub fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, Error> {
     if let Some(token) = tokenizer.next() {
         Ok(token?)
