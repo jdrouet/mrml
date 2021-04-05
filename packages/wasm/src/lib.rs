@@ -56,5 +56,5 @@ pub fn to_html_with_options(input: &str, opts: &Options) -> Result<String, JsVal
     mrml::parse(input)
         .map_err(|err| err.to_string())
         .and_then(|node| node.render(opts.inner()).map_err(|err| err.to_string()))
-        .map_err(|msg| JsValue::from(msg))
+        .map_err(JsValue::from)
 }
