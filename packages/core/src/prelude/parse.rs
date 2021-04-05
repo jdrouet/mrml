@@ -107,11 +107,14 @@ pub fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, Error>
 }
 
 pub fn is_element_start(token: &Token) -> bool {
-    matches!(token, Token::ElementStart {
-        prefix: _,
-        local: _,
-        span: _,
-    })
+    matches!(
+        token,
+        Token::ElementStart {
+            prefix: _,
+            local: _,
+            span: _,
+        }
+    )
 }
 
 pub trait Parser: Sized {
