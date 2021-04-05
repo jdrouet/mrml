@@ -8,7 +8,7 @@ lint-clippy:
   before_script:
     - rustup component add clippy
   script:
-    - cargo clippy -- -D warnings
+    - cargo clippy -- -D warnings -A clippy::upper-case-acronyms
 
 lint-rustfmt:
   stage: lint
