@@ -67,4 +67,12 @@ mod tests {
         let root = MJML::parse(template.to_string()).unwrap();
         compare(expected, root.render(&opts).unwrap().as_str());
     }
+
+    #[test]
+    fn template_amario() {
+        let opts = Options::default();
+        let template = include_str!("../../resources/template/amario.mjml");
+        let root = MJML::parse(template.to_string()).unwrap();
+        assert!(root.render(&opts).is_ok());
+    }
 }
