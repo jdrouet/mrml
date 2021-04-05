@@ -1,7 +1,7 @@
 use crate::mj_body::MJBody;
 use crate::mj_head::MJHead;
 
-mod parse;
+pub mod parse;
 mod print;
 mod render;
 

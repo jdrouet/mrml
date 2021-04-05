@@ -35,8 +35,8 @@ impl Parser for MJMLParser {
 }
 
 impl MJML {
-    pub fn parse(value: String) -> Result<Self, Error> {
-        let mut tokenizer = Tokenizer::from(value.as_str());
+    pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
+        let mut tokenizer = Tokenizer::from(value.as_ref());
         let token = next_token(&mut tokenizer)?;
         if is_element_start(&token) {
             MJMLParser::default().parse(&mut tokenizer)?.build()
@@ -53,7 +53,7 @@ mod tests {
     #[test]
     fn simple() {
         let template = "<mjml></mjml>";
-        let elt = MJML::parse(template.to_string()).unwrap();
+        let elt = MJML::parse(template).unwrap();
         assert!(elt.body.is_none());
         assert!(elt.head.is_none());
     }

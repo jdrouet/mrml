@@ -51,6 +51,18 @@ impl MJML {
         let header = Rc::new(RefCell::new(Header::new(&self.head)));
         self.renderer(header).render(opts)
     }
+
+    pub fn get_title(&self) -> Option<String> {
+        self.head()
+            .and_then(|head| head.title())
+            .map(|title| title.content().to_string())
+    }
+
+    pub fn get_preview(&self) -> Option<String> {
+        self.head()
+            .and_then(|head| head.preview())
+            .map(|preview| preview.content().to_string())
+    }
 }
 
 #[cfg(test)]

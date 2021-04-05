@@ -16,7 +16,7 @@ lint-rustfmt:
   before_script:
     - rustup component add rustfmt
   script:
-    - rustfmt --check packages/library/src/{**/,}*.rs
+    - rustfmt --check packages/core/src/{**/,}*.rs
     - rustfmt --check packages/cli/src/*.rs
     - make -C packages/wasm format
 
@@ -33,7 +33,7 @@ test-coverage:
   stage: test
   image: xd009642/tarpaulin:develop-nightly
   script:
-    - make -C packages/library coverage
+    - make -C packages/core coverage
 
 test-wasm:
   stage: test

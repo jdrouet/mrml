@@ -18,8 +18,7 @@ fn to_html_raise() {
 #[wasm_bindgen_test]
 fn to_html_with_options_pass() {
     let mut opts = mrml_wasm::Options::new();
-    opts.set_breakpoint("800px");
-    opts.set_keep_comments(true);
+    opts.set_disable_comments(true);
     opts.set_social_icon_origin("https://whatever.com/");
     let result = mrml_wasm::to_html_with_options("<mjml></mjml>", &opts);
     assert!(result.is_ok());
@@ -28,8 +27,7 @@ fn to_html_with_options_pass() {
 #[wasm_bindgen_test]
 fn to_html_with_options_raise() {
     let mut opts = mrml_wasm::Options::new();
-    opts.set_breakpoint("800px");
-    opts.set_keep_comments(true);
+    opts.set_disable_comments(true);
     opts.set_social_icon_origin("https://whatever.com/");
     let result = mrml_wasm::to_html_with_options("<mjml", &opts);
     assert!(result.is_err());
