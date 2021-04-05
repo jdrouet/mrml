@@ -185,17 +185,17 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
         if header.media_queries().is_empty() {
             return String::default();
         }
-        let breakpoint = header.breakpoint().to_string();
-        let mut buf = String::from("<style type=\"text/css\">");
-        buf.push_str("@media only screen and (min-width:");
-        buf.push_str(breakpoint.as_str());
-        buf.push_str(") { ");
         let mut classnames = header
             .media_queries()
             .iter()
             .map(|(key, value)| (key, value))
             .collect::<Vec<_>>();
         classnames.sort_by(sort_by_key);
+        let breakpoint = header.breakpoint().to_string();
+        let mut buf = String::from("<style type=\"text/css\">");
+        buf.push_str("@media only screen and (min-width:");
+        buf.push_str(breakpoint.as_str());
+        buf.push_str(") { ");
         classnames.iter().for_each(|(classname, size)| {
             let size = size.to_string();
             buf.push('.');
@@ -207,6 +207,20 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
             buf.push_str("; } ");
         });
         buf.push_str(" }");
+        buf.push_str("</style>");
+        buf.push_str("<style media=\"screen and (min-width:");
+        buf.push_str(breakpoint.as_str());
+        buf.push_str(")\">");
+        classnames.iter().for_each(|(classname, size)| {
+            let size = size.to_string();
+            buf.push_str(".moz-text-html .");
+            buf.push_str(classname);
+            buf.push_str(" { width:");
+            buf.push_str(size.as_str());
+            buf.push_str(" !important; max-width:");
+            buf.push_str(size.as_str());
+            buf.push_str("; } ");
+        });
         buf.push_str("</style>");
         buf
     }

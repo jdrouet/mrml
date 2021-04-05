@@ -1,5 +1,4 @@
 use super::{MJSpacer, NAME};
-use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
@@ -11,12 +10,6 @@ struct MJSpacerRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
     element: &'e MJSpacer,
     container_width: Option<Pixel>,
-}
-
-impl<'e, 'h> MJSpacerRender<'e, 'h> {
-    fn set_style_div(&self, tag: Tag) -> Tag {
-        tag.maybe_add_style("height", self.attribute("height"))
-    }
 }
 
 impl<'e, 'h> Render<'h> for MJSpacerRender<'e, 'h> {
@@ -44,16 +37,10 @@ impl<'e, 'h> Render<'h> for MJSpacerRender<'e, 'h> {
     }
 
     fn render(&self, _opts: &Options) -> Result<String, Error> {
-        let height = self.attribute_as_pixel("height");
-        let table = Tag::table_presentation();
-        let tr = Tag::tr();
-        let td = Tag::td()
-            .maybe_add_style("height", height.as_ref().map(|v| v.to_string()))
-            .maybe_add_attribute("height", height.as_ref().map(|h| h.value().to_string()));
-        let div = self.set_style_div(Tag::div());
-        let before = conditional_tag(table.open() + &tr.open() + &td.open());
-        let after = conditional_tag(td.close() + &tr.close() + &table.close());
-        Ok(before + &div.render("&nbsp;") + &after)
+        Ok(Tag::div()
+            .maybe_add_style("height", self.attribute("height"))
+            .maybe_add_style("line-height", self.attribute("height"))
+            .render("&#8202;"))
     }
 }
 

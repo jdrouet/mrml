@@ -163,6 +163,7 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
         let table = self
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
+        let tbody = Tag::tbody();
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
         let current_width = self.current_width();
@@ -198,7 +199,7 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
                 Ok(res + &result)
             },
         )?;
-        Ok(table.render(content))
+        Ok(table.render(tbody.render(content)))
     }
 }
 
