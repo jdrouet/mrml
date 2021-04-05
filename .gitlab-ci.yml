@@ -16,9 +16,9 @@ lint-rustfmt:
   before_script:
     - rustup component add rustfmt
   script:
-    - rustfmt --check packages/core/src/{**/,}*.rs
-    - rustfmt --check packages/cli/src/*.rs
-    - make -C packages/wasm format
+    - rustfmt --check packages/mrml-core/src/{**/,}*.rs
+    - rustfmt --check packages/mrml-cli/src/*.rs
+    - make -C packages/mrml-wasm format
 
 test-bench:
   stage: test
@@ -33,11 +33,11 @@ test-coverage:
   stage: test
   image: xd009642/tarpaulin:develop-nightly
   script:
-    - make -C packages/core coverage
+    - make -C packages/mrml-core coverage
 
 test-wasm:
   stage: test
   image: jdrouet/wasm-pack
   script:
-    - make -C packages/wasm requirements
-    - make -C packages/wasm test
+    - make -C packages/mrml-wasm requirements
+    - make -C packages/mrml-wasm test
