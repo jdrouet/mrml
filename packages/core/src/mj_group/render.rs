@@ -16,7 +16,7 @@ struct MJGroupRender<'e, 'h> {
 }
 
 impl<'e, 'h> MJGroupRender<'e, 'h> {
-    fn current_width(&self) -> Option<Pixel> {
+    fn current_width(&self) -> Pixel {
         let parent_width = self.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
         let borders = self.get_border_horizontal();
@@ -36,11 +36,9 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
             .attribute_as_size("width")
             .unwrap_or_else(|| Size::pixel(parent_width.value() / (non_raw_siblings as f32)));
         if let Size::Percent(pc) = container_width {
-            Some(Pixel::new(
-                (parent_width.value() * pc.value() / 100.0) - all_paddings,
-            ))
+            Pixel::new((parent_width.value() * pc.value() / 100.0) - all_paddings)
         } else {
-            Some(Pixel::new(container_width.value() - all_paddings))
+            Pixel::new(container_width.value() - all_paddings)
         }
     }
 
@@ -76,7 +74,7 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
 
     fn set_style_td_outlook(&self, tag: Tag) -> Tag {
         tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
-            .maybe_add_style("width", self.current_width().map(|w| w.to_string()))
+            .add_style("width", self.current_width().to_string())
     }
 
     fn render_children(&self, opts: &Options) -> Result<String, Error> {
@@ -95,7 +93,7 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
                 renderer.set_index(index);
                 renderer.set_siblings(siblings);
                 renderer.set_raw_siblings(raw_siblings);
-                renderer.set_container_width(current_width.clone());
+                renderer.set_container_width(Some(current_width.clone()));
                 renderer.add_extra_attribute("mobile-width", "mobile-width");
                 let result = if child.is_raw() {
                     renderer.render(opts)?
@@ -141,7 +139,7 @@ impl<'e, 'h> Render<'h> for MJGroupRender<'e, 'h> {
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.current_width().map(Size::Pixel)
+        Some(Size::Pixel(self.current_width()))
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {

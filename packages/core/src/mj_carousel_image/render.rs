@@ -41,9 +41,8 @@ impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
             .add_style("width", "100%")
     }
 
-    fn render_radio(&self) -> Result<String, Error> {
-        Ok(self
-            .set_style_radio_input(Tag::new("input"))
+    fn render_radio(&self) -> String {
+        self.set_style_radio_input(Tag::new("input"))
             .add_class("mj-carousel-radio")
             .maybe_add_class(
                 self.extra
@@ -76,7 +75,7 @@ impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
                     .get("carousel-id")
                     .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
             )
-            .closed())
+            .closed()
     }
 
     pub fn render_thumbnail(&self) -> Result<String, Error> {
@@ -164,7 +163,7 @@ impl<'e, 'h> Render<'h> for MJCarouselImageRender<'e, 'h> {
     fn render_fragment(&self, name: &str, opts: &Options) -> Result<String, Error> {
         match name {
             "main" => self.render(opts),
-            "radio" => self.render_radio(),
+            "radio" => Ok(self.render_radio()),
             "thumbnail" => self.render_thumbnail(),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
