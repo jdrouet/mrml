@@ -42,11 +42,13 @@ impl<'e, 'h> MJDividerRender<'e, 'h> {
             .attribute_as_size("width")
             .unwrap_or_else(|| Size::percent(100.0));
         match width {
-            Size::Percent(value) => Pixel::new(
-                (container_width.value() * value.value()) / 100.0 - padding_horizontal.value(),
-            ),
+            Size::Percent(value) => {
+                let effective = container_width.value() - padding_horizontal.value();
+                let multiplier = value.value() / 100.0;
+                Pixel::new(effective * multiplier)
+            }
             Size::Pixel(value) => value,
-            Size::Raw(_) => Pixel::new(container_width.value() - padding_horizontal.value()),
+            _ => Pixel::new(container_width.value() - padding_horizontal.value()),
         }
     }
 
@@ -66,6 +68,7 @@ impl<'e, 'h> MJDividerRender<'e, 'h> {
 impl<'e, 'h> Render<'h> for MJDividerRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
+            "align" => Some("center"),
             "border-color" => Some("#000000"),
             "border-style" => Some("solid"),
             "border-width" => Some("4px"),

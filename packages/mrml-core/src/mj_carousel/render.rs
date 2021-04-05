@@ -356,8 +356,6 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
         );
         style.push(".mj-carousel noinput .mj-carousel-arrows, .mj-carousel noinput .mj-carousel-thumbnails { display: none !important; }".into());
 
-        style.push("[owa] .mj-carousel-thumbnail { display: none !important; }".into());
-
         style.push(format!(
             r#"
         @media screen yahoo {{

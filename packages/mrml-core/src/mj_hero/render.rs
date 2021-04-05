@@ -99,7 +99,7 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
         self.attribute("background-url")
             .map(|url| {
                 format!(
-                    "{} url({}) no-repeat {} / cover",
+                    "{} url('{}') no-repeat {} / cover",
                     // has default value
                     self.attribute("background-color").unwrap(),
                     url,
