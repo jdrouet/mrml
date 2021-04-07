@@ -46,17 +46,10 @@ pub fn open(
             indent_size,
             open(tag, attrs, closed, false, level, indent_size),
         )
+    } else if closed {
+        format!("<{}{} />", tag, attributes(attrs))
     } else {
-        let mut result = String::default();
-        result.push('<');
-        result.push_str(tag);
-        result.push_str(&attributes(attrs));
-        if closed {
-            result.push_str(" />");
-        } else {
-            result.push('>');
-        }
-        result
+        format!("<{}{}>", tag, attributes(attrs))
     }
 }
 
