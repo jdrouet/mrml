@@ -1,20 +1,12 @@
 use super::MJAttributesClass;
-use crate::prelude::print::{print_open, Print};
+use crate::prelude::print::{self, Print};
 use std::fmt;
 
 impl Print for MJAttributesClass {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         let mut attrs = self.attributes.clone();
         attrs.insert("name".to_string(), self.name.clone());
-        print_open(
-            f,
-            super::NAME,
-            Some(&attrs),
-            true,
-            pretty,
-            level,
-            indent_size,
-        );
+        print::open(super::NAME, Some(&attrs), true, pretty, level, indent_size)
     }
 }
 

@@ -1,17 +1,13 @@
 use super::Comment;
-use crate::prelude::print::{print_indent, Print};
+use crate::prelude::print::{self, Print};
 use std::fmt;
 
 impl Print for Comment {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         if pretty {
-            print_indent(f, level, indent_size);
-        }
-        f.push_str("<!--");
-        f.push_str(self.0.as_str());
-        f.push_str("-->");
-        if pretty {
-            f.push('\n');
+            print::indent(level, indent_size, self.print(false, level, indent_size))
+        } else {
+            format!("<!--{}-->", self.0)
         }
     }
 }

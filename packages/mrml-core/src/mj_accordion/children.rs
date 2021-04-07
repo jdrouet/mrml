@@ -19,10 +19,10 @@ from_child!(MJAccordionChild, Comment);
 from_child!(MJAccordionChild, MJAccordionElement);
 
 impl Print for MJAccordionChild {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         match self {
-            Self::Comment(elt) => elt.print(f, pretty, level, indent_size),
-            Self::MJAccordionElement(elt) => elt.print(f, pretty, level, indent_size),
+            Self::Comment(elt) => elt.print(pretty, level, indent_size),
+            Self::MJAccordionElement(elt) => elt.print(pretty, level, indent_size),
         }
     }
 }

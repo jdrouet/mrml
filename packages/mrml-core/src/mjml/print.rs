@@ -1,17 +1,21 @@
 use super::MJML;
-use crate::prelude::print::{print_close, print_open, Print};
+use crate::prelude::print::{self, Print};
 use std::fmt;
 
 impl Print for MJML {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
-        print_open(f, super::NAME, None, false, pretty, level, indent_size);
-        if let Some(head) = self.head.as_ref() {
-            head.print(f, pretty, level + 1, indent_size);
-        }
-        if let Some(body) = self.body.as_ref() {
-            body.print(f, pretty, level + 1, indent_size);
-        }
-        print_close(f, super::NAME, pretty, level, indent_size);
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        print::open(super::NAME, None, false, pretty, level, indent_size)
+            + &self
+                .head
+                .as_ref()
+                .map(|h| h.print(pretty, level + 1, indent_size))
+                .unwrap_or_default()
+            + &self
+                .body
+                .as_ref()
+                .map(|b| b.print(pretty, level + 1, indent_size))
+                .unwrap_or_default()
+            + &print::close(super::NAME, pretty, level, indent_size)
     }
 }
 

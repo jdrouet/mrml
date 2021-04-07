@@ -1,25 +1,27 @@
 use super::MJAccordionElement;
-use crate::prelude::print::{print_close, print_open, Print};
+use crate::prelude::print::{self, Print};
 use std::fmt;
 
 impl Print for MJAccordionElement {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
-        print_open(
-            f,
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        print::open(
             super::NAME,
             Some(&self.attributes),
             false,
             pretty,
             level,
             indent_size,
-        );
-        if let Some(ref child) = self.title {
-            child.print(f, pretty, level + 1, indent_size);
-        }
-        if let Some(ref child) = self.text {
-            child.print(f, pretty, level + 1, indent_size);
-        }
-        print_close(f, super::NAME, pretty, level, indent_size);
+        ) + &self
+            .title
+            .as_ref()
+            .map(|title| title.print(pretty, level + 1, indent_size))
+            .unwrap_or_default()
+            + &self
+                .text
+                .as_ref()
+                .map(|text| text.print(pretty, level + 1, indent_size))
+                .unwrap_or_default()
+            + &print::close(super::NAME, pretty, level, indent_size)
     }
 }
 

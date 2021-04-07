@@ -1,24 +1,13 @@
 use super::MJBreakpoint;
-use crate::prelude::print::{print_open, Print};
+use crate::prelude::print::{self, Print};
 use std::collections::HashMap;
 use std::fmt;
 
 impl Print for MJBreakpoint {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         let mut attrs = HashMap::<String, String>::new();
         attrs.insert("value".to_string(), self.value.clone());
-        print_open(
-            f,
-            super::NAME,
-            Some(&attrs),
-            true,
-            pretty,
-            level,
-            indent_size,
-        );
-        if pretty {
-            f.push('\n');
-        }
+        print::open(super::NAME, Some(&attrs), true, pretty, level, indent_size)
     }
 }
 

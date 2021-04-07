@@ -1,18 +1,17 @@
 use super::MJCarouselImage;
-use crate::prelude::print::{print_open, Print};
+use crate::prelude::print::{self, Print};
 use std::fmt;
 
 impl Print for MJCarouselImage {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
-        print_open(
-            f,
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        print::open(
             super::NAME,
             Some(&self.attributes),
             true,
             pretty,
             level,
             indent_size,
-        );
+        )
     }
 }
 

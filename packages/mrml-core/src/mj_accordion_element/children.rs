@@ -23,11 +23,11 @@ from_child!(MJAccordionElementChild, MJAccordionText);
 from_child!(MJAccordionElementChild, MJAccordionTitle);
 
 impl Print for MJAccordionElementChild {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         match self {
-            Self::Comment(elt) => elt.print(f, pretty, level, indent_size),
-            Self::MJAccordionText(elt) => elt.print(f, pretty, level, indent_size),
-            Self::MJAccordionTitle(elt) => elt.print(f, pretty, level, indent_size),
+            Self::Comment(elt) => elt.print(pretty, level, indent_size),
+            Self::MJAccordionText(elt) => elt.print(pretty, level, indent_size),
+            Self::MJAccordionTitle(elt) => elt.print(pretty, level, indent_size),
         }
     }
 }

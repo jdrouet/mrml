@@ -4,6 +4,7 @@ use crate::mj_attributes_class::MJAttributesClass;
 use crate::mj_attributes_class::NAME as MJ_CLASS;
 use crate::mj_attributes_element::MJAttributesElement;
 use crate::prelude::parse::{Error as ParserError, Parsable};
+use crate::prelude::print::Print;
 use crate::{as_child, from_child};
 use xmlparser::{StrSpan, Tokenizer};
 
@@ -28,5 +29,21 @@ impl Parsable for MJAttributesChild {
             MJ_CLASS => Ok(MJAttributesClass::parse(tag, tokenizer)?.into()),
             _ => Ok(MJAttributesElement::parse(tag, tokenizer)?.into()),
         }
+    }
+}
+
+impl MJAttributesChild {
+    fn as_print(&self) -> &dyn Print {
+        match self {
+            Self::MJAttributesAll(elt) => elt,
+            Self::MJAttributesClass(elt) => elt,
+            Self::MJAttributesElement(elt) => elt,
+        }
+    }
+}
+
+impl Print for MJAttributesChild {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        self.as_print().print(pretty, level, indent_size)
     }
 }

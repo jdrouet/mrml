@@ -49,6 +49,12 @@ impl MJHeadChild {
     }
 }
 
+impl Print for MJHeadChild {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        self.as_print().print(pretty, level, indent_size)
+    }
+}
+
 impl Parsable for MJHeadChild {
     fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {

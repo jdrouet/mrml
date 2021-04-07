@@ -1,25 +1,22 @@
 use super::Node;
-use crate::prelude::print::{print_close, print_indent, print_open, Print};
+use crate::prelude::print::{self, Print};
 use std::fmt;
 
 impl<T: Print> Print for Node<T> {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
-        print_open(
-            f,
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        print::open(
             &self.tag,
             Some(&self.attributes),
             false,
             pretty,
             level,
             indent_size,
-        );
-        if pretty {
-            print_indent(f, level + 1, indent_size);
-        }
-        self.children.iter().for_each(|child| {
-            child.print(f, pretty, level + 1, indent_size);
-        });
-        print_close(f, &self.tag, pretty, level, indent_size);
+        ) + &self
+            .children
+            .iter()
+            .map(|child| child.print(pretty, level + 1, indent_size))
+            .collect::<String>()
+            + &print::close(&self.tag, pretty, level, indent_size)
     }
 }
 

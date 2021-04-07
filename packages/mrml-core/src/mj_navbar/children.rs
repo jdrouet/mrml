@@ -18,10 +18,10 @@ from_child!(MJNavbarChild, Comment);
 from_child!(MJNavbarChild, MJNavbarLink);
 
 impl Print for MJNavbarChild {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         match self {
-            Self::Comment(elt) => elt.print(f, pretty, level, indent_size),
-            Self::MJNavbarLink(elt) => elt.print(f, pretty, level, indent_size),
+            Self::Comment(elt) => elt.print(pretty, level, indent_size),
+            Self::MJNavbarLink(elt) => elt.print(pretty, level, indent_size),
         }
     }
 }
