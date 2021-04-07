@@ -36,8 +36,8 @@ impl MJRawChild {
 }
 
 impl Print for MJRawChild {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
-        self.as_print().print(f, pretty, level, indent_size)
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        self.as_print().print(pretty, level, indent_size)
     }
 }
 

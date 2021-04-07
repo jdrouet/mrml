@@ -1,18 +1,17 @@
 use super::MJAttributesElement;
-use crate::prelude::print::{print_open, Print};
+use crate::prelude::print::{self, Print};
 use std::fmt;
 
 impl Print for MJAttributesElement {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
-        print_open(
-            f,
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        print::open(
             &self.name,
             Some(&self.attributes),
             true,
             pretty,
             level,
             indent_size,
-        );
+        )
     }
 }
 

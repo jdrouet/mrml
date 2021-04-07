@@ -18,10 +18,10 @@ from_child!(MJSocialChild, Comment);
 from_child!(MJSocialChild, MJSocialElement);
 
 impl Print for MJSocialChild {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize) {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         match self {
-            Self::Comment(elt) => elt.print(f, pretty, level, indent_size),
-            Self::MJSocialElement(elt) => elt.print(f, pretty, level, indent_size),
+            Self::Comment(elt) => elt.print(pretty, level, indent_size),
+            Self::MJSocialElement(elt) => elt.print(pretty, level, indent_size),
         }
     }
 }

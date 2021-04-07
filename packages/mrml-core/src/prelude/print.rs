@@ -2,75 +2,68 @@ use crate::helper::sort::sort_by_key;
 use std::collections::HashMap;
 
 pub trait Print {
-    fn print(&self, f: &mut String, pretty: bool, level: usize, indent_size: usize);
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String;
 
     fn dense_print(&self) -> String {
-        let mut res = String::default();
-        self.print(&mut res, false, 0, 2);
-        res
+        self.print(false, 0, 2)
     }
 
     fn pretty_print(&self) -> String {
-        let mut res = String::default();
-        self.print(&mut res, true, 0, 2);
-        res
+        self.print(true, 0, 2)
     }
 }
 
-pub fn print_indent(f: &mut String, level: usize, indent_size: usize) {
+pub fn indent(level: usize, indent_size: usize, value: String) -> String {
     let spaces = level * indent_size;
-    for _ in 0..spaces {
-        f.push(' ');
-    }
+    let spaces = (0..spaces).map(|_| ' ').collect::<String>();
+    format!("{}{}\n", spaces, value)
 }
 
-pub fn print_attributes(f: &mut String, attrs: Option<&HashMap<String, String>>) {
-    if let Some(attrs) = attrs {
-        let mut entries: Vec<(&String, &String)> = attrs.iter().collect();
-        entries.sort_by(sort_by_key);
-        for (key, value) in attrs.iter() {
-            f.push(' ');
-            f.push_str(key);
-            f.push_str("=\"");
-            f.push_str(value);
-            f.push('"');
-        }
-    }
+pub fn attributes(attrs: Option<&HashMap<String, String>>) -> String {
+    attrs
+        .map(|attrs| {
+            let mut entries: Vec<(&String, &String)> = attrs.iter().collect();
+            entries.sort_by(sort_by_key);
+            entries
+                .iter()
+                .map(|(key, value)| format!(" {}=\"{}\"", key, value))
+                .collect::<String>()
+        })
+        .unwrap_or_default()
 }
 
-pub fn print_open(
-    f: &mut String,
+pub fn open(
     tag: &str,
     attrs: Option<&HashMap<String, String>>,
     closed: bool,
     pretty: bool,
     level: usize,
     indent_size: usize,
-) {
+) -> String {
     if pretty {
-        print_indent(f, level, indent_size);
-    }
-    f.push('<');
-    f.push_str(tag);
-    print_attributes(f, attrs);
-    if closed {
-        f.push_str(" />");
+        indent(
+            level,
+            indent_size,
+            open(tag, attrs, closed, false, level, indent_size),
+        )
     } else {
-        f.push('>');
-    }
-    if pretty {
-        f.push('\n');
+        let mut result = String::default();
+        result.push('<');
+        result.push_str(tag);
+        result.push_str(&attributes(attrs));
+        if closed {
+            result.push_str(" />");
+        } else {
+            result.push('>');
+        }
+        result
     }
 }
 
-pub fn print_close(f: &mut String, tag: &str, pretty: bool, level: usize, indent_size: usize) {
+pub fn close(tag: &str, pretty: bool, level: usize, indent_size: usize) -> String {
     if pretty {
-        print_indent(f, level, indent_size);
-    }
-    f.push_str("</");
-    f.push_str(tag);
-    f.push('>');
-    if pretty {
-        f.push('\n');
+        indent(level, indent_size, close(tag, false, level, indent_size))
+    } else {
+        format!("</{}>", tag)
     }
 }
