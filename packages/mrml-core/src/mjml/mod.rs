@@ -1,8 +1,11 @@
 use crate::mj_body::MJBody;
 use crate::mj_head::MJHead;
 
+#[cfg(feature = "parse")]
 pub mod parse;
+#[cfg(feature = "print")]
 mod print;
+#[cfg(feature = "render")]
 mod render;
 
 pub const NAME: &str = "mjml";

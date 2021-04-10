@@ -31,12 +31,16 @@ use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::MJWrapper;
 use crate::mj_wrapper::NAME as MJ_WRAPPER;
 use crate::node::Node;
+#[cfg(feature = "parse")]
 use crate::prelude::parse::{Error as ParserError, Parsable};
+#[cfg(feature = "print")]
 use crate::prelude::print::Print;
+#[cfg(feature = "render")]
 use crate::prelude::render::{Header, Render, Renderable};
 use crate::text::Text;
 use std::cell::RefCell;
 use std::rc::Rc;
+#[cfg(feature = "parse")]
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
@@ -111,21 +115,25 @@ impl From<Node<MJBodyChild>> for MJBodyChild {
 }
 
 impl MJBodyChild {
+    #[cfg(feature = "render")]
     pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
         inner!(self)
     }
 
+    #[cfg(feature = "print")]
     pub fn as_print<'p>(&'p self) -> &'p (dyn Print + 'p) {
         inner!(self)
     }
 }
 
+#[cfg(feature = "print")]
 impl Print for MJBodyChild {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         self.as_print().print(pretty, level, indent_size)
     }
 }
 
+#[cfg(feature = "parse")]
 impl Parsable for MJBodyChild {
     fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {
@@ -150,6 +158,7 @@ impl Parsable for MJBodyChild {
     }
 }
 
+#[cfg(feature = "render")]
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
     fn is_raw(&self) -> bool {
         self.as_renderable().is_raw()

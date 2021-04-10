@@ -9,9 +9,12 @@ use crate::mj_preview::MJPreview;
 use crate::mj_preview::NAME as MJ_PREVIEW;
 use crate::mj_title::MJTitle;
 use crate::mj_title::NAME as MJ_TITLE;
+#[cfg(feature = "parse")]
 use crate::prelude::parse::{Error as ParserError, Parsable};
+#[cfg(feature = "print")]
 use crate::prelude::print::Print;
 use crate::{as_child, from_child};
+#[cfg(feature = "parse")]
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
@@ -36,6 +39,7 @@ from_child!(MJHeadChild, MJPreview);
 as_child!(MJHeadChild, MJTitle, as_mj_title);
 from_child!(MJHeadChild, MJTitle);
 
+#[cfg(feature = "print")]
 impl MJHeadChild {
     pub fn as_print<'p>(&'p self) -> &'p (dyn Print + 'p) {
         match self {
@@ -49,12 +53,14 @@ impl MJHeadChild {
     }
 }
 
+#[cfg(feature = "print")]
 impl Print for MJHeadChild {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         self.as_print().print(pretty, level, indent_size)
     }
 }
 
+#[cfg(feature = "parse")]
 impl Parsable for MJHeadChild {
     fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {

@@ -1,6 +1,9 @@
 mod children;
+#[cfg(feature = "parse")]
 mod parse;
+#[cfg(feature = "print")]
 mod print;
+#[cfg(feature = "render")]
 mod render;
 
 use std::collections::HashMap;

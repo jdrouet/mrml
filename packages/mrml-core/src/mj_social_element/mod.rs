@@ -1,7 +1,10 @@
 mod children;
 mod network;
+#[cfg(feature = "parse")]
 mod parse;
+#[cfg(feature = "print")]
 mod print;
+#[cfg(feature = "render")]
 mod render;
 
 pub use children::MJSocialElementChild;

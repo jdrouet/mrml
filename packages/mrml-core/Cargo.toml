@@ -14,12 +14,17 @@ include = ["src/*", "Cargo.toml"]
 codecov = { repository = "jdrouet/mrml", branch = "main" }
 travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 
+[features]
+default = ["parse", "print", "render"]
+parse = ["xmlparser"]
+print = []
+render = ["rand"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rand = { default-features = false, features = ["std", "std_rng"], version = "0.8" }
-xmlparser = "0.13"
+rand = { default-features = false, features = ["std", "std_rng"], version = "0.8", optional = true }
+xmlparser = { version = "0.13", optional = true }
 
 [dev-dependencies]
 criterion = "0.3"
