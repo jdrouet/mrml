@@ -3,9 +3,12 @@ use crate::mj_attributes_all::NAME as MJ_ALL;
 use crate::mj_attributes_class::MJAttributesClass;
 use crate::mj_attributes_class::NAME as MJ_CLASS;
 use crate::mj_attributes_element::MJAttributesElement;
+#[cfg(feature = "parse")]
 use crate::prelude::parse::{Error as ParserError, Parsable};
+#[cfg(feature = "print")]
 use crate::prelude::print::Print;
 use crate::{as_child, from_child};
+#[cfg(feature = "parse")]
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
@@ -22,6 +25,7 @@ from_child!(MJAttributesChild, MJAttributesClass);
 as_child!(MJAttributesChild, MJAttributesElement, as_element);
 from_child!(MJAttributesChild, MJAttributesElement);
 
+#[cfg(feature = "parse")]
 impl Parsable for MJAttributesChild {
     fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
         match tag.as_str() {
@@ -32,6 +36,7 @@ impl Parsable for MJAttributesChild {
     }
 }
 
+#[cfg(feature = "print")]
 impl MJAttributesChild {
     fn as_print(&self) -> &dyn Print {
         match self {
@@ -42,6 +47,7 @@ impl MJAttributesChild {
     }
 }
 
+#[cfg(feature = "print")]
 impl Print for MJAttributesChild {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         self.as_print().print(pretty, level, indent_size)

@@ -1,4 +1,6 @@
+#[cfg(feature = "parse")]
 mod parse;
+#[cfg(feature = "print")]
 mod print;
 
 pub const NAME: &str = "mj-preview";

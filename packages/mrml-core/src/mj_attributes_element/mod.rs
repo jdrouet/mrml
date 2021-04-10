@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
+#[cfg(feature = "parse")]
 mod parse;
+#[cfg(feature = "print")]
 mod print;
 
 #[derive(Debug, Default)]

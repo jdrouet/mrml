@@ -1,5 +1,7 @@
 mod children;
+#[cfg(feature = "parse")]
 mod parse;
+#[cfg(feature = "print")]
 mod print;
 
 pub use children::MJAttributesChild;

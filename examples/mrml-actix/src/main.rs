@@ -2,7 +2,6 @@ use actix_multipart::{Field, Multipart};
 use actix_web::{middleware, post, web, App, HttpResponse, HttpServer, Responder};
 use bytes::buf::{Buf, BufMut};
 use futures::TryStreamExt;
-use mrml;
 use std::env;
 
 fn get_address() -> String {
@@ -42,7 +41,15 @@ async fn render(payload: Multipart) -> impl Responder {
         Some(value) => value,
         None => return HttpResponse::BadRequest().body("template missing"),
     };
-    match mrml::to_html(template.as_str(), mrml::Options::default()) {
+    let root = match mrml::parse(template) {
+        Ok(value) => value,
+        Err(err) => {
+            return HttpResponse::BadRequest()
+                .body(format!("template error: {:?}", err.to_string()));
+        }
+    };
+    let opts = mrml::prelude::render::Options::default();
+    match root.render(&opts) {
         Ok(value) => HttpResponse::Ok().body(value),
         Err(err) => HttpResponse::BadRequest().body(format!("error: {:?}", err)),
     }
