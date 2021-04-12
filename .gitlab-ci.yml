@@ -4,9 +4,7 @@ stages:
 
 lint-clippy:
   stage: lint
-  image: rust:latest
-  before_script:
-    - rustup component add clippy
+  image: jdrouet/clippy:alpine
   script:
     - cargo clippy -- -D warnings -A clippy::upper-case-acronyms
 
