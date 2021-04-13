@@ -1,3 +1,5 @@
+#[cfg(feature = "json")]
+mod json;
 #[cfg(feature = "print")]
 mod print;
 #[cfg(feature = "render")]
