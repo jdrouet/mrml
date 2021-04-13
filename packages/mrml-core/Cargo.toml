@@ -15,7 +15,8 @@ codecov = { repository = "jdrouet/mrml", branch = "main" }
 travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 
 [features]
-default = ["parse", "print", "render"]
+default = ["json", "parse", "print", "render"]
+json = ["serde", "serde_json"]
 parse = ["xmlparser"]
 print = []
 render = ["rand"]
@@ -24,6 +25,8 @@ render = ["rand"]
 
 [dependencies]
 rand = { default-features = false, features = ["std", "std_rng"], version = "0.8", optional = true }
+serde = { version = "1.0", optional = true }
+serde_json = { version = "1.0", optional = true }
 xmlparser = { version = "0.13", optional = true }
 
 [dev-dependencies]
