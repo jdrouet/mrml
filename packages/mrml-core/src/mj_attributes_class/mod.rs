@@ -24,3 +24,13 @@ impl MJAttributesClass {
         &self.attributes
     }
 }
+
+#[cfg(test)]
+impl MJAttributesClass {
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            attributes: HashMap::default(),
+        }
+    }
+}

@@ -12,6 +12,8 @@ use crate::{as_child, from_child};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
+#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", serde(untagged))]
 pub enum MJAttributesChild {
     MJAttributesAll(MJAttributesAll),
     MJAttributesClass(MJAttributesClass),
