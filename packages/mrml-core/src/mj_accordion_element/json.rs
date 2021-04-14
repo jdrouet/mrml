@@ -1,4 +1,5 @@
 use super::{MJAccordionElement, MJAccordionElementChild, MJAccordionElementChildren, NAME};
+use crate::json_attrs_and_children_serializer;
 use serde::de::{Error, MapAccess, SeqAccess, Visitor};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -57,22 +58,7 @@ impl<'de> Deserialize<'de> for MJAccordionElementChildren {
     }
 }
 
-impl Serialize for MJAccordionElement {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(3))?;
-        map.serialize_entry("type", NAME)?;
-        if !self.attributes.is_empty() {
-            map.serialize_entry("attributes", &self.attributes)?;
-        }
-        if self.children.title.is_some() || self.children.text.is_some() {
-            map.serialize_entry("children", &self.children)?;
-        }
-        map.end()
-    }
-}
+json_attrs_and_children_serializer!(MJAccordionElement, NAME);
 
 #[derive(Default)]
 struct MJAccordionElementVisitor;

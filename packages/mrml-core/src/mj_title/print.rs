@@ -7,7 +7,7 @@ impl Print for MJTitle {
         if pretty {
             print::indent(level, indent_size, self.print(false, level, indent_size))
         } else {
-            format!("<{}>{}</{}>", super::NAME, self.0, super::NAME)
+            format!("<{}>{}</{}>", super::NAME, self.children, super::NAME)
         }
     }
 }

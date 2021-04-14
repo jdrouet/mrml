@@ -1,4 +1,5 @@
 use super::{MJMLChild, MJMLChildren, MJML, NAME};
+use crate::json_children_serializer;
 use serde::de::{Error, MapAccess, SeqAccess, Visitor};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -56,19 +57,7 @@ impl<'de> Deserialize<'de> for MJMLChildren {
     }
 }
 
-impl Serialize for MJML {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", NAME)?;
-        if self.children.head.is_some() || self.children.body.is_some() {
-            map.serialize_entry("children", &self.children)?;
-        }
-        map.end()
-    }
-}
+json_children_serializer!(MJML, NAME);
 
 #[derive(Default)]
 struct MJMLVisitor;

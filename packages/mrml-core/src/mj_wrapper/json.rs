@@ -1,27 +1,13 @@
 use super::{MJWrapper, NAME};
+use crate::json_attrs_and_children_serializer;
 use serde::de::{Error, MapAccess, Visitor};
 use serde::ser::SerializeMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer};
 use std::fmt;
 
 const FIELDS: [&str; 3] = ["type", "attributes", "children"];
 
-impl Serialize for MJWrapper {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(3))?;
-        map.serialize_entry("type", NAME)?;
-        if !self.attributes.is_empty() {
-            map.serialize_entry("attributes", &self.attributes)?;
-        }
-        if !self.children.is_empty() {
-            map.serialize_entry("children", &self.children)?;
-        }
-        map.end()
-    }
-}
+json_attrs_and_children_serializer!(MJWrapper, NAME);
 
 #[derive(Default)]
 struct MJWrapperVisitor;

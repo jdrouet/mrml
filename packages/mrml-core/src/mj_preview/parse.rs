@@ -13,7 +13,7 @@ impl Parser for MJPreviewParser {
     }
 
     fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.0 .0 = value.to_string();
+        self.0.children = value.to_string();
         Ok(())
     }
 }

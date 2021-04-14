@@ -1,24 +1,13 @@
 use super::{MJRaw, NAME};
+use crate::json_children_serializer;
 use serde::de::{Error, MapAccess, Visitor};
 use serde::ser::SerializeMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer};
 use std::fmt;
 
 const FIELDS: [&str; 2] = ["type", "children"];
 
-impl Serialize for MJRaw {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", NAME)?;
-        if !self.children.is_empty() {
-            map.serialize_entry("children", &self.children)?;
-        }
-        map.end()
-    }
-}
+json_children_serializer!(MJRaw, NAME);
 
 #[derive(Default)]
 struct MJRawVisitor;

@@ -25,6 +25,12 @@ struct MJMLChildren {
     body: Option<MJBody>,
 }
 
+impl MJMLChildren {
+    fn is_empty(&self) -> bool {
+        self.head.is_none() && self.body.is_none()
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct MJML {
     children: MJMLChildren,
