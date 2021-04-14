@@ -6,12 +6,12 @@ impl Print for MJML {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         print::open(super::NAME, None, false, pretty, level, indent_size)
             + &self
-                .head
+                .head()
                 .as_ref()
                 .map(|h| h.print(pretty, level + 1, indent_size))
                 .unwrap_or_default()
             + &self
-                .body
+                .body()
                 .as_ref()
                 .map(|b| b.print(pretty, level + 1, indent_size))
                 .unwrap_or_default()
@@ -27,7 +27,7 @@ impl fmt::Display for MJML {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::MJML;
+    use crate::mjml::{MJMLChildren, MJML};
     use crate::prelude::print::Print;
 
     #[test]
@@ -39,8 +39,10 @@ mod tests {
     #[test]
     fn with_body() {
         let item = MJML {
-            body: Some(crate::mj_body::MJBody::default()),
-            ..MJML::default()
+            children: MJMLChildren {
+                head: None,
+                body: Some(crate::mj_body::MJBody::default()),
+            },
         };
         assert_eq!("<mjml><mj-body></mj-body></mjml>", item.dense_print());
         assert_eq!(

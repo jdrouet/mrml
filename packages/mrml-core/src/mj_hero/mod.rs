@@ -1,6 +1,8 @@
 use crate::mj_body::MJBodyChild;
 use std::collections::HashMap;
 
+#[cfg(feature = "json")]
+mod json;
 #[cfg(feature = "parse")]
 mod parse;
 #[cfg(feature = "print")]

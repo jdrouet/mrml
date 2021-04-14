@@ -1,6 +1,8 @@
 use crate::mj_body::MJBody;
 use crate::mj_head::MJHead;
 
+#[cfg(feature = "json")]
+mod json;
 #[cfg(feature = "parse")]
 pub mod parse;
 #[cfg(feature = "print")]
@@ -10,18 +12,30 @@ mod render;
 
 pub const NAME: &str = "mjml";
 
+#[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "json", serde(untagged))]
+enum MJMLChild {
+    MJHead(MJHead),
+    MJBody(MJBody),
+}
+
 #[derive(Debug, Default)]
-pub struct MJML {
+struct MJMLChildren {
     head: Option<MJHead>,
     body: Option<MJBody>,
 }
 
+#[derive(Debug, Default)]
+pub struct MJML {
+    children: MJMLChildren,
+}
+
 impl MJML {
     pub fn body(&self) -> Option<&MJBody> {
-        self.body.as_ref()
+        self.children.body.as_ref()
     }
 
     pub fn head(&self) -> Option<&MJHead> {
-        self.head.as_ref()
+        self.children.head.as_ref()
     }
 }
