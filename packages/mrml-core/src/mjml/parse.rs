@@ -22,11 +22,11 @@ impl Parser for MJMLParser {
         match tag.as_str() {
             MJ_BODY => {
                 let elt = MJBody::parse(tag, tokenizer)?;
-                self.0.body = Some(elt);
+                self.0.children.body = Some(elt);
             }
             MJ_HEAD => {
                 let elt = MJHead::parse(tag, tokenizer)?;
-                self.0.head = Some(elt);
+                self.0.children.head = Some(elt);
             }
             _ => return Err(Error::UnexpectedElement(tag.start())),
         };
@@ -54,7 +54,7 @@ mod tests {
     fn simple() {
         let template = "<mjml></mjml>";
         let elt = MJML::parse(template).unwrap();
-        assert!(elt.body.is_none());
-        assert!(elt.head.is_none());
+        assert!(elt.children.body.is_none());
+        assert!(elt.children.head.is_none());
     }
 }

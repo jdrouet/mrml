@@ -48,7 +48,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJML {
 
 impl MJML {
     pub fn render(&self, opts: &Options) -> Result<String, Error> {
-        let header = Rc::new(RefCell::new(Header::new(&self.head)));
+        let header = Rc::new(RefCell::new(Header::new(&self.children.head)));
         self.renderer(header).render(opts)
     }
 
