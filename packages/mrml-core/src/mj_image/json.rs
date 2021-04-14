@@ -26,7 +26,7 @@ impl<'de> Visitor<'de> for MJImageVisitor {
     type Value = MJImage;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("an map with properties type and children")
+        formatter.write_str("an map with properties type and attributes")
     }
 
     fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>

@@ -4,7 +4,7 @@ use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
-const FIELDS: [&str; 2] = ["type", "attributes"];
+const FIELDS: [&str; 2] = ["type", "children"];
 
 impl Serialize for MJHead {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -13,7 +13,9 @@ impl Serialize for MJHead {
     {
         let mut map = serializer.serialize_map(Some(2))?;
         map.serialize_entry("type", NAME)?;
-        map.serialize_entry("children", &self.children)?;
+        if !self.children.is_empty() {
+            map.serialize_entry("children", &self.children)?;
+        }
         map.end()
     }
 }
@@ -25,7 +27,7 @@ impl<'de> Visitor<'de> for MJHeadVisitor {
     type Value = MJHead;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("an map with properties type and attributes")
+        formatter.write_str("an map with properties type and children")
     }
 
     fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
@@ -66,7 +68,7 @@ mod tests {
         let elt = MJHead::default();
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-head","children":[]}"#
+            r#"{"type":"mj-head"}"#
         );
     }
 

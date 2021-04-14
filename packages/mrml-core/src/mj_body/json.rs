@@ -11,10 +11,14 @@ impl Serialize for MJBody {
     where
         S: Serializer,
     {
-        let mut map = serializer.serialize_map(Some(2))?;
+        let mut map = serializer.serialize_map(Some(3))?;
         map.serialize_entry("type", NAME)?;
-        map.serialize_entry("attributes", &self.attributes)?;
-        map.serialize_entry("children", &self.children)?;
+        if !self.attributes.is_empty() {
+            map.serialize_entry("attributes", &self.attributes)?;
+        }
+        if !self.children.is_empty() {
+            map.serialize_entry("children", &self.children)?;
+        }
         map.end()
     }
 }

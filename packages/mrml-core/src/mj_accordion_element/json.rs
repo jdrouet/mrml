@@ -62,10 +62,14 @@ impl Serialize for MJAccordionElement {
     where
         S: Serializer,
     {
-        let mut map = serializer.serialize_map(Some(2))?;
+        let mut map = serializer.serialize_map(Some(3))?;
         map.serialize_entry("type", NAME)?;
-        map.serialize_entry("attributes", &self.attributes)?;
-        map.serialize_entry("children", &self.children)?;
+        if !self.attributes.is_empty() {
+            map.serialize_entry("attributes", &self.attributes)?;
+        }
+        if self.children.title.is_some() || self.children.text.is_some() {
+            map.serialize_entry("children", &self.children)?;
+        }
         map.end()
     }
 }
@@ -122,13 +126,13 @@ mod tests {
             .insert("margin".to_string(), "12px".to_string());
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"},"children":[]}"#
+            r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"}}"#
         );
     }
 
     #[test]
     fn deserialize() {
-        let json = r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"},"children":[{"type":"mj-accordion-title","attributes":{},"children":[]},{"type":"mj-accordion-text","attributes":{},"children":[]}]}"#;
+        let json = r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"},"children":[{"type":"mj-accordion-title"},{"type":"mj-accordion-text"}]}"#;
         let res: MJAccordionElement = serde_json::from_str(json).unwrap();
         assert!(res.children.text.is_some());
         assert!(res.children.title.is_some());
