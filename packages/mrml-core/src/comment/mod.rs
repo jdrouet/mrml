@@ -6,11 +6,13 @@ mod print;
 mod render;
 
 #[derive(Debug)]
-pub struct Comment(String);
+pub struct Comment {
+    children: String,
+}
 
 impl From<String> for Comment {
-    fn from(value: String) -> Self {
-        Self(value)
+    fn from(children: String) -> Self {
+        Self { children }
     }
 }
 

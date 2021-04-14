@@ -7,7 +7,7 @@ impl Print for Comment {
         if pretty {
             print::indent(level, indent_size, self.print(false, level, indent_size))
         } else {
-            format!("<!--{}-->", self.0)
+            format!("<!--{}-->", self.children)
         }
     }
 }
