@@ -1,15 +1,15 @@
-use super::MJBreakpoint;
+use super::{MJBreakpoint, MJBreakpointAttributes};
 use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
-struct MJBreakpointParser(MJBreakpoint);
+struct MJBreakpointParser(MJBreakpointAttributes);
 
 impl Parser for MJBreakpointParser {
     type Output = MJBreakpoint;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.0)
+        Ok(MJBreakpoint { attributes: self.0 })
     }
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {

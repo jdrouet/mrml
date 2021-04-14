@@ -6,7 +6,7 @@ use std::fmt;
 impl Print for MJBreakpoint {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         let mut attrs = HashMap::<String, String>::new();
-        attrs.insert("value".to_string(), self.value.clone());
+        attrs.insert("value".to_string(), self.attributes.value.clone());
         print::open(super::NAME, Some(&attrs), true, pretty, level, indent_size)
     }
 }
@@ -19,12 +19,15 @@ impl fmt::Display for MJBreakpoint {
 
 #[cfg(test)]
 mod tests {
+    use crate::mj_breakpoint::{MJBreakpoint, MJBreakpointAttributes};
     use crate::prelude::print::Print;
 
     #[test]
     fn normal() {
-        let item = crate::mj_breakpoint::MJBreakpoint {
-            value: String::from("10px"),
+        let item = MJBreakpoint {
+            attributes: MJBreakpointAttributes {
+                value: String::from("10px"),
+            },
         };
         assert_eq!("<mj-breakpoint value=\"10px\" />", item.dense_print());
     }
