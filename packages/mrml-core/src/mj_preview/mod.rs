@@ -8,17 +8,19 @@ mod print;
 pub const NAME: &str = "mj-preview";
 
 #[derive(Debug, Default)]
-pub struct MJPreview(String);
+pub struct MJPreview {
+    children: String,
+}
 
 impl MJPreview {
     pub fn content(&self) -> &str {
-        &self.0
+        &self.children
     }
 }
 
 impl From<String> for MJPreview {
-    fn from(value: String) -> Self {
-        Self(value)
+    fn from(children: String) -> Self {
+        Self { children }
     }
 }
 

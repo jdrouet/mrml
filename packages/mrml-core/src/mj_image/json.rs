@@ -1,23 +1,14 @@
 use super::{MJImage, NAME};
+use crate::json_attrs_serializer;
 use serde::de::{Error, MapAccess, Visitor};
 use serde::ser::SerializeMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 use std::fmt;
 
 const FIELDS: [&str; 2] = ["type", "attributes"];
 
-impl Serialize for MJImage {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", NAME)?;
-        map.serialize_entry("attributes", &self.attributes)?;
-        map.end()
-    }
-}
+json_attrs_serializer!(MJImage, NAME);
 
 #[derive(Default)]
 struct MJImageVisitor;

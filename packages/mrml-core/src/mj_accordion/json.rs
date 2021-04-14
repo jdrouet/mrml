@@ -1,23 +1,13 @@
 use super::{MJAccordion, NAME};
+use crate::json_attrs_and_children_serializer;
 use serde::de::{Error, MapAccess, Visitor};
 use serde::ser::SerializeMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer};
 use std::fmt;
 
 const FIELDS: [&str; 3] = ["type", "attributes", "children"];
 
-impl Serialize for MJAccordion {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(3))?;
-        map.serialize_entry("type", NAME)?;
-        map.serialize_entry("attributes", &self.attributes)?;
-        map.serialize_entry("children", &self.children)?;
-        map.end()
-    }
-}
+json_attrs_and_children_serializer!(MJAccordion, NAME);
 
 #[derive(Default)]
 struct MJAccordionVisitor;
@@ -69,13 +59,13 @@ mod tests {
         let elt = MJAccordion::default();
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-accordion","attributes":{},"children":[]}"#
+            r#"{"type":"mj-accordion"}"#
         );
     }
 
     #[test]
     fn deserialize() {
-        let json = r#"{"type":"mj-accordion","attributes":{"margin":"42px","text-align":"left"},"children":[{"type":"mj-accordion-element","attributes":{},"children":[]}]}"#;
+        let json = r#"{"type":"mj-accordion","attributes":{"margin":"42px","text-align":"left"},"children":[{"type":"mj-accordion-element"}]}"#;
         let res: MJAccordion = serde_json::from_str(&json).unwrap();
         assert_eq!(res.attributes.len(), 2);
         assert_eq!(res.children.len(), 1);

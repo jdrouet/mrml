@@ -1,22 +1,13 @@
 use super::{MJTitle, NAME};
+use crate::json_children_serializer;
 use serde::de::{Error, MapAccess, Visitor};
 use serde::ser::SerializeMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer};
 use std::fmt;
 
 const FIELDS: [&str; 2] = ["type", "children"];
 
-impl Serialize for MJTitle {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", NAME)?;
-        map.serialize_entry("children", &self.0)?;
-        map.end()
-    }
-}
+json_children_serializer!(MJTitle, NAME);
 
 #[derive(Default)]
 struct MJTitleVisitor;
@@ -44,7 +35,7 @@ impl<'de> Visitor<'de> for MJTitleVisitor {
                 return Err(M::Error::unknown_field(&key, &FIELDS));
             }
         }
-        Ok(MJTitle(result))
+        Ok(MJTitle::from(result))
     }
 }
 
@@ -63,7 +54,7 @@ mod tests {
 
     #[test]
     fn serialize() {
-        let elt = MJTitle("Hello World".to_string());
+        let elt = MJTitle::from("Hello World");
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-title","children":"Hello World"}"#
@@ -72,9 +63,9 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MJTitle("Hello World".to_string());
+        let elt = MJTitle::from("Hello World");
         let json = serde_json::to_string(&elt).unwrap();
         let res: MJTitle = serde_json::from_str(&json).unwrap();
-        assert_eq!(res.0, elt.0);
+        assert_eq!(res.children, elt.children);
     }
 }

@@ -8,17 +8,19 @@ mod print;
 pub const NAME: &str = "mj-title";
 
 #[derive(Debug, Default)]
-pub struct MJTitle(String);
+pub struct MJTitle {
+    children: String,
+}
 
 impl MJTitle {
     pub fn content(&self) -> &str {
-        &self.0
+        &self.children
     }
 }
 
 impl From<String> for MJTitle {
-    fn from(value: String) -> Self {
-        Self(value)
+    fn from(children: String) -> Self {
+        Self { children }
     }
 }
 
