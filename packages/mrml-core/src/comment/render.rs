@@ -17,7 +17,7 @@ impl<'e, 'h> Render<'h> for CommentRender<'e, 'h> {
         if opts.disable_comments {
             Ok(String::default())
         } else {
-            Ok(String::from("<!--") + &self.element.0 + "-->")
+            Ok(String::from("<!--") + &self.element.children + "-->")
         }
     }
 }

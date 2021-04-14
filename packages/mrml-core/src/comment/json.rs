@@ -1,23 +1,14 @@
 use super::Comment;
+use crate::json_children_serializer;
 use serde::de::{Error, MapAccess, Visitor};
 use serde::ser::SerializeMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer};
 use std::fmt;
 
 const NAME: &str = "comment";
 const FIELDS: [&str; 2] = ["type", "children"];
 
-impl Serialize for Comment {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("type", NAME)?;
-        map.serialize_entry("children", &self.0)?;
-        map.end()
-    }
-}
+json_children_serializer!(Comment, NAME);
 
 #[derive(Default)]
 struct CommentVisitor;
@@ -45,7 +36,7 @@ impl<'de> Visitor<'de> for CommentVisitor {
                 return Err(M::Error::unknown_field(&key, &FIELDS));
             }
         }
-        Ok(Comment(result))
+        Ok(Comment::from(result))
     }
 }
 
@@ -64,7 +55,7 @@ mod tests {
 
     #[test]
     fn serialize() {
-        let elt = Comment("Hello World".to_string());
+        let elt = Comment::from("Hello World");
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"comment","children":"Hello World"}"#
@@ -73,9 +64,9 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = Comment("Hello World".to_string());
+        let elt = Comment::from("Hello World");
         let json = serde_json::to_string(&elt).unwrap();
         let res: Comment = serde_json::from_str(&json).unwrap();
-        assert_eq!(res.0, elt.0);
+        assert_eq!(res.children, elt.children);
     }
 }
