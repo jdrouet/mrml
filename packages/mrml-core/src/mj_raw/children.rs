@@ -14,6 +14,8 @@ use std::rc::Rc;
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
+#[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "json", serde(untagged))]
 pub enum MJRawChild {
     Comment(Comment),
     Node(Node<MJRawChild>),
