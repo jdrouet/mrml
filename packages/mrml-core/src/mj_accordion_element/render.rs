@@ -28,7 +28,7 @@ struct MJAccordionElementRender<'e, 'h> {
 
 impl<'e, 'h> MJAccordionElementRender<'e, 'h> {
     fn render_title(&self, opts: &Options) -> Result<String, Error> {
-        if let Some(ref child) = self.element.title {
+        if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
@@ -45,7 +45,7 @@ impl<'e, 'h> MJAccordionElementRender<'e, 'h> {
     }
 
     fn render_text(&self, opts: &Options) -> Result<String, Error> {
-        if let Some(ref child) = self.element.text {
+        if let Some(ref child) = self.element.children.text {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));

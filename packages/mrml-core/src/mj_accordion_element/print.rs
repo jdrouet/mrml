@@ -12,11 +12,13 @@ impl Print for MJAccordionElement {
             level,
             indent_size,
         ) + &self
+            .children
             .title
             .as_ref()
             .map(|title| title.print(pretty, level + 1, indent_size))
             .unwrap_or_default()
             + &self
+                .children
                 .text
                 .as_ref()
                 .map(|text| text.print(pretty, level + 1, indent_size))

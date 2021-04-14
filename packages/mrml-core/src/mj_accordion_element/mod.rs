@@ -1,4 +1,6 @@
 mod children;
+#[cfg(feature = "json")]
+mod json;
 #[cfg(feature = "parse")]
 mod parse;
 #[cfg(feature = "print")]
@@ -15,8 +17,13 @@ pub use children::MJAccordionElementChild;
 pub const NAME: &str = "mj-accordion-element";
 
 #[derive(Debug, Default)]
-pub struct MJAccordionElement {
-    attributes: HashMap<String, String>,
+struct MJAccordionElementChildren {
     title: Option<MJAccordionTitle>,
     text: Option<MJAccordionText>,
+}
+
+#[derive(Debug, Default)]
+pub struct MJAccordionElement {
+    attributes: HashMap<String, String>,
+    children: MJAccordionElementChildren,
 }

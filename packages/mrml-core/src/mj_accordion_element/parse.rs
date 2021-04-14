@@ -23,8 +23,12 @@ impl Parser for MJAccordionElementParser {
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
         match tag.as_str() {
-            MJ_ACCORDION_TEXT => self.0.text = Some(MJAccordionText::parse(tag, tokenizer)?),
-            MJ_ACCORDION_TITLE => self.0.title = Some(MJAccordionTitle::parse(tag, tokenizer)?),
+            MJ_ACCORDION_TEXT => {
+                self.0.children.text = Some(MJAccordionText::parse(tag, tokenizer)?)
+            }
+            MJ_ACCORDION_TITLE => {
+                self.0.children.title = Some(MJAccordionTitle::parse(tag, tokenizer)?)
+            }
             _ => return Err(Error::UnexpectedElement(tag.start())),
         };
         Ok(())
