@@ -8,12 +8,12 @@ impl Print for MJFont {
         format!(
             "<{} name=\"{}\" href=\"{}\" />",
             super::NAME,
-            self.name,
-            self.href
+            self.name(),
+            self.href()
         );
         let mut attrs = HashMap::new();
-        attrs.insert("name".to_string(), self.name.clone());
-        attrs.insert("href".to_string(), self.href.clone());
+        attrs.insert("name".to_string(), self.name().to_string());
+        attrs.insert("href".to_string(), self.href().to_string());
         print::open(super::NAME, Some(&attrs), true, pretty, level, indent_size)
     }
 }
@@ -26,13 +26,16 @@ impl fmt::Display for MJFont {
 
 #[cfg(test)]
 mod tests {
+    use crate::mj_font::{MJFont, MJFontAttributes};
     use crate::prelude::print::Print;
 
     #[test]
     fn normal() {
-        let item = crate::mj_font::MJFont {
-            name: String::from("Comic sans MS"),
-            href: String::from("http://localhost"),
+        let item = MJFont {
+            attributes: MJFontAttributes {
+                name: String::from("Comic sans MS"),
+                href: String::from("http://localhost"),
+            },
         };
         assert_eq!(
             "<mj-font href=\"http://localhost\" name=\"Comic sans MS\" />",

@@ -1,15 +1,15 @@
-use super::MJFont;
+use super::{MJFont, MJFontAttributes};
 use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
-struct MJFontParser(MJFont);
+struct MJFontParser(MJFontAttributes);
 
 impl Parser for MJFontParser {
     type Output = MJFont;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.0)
+        Ok(MJFont { attributes: self.0 })
     }
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
