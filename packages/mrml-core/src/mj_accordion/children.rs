@@ -13,6 +13,8 @@ use std::rc::Rc;
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
+#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", serde(untagged))]
 pub enum MJAccordionChild {
     Comment(Comment),
     MJAccordionElement(MJAccordionElement),
