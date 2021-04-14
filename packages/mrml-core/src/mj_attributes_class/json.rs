@@ -11,7 +11,7 @@ impl Serialize for MJAttributesClass {
     where
         S: Serializer,
     {
-        let mut map = serializer.serialize_map(Some(2))?;
+        let mut map = serializer.serialize_map(Some(3))?;
         map.serialize_entry("type", NAME)?;
         map.serialize_entry("name", self.name())?;
         if !self.attributes.is_empty() {
@@ -28,7 +28,7 @@ impl<'de> Visitor<'de> for MJAttributesClassVisitor {
     type Value = MJAttributesClass;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("an map with properties type and attributes")
+        formatter.write_str("an map with properties type, name and attributes")
     }
 
     fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>

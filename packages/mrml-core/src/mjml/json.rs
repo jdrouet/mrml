@@ -63,7 +63,9 @@ impl Serialize for MJML {
     {
         let mut map = serializer.serialize_map(Some(2))?;
         map.serialize_entry("type", NAME)?;
-        map.serialize_entry("children", &self.children)?;
+        if self.children.head.is_some() || self.children.body.is_some() {
+            map.serialize_entry("children", &self.children)?;
+        }
         map.end()
     }
 }
@@ -114,15 +116,12 @@ mod tests {
     #[test]
     fn serialize() {
         let elt = MJML::default();
-        assert_eq!(
-            serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mjml","children":[]}"#
-        );
+        assert_eq!(serde_json::to_string(&elt).unwrap(), r#"{"type":"mjml"}"#);
     }
 
     #[test]
     fn deserialize() {
-        let json = r#"{"type":"mjml","children":[{"type":"mj-head","children":[]},{"type":"mj-body","attributes":{},"children":["Hello World!"]}]}"#;
+        let json = r#"{"type":"mjml","children":[{"type":"mj-head"},{"type":"mj-body","children":["Hello World!"]}]}"#;
         let res: MJML = serde_json::from_str(json).unwrap();
         assert!(res.children.head.is_some());
         assert!(res.children.body.is_some());

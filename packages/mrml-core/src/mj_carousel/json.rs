@@ -4,17 +4,21 @@ use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
-const FIELDS: [&str; 2] = ["type", "attributes"];
+const FIELDS: [&str; 3] = ["type", "attributes", "children"];
 
 impl Serialize for MJCarousel {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let mut map = serializer.serialize_map(Some(2))?;
+        let mut map = serializer.serialize_map(Some(3))?;
         map.serialize_entry("type", NAME)?;
-        map.serialize_entry("attributes", &self.attributes)?;
-        map.serialize_entry("children", &self.children)?;
+        if !self.attributes.is_empty() {
+            map.serialize_entry("attributes", &self.attributes)?;
+        }
+        if !self.children.is_empty() {
+            map.serialize_entry("children", &self.children)?;
+        }
         map.end()
     }
 }
@@ -26,7 +30,7 @@ impl<'de> Visitor<'de> for MJCarouselVisitor {
     type Value = MJCarousel;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("an map with properties type and attributes")
+        formatter.write_str("an map with properties type, attributes and children")
     }
 
     fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
@@ -70,7 +74,7 @@ mod tests {
         elt.attributes.insert("margin".into(), "42px".into());
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-carousel","attributes":{"margin":"42px"},"children":[]}"#
+            r#"{"type":"mj-carousel","attributes":{"margin":"42px"}}"#
         );
     }
 

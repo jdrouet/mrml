@@ -13,7 +13,9 @@ impl Serialize for MJRaw {
     {
         let mut map = serializer.serialize_map(Some(2))?;
         map.serialize_entry("type", NAME)?;
-        map.serialize_entry("children", &self.children)?;
+        if !self.children.is_empty() {
+            map.serialize_entry("children", &self.children)?;
+        }
         map.end()
     }
 }

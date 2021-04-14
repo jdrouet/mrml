@@ -13,7 +13,9 @@ impl Serialize for MJCarouselImage {
     {
         let mut map = serializer.serialize_map(Some(2))?;
         map.serialize_entry("type", NAME)?;
-        map.serialize_entry("attributes", &self.attributes)?;
+        if !self.attributes.is_empty() {
+            map.serialize_entry("attributes", &self.attributes)?;
+        }
         map.end()
     }
 }
