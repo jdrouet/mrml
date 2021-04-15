@@ -5,7 +5,7 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Comment {
     children: String,
 }
