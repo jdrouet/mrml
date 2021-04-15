@@ -1,24 +1,7 @@
-use super::MJHead;
-use crate::prelude::print::{self, Print};
-use std::fmt;
+use super::{MJHead, NAME};
+use crate::print_children;
 
-impl Print for MJHead {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        print::open(super::NAME, None, false, pretty, level, indent_size)
-            + &self
-                .children
-                .iter()
-                .map(|child| child.print(pretty, level + 1, indent_size))
-                .collect::<String>()
-            + &print::close(super::NAME, pretty, level, indent_size)
-    }
-}
-
-impl fmt::Display for MJHead {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_children!(MJHead, NAME);
 
 #[cfg(test)]
 mod tests {

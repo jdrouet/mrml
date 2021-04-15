@@ -1,6 +1,6 @@
 use super::MJAccordionElement;
 use crate::prelude::print::{self, Print};
-use std::fmt;
+use crate::print_display;
 
 impl Print for MJAccordionElement {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -27,11 +27,7 @@ impl Print for MJAccordionElement {
     }
 }
 
-impl fmt::Display for MJAccordionElement {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_display!(MJAccordionElement);
 
 #[cfg(test)]
 mod tests {

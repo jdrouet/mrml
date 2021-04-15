@@ -1,6 +1,6 @@
 use super::Comment;
 use crate::prelude::print::{self, Print};
-use std::fmt;
+use crate::print_display;
 
 impl Print for Comment {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -12,11 +12,7 @@ impl Print for Comment {
     }
 }
 
-impl fmt::Display for Comment {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_display!(Comment);
 
 #[cfg(test)]
 mod tests {

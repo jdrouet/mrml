@@ -1,6 +1,6 @@
 use super::MJAttributesElement;
 use crate::prelude::print::{self, Print};
-use std::fmt;
+use crate::print_display;
 
 impl Print for MJAttributesElement {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -15,11 +15,7 @@ impl Print for MJAttributesElement {
     }
 }
 
-impl fmt::Display for MJAttributesElement {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_display!(MJAttributesElement);
 
 #[cfg(test)]
 mod tests {

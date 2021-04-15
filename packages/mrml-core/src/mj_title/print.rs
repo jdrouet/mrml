@@ -1,6 +1,6 @@
 use super::MJTitle;
 use crate::prelude::print::{self, Print};
-use std::fmt;
+use crate::print_display;
 
 impl Print for MJTitle {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -12,11 +12,7 @@ impl Print for MJTitle {
     }
 }
 
-impl fmt::Display for MJTitle {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_display!(MJTitle);
 
 #[cfg(test)]
 mod tests {

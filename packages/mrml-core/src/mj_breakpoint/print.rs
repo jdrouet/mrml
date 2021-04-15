@@ -1,7 +1,7 @@
 use super::MJBreakpoint;
 use crate::prelude::print::{self, Print};
+use crate::print_display;
 use std::collections::HashMap;
-use std::fmt;
 
 impl Print for MJBreakpoint {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -11,11 +11,7 @@ impl Print for MJBreakpoint {
     }
 }
 
-impl fmt::Display for MJBreakpoint {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_display!(MJBreakpoint);
 
 #[cfg(test)]
 mod tests {

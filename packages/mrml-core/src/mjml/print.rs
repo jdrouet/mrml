@@ -1,6 +1,6 @@
 use super::MJML;
 use crate::prelude::print::{self, Print};
-use std::fmt;
+use crate::print_display;
 
 impl Print for MJML {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -19,11 +19,7 @@ impl Print for MJML {
     }
 }
 
-impl fmt::Display for MJML {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_display!(MJML);
 
 #[cfg(test)]
 mod tests {

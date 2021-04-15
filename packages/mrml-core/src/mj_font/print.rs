@@ -1,16 +1,10 @@
 use super::MJFont;
 use crate::prelude::print::{self, Print};
+use crate::print_display;
 use std::collections::HashMap;
-use std::fmt;
 
 impl Print for MJFont {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        format!(
-            "<{} name=\"{}\" href=\"{}\" />",
-            super::NAME,
-            self.name(),
-            self.href()
-        );
         let mut attrs = HashMap::new();
         attrs.insert("name".to_string(), self.name().to_string());
         attrs.insert("href".to_string(), self.href().to_string());
@@ -18,11 +12,7 @@ impl Print for MJFont {
     }
 }
 
-impl fmt::Display for MJFont {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_display!(MJFont);
 
 #[cfg(test)]
 mod tests {
