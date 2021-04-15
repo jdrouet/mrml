@@ -1,11 +1,10 @@
 use super::{MJMLChild, MJMLChildren, MJML, NAME};
+use crate::json_children_deserializer;
 use crate::json_children_serializer;
 use serde::de::{Error, MapAccess, SeqAccess, Visitor};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
-
-const FIELDS: [&str; 3] = ["type", "attributes", "children"];
 
 impl Serialize for MJMLChildren {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -58,45 +57,7 @@ impl<'de> Deserialize<'de> for MJMLChildren {
 }
 
 json_children_serializer!(MJML, NAME);
-
-#[derive(Default)]
-struct MJMLVisitor;
-
-impl<'de> Visitor<'de> for MJMLVisitor {
-    type Value = MJML;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("an map with properties type, attributes and children")
-    }
-
-    fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
-    where
-        M: MapAccess<'de>,
-    {
-        let mut result = MJML::default();
-        while let Some(key) = access.next_key::<String>()? {
-            if key == "type" {
-                if access.next_value::<String>()? != NAME {
-                    return Err(M::Error::custom(format!("expected type to equal {}", NAME)));
-                }
-            } else if key == "children" {
-                result.children = access.next_value()?;
-            } else {
-                return Err(M::Error::unknown_field(&key, &FIELDS));
-            }
-        }
-        Ok(result)
-    }
-}
-
-impl<'de> Deserialize<'de> for MJML {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_map(MJMLVisitor::default())
-    }
-}
+json_children_deserializer!(MJML, MJMLVisitor, NAME);
 
 #[cfg(test)]
 mod tests {
