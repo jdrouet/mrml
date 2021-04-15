@@ -56,4 +56,12 @@ mod tests {
         let result = root.render(&opts).unwrap();
         assert!(!result.contains("Hello World!"));
     }
+
+    #[test]
+    fn render_with_is_raw() {
+        let opts = Options::default();
+        let root = MJML::parse(r#"<mjml><mj-body><mj-section><mj-column><!-- Hello World! --></mj-column></mj-section></mj-body></mjml>"#).unwrap();
+        let result = root.render(&opts).unwrap();
+        assert!(result.contains("Hello World!"));
+    }
 }
