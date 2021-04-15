@@ -1,25 +1,7 @@
-use super::MJImage;
-use crate::prelude::print::{self, Print};
-use std::fmt;
+use super::{MJImage, NAME};
+use crate::print_attrs;
 
-impl Print for MJImage {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        print::open(
-            super::NAME,
-            Some(&self.attributes),
-            true,
-            pretty,
-            level,
-            indent_size,
-        )
-    }
-}
-
-impl fmt::Display for MJImage {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_attrs!(MJImage, NAME);
 
 #[cfg(test)]
 mod tests {

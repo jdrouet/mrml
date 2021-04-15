@@ -230,3 +230,86 @@ mod json {
         };
     }
 }
+
+#[cfg(feature = "print")]
+mod print {
+    #[macro_export]
+    macro_rules! print_display {
+        ($structure:ident) => {
+            use std::fmt;
+
+            impl fmt::Display for $structure {
+                fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                    f.write_str(self.dense_print().as_str())
+                }
+            }
+        };
+    }
+    #[macro_export]
+    macro_rules! print_attrs {
+        ($structure:ident, $name:expr) => {
+            use crate::prelude::print::{self, Print};
+
+            impl Print for $structure {
+                fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+                    print::open(
+                        $name,
+                        Some(&self.attributes),
+                        true,
+                        pretty,
+                        level,
+                        indent_size,
+                    )
+                }
+            }
+
+            crate::print_display!($structure);
+        };
+    }
+    #[macro_export]
+    macro_rules! print_children {
+        ($structure:ident, $name:expr) => {
+            use crate::prelude::print::{self, Print};
+
+            impl Print for $structure {
+                fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+                    print::open($name, None, false, pretty, level, indent_size)
+                        + &self
+                            .children
+                            .iter()
+                            .map(|child| child.print(pretty, level + 1, indent_size))
+                            .collect::<String>()
+                        + &print::close(super::NAME, pretty, level, indent_size)
+                }
+            }
+
+            crate::print_display!($structure);
+        };
+    }
+    #[macro_export]
+    macro_rules! print_attrs_children {
+        ($structure:ident, $name:expr) => {
+            use crate::prelude::print::{self, Print};
+
+            impl Print for $structure {
+                fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+                    print::open(
+                        $name,
+                        Some(&self.attributes),
+                        false,
+                        pretty,
+                        level,
+                        indent_size,
+                    ) + &self
+                        .children
+                        .iter()
+                        .map(|child| child.print(pretty, level + 1, indent_size))
+                        .collect::<String>()
+                        + &print::close(super::NAME, pretty, level, indent_size)
+                }
+            }
+
+            crate::print_display!($structure);
+        };
+    }
+}

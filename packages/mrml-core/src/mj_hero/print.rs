@@ -1,30 +1,7 @@
-use super::MJHero;
-use crate::prelude::print::{self, Print};
-use std::fmt;
+use super::{MJHero, NAME};
+use crate::print_attrs_children;
 
-impl Print for MJHero {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        print::open(
-            super::NAME,
-            Some(&self.attributes),
-            false,
-            pretty,
-            level,
-            indent_size,
-        ) + &self
-            .children
-            .iter()
-            .map(|child| child.print(pretty, level + 1, indent_size))
-            .collect::<String>()
-            + &print::close(super::NAME, pretty, level, indent_size)
-    }
-}
-
-impl fmt::Display for MJHero {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_attrs_children!(MJHero, NAME);
 
 #[cfg(test)]
 mod tests {

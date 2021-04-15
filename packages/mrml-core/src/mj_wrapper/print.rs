@@ -1,30 +1,7 @@
 use super::MJWrapper;
-use crate::prelude::print::{self, Print};
-use std::fmt;
+use crate::print_attrs_children;
 
-impl Print for MJWrapper {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        print::open(
-            super::NAME,
-            Some(&self.attributes),
-            false,
-            pretty,
-            level,
-            indent_size,
-        ) + &self
-            .children
-            .iter()
-            .map(|child| child.print(pretty, level + 1, indent_size))
-            .collect::<String>()
-            + &print::close(super::NAME, pretty, level, indent_size)
-    }
-}
-
-impl fmt::Display for MJWrapper {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
-    }
-}
+print_attrs_children!(MJWrapper, super::NAME);
 
 #[cfg(test)]
 mod tests {
