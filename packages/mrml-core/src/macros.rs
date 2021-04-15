@@ -82,4 +82,151 @@ mod json {
             }
         };
     }
+
+    #[macro_export]
+    macro_rules! json_attrs_and_children_deserializer {
+        ($structure:ident, $visitor:ident, $name:ident) => {
+            const FIELDS: [&str; 3] = ["type", "attributes", "children"];
+
+            #[derive(Default)]
+            struct $visitor;
+
+            impl<'de> serde::de::Visitor<'de> for $visitor {
+                type Value = $structure;
+
+                fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                    formatter.write_str("an map with properties type, attributes and children")
+                }
+
+                fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+                where
+                    M: MapAccess<'de>,
+                {
+                    let mut result = $structure::default();
+                    while let Some(key) = access.next_key::<String>()? {
+                        if key == "type" {
+                            if access.next_value::<String>()? != NAME {
+                                return Err(M::Error::custom(format!(
+                                    "expected type to equal {}",
+                                    $name
+                                )));
+                            }
+                        } else if key == "attributes" {
+                            result.attributes = access.next_value()?;
+                        } else if key == "children" {
+                            result.children = access.next_value()?;
+                        } else {
+                            return Err(M::Error::unknown_field(&key, &FIELDS));
+                        }
+                    }
+                    Ok(result)
+                }
+            }
+
+            impl<'de> serde::Deserialize<'de> for $structure {
+                fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                where
+                    D: serde::Deserializer<'de>,
+                {
+                    deserializer.deserialize_map($visitor::default())
+                }
+            }
+        };
+    }
+    #[macro_export]
+    macro_rules! json_attrs_deserializer {
+        ($structure:ident, $visitor:ident, $name:ident) => {
+            const FIELDS: [&str; 2] = ["type", "attributes"];
+
+            #[derive(Default)]
+            struct $visitor;
+
+            impl<'de> serde::de::Visitor<'de> for $visitor {
+                type Value = $structure;
+
+                fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                    formatter.write_str("an map with properties type and attributes")
+                }
+
+                fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+                where
+                    M: MapAccess<'de>,
+                {
+                    let mut result = $structure::default();
+                    while let Some(key) = access.next_key::<String>()? {
+                        if key == "type" {
+                            if access.next_value::<String>()? != NAME {
+                                return Err(M::Error::custom(format!(
+                                    "expected type to equal {}",
+                                    $name
+                                )));
+                            }
+                        } else if key == "attributes" {
+                            result.attributes = access.next_value()?;
+                        } else {
+                            return Err(M::Error::unknown_field(&key, &FIELDS));
+                        }
+                    }
+                    Ok(result)
+                }
+            }
+
+            impl<'de> serde::Deserialize<'de> for $structure {
+                fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                where
+                    D: serde::Deserializer<'de>,
+                {
+                    deserializer.deserialize_map($visitor::default())
+                }
+            }
+        };
+    }
+    #[macro_export]
+    macro_rules! json_children_deserializer {
+        ($structure:ident, $visitor:ident, $name:ident) => {
+            const FIELDS: [&str; 2] = ["type", "children"];
+
+            #[derive(Default)]
+            struct $visitor;
+
+            impl<'de> serde::de::Visitor<'de> for $visitor {
+                type Value = $structure;
+
+                fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                    formatter.write_str("an map with properties type and children")
+                }
+
+                fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+                where
+                    M: MapAccess<'de>,
+                {
+                    let mut result = $structure::default();
+                    while let Some(key) = access.next_key::<String>()? {
+                        if key == "type" {
+                            if access.next_value::<String>()? != NAME {
+                                return Err(M::Error::custom(format!(
+                                    "expected type to equal {}",
+                                    $name
+                                )));
+                            }
+                        } else if key == "children" {
+                            result.children = access.next_value()?;
+                        } else {
+                            return Err(M::Error::unknown_field(&key, &FIELDS));
+                        }
+                    }
+                    Ok(result)
+                }
+            }
+
+            impl<'de> serde::Deserialize<'de> for $structure {
+                fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                where
+                    D: serde::Deserializer<'de>,
+                {
+                    deserializer.deserialize_map($visitor::default())
+                }
+            }
+        };
+    }
 }
