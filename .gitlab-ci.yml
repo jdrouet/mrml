@@ -1,31 +1,32 @@
 stages:
-  - lint
+  #- lint
   - test
 
-lint-clippy:
-  stage: lint
-  image: jdrouet/clippy:alpine
-  script:
-    - cargo clippy -- -D warnings -A clippy::upper-case-acronyms
+#lint-clippy:
+#  stage: lint
+#  image: jdrouet/clippy:alpine
+#  script:
+#    - cargo clippy -- -D warnings -A clippy::upper-case-acronyms
 
-lint-rustfmt:
-  stage: lint
-  image: rust:latest
-  before_script:
-    - rustup component add rustfmt
-  script:
-    - rustfmt --check packages/mrml-core/src/{**/,}*.rs
-    - rustfmt --check packages/mrml-cli/src/*.rs
-    - make -C packages/mrml-wasm format
+#lint-rustfmt:
+#  stage: lint
+#  image: rust:latest
+#  before_script:
+#    - rustup component add rustfmt
+#  script:
+#    - rustfmt --check packages/mrml-core/src/{**/,}*.rs
+#    - rustfmt --check packages/mrml-cli/src/*.rs
+#    - make -C packages/mrml-wasm format
 
-test-bench:
-  stage: test
-  image: rust:latest
-  script:
-    - cargo bench
-    - curl -o codebench-cli https://app.codebench.cloud/static/bin/codebench-cli-amd64
-    - chmod +x codebench-cli
-    - ./codebench-cli --token $CODEBENCH_TOKEN target/criterion
+
+#test-bench:
+#  stage: test
+#  image: rust:latest
+#  script:
+#    - cargo bench
+#    - curl -o codebench-cli https://app.codebench.cloud/static/bin/codebench-cli-amd64
+#    - chmod +x codebench-cli
+#    - ./codebench-cli --token $CODEBENCH_TOKEN target/criterion
 
 test-coverage:
   stage: test
@@ -33,9 +34,9 @@ test-coverage:
   script:
     - make -C packages/mrml-core coverage
 
-test-wasm:
-  stage: test
-  image: jdrouet/wasm-pack
-  script:
-    - make -C packages/mrml-wasm requirements
-    - make -C packages/mrml-wasm test
+#test-wasm:
+#  stage: test
+#  image: jdrouet/wasm-pack
+#  script:
+#    - make -C packages/mrml-wasm requirements
+#    - make -C packages/mrml-wasm test
