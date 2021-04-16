@@ -27,3 +27,14 @@ impl Parsable for MJHead {
         MJHeadParser::default().parse(tokenizer)?.build()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn unexpected_element() {
+        let res = crate::mjml::MJML::parse(
+            r#"<mjml><mj-head><mj-text>Hello World!</mj-text></mj-head></mjml>"#,
+        );
+        assert!(res.is_err());
+    }
+}
