@@ -14,6 +14,12 @@ struct MJFontAttributes {
     href: String,
 }
 
+impl MJFontAttributes {
+    fn is_empty(&self) -> bool {
+        self.name.is_empty() && self.href.is_empty()
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct MJFont {
     attributes: MJFontAttributes,
