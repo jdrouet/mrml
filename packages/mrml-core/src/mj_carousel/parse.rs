@@ -24,3 +24,33 @@ impl Parsable for MJCarousel {
         MJCarouselParser::default().parse(tokenizer)?.build()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn with_all_children() {
+        let json = r#"<mjml>
+  <mj-body>
+    <mj-carousel>
+      <!-- comment -->
+      <mj-carousel-image />
+    </mj-carousel>
+  </mj-body>
+</mjml>
+"#;
+        assert!(crate::mjml::MJML::parse(json).is_ok());
+    }
+
+    #[test]
+    fn with_unexpected_child() {
+        let json = r#"<mjml>
+  <mj-body>
+    <mj-carousel>
+      <mj-text>Nope</mj-text>
+    </mj-carousel>
+  </mj-body>
+</mjml>
+"#;
+        assert!(crate::mjml::MJML::parse(json).is_err());
+    }
+}
