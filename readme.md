@@ -12,7 +12,21 @@
 
 This project is a reimplementation of the nice `MJML` markup language in Rust.
 
-## How to use it
+## How to use it in the cli
+
+```bash
+# installing mrml-cli
+cargo install mrml-cli
+# using it 
+mrml-cli path/to/template.mjml validate
+mrml-cli path/to/template.mjml render
+mrml-cli path/to/template.mjml format-json --pretty
+mrml-cli path/to/template.json format-mjml --pretty
+# getting some help
+mrml-cli --help
+```
+
+## How to use it in my code
 
 ```rust
 use mrml;
