@@ -7,6 +7,7 @@ pub struct Options {
     inner: RenderOptions,
 }
 
+/// Options for rendering to html
 #[wasm_bindgen]
 impl Options {
     #[wasm_bindgen(constructor)]
@@ -41,6 +42,7 @@ impl Options {
     }
 }
 
+/// Convert input mjml to html
 #[wasm_bindgen(js_name = toHtml)]
 pub fn to_html(input: &str) -> Result<String, JsValue> {
     #[cfg(feature = "console_error_panic_hook")]
@@ -49,6 +51,7 @@ pub fn to_html(input: &str) -> Result<String, JsValue> {
     to_html_with_options(input, &opts)
 }
 
+/// Convert input mjml to html with some options
 #[wasm_bindgen(js_name = toHtmlWithOptions)]
 pub fn to_html_with_options(input: &str, opts: &Options) -> Result<String, JsValue> {
     #[cfg(feature = "console_error_panic_hook")]
@@ -56,5 +59,52 @@ pub fn to_html_with_options(input: &str, opts: &Options) -> Result<String, JsVal
     mrml::parse(input)
         .map_err(|err| err.to_string())
         .and_then(|node| node.render(opts.inner()).map_err(|err| err.to_string()))
+        .map_err(JsValue::from)
+}
+
+/// Convert input mjml to json
+#[wasm_bindgen(js_name = toJson)]
+pub fn to_json(input: &str, pretty: bool) -> Result<String, JsValue> {
+    #[cfg(feature = "console_error_panic_hook")]
+    console_error_panic_hook::set_once();
+    mrml::parse(input)
+        .map_err(|err| err.to_string())
+        .and_then(|node| {
+            let res = if pretty {
+                serde_json::to_string_pretty(&node)
+            } else {
+                serde_json::to_string(&node)
+            };
+            res.map_err(|err| err.to_string())
+        })
+        .map_err(JsValue::from)
+}
+
+/// Convert input json to mjml
+#[wasm_bindgen(js_name = toMjml)]
+pub fn to_mjml(input: &str, pretty: bool) -> Result<String, JsValue> {
+    #[cfg(feature = "console_error_panic_hook")]
+    console_error_panic_hook::set_once();
+    use mrml::prelude::print::Print;
+    serde_json::from_str::<mrml::mjml::MJML>(input)
+        .map_err(|err| err.to_string())
+        .map(|node| {
+            if pretty {
+                node.pretty_print()
+            } else {
+                node.dense_print()
+            }
+        })
+        .map_err(JsValue::from)
+}
+
+/// Validate input mjml
+#[wasm_bindgen(js_name = validate)]
+pub fn validate(input: &str) -> Result<(), JsValue> {
+    #[cfg(feature = "console_error_panic_hook")]
+    console_error_panic_hook::set_once();
+    mrml::parse(input)
+        .map(|_| ())
+        .map_err(|err| err.to_string())
         .map_err(JsValue::from)
 }
