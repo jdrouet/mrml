@@ -6,7 +6,7 @@ use std::collections::HashMap;
 impl Print for MJBreakpoint {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         let mut attrs = HashMap::<String, String>::new();
-        attrs.insert("value".to_string(), self.attributes.value.clone());
+        attrs.insert("width".to_string(), self.attributes.width.clone());
         print::open(super::NAME, Some(&attrs), true, pretty, level, indent_size)
     }
 }
@@ -22,9 +22,9 @@ mod tests {
     fn normal() {
         let item = MJBreakpoint {
             attributes: MJBreakpointAttributes {
-                value: String::from("10px"),
+                width: String::from("10px"),
             },
         };
-        assert_eq!("<mj-breakpoint value=\"10px\" />", item.dense_print());
+        assert_eq!("<mj-breakpoint width=\"10px\" />", item.dense_print());
     }
 }

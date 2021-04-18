@@ -20,7 +20,7 @@ mod tests {
     <mj-attributes>
       <mj-all font-size="12px" />
     </mj-attributes>
-    <mj-breakpoint value="12px" />
+    <mj-breakpoint width="12px" />
     <mj-font href="https://jolimail.io" name="Comic" />
     <mj-preview>Hello World with all!</mj-preview>
     <mj-title>Hello World!</mj-title>
