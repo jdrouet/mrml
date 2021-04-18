@@ -7,6 +7,8 @@ use crate::mj_font::MJFont;
 use crate::mj_font::NAME as MJ_FONT;
 use crate::mj_preview::MJPreview;
 use crate::mj_preview::NAME as MJ_PREVIEW;
+use crate::mj_style::MJStyle;
+use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::MJTitle;
 use crate::mj_title::NAME as MJ_TITLE;
 #[cfg(feature = "parse")]
@@ -26,6 +28,7 @@ pub enum MJHeadChild {
     MJBreakpoint(MJBreakpoint),
     MJFont(MJFont),
     MJPreview(MJPreview),
+    MJStyle(MJStyle),
     MJTitle(MJTitle),
 }
 
@@ -38,6 +41,8 @@ as_child!(MJHeadChild, MJFont, as_mj_font);
 from_child!(MJHeadChild, MJFont);
 as_child!(MJHeadChild, MJPreview, as_mj_preview);
 from_child!(MJHeadChild, MJPreview);
+as_child!(MJHeadChild, MJStyle, as_mj_style);
+from_child!(MJHeadChild, MJStyle);
 as_child!(MJHeadChild, MJTitle, as_mj_title);
 from_child!(MJHeadChild, MJTitle);
 
@@ -50,6 +55,7 @@ impl MJHeadChild {
             Self::MJBreakpoint(elt) => elt,
             Self::MJFont(elt) => elt,
             Self::MJPreview(elt) => elt,
+            Self::MJStyle(elt) => elt,
             Self::MJTitle(elt) => elt,
         }
     }
@@ -70,6 +76,7 @@ impl Parsable for MJHeadChild {
             MJ_BREAKPOINT => Ok(MJBreakpoint::parse(tag, tokenizer)?.into()),
             MJ_FONT => Ok(MJFont::parse(tag, tokenizer)?.into()),
             MJ_PREVIEW => Ok(MJPreview::parse(tag, tokenizer)?.into()),
+            MJ_STYLE => Ok(MJStyle::parse(tag, tokenizer)?.into()),
             MJ_TITLE => Ok(MJTitle::parse(tag, tokenizer)?.into()),
             _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
