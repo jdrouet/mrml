@@ -10,12 +10,12 @@ pub const NAME: &str = "mj-breakpoint";
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 struct MJBreakpointAttributes {
-    value: String,
+    width: String,
 }
 
 impl MJBreakpointAttributes {
     fn is_empty(&self) -> bool {
-        self.value.is_empty()
+        self.width.is_empty()
     }
 }
 
@@ -26,6 +26,6 @@ pub struct MJBreakpoint {
 
 impl MJBreakpoint {
     pub fn value(&self) -> &str {
-        &self.attributes.value
+        &self.attributes.width
     }
 }

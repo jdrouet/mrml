@@ -13,8 +13,8 @@ impl Parser for MJBreakpointParser {
     }
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
-        if name.as_str() == "value" {
-            self.0.value = value.to_string();
+        if name.as_str() == "width" {
+            self.0.width = value.to_string();
             Ok(())
         } else {
             Err(Error::UnexpectedAttribute(name.start()))
@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn success() {
         let res = crate::mjml::MJML::parse(
-            r#"<mjml><mj-head><mj-breakpoint value="42px" /></mj-head></mjml>"#,
+            r#"<mjml><mj-head><mj-breakpoint width="42px" /></mj-head></mjml>"#,
         );
         assert!(res.is_ok());
     }

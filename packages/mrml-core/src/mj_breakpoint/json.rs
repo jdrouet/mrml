@@ -16,12 +16,12 @@ mod tests {
     fn serialize() {
         let elt = MJBreakpoint {
             attributes: MJBreakpointAttributes {
-                value: "12px".to_string(),
+                width: "12px".to_string(),
             },
         };
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-breakpoint","attributes":{"value":"12px"}}"#
+            r#"{"type":"mj-breakpoint","attributes":{"width":"12px"}}"#
         );
     }
 
@@ -29,7 +29,7 @@ mod tests {
     fn deserialize() {
         let elt = MJBreakpoint {
             attributes: MJBreakpointAttributes {
-                value: "12px".to_string(),
+                width: "12px".to_string(),
             },
         };
         let json = serde_json::to_string(&elt).unwrap();
