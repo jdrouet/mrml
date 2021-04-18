@@ -230,11 +230,24 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
         if header.styles().is_empty() {
             return String::default();
         }
-        let mut buf = String::from("<style type=\"text/css\">");
-        header.styles().iter().for_each(|style| {
-            buf.push_str(style);
-        });
-        buf.push_str("</style>");
+        let mut buf = self
+            .element
+            .children
+            .iter()
+            .filter_map(|child| child.as_mj_style())
+            .map(|child| child.children())
+            .collect::<Vec<_>>()
+            .join("\n");
+        if !header.styles().is_empty() {
+            if !buf.is_empty() {
+                buf.push('\n');
+            }
+            buf.push_str("<style type=\"text/css\">");
+            header.styles().iter().for_each(|style| {
+                buf.push_str(style);
+            });
+            buf.push_str("</style>");
+        }
         buf
     }
 }
