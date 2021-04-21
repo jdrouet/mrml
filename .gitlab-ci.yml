@@ -18,6 +18,15 @@ lint-rustfmt:
     - rustfmt --check packages/mrml-cli/src/*.rs
     - make -C packages/mrml-wasm format
 
+lint-typings:
+  stage: lint
+  image: node:latest
+  script:
+    - cd packages/mrml-typings
+    - npm install
+    - npm run lint
+    - npm test
+
 test-bench:
   stage: test
   image: rust:latest
