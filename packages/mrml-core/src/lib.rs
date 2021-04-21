@@ -28,6 +28,7 @@ pub mod mj_social;
 pub mod mj_social_element;
 pub mod mj_spacer;
 pub mod mj_style;
+pub mod mj_table;
 pub mod mj_text;
 pub mod mj_title;
 pub mod mj_wrapper;

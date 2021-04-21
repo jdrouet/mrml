@@ -26,6 +26,8 @@ use crate::mj_social::MJSocial;
 use crate::mj_social::NAME as MJ_SOCIAL;
 use crate::mj_spacer::MJSpacer;
 use crate::mj_spacer::NAME as MJ_SPACER;
+use crate::mj_table::MJTable;
+use crate::mj_table::NAME as MJ_TABLE;
 use crate::mj_text::MJText;
 use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::MJWrapper;
@@ -61,6 +63,7 @@ pub enum MJBodyChild {
     MJSection(MJSection),
     MJSocial(MJSocial),
     MJSpacer(MJSpacer),
+    MJTable(MJTable),
     MJText(MJText),
     MJWrapper(MJWrapper),
     Node(Node<MJBodyChild>),
@@ -81,6 +84,7 @@ from_child!(MJBodyChild, MJRaw);
 from_child!(MJBodyChild, MJSection);
 from_child!(MJBodyChild, MJSocial);
 from_child!(MJBodyChild, MJSpacer);
+from_child!(MJBodyChild, MJTable);
 from_child!(MJBodyChild, MJText);
 from_child!(MJBodyChild, MJWrapper);
 from_child!(MJBodyChild, Text);
@@ -102,6 +106,7 @@ macro_rules! inner {
             Self::MJSection(elt) => elt,
             Self::MJSocial(elt) => elt,
             Self::MJSpacer(elt) => elt,
+            Self::MJTable(elt) => elt,
             Self::MJText(elt) => elt,
             Self::MJWrapper(elt) => elt,
             Self::Node(elt) => elt,
@@ -152,6 +157,7 @@ impl Parsable for MJBodyChild {
             MJ_SECTION => Ok(MJSection::parse(tag, tokenizer)?.into()),
             MJ_SOCIAL => Ok(MJSocial::parse(tag, tokenizer)?.into()),
             MJ_SPACER => Ok(MJSpacer::parse(tag, tokenizer)?.into()),
+            MJ_TABLE => Ok(MJTable::parse(tag, tokenizer)?.into()),
             MJ_TEXT => Ok(MJText::parse(tag, tokenizer)?.into()),
             MJ_WRAPPER => Ok(MJWrapper::parse(tag, tokenizer)?.into()),
             _ => Ok(Node::<MJBodyChild>::parse(tag, tokenizer)?.into()),
