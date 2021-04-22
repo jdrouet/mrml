@@ -618,6 +618,7 @@ export type MjBodyChild =
   | MjSection
   | MjSocial
   | MjSpacer
+  | MjText
   | MjWrapper
   | MjNode<MjBodyChild>
   | string;
