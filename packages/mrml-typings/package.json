@@ -1,6 +1,6 @@
 {
   "name": "mrml-typings",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Typings for mrml elements",
   "license": "SEE LICENSE IN license.md",
   "main": "index.d.ts",
