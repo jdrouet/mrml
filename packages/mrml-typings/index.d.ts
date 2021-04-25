@@ -59,7 +59,7 @@ export type MjHeadChild =
   | MjPreview
   | MjTitle;
 export interface MjHead
-  extends MjmlAbstract<'mj-head', undefined, Array<string>> {}
+  extends MjmlAbstract<'mj-head', undefined, Array<MjHeadChild>> {}
 
 // node
 export interface MjNode<Child>
