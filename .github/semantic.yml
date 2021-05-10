@@ -1,0 +1,31 @@
+# Configuration for probot/semantic-pull-requests GitHub check bot
+#
+# Installation/configuration docs here
+# https://github.com/probot/semantic-pull-requests#configuration
+#
+# Always validate the PR title, and ignore the commits
+titleAndCommits: true
+
+types:
+  - chore               # An internal change this is not observable by users.
+  - enhancement         # Any user observable enhancement to an existing feature.
+  - feat                # Any user observable new feature, such as a new platform, source, transform, or sink.
+  - fix                 # Any user observable bug fix.
+  - docs
+  - refactor
+  - build
+  - perf
+
+scopes:
+  - ci
+  - deps
+  - style
+  - readme
+  - wiki
+  - script
+  - test
+  - mrml-cli
+  - mrml-core
+  - mrml-typings
+  - mrml-wasm
+
