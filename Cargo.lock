@@ -1425,7 +1425,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-wasm"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "console_error_panic_hook",
  "getrandom 0.2.2",
