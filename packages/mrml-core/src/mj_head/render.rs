@@ -227,28 +227,36 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
 
     fn render_styles(&self) -> String {
         let header = self.header.borrow();
-        if header.styles().is_empty() {
-            return String::default();
-        }
-        let mut buf = self
-            .element
-            .children
-            .iter()
-            .filter_map(|child| child.as_mj_style())
-            .map(|child| child.children())
-            .collect::<Vec<_>>()
-            .join("\n");
-        if !header.styles().is_empty() {
-            if !buf.is_empty() {
-                buf.push('\n');
+        let header_styles = {
+            if header.styles().is_empty() {
+                String::default()
+            } else {
+                let mut buf = "<style type=\"text/css\">".to_string();
+                header.styles().iter().for_each(|style| {
+                    buf.push_str(style);
+                });
+                buf.push_str("</style>");
+                buf
             }
-            buf.push_str("<style type=\"text/css\">");
-            header.styles().iter().for_each(|style| {
-                buf.push_str(style);
-            });
-            buf.push_str("</style>");
-        }
-        buf
+        };
+        let head_styles = {
+            let buf = self
+                .element
+                .children
+                .iter()
+                .filter_map(|child| child.as_mj_style())
+                .map(|child| child.children())
+                .collect::<Vec<_>>()
+                .join("\n");
+            if buf.is_empty() {
+                buf
+            } else {
+                format!("<style type=\"text/css\">{}</style>", buf)
+            }
+        };
+        format!("{}\n{}", header_styles, head_styles)
+            .trim()
+            .to_string()
     }
 }
 
@@ -288,5 +296,22 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJHead {
             element: self,
             header,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::helper::test::compare;
+    use crate::mjml::MJML;
+    use crate::prelude::render::Options;
+
+    #[test]
+    fn basic() {
+        let opts = Options::default();
+        let template = include_str!("../../resources/compare/success/mj-style.mjml");
+        let expected = include_str!("../../resources/compare/success/mj-style.html");
+        let root = MJML::parse(template.to_string()).unwrap();
+        let result = root.render(&opts).unwrap();
+        compare(expected, result.as_str());
     }
 }
