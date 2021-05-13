@@ -11,30 +11,66 @@ struct Options {
     #[clap(subcommand)]
     pub subcmd: SubCommand,
     #[clap(about = "Path to your mjml file", index = 1)]
-    pub input: String,
+    pub input: Option<String>,
 }
 
 impl Options {
-    fn read_input_to_string(&self) -> String {
-        let mut file = File::open(&self.input).expect("couldn't find file");
+    fn read_file(&self, filename: &str) -> String {
+        log::debug!("reading from file {}", filename);
+        let mut file = File::open(filename).expect("couldn't find file");
         let mut content = String::new();
         file.read_to_string(&mut content)
             .expect("couldn't read file");
         content
     }
 
-    fn read_input(&self) -> MJML {
-        if self.input.ends_with(".json") {
-            serde_json::from_str::<MJML>(&self.read_input_to_string()).expect("invalid json file")
-        } else if self.input.ends_with(".mjml") {
-            MJML::parse(self.read_input_to_string()).expect("invalid mjml file")
+    fn read_stdin(&self) -> String {
+        log::info!("waiting for input...");
+        let mut buffer = String::new();
+        std::io::stdin()
+            .read_to_string(&mut buffer)
+            .expect("couldn't read input");
+        buffer
+    }
+
+    fn parse_json(&self, input: &str) -> Result<MJML, String> {
+        log::debug!("parsing json input");
+        serde_json::from_str::<MJML>(&input)
+            .map_err(|err| format!("unable to parse json: {:?}", err))
+    }
+
+    fn parse_mjml(&self, input: &str) -> Result<MJML, String> {
+        log::debug!("parsing mjml input");
+        MJML::parse(input).map_err(|err| format!("unable to parse mjml: {:?}", err))
+    }
+
+    fn parse_input(&self, input: &str) -> MJML {
+        if let Some(ref filename) = self.input {
+            if filename.ends_with(".json") {
+                self.parse_json(input).unwrap()
+            } else if filename.ends_with(".mjml") {
+                self.parse_mjml(input).unwrap()
+            } else {
+                panic!("unknown file type");
+            }
         } else {
-            panic!("unknown file type");
+            self.parse_mjml(input)
+                .or_else(|_| self.parse_json(input))
+                .expect("unable to parse input")
+        }
+    }
+
+    fn read_input(&self) -> String {
+        if let Some(ref filename) = self.input {
+            self.read_file(&filename)
+        } else {
+            self.read_stdin()
         }
     }
 
     pub fn execute(self) {
         let root = self.read_input();
+        let root = self.parse_input(&root);
         self.subcmd.execute(&root);
     }
 }
@@ -55,6 +91,7 @@ impl SubCommand {
     pub fn execute(self, root: &MJML) {
         match self {
             Self::FormatJSON(opts) => {
+                log::debug!("format to json");
                 let output = if opts.pretty {
                     serde_json::to_string_pretty(root).expect("couldn't format to JSON")
                 } else {
@@ -63,6 +100,7 @@ impl SubCommand {
                 println!("{}", output);
             }
             Self::FormatMJML(opts) => {
+                log::debug!("format to mjml");
                 let output = if opts.pretty {
                     root.pretty_print()
                 } else {
@@ -71,11 +109,12 @@ impl SubCommand {
                 println!("{}", output);
             }
             Self::Render(render) => {
+                log::debug!("render");
                 let render_opts = RenderOptions::from(render);
                 let output = root.render(&render_opts).expect("couldn't render template");
                 println!("{}", output);
             }
-            Self::Validate => (),
+            Self::Validate => log::debug!("validate"),
         };
     }
 }
@@ -104,6 +143,7 @@ impl From<Render> for RenderOptions {
 }
 
 fn main() {
+    env_logger::init();
     Options::parse().execute();
 }
 
@@ -116,6 +156,12 @@ mod tests {
         Options::parse_from(args).execute();
     }
 
+    fn execute_stdin(args: Vec<&str>, input: &str) {
+        let opts = Options::parse_from(args);
+        let root = opts.parse_input(input);
+        opts.subcmd.execute(&root);
+    }
+
     #[test]
     #[should_panic]
     fn missing_file() {
@@ -126,6 +172,18 @@ mod tests {
     #[should_panic]
     fn unknown_extension() {
         execute(vec!["mrml-cli", "./cant/be/found.txt", "validate"]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn unknown_extension_stdin() {
+        execute_stdin(vec!["mrml-cli", "validate"], "###");
+    }
+
+    #[test]
+    fn format_json_amario_stdio() {
+        let input = include_str!("../../../resources/template/amario.mjml");
+        execute_stdin(vec!["mrml-cli", "format-json"], input);
     }
 
     #[test]
