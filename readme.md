@@ -62,3 +62,8 @@ To reproduce those results:
 - Node, in `example/mjml-bench` run `npm start -- ../../resources/template-amario.mjml`
 - Rust, run `cargo bench amario`
 
+## Who is using MRML?
+
+[<img src="https://www.blizzstatic.com/www/marketing/images/logo.svg" height="22px" />](https://www.blizzfull.com/)
+
+<i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
