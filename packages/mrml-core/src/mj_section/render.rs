@@ -263,8 +263,8 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
         let tr = Tag::tr();
         let td = Tag::td()
-            .add_style("font-size", "0px")
             .add_style("line-height", "0px")
+            .add_style("font-size", "0px")
             .add_style("mso-line-height-rule", "exactly");
         let before = conditional_tag(table.open() + &tr.open() + &td.open());
         let after = conditional_tag(td.close() + &tr.close() + &table.close());
@@ -325,8 +325,8 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
         } else {
             self.set_background_style(tag)
         };
-        base.maybe_add_style("border-radius", self.attribute("border-radius"))
-            .add_style("width", "100%")
+        base.add_style("width", "100%")
+            .maybe_add_style("border-radius", self.attribute("border-radius"))
     }
 
     fn set_style_section_td(&self, tag: Tag) -> Tag {

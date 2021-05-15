@@ -4,7 +4,8 @@ pub struct Tag {
     name: String,
     attributes: HashMap<String, String>,
     classes: HashSet<String>,
-    styles: HashMap<String, String>,
+    // in order to keep the style in the same order the've been added
+    styles: Vec<(String, String)>,
 }
 
 impl Tag {
@@ -38,7 +39,7 @@ impl Tag {
             name: name.to_string(),
             attributes: HashMap::new(),
             classes: HashSet::new(),
-            styles: HashMap::new(),
+            styles: Vec::new(),
         }
     }
 
@@ -81,7 +82,7 @@ impl Tag {
     }
 
     pub fn add_style<T: ToString>(mut self, name: &str, value: T) -> Self {
-        self.styles.insert(name.to_string(), value.to_string());
+        self.styles.push((name.to_string(), value.to_string()));
         self
     }
 

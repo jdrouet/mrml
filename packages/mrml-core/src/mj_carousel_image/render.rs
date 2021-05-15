@@ -18,6 +18,10 @@ impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
     fn set_style_images_img(&self, tag: Tag) -> Tag {
         tag.maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
+            .maybe_add_style(
+                "width",
+                self.container_width.as_ref().map(|value| value.to_string()),
+            )
             .add_style("max-width", "100%")
             .add_style("height", "auto")
     }
@@ -37,8 +41,8 @@ impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
 
     fn set_style_thumbnails_img(&self, tag: Tag) -> Tag {
         tag.add_style("display", "block")
-            .add_style("height", "auto")
             .add_style("width", "100%")
+            .add_style("height", "auto")
     }
 
     fn render_radio(&self) -> String {
@@ -179,10 +183,6 @@ impl<'e, 'h> Render<'h> for MJCarouselImageRender<'e, 'h> {
             .maybe_add_attribute(
                 "width",
                 self.container_width.as_ref().map(|width| width.value()),
-            )
-            .maybe_add_style(
-                "width",
-                self.container_width.as_ref().map(|value| value.to_string()),
             )
             .closed();
         let link = match self.attribute("href") {

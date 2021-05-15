@@ -77,8 +77,8 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
         let td = Tag::td();
         let inner_table = Tag::table_presentation()
             .maybe_add_attribute("align", self.attribute("align"))
-            .add_style("display", "inline-table")
-            .add_style("float", "none");
+            .add_style("float", "none")
+            .add_style("display", "inline-table");
         let before = conditional_tag(table.open() + &tr.open());
         let after = conditional_tag(tr.close() + &table.close());
         let child_attributes = self.build_child_attributes();

@@ -43,8 +43,8 @@ impl<'e, 'h> MJTextRender<'e, 'h> {
         let tr = Tag::tr();
         let td = Tag::td()
             .add_attribute("height", height)
-            .add_style("height", height)
-            .add_style("vertical-align", "top");
+            .add_style("vertical-align", "top")
+            .add_style("height", height);
         Ok(conditional_tag(
             table.render(tr.render(td.render(self.render_content(opts)?))),
         ))

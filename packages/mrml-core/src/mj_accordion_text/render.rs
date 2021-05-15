@@ -24,15 +24,15 @@ impl<'e, 'h> MJAccordionTextRender<'e, 'h> {
         Ok(Tag::td()
             .maybe_add_class(self.attribute("css-class"))
             .maybe_add_style("background", self.attribute("background-color"))
-            .maybe_add_style("color", self.attribute("color"))
-            .maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))
+            .maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("line-height", self.attribute("line-height"))
-            .maybe_add_style("padding", self.attribute("padding"))
+            .maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
             .maybe_add_style("padding-right", self.attribute("padding-right"))
             .maybe_add_style("padding-bottom", self.attribute("padding-bottom"))
             .maybe_add_style("padding-left", self.attribute("padding-left"))
+            .maybe_add_style("padding", self.attribute("padding"))
             .render(content))
     }
 }

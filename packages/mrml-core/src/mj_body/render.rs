@@ -19,8 +19,7 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
     }
 
     fn get_body_tag(&self) -> Tag {
-        self.set_body_style(Tag::new("body"))
-            .add_style("word-spacing", "normal")
+        self.set_body_style(Tag::new("body").add_style("word-spacing", "normal"))
     }
 
     fn get_content_div_tag(&self) -> Tag {

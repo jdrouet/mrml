@@ -45,10 +45,10 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
 
     fn set_style_carousel_div(&self, tag: Tag) -> Tag {
         tag.add_style("display", "table")
-            .add_style("font-size", "0px")
+            .add_style("width", "100%")
             .add_style("table-layout", "fixed")
             .add_style("text-align", "center")
-            .add_style("width", "100%")
+            .add_style("font-size", "0px")
     }
 
     fn set_style_carousel_table(&self, tag: Tag) -> Tag {
@@ -74,8 +74,8 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
     }
 
     fn set_style_controls_td(&self, tag: Tag) -> Tag {
-        tag.add_style("display", "none")
-            .add_style("font-size", "0px")
+        tag.add_style("font-size", "0px")
+            .add_style("display", "none")
             .add_style("mso-hide", "all")
             .add_style("padding", "0px")
     }

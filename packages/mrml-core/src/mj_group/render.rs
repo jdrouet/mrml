@@ -67,8 +67,8 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
             .add_style("text-align", "left")
             .add_style("display", "inline-block")
             .add_style("width", "100%")
-            .maybe_add_style("background-color", self.attribute("background-color"))
             .maybe_add_style("direction", self.attribute("direction"))
+            .maybe_add_style("background-color", self.attribute("background-color"))
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
