@@ -73,6 +73,7 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
     fn render_wrap<T: AsRef<str>>(&self, content: T) -> String {
         let table = Tag::table_borderless()
             .add_attribute("align", "center")
+            .maybe_add_attribute("bgcolor", self.attribute("background-color"))
             .maybe_add_attribute(
                 "width",
                 self.container_width.as_ref().map(|p| p.value().to_string()),
