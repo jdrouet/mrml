@@ -355,6 +355,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
             ".mj-carousel noinput .mj-carousel-image-1 { display: block !important;  }".into(),
         );
         style.push(".mj-carousel noinput .mj-carousel-arrows, .mj-carousel noinput .mj-carousel-thumbnails { display: none !important; }".into());
+        style.push("[owa] .mj-carousel-thumbnail { display: none !important; }".into());
 
         style.push(format!(
             r#"

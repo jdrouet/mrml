@@ -28,12 +28,14 @@ img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration
 p { display: block; margin: 13px 0; }
 </style>
 <!--[if mso]>
+<noscript>
 <xml>
 <o:OfficeDocumentSettings>
   <o:AllowPNG/>
   <o:PixelsPerInch>96</o:PixelsPerInch>
 </o:OfficeDocumentSettings>
 </xml>
+</noscript>
 <![endif]-->
 <!--[if lte mso 11]>
 <style type="text/css">

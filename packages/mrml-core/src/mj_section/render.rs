@@ -251,6 +251,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
 
     fn render_wrap<T: AsRef<str>>(&self, content: T) -> String {
         let table = Tag::table_borderless()
+            .maybe_add_attribute("bgcolor", self.attribute("background-color"))
             .add_attribute("align", "center")
             .maybe_add_attribute(
                 "width",

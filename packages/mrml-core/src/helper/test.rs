@@ -42,12 +42,12 @@ fn compare_style(path: &str, expected: &str, result: &str) {
     let expected_set = expected
         .split(';')
         .filter(|item| !item.is_empty())
-        .map(|item| item.to_string())
+        .map(|item| item.trim().to_string())
         .collect::<Vec<String>>();
     let result_set = result
         .split(';')
         .filter(|item| !item.is_empty())
-        .map(|item| item.to_string())
+        .map(|item| item.trim().to_string())
         .collect::<Vec<String>>();
     assert_eq!(expected_set, result_set, "different styles in {}", path);
 }
