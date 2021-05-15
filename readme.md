@@ -67,3 +67,10 @@ To reproduce those results:
 [<img src="https://www.blizzstatic.com/www/marketing/images/logo.svg" height="22px" />](https://www.blizzfull.com/)
 
 <i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
+
+## You want to sponsor us?
+
+[<img src="https://liberapay.com/assets/liberapay/icon-v2_white-on-yellow.svg?etag=.Z1LYSBJ8Z6GWUeLUUEf2XA~~" height="35px" />](https://liberapay.com/jdrouet/)
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="35px" />](https://www.buymeacoffee.com/jdrouet)
+
+<i>Thanks to [zachzurn](https://github.com/zachzurn).</i>
