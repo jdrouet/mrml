@@ -1406,7 +1406,7 @@ dependencies = [
 
 [[package]]
 name = "mrml"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "criterion",
  "html_parser",
