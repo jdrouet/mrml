@@ -15,7 +15,7 @@ struct MJDividerRender<'e, 'h> {
 }
 
 impl<'e, 'h> MJDividerRender<'e, 'h> {
-    fn set_style_p(&self, tag: Tag) -> Tag {
+    fn set_style_p_without_width(&self, tag: Tag) -> Tag {
         tag.add_style(
             "border-top",
             format!(
@@ -27,11 +27,14 @@ impl<'e, 'h> MJDividerRender<'e, 'h> {
         )
         .add_style("font-size", "1px")
         .add_style("margin", "0px auto")
-        .maybe_add_style("width", self.attribute("width"))
+    }
+    fn set_style_p(&self, tag: Tag) -> Tag {
+        self.set_style_p_without_width(tag)
+            .maybe_add_style("width", self.attribute("width"))
     }
 
     fn set_style_outlook(&self, tag: Tag) -> Tag {
-        self.set_style_p(tag)
+        self.set_style_p_without_width(tag)
             .add_style("width", self.get_outlook_width().to_string())
     }
 

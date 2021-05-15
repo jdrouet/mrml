@@ -47,8 +47,8 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
     }
 
     fn set_style_img(&self, tag: Tag) -> Tag {
-        tag.add_style("display", "block")
-            .maybe_add_style("border-radius", self.attribute("border-radius"))
+        tag.maybe_add_style("border-radius", self.attribute("border-radius"))
+            .add_style("display", "block")
     }
 
     fn set_style_icon(&self, tag: Tag) -> Tag {
@@ -76,8 +76,8 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
     }
 
     fn set_style_td_text(&self, tag: Tag) -> Tag {
-        tag.maybe_add_style("padding", self.attribute("text-padding"))
-            .add_style("vertical-align", "middle")
+        tag.add_style("vertical-align", "middle")
+            .maybe_add_style("padding", self.attribute("text-padding"))
     }
 
     fn set_style_text(&self, tag: Tag) -> Tag {

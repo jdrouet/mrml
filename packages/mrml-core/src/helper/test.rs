@@ -1,5 +1,4 @@
 use html_parser::{Dom, Element, Node};
-use std::collections::HashSet;
 
 fn trim_header_comment(input: &str) -> String {
     if input.starts_with("<!-- FILE:") {
@@ -44,12 +43,12 @@ fn compare_style(path: &str, expected: &str, result: &str) {
         .split(';')
         .filter(|item| !item.is_empty())
         .map(|item| item.to_string())
-        .collect::<HashSet<String>>();
+        .collect::<Vec<String>>();
     let result_set = result
         .split(';')
         .filter(|item| !item.is_empty())
         .map(|item| item.to_string())
-        .collect::<HashSet<String>>();
+        .collect::<Vec<String>>();
     assert_eq!(expected_set, result_set, "different styles in {}", path);
 }
 

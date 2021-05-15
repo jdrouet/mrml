@@ -17,13 +17,13 @@ impl<'e, 'h> WithMJSectionBackground<'h> for MJTableRender<'e, 'h> {}
 
 impl<'e, 'h> MJTableRender<'e, 'h> {
     fn set_style_table(&self, tag: Tag) -> Tag {
-        tag.maybe_add_style("border", self.attribute("border"))
-            .maybe_add_style("color", self.attribute("color"))
+        tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("line-height", self.attribute("line-height"))
             .maybe_add_style("table-layout", self.attribute("table-layout"))
             .maybe_add_style("width", self.attribute("width"))
+            .maybe_add_style("border", self.attribute("border"))
     }
 }
 

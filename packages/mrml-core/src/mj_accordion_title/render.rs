@@ -15,8 +15,8 @@ struct MJAccordionTitleRender<'e, 'h> {
 impl<'e, 'h> MJAccordionTitleRender<'e, 'h> {
     fn set_style_img(&self, tag: Tag) -> Tag {
         tag.add_style("display", "none")
-            .maybe_add_style("height", self.attribute("icon-height"))
             .maybe_add_style("width", self.attribute("icon-width"))
+            .maybe_add_style("height", self.attribute("icon-height"))
     }
 
     fn render_title(&self, opts: &Options) -> Result<String, Error> {
@@ -29,16 +29,16 @@ impl<'e, 'h> MJAccordionTitleRender<'e, 'h> {
                 Ok(res + &renderer.render(opts)?)
             })?;
         Ok(Tag::td()
+            .add_style("width", "100%")
             .maybe_add_style("background-color", self.attribute("background-color"))
             .maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("font-family", self.attribute("font-family"))
-            .maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
             .maybe_add_style("padding-right", self.attribute("padding-right"))
             .maybe_add_style("padding-bottom", self.attribute("padding-bottom"))
             .maybe_add_style("padding-left", self.attribute("padding-left"))
-            .add_style("width", "100%")
+            .maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_class(self.attribute("css-class"))
             .render(content))
     }

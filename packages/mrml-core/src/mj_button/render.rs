@@ -53,18 +53,18 @@ impl<'e, 'h> MJButtonRender<'e, 'h> {
     }
 
     fn set_style_td(&self, tag: Tag) -> Tag {
-        tag.maybe_add_style("background", self.attribute("background-color"))
-            .maybe_add_style("border", self.attribute("border"))
-            .maybe_add_style("border-top", self.attribute("border-top"))
-            .maybe_add_style("border-right", self.attribute("border-right"))
+        tag.maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
             .maybe_add_style("border-left", self.attribute("border-left"))
             .maybe_add_style("border-radius", self.attribute("border-radius"))
+            .maybe_add_style("border-right", self.attribute("border-right"))
+            .maybe_add_style("border-top", self.attribute("border-top"))
             .add_style("cursor", "auto")
             .maybe_add_style("font-style", self.attribute("font-style"))
             .maybe_add_style("height", self.attribute("height"))
             .maybe_add_style("mso-padding-alt", self.attribute("inner-padding"))
             .maybe_add_style("text-align", self.attribute("text-align"))
+            .maybe_add_style("background", self.attribute("background-color"))
     }
 
     fn set_style_content(&self, tag: Tag) -> Tag {
