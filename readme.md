@@ -54,13 +54,10 @@ Feel free to read our [contributing](./contributing.md) section and the [code of
 
 With the same linux amd64 machine, to render the amario template
 
-- Node: 62.803ms
-- Rust: 13.180ms
+- Node: 606.59ms
+- Rust: 3.48ms
 
-To reproduce those results:
-
-- Node, in `example/mjml-bench` run `npm start -- ../../resources/template-amario.mjml`
-- Rust, run `cargo bench amario`
+To reproduce those results, you can follow the configuration [in the gitlab-ci.yml](./.gitlab-ci.yml) or look on [codebench.cloud](https://app.codebench.cloud/#/repo/github/jdrouet/mrml)
 
 ## Missing implementations
 
