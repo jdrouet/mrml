@@ -1,6 +1,7 @@
 stages:
   - lint
   - test
+  - bench
 
 lint-clippy:
   stage: lint
@@ -48,3 +49,19 @@ test-wasm:
   script:
     - make -C packages/mrml-wasm requirements
     - make -C packages/mrml-wasm test
+
+bench-mrml:
+  stage: bench
+  # contains node and rust
+  image: jdrouet/wasm-pack
+  only:
+    - main
+  before_script:
+    - npm install -g mjml
+    - cargo install hyperfine
+  script:
+    - cargo build --package mrml-cli --release
+    - hyperfine --export-json hyperfine.json --runs 1000 "target/release/mrml resources/template/amario.mjml render" "mjml resources/template/amario.mjml"
+    - curl -o codebench-cli https://app.codebench.cloud/static/bin/codebench-cli-amd64
+    - chmod +x codebench-cli
+    - ./codebench-cli --token $CODEBENCH_TOKEN hyperfine.json
