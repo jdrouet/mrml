@@ -28,6 +28,16 @@ mrml-cli --help
 
 ## How to use it in my code
 
+Update your `cargo.toml`.
+
+```toml
+[dependencies]
+mrml = "1.2"
+serde = { version = "1.0", features = ["derive"] }
+```
+
+Create your main.rs
+
 ```rust
 use mrml;
 
