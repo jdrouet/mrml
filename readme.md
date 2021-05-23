@@ -80,6 +80,12 @@ To reproduce those results, you can follow the configuration [in the gitlab-ci.y
 
 <i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
 
+## What is using MRML?
+
+[![](https://avatars.githubusercontent.com/u/1481354?s=20&v=4) mjml_nif](https://github.com/adoptoposs/mjml_nif) - Elixir library
+
+<i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
+
 ## You want to sponsor us?
 
 [<img src="https://liberapay.com/assets/liberapay/icon-v2_white-on-yellow.svg?etag=.Z1LYSBJ8Z6GWUeLUUEf2XA~~" height="35px" />](https://liberapay.com/jdrouet/)
