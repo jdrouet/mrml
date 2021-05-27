@@ -14,7 +14,7 @@ impl Parser for MJAttributesClassParser {
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
         if name.as_str() == "name" {
-            self.0.name = name.to_string();
+            self.0.name = value.to_string();
         } else {
             self.0
                 .attributes
