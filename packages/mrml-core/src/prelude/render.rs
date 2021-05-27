@@ -274,12 +274,24 @@ pub trait Render<'header> {
             return Some(value.clone());
         }
         let header = self.header();
+        if let Some(value) = self
+            .attributes()
+            .and_then(|attrs| attrs.get("mj-class"))
+            .and_then(|mj_classes| {
+                mj_classes
+                    .split(' ')
+                    .map(|mj_class| mj_class.trim())
+                    .filter_map(|mj_class| header.attribute_class(&mj_class, key))
+                    .next()
+            })
+        {
+            return Some(value.to_string());
+        }
         if let Some(tag) = self.tag() {
             if let Some(value) = header.attribute_element(tag, key) {
                 return Some(value.to_string());
             }
         }
-        // TODO handle classes
         if let Some(value) = header.attribute_all(key) {
             return Some(value.to_string());
         }
