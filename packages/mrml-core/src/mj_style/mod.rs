@@ -13,12 +13,6 @@ pub struct MjStyleAttributes {
     inline: Option<String>,
 }
 
-impl MjStyleAttributes {
-    fn is_empty(&self) -> bool {
-        self.inline.is_none()
-    }
-}
-
 #[derive(Debug, Default)]
 pub struct MJStyle {
     attributes: MjStyleAttributes,

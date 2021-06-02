@@ -13,12 +13,6 @@ struct MJBreakpointAttributes {
     width: String,
 }
 
-impl MJBreakpointAttributes {
-    fn is_empty(&self) -> bool {
-        self.width.is_empty()
-    }
-}
-
 #[derive(Debug, Default)]
 pub struct MJBreakpoint {
     attributes: MJBreakpointAttributes,

@@ -3,6 +3,12 @@ use crate::prelude::parse::{Error, Parsable, Parser};
 use crate::{parse_attribute, parse_child, parse_comment, parse_text};
 use xmlparser::{StrSpan, Tokenizer};
 
+impl Parsable for MJNavbarLinkChild {
+    fn parse<'a>(tag: StrSpan<'a>, _tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error> {
+        Err(Error::UnexpectedElement(tag.start()))
+    }
+}
+
 #[derive(Debug, Default)]
 struct MJNavbarLinkParser(MJNavbarLink);
 

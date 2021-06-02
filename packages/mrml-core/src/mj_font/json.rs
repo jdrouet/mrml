@@ -1,9 +1,15 @@
-use super::{MJFont, NAME};
+use super::{MJFont, MJFontAttributes, NAME};
 use crate::json_attrs_deserializer;
 use crate::json_attrs_serializer;
 use serde::de::{Error, MapAccess};
 use serde::ser::SerializeMap;
 use std::fmt;
+
+impl MJFontAttributes {
+    fn is_empty(&self) -> bool {
+        self.name.is_empty() && self.href.is_empty()
+    }
+}
 
 json_attrs_serializer!(MJFont, NAME);
 json_attrs_deserializer!(MJFont, MJFontVisitor, NAME);

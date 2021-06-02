@@ -1,5 +1,25 @@
-use super::{MJHead, NAME};
+use super::{MJHead, MJHeadChild, NAME};
 use crate::print_children;
+
+impl MJHeadChild {
+    pub fn as_print<'p>(&'p self) -> &'p (dyn Print + 'p) {
+        match self {
+            Self::Comment(elt) => elt,
+            Self::MJAttributes(elt) => elt,
+            Self::MJBreakpoint(elt) => elt,
+            Self::MJFont(elt) => elt,
+            Self::MJPreview(elt) => elt,
+            Self::MJStyle(elt) => elt,
+            Self::MJTitle(elt) => elt,
+        }
+    }
+}
+
+impl Print for MJHeadChild {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        self.as_print().print(pretty, level, indent_size)
+    }
+}
 
 print_children!(MJHead, NAME);
 

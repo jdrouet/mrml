@@ -1,8 +1,18 @@
-use super::{MJRaw, NAME};
+use super::{MJRaw, MJRawChild, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
+
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJRawChild {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+        match self {
+            Self::Comment(elt) => elt.renderer(header),
+            Self::Node(elt) => elt.renderer(header),
+            Self::Text(elt) => elt.renderer(header),
+        }
+    }
+}
 
 struct MJRawRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

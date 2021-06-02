@@ -1,6 +1,7 @@
 mod children;
 #[cfg(feature = "json")]
 mod json;
+#[cfg(feature = "render")]
 mod network;
 #[cfg(feature = "parse")]
 mod parse;

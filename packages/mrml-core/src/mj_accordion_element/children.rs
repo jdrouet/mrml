@@ -1,6 +1,10 @@
 use crate::comment::Comment;
-use crate::mj_accordion_text::{MJAccordionText, NAME as MJ_ACCORDION_TEXT};
-use crate::mj_accordion_title::{MJAccordionTitle, NAME as MJ_ACCORDION_TITLE};
+use crate::mj_accordion_text::MJAccordionText;
+#[cfg(feature = "parse")]
+use crate::mj_accordion_text::NAME as MJ_ACCORDION_TEXT;
+use crate::mj_accordion_title::MJAccordionTitle;
+#[cfg(feature = "parse")]
+use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
 #[cfg(feature = "parse")]
 use crate::prelude::parse::{Error as ParserError, Parsable};
 #[cfg(feature = "print")]
@@ -8,7 +12,9 @@ use crate::prelude::print::Print;
 #[cfg(feature = "render")]
 use crate::prelude::render::{Header, Render, Renderable};
 use crate::{as_child, from_child};
+#[cfg(feature = "render")]
 use std::cell::RefCell;
+#[cfg(feature = "render")]
 use std::rc::Rc;
 #[cfg(feature = "parse")]
 use xmlparser::{StrSpan, Tokenizer};

@@ -1,4 +1,4 @@
-use super::{MJSocial, NAME};
+use super::{MJSocial, MJSocialChild, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
@@ -6,6 +6,15 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
+
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocialChild {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+        match self {
+            Self::MJSocialElement(elt) => elt.renderer(header),
+            Self::Comment(elt) => elt.renderer(header),
+        }
+    }
+}
 
 const EXTRA_CONTAINER_KEY: [&str; 13] = [
     "inner-padding",

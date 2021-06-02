@@ -1,4 +1,4 @@
-use super::{MJAccordion, NAME};
+use super::{MJAccordion, MJAccordionChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
@@ -144,6 +144,15 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordion {
             siblings: 1,
             raw_siblings: 0,
         })
+    }
+}
+
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordionChild {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+        match self {
+            Self::MJAccordionElement(elt) => elt.renderer(header),
+            Self::Comment(elt) => elt.renderer(header),
+        }
     }
 }
 

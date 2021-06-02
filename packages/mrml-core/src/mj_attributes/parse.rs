@@ -1,7 +1,22 @@
 use super::{MJAttributes, MJAttributesChild};
+use crate::mj_attributes_all::MJAttributesAll;
+use crate::mj_attributes_all::NAME as MJ_ALL;
+use crate::mj_attributes_class::MJAttributesClass;
+use crate::mj_attributes_class::NAME as MJ_CLASS;
+use crate::mj_attributes_element::MJAttributesElement;
 use crate::parse_child;
 use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
+
+impl Parsable for MJAttributesChild {
+    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error> {
+        match tag.as_str() {
+            MJ_ALL => Ok(MJAttributesAll::parse(tag, tokenizer)?.into()),
+            MJ_CLASS => Ok(MJAttributesClass::parse(tag, tokenizer)?.into()),
+            _ => Ok(MJAttributesElement::parse(tag, tokenizer)?.into()),
+        }
+    }
+}
 
 #[derive(Debug, Default)]
 struct MJAttributesParser(MJAttributes);

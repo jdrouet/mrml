@@ -1,4 +1,4 @@
-use super::{MJNavbarLink, NAME};
+use super::{MJNavbarLink, MJNavbarLinkChild, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
@@ -6,6 +6,15 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
+
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJNavbarLinkChild {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+        match self {
+            Self::Text(elt) => elt.renderer(header),
+            Self::Comment(elt) => elt.renderer(header),
+        }
+    }
+}
 
 struct MJNavbarLinkRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

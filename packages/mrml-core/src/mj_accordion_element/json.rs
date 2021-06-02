@@ -6,6 +6,12 @@ use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
+impl MJAccordionElementChildren {
+    fn is_empty(&self) -> bool {
+        self.title.is_none() && self.text.is_none()
+    }
+}
+
 impl Serialize for MJAccordionElementChildren {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

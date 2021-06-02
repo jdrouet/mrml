@@ -1,5 +1,14 @@
-use super::MJNavbar;
+use super::{MJNavbar, MJNavbarChild};
 use crate::print_attrs_children;
+
+impl Print for MJNavbarChild {
+    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
+        match self {
+            Self::Comment(elt) => elt.print(pretty, level, indent_size),
+            Self::MJNavbarLink(elt) => elt.print(pretty, level, indent_size),
+        }
+    }
+}
 
 print_attrs_children!(MJNavbar, super::NAME);
 
