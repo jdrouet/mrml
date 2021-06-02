@@ -1,9 +1,15 @@
-use super::{MJStyle, NAME};
+use super::{MJStyle, MjStyleAttributes, NAME};
 use crate::json_attrs_and_children_deserializer;
 use crate::json_attrs_and_children_serializer;
 use serde::de::{Error, MapAccess};
 use serde::ser::SerializeMap;
 use std::fmt;
+
+impl MjStyleAttributes {
+    fn is_empty(&self) -> bool {
+        self.inline.is_none()
+    }
+}
 
 json_attrs_and_children_serializer!(MJStyle, NAME);
 json_attrs_and_children_deserializer!(MJStyle, MJStyleVisitor, NAME);

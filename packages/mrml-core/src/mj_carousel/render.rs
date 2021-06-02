@@ -1,4 +1,4 @@
-use super::{MJCarousel, NAME};
+use super::{MJCarousel, MJCarouselChild, NAME};
 use crate::helper::condition::{mso_conditional_tag, mso_negation_conditional_tag};
 use crate::helper::random;
 use crate::helper::size::{Pixel, Size};
@@ -8,6 +8,15 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
+
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJCarouselChild {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+        match self {
+            Self::MJCarouselImage(elt) => elt.renderer(header),
+            Self::Comment(elt) => elt.renderer(header),
+        }
+    }
+}
 
 fn repeat(count: usize, value: &str) -> String {
     (0..count).map(|_idx| value).collect::<Vec<_>>().join("")

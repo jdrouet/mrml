@@ -22,12 +22,6 @@ struct MJAccordionElementChildren {
     text: Option<MJAccordionText>,
 }
 
-impl MJAccordionElementChildren {
-    fn is_empty(&self) -> bool {
-        self.title.is_none() && self.text.is_none()
-    }
-}
-
 #[derive(Debug, Default)]
 pub struct MJAccordionElement {
     attributes: HashMap<String, String>,

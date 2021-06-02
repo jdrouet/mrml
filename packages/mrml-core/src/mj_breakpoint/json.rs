@@ -1,9 +1,15 @@
-use super::{MJBreakpoint, NAME};
+use super::{MJBreakpoint, MJBreakpointAttributes, NAME};
 use crate::json_attrs_deserializer;
 use crate::json_attrs_serializer;
 use serde::de::{Error, MapAccess};
 use serde::ser::SerializeMap;
 use std::fmt;
+
+impl MJBreakpointAttributes {
+    fn is_empty(&self) -> bool {
+        self.width.is_empty()
+    }
+}
 
 json_attrs_serializer!(MJBreakpoint, NAME);
 json_attrs_deserializer!(MJBreakpoint, MJBreakpointVisitor, NAME);

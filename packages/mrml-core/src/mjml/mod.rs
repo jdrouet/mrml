@@ -12,23 +12,10 @@ mod render;
 
 pub const NAME: &str = "mjml";
 
-#[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
-#[cfg_attr(feature = "json", serde(untagged))]
-enum MJMLChild {
-    MJHead(MJHead),
-    MJBody(MJBody),
-}
-
 #[derive(Debug, Default)]
 struct MJMLChildren {
     head: Option<MJHead>,
     body: Option<MJBody>,
-}
-
-impl MJMLChildren {
-    fn is_empty(&self) -> bool {
-        self.head.is_none() && self.body.is_none()
-    }
 }
 
 #[derive(Debug, Default)]

@@ -1,5 +1,5 @@
 use super::network::SocialNetwork;
-use super::{MJSocialElement, NAME};
+use super::{MJSocialElement, MJSocialElementChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
@@ -8,6 +8,15 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
+
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocialElementChild {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+        match self {
+            Self::Text(elt) => elt.renderer(header),
+            Self::Comment(elt) => elt.renderer(header),
+        }
+    }
+}
 
 struct MJSocialElementRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
