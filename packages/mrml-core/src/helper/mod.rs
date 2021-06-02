@@ -4,7 +4,7 @@ pub mod condition;
 pub mod random;
 #[cfg(feature = "render")]
 pub mod size;
-#[cfg(feature = "render")]
+#[cfg(any(feature = "render", feature = "print"))]
 pub mod sort;
 #[cfg(feature = "render")]
 pub mod spacing;
