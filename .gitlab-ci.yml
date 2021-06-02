@@ -9,6 +9,14 @@ lint-clippy:
   script:
     - cargo clippy -- -D warnings -A clippy::upper-case-acronyms
 
+lint-check:
+  stage: lint
+  image: rust:latest
+  before_script:
+    - cargo install cargo-hack
+  script:
+    - cargo hack check --feature-powerset --no-dev-deps
+
 lint-rustfmt:
   stage: lint
   image: rust:latest
