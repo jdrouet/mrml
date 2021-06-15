@@ -86,6 +86,8 @@ To reproduce those results, you can follow the configuration [in the gitlab-ci.y
 
 [![](https://avatars.githubusercontent.com/u/1481354?s=20&v=4) mjml_nif](https://github.com/adoptoposs/mjml_nif) - Elixir library
 
+[![](https://avatars.githubusercontent.com/u/210414?s=20&v=4) mrml-ruby](https://github.com/hardpixel/mrml-ruby) - Ruby library
+
 <i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
 
 ## You want to sponsor us?
