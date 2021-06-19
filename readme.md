@@ -12,7 +12,7 @@
 
 ## Introduction
 
-This project is a reimplementation of the nice `MJML` markup language in Rust.
+This project is a reimplementation of the nice MJML markup language in Rust.
 
 ## How to use it in the cli
 
@@ -55,8 +55,8 @@ fn main() {
 
 ## Why?
 
-- A `Node` server rendering a mjml template takes around 20Mo of RAM at startup and 130Mo under stress test. In `Rust`, less than 1.7Mo at startup and a bit less that 3Mo under stress test. The `Rust` version can also handle 2 times more requests per seconds. You can run the bench by doing `bash script/run-bench.sh`.
-- The `JS` implementation cannot be run in the browser. In `Rust` (and `Wasm`), you can.
+- A Node.js server rendering a mjml template takes around 20 MB of RAM at startup and 130 MB under stress test. In Rust, less than 1.7 MB at startup and a bit less that 3 MB under stress test. The Rust version can also handle twice as many requests per second. You can perform the benchmarks by running `bash script/run-bench.sh`.
+- The JavaScript implementation cannot be run in the browser. In Rust (and WebAssembly), you can.
 
 ## You want to contribute?
 
@@ -74,7 +74,7 @@ To reproduce those results, you can follow the configuration [in the gitlab-ci.y
 ## Missing implementations
 
 - `mj-style[inline]`: not yet implemented. It requires parsing the generated html to apply the inline styles afterward (that's how it's done in mjml) which would kill the performances. Applying it at render time would improve the performance but it would still require to parse the css.
-- `mj-include`: not yet implemented. It requires to handle loading remote templates when using mrml in a wasm (browser or server side) format, which implies being able to load from a different location (`file://`, `https://`, `relative`, etc).
+- `mj-include`: not yet implemented. It requires to handle loading remote templates when using mrml in a wasm (browser or server side) format, which implies being able to load from a different location (`file://`, `https://`, relative, etc).
 
 ## Who is using MRML?
 
