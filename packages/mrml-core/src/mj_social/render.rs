@@ -71,11 +71,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
             .iter()
             .zip(EXTRA_CHILD_KEY.iter())
             .filter_map(|(con_key, child_key)| {
-                if let Some(value) = self.attribute(con_key) {
-                    Some((*child_key, value))
-                } else {
-                    None
-                }
+                self.attribute(con_key).map(|value| (*child_key, value))
             })
             .collect::<Vec<_>>()
     }
