@@ -35,7 +35,7 @@ impl Options {
 
     fn parse_json(&self, input: &str) -> Result<MJML, String> {
         log::debug!("parsing json input");
-        serde_json::from_str::<MJML>(&input)
+        serde_json::from_str::<MJML>(input)
             .map_err(|err| format!("unable to parse json: {:?}", err))
     }
 
@@ -62,7 +62,7 @@ impl Options {
 
     fn read_input(&self) -> String {
         if let Some(ref filename) = self.input {
-            self.read_file(&filename)
+            self.read_file(filename)
         } else {
             self.read_stdin()
         }
