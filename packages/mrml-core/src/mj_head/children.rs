@@ -3,6 +3,7 @@ use crate::mj_attributes::MJAttributes;
 use crate::mj_breakpoint::MJBreakpoint;
 use crate::mj_font::MJFont;
 use crate::mj_preview::MJPreview;
+use crate::mj_raw::MJRaw;
 use crate::mj_style::MJStyle;
 use crate::mj_title::MJTitle;
 use crate::{as_child, from_child};
@@ -16,6 +17,7 @@ pub enum MJHeadChild {
     MJBreakpoint(MJBreakpoint),
     MJFont(MJFont),
     MJPreview(MJPreview),
+    MJRaw(MJRaw),
     MJStyle(MJStyle),
     MJTitle(MJTitle),
 }
@@ -29,6 +31,8 @@ as_child!(MJHeadChild, MJFont, as_mj_font);
 from_child!(MJHeadChild, MJFont);
 as_child!(MJHeadChild, MJPreview, as_mj_preview);
 from_child!(MJHeadChild, MJPreview);
+as_child!(MJHeadChild, MJRaw, as_mj_raw);
+from_child!(MJHeadChild, MJRaw);
 as_child!(MJHeadChild, MJStyle, as_mj_style);
 from_child!(MJHeadChild, MJStyle);
 as_child!(MJHeadChild, MJTitle, as_mj_title);

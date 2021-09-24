@@ -9,6 +9,7 @@ impl MJHeadChild {
             Self::MJBreakpoint(elt) => elt,
             Self::MJFont(elt) => elt,
             Self::MJPreview(elt) => elt,
+            Self::MJRaw(elt) => elt,
             Self::MJStyle(elt) => elt,
             Self::MJTitle(elt) => elt,
         }

@@ -260,6 +260,21 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
             .trim()
             .to_string()
     }
+
+    fn render_raw(&self, opts: &Options) -> Result<String, Error> {
+        let siblings = self.element.children.len();
+        self.element
+            .children
+            .iter()
+            .filter_map(|child| child.as_mj_raw())
+            .enumerate()
+            .try_fold(String::default(), |res, (index, child)| {
+                let mut renderer = child.renderer(Rc::clone(&self.header));
+                renderer.set_index(index);
+                renderer.set_siblings(siblings);
+                Ok(res + &renderer.render(opts)?)
+            })
+    }
 }
 
 impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
@@ -267,7 +282,7 @@ impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, _opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &Options) -> Result<String, Error> {
         let mut buf = String::from("<head>");
         // we write the title even though there is no content
         buf.push_str("<title>");
@@ -287,6 +302,7 @@ impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
         buf.push_str(&self.render_font_families());
         buf.push_str(&self.render_media_queries());
         buf.push_str(&self.render_styles());
+        buf.push_str(&self.render_raw(opts)?);
         buf.push_str("</head>");
         Ok(buf)
     }

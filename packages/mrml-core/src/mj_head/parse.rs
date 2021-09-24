@@ -7,6 +7,8 @@ use crate::mj_font::MJFont;
 use crate::mj_font::NAME as MJ_FONT;
 use crate::mj_preview::MJPreview;
 use crate::mj_preview::NAME as MJ_PREVIEW;
+use crate::mj_raw::MJRaw;
+use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_style::MJStyle;
 use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::MJTitle;
@@ -21,6 +23,7 @@ impl Parsable for MJHeadChild {
             MJ_BREAKPOINT => Ok(MJBreakpoint::parse(tag, tokenizer)?.into()),
             MJ_FONT => Ok(MJFont::parse(tag, tokenizer)?.into()),
             MJ_PREVIEW => Ok(MJPreview::parse(tag, tokenizer)?.into()),
+            MJ_RAW => Ok(MJRaw::parse(tag, tokenizer)?.into()),
             MJ_STYLE => Ok(MJStyle::parse(tag, tokenizer)?.into()),
             MJ_TITLE => Ok(MJTitle::parse(tag, tokenizer)?.into()),
             _ => Err(Error::UnexpectedElement(tag.start())),
@@ -56,6 +59,13 @@ impl Parsable for MJHead {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn raw_children() {
+        let res = crate::mjml::MJML::parse(
+            r#"<mjml><mj-head><mj-raw>Hello World!</mj-raw></mj-head></mjml>"#,
+        );
+        assert!(res.is_ok());
+    }
     #[test]
     fn unexpected_element() {
         let res = crate::mjml::MJML::parse(
