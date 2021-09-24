@@ -2,6 +2,7 @@ use super::MJML;
 use crate::mj_head::MJHead;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
+use std::collections::HashMap;
 use std::rc::Rc;
 
 pub struct MJMLRender<'e, 'h> {
@@ -14,6 +15,10 @@ impl<'e, 'h> Render<'h> for MJMLRender<'e, 'h> {
         self.header.borrow()
     }
 
+    fn attributes(&self) -> Option<&HashMap<String, String>> {
+        Some(&self.element.attributes)
+    }
+
     fn render(&self, opts: &Options) -> Result<String, Error> {
         let body_content = if let Some(body) = self.element.body() {
             body.renderer(Rc::clone(&self.header)).render(opts)?
@@ -21,7 +26,13 @@ impl<'e, 'h> Render<'h> for MJMLRender<'e, 'h> {
             String::from("<body></body>")
         };
         let mut buf = String::from("<!doctype html>");
-        buf.push_str("<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
+        buf.push_str("<html ");
+        if let Some(lang) = self.attribute("lang") {
+            buf.push_str("lang=\"");
+            buf.push_str(lang.as_str());
+            buf.push_str("\" ");
+        }
+        buf.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
         if let Some(head) = self.element.head() {
             buf.push_str(&head.renderer(Rc::clone(&self.header)).render(opts)?);
         } else {

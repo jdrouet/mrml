@@ -14,6 +14,17 @@ impl Parser for MJMLParser {
         Ok(self.0)
     }
 
+    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
+        match name.as_str() {
+            "lang" => self
+                .0
+                .attributes
+                .insert(name.to_string(), value.to_string()),
+            _ => return Err(Error::UnexpectedAttribute(name.start())),
+        };
+        Ok(())
+    }
+
     fn parse_child_element<'a>(
         &mut self,
         tag: StrSpan<'a>,
@@ -56,5 +67,12 @@ mod tests {
         let elt = MJML::parse(template).unwrap();
         assert!(elt.children.body.is_none());
         assert!(elt.children.head.is_none());
+    }
+
+    #[test]
+    fn with_lang() {
+        let template = "<mjml lang=\"fr\"></mjml>";
+        let elt = MJML::parse(template).unwrap();
+        assert_eq!(elt.attributes.get("lang"), Some(&"fr".to_string()));
     }
 }

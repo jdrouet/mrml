@@ -1,6 +1,6 @@
 use super::{MJMLChildren, MJML, NAME};
-use crate::json_children_deserializer;
-use crate::json_children_serializer;
+use crate::json_attrs_and_children_deserializer;
+use crate::json_attrs_and_children_serializer;
 use crate::mj_body::MJBody;
 use crate::mj_head::MJHead;
 use serde::de::{Error, MapAccess, SeqAccess, Visitor};
@@ -71,8 +71,8 @@ impl<'de> Deserialize<'de> for MJMLChildren {
     }
 }
 
-json_children_serializer!(MJML, NAME);
-json_children_deserializer!(MJML, MJMLVisitor, NAME);
+json_attrs_and_children_serializer!(MJML, NAME);
+json_attrs_and_children_deserializer!(MJML, MJMLVisitor, NAME);
 
 #[cfg(test)]
 mod tests {
@@ -86,7 +86,7 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let json = r#"{"type":"mjml","children":[{"type":"mj-head"},{"type":"mj-body","children":["Hello World!"]}]}"#;
+        let json = r#"{"type":"mjml","attributes":{"lang":"fr"},"children":[{"type":"mj-head"},{"type":"mj-body","children":["Hello World!"]}]}"#;
         let res: MJML = serde_json::from_str(json).unwrap();
         assert!(res.children.head.is_some());
         assert!(res.children.body.is_some());

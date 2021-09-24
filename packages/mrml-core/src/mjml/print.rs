@@ -4,12 +4,18 @@ use crate::print_display;
 
 impl Print for MJML {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        print::open(super::NAME, None, false, pretty, level, indent_size)
-            + &self
-                .head()
-                .as_ref()
-                .map(|h| h.print(pretty, level + 1, indent_size))
-                .unwrap_or_default()
+        print::open(
+            super::NAME,
+            Some(&self.attributes),
+            false,
+            pretty,
+            level,
+            indent_size,
+        ) + &self
+            .head()
+            .as_ref()
+            .map(|h| h.print(pretty, level + 1, indent_size))
+            .unwrap_or_default()
             + &self
                 .body()
                 .as_ref()
@@ -25,6 +31,7 @@ print_display!(MJML);
 mod tests {
     use crate::mjml::{MJMLChildren, MJML};
     use crate::prelude::print::Print;
+    use std::collections::HashMap;
 
     #[test]
     fn empty() {
@@ -33,8 +40,16 @@ mod tests {
     }
 
     #[test]
+    fn with_lang() {
+        let mut item = MJML::default();
+        item.attributes.insert("lang".to_string(), "fr".to_string());
+        assert_eq!("<mjml lang=\"fr\"></mjml>", format!("{}", item));
+    }
+
+    #[test]
     fn with_body() {
         let item = MJML {
+            attributes: HashMap::default(),
             children: MJMLChildren {
                 head: None,
                 body: Some(crate::mj_body::MJBody::default()),

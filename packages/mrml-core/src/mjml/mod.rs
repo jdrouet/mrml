@@ -1,5 +1,6 @@
 use crate::mj_body::MJBody;
 use crate::mj_head::MJHead;
+use std::collections::HashMap;
 
 #[cfg(feature = "json")]
 mod json;
@@ -20,6 +21,7 @@ struct MJMLChildren {
 
 #[derive(Debug, Default)]
 pub struct MJML {
+    attributes: HashMap<String, String>,
     children: MJMLChildren,
 }
 
