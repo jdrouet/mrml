@@ -93,7 +93,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
                 let mut renderer = child.renderer(Rc::clone(&self.header));
                 renderer.set_index(index);
                 child_attributes.iter().for_each(|(key, value)| {
-                    renderer.add_extra_attribute(key, &value);
+                    renderer.add_extra_attribute(key, value);
                 });
                 Ok(res
                     + &conditional_tag(td.open())
@@ -113,7 +113,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
                 let mut renderer = child.renderer(Rc::clone(&self.header));
                 renderer.set_index(index);
                 child_attributes.iter().for_each(|(key, value)| {
-                    renderer.add_extra_attribute(key, &value);
+                    renderer.add_extra_attribute(key, value);
                 });
                 Ok(res + &renderer.render(opts)?)
             },

@@ -88,7 +88,7 @@ impl<'h> Header<'h> {
     }
 
     pub fn head(&self) -> &Option<MJHead> {
-        &self.head
+        self.head
     }
 
     pub fn breakpoint(&self) -> &Pixel {
@@ -281,7 +281,7 @@ pub trait Render<'header> {
                 mj_classes
                     .split(' ')
                     .map(|mj_class| mj_class.trim())
-                    .filter_map(|mj_class| header.attribute_class(&mj_class, key))
+                    .filter_map(|mj_class| header.attribute_class(mj_class, key))
                     .next()
             })
         {

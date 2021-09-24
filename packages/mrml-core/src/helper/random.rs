@@ -4,7 +4,7 @@ use std::iter;
 
 pub fn generate(size: usize) -> String {
     if cfg!(test) {
-        iter::repeat("a").take(size).collect::<String>()
+        "a".repeat(size)
     } else {
         let mut rng = thread_rng();
         iter::repeat(())
