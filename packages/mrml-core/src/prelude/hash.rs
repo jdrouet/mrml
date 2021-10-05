@@ -4,12 +4,20 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+#[cfg(feature = "indexmap")]
 use indexmap::IndexMap;
+#[cfg(feature = "indexmap")]
 use rustc_hash::FxHasher;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "indexmap")]
 type HashImpl = std::hash::BuildHasherDefault<FxHasher>;
+
+#[cfg(feature = "indexmap")]
 pub type MapImpl<K, V> = IndexMap<K, V, HashImpl>;
+
+#[cfg(not(feature = "indexmap"))]
+pub type MapImpl<K, V> = std::collections::HashMap<K, V>;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -21,9 +29,14 @@ impl<K, V> Map<K, V>
 where
     K: Hash + Eq,
 {
+    #[cfg(feature = "indexmap")]
     pub fn new() -> Self {
-        // Map(MapImpl::new())
         Map(MapImpl::with_hasher(HashImpl::default()))
+    }
+
+    #[cfg(not(feature = "indexmap"))]
+    pub fn new() -> Self {
+        Map(MapImpl::new())
     }
 }
 

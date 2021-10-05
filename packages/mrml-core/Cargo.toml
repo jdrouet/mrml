@@ -20,6 +20,7 @@ json = ["serde", "serde_json"]
 parse = ["xmlparser"]
 print = []
 render = ["rand"]
+orderedmap = ["indexmap", "rustc-hash"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -28,8 +29,8 @@ rand = { default-features = false, features = ["std", "std_rng"], version = "0.8
 serde = { version = "1.0", optional = true }
 serde_json = { version = "1.0", optional = true }
 xmlparser = { version = "0.13", optional = true }
-indexmap = { version = "1.7", features = ["serde-1"] }
-rustc-hash = "1.1"
+indexmap = { version = "1.7", features = ["serde-1"], optional = true }
+rustc-hash = { version = "1.1", optional = true }
 
 [dev-dependencies]
 criterion = "0.3"
