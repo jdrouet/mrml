@@ -5,7 +5,7 @@ use crate::mj_accordion_text::MJAccordionText;
 use crate::mj_accordion_title::MJAccordionTitle;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 use std::rc::Rc;
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
@@ -23,7 +23,7 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
 struct MJAccordionElementRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
     element: &'e MJAccordionElement,
-    extra: HashMap<String, String>,
+    extra: Map<String, String>,
 }
 
 impl<'e, 'h> MJAccordionElementRender<'e, 'h> {
@@ -71,11 +71,11 @@ impl<'e, 'h> Render<'h> for MJAccordionElementRender<'e, 'h> {
         self.extra.insert(key.to_string(), value.to_string());
     }
 
-    fn extra_attributes(&self) -> Option<&HashMap<String, String>> {
+    fn extra_attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.extra)
     }
 
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.element.attributes)
     }
 
@@ -117,7 +117,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordionElement {
         Box::new(MJAccordionElementRender::<'e, 'h> {
             element: self,
             header,
-            extra: HashMap::new(),
+            extra: Map::new(),
         })
     }
 }

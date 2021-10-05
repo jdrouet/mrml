@@ -8,7 +8,7 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub use children::MJSocialChild;
 
@@ -16,6 +16,6 @@ pub const NAME: &str = "mj-social";
 
 #[derive(Debug, Default)]
 pub struct MJSocial {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<MJSocialChild>,
 }

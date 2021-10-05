@@ -11,11 +11,11 @@ json_attrs_deserializer!(MJImage, MJImageVisitor, NAME);
 #[cfg(test)]
 mod tests {
     use crate::mj_image::MJImage;
-    use std::collections::HashMap;
+    use crate::prelude::hash::Map;
 
     #[test]
     fn serialize() {
-        let mut attrs = HashMap::new();
+        let mut attrs = Map::new();
         attrs.insert("href".to_string(), "https://jolimail.io".to_string());
         let elt = MJImage { attributes: attrs };
         assert_eq!(

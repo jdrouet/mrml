@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 #[cfg(feature = "json")]
 mod json;
@@ -10,14 +10,14 @@ mod print;
 #[derive(Debug, Default)]
 pub struct MJAttributesElement {
     name: String,
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
 }
 
 impl MJAttributesElement {
     pub fn new(name: String) -> Self {
         Self {
             name,
-            attributes: HashMap::new(),
+            attributes: Map::new(),
         }
     }
 }
@@ -27,7 +27,7 @@ impl MJAttributesElement {
         &self.name
     }
 
-    pub fn attributes(&self) -> &HashMap<String, String> {
+    pub fn attributes(&self) -> &Map<String, String> {
         &self.attributes
     }
 }

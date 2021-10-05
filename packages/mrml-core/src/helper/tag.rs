@@ -1,8 +1,10 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashSet};
+
+use crate::prelude::hash::Map;
 
 pub struct Tag {
     name: String,
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     classes: HashSet<String>,
     // in order to keep the style in the same order the've been added
     styles: Vec<(String, String)>,
@@ -37,7 +39,7 @@ impl Tag {
     pub fn new<T: ToString>(name: T) -> Self {
         Self {
             name: name.to_string(),
-            attributes: HashMap::new(),
+            attributes: Map::new(),
             classes: HashSet::new(),
             styles: Vec::new(),
         }

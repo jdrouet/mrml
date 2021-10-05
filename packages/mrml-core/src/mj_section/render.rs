@@ -4,7 +4,7 @@ use crate::helper::size::{Percent, Pixel};
 use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 use std::convert::TryFrom;
 use std::rc::Rc;
 
@@ -438,7 +438,7 @@ impl<'e, 'h> Render<'h> for MJSectionRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.element.attributes)
     }
 

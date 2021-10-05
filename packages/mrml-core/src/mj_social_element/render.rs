@@ -4,7 +4,7 @@ use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 use std::rc::Rc;
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
@@ -21,7 +21,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocialElementChild {
 struct MJSocialElementRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
     element: &'e MJSocialElement,
-    extra: HashMap<String, String>,
+    extra: Map<String, String>,
     container_width: Option<Pixel>,
     network: Option<SocialNetwork>,
 }
@@ -185,11 +185,11 @@ impl<'e, 'h> Render<'h> for MJSocialElementRender<'e, 'h> {
         self.extra.insert(key.to_string(), value.to_string());
     }
 
-    fn extra_attributes(&self) -> Option<&HashMap<String, String>> {
+    fn extra_attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.extra)
     }
 
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.element.attributes)
     }
 
@@ -223,7 +223,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocialElement {
         Box::new(MJSocialElementRender::<'e, 'h> {
             element: self,
             header,
-            extra: HashMap::new(),
+            extra: Map::new(),
             container_width: None,
             network: self
                 .attributes

@@ -9,12 +9,12 @@ mod print;
 mod render;
 
 pub use children::MJNavbarLinkChild;
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub const NAME: &str = "mj-navbar-link";
 
 #[derive(Debug, Default)]
 pub struct MJNavbarLink {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<MJNavbarLinkChild>,
 }

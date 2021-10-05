@@ -1,8 +1,8 @@
 use super::MJML;
 use crate::mj_head::MJHead;
+use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use std::collections::HashMap;
 use std::rc::Rc;
 
 pub struct MJMLRender<'e, 'h> {
@@ -15,7 +15,7 @@ impl<'e, 'h> Render<'h> for MJMLRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.element.attributes)
     }
 
@@ -97,5 +97,19 @@ mod tests {
         let template = include_str!("../../resources/template/amario.mjml");
         let root = MJML::parse(template.to_string()).unwrap();
         assert!(root.render(&opts).is_ok());
+    }
+
+    #[test]
+    fn stable_output() {
+        let source = "<mjml><mj-body><mj-section><mj-column><mj-text>hi</mj-text></mj-column></mj-section></mj-body></mjml>";
+        let options = Options::default();
+
+        let root_1 = MJML::parse(source).unwrap();
+        let root_2 = MJML::parse(source).unwrap();
+
+        let output_1 = root_1.render(&options).unwrap();
+        let output_2 = root_2.render(&options).unwrap();
+
+        assert_eq!(output_1, output_2);
     }
 }

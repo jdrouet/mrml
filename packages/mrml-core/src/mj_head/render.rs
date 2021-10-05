@@ -2,7 +2,7 @@ use super::MJHead;
 use crate::helper::sort::sort_by_key;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 use std::rc::Rc;
 
 fn google_font(name: &str) -> String {
@@ -45,11 +45,11 @@ p { display: block; margin: 13px 0; }
 "#;
 
 impl MJHead {
-    pub fn build_attributes_all(&self) -> HashMap<&str, &str> {
+    pub fn build_attributes_all(&self) -> Map<&str, &str> {
         self.children
             .iter()
             .filter_map(|item| item.as_mj_attributes())
-            .fold(HashMap::<&str, &str>::new(), |result, attrs| {
+            .fold(Map::<&str, &str>::new(), |result, attrs| {
                 attrs
                     .children()
                     .iter()
@@ -65,19 +65,19 @@ impl MJHead {
             })
     }
 
-    pub fn build_attributes_class(&self) -> HashMap<&str, HashMap<&str, &str>> {
+    pub fn build_attributes_class(&self) -> Map<&str, Map<&str, &str>> {
         self.children
             .iter()
             .filter_map(|item| item.as_mj_attributes())
             .fold(
-                HashMap::<&str, HashMap<&str, &str>>::new(),
+                Map::<&str, Map<&str, &str>>::new(),
                 |result, attrs| {
                     attrs
                         .children()
                         .iter()
                         .filter_map(|item| item.as_mj_class())
                         .fold(result, |mut res, class| {
-                            (*res.entry(class.name()).or_insert_with(HashMap::new)).extend(
+                            (*res.entry(class.name()).or_insert_with(Map::new)).extend(
                                 class
                                     .attributes()
                                     .iter()
@@ -89,19 +89,19 @@ impl MJHead {
             )
     }
 
-    pub fn build_attributes_element(&self) -> HashMap<&str, HashMap<&str, &str>> {
+    pub fn build_attributes_element(&self) -> Map<&str, Map<&str, &str>> {
         self.children
             .iter()
             .filter_map(|item| item.as_mj_attributes())
             .fold(
-                HashMap::<&str, HashMap<&str, &str>>::new(),
+                Map::<&str, Map<&str, &str>>::new(),
                 |result, attrs| {
                     attrs
                         .children()
                         .iter()
                         .filter_map(|item| item.as_element())
                         .fold(result, |mut res, element| {
-                            (*res.entry(element.name()).or_insert_with(HashMap::new)).extend(
+                            (*res.entry(element.name()).or_insert_with(Map::new)).extend(
                                 element
                                     .attributes()
                                     .iter()
@@ -113,12 +113,12 @@ impl MJHead {
             )
     }
 
-    pub fn build_font_families(&self) -> HashMap<&str, &str> {
+    pub fn build_font_families(&self) -> Map<&str, &str> {
         self.children
             .iter()
             .filter_map(|item| item.as_mj_font())
             .map(|item| (item.name(), item.href()))
-            .collect::<HashMap<&str, &str>>()
+            .collect::<Map<&str, &str>>()
     }
 }
 

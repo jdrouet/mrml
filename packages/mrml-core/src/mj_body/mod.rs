@@ -9,12 +9,12 @@ mod print;
 mod render;
 
 pub use children::MJBodyChild;
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub const NAME: &str = "mj-body";
 
 #[derive(Debug, Default)]
 pub struct MJBody {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<MJBodyChild>,
 }

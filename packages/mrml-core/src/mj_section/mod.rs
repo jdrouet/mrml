@@ -1,5 +1,5 @@
 use crate::mj_body::MJBodyChild;
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 #[cfg(feature = "json")]
 mod json;
@@ -17,6 +17,6 @@ pub const NAME: &str = "mj-section";
 
 #[derive(Debug, Default)]
 pub struct MJSection {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<MJBodyChild>,
 }

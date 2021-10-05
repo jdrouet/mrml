@@ -11,12 +11,12 @@ mod print;
 mod render;
 
 pub use children::MJSocialElementChild;
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub const NAME: &str = "mj-social-element";
 
 #[derive(Debug, Default)]
 pub struct MJSocialElement {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<MJSocialElementChild>,
 }

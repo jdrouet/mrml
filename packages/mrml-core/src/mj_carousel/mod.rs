@@ -8,7 +8,7 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub use children::MJCarouselChild;
 
@@ -16,6 +16,6 @@ pub const NAME: &str = "mj-carousel";
 
 #[derive(Debug, Default)]
 pub struct MJCarousel {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<MJCarouselChild>,
 }

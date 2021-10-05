@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
+
 
 #[cfg(feature = "json")]
 mod json;
@@ -12,7 +13,7 @@ mod render;
 #[derive(Debug, Default)]
 pub struct Node<T> {
     tag: String,
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<T>,
 }
 
@@ -26,7 +27,7 @@ impl<T> From<String> for Node<T> {
     fn from(tag: String) -> Self {
         Self {
             tag,
-            attributes: HashMap::new(),
+            attributes: Map::new(),
             children: Vec::new(),
         }
     }

@@ -7,11 +7,11 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub const NAME: &str = "mj-carousel-image";
 
 #[derive(Debug, Default)]
 pub struct MJCarouselImage {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
 }
