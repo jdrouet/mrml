@@ -1,7 +1,7 @@
 use super::MJBreakpoint;
+use crate::prelude::hash::Map;
 use crate::prelude::print::{self, Print};
 use crate::print_display;
-use crate::prelude::hash::Map;
 
 impl Print for MJBreakpoint {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {

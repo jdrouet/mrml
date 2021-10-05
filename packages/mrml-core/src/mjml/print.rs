@@ -30,8 +30,8 @@ print_display!(MJML);
 #[cfg(test)]
 mod tests {
     use crate::mjml::{MJMLChildren, MJML};
-    use crate::prelude::print::Print;
     use crate::prelude::hash::Map;
+    use crate::prelude::print::Print;
 
     #[test]
     fn empty() {

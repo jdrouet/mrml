@@ -8,8 +8,8 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-pub use children::MJNavbarLinkChild;
 use crate::prelude::hash::Map;
+pub use children::MJNavbarLinkChild;
 
 pub const NAME: &str = "mj-navbar-link";
 

@@ -10,8 +10,8 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-pub use children::MJSocialElementChild;
 use crate::prelude::hash::Map;
+pub use children::MJSocialElementChild;
 
 pub const NAME: &str = "mj-social-element";
 

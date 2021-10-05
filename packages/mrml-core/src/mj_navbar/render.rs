@@ -3,9 +3,9 @@ use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
 use crate::helper::random;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
+use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use crate::prelude::hash::Map;
 use std::rc::Rc;
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJNavbarChild {

@@ -2,9 +2,9 @@ use super::network::SocialNetwork;
 use super::{MJSocialElement, MJSocialElementChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
+use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use crate::prelude::hash::Map;
 use std::rc::Rc;
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";

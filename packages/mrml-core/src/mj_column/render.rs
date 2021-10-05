@@ -1,9 +1,9 @@
 use super::{MJColumn, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
+use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use crate::prelude::hash::Map;
 use std::rc::Rc;
 
 struct MJColumnRender<'e, 'h> {

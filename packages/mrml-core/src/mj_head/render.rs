@@ -1,8 +1,8 @@
 use super::MJHead;
 use crate::helper::sort::sort_by_key;
+use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use crate::prelude::hash::Map;
 use std::rc::Rc;
 
 fn google_font(name: &str) -> String {
@@ -69,48 +69,42 @@ impl MJHead {
         self.children
             .iter()
             .filter_map(|item| item.as_mj_attributes())
-            .fold(
-                Map::<&str, Map<&str, &str>>::new(),
-                |result, attrs| {
-                    attrs
-                        .children()
-                        .iter()
-                        .filter_map(|item| item.as_mj_class())
-                        .fold(result, |mut res, class| {
-                            (*res.entry(class.name()).or_insert_with(Map::new)).extend(
-                                class
-                                    .attributes()
-                                    .iter()
-                                    .map(|(k, v)| (k.as_str(), v.as_str())),
-                            );
-                            res
-                        })
-                },
-            )
+            .fold(Map::<&str, Map<&str, &str>>::new(), |result, attrs| {
+                attrs
+                    .children()
+                    .iter()
+                    .filter_map(|item| item.as_mj_class())
+                    .fold(result, |mut res, class| {
+                        (*res.entry(class.name()).or_insert_with(Map::new)).extend(
+                            class
+                                .attributes()
+                                .iter()
+                                .map(|(k, v)| (k.as_str(), v.as_str())),
+                        );
+                        res
+                    })
+            })
     }
 
     pub fn build_attributes_element(&self) -> Map<&str, Map<&str, &str>> {
         self.children
             .iter()
             .filter_map(|item| item.as_mj_attributes())
-            .fold(
-                Map::<&str, Map<&str, &str>>::new(),
-                |result, attrs| {
-                    attrs
-                        .children()
-                        .iter()
-                        .filter_map(|item| item.as_element())
-                        .fold(result, |mut res, element| {
-                            (*res.entry(element.name()).or_insert_with(Map::new)).extend(
-                                element
-                                    .attributes()
-                                    .iter()
-                                    .map(|(k, v)| (k.as_str(), v.as_str())),
-                            );
-                            res
-                        })
-                },
-            )
+            .fold(Map::<&str, Map<&str, &str>>::new(), |result, attrs| {
+                attrs
+                    .children()
+                    .iter()
+                    .filter_map(|item| item.as_element())
+                    .fold(result, |mut res, element| {
+                        (*res.entry(element.name()).or_insert_with(Map::new)).extend(
+                            element
+                                .attributes()
+                                .iter()
+                                .map(|(k, v)| (k.as_str(), v.as_str())),
+                        );
+                        res
+                    })
+            })
     }
 
     pub fn build_font_families(&self) -> Map<&str, &str> {

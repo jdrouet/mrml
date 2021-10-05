@@ -7,8 +7,8 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-use crate::text::Text;
 use crate::prelude::hash::Map;
+use crate::text::Text;
 
 pub const NAME: &str = "mj-accordion-title";
 

@@ -1,8 +1,8 @@
 use super::{MJAccordionText, NAME};
 use crate::helper::tag::Tag;
+use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use crate::prelude::hash::Map;
 use std::rc::Rc;
 
 struct MJAccordionTextRender<'e, 'h> {
