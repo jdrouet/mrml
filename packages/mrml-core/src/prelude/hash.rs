@@ -8,6 +8,7 @@ use std::{
 use indexmap::{IndexMap, IndexSet};
 #[cfg(feature = "orderedmap")]
 use rustc_hash::FxHasher;
+#[cfg(feature = "json")]
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "orderedmap")]
@@ -19,8 +20,9 @@ pub type MapImpl<K, V> = IndexMap<K, V, HashImpl>;
 #[cfg(not(feature = "orderedmap"))]
 pub type MapImpl<K, V> = std::collections::HashMap<K, V>;
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-#[serde(transparent)]
+#[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "json", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", serde(transparent))]
 pub struct Map<K, V>(MapImpl<K, V>)
 where
     K: Hash + Eq;
@@ -75,8 +77,9 @@ pub type SetImpl<V> = IndexSet<V, HashImpl>;
 #[cfg(not(feature = "orderedmap"))]
 pub type SetImpl<V> = std::collections::HashSet<V>;
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-#[serde(transparent)]
+#[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "json", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "json", serde(transparent))]
 pub struct Set<V>(SetImpl<V>)
 where
     V: Hash + Eq;
