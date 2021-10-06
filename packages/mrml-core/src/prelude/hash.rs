@@ -4,19 +4,19 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-#[cfg(feature = "indexmap")]
-use indexmap::IndexMap;
-#[cfg(feature = "indexmap")]
+#[cfg(feature = "orderedmap")]
+use indexmap::{IndexMap, IndexSet};
+#[cfg(feature = "orderedmap")]
 use rustc_hash::FxHasher;
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "indexmap")]
+#[cfg(feature = "orderedmap")]
 type HashImpl = std::hash::BuildHasherDefault<FxHasher>;
 
-#[cfg(feature = "indexmap")]
+#[cfg(feature = "orderedmap")]
 pub type MapImpl<K, V> = IndexMap<K, V, HashImpl>;
 
-#[cfg(not(feature = "indexmap"))]
+#[cfg(not(feature = "orderedmap"))]
 pub type MapImpl<K, V> = std::collections::HashMap<K, V>;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
@@ -29,12 +29,12 @@ impl<K, V> Map<K, V>
 where
     K: Hash + Eq,
 {
-    #[cfg(feature = "indexmap")]
+    #[cfg(feature = "orderedmap")]
     pub fn new() -> Self {
         Map(MapImpl::with_hasher(HashImpl::default()))
     }
 
-    #[cfg(not(feature = "indexmap"))]
+    #[cfg(not(feature = "orderedmap"))]
     pub fn new() -> Self {
         Map(MapImpl::new())
     }
@@ -66,5 +66,61 @@ where
 {
     fn from_iter<T: IntoIterator<Item = (K, V)>>(iter: T) -> Self {
         Map(MapImpl::from_iter(iter))
+    }
+}
+
+#[cfg(feature = "orderedmap")]
+pub type SetImpl<V> = IndexSet<V, HashImpl>;
+
+#[cfg(not(feature = "orderedmap"))]
+pub type SetImpl<V> = std::collections::HashSet<V>;
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Set<V>(SetImpl<V>)
+where
+    V: Hash + Eq;
+
+impl<V> Set<V>
+where
+    V: Hash + Eq,
+{
+    #[cfg(feature = "orderedmap")]
+    pub fn new() -> Self {
+        Set(SetImpl::with_hasher(HashImpl::default()))
+    }
+
+    #[cfg(not(feature = "orderedmap"))]
+    pub fn new() -> Self {
+        Set(SetImpl::new())
+    }
+}
+
+impl<V> Deref for Set<V>
+where
+    V: Hash + Eq,
+{
+    type Target = SetImpl<V>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<V> DerefMut for Set<V>
+where
+    V: Hash + Eq,
+{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl<V> FromIterator<V> for Set<V>
+where
+    V: Hash + Eq,
+{
+    fn from_iter<T: IntoIterator<Item = V>>(iter: T) -> Self {
+        Set(SetImpl::from_iter(iter))
     }
 }

@@ -4,9 +4,10 @@ use crate::helper::tag::Tag;
 use crate::mj_head::MJHead;
 use crate::prelude::hash::Map;
 use std::cell::{Ref, RefCell};
-use std::collections::HashSet;
 use std::convert::TryFrom;
 use std::rc::Rc;
+
+use super::hash::Set;
 
 #[derive(Debug)]
 pub enum Error {
@@ -34,9 +35,9 @@ pub struct Header<'h> {
     attributes_element: Map<&'h str, Map<&'h str, &'h str>>,
     breakpoint: Pixel,
     font_families: Map<&'h str, &'h str>,
-    used_font_families: HashSet<String>,
+    used_font_families: Set<String>,
     media_queries: Map<String, Size>,
-    styles: HashSet<String>,
+    styles: Set<String>,
 }
 
 impl<'h> Header<'h> {
@@ -64,9 +65,9 @@ impl<'h> Header<'h> {
                 .as_ref()
                 .map(|h| h.build_font_families())
                 .unwrap_or_default(),
-            used_font_families: HashSet::new(),
+            used_font_families: Set::new(),
             media_queries: Map::new(),
-            styles: HashSet::new(),
+            styles: Set::new(),
         }
     }
 
@@ -117,7 +118,7 @@ impl<'h> Header<'h> {
         }
     }
 
-    pub fn used_font_families(&self) -> &HashSet<String> {
+    pub fn used_font_families(&self) -> &Set<String> {
         &self.used_font_families
     }
 
@@ -133,7 +134,7 @@ impl<'h> Header<'h> {
         self.media_queries.insert(classname, size);
     }
 
-    pub fn styles(&self) -> &HashSet<String> {
+    pub fn styles(&self) -> &Set<String> {
         &self.styles
     }
 
