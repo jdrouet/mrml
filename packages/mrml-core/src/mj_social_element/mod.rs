@@ -10,13 +10,13 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use crate::prelude::hash::Map;
 pub use children::MJSocialElementChild;
-use std::collections::HashMap;
 
 pub const NAME: &str = "mj-social-element";
 
 #[derive(Debug, Default)]
 pub struct MJSocialElement {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<MJSocialElementChild>,
 }

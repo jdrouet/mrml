@@ -8,12 +8,12 @@ mod print;
 mod render;
 
 use crate::mj_raw::MJRawChild;
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub const NAME: &str = "mj-accordion-text";
 
 #[derive(Debug, Default)]
 pub struct MJAccordionText {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<MJRawChild>,
 }

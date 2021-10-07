@@ -4,3 +4,5 @@ pub mod parse;
 pub mod print;
 #[cfg(feature = "render")]
 pub mod render;
+
+pub mod hash;

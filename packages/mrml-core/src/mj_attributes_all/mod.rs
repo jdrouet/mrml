@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 #[cfg(feature = "json")]
 mod json;
@@ -11,11 +11,11 @@ pub const NAME: &str = "mj-all";
 
 #[derive(Debug, Default)]
 pub struct MJAttributesAll {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
 }
 
 impl MJAttributesAll {
-    pub fn attributes(&self) -> &HashMap<String, String> {
+    pub fn attributes(&self) -> &Map<String, String> {
         &self.attributes
     }
 }

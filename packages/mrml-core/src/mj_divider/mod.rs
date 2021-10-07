@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 #[cfg(feature = "json")]
 mod json;
@@ -13,5 +13,5 @@ pub const NAME: &str = "mj-divider";
 
 #[derive(Debug, Default)]
 pub struct MJDivider {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
 }

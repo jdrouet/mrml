@@ -1,5 +1,5 @@
 use crate::helper::sort::sort_by_key;
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub trait Print {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String;
@@ -19,7 +19,7 @@ pub fn indent(level: usize, indent_size: usize, value: String) -> String {
     format!("{}{}\n", spaces, value)
 }
 
-pub fn attributes(attrs: Option<&HashMap<String, String>>) -> String {
+pub fn attributes(attrs: Option<&Map<String, String>>) -> String {
     attrs
         .map(|attrs| {
             let mut entries: Vec<(&String, &String)> = attrs.iter().collect();
@@ -34,7 +34,7 @@ pub fn attributes(attrs: Option<&HashMap<String, String>>) -> String {
 
 pub fn open(
     tag: &str,
-    attrs: Option<&HashMap<String, String>>,
+    attrs: Option<&Map<String, String>>,
     closed: bool,
     pretty: bool,
     level: usize,

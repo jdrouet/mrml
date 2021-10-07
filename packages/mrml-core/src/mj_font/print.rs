@@ -1,11 +1,11 @@
 use super::MJFont;
+use crate::prelude::hash::Map;
 use crate::prelude::print::{self, Print};
 use crate::print_display;
-use std::collections::HashMap;
 
 impl Print for MJFont {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        let mut attrs = HashMap::new();
+        let mut attrs = Map::new();
         attrs.insert("name".to_string(), self.name().to_string());
         attrs.insert("href".to_string(), self.href().to_string());
         print::open(super::NAME, Some(&attrs), true, pretty, level, indent_size)

@@ -10,7 +10,7 @@ mod render;
 
 use crate::mj_accordion_text::MJAccordionText;
 use crate::mj_accordion_title::MJAccordionTitle;
-use std::collections::HashMap;
+use crate::prelude::hash::Map;
 
 pub use children::MJAccordionElementChild;
 
@@ -24,6 +24,6 @@ struct MJAccordionElementChildren {
 
 #[derive(Debug, Default)]
 pub struct MJAccordionElement {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: MJAccordionElementChildren,
 }

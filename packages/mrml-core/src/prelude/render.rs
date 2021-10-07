@@ -2,10 +2,12 @@ use crate::helper::size::{Pixel, Size};
 use crate::helper::spacing::Spacing;
 use crate::helper::tag::Tag;
 use crate::mj_head::MJHead;
+use crate::prelude::hash::Map;
 use std::cell::{Ref, RefCell};
-use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::rc::Rc;
+
+use super::hash::Set;
 
 #[derive(Debug)]
 pub enum Error {
@@ -28,14 +30,14 @@ pub struct Options {
 
 pub struct Header<'h> {
     head: &'h Option<MJHead>,
-    attributes_all: HashMap<&'h str, &'h str>,
-    attributes_class: HashMap<&'h str, HashMap<&'h str, &'h str>>,
-    attributes_element: HashMap<&'h str, HashMap<&'h str, &'h str>>,
+    attributes_all: Map<&'h str, &'h str>,
+    attributes_class: Map<&'h str, Map<&'h str, &'h str>>,
+    attributes_element: Map<&'h str, Map<&'h str, &'h str>>,
     breakpoint: Pixel,
-    font_families: HashMap<&'h str, &'h str>,
-    used_font_families: HashSet<String>,
-    media_queries: HashMap<String, Size>,
-    styles: HashSet<String>,
+    font_families: Map<&'h str, &'h str>,
+    used_font_families: Set<String>,
+    media_queries: Map<String, Size>,
+    styles: Set<String>,
 }
 
 impl<'h> Header<'h> {
@@ -63,9 +65,9 @@ impl<'h> Header<'h> {
                 .as_ref()
                 .map(|h| h.build_font_families())
                 .unwrap_or_default(),
-            used_font_families: HashSet::new(),
-            media_queries: HashMap::new(),
-            styles: HashSet::new(),
+            used_font_families: Set::new(),
+            media_queries: Map::new(),
+            styles: Set::new(),
         }
     }
 
@@ -116,15 +118,15 @@ impl<'h> Header<'h> {
         }
     }
 
-    pub fn used_font_families(&self) -> &HashSet<String> {
+    pub fn used_font_families(&self) -> &Set<String> {
         &self.used_font_families
     }
 
-    pub fn font_families(&self) -> &HashMap<&str, &str> {
+    pub fn font_families(&self) -> &Map<&str, &str> {
         &self.font_families
     }
 
-    pub fn media_queries(&self) -> &HashMap<String, Size> {
+    pub fn media_queries(&self) -> &Map<String, Size> {
         &self.media_queries
     }
 
@@ -132,7 +134,7 @@ impl<'h> Header<'h> {
         self.media_queries.insert(classname, size);
     }
 
-    pub fn styles(&self) -> &HashSet<String> {
+    pub fn styles(&self) -> &Set<String> {
         &self.styles
     }
 
@@ -153,11 +155,11 @@ pub trait Render<'header> {
         None
     }
 
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Map<String, String>> {
         None
     }
 
-    fn extra_attributes(&self) -> Option<&HashMap<String, String>> {
+    fn extra_attributes(&self) -> Option<&Map<String, String>> {
         None
     }
 

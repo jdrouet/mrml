@@ -1,16 +1,16 @@
 use super::{MJColumn, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
+use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use std::collections::HashMap;
 use std::rc::Rc;
 
 struct MJColumnRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
     element: &'e MJColumn,
     // TODO change lifetime
-    extra: HashMap<String, String>,
+    extra: Map<String, String>,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
@@ -216,11 +216,11 @@ impl<'e, 'h> Render<'h> for MJColumnRender<'e, 'h> {
         self.current_width().map(Size::Pixel)
     }
 
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.element.attributes)
     }
 
-    fn extra_attributes(&self) -> Option<&HashMap<String, String>> {
+    fn extra_attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.extra)
     }
 
@@ -280,7 +280,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJColumn {
             element: self,
             header,
             container_width: None,
-            extra: HashMap::new(),
+            extra: Map::new(),
             siblings: 1,
             raw_siblings: 0,
         })

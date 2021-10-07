@@ -7,13 +7,13 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use crate::prelude::hash::Map;
 use crate::text::Text;
-use std::collections::HashMap;
 
 pub const NAME: &str = "mj-accordion-title";
 
 #[derive(Debug, Default)]
 pub struct MJAccordionTitle {
-    attributes: HashMap<String, String>,
+    attributes: Map<String, String>,
     children: Vec<Text>,
 }

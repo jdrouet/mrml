@@ -30,8 +30,8 @@ print_display!(MJML);
 #[cfg(test)]
 mod tests {
     use crate::mjml::{MJMLChildren, MJML};
+    use crate::prelude::hash::Map;
     use crate::prelude::print::Print;
-    use std::collections::HashMap;
 
     #[test]
     fn empty() {
@@ -49,7 +49,7 @@ mod tests {
     #[test]
     fn with_body() {
         let item = MJML {
-            attributes: HashMap::default(),
+            attributes: Map::default(),
             children: MJMLChildren {
                 head: None,
                 body: Some(crate::mj_body::MJBody::default()),

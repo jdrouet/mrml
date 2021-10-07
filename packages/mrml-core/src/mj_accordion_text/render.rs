@@ -1,14 +1,14 @@
 use super::{MJAccordionText, NAME};
 use crate::helper::tag::Tag;
+use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
-use std::collections::HashMap;
 use std::rc::Rc;
 
 struct MJAccordionTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
     element: &'e MJAccordionText,
-    extra: HashMap<String, String>,
+    extra: Map<String, String>,
 }
 
 impl<'e, 'h> MJAccordionTextRender<'e, 'h> {
@@ -51,11 +51,11 @@ impl<'e, 'h> Render<'h> for MJAccordionTextRender<'e, 'h> {
         self.extra.insert(key.to_string(), value.to_string());
     }
 
-    fn extra_attributes(&self) -> Option<&HashMap<String, String>> {
+    fn extra_attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.extra)
     }
 
-    fn attributes(&self) -> Option<&HashMap<String, String>> {
+    fn attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.element.attributes)
     }
 
@@ -90,7 +90,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordionText {
         Box::new(MJAccordionTextRender::<'e, 'h> {
             element: self,
             header,
-            extra: HashMap::default(),
+            extra: Map::default(),
         })
     }
 }
