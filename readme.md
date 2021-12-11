@@ -18,7 +18,7 @@ This project is a reimplementation of the nice MJML markup language in Rust.
 
 ```bash
 # installing mrml-cli
-cargo install mrml-cli
+cargo install --locked mrml-cli
 # using it 
 mrml-cli path/to/template.mjml validate
 mrml-cli path/to/template.mjml render
