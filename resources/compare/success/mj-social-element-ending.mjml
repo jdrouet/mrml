@@ -1,0 +1,13 @@
+<mjml>
+  <mj-body>
+    <mj-section background-color="#e7e7e7">
+      <mj-column>
+        <mj-social>
+          <mj-social-element name="facebook">
+            Share <b>test</b> hi
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
