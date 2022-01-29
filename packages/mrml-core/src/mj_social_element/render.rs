@@ -1,5 +1,5 @@
 use super::network::SocialNetwork;
-use super::{MJSocialElement, MJSocialElementChild, NAME};
+use super::{MJSocialElement, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -8,15 +8,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
-
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocialElementChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        match self {
-            Self::Text(elt) => elt.renderer(header),
-            Self::Comment(elt) => elt.renderer(header),
-        }
-    }
-}
 
 struct MJSocialElementRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -230,5 +221,24 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocialElement {
                 .get("name")
                 .and_then(|name| SocialNetwork::find(name)),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::helper::test::compare;
+    use crate::mjml::MJML;
+    use crate::prelude::render::Options;
+
+    #[test]
+    fn render_ending_tag() {
+        let opts = Options::default();
+        let template =
+            include_str!("../../resources/compare/success/mj-social-element-ending.mjml");
+        let expected =
+            include_str!("../../resources/compare/success/mj-social-element-ending.html");
+        let root = MJML::parse(template.to_string()).unwrap();
+        let result = root.render(&opts).unwrap();
+        compare(expected, result.as_str());
     }
 }
