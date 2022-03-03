@@ -5,7 +5,7 @@ stages:
 
 lint-clippy:
   stage: lint
-  image: jdrouet/clippy:alpine
+  image: jdrouet/clippy:latest
   script:
     - cargo clippy -- -D warnings -A clippy::upper-case-acronyms
 
