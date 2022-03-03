@@ -58,7 +58,7 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
         } else {
             format!("mj-column-px-{}", parsed_width.value())
         };
-        (classname.replace(".", "-"), parsed_width)
+        (classname.replace('.', "-"), parsed_width)
     }
 
     fn set_style_root_div(&self, tag: Tag) -> Tag {

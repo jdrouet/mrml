@@ -61,7 +61,7 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
         } else {
             format!("mj-column-px-{}", parsed_width.value())
         };
-        (classname.replace(".", "-"), parsed_width)
+        (classname.replace('.', "-"), parsed_width)
     }
 
     fn get_mobile_width(&self) -> Option<Size> {
