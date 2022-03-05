@@ -63,7 +63,7 @@ pub trait WithMJSectionBackground<'h>: Render<'h> {
             res.push(color);
         }
         if let Some(url) = self.attribute("background-url") {
-            res.push(format!("url({})", url));
+            res.push(format!("url('{}')", url));
             // has default value
             res.push(format!(
                 "{} / {}",
@@ -250,7 +250,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
     }
 
     fn render_wrap<T: AsRef<str>>(&self, content: T) -> String {
-        let table = Tag::table_borderless()
+        let table = Tag::table_presentation()
             .maybe_add_attribute("bgcolor", self.attribute("background-color"))
             .add_attribute("align", "center")
             .maybe_add_attribute(

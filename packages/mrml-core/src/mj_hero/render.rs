@@ -176,10 +176,9 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
             .maybe_add_attribute("width", self.attribute("align"))
             .add_class("mj-hero-content");
         let inner_table = self.set_style_inner_table(Tag::table_presentation());
-        let content =
-            outlook_inner_div.render(inner_table.render(
-                tr.render(Tag::td().render(inner_table.render(self.render_children(opts)?))),
-            ));
+        let content = outlook_inner_div.render(inner_table.render(Tag::tbody().render(tr.render(
+            Tag::td().render(inner_table.render(Tag::tbody().render(self.render_children(opts)?))),
+        ))));
         let before = conditional_tag(table.open() + &tr.open() + &outlook_inner_td.open());
         let after = conditional_tag(outlook_inner_td.close() + &tr.close() + &table.close());
         Ok(before + &content + &after)
@@ -273,7 +272,7 @@ impl<'e, 'h> Render<'h> for MJHeroRender<'e, 'h> {
         let table = self.set_style_table(Tag::table_presentation());
         let tr = self.set_style_tr(Tag::tr());
         let content = self.render_mode(opts)?;
-        let content = div.render(table.render(tr.render(content)));
+        let content = div.render(table.render(Tag::tbody().render(tr.render(content))));
         let before = conditional_tag(
             outlook_table.open() + &outlook_tr.open() + &outlook_td.open() + &v_image.closed(),
         );

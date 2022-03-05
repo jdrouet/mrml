@@ -84,6 +84,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
             .maybe_add_attribute("align", self.attribute("align"))
             .add_style("float", "none")
             .add_style("display", "inline-table");
+        let inner_tbody = Tag::tbody();
         let before = conditional_tag(table.open() + &tr.open());
         let after = conditional_tag(tr.close() + &table.close());
         let child_attributes = self.build_child_attributes();
@@ -97,7 +98,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
                 });
                 Ok(res
                     + &conditional_tag(td.open())
-                    + &inner_table.render(renderer.render(opts)?)
+                    + &inner_table.render(inner_tbody.render(renderer.render(opts)?))
                     + &conditional_tag(td.close()))
             },
         )?;
@@ -118,7 +119,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
                 Ok(res + &renderer.render(opts)?)
             },
         )?;
-        Ok(table.render(content))
+        Ok(table.render(Tag::tbody().render(content)))
     }
 }
 

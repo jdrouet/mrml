@@ -145,7 +145,9 @@ impl<'e, 'h> Render<'h> for MJButtonRender<'e, 'h> {
             );
         let link = self.set_style_content(link);
 
-        Ok(table.render(tr.render(td.render(link.render(self.render_children(opts)?)))))
+        Ok(table.render(
+            Tag::tbody().render(tr.render(td.render(link.render(self.render_children(opts)?)))),
+        ))
     }
 }
 

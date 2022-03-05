@@ -103,6 +103,7 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
 
     fn render_icon(&self, href: &Option<String>, opts: &Options) -> String {
         let table = self.set_style_table(Tag::table_presentation());
+        let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_icon(Tag::td());
         let a = Tag::new("a")
@@ -125,11 +126,11 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
                 self.get_icon_size().map(|size| size.value().to_string()),
             );
 
-        table.render(tr.render(td.render(if href.is_some() {
+        table.render(tbody.render(tr.render(td.render(if href.is_some() {
             a.render(img.closed())
         } else {
             img.closed()
-        })))
+        }))))
     }
 
     fn render_text(&self, href: &Option<String>, opts: &Options) -> Result<String, Error> {
