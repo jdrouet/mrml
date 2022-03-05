@@ -166,7 +166,7 @@ pub trait WithMJSectionBackground<'h>: Render<'h> {
         let vsize = match bg_size.as_deref() {
             Some("cover") | Some("contain") => Some("1,1".to_string()),
             Some("auto") => None,
-            Some(value) => Some(value.replace(" ", ",")),
+            Some(value) => Some(value.replace(' ', ",")),
             None => None,
         };
         let aspect = match bg_size.as_deref() {

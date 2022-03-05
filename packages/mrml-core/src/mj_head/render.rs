@@ -8,7 +8,7 @@ use std::rc::Rc;
 fn google_font(name: &str) -> String {
     format!(
         "https://fonts.googleapis.com/css?family={}:300,400,500,700",
-        name.replace(" ", "+")
+        name.replace(' ', "+")
     )
 }
 

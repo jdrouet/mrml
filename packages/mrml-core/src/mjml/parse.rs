@@ -16,7 +16,7 @@ impl Parser for MJMLParser {
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
         match name.as_str() {
-            "lang" => self
+            "lang" | "owa" => self
                 .0
                 .attributes
                 .insert(name.to_string(), value.to_string()),
@@ -74,5 +74,12 @@ mod tests {
         let template = "<mjml lang=\"fr\"></mjml>";
         let elt = MJML::parse(template).unwrap();
         assert_eq!(elt.attributes.get("lang"), Some(&"fr".to_string()));
+    }
+
+    #[test]
+    fn with_owa() {
+        let template = "<mjml owa=\"desktop\"></mjml>";
+        let elt = MJML::parse(template).unwrap();
+        assert_eq!(elt.attributes.get("owa"), Some(&"desktop".to_string()));
     }
 }
