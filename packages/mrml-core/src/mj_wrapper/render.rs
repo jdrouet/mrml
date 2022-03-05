@@ -1,5 +1,5 @@
 use super::{MJWrapper, NAME};
-use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
+use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::mj_section::WithMJSectionBackground;
@@ -111,32 +111,27 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
         let raw_siblings = self.get_raw_siblings();
         let current_width = self.current_width();
         let container_width = self.container_width.as_ref().map(|v| v.to_string());
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_siblings(siblings);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_container_width(current_width.clone());
-                if child.is_raw() {
-                    Ok(res + END_CONDITIONAL_TAG + &renderer.render(opts)? + START_CONDITIONAL_TAG)
-                } else {
-                    let td = renderer
-                        .set_style("td-outlook", Tag::td())
-                        .maybe_add_attribute("align", renderer.attribute("align"))
-                        .maybe_add_attribute("width", container_width.as_ref())
-                        .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                    Ok(res
-                        + &td.open()
-                        + END_CONDITIONAL_TAG
-                        + &renderer.render(opts)?
-                        + START_CONDITIONAL_TAG
-                        + &td.close())
-                }
-            })?;
-        Ok(tr.render(content))
+        let mut result = conditional_tag(tr.open());
+        for child in self.element.children.iter() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_siblings(siblings);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_container_width(current_width.clone());
+            if child.is_raw() {
+                result.push_str(&renderer.render(opts)?);
+            } else {
+                let td = renderer
+                    .set_style("td-outlook", Tag::td())
+                    .maybe_add_attribute("align", renderer.attribute("align"))
+                    .maybe_add_attribute("width", container_width.as_ref())
+                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
+                result.push_str(&conditional_tag(td.open()));
+                result.push_str(&renderer.render(opts)?);
+                result.push_str(&conditional_tag(td.close()));
+            }
+        }
+        result.push_str(&conditional_tag(tr.close()));
+        Ok(result)
     }
 
     fn set_style_section_inner_div(&self, tag: Tag) -> Tag {
