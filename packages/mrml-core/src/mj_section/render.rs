@@ -1,5 +1,5 @@
 use super::{MJSection, NAME};
-use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
+use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Percent, Pixel};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -195,15 +195,11 @@ pub trait WithMJSectionBackground<'h>: Render<'h> {
     }
 }
 
-struct MJSectionRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJSection,
-    container_width: Option<Pixel>,
-}
+pub trait SectionLikeRender<'h>: WithMJSectionBackground<'h> {
+    fn clone_header(&self) -> Rc<RefCell<Header<'h>>>;
+    fn container_width(&self) -> &Option<Pixel>;
+    fn children(&self) -> &Vec<crate::mj_body::MJBodyChild>;
 
-impl<'e, 'h> WithMJSectionBackground<'h> for MJSectionRender<'e, 'h> {}
-
-impl<'e, 'h> MJSectionRender<'e, 'h> {
     fn is_full_width(&self) -> bool {
         self.attribute_exists("full-width")
     }
@@ -220,7 +216,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
                 if full_width {
                     None
                 } else {
-                    self.container_width.as_ref().map(|v| v.to_string())
+                    self.container_width().as_ref().map(|v| v.to_string())
                 },
             )
             .add_attribute("xmlns:v", "urn:schemas-microsoft-com:vml")
@@ -245,7 +241,7 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             .maybe_add_style("border-radius", self.attribute("border-radius"))
             .maybe_add_style(
                 "max-width",
-                self.container_width.as_ref().map(|item| item.to_string()),
+                self.container_width().as_ref().map(|item| item.to_string()),
             )
     }
 
@@ -255,11 +251,13 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             .add_attribute("align", "center")
             .maybe_add_attribute(
                 "width",
-                self.container_width.as_ref().map(|p| p.value().to_string()),
+                self.container_width()
+                    .as_ref()
+                    .map(|p| p.value().to_string()),
             )
             .maybe_add_style(
                 "width",
-                self.container_width.as_ref().map(|v| v.to_string()),
+                self.container_width().as_ref().map(|v| v.to_string()),
             )
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
         let tr = Tag::tr();
@@ -273,46 +271,37 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
     }
 
     fn get_siblings(&self) -> usize {
-        self.element.children.len()
+        self.children().len()
     }
 
     fn get_raw_siblings(&self) -> usize {
-        self.element
-            .children
-            .iter()
-            .filter(|elt| elt.is_raw())
-            .count()
+        self.children().iter().filter(|elt| elt.is_raw()).count()
     }
 
     fn render_wrapped_children(&self, opts: &Options) -> Result<String, Error> {
-        let tr = Tag::tr();
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_siblings(siblings);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_container_width(self.container_width.clone());
-                if child.is_raw() {
-                    Ok(res + END_CONDITIONAL_TAG + &renderer.render(opts)? + START_CONDITIONAL_TAG)
-                } else {
-                    let td = renderer
-                        .set_style("td-outlook", Tag::td())
-                        .maybe_add_attribute("align", renderer.attribute("align"))
-                        .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                    Ok(res
-                        + &td.open()
-                        + END_CONDITIONAL_TAG
-                        + &renderer.render(opts)?
-                        + START_CONDITIONAL_TAG
-                        + &td.close())
-                }
-            })?;
-        Ok(tr.render(content))
+        let tr = Tag::tr();
+        let mut result = conditional_tag(tr.open());
+        for child in self.children().iter() {
+            let mut renderer = child.renderer(self.clone_header());
+            renderer.set_siblings(siblings);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_container_width(self.container_width().clone());
+            if child.is_raw() {
+                result.push_str(&renderer.render(opts)?);
+            } else {
+                let td = renderer
+                    .set_style("td-outlook", Tag::td())
+                    .maybe_add_attribute("align", renderer.attribute("align"))
+                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
+                result.push_str(&conditional_tag(td.open()));
+                result.push_str(&renderer.render(opts)?);
+                result.push_str(&conditional_tag(td.close()));
+            }
+        }
+        result.push_str(&conditional_tag(tr.close()));
+        Ok(result)
     }
 
     fn set_style_section_inner_div(&self, tag: Tag) -> Tag {
@@ -372,8 +361,14 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
         let tr = Tag::tr();
         let td = self.set_style_section_td(Tag::td());
         let inner_table = Tag::table_presentation();
-        let content = conditional_tag(inner_table.render(self.render_wrapped_children(opts)?));
-        let content = table.render(tbody.render(tr.render(td.render(content))));
+
+        let content = self.render_wrapped_children(opts)?;
+        let content =
+            conditional_tag(inner_table.open()) + &content + &conditional_tag(inner_table.close());
+        let content = td.render(content);
+        let content = tr.render(content);
+        let content = tbody.render(content);
+        let content = table.render(content);
         Ok(div.render(if self.has_background() {
             inner_div.render(content)
         } else {
@@ -421,6 +416,27 @@ impl<'e, 'h> MJSectionRender<'e, 'h> {
             section
         };
         Ok(self.render_wrap(section))
+    }
+}
+
+struct MJSectionRender<'e, 'h> {
+    header: Rc<RefCell<Header<'h>>>,
+    element: &'e MJSection,
+    container_width: Option<Pixel>,
+}
+
+impl<'e, 'h> WithMJSectionBackground<'h> for MJSectionRender<'e, 'h> {}
+impl<'e, 'h> SectionLikeRender<'h> for MJSectionRender<'e, 'h> {
+    fn clone_header(&self) -> Rc<RefCell<Header<'h>>> {
+        Rc::clone(&self.header)
+    }
+
+    fn children(&self) -> &Vec<crate::mj_body::MJBodyChild> {
+        &self.element.children
+    }
+
+    fn container_width(&self) -> &Option<Pixel> {
+        &self.container_width
     }
 }
 

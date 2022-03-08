@@ -34,7 +34,6 @@ rustc-hash = { version = "1.1", optional = true }
 
 [dev-dependencies]
 criterion = "0.3"
-html_parser = "0.6.2"
 
 [[bench]]
 name = "basic"

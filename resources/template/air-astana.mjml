@@ -12,30 +12,30 @@
       @media {
         @font-face {
           font-family: SourceSans-Bold;
-          src: url('https://upgrade-stage-cdn.plusgrade.com/offer/fonts/source-sans/SourceSansPro-Bold.otf');
+          src: url('https://somewhere.com/offer/fonts/source-sans/SourceSansPro-Bold.otf');
           font-weight: bold;
           font-style: normal;
         }
 
         @font-face {
           font-family: SourceSans;
-          src: url('https://upgrade-stage-cdn.plusgrade.com/offer/fonts/source-sans/SourceSansPro-Regular.otf'),
-            url('https://upgrade-stage-cdn.plusgrade.com/offer/fonts/source-sans/SourceSansPro-Regular.woff') format('woff'),
-            url('https://upgrade-stage-cdn.plusgrade.com/offer/fonts/source-sans/SourceSansPro-Regular.ttf') format('truetype');
+          src: url('https://somewhere.com/offer/fonts/source-sans/SourceSansPro-Regular.otf'),
+            url('https://somewhere.com/offer/fonts/source-sans/SourceSansPro-Regular.woff') format('woff'),
+            url('https://somewhere.com/offer/fonts/source-sans/SourceSansPro-Regular.ttf') format('truetype');
           font-weight: normal;
           font-style: normal;
         }
 
         @font-face {
           font-family: Varela Round;
-          src: url('https://upgrade-stage-cdn.plusgrade.com/offer/fonts/varela/Varela-Regular.otf');
+          src: url('https://somewhere.com/offer/fonts/varela/Varela-Regular.otf');
           font-weight: normal;
           font-style: normal;
         }
 
         @font-face {
           font-family: 'Proxima Nova';
-          src: url('https://upgrade-cdn.plusgrade.com/offer/fonts/ProximaNova/ProximaNova.otf') format('opentype');
+          src: url('htsomewhere.com/offer/fonts/ProximaNova/ProximaNova.otf') format('opentype');
           font-weight: normal;
           font-style: normal;
         }
@@ -84,11 +84,6 @@
      
     </mj-section>
     <mj-wrapper background-color="white" padding="20px 25px">
-      <mj-section border="2px solid #A5965D">
-        <mj-column>
-          <mj-text padding="15px" line-height="1.5">Пожалуйста, выберите желаемый язык вверху этой страницы.<br />Бас парақшасының жоғарғы жағында өзіңізге ыңғайлы тілді таңдауға болады.<br />Please select your preferred language at the top of this page. </mj-text>
-        </mj-column>
-      </mj-section>
 
       <mj-section padding="0">
         <mj-column>
