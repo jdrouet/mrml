@@ -100,6 +100,15 @@ mod tests {
     }
 
     #[test]
+    fn template_air_astana() {
+        let opts = Options::default();
+        let template = include_str!("../../resources/template/air-astana.mjml");
+        let expected = include_str!("../../resources/template/air-astana.html");
+        let root = MJML::parse(template.to_string()).unwrap();
+        compare(expected, root.render(&opts).unwrap().as_str());
+    }
+
+    #[test]
     #[cfg(feature = "orderedmap")]
     fn stable_output() {
         let source = "<mjml><mj-body><mj-section><mj-column><mj-text>hi</mj-text></mj-column></mj-section></mj-body></mjml>";

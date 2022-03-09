@@ -45,9 +45,9 @@ impl<'e, 'h> MJTextRender<'e, 'h> {
             .add_attribute("height", height)
             .add_style("vertical-align", "top")
             .add_style("height", height);
-        Ok(conditional_tag(
-            table.render(tr.render(td.render(self.render_content(opts)?))),
-        ))
+        Ok(conditional_tag(table.open() + &tr.open() + &td.open())
+            + &self.render_content(opts)?
+            + &conditional_tag(td.close() + &tr.close() + &table.close()))
     }
 }
 

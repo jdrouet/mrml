@@ -26,7 +26,7 @@ orderedmap = ["indexmap", "rustc-hash"]
 
 [dependencies]
 rand = { default-features = false, features = ["std", "std_rng"], version = "0.8", optional = true }
-serde = { version = "1.0", optional = true }
+serde = { version = "1.0", optional = true, features = ["derive"] }
 serde_json = { version = "1.0", optional = true }
 xmlparser = { version = "0.13", optional = true }
 indexmap = { version = "1.7", features = ["serde-1"], optional = true }
@@ -34,7 +34,6 @@ rustc-hash = { version = "1.1", optional = true }
 
 [dev-dependencies]
 criterion = "0.3"
-html_parser = "0.6.2"
 
 [[bench]]
 name = "basic"

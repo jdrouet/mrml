@@ -89,7 +89,8 @@ impl<'e, 'h> Render<'h> for MJBodyRender<'e, 'h> {
 
     fn render(&self, opts: &Options) -> Result<String, Error> {
         let body = self.get_body_tag();
-        Ok(body.render(self.render_preview() + &self.render_content(opts)?))
+        let result = body.render(self.render_preview() + &self.render_content(opts)?);
+        Ok(result)
     }
 }
 

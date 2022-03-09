@@ -1,4 +1,5 @@
 use super::MJHead;
+use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
@@ -164,14 +165,14 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
         if links.is_empty() && imports.is_empty() {
             String::default()
         } else {
-            let mut buf = String::from("<!--[if !mso]><!-->");
+            let mut buf = String::from(START_MSO_NEGATION_CONDITIONAL_TAG);
             buf.push_str(&links);
             if !imports.is_empty() {
                 buf.push_str("<style type=\"text/css\">");
                 buf.push_str(&imports);
                 buf.push_str("</style>");
             }
-            buf.push_str("<!--<![endif]-->");
+            buf.push_str(END_NEGATION_CONDITIONAL_TAG);
             buf
         }
     }
@@ -287,9 +288,9 @@ impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
                 .unwrap_or_default(),
         );
         buf.push_str("</title>");
-        buf.push_str("<!--[if !mso]><!-- -->");
+        buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
         buf.push_str("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
-        buf.push_str("<!--<![endif]-->");
+        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
         buf.push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
         buf.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
         buf.push_str(STYLE_BASE);

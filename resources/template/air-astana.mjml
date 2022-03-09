@@ -1,0 +1,96 @@
+<mjml lang="en">
+  <mj-head>
+    <mj-title>Air Astana</mj-title>
+    <mj-attributes>
+      <mj-class name="nav-link" line-height="24px" font-size="11px" />
+      <mj-class name="color-primary" color="#A5965D" />
+      <mj-class name="bold" font-weight="700" color="black" text-align="left" />
+      <mj-text color="#626262" font-weight="400" font-size="16px" />
+      <mj-all font-family="'Proxima Nova', Helvetica, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style>
+      @media {
+        @font-face {
+          font-family: SourceSans-Bold;
+          src: url('https://somewhere.com/offer/fonts/source-sans/SourceSansPro-Bold.otf');
+          font-weight: bold;
+          font-style: normal;
+        }
+
+        @font-face {
+          font-family: SourceSans;
+          src: url('https://somewhere.com/offer/fonts/source-sans/SourceSansPro-Regular.otf'),
+            url('https://somewhere.com/offer/fonts/source-sans/SourceSansPro-Regular.woff') format('woff'),
+            url('https://somewhere.com/offer/fonts/source-sans/SourceSansPro-Regular.ttf') format('truetype');
+          font-weight: normal;
+          font-style: normal;
+        }
+
+        @font-face {
+          font-family: Varela Round;
+          src: url('https://somewhere.com/offer/fonts/varela/Varela-Regular.otf');
+          font-weight: normal;
+          font-style: normal;
+        }
+
+        @font-face {
+          font-family: 'Proxima Nova';
+          src: url('htsomewhere.com/offer/fonts/ProximaNova/ProximaNova.otf') format('opentype');
+          font-weight: normal;
+          font-style: normal;
+        }
+      }
+
+      #outlook a {
+        padding: 0;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+
+      table,
+      td {
+        border-collapse: collapse;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+      }
+
+      img {
+        border: 0;
+        height: auto;
+        line-height: 100%;
+        outline: none;
+        text-decoration: none;
+        -ms-interpolation-mode: bicubic;
+      }
+
+      p {
+        display: block;
+        margin: 13px 0;
+      }
+
+      a {
+        color: #A5965D;
+      }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#f0f0f0">
+    <mj-section padding="0px 20px" padding-top="5px">
+     
+    </mj-section>
+    <mj-wrapper background-color="white" padding="20px 25px">
+
+      <mj-section padding="0">
+        <mj-column>
+          <mj-text line-height="1" padding="0" padding-top="24px">Dear Guests</mj-text>
+          <mj-text line-height="1" padding="0" padding-top="24px">Booking reference: ABC123</mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>
