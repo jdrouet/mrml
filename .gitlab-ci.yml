@@ -48,6 +48,8 @@ test-bench:
 test-coverage:
   stage: test
   image: xd009642/tarpaulin:develop-nightly
+  # tarpaulin if broken for now
+  allow_failure: true
   script:
     - make -C packages/mrml-core coverage
 
