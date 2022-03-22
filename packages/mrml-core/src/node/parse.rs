@@ -26,6 +26,10 @@ where
         Ok(self.0)
     }
 
+    fn should_ignore_children(&self) -> bool {
+        matches!(self.0.tag.as_str(), "br" | "meta")
+    }
+
     parse_attribute!();
 
     fn parse_child_element<'a>(

@@ -98,7 +98,7 @@ impl ToString for Error {
     }
 }
 
-pub fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, Error> {
+pub(crate) fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, Error> {
     if let Some(token) = tokenizer.next() {
         Ok(token?)
     } else {
@@ -106,7 +106,7 @@ pub fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, Error>
     }
 }
 
-pub fn is_element_start(token: &Token) -> bool {
+pub(crate) fn is_element_start(token: &Token) -> bool {
     matches!(
         token,
         Token::ElementStart {
@@ -121,6 +121,12 @@ pub trait Parser: Sized {
     type Output;
 
     fn build(self) -> Result<Self::Output, Error>;
+
+    /// for elements like <br> or <meta>, they have no closing elements and
+    /// the parser should not check for children
+    fn should_ignore_children(&self) -> bool {
+        false
+    }
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, _value: StrSpan<'a>) -> Result<(), Error> {
         Err(Error::UnexpectedAttribute(name.start()))
@@ -185,7 +191,9 @@ pub trait Parser: Sized {
                             return Ok(self);
                         }
                         xmlparser::ElementEnd::Open => {
-                            self.parse_children(tokenizer)?;
+                            if !self.should_ignore_children() {
+                                self.parse_children(tokenizer)?;
+                            }
                             return Ok(self);
                         }
                         // unexpected
