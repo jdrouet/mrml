@@ -1,16 +1,17 @@
-use clap::{crate_authors, crate_description, crate_name, crate_version, Clap};
+use clap::{Parser, Subcommand};
 use mrml::mjml::MJML;
 use mrml::prelude::print::Print;
 use mrml::prelude::render::Options as RenderOptions;
 use std::fs::File;
 use std::io::prelude::*;
 
-#[derive(Clap)]
-#[clap(name = crate_name!(), about = crate_description!(), version = crate_version!(), author = crate_authors!())]
+#[derive(Debug, Parser)]
+#[clap(author, version, about, long_about = None)]
 struct Options {
     #[clap(subcommand)]
     pub subcmd: SubCommand,
-    #[clap(about = "Path to your mjml file", index = 1)]
+    /// Path to your mjml file
+    #[clap(index = 1)]
     pub input: Option<String>,
 }
 
@@ -75,15 +76,15 @@ impl Options {
     }
 }
 
-#[derive(Clap)]
+#[derive(Debug, Subcommand)]
 enum SubCommand {
-    #[clap(about = "Format template to JSON")]
+    /// Format template to JSON
     FormatJSON(Format),
-    #[clap(about = "Format template to MJML")]
+    /// Format template to MJML
     FormatMJML(Format),
-    #[clap(about = "Render template to HTML")]
+    /// Render template to HTML
     Render(Render),
-    #[clap(about = "Read input file and validate its structure")]
+    /// Read input file and validate its structure
     Validate,
 }
 
@@ -119,17 +120,20 @@ impl SubCommand {
     }
 }
 
-#[derive(Clap)]
+#[derive(Debug, Parser)]
 struct Format {
-    #[clap(long, about = "Pretty print")]
+    /// Pretty print
+    #[clap(long)]
     pub pretty: bool,
 }
 
-#[derive(Clap)]
+#[derive(Debug, Parser)]
 struct Render {
-    #[clap(short, long, about = "Remove comments from html output")]
+    /// Remove comments from html output
+    #[clap(short, long)]
     pub disable_comments: bool,
-    #[clap(short, long, about = "Base url for social icons")]
+    /// Base url for social icons
+    #[clap(short, long)]
     pub social_icon_origin: Option<String>,
 }
 
@@ -150,7 +154,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::Options;
-    use clap::Clap;
+    use clap::Parser;
 
     fn execute(args: Vec<&str>) {
         Options::parse_from(args).execute();
