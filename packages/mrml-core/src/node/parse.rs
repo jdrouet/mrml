@@ -27,7 +27,23 @@ where
     }
 
     fn should_ignore_children(&self) -> bool {
-        matches!(self.0.tag.as_str(), "br" | "meta")
+        matches!(
+            self.0.tag.as_str(),
+            "area"
+                | "base"
+                | "br"
+                | "col"
+                | "embed"
+                | "hr"
+                | "img"
+                | "input"
+                | "link"
+                | "meta"
+                | "param"
+                | "source"
+                | "track"
+                | "wbr"
+        )
     }
 
     parse_attribute!();
