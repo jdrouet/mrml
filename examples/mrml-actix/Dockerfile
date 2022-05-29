@@ -10,7 +10,7 @@ COPY example/mrml-actix/src /code/example/mrml-actix/src
 WORKDIR /code/example/mrml-actix
 RUN cargo build --release
 
-FROM debian:buster-slim
+FROM debian:10.12-slim
 
 ENV ADDRESS=0.0.0.0
 ENV PORT=3000
