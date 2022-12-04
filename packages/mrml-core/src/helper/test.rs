@@ -4,7 +4,7 @@ use xmlparser::{ElementEnd, Token, Tokenizer};
 
 fn trim_header_comment(input: &str) -> String {
     if input.starts_with("<!-- FILE:") {
-        if let Some(index) = input.find("\n") {
+        if let Some(index) = input.find('\n') {
             return input.split_at(index).1.to_string();
         }
     }
@@ -43,7 +43,7 @@ fn cleanup(input: &str) -> String {
 }
 
 pub fn cleanup_text(input: &str) -> String {
-    input.replace(" ", "").replace("\t", "").replace("\n", "")
+    input.replace(' ', "").replace('\t', "").replace('\n', "")
 }
 
 fn compare_style<'a>(path: &mut LinkedList<&'a str>, expected: &str, result: &str) {

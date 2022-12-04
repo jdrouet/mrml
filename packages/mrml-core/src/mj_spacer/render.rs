@@ -65,7 +65,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-spacer.mjml");
         let expected = include_str!("../../resources/compare/success/mj-spacer.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

@@ -204,7 +204,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -214,7 +214,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-align.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -224,7 +224,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-border-radius.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-border-radius.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -234,7 +234,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-class.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -244,7 +244,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-color.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-color.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -258,7 +258,7 @@ mod tests {
         let expected = include_str!(
             "../../resources/compare/success/mj-social-container-background-color.html"
         );
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -268,7 +268,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-font-family.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-font-family.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -278,7 +278,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-font.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-font.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -288,7 +288,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-icon.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-icon.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -298,7 +298,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-link.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-link.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -308,7 +308,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-mode.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-mode.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -318,7 +318,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-padding.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -328,7 +328,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-social-text.mjml");
         let expected = include_str!("../../resources/compare/success/mj-social-text.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

@@ -123,7 +123,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-divider.mjml");
         let expected = include_str!("../../resources/compare/success/mj-divider.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -133,7 +133,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-divider-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-divider-class.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -147,7 +147,7 @@ mod tests {
         let expected = include_str!(
             "../../resources/compare/success/mj-divider-container-background-color.html"
         );
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -157,7 +157,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-divider-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-divider-padding.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -167,7 +167,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-divider-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-divider-width.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

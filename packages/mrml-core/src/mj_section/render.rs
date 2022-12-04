@@ -500,7 +500,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -512,7 +512,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-section-background-color.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-section-background-color.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -524,7 +524,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-section-background-url-full.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-section-background-url-full.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -536,7 +536,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-section-background-url.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-section-background-url.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -546,7 +546,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-body-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-body-width.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -556,7 +556,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-border.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-border.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -568,7 +568,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-section-border-radius.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-section-border-radius.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -578,7 +578,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-class.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -588,7 +588,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-direction.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-direction.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -598,7 +598,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-full-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-full-width.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -608,7 +608,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-padding.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -618,7 +618,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-section-text-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-section-text-align.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

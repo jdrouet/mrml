@@ -18,8 +18,8 @@ mod tests {
         let mut elt = MJAccordionTitle::default();
         elt.attributes
             .insert("margin".to_string(), "12px".to_string());
-        elt.children.push(Text::from("Hello").into());
-        elt.children.push(Text::from("World").into());
+        elt.children.push(Text::from("Hello"));
+        elt.children.push(Text::from("World"));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-accordion-title","attributes":{"margin":"12px"},"children":["Hello","World"]}"#

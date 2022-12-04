@@ -97,7 +97,7 @@ mod tests {
             </mj-body>
         </mjml>
         "#;
-        let elt = MJML::parse(template.to_string()).unwrap();
+        let elt = MJML::parse(template).unwrap();
         assert!(elt.head().is_none());
         assert!(elt.body().is_some());
         let body = elt.body().unwrap();
