@@ -36,7 +36,7 @@ macro_rules! parse_comment {
         fn parse_child_comment(&mut self, value: xmlparser::StrSpan) -> Result<(), Error> {
             self.0
                 .children
-                .push(crate::comment::Comment::from(value.as_str()).into());
+                .push($crate::comment::Comment::from(value.as_str()).into());
             Ok(())
         }
     };
@@ -48,7 +48,7 @@ macro_rules! parse_text {
         fn parse_child_text(&mut self, value: xmlparser::StrSpan) -> Result<(), Error> {
             self.0
                 .children
-                .push(crate::text::Text::from(value.as_str()).into());
+                .push($crate::text::Text::from(value.as_str()).into());
             Ok(())
         }
     };

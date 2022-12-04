@@ -25,7 +25,7 @@ pub trait WithMJSectionBackground<'h>: Render<'h> {
         // can be unwraped because has default value
         let position = self.attribute("background-position").unwrap();
         let positions = position.split_whitespace().collect::<Vec<_>>();
-        let first = positions.get(0);
+        let first = positions.first();
         let second = positions.get(1);
         if let Some(first) = first {
             if let Some(second) = second {
