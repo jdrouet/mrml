@@ -1,0 +1,27 @@
+on: [push]
+
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  code-checking:
+    runs-on: ubuntu-latest
+    concurrency: 
+      group: ${{ github.ref }}-code-checking
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          components: rustfmt,clippy
+
+      - name: run lint
+        run: cargo fmt --check
+
+      - name: run check
+        run: cargo check --all-features --tests
+
+      - name: run clippy
+        run: cargo clippy --all-targets --all-features --tests
