@@ -25,7 +25,7 @@ mod tests {
     #[test]
     fn deserialize() {
         let json = r#"{"type":"mj-table","attributes":{"margin-bottom":"20px"},"children":[{"type":"comment","children":"Hello World!"},"Hello World!"]}"#;
-        let res: MJTable = serde_json::from_str(&json).unwrap();
+        let res: MJTable = serde_json::from_str(json).unwrap();
         assert_eq!(res.attributes.len(), 1);
         assert_eq!(res.children.len(), 2);
     }

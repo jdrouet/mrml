@@ -37,7 +37,7 @@ mod tests {
             </mj-head>
         </mjml>
         "#;
-        let elt = MJML::parse(template.to_string()).unwrap();
+        let elt = MJML::parse(template).unwrap();
         assert!(elt.head().is_some());
         assert!(elt.body().is_none());
         let head = elt.head().unwrap();

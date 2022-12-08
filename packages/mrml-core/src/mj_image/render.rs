@@ -205,7 +205,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -215,7 +215,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-align.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -225,7 +225,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-border-radius.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-border-radius.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -235,7 +235,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-border.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-border.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -245,7 +245,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-class.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -259,7 +259,7 @@ mod tests {
         let expected = include_str!(
             "../../resources/compare/success/mj-image-container-background-color.html"
         );
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -269,7 +269,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-height.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-height.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -279,7 +279,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-href.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-href.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -289,7 +289,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-image-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-image-padding.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

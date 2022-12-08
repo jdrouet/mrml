@@ -248,7 +248,7 @@ mod print {
     #[macro_export]
     macro_rules! print_attrs {
         ($structure:ident, $name:expr) => {
-            use crate::prelude::print::{self, Print};
+            use $crate::prelude::print::{self, Print};
 
             impl Print for $structure {
                 fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -263,13 +263,13 @@ mod print {
                 }
             }
 
-            crate::print_display!($structure);
+            $crate::print_display!($structure);
         };
     }
     #[macro_export]
     macro_rules! print_children {
         ($structure:ident, $name:expr) => {
-            use crate::prelude::print::{self, Print};
+            use $crate::prelude::print::{self, Print};
 
             impl Print for $structure {
                 fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -283,13 +283,13 @@ mod print {
                 }
             }
 
-            crate::print_display!($structure);
+            $crate::print_display!($structure);
         };
     }
     #[macro_export]
     macro_rules! print_attrs_children {
         ($structure:ident, $name:expr) => {
-            use crate::prelude::print::{self, Print};
+            use $crate::prelude::print::{self, Print};
 
             impl Print for $structure {
                 fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
@@ -309,7 +309,7 @@ mod print {
                 }
             }
 
-            crate::print_display!($structure);
+            $crate::print_display!($structure);
         };
     }
 }

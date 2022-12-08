@@ -3,7 +3,7 @@ use mrml::prelude::render::Options;
 
 fn render(input: &str) {
     let opts = Options::default();
-    let root = mrml::mjml::MJML::parse(input.to_string()).unwrap();
+    let root = mrml::mjml::MJML::parse(input).unwrap();
     root.render(&opts).unwrap();
 }
 

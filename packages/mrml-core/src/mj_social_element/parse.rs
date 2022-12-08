@@ -43,6 +43,6 @@ mod tests {
           </mj-body>
         </mjml>
         "#;
-        MJML::parse(template.to_string()).unwrap();
+        MJML::parse(template).unwrap();
     }
 }

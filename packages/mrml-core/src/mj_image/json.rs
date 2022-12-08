@@ -27,7 +27,7 @@ mod tests {
     #[test]
     fn deserialize() {
         let json = r#"{"type":"mj-image","attributes":{"href":"https://jolimail.io"}}"#;
-        let res: MJImage = serde_json::from_str(&json).unwrap();
+        let res: MJImage = serde_json::from_str(json).unwrap();
         assert_eq!(res.attributes.get("href").unwrap(), "https://jolimail.io");
     }
 }

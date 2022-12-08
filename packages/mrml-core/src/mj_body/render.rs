@@ -114,7 +114,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-body.mjml");
         let expected = include_str!("../../resources/compare/success/mj-body.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         compare(expected, root.render(&opts).unwrap().as_str());
     }
 }

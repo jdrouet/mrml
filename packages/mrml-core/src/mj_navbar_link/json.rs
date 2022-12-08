@@ -26,7 +26,7 @@ mod tests {
     #[test]
     fn deserialize() {
         let json = r#"{"type":"mj-navbar-link","attributes":{"margin-bottom":"20px"},"children":["Hello",{"type":"comment","children":"World"}]}"#;
-        let res: MJNavbarLink = serde_json::from_str(&json).unwrap();
+        let res: MJNavbarLink = serde_json::from_str(json).unwrap();
         assert_eq!(res.attributes.len(), 1);
         assert_eq!(res.children.len(), 2);
     }

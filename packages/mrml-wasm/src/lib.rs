@@ -1,3 +1,5 @@
+#![allow(clippy::unused_unit)]
+
 use mrml::prelude::render::Options as RenderOptions;
 use wasm_bindgen::prelude::*;
 

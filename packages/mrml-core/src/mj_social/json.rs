@@ -25,7 +25,7 @@ mod tests {
     #[test]
     fn deserialize() {
         let json = r#"{"type":"mj-social","attributes":{"margin":"0px"},"children":[{"type":"mj-social-element","attributes":{"name":"twitter"}},{"type":"comment","children":"World"}]}"#;
-        let res: MJSocial = serde_json::from_str(&json).unwrap();
+        let res: MJSocial = serde_json::from_str(json).unwrap();
         assert_eq!(res.attributes.len(), 1);
         assert_eq!(res.children.len(), 2);
     }

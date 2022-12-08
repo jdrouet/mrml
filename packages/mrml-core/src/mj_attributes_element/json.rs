@@ -69,8 +69,10 @@ mod tests {
 
     #[test]
     fn serialize() {
-        let mut elt = MJAttributesElement::default();
-        elt.name = "name".into();
+        let mut elt = MJAttributesElement {
+            name: "name".into(),
+            ..Default::default()
+        };
         elt.attributes.insert("margin-bottom".into(), "20px".into());
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
@@ -80,8 +82,10 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let mut elt = MJAttributesElement::default();
-        elt.name = "name".into();
+        let elt = MJAttributesElement {
+            name: "name".into(),
+            ..Default::default()
+        };
         let json = serde_json::to_string(&elt).unwrap();
         let _res: MJAttributesElement = serde_json::from_str(&json).unwrap();
     }

@@ -68,8 +68,10 @@ mod tests {
 
     #[test]
     fn serialize() {
-        let mut elt = MJAttributesClass::default();
-        elt.name = "classname".into();
+        let mut elt = MJAttributesClass {
+            name: "classname".into(),
+            ..Default::default()
+        };
         elt.attributes.insert("margin-bottom".into(), "20px".into());
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
@@ -79,8 +81,10 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let mut elt = MJAttributesClass::default();
-        elt.name = "classname".into();
+        let elt = MJAttributesClass {
+            name: "classname".into(),
+            ..Default::default()
+        };
         let json = serde_json::to_string(&elt).unwrap();
         let _res: MJAttributesClass = serde_json::from_str(&json).unwrap();
     }

@@ -305,7 +305,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -317,7 +317,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-hero-background-color.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-hero-background-color.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -329,7 +329,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-hero-background-height.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-hero-background-height.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -341,7 +341,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-hero-background-position.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-hero-background-position.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -351,7 +351,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-background-url.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-background-url.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -363,7 +363,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-hero-background-width.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-hero-background-width.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -373,7 +373,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-class.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -383,7 +383,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-height.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-height.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -393,7 +393,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-mode.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-mode.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -403,7 +403,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-vertical-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-vertical-align.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -413,7 +413,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-hero-width.mjml");
         let expected = include_str!("../../resources/compare/success/mj-hero-width.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

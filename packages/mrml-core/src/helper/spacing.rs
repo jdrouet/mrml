@@ -94,6 +94,6 @@ pub mod tests {
     #[test]
     fn invalid_values() {
         let res = Spacing::try_from("2tx 3px 4px 5px");
-        assert_eq!(res.is_err(), true);
+        assert!(res.is_err());
     }
 }

@@ -87,7 +87,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mjml.mjml");
         let expected = include_str!("../../resources/compare/success/mjml.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         compare(expected, root.render(&opts).unwrap().as_str());
     }
 
@@ -95,7 +95,7 @@ mod tests {
     fn template_amario() {
         let opts = Options::default();
         let template = include_str!("../../resources/template/amario.mjml");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         assert!(root.render(&opts).is_ok());
     }
 
@@ -104,7 +104,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/template/air-astana.mjml");
         let expected = include_str!("../../resources/template/air-astana.html");
-        let root = MJML::parse(template.to_string()).unwrap();
+        let root = MJML::parse(template).unwrap();
         compare(expected, root.render(&opts).unwrap().as_str());
     }
 
