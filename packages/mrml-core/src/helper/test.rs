@@ -43,7 +43,7 @@ fn cleanup(input: &str) -> String {
 }
 
 pub fn cleanup_text(input: &str) -> String {
-    input.replace(' ', "").replace('\t', "").replace('\n', "")
+    input.replace([' ', '\t', '\n'], "")
 }
 
 fn compare_style<'a>(path: &mut LinkedList<&'a str>, expected: &str, result: &str) {
