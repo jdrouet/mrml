@@ -38,6 +38,7 @@ pub struct Header<'h> {
     used_font_families: Set<String>,
     media_queries: Map<String, Size>,
     styles: Set<String>,
+    lang: Option<String>,
 }
 
 impl<'h> Header<'h> {
@@ -67,7 +68,8 @@ impl<'h> Header<'h> {
                 .unwrap_or_default(),
             used_font_families: Set::new(),
             media_queries: Map::new(),
-            styles: Set::new(),
+            styles: Default::default(),
+            lang: Default::default(),
         }
     }
 
@@ -146,6 +148,14 @@ impl<'h> Header<'h> {
         if let Some(value) = value {
             self.add_style(value);
         }
+    }
+
+    pub fn set_lang(&mut self, value: Option<String>) {
+        self.lang = value;
+    }
+
+    pub fn lang(&self) -> &Option<String> {
+        &self.lang
     }
 }
 

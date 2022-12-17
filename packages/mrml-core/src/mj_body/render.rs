@@ -25,6 +25,7 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
     fn get_content_div_tag(&self) -> Tag {
         self.set_body_style(Tag::new("div"))
             .maybe_add_attribute("class", self.attribute("css-class"))
+            .maybe_add_attribute("lang", self.header().lang().as_ref())
     }
 
     fn set_body_style(&self, tag: Tag) -> Tag {

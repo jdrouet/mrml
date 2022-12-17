@@ -4,4 +4,5 @@
       <meta name="description" content="This should stay." />
     </mj-raw>
   </mj-head>
+  <mj-body></mj-body>
 </mjml>
