@@ -47,12 +47,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions-rs/toolchain@v1
+      - name: install cargo toolchain
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           
-      - uses: actions/cache@v3
+      - name: prepare cache
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -62,5 +64,14 @@ jobs:
             target/
           key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
       - name: run tests
-        run: cargo test
+        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+
+      - name: upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: lcov.info
+          fail_ci_if_error: false
