@@ -1,28 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "cargo"
-    directory: "/packages/library"
     schedule:
       interval: "daily"
     labels:
-      - "packages"
-      - "library"
-      - "dependencies"
-
-  - package-ecosystem: "cargo"
-    directory: "/packages/cli"
-    schedule:
-      interval: "daily"
-    labels:
-      - "packages"
-      - "cli"
-      - "dependencies"
-
-  - package-ecosystem: "cargo"
-    directory: "/packages/wasm"
-    schedule:
-      interval: "daily"
-    labels:
-      - "packages"
-      - "wasm"
       - "dependencies"

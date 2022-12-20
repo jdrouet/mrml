@@ -14,20 +14,6 @@
 
 This project is a reimplementation of the nice MJML markup language in Rust.
 
-## How to use it in the cli
-
-```bash
-# installing mrml-cli
-cargo install --locked mrml-cli
-# using it 
-mrml-cli path/to/template.mjml validate
-mrml-cli path/to/template.mjml render
-mrml-cli path/to/template.mjml format-json --pretty
-mrml-cli path/to/template.json format-mjml --pretty
-# getting some help
-mrml-cli --help
-```
-
 ## How to use it in my code
 
 Update your `cargo.toml`:
@@ -68,8 +54,6 @@ With the same Linux amd64 machine, to render the amario template
 
 - Node: 606.59ms
 - Rust: 3.48ms
-
-To reproduce those results, you can follow the configuration [in `gitlab-ci.yml`](./.gitlab-ci.yml) or look on [codebench.cloud](https://app.codebench.cloud/#/repo/github/jdrouet/mrml).
 
 ## Missing implementations
 
