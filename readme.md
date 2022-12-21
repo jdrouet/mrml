@@ -3,12 +3,12 @@
 [![Crates.io](https://img.shields.io/crates/d/mrml)](https://crates.io/crates/mrml)
 ![Crates.io](https://img.shields.io/crates/v/mrml)
 
-[![Build Status](https://travis-ci.com/jdrouet/mrml.svg?branch=master)](https://travis-ci.com/jdrouet/mrml)
-[![codecov](https://codecov.io/gh/jdrouet/mrml/branch/master/graph/badge.svg?token=L3LKpV3RpR)](https://codecov.io/gh/jdrouet/mrml)
+[![.github/workflows/main.yml](https://github.com/jolimail/mrml-core/actions/workflows/main.yml/badge.svg)](https://github.com/jolimail/mrml-core/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/jolimail/mrml-core/branch/main/graph/badge.svg?token=SIOPR0YWZA)](https://codecov.io/gh/jolimail/mrml-core)
 
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/jdrouet/mrml.svg)](http://isitmaintained.com/project/jdrouet/mrml "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/jdrouet/mrml.svg)](http://isitmaintained.com/project/jdrouet/mrml "Percentage of issues still open")
-[![Maintainability](https://api.codeclimate.com/v1/badges/7ed23ef670d076ab69a4/maintainability)](https://codeclimate.com/github/jdrouet/mrml/maintainability)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/jolimail/mrml-core.svg)](http://isitmaintained.com/project/jolimail/mrml-core "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/jolimail/mrml-core.svg)](http://isitmaintained.com/project/jdrouet/mrml "Percentage of issues still open")
+[![Maintainability](https://api.codeclimate.com/v1/badges/7ed23ef670d076ab69a4/maintainability)](https://codeclimate.com/github/jolimail/mrml-core/maintainability)
 
 ## Introduction
 
