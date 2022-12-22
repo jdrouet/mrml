@@ -59,7 +59,9 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJML {
 
 impl MJML {
     pub fn render(&self, opts: &Options) -> Result<String, Error> {
-        let header = Rc::new(RefCell::new(Header::new(&self.children.head)));
+        let mut header = Header::new(&self.children.head);
+        header.maybe_set_lang(self.attributes.get("lang").cloned());
+        let header = Rc::new(RefCell::new(header));
         self.renderer(header).render(opts)
     }
 
