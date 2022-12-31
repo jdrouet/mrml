@@ -3,5 +3,3 @@ updates:
   - package-ecosystem: "cargo"
     schedule:
       interval: "daily"
-    labels:
-      - "dependencies"
