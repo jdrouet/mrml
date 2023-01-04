@@ -1,3 +1,4 @@
 /target
+/examples/*/target
 /packages/*/target
 /scripts/node_modules

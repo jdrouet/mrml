@@ -1,7 +1,0 @@
-[workspace]
-members = [
-  "examples/mrml-actix",
-  "packages/mrml-cli",
-  "packages/mrml-core",
-  "packages/mrml-wasm",
-]
