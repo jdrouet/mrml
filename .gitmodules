@@ -1,0 +1,6 @@
+[submodule "packages/mrml-core"]
+	path = packages/mrml-core
+	url = https://github.com/jolimail/mrml-core.git
+[submodule "packages/mrml-cli"]
+	path = packages/mrml-cli
+	url = https://github.com/jolimail/mrml-cli.git
