@@ -120,6 +120,44 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
     }
 
     fn set_style_table_gutter(&self, tag: Tag) -> Tag {
+        tag.maybe_add_style(
+            "background-color",
+            self.attribute("inner-background-color")
+                .or_else(|| self.attribute("background-color")),
+        )
+        .maybe_add_style(
+            "border",
+            self.attribute("inner-border")
+                .or_else(|| self.attribute("border")),
+        )
+        .maybe_add_style(
+            "border-bottom",
+            self.attribute("inner-border-bottom")
+                .or_else(|| self.attribute("border-bottom")),
+        )
+        .maybe_add_style(
+            "border-left",
+            self.attribute("inner-border-left")
+                .or_else(|| self.attribute("border-left")),
+        )
+        .maybe_add_style(
+            "border-radius",
+            self.attribute("inner-border-radius")
+                .or_else(|| self.attribute("border-radius")),
+        )
+        .maybe_add_style(
+            "border-right",
+            self.attribute("inner-border-right")
+                .or_else(|| self.attribute("border-right")),
+        )
+        .maybe_add_style(
+            "border-top",
+            self.attribute("inner-border-top")
+                .or_else(|| self.attribute("border-top")),
+        )
+    }
+
+    fn set_style_table_simple(&self, tag: Tag) -> Tag {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
             .maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
@@ -127,10 +165,6 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
             .maybe_add_style("border-radius", self.attribute("border-radius"))
             .maybe_add_style("border-right", self.attribute("border-right"))
             .maybe_add_style("border-top", self.attribute("border-top"))
-    }
-
-    fn set_style_table_simple(&self, tag: Tag) -> Tag {
-        self.set_style_table_gutter(tag)
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
@@ -340,6 +374,18 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-column-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-column-class.html");
+        let root = MJML::parse(template).unwrap();
+        let result = root.render(&opts).unwrap();
+        compare(expected, result.as_str());
+    }
+
+    #[test]
+    fn inner_background_color() {
+        let opts = Options::default();
+        let template =
+            include_str!("../../resources/compare/success/mj-column-inner-background-color.mjml");
+        let expected =
+            include_str!("../../resources/compare/success/mj-column-inner-background-color.html");
         let root = MJML::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());

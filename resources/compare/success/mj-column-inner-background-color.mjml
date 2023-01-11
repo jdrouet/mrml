@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column padding="1px" background-color="#E7E7E7" inner-background-color="#ffffff" border-radius="6px" inner-border-radius="6px">
+        <mj-text>
+          Hello World!
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
