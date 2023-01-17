@@ -1,4 +1,4 @@
-use crate::common::{get_attributes_kind, get_children_kind, AttributesKind, ChildrenKind};
+use common_macros::{get_attributes_kind, get_children_kind, AttributesKind, ChildrenKind};
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Ident};
@@ -9,8 +9,8 @@ fn create_attribute(ast: &DeriveInput) -> proc_macro2::TokenStream {
         AttributesKind::Map => quote! {
             attributes: Map<String, String>,
         },
-        AttributesKind::Struct(name, span) => {
-            let ident = Ident::new(&format!("{name}Builder"), span);
+        AttributesKind::Struct(ident) => {
+            let ident = Ident::new(&format!("{ident}Builder"), ident.span());
             quote! {
                 attributes: #ident,
             }
@@ -24,7 +24,7 @@ fn create_attribute_new(ast: &DeriveInput) -> proc_macro2::TokenStream {
         AttributesKind::Map => quote! {
             attributes: Map::default(),
         },
-        AttributesKind::Struct(_name, _span) => quote! {
+        AttributesKind::Struct(_) => quote! {
             attributes: Default::default(),
         },
     }
@@ -36,7 +36,7 @@ fn create_attribute_build(ast: &DeriveInput) -> proc_macro2::TokenStream {
         AttributesKind::Map => quote! {
             attributes: self.attributes,
         },
-        AttributesKind::Struct(_name, _span) => quote! {
+        AttributesKind::Struct(_) => quote! {
             attributes: self.attributes.build()?,
         },
     }
@@ -55,7 +55,7 @@ fn create_parse_attribute(ast: &DeriveInput) -> proc_macro2::TokenStream {
                 Ok(())
             }
         },
-        AttributesKind::Struct(_name, _span) => quote! {
+        AttributesKind::Struct(_) => quote! {
             fn parse_attribute<'a>(
                 &mut self,
                 name: xmlparser::StrSpan<'a>,
@@ -69,13 +69,13 @@ fn create_parse_attribute(ast: &DeriveInput) -> proc_macro2::TokenStream {
 
 fn create_children(ast: &DeriveInput) -> proc_macro2::TokenStream {
     match get_children_kind(ast) {
-        ChildrenKind::None => quote! {},
         ChildrenKind::List(ty) => quote! {
             children: Vec<#ty>,
         },
         ChildrenKind::String => quote! {
             children: String,
         },
+        _ => quote! {},
     }
 }
 
@@ -99,8 +99,6 @@ fn create_children_build(ast: &DeriveInput) -> proc_macro2::TokenStream {
 
 fn create_parse_child_comment(ast: &DeriveInput) -> proc_macro2::TokenStream {
     match get_children_kind(ast) {
-        ChildrenKind::None => quote! {},
-        ChildrenKind::String => quote! {},
         ChildrenKind::List(_) => quote! {
             fn parse_child_comment(&mut self, value: xmlparser::StrSpan) -> Result<(), crate::prelude::parse::Error> {
                 self.children
@@ -108,12 +106,12 @@ fn create_parse_child_comment(ast: &DeriveInput) -> proc_macro2::TokenStream {
                 Ok(())
             }
         },
+        _ => quote! {},
     }
 }
 
 fn create_parse_child_text(ast: &DeriveInput) -> proc_macro2::TokenStream {
     match get_children_kind(ast) {
-        ChildrenKind::None => quote! {},
         ChildrenKind::String => quote! {
             fn parse_child_text(&mut self, value: xmlparser::StrSpan) -> Result<(), crate::prelude::parse::Error> {
                 self.children = value.to_string();
@@ -126,13 +124,12 @@ fn create_parse_child_text(ast: &DeriveInput) -> proc_macro2::TokenStream {
                 Ok(())
             }
         },
+        _ => quote! {},
     }
 }
 
 fn create_parse_child_element(ast: &DeriveInput) -> proc_macro2::TokenStream {
     match get_children_kind(ast) {
-        ChildrenKind::None => quote! {},
-        ChildrenKind::String => quote! {},
         ChildrenKind::List(ty) => quote! {
             fn parse_child_element<'a>(
                 &mut self,
@@ -144,6 +141,7 @@ fn create_parse_child_element(ast: &DeriveInput) -> proc_macro2::TokenStream {
                 Ok(())
             }
         },
+        _ => quote! {},
     }
 }
 

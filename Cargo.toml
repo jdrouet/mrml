@@ -46,6 +46,7 @@ criterion = "0.4"
 
 [workspace]
 members = [
+  "./lib/common-macros",
   "./lib/mrml-macros",
   "./lib/mrml-parse-macros",
   "./lib/mrml-print-macros",

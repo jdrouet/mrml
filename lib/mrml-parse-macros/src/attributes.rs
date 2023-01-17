@@ -1,4 +1,4 @@
-use crate::common::{as_path, get_fields, is_option};
+use common_macros::{as_path, get_fields, is_option};
 use inflector::cases::kebabcase::to_kebab_case;
 use proc_macro::TokenStream;
 use quote::quote;

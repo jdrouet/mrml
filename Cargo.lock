@@ -117,6 +117,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "common-macros"
+version = "0.1.0"
+dependencies = [
+ "syn",
+]
+
+[[package]]
 name = "criterion"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -381,6 +388,7 @@ name = "mrml-macros"
 version = "0.1.0"
 dependencies = [
  "Inflector",
+ "common-macros",
  "proc-macro2",
  "quote",
  "syn",
@@ -391,6 +399,7 @@ name = "mrml-parse-macros"
 version = "0.1.0"
 dependencies = [
  "Inflector",
+ "common-macros",
  "darling",
  "proc-macro2",
  "quote",
@@ -401,6 +410,7 @@ dependencies = [
 name = "mrml-print-macros"
 version = "0.1.0"
 dependencies = [
+ "common-macros",
  "darling",
  "proc-macro2",
  "quote",

@@ -2,7 +2,6 @@ extern crate proc_macro;
 
 mod attributes;
 mod children;
-mod common;
 mod element;
 
 #[proc_macro_derive(MrmlParseComponent)]

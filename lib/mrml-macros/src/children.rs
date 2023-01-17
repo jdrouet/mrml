@@ -1,9 +1,8 @@
+use common_macros::{as_data_enum, get_variant_single_field};
 use inflector::cases::snakecase::to_snake_case;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{
-    parse_macro_input, Data, DataEnum, DeriveInput, Field, Fields, FieldsUnnamed, Ident, Variant,
-};
+use syn::{parse_macro_input, DataEnum, DeriveInput, Ident};
 
 pub fn derive(input: TokenStream) -> TokenStream {
     let ast: DeriveInput = parse_macro_input!(input as DeriveInput);
@@ -62,21 +61,5 @@ fn derive_children_enum(ast: &DeriveInput, data_enum: &DataEnum) -> proc_macro2:
         impl #name {
             #as_variants
         }
-    }
-}
-
-fn as_data_enum(ast: &DeriveInput) -> Option<&DataEnum> {
-    if let Data::Enum(inner) = &(ast.data) {
-        Some(inner)
-    } else {
-        None
-    }
-}
-
-fn get_variant_single_field(variant: &Variant) -> Option<&Field> {
-    if let Fields::Unnamed(FieldsUnnamed { unnamed, .. }) = &variant.fields {
-        Some(unnamed.first().unwrap())
-    } else {
-        None
     }
 }

@@ -1,67 +1,14 @@
 extern crate proc_macro;
 
+use common_macros::{
+    as_data_enum, as_data_struct, as_path, get_attributes_field, get_children_kind, get_fields,
+    is_map, is_option, ChildrenKind,
+};
 use darling::FromDeriveInput;
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use quote::quote;
-use syn::{
-    parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataEnum, DataStruct,
-    DeriveInput, Field, Fields, FieldsNamed, Path, Type, TypePath,
-};
-
-fn as_fields_named(input: &DataStruct) -> Option<&FieldsNamed> {
-    if let Fields::Named(inner) = &input.fields {
-        Some(inner)
-    } else {
-        None
-    }
-}
-
-fn as_data_struct(ast: &DeriveInput) -> Option<&DataStruct> {
-    if let Data::Struct(inner) = &(ast.data) {
-        Some(inner)
-    } else {
-        None
-    }
-}
-
-fn as_data_enum(ast: &DeriveInput) -> Option<&DataEnum> {
-    if let Data::Enum(inner) = &(ast.data) {
-        Some(inner)
-    } else {
-        None
-    }
-}
-
-fn get_fields(ast: &DeriveInput) -> &Punctuated<Field, Comma> {
-    as_data_struct(ast)
-        .and_then(as_fields_named)
-        .map(|f| &f.named)
-        .expect("MrmlPrintComponent only supports structs.")
-}
-
-fn get_attributes_field(ast: &DeriveInput) -> Option<&Field> {
-    get_fields(ast).into_iter().find(|f| {
-        f.ident
-            .as_ref()
-            .map(|id| *id == "attributes")
-            .unwrap_or(false)
-    })
-}
-
-fn get_children_field(ast: &DeriveInput) -> Option<&Field> {
-    as_data_struct(ast)
-        .and_then(as_fields_named)
-        .map(|f| &f.named)
-        .expect("MrmlPrintComponent only supports structs.")
-        .into_iter()
-        .find(|f| {
-            f.ident
-                .as_ref()
-                .map(|id| *id == "children")
-                .unwrap_or(false)
-        })
-}
+use syn::{parse_macro_input, DataEnum, DataStruct, DeriveInput, Type, TypePath};
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(mrml_print), forward_attrs(allow, doc, cfg))]
@@ -77,49 +24,10 @@ impl Opts {
     }
 }
 
-fn as_path(field: &Field) -> Option<&Path> {
-    match &field.ty {
-        Type::Path(TypePath { path, .. }) => Some(path),
-        _ => None,
-    }
-}
-
-fn is_vec(path: &Path) -> bool {
-    path.segments
-        .first()
-        // TODO make sure that it's a Vec<T>
-        .map(|s| s.ident == "Vec")
-        .unwrap_or(false)
-}
-
-fn is_option(path: &Path) -> bool {
-    path.segments
-        .first()
-        // TODO make sure that it's a Option<String>
-        .map(|s| s.ident == "Option")
-        .unwrap_or(false)
-}
-
-fn is_option_string(path: &Path) -> bool {
-    path.segments
-        .first()
-        // TODO make sure that it's a Option<String>
-        .map(|s| s.ident == "Option")
-        .unwrap_or(false)
-}
-
-fn is_map_string(path: &Path) -> bool {
-    path.segments
-        .first()
-        // TODO make sure that it's a Map<String, String>
-        .map(|s| s.ident == "Map")
-        .unwrap_or(false)
-}
-
 fn print_attributes(ast: &DeriveInput) -> proc_macro2::TokenStream {
     if let Some(field) = get_attributes_field(ast) {
         match &field.ty {
-            Type::Path(TypePath { path, .. }) if is_map_string(path) => {
+            Type::Path(TypePath { path, .. }) if is_map(path) => {
                 quote! { Some(&self.attributes) }
             }
             _ => {
@@ -128,28 +36,6 @@ fn print_attributes(ast: &DeriveInput) -> proc_macro2::TokenStream {
         }
     } else {
         quote! { None }
-    }
-}
-
-#[derive(PartialEq, Eq)]
-enum ChildrenKind {
-    String { indent: bool },
-    Single,
-    List,
-    None,
-}
-
-fn get_children_kind(ast: &DeriveInput, opts: &Opts) -> ChildrenKind {
-    if let Some(field) = get_children_field(ast) {
-        match &field.ty {
-            Type::Path(TypePath { path, .. }) if path.is_ident("String") => ChildrenKind::String {
-                indent: opts.indent_children(),
-            },
-            Type::Path(TypePath { path, .. }) if is_vec(path) => ChildrenKind::List,
-            _ => ChildrenKind::Single,
-        }
-    } else {
-        ChildrenKind::None
     }
 }
 
@@ -162,14 +48,14 @@ fn impl_print(ast: &DeriveInput) -> proc_macro2::TokenStream {
 
     let attrs = print_attributes(ast);
 
-    let printing = match get_children_kind(ast, &opts) {
+    let printing = match get_children_kind(ast) {
         ChildrenKind::None => {
             let close_empty = opts.close_empty.unwrap_or(true);
             quote! {
                 crate::prelude::print::open(#tag_name, #attrs, #close_empty, pretty, level, indent_size)
             }
         }
-        ChildrenKind::String { indent: true } => {
+        ChildrenKind::String if opts.indent_children() => {
             quote! {
                 if self.children.is_empty() {
                     crate::prelude::print::open(#tag_name, #attrs, true, pretty, level, indent_size)
@@ -181,7 +67,7 @@ fn impl_print(ast: &DeriveInput) -> proc_macro2::TokenStream {
                 }
             }
         }
-        ChildrenKind::String { indent: false } => {
+        ChildrenKind::String => {
             quote! {
                 if self.children.is_empty() {
                     crate::prelude::print::open(#tag_name, #attrs, true, pretty, level, indent_size)
@@ -210,7 +96,7 @@ fn impl_print(ast: &DeriveInput) -> proc_macro2::TokenStream {
                 }
             }
         }
-        ChildrenKind::List => {
+        ChildrenKind::List(_) => {
             quote! {
                 if self.children.is_empty() {
                     crate::prelude::print::open(#tag_name, #attrs, true, pretty, level, indent_size)
@@ -267,19 +153,20 @@ pub fn derive_attributes(input: TokenStream) -> TokenStream {
     let ast: DeriveInput = parse_macro_input!(input as DeriveInput);
 
     let name = &ast.ident;
-    let fields = get_fields(&ast).iter().filter_map(|f| {
-        match (&f.ident, as_path(f).map(is_option_string)) {
-            (Some(ident), Some(true)) => Some(quote! {
-                if let Some(ref value) = self.#ident {
-                    res.insert(stringify!(#ident).to_string(), value.to_string());
-                }
-            }),
-            (Some(ident), Some(false)) => Some(quote! {
-                res.insert(stringify!(#ident).to_string(), self.#ident.to_string());
-            }),
-            _ => None,
-        }
-    });
+    let fields =
+        get_fields(&ast)
+            .iter()
+            .filter_map(|f| match (&f.ident, as_path(f).map(is_option)) {
+                (Some(ident), Some(true)) => Some(quote! {
+                    if let Some(ref value) = self.#ident {
+                        res.insert(stringify!(#ident).to_string(), value.to_string());
+                    }
+                }),
+                (Some(ident), Some(false)) => Some(quote! {
+                    res.insert(stringify!(#ident).to_string(), self.#ident.to_string());
+                }),
+                _ => None,
+            });
 
     let res = quote! {
         impl #name {

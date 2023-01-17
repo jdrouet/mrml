@@ -1,7 +1,24 @@
 use syn::{
-    punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput, Field, Fields,
-    FieldsNamed, GenericArgument, Path, PathArguments, Type, TypePath,
+    punctuated::Punctuated, token::Comma, Data, DataEnum, DataStruct, DeriveInput, Field, Fields,
+    FieldsNamed, FieldsUnnamed, GenericArgument, Ident, Path, PathArguments, Type, TypePath,
+    Variant,
 };
+
+pub fn as_data_enum(ast: &DeriveInput) -> Option<&DataEnum> {
+    if let Data::Enum(inner) = &(ast.data) {
+        Some(inner)
+    } else {
+        None
+    }
+}
+
+pub fn get_variant_single_field(variant: &Variant) -> Option<&Field> {
+    if let Fields::Unnamed(FieldsUnnamed { unnamed, .. }) = &variant.fields {
+        Some(unnamed.first().unwrap())
+    } else {
+        None
+    }
+}
 
 pub fn is_vec(path: &Path) -> bool {
     path.segments
@@ -16,13 +33,13 @@ fn get_vec_type(path: &Path) -> Type {
     let res = if let PathArguments::AngleBracketed(arg) = res {
         arg
     } else {
-        panic!("expected path arguments of kind angle bracketed {res:?}");
+        panic!("expected path arguments of kind angle bracketed");
     };
     let res = res.args.first().unwrap();
     let res = if let GenericArgument::Type(ty) = res {
         ty
     } else {
-        panic!("expected generic argument of kind Type {res:?}");
+        panic!("expected generic argument of kind Type");
     };
     res.to_owned()
 }
@@ -77,6 +94,7 @@ pub fn get_children_field(ast: &DeriveInput) -> Option<&Field> {
 
 pub enum ChildrenKind {
     String,
+    Single,
     List(Type),
     None,
 }
@@ -88,7 +106,7 @@ pub fn get_children_kind(ast: &DeriveInput) -> ChildrenKind {
             Type::Path(TypePath { path, .. }) if is_vec(path) => {
                 ChildrenKind::List(get_vec_type(path))
             }
-            _ => panic!("Incompatible type for children field {:?}", field.ident),
+            _ => ChildrenKind::Single,
         }
     } else {
         ChildrenKind::None
@@ -131,6 +149,6 @@ pub fn get_attributes_kind(ast: &DeriveInput) -> AttributesKind {
 
 pub enum AttributesKind {
     Map,
-    Struct(syn::Ident),
+    Struct(Ident),
     None,
 }
