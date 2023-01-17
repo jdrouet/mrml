@@ -54,7 +54,7 @@ impl MJHead {
                 attrs
                     .children()
                     .iter()
-                    .filter_map(|item| item.as_mj_all())
+                    .filter_map(|item| item.as_mj_attributes_all())
                     .fold(result, |mut res, all| {
                         res.extend(
                             all.attributes()
@@ -74,7 +74,7 @@ impl MJHead {
                 attrs
                     .children()
                     .iter()
-                    .filter_map(|item| item.as_mj_class())
+                    .filter_map(|item| item.as_mj_attributes_class())
                     .fold(result, |mut res, class| {
                         (*res.entry(class.name()).or_insert_with(Map::new)).extend(
                             class
@@ -95,7 +95,7 @@ impl MJHead {
                 attrs
                     .children()
                     .iter()
-                    .filter_map(|item| item.as_element())
+                    .filter_map(|item| item.as_mj_attributes_element())
                     .fold(result, |mut res, element| {
                         (*res.entry(element.name()).or_insert_with(Map::new)).extend(
                             element

@@ -93,7 +93,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
         self.element
             .children
             .iter()
-            .filter_map(|child| child.as_image())
+            .filter_map(|child| child.as_mj_carousel_image())
             .enumerate()
             .try_fold(String::default(), |res, (index, child)| {
                 let mut renderer = child.renderer(Rc::clone(&self.header));
@@ -116,7 +116,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
             self.element
                 .children
                 .iter()
-                .filter_map(|child| child.as_image())
+                .filter_map(|child| child.as_mj_carousel_image())
                 .enumerate()
                 .try_fold(String::default(), |res, (index, child)| {
                     let mut renderer = child.renderer(Rc::clone(&self.header));
@@ -177,7 +177,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
             .element
             .children
             .iter()
-            .filter_map(|item| item.as_image())
+            .filter_map(|item| item.as_mj_carousel_image())
             .enumerate()
             .try_fold(String::default(), |res, (index, child)| {
                 let mut renderer = child.renderer(Rc::clone(&self.header));
@@ -217,7 +217,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
             .element
             .children
             .iter()
-            .find_map(|child| child.as_image())
+            .find_map(|child| child.as_mj_carousel_image())
         {
             Some(child) => {
                 let mut renderer = child.renderer(Rc::clone(&self.header));

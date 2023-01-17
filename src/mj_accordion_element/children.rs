@@ -9,7 +9,6 @@ use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
 use crate::prelude::parse::{Error as ParserError, Parsable};
 #[cfg(feature = "render")]
 use crate::prelude::render::{Header, Render, Renderable};
-use crate::{as_child, from_child};
 #[cfg(feature = "render")]
 use std::cell::RefCell;
 #[cfg(feature = "render")]
@@ -17,7 +16,7 @@ use std::rc::Rc;
 #[cfg(feature = "parse")]
 use xmlparser::{StrSpan, Tokenizer};
 
-#[derive(Debug)]
+#[derive(Debug, mrml_macros::MrmlChildren)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
@@ -26,12 +25,6 @@ pub enum MJAccordionElementChild {
     MJAccordionText(MJAccordionText),
     MJAccordionTitle(MJAccordionTitle),
 }
-
-as_child!(MJAccordionElementChild, MJAccordionText, as_text);
-as_child!(MJAccordionElementChild, MJAccordionTitle, as_title);
-from_child!(MJAccordionElementChild, Comment);
-from_child!(MJAccordionElementChild, MJAccordionText);
-from_child!(MJAccordionElementChild, MJAccordionTitle);
 
 #[cfg(feature = "parse")]
 impl Parsable for MJAccordionElementChild {
