@@ -1,8 +1,3 @@
-use super::MJSpacer;
-use crate::print_attrs;
-
-print_attrs!(MJSpacer, super::NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Print;

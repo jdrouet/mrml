@@ -44,7 +44,7 @@ impl<'e, 'h> MJNavbarLinkRender<'e, 'h> {
     fn get_link(&self) -> Option<String> {
         self.attribute("href").as_ref().and_then(|href| {
             self.attribute("navbar-base-url")
-                .map(move |base| format!("{}{}", base, href))
+                .map(move |base| format!("{base}{href}"))
                 .or_else(|| Some(href.to_string()))
         })
     }

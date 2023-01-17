@@ -1,8 +1,3 @@
-use super::MJSocialElement;
-use crate::print_attrs;
-
-print_attrs!(MJSocialElement, super::NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Print;

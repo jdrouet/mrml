@@ -13,6 +13,8 @@ mod render;
 pub const NAME: &str = "mj-table";
 
 #[derive(Debug, Default)]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
+#[cfg_attr(feature = "print", mrml_print(tag = "NAME", indent_children = false))]
 pub struct MJTable {
     attributes: Map<String, String>,
     children: Vec<MJBodyChild>,

@@ -124,14 +124,11 @@ pub struct MJHeadRender<'e, 'h> {
 
 impl<'e, 'h> MJHeadRender<'e, 'h> {
     fn render_font_import(&self, href: &str) -> String {
-        format!("@import url({});", href)
+        format!("@import url({href});")
     }
 
     fn render_font_link(&self, href: &str) -> String {
-        format!(
-            "<link href=\"{}\" rel=\"stylesheet\" type=\"text/css\">",
-            href
-        )
+        format!("<link href=\"{href}\" rel=\"stylesheet\" type=\"text/css\">")
     }
 
     fn render_font_families(&self) -> String {
@@ -248,12 +245,10 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
             if buf.is_empty() {
                 buf
             } else {
-                format!("<style type=\"text/css\">{}</style>", buf)
+                format!("<style type=\"text/css\">{buf}</style>")
             }
         };
-        format!("{}\n{}", header_styles, head_styles)
-            .trim()
-            .to_string()
+        format!("{header_styles}\n{head_styles}").trim().to_string()
     }
 
     fn render_raw(&self, opts: &Options) -> Result<String, Error> {

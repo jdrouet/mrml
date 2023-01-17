@@ -15,6 +15,8 @@ use crate::prelude::hash::Map;
 pub const NAME: &str = "mj-social-element";
 
 #[derive(Debug, Default)]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
+#[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 pub struct MJSocialElement {
     attributes: Map<String, String>,
     children: Vec<MJRawChild>,

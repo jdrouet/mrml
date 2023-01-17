@@ -7,8 +7,6 @@ use crate::mj_accordion_title::MJAccordionTitle;
 use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
 #[cfg(feature = "parse")]
 use crate::prelude::parse::{Error as ParserError, Parsable};
-#[cfg(feature = "print")]
-use crate::prelude::print::Print;
 #[cfg(feature = "render")]
 use crate::prelude::render::{Header, Render, Renderable};
 use crate::{as_child, from_child};
@@ -22,6 +20,7 @@ use xmlparser::{StrSpan, Tokenizer};
 #[derive(Debug)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 pub enum MJAccordionElementChild {
     Comment(Comment),
     MJAccordionText(MJAccordionText),
@@ -33,17 +32,6 @@ as_child!(MJAccordionElementChild, MJAccordionTitle, as_title);
 from_child!(MJAccordionElementChild, Comment);
 from_child!(MJAccordionElementChild, MJAccordionText);
 from_child!(MJAccordionElementChild, MJAccordionTitle);
-
-#[cfg(feature = "print")]
-impl Print for MJAccordionElementChild {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        match self {
-            Self::Comment(elt) => elt.print(pretty, level, indent_size),
-            Self::MJAccordionText(elt) => elt.print(pretty, level, indent_size),
-            Self::MJAccordionTitle(elt) => elt.print(pretty, level, indent_size),
-        }
-    }
-}
 
 #[cfg(feature = "parse")]
 impl Parsable for MJAccordionElementChild {

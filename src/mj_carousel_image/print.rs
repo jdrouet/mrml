@@ -1,8 +1,3 @@
-use super::{MJCarouselImage, NAME};
-use crate::print_attrs;
-
-print_attrs!(MJCarouselImage, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Print;

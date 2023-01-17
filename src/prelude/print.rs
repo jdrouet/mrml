@@ -16,7 +16,7 @@ pub trait Print {
 pub fn indent(level: usize, indent_size: usize, value: String) -> String {
     let spaces = level * indent_size;
     let spaces = (0..spaces).map(|_| ' ').collect::<String>();
-    format!("{}{}\n", spaces, value)
+    format!("{spaces}{value}\n")
 }
 
 pub fn attributes(attrs: Option<&Map<String, String>>) -> String {
@@ -26,7 +26,7 @@ pub fn attributes(attrs: Option<&Map<String, String>>) -> String {
             entries.sort_by(sort_by_key);
             entries
                 .iter()
-                .map(|(key, value)| format!(" {}=\"{}\"", key, value))
+                .map(|(key, value)| format!(" {key}=\"{value}\""))
                 .collect::<String>()
         })
         .unwrap_or_default()
@@ -57,6 +57,6 @@ pub fn close(tag: &str, pretty: bool, level: usize, indent_size: usize) -> Strin
     if pretty {
         indent(level, indent_size, close(tag, false, level, indent_size))
     } else {
-        format!("</{}>", tag)
+        format!("</{tag}>")
     }
 }

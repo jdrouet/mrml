@@ -1,8 +1,3 @@
-use super::{MJImage, NAME};
-use crate::print_attrs;
-
-print_attrs!(MJImage, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Print;

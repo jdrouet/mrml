@@ -1,8 +1,3 @@
-use super::MJText;
-use crate::print_attrs_children;
-
-print_attrs_children!(MJText, super::NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Print;

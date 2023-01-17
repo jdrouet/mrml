@@ -1,8 +1,3 @@
-use super::{MJBody, NAME};
-use crate::print_attrs_children;
-
-print_attrs_children!(MJBody, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Print;
@@ -10,10 +5,9 @@ mod tests {
     #[test]
     fn empty() {
         let item = crate::mj_body::MJBody::default();
-        assert_eq!("<mj-body></mj-body>", item.dense_print());
+        assert_eq!("<mj-body />", item.dense_print());
     }
 
-    /*
     #[test]
     fn with_children() {
         let mut item = crate::mj_body::MJBody::default();
@@ -28,5 +22,4 @@ mod tests {
             item.dense_print()
         );
     }
-    */
 }

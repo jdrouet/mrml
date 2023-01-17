@@ -63,7 +63,7 @@ pub trait WithMJSectionBackground<'h>: Render<'h> {
             res.push(color);
         }
         if let Some(url) = self.attribute("background-url") {
-            res.push(format!("url('{}')", url));
+            res.push(format!("url('{url}')"));
             // has default value
             res.push(format!(
                 "{} / {}",
@@ -146,8 +146,8 @@ pub trait WithMJSectionBackground<'h>: Render<'h> {
             0.0
         };
         (
-            format!("{}, {}", position_x, position_y),
-            format!("{}, {}", position_x, position_y),
+            format!("{position_x}, {position_y}"),
+            format!("{position_x}, {position_y}"),
         )
     }
 

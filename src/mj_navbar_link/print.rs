@@ -1,8 +1,3 @@
-use super::MJNavbarLink;
-use crate::print_attrs;
-
-print_attrs!(MJNavbarLink, super::NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Print;

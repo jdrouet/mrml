@@ -40,7 +40,7 @@ impl<'de> Visitor<'de> for MJAttributesElementVisitor {
         while let Some(key) = access.next_key::<String>()? {
             if key == "type" {
                 if access.next_value::<String>()? != NAME {
-                    return Err(M::Error::custom(format!("expected type to equal {}", NAME)));
+                    return Err(M::Error::custom(format!("expected type to equal {NAME}")));
                 }
             } else if key == "name" {
                 result.name = access.next_value()?;

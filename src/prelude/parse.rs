@@ -80,19 +80,19 @@ impl ToString for Error {
     fn to_string(&self) -> String {
         match self {
             Self::UnexpectedAttribute(position) => {
-                format!("unexpected attribute at position {}", position)
+                format!("unexpected attribute at position {position}")
             }
             Self::UnexpectedElement(position) => {
-                format!("unexpected element at position {}", position)
+                format!("unexpected element at position {position}")
             }
             Self::UnexpectedComment(position) => {
-                format!("unexpected comment at position {}", position)
+                format!("unexpected comment at position {position}")
             }
-            Self::UnexpectedText(position) => format!("unexpected text at position {}", position),
-            Self::InvalidElement(elt) => format!("invalid element: {}", elt),
+            Self::UnexpectedText(position) => format!("unexpected text at position {position}"),
+            Self::InvalidElement(elt) => format!("invalid element: {elt}"),
             Self::InvalidFormat => "invalid format".to_string(),
             Self::SizeLimit => "size limit reached".to_string(),
-            Self::ParserError(inner) => format!("parsing error: {}", inner),
+            Self::ParserError(inner) => format!("parsing error: {inner}"),
             Self::NoRootNode => "no root not found".to_string(),
         }
     }
@@ -132,7 +132,7 @@ pub trait Parser: Sized {
         Err(Error::UnexpectedAttribute(name.start()))
     }
 
-    fn parse_children<'a>(&mut self, tokenizer: &mut Tokenizer<'a>) -> Result<(), Error> {
+    fn parse_children(&mut self, tokenizer: &mut Tokenizer<'_>) -> Result<(), Error> {
         loop {
             let token = next_token(tokenizer)?;
             match token {

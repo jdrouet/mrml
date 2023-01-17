@@ -51,7 +51,7 @@ impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
             .maybe_add_class(
                 self.extra
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-radio", id)),
+                    .map(|id| format!("mj-carousel-{id}-radio")),
             )
             .maybe_add_class(
                 self.extra
@@ -71,7 +71,7 @@ impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
                 "name",
                 self.extra
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-radio-{}", id)),
+                    .map(|id| format!("mj-carousel-radio-{id}")),
             )
             .maybe_add_attribute(
                 "id",
@@ -112,7 +112,7 @@ impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
             .maybe_add_class(
                 self.extra
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-thumbnail", id)),
+                    .map(|id| format!("mj-carousel-{id}-thumbnail")),
             )
             .maybe_add_class(
                 self.extra

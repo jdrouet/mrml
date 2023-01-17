@@ -6,6 +6,7 @@ use crate::{as_child, from_child};
 #[derive(Debug)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 pub enum MJAttributesChild {
     MJAttributesAll(MJAttributesAll),
     MJAttributesClass(MJAttributesClass),

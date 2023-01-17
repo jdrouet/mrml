@@ -9,11 +9,14 @@ pub const NAME: &str = "mj-style";
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintAttributes))]
 pub struct MjStyleAttributes {
     inline: Option<String>,
 }
 
 #[derive(Debug, Default)]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
+#[cfg_attr(feature = "print", mrml_print(tag = "NAME", indent_children = false))]
 pub struct MJStyle {
     attributes: MjStyleAttributes,
     children: String,

@@ -5,6 +5,7 @@ use crate::{as_child, from_child};
 #[derive(Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 pub enum MJCarouselChild {
     Comment(Comment),
     MJCarouselImage(MJCarouselImage),

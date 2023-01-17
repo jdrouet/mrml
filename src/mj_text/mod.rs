@@ -13,6 +13,8 @@ mod render;
 pub const NAME: &str = "mj-text";
 
 #[derive(Debug, Default)]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
+#[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 pub struct MJText {
     attributes: Map<String, String>,
     children: Vec<MJBodyChild>,

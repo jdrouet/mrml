@@ -157,7 +157,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
                     .closed();
                 Tag::new("label")
                     .add_attribute("for", format!("mj-carousel-{}-radio-{}", self.id, idx + 1))
-                    .add_class(format!("mj-carousel-{}", direction))
+                    .add_class(format!("mj-carousel-{direction}"))
                     .add_class(format!("mj-carousel-{}-{}", direction, idx + 1))
                     .render(img)
             })
@@ -165,7 +165,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
             .join("");
         let div = self
             .set_style_controls_div(Tag::div())
-            .add_class(format!("mj-carousel-{}-icons", direction))
+            .add_class(format!("mj-carousel-{direction}-icons"))
             .render(items);
         self.set_style_controls_td(Tag::td())
             .add_class(format!("mj-carousel-{}-icons-cell", self.id))

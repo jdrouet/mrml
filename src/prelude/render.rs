@@ -17,7 +17,7 @@ pub enum Error {
 impl ToString for Error {
     fn to_string(&self) -> String {
         match self {
-            Self::UnknownFragment(name) => format!("unknown fragment {}", name),
+            Self::UnknownFragment(name) => format!("unknown fragment {name}"),
         }
     }
 }

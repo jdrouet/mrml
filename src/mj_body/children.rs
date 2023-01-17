@@ -17,8 +17,6 @@ use crate::mj_table::MJTable;
 use crate::mj_text::MJText;
 use crate::mj_wrapper::MJWrapper;
 use crate::node::Node;
-#[cfg(feature = "print")]
-use crate::prelude::print::Print;
 #[cfg(feature = "render")]
 use crate::prelude::render::{Header, Render, Renderable};
 use crate::text::Text;
@@ -30,6 +28,7 @@ use std::rc::Rc;
 #[derive(Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 pub enum MJBodyChild {
     Comment(Comment),
     MJAccordion(MJAccordion),
@@ -108,18 +107,6 @@ impl MJBodyChild {
     #[cfg(feature = "render")]
     pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
         inner!(self)
-    }
-
-    #[cfg(feature = "print")]
-    pub fn as_print<'p>(&'p self) -> &'p (dyn Print + 'p) {
-        inner!(self)
-    }
-}
-
-#[cfg(feature = "print")]
-impl Print for MJBodyChild {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        self.as_print().print(pretty, level, indent_size)
     }
 }
 

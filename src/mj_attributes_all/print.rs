@@ -1,8 +1,3 @@
-use super::{MJAttributesAll, NAME};
-use crate::print_attrs;
-
-print_attrs!(MJAttributesAll, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Print;

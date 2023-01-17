@@ -15,6 +15,8 @@ pub use children::MJAccordionChild;
 pub const NAME: &str = "mj-accordion";
 
 #[derive(Debug, Default)]
+#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
+#[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 pub struct MJAccordion {
     attributes: Map<String, String>,
     children: Vec<MJAccordionChild>,
