@@ -18,7 +18,7 @@ travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 [features]
 default = ["json", "parse", "print", "render"]
 json = ["serde", "serde_json"]
-parse = ["xmlparser"]
+parse = ["mrml-parse-macros", "xmlparser"]
 print = ["mrml-print-macros"]
 render = ["rand"]
 orderedmap = ["indexmap", "rustc-hash"]
@@ -35,14 +35,21 @@ serde_json = { version = "1.0", optional = true }
 xmlparser = { version = "0.13", optional = true }
 indexmap = { version = "1.9", features = ["serde-1"], optional = true }
 rustc-hash = { version = "1.1", optional = true }
+
+# macros
 mrml-macros = { path = "./lib/mrml-macros" }
+mrml-parse-macros = { path = "./lib/mrml-parse-macros", optional = true }
 mrml-print-macros = { path = "./lib/mrml-print-macros", optional = true }
 
 [dev-dependencies]
 criterion = "0.4"
 
 [workspace]
-members = ["./lib/mrml-macros", "./lib/mrml-print-macros"]
+members = [
+  "./lib/mrml-macros",
+  "./lib/mrml-parse-macros",
+  "./lib/mrml-print-macros",
+]
 
 [[bench]]
 name = "basic"

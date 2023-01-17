@@ -40,7 +40,7 @@ mod tests {
         let res = crate::mjml::MJML::parse(
             r#"<mjml><mj-head><mj-style>.whatever {background-color: red};</mj-style></mj-head></mjml>"#,
         );
-        println!("result: {:?}", res);
+        println!("result: {res:?}");
         assert!(res.is_ok());
     }
 }

@@ -5,6 +5,7 @@ use crate::mj_navbar_link::MJNavbarLink;
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
+#[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseChildren))]
 pub enum MJNavbarChild {
     Comment(Comment),
     MJNavbarLink(MJNavbarLink),

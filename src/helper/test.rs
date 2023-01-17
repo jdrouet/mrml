@@ -46,7 +46,7 @@ pub fn cleanup_text(input: &str) -> String {
     input.replace([' ', '\t', '\n'], "")
 }
 
-fn compare_style<'a>(path: &mut LinkedList<&'a str>, expected: &str, result: &str) {
+fn compare_style(path: &mut LinkedList<&str>, expected: &str, result: &str) {
     let expected_set = expected
         .split(';')
         .filter(|item| !item.is_empty())
@@ -57,15 +57,14 @@ fn compare_style<'a>(path: &mut LinkedList<&'a str>, expected: &str, result: &st
         .filter(|item| !item.is_empty())
         .map(|item| item.trim().to_string())
         .collect::<Vec<String>>();
-    assert_eq!(expected_set, result_set, "different styles in {:?}", path);
+    assert_eq!(expected_set, result_set, "different styles in {path:?}");
 }
 
-fn compare_text<'a>(path: &mut LinkedList<&'a str>, expected: &str, result: &str) {
+fn compare_text(path: &mut LinkedList<&str>, expected: &str, result: &str) {
     assert_eq!(
         cleanup_text(expected),
         cleanup_text(result),
-        "different text in {:?}",
-        path
+        "different text in {path:?}"
     );
 }
 
@@ -80,7 +79,7 @@ fn read_attributes<'a>(
                 result.insert(local.as_str(), value.as_str());
             }
             Some(Ok(Token::ElementEnd { end, .. })) => return Ok((result, end)),
-            _ => return Err(format!("invalid token in attributes: {:?}", path)),
+            _ => return Err(format!("invalid token in attributes: {path:?}")),
         }
     }
 }
@@ -221,8 +220,7 @@ fn compare_node<'a>(
                 assert_eq!(
                     exp_tag.as_str(),
                     res_tag.as_str(),
-                    "tags mismatch at path {:?}",
-                    path
+                    "tags mismatch at path {path:?}"
                 );
                 path.push_back(exp_tag.as_str());
                 compare_element(path, expected, result);
@@ -255,7 +253,7 @@ fn compare_node<'a>(
 pub fn compare(expected: &str, result: &str) {
     let expected = cleanup(expected);
     let result = cleanup(result);
-    println!("# expected: {}\n\n#result: {}\n", expected, result);
+    println!("# expected: {expected}\n\n#result: {result}\n");
     let mut expected_tokenizer = Tokenizer::from(expected.as_str());
     let mut result_tokenizer = Tokenizer::from(result.as_str());
     let mut path = LinkedList::new();

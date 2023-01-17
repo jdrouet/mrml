@@ -60,6 +60,7 @@ pub enum Error {
     UnexpectedElement(usize),
     UnexpectedComment(usize),
     UnexpectedText(usize),
+    MissingAttribute(&'static str),
     InvalidElement(String),
     InvalidFormat,
     /// The input string should be smaller than 4GiB.
@@ -89,6 +90,7 @@ impl ToString for Error {
                 format!("unexpected comment at position {position}")
             }
             Self::UnexpectedText(position) => format!("unexpected text at position {position}"),
+            Self::MissingAttribute(field) => format!("missing attribute {field}"),
             Self::InvalidElement(elt) => format!("invalid element: {elt}"),
             Self::InvalidFormat => "invalid format".to_string(),
             Self::SizeLimit => "size limit reached".to_string(),

@@ -7,14 +7,14 @@ mod tests {
     #[test]
     fn empty() {
         let item = MJML::default();
-        assert_eq!("<mjml />", format!("{}", item));
+        assert_eq!("<mjml />", format!("{item}"));
     }
 
     #[test]
     fn with_lang() {
         let mut item = MJML::default();
         item.attributes.insert("lang".to_string(), "fr".to_string());
-        assert_eq!("<mjml lang=\"fr\" />", format!("{}", item));
+        assert_eq!("<mjml lang=\"fr\" />", format!("{item}"));
     }
 
     #[test]
