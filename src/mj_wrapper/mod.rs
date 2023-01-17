@@ -16,6 +16,6 @@ pub const NAME: &str = "mj-wrapper";
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME", indent_children = false))]
 pub struct MJWrapper {
-    attributes: Map<String, String>,
-    children: Vec<MJBodyChild>,
+    pub attributes: Map<String, String>,
+    pub children: Vec<MJBodyChild>,
 }

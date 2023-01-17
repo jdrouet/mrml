@@ -11,9 +11,9 @@ mod render;
 
 #[derive(Debug, Default)]
 pub struct Node<T> {
-    tag: String,
-    attributes: Map<String, String>,
-    children: Vec<T>,
+    pub tag: String,
+    pub attributes: Map<String, String>,
+    pub children: Vec<T>,
 }
 
 impl<T> Node<T> {

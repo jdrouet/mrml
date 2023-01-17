@@ -18,15 +18,15 @@ pub const NAME: &str = "mj-accordion-element";
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
-struct MJAccordionElementChildren {
-    title: Option<MJAccordionTitle>,
-    text: Option<MJAccordionText>,
+pub struct MJAccordionElementChildren {
+    pub title: Option<MJAccordionTitle>,
+    pub text: Option<MJAccordionText>,
 }
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 pub struct MJAccordionElement {
-    attributes: Map<String, String>,
-    children: MJAccordionElementChildren,
+    pub attributes: Map<String, String>,
+    pub children: MJAccordionElementChildren,
 }

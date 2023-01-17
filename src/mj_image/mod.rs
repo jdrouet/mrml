@@ -15,5 +15,5 @@ pub const NAME: &str = "mj-image";
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 pub struct MJImage {
-    attributes: Map<String, String>,
+    pub attributes: Map<String, String>,
 }

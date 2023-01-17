@@ -15,7 +15,7 @@ pub const NAME: &str = "mjml";
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
-struct MJMLChildren {
+pub struct MJMLChildren {
     head: Option<MJHead>,
     body: Option<MJBody>,
 }
@@ -24,8 +24,8 @@ struct MJMLChildren {
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 pub struct MJML {
-    attributes: Map<String, String>,
-    children: MJMLChildren,
+    pub attributes: Map<String, String>,
+    pub children: MJMLChildren,
 }
 
 impl MJML {

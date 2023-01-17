@@ -16,6 +16,6 @@ pub const NAME: &str = "mj-accordion-title";
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 pub struct MJAccordionTitle {
-    attributes: Map<String, String>,
-    children: Vec<Text>,
+    pub attributes: Map<String, String>,
+    pub children: Vec<Text>,
 }

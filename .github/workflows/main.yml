@@ -16,6 +16,8 @@ jobs:
           toolchain: stable
           profile: minimal
           components: rustfmt,clippy
+
+      - uses: taiki-e/install-action@cargo-hack
           
       - uses: actions/cache@v3
         with:
@@ -30,7 +32,10 @@ jobs:
       - name: run lint
         run: cargo fmt --check
 
-      - name: run check
+      - name: run check on features
+        run: cargo hack check --feature-powerset --no-dev-deps
+
+      - name: run check with tests
         run: cargo check --all-features --tests
 
       - name: run clippy

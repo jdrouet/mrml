@@ -18,6 +18,6 @@ pub const NAME: &str = "mj-navbar";
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 pub struct MJNavbar {
-    attributes: Map<String, String>,
-    children: Vec<MJNavbarChild>,
+    pub attributes: Map<String, String>,
+    pub children: Vec<MJNavbarChild>,
 }

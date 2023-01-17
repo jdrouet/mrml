@@ -7,7 +7,7 @@ mod render;
 
 #[derive(Debug, Default)]
 pub struct Comment {
-    children: String,
+    pub children: String,
 }
 
 impl From<String> for Comment {
