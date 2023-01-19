@@ -1,22 +1,20 @@
-use super::{MJMLChildren, MJML, NAME};
-use crate::json_attrs_and_children_deserializer;
-use crate::json_attrs_and_children_serializer;
+use super::MJMLChildren;
 use crate::mj_body::MJBody;
 use crate::mj_head::MJHead;
-use serde::de::{Error, MapAccess, SeqAccess, Visitor};
-use serde::ser::{SerializeMap, SerializeSeq};
+use serde::de::{SeqAccess, Visitor};
+use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(untagged)]
-enum MJMLChild {
+pub enum MJMLChild {
     MJHead(MJHead),
     MJBody(MJBody),
 }
 
 impl MJMLChildren {
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.head.is_none() && self.body.is_none()
     }
 }
@@ -70,9 +68,6 @@ impl<'de> Deserialize<'de> for MJMLChildren {
         deserializer.deserialize_seq(MJMLChildrenVisitor::default())
     }
 }
-
-json_attrs_and_children_serializer!(MJML, NAME);
-json_attrs_and_children_deserializer!(MJML, MJMLVisitor, NAME);
 
 #[cfg(test)]
 mod tests {

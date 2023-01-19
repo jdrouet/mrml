@@ -1,15 +1,3 @@
-use super::Comment;
-use crate::json_children_deserializer;
-use crate::json_children_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-const NAME: &str = "comment";
-
-json_children_serializer!(Comment, NAME);
-json_children_deserializer!(Comment, CommentVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::comment::Comment;

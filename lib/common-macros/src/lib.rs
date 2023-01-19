@@ -1,7 +1,7 @@
 use syn::{
     punctuated::Punctuated, token::Comma, Data, DataEnum, DataStruct, DeriveInput, Field, Fields,
-    FieldsNamed, FieldsUnnamed, GenericArgument, Ident, Path, PathArguments, Type, TypePath,
-    Variant,
+    FieldsNamed, FieldsUnnamed, GenericArgument, GenericParam, Ident, Path, PathArguments, Type,
+    TypeParam, TypePath, Variant,
 };
 
 pub fn as_data_enum(ast: &DeriveInput) -> Option<&DataEnum> {
@@ -26,6 +26,16 @@ pub fn is_vec(path: &Path) -> bool {
         // TODO make sure that it's a Vec<T>
         .map(|s| s.ident == "Vec")
         .unwrap_or(false)
+}
+
+pub fn get_generics(ast: &DeriveInput) -> Option<Ident> {
+    ast.generics.params.first().and_then(|p| {
+        if let GenericParam::Type(TypeParam { ident, .. }) = p {
+            Some(ident.clone())
+        } else {
+            None
+        }
+    })
 }
 
 fn get_vec_type(path: &Path) -> Type {

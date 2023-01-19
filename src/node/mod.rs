@@ -9,11 +9,23 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
+#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
+#[cfg_attr(feature = "json", mrml_json(tag_field = "tag"))]
 pub struct Node<T> {
     pub tag: String,
     pub attributes: Map<String, String>,
     pub children: Vec<T>,
+}
+
+impl<T> Default for Node<T> {
+    fn default() -> Self {
+        Self {
+            tag: Default::default(),
+            attributes: Default::default(),
+            children: Default::default(),
+        }
+    }
 }
 
 impl<T> Node<T> {

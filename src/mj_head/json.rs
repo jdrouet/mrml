@@ -1,13 +1,3 @@
-use super::{MJHead, NAME};
-use crate::json_children_deserializer;
-use crate::json_children_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-json_children_serializer!(MJHead, NAME);
-json_children_deserializer!(MJHead, MJHeadVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::mj_head::MJHead;

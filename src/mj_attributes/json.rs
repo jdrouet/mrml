@@ -1,13 +1,3 @@
-use super::{MJAttributes, NAME};
-use crate::json_children_deserializer;
-use crate::json_children_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-json_children_serializer!(MJAttributes, NAME);
-json_children_deserializer!(MJAttributes, MJAttributesVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::mj_attributes::MJAttributes;

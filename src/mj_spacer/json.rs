@@ -1,13 +1,3 @@
-use super::{MJSpacer, NAME};
-use crate::json_attrs_deserializer;
-use crate::json_attrs_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-json_attrs_serializer!(MJSpacer, NAME);
-json_attrs_deserializer!(MJSpacer, MJSpacerVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::mj_spacer::MJSpacer;

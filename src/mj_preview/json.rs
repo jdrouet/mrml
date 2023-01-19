@@ -1,13 +1,3 @@
-use super::{MJPreview, NAME};
-use crate::json_children_deserializer;
-use crate::json_children_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-json_children_serializer!(MJPreview, NAME);
-json_children_deserializer!(MJPreview, MJPreviewVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::mj_preview::MJPreview;

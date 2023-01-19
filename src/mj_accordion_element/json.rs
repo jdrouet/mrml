@@ -1,13 +1,11 @@
-use super::{MJAccordionElement, MJAccordionElementChild, MJAccordionElementChildren, NAME};
-use crate::json_attrs_and_children_deserializer;
-use crate::json_attrs_and_children_serializer;
-use serde::de::{Error, MapAccess, SeqAccess, Visitor};
-use serde::ser::{SerializeMap, SerializeSeq};
+use super::{MJAccordionElementChild, MJAccordionElementChildren};
+use serde::de::{SeqAccess, Visitor};
+use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
 impl MJAccordionElementChildren {
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.title.is_none() && self.text.is_none()
     }
 }
@@ -62,9 +60,6 @@ impl<'de> Deserialize<'de> for MJAccordionElementChildren {
         deserializer.deserialize_seq(MJAccordionElementChildrenVisitor::default())
     }
 }
-
-json_attrs_and_children_serializer!(MJAccordionElement, NAME);
-json_attrs_and_children_deserializer!(MJAccordionElement, MJAccordionElementVisitor, NAME);
 
 #[cfg(test)]
 mod tests {

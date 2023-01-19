@@ -1,13 +1,3 @@
-use super::{MJNavbar, NAME};
-use crate::json_attrs_and_children_deserializer;
-use crate::json_attrs_and_children_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-json_attrs_and_children_serializer!(MJNavbar, NAME);
-json_attrs_and_children_deserializer!(MJNavbar, MJNavbarVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::mj_navbar::MJNavbar;

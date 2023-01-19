@@ -1,13 +1,3 @@
-use super::{MJAccordion, NAME};
-use crate::json_attrs_and_children_deserializer;
-use crate::json_attrs_and_children_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-json_attrs_and_children_serializer!(MJAccordion, NAME);
-json_attrs_and_children_deserializer!(MJAccordion, MJAccordionVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::mj_accordion::MJAccordion;

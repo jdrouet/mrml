@@ -1,13 +1,3 @@
-use super::{MJBody, NAME};
-use crate::json_attrs_and_children_deserializer;
-use crate::json_attrs_and_children_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-json_attrs_and_children_serializer!(MJBody, NAME);
-json_attrs_and_children_deserializer!(MJBody, MJBodyVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::mj_body::MJBody;

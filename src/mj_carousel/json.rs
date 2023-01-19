@@ -1,13 +1,3 @@
-use super::{MJCarousel, NAME};
-use crate::json_attrs_and_children_deserializer;
-use crate::json_attrs_and_children_serializer;
-use serde::de::{Error, MapAccess};
-use serde::ser::SerializeMap;
-use std::fmt;
-
-json_attrs_and_children_serializer!(MJCarousel, NAME);
-json_attrs_and_children_deserializer!(MJCarousel, MJCarouselVisitor, NAME);
-
 #[cfg(test)]
 mod tests {
     use crate::mj_carousel::MJCarousel;
