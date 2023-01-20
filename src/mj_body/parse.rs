@@ -1,4 +1,4 @@
-use super::{MJBody, MJBodyChild};
+use super::MJBodyChild;
 use crate::mj_accordion::MJAccordion;
 use crate::mj_accordion::NAME as MJ_ACCORDION;
 use crate::mj_button::MJButton;
@@ -32,8 +32,7 @@ use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::MJWrapper;
 use crate::mj_wrapper::NAME as MJ_WRAPPER;
 use crate::node::Node;
-use crate::prelude::parse::{Error, Parsable, Parser};
-use crate::{parse_attribute, parse_child, parse_comment, parse_text};
+use crate::prelude::parse::{Error, Parsable};
 use xmlparser::{StrSpan, Tokenizer};
 
 impl Parsable for MJBodyChild {
@@ -58,28 +57,6 @@ impl Parsable for MJBodyChild {
             _ => Ok(Node::<MJBodyChild>::parse(tag, tokenizer)?.into()),
             // _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
-    }
-}
-
-#[derive(Debug, Default)]
-struct MJBodyParser(MJBody);
-
-impl Parser for MJBodyParser {
-    type Output = MJBody;
-
-    fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.0)
-    }
-
-    parse_attribute!();
-    parse_comment!();
-    parse_text!();
-    parse_child!(MJBodyChild);
-}
-
-impl Parsable for MJBody {
-    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        MJBodyParser::default().parse(tokenizer)?.build()
     }
 }
 

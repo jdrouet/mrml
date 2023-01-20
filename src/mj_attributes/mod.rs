@@ -11,6 +11,11 @@ pub use children::MJAttributesChild;
 pub const NAME: &str = "mj-attributes";
 
 #[derive(Debug, Default)]
+#[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
+#[cfg_attr(
+    feature = "parse",
+    mrml_parse(child_comment = false, child_text = false)
+)]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
