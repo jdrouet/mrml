@@ -13,23 +13,23 @@ pub const NAME: &str = "mj-preview";
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJPreview {
+pub struct MjPreview {
     pub children: String,
 }
 
-impl MJPreview {
+impl MjPreview {
     pub fn content(&self) -> &str {
         &self.children
     }
 }
 
-impl From<String> for MJPreview {
+impl From<String> for MjPreview {
     fn from(children: String) -> Self {
         Self { children }
     }
 }
 
-impl From<&str> for MJPreview {
+impl From<&str> for MjPreview {
     fn from(value: &str) -> Self {
         Self::from(value.to_string())
     }

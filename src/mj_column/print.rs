@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_column::MJColumn::default();
+        let item = crate::mj_column::MjColumn::default();
         assert_eq!("<mj-column />", item.dense_print());
     }
 }

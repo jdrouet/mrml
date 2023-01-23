@@ -23,7 +23,7 @@ mod tests {
             attributes: Map::default(),
             children: MJMLChildren {
                 head: None,
-                body: Some(crate::mj_body::MJBody::default()),
+                body: Some(crate::mj_body::MjBody::default()),
             },
         };
         assert_eq!("<mjml><mj-body /></mjml>", item.dense_print());

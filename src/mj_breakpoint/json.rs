@@ -1,6 +1,6 @@
-use super::MJBreakpointAttributes;
+use super::MjBreakpointAttributes;
 
-impl MJBreakpointAttributes {
+impl MjBreakpointAttributes {
     pub fn is_empty(&self) -> bool {
         self.width.is_empty()
     }
@@ -8,12 +8,12 @@ impl MJBreakpointAttributes {
 
 #[cfg(test)]
 mod tests {
-    use crate::mj_breakpoint::{MJBreakpoint, MJBreakpointAttributes};
+    use crate::mj_breakpoint::{MjBreakpoint, MjBreakpointAttributes};
 
     #[test]
     fn serialize() {
-        let elt = MJBreakpoint {
-            attributes: MJBreakpointAttributes {
+        let elt = MjBreakpoint {
+            attributes: MjBreakpointAttributes {
                 width: "12px".to_string(),
             },
         };
@@ -25,19 +25,19 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MJBreakpoint {
-            attributes: MJBreakpointAttributes {
+        let elt = MjBreakpoint {
+            attributes: MjBreakpointAttributes {
                 width: "12px".to_string(),
             },
         };
         let json = serde_json::to_string(&elt).unwrap();
-        let res: MJBreakpoint = serde_json::from_str(&json).unwrap();
+        let res: MjBreakpoint = serde_json::from_str(&json).unwrap();
         assert_eq!(res.value(), elt.value());
     }
 
     #[test]
     fn deserialize_missing_field() {
         let json = r#"{"type":"mj-breakpoint","attributes":{}}"#.to_string();
-        assert!(serde_json::from_str::<MJBreakpoint>(&json).is_err());
+        assert!(serde_json::from_str::<MjBreakpoint>(&json).is_err());
     }
 }

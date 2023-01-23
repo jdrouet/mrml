@@ -10,7 +10,7 @@ mod render;
 
 use crate::prelude::hash::Map;
 
-pub use children::MJNavbarChild;
+pub use children::MjNavbarChild;
 
 pub const NAME: &str = "mj-navbar";
 
@@ -21,7 +21,7 @@ pub const NAME: &str = "mj-navbar";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJNavbar {
+pub struct MjNavbar {
     pub attributes: Map<String, String>,
-    pub children: Vec<MJNavbarChild>,
+    pub children: Vec<MjNavbarChild>,
 }

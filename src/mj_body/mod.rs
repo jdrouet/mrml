@@ -9,7 +9,7 @@ mod print;
 mod render;
 
 use crate::prelude::hash::Map;
-pub use children::MJBodyChild;
+pub use children::MjBodyChild;
 
 pub const NAME: &str = "mj-body";
 
@@ -19,7 +19,7 @@ pub const NAME: &str = "mj-body";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJBody {
+pub struct MjBody {
     pub attributes: Map<String, String>,
-    pub children: Vec<MJBodyChild>,
+    pub children: Vec<MjBodyChild>,
 }

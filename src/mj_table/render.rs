@@ -1,21 +1,21 @@
-use super::{MJTable, NAME};
+use super::{MjTable, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::mj_section::WithMJSectionBackground;
+use crate::mj_section::WithMjSectionBackground;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJTableRender<'e, 'h> {
+struct MjTableRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJTable,
+    element: &'e MjTable,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> WithMJSectionBackground<'h> for MJTableRender<'e, 'h> {}
+impl<'e, 'h> WithMjSectionBackground<'h> for MjTableRender<'e, 'h> {}
 
-impl<'e, 'h> MJTableRender<'e, 'h> {
+impl<'e, 'h> MjTableRender<'e, 'h> {
     fn set_style_table(&self, tag: Tag) -> Tag {
         tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
@@ -27,7 +27,7 @@ impl<'e, 'h> MJTableRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJTableRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjTableRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "align" => Some("left"),
@@ -84,9 +84,9 @@ impl<'e, 'h> Render<'h> for MJTableRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJTable {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjTable {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJTableRender::<'e, 'h> {
+        Box::new(MjTableRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

@@ -1,4 +1,4 @@
-use super::{MJSpacer, NAME};
+use super::{MjSpacer, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -6,13 +6,13 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJSpacerRender<'e, 'h> {
+struct MjSpacerRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJSpacer,
+    element: &'e MjSpacer,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> Render<'h> for MJSpacerRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjSpacerRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "height" => Some("20px"),
@@ -44,9 +44,9 @@ impl<'e, 'h> Render<'h> for MJSpacerRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSpacer {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSpacer {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJSpacerRender::<'e, 'h> {
+        Box::new(MjSpacerRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

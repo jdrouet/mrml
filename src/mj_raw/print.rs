@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_raw::MJRaw::default();
+        let item = crate::mj_raw::MjRaw::default();
         assert_eq!("<mj-raw />", item.dense_print());
     }
 }

@@ -8,19 +8,19 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-use crate::mj_accordion_text::MJAccordionText;
-use crate::mj_accordion_title::MJAccordionTitle;
+use crate::mj_accordion_text::MjAccordionText;
+use crate::mj_accordion_title::MjAccordionTitle;
 use crate::prelude::hash::Map;
 
-pub use children::MJAccordionElementChild;
+pub use children::MjAccordionElementChild;
 
 pub const NAME: &str = "mj-accordion-element";
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
-pub struct MJAccordionElementChildren {
-    pub title: Option<MJAccordionTitle>,
-    pub text: Option<MJAccordionText>,
+pub struct MjAccordionElementChildren {
+    pub title: Option<MjAccordionTitle>,
+    pub text: Option<MjAccordionText>,
 }
 
 #[derive(Debug, Default)]
@@ -28,7 +28,7 @@ pub struct MJAccordionElementChildren {
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJAccordionElement {
+pub struct MjAccordionElement {
     pub attributes: Map<String, String>,
-    pub children: MJAccordionElementChildren,
+    pub children: MjAccordionElementChildren,
 }

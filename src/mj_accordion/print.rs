@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_accordion::MJAccordion::default();
+        let item = crate::mj_accordion::MjAccordion::default();
         assert_eq!("<mj-accordion />", item.dense_print());
     }
 }

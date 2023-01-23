@@ -1,4 +1,4 @@
-use super::{MJCarousel, MJCarouselChild, NAME};
+use super::{MjCarousel, MjCarouselChild, NAME};
 use crate::helper::condition::{mso_conditional_tag, mso_negation_conditional_tag};
 use crate::helper::random;
 use crate::helper::size::{Pixel, Size};
@@ -9,10 +9,10 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJCarouselChild {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarouselChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
         match self {
-            Self::MJCarouselImage(elt) => elt.renderer(header),
+            Self::MjCarouselImage(elt) => elt.renderer(header),
             Self::Comment(elt) => elt.renderer(header),
         }
     }
@@ -22,16 +22,16 @@ fn repeat(count: usize, value: &str) -> String {
     (0..count).map(|_idx| value).collect::<Vec<_>>().join("")
 }
 
-struct MJCarouselRender<'e, 'h> {
+struct MjCarouselRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJCarousel,
+    element: &'e MjCarousel,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
     id: String,
 }
 
-impl<'e, 'h> MJCarouselRender<'e, 'h> {
+impl<'e, 'h> MjCarouselRender<'e, 'h> {
     fn get_thumbnails_width(&self) -> Pixel {
         let count = self.element.children.len();
         if count == 0 {
@@ -389,7 +389,7 @@ impl<'e, 'h> MJCarouselRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJCarouselRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjCarouselRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "align" => Some("center"),
@@ -456,9 +456,9 @@ impl<'e, 'h> Render<'h> for MJCarouselRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJCarousel {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarousel {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJCarouselRender::<'e, 'h> {
+        Box::new(MjCarouselRender::<'e, 'h> {
             element: self,
             header,
             id: random::generate(8),

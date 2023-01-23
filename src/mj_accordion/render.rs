@@ -1,4 +1,4 @@
-use super::{MJAccordion, MJAccordionChild, NAME};
+use super::{MjAccordion, MjAccordionChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -18,15 +18,15 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "icon-unwrapped-alt",
 ];
 
-struct MJAccordionRender<'e, 'h> {
+struct MjAccordionRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJAccordion,
+    element: &'e MjAccordion,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MJAccordionRender<'e, 'h> {
+impl<'e, 'h> MjAccordionRender<'e, 'h> {
     fn render_style(&self) -> String {
         r#"
         noinput.mj-accordion-checkbox { display: block! important; }
@@ -60,7 +60,7 @@ impl<'e, 'h> MJAccordionRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJAccordionRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjAccordionRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "border" => Some("2px solid black"),
@@ -135,9 +135,9 @@ impl<'e, 'h> Render<'h> for MJAccordionRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordion {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordion {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJAccordionRender::<'e, 'h> {
+        Box::new(MjAccordionRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,
@@ -147,10 +147,10 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordion {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordionChild {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
         match self {
-            Self::MJAccordionElement(elt) => elt.renderer(header),
+            Self::MjAccordionElement(elt) => elt.renderer(header),
             Self::Comment(elt) => elt.renderer(header),
         }
     }

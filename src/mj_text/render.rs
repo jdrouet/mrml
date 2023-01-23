@@ -1,4 +1,4 @@
-use super::{MJText, NAME};
+use super::{MjText, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -6,12 +6,12 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJTextRender<'e, 'h> {
+struct MjTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJText,
+    element: &'e MjText,
 }
 
-impl<'e, 'h> MJTextRender<'e, 'h> {
+impl<'e, 'h> MjTextRender<'e, 'h> {
     fn set_style_text(&self, tag: Tag) -> Tag {
         tag.maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))
@@ -51,7 +51,7 @@ impl<'e, 'h> MJTextRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJTextRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjTextRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "align" => Some("left"),
@@ -89,9 +89,9 @@ impl<'e, 'h> Render<'h> for MJTextRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJText {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjText {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJTextRender::<'e, 'h> {
+        Box::new(MjTextRender::<'e, 'h> {
             element: self,
             header,
         })

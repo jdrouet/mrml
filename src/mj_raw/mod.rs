@@ -8,7 +8,7 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-pub use children::MJRawChild;
+pub use children::MjRawChild;
 
 pub const NAME: &str = "mj-raw";
 
@@ -17,6 +17,6 @@ pub const NAME: &str = "mj-raw";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJRaw {
-    pub children: Vec<MJRawChild>,
+pub struct MjRaw {
+    pub children: Vec<MjRawChild>,
 }

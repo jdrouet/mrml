@@ -1,4 +1,4 @@
-use super::{MJSocial, MJSocialChild, NAME};
+use super::{MjSocial, MjSocialChild, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
@@ -7,10 +7,10 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocialChild {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
         match self {
-            Self::MJSocialElement(elt) => elt.renderer(header),
+            Self::MjSocialElement(elt) => elt.renderer(header),
             Self::Comment(elt) => elt.renderer(header),
         }
     }
@@ -47,15 +47,15 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
     "text-decoration",
 ];
 
-struct MJSocialRender<'e, 'h> {
+struct MjSocialRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJSocial,
+    element: &'e MjSocial,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MJSocialRender<'e, 'h> {
+impl<'e, 'h> MjSocialRender<'e, 'h> {
     fn set_style_table_vertical(&self, tag: Tag) -> Tag {
         tag.add_style("margin", "0px")
     }
@@ -123,7 +123,7 @@ impl<'e, 'h> MJSocialRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJSocialRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjSocialRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "align" => Some("center"),
@@ -181,9 +181,9 @@ impl<'e, 'h> Render<'h> for MJSocialRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocial {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocial {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJSocialRender::<'e, 'h> {
+        Box::new(MjSocialRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

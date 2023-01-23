@@ -8,12 +8,12 @@ mod parse;
 mod print;
 
 #[derive(Debug, Default)]
-pub struct MJAttributesElement {
+pub struct MjAttributesElement {
     name: String,
     attributes: Map<String, String>,
 }
 
-impl MJAttributesElement {
+impl MjAttributesElement {
     pub fn new(name: String) -> Self {
         Self {
             name,
@@ -22,7 +22,7 @@ impl MJAttributesElement {
     }
 }
 
-impl MJAttributesElement {
+impl MjAttributesElement {
     pub fn name(&self) -> &String {
         &self.name
     }

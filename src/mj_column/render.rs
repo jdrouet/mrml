@@ -1,4 +1,4 @@
-use super::{MJColumn, NAME};
+use super::{MjColumn, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -6,9 +6,9 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJColumnRender<'e, 'h> {
+struct MjColumnRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJColumn,
+    element: &'e MjColumn,
     // TODO change lifetime
     extra: Map<String, String>,
     container_width: Option<Pixel>,
@@ -16,7 +16,7 @@ struct MJColumnRender<'e, 'h> {
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MJColumnRender<'e, 'h> {
+impl<'e, 'h> MjColumnRender<'e, 'h> {
     fn current_width(&self) -> Option<Pixel> {
         let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
@@ -237,7 +237,7 @@ impl<'e, 'h> MJColumnRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJColumnRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "direction" => Some("ltr"),
@@ -308,9 +308,9 @@ impl<'e, 'h> Render<'h> for MJColumnRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJColumn {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjColumn {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJColumnRender::<'e, 'h> {
+        Box::new(MjColumnRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

@@ -1,12 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use crate::mj_font::{MJFont, MJFontAttributes};
+    use crate::mj_font::{MjFont, MjFontAttributes};
     use crate::prelude::print::Print;
 
     #[test]
     fn normal() {
-        let item = MJFont {
-            attributes: MJFontAttributes {
+        let item = MjFont {
+            attributes: MjFontAttributes {
                 name: String::from("Comic sans MS"),
                 href: String::from("http://localhost"),
             },

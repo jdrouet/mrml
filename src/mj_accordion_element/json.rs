@@ -1,16 +1,16 @@
-use super::{MJAccordionElementChild, MJAccordionElementChildren};
+use super::{MjAccordionElementChild, MjAccordionElementChildren};
 use serde::de::{SeqAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
-impl MJAccordionElementChildren {
+impl MjAccordionElementChildren {
     pub fn is_empty(&self) -> bool {
         self.title.is_none() && self.text.is_none()
     }
 }
 
-impl Serialize for MJAccordionElementChildren {
+impl Serialize for MjAccordionElementChildren {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -27,10 +27,10 @@ impl Serialize for MJAccordionElementChildren {
 }
 
 #[derive(Default)]
-struct MJAccordionElementChildrenVisitor;
+struct MjAccordionElementChildrenVisitor;
 
-impl<'de> Visitor<'de> for MJAccordionElementChildrenVisitor {
-    type Value = MJAccordionElementChildren;
+impl<'de> Visitor<'de> for MjAccordionElementChildrenVisitor {
+    type Value = MjAccordionElementChildren;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("a sequence with title and text elements")
@@ -40,11 +40,11 @@ impl<'de> Visitor<'de> for MJAccordionElementChildrenVisitor {
     where
         S: SeqAccess<'de>,
     {
-        let mut result = MJAccordionElementChildren::default();
-        while let Some(value) = access.next_element::<MJAccordionElementChild>()? {
+        let mut result = MjAccordionElementChildren::default();
+        while let Some(value) = access.next_element::<MjAccordionElementChild>()? {
             match value {
-                MJAccordionElementChild::MJAccordionTitle(title) => result.title = Some(title),
-                MJAccordionElementChild::MJAccordionText(text) => result.text = Some(text),
+                MjAccordionElementChild::MjAccordionTitle(title) => result.title = Some(title),
+                MjAccordionElementChild::MjAccordionText(text) => result.text = Some(text),
                 _ => (),
             };
         }
@@ -52,22 +52,22 @@ impl<'de> Visitor<'de> for MJAccordionElementChildrenVisitor {
     }
 }
 
-impl<'de> Deserialize<'de> for MJAccordionElementChildren {
+impl<'de> Deserialize<'de> for MjAccordionElementChildren {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_seq(MJAccordionElementChildrenVisitor::default())
+        deserializer.deserialize_seq(MjAccordionElementChildrenVisitor::default())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::mj_accordion_element::MJAccordionElement;
+    use crate::mj_accordion_element::MjAccordionElement;
 
     #[test]
     fn serialize() {
-        let mut elt = MJAccordionElement::default();
+        let mut elt = MjAccordionElement::default();
         elt.attributes
             .insert("margin".to_string(), "12px".to_string());
         assert_eq!(
@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn deserialize() {
         let json = r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"},"children":[{"type":"mj-accordion-title"},{"type":"mj-accordion-text"}]}"#;
-        let res: MJAccordionElement = serde_json::from_str(json).unwrap();
+        let res: MjAccordionElement = serde_json::from_str(json).unwrap();
         assert!(res.children.text.is_some());
         assert!(res.children.title.is_some());
         let next = serde_json::to_string(&res).unwrap();

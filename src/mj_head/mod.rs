@@ -8,10 +8,10 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-use crate::mj_breakpoint::MJBreakpoint;
-use crate::mj_preview::MJPreview;
-use crate::mj_title::MJTitle;
-pub use children::MJHeadChild;
+use crate::mj_breakpoint::MjBreakpoint;
+use crate::mj_preview::MjPreview;
+use crate::mj_title::MjTitle;
+pub use children::MjHeadChild;
 
 pub const NAME: &str = "mj-head";
 
@@ -20,26 +20,26 @@ pub const NAME: &str = "mj-head";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJHead {
-    pub children: Vec<MJHeadChild>,
+pub struct MjHead {
+    pub children: Vec<MjHeadChild>,
 }
 
-impl MJHead {
-    pub fn breakpoint(&self) -> Option<&MJBreakpoint> {
+impl MjHead {
+    pub fn breakpoint(&self) -> Option<&MjBreakpoint> {
         self.children
             .iter()
             .find_map(|item| item.as_mj_breakpoint())
     }
 
-    pub fn preview(&self) -> Option<&MJPreview> {
+    pub fn preview(&self) -> Option<&MjPreview> {
         self.children.iter().find_map(|item| item.as_mj_preview())
     }
 
-    pub fn title(&self) -> Option<&MJTitle> {
+    pub fn title(&self) -> Option<&MjTitle> {
         self.children.iter().find_map(|item| item.as_mj_title())
     }
 
-    pub fn children(&self) -> &Vec<MJHeadChild> {
+    pub fn children(&self) -> &Vec<MjHeadChild> {
         &self.children
     }
 }

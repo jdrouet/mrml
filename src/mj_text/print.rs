@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let mut item = crate::mj_text::MJText::default();
+        let mut item = crate::mj_text::MjText::default();
         item.attributes
             .insert("href".to_string(), "http://localhost".into());
         item.children

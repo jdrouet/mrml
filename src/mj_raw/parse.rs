@@ -1,32 +1,32 @@
-use super::{MJRaw, MJRawChild};
+use super::{MjRaw, MjRawChild};
 use crate::node::Node;
 use crate::prelude::parse::{Error, Parsable, Parser};
 use crate::{parse_child, parse_comment, parse_text};
 use xmlparser::{StrSpan, Tokenizer};
 
-impl Parsable for MJRawChild {
+impl Parsable for MjRawChild {
     fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error> {
-        Ok(Node::<MJRawChild>::parse(tag, tokenizer)?.into())
+        Ok(Node::<MjRawChild>::parse(tag, tokenizer)?.into())
     }
 }
 
 #[derive(Debug, Default)]
-struct MJRawParser(MJRaw);
+struct MjRawParser(MjRaw);
 
-impl Parser for MJRawParser {
-    type Output = MJRaw;
+impl Parser for MjRawParser {
+    type Output = MjRaw;
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(self.0)
     }
 
-    parse_child!(MJRawChild);
+    parse_child!(MjRawChild);
     parse_comment!();
     parse_text!();
 }
 
-impl Parsable for MJRaw {
+impl Parsable for MjRaw {
     fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        MJRawParser::default().parse(tokenizer)?.build()
+        MjRawParser::default().parse(tokenizer)?.build()
     }
 }

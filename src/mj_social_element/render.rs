@@ -1,5 +1,5 @@
 use super::network::SocialNetwork;
-use super::{MJSocialElement, NAME};
+use super::{MjSocialElement, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -9,15 +9,15 @@ use std::rc::Rc;
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
-struct MJSocialElementRender<'e, 'h> {
+struct MjSocialElementRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJSocialElement,
+    element: &'e MjSocialElement,
     extra: Map<String, String>,
     container_width: Option<Pixel>,
     network: Option<SocialNetwork>,
 }
 
-impl<'e, 'h> MJSocialElementRender<'e, 'h> {
+impl<'e, 'h> MjSocialElementRender<'e, 'h> {
     fn get_background_color(&self) -> Option<String> {
         self.attribute("background-color").or_else(|| {
             self.network
@@ -156,7 +156,7 @@ impl<'e, 'h> MJSocialElementRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJSocialElementRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjSocialElementRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "align" => Some("left"),
@@ -210,9 +210,9 @@ impl<'e, 'h> Render<'h> for MJSocialElementRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSocialElement {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialElement {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJSocialElementRender::<'e, 'h> {
+        Box::new(MjSocialElementRender::<'e, 'h> {
             element: self,
             header,
             extra: Map::new(),

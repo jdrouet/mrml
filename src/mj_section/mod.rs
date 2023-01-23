@@ -1,4 +1,4 @@
-use crate::mj_body::MJBodyChild;
+use crate::mj_body::MjBodyChild;
 use crate::prelude::hash::Map;
 
 #[cfg(feature = "json")]
@@ -11,7 +11,7 @@ mod print;
 mod render;
 
 #[cfg(feature = "render")]
-pub use render::{SectionLikeRender, WithMJSectionBackground};
+pub use render::{SectionLikeRender, WithMjSectionBackground};
 
 pub const NAME: &str = "mj-section";
 
@@ -21,7 +21,7 @@ pub const NAME: &str = "mj-section";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJSection {
+pub struct MjSection {
     pub attributes: Map<String, String>,
-    pub children: Vec<MJBodyChild>,
+    pub children: Vec<MjBodyChild>,
 }

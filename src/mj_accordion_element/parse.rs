@@ -1,15 +1,15 @@
-use super::MJAccordionElement;
-use crate::mj_accordion_text::{MJAccordionText, NAME as MJ_ACCORDION_TEXT};
-use crate::mj_accordion_title::{MJAccordionTitle, NAME as MJ_ACCORDION_TITLE};
+use super::MjAccordionElement;
+use crate::mj_accordion_text::{MjAccordionText, NAME as MJ_ACCORDION_TEXT};
+use crate::mj_accordion_title::{MjAccordionTitle, NAME as MJ_ACCORDION_TITLE};
 use crate::parse_attribute;
 use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
-struct MJAccordionElementParser(MJAccordionElement);
+struct MjAccordionElementParser(MjAccordionElement);
 
-impl Parser for MJAccordionElementParser {
-    type Output = MJAccordionElement;
+impl Parser for MjAccordionElementParser {
+    type Output = MjAccordionElement;
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(self.0)
@@ -24,10 +24,10 @@ impl Parser for MJAccordionElementParser {
     ) -> Result<(), Error> {
         match tag.as_str() {
             MJ_ACCORDION_TEXT => {
-                self.0.children.text = Some(MJAccordionText::parse(tag, tokenizer)?)
+                self.0.children.text = Some(MjAccordionText::parse(tag, tokenizer)?)
             }
             MJ_ACCORDION_TITLE => {
-                self.0.children.title = Some(MJAccordionTitle::parse(tag, tokenizer)?)
+                self.0.children.title = Some(MjAccordionTitle::parse(tag, tokenizer)?)
             }
             _ => return Err(Error::UnexpectedElement(tag.start())),
         };
@@ -35,9 +35,9 @@ impl Parser for MJAccordionElementParser {
     }
 }
 
-impl Parsable for MJAccordionElement {
+impl Parsable for MjAccordionElement {
     fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        MJAccordionElementParser::default()
+        MjAccordionElementParser::default()
             .parse(tokenizer)?
             .build()
     }

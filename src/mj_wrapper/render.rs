@@ -1,20 +1,20 @@
-use super::{MJWrapper, NAME};
+use super::{MjWrapper, NAME};
 use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::mj_section::{SectionLikeRender, WithMJSectionBackground};
+use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJWrapperRender<'e, 'h> {
+struct MjWrapperRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJWrapper,
+    element: &'e MjWrapper,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> MJWrapperRender<'e, 'h> {
+impl<'e, 'h> MjWrapperRender<'e, 'h> {
     fn current_width(&self) -> Option<Pixel> {
         self.container_width.as_ref().map(|width| {
             let hborder = self.get_border_horizontal();
@@ -24,14 +24,14 @@ impl<'e, 'h> MJWrapperRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> WithMJSectionBackground<'h> for MJWrapperRender<'e, 'h> {}
+impl<'e, 'h> WithMjSectionBackground<'h> for MjWrapperRender<'e, 'h> {}
 
-impl<'e, 'h> SectionLikeRender<'h> for MJWrapperRender<'e, 'h> {
+impl<'e, 'h> SectionLikeRender<'h> for MjWrapperRender<'e, 'h> {
     fn clone_header(&self) -> Rc<RefCell<Header<'h>>> {
         Rc::clone(&self.header)
     }
 
-    fn children(&self) -> &Vec<crate::mj_body::MJBodyChild> {
+    fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
         &self.element.children
     }
 
@@ -74,7 +74,7 @@ impl<'e, 'h> SectionLikeRender<'h> for MJWrapperRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJWrapperRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjWrapperRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "background-position" => Some("top center"),
@@ -113,9 +113,9 @@ impl<'e, 'h> Render<'h> for MJWrapperRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJWrapper {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjWrapper {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJWrapperRender::<'e, 'h> {
+        Box::new(MjWrapperRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

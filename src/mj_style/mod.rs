@@ -19,18 +19,18 @@ pub struct MjStyleAttributes {
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME", indent_children = false))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJStyle {
+pub struct MjStyle {
     pub attributes: MjStyleAttributes,
     pub children: String,
 }
 
-impl MJStyle {
+impl MjStyle {
     pub fn children(&self) -> &str {
         &self.children
     }
 }
 
-impl From<String> for MJStyle {
+impl From<String> for MjStyle {
     fn from(children: String) -> Self {
         Self {
             attributes: MjStyleAttributes::default(),
@@ -39,7 +39,7 @@ impl From<String> for MJStyle {
     }
 }
 
-impl From<&str> for MJStyle {
+impl From<&str> for MjStyle {
     fn from(value: &str) -> Self {
         Self::from(value.to_string())
     }

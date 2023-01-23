@@ -6,7 +6,7 @@ mod parse;
 #[cfg(feature = "print")]
 mod print;
 
-pub use children::MJAttributesChild;
+pub use children::MjAttributesChild;
 
 pub const NAME: &str = "mj-attributes";
 
@@ -20,12 +20,12 @@ pub const NAME: &str = "mj-attributes";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJAttributes {
-    children: Vec<MJAttributesChild>,
+pub struct MjAttributes {
+    children: Vec<MjAttributesChild>,
 }
 
-impl MJAttributes {
-    pub fn children(&self) -> &Vec<MJAttributesChild> {
+impl MjAttributes {
+    pub fn children(&self) -> &Vec<MjAttributesChild> {
         &self.children
     }
 }

@@ -1,4 +1,4 @@
-use super::{MJHero, NAME};
+use super::{MjHero, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
@@ -7,15 +7,15 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJHeroRender<'e, 'h> {
+struct MjHeroRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJHero,
+    element: &'e MjHero,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MJHeroRender<'e, 'h> {
+impl<'e, 'h> MjHeroRender<'e, 'h> {
     fn set_style_div(&self, tag: Tag) -> Tag {
         tag.add_style("margin", "0 auto").maybe_add_style(
             "max-width",
@@ -214,7 +214,7 @@ impl<'e, 'h> MJHeroRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJHeroRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjHeroRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "background-color" => Some("#ffffff"),
@@ -282,9 +282,9 @@ impl<'e, 'h> Render<'h> for MJHeroRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJHero {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHero {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJHeroRender::<'e, 'h> {
+        Box::new(MjHeroRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

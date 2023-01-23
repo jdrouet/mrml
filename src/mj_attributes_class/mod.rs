@@ -10,12 +10,12 @@ mod print;
 pub const NAME: &str = "mj-class";
 
 #[derive(Debug, Default)]
-pub struct MJAttributesClass {
+pub struct MjAttributesClass {
     name: String,
     attributes: Map<String, String>,
 }
 
-impl MJAttributesClass {
+impl MjAttributesClass {
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -26,7 +26,7 @@ impl MJAttributesClass {
 }
 
 #[cfg(test)]
-impl MJAttributesClass {
+impl MjAttributesClass {
     pub fn new(name: String) -> Self {
         Self {
             name,

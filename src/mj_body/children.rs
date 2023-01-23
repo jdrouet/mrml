@@ -1,20 +1,20 @@
 use crate::comment::Comment;
-use crate::mj_accordion::MJAccordion;
-use crate::mj_button::MJButton;
-use crate::mj_carousel::MJCarousel;
-use crate::mj_column::MJColumn;
-use crate::mj_divider::MJDivider;
-use crate::mj_group::MJGroup;
-use crate::mj_hero::MJHero;
-use crate::mj_image::MJImage;
-use crate::mj_navbar::MJNavbar;
-use crate::mj_raw::MJRaw;
-use crate::mj_section::MJSection;
-use crate::mj_social::MJSocial;
-use crate::mj_spacer::MJSpacer;
-use crate::mj_table::MJTable;
-use crate::mj_text::MJText;
-use crate::mj_wrapper::MJWrapper;
+use crate::mj_accordion::MjAccordion;
+use crate::mj_button::MjButton;
+use crate::mj_carousel::MjCarousel;
+use crate::mj_column::MjColumn;
+use crate::mj_divider::MjDivider;
+use crate::mj_group::MjGroup;
+use crate::mj_hero::MjHero;
+use crate::mj_image::MjImage;
+use crate::mj_navbar::MjNavbar;
+use crate::mj_raw::MjRaw;
+use crate::mj_section::MjSection;
+use crate::mj_social::MjSocial;
+use crate::mj_spacer::MjSpacer;
+use crate::mj_table::MjTable;
+use crate::mj_text::MjText;
+use crate::mj_wrapper::MjWrapper;
 use crate::node::Node;
 #[cfg(feature = "render")]
 use crate::prelude::render::{Header, Render, Renderable};
@@ -29,49 +29,49 @@ use std::rc::Rc;
 #[cfg_attr(feature = "json", serde(untagged))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseChildren))]
-pub enum MJBodyChild {
+pub enum MjBodyChild {
     Comment(Comment),
-    MJAccordion(MJAccordion),
-    MJButton(MJButton),
-    MJCarousel(MJCarousel),
-    MJColumn(MJColumn),
-    MJDivider(MJDivider),
-    MJGroup(MJGroup),
-    MJHero(MJHero),
-    MJImage(MJImage),
-    MJNavbar(MJNavbar),
-    MJRaw(MJRaw),
-    MJSection(MJSection),
-    MJSocial(MJSocial),
-    MJSpacer(MJSpacer),
-    MJTable(MJTable),
-    MJText(MJText),
-    MJWrapper(MJWrapper),
-    Node(Node<MJBodyChild>),
+    MjAccordion(MjAccordion),
+    MjButton(MjButton),
+    MjCarousel(MjCarousel),
+    MjColumn(MjColumn),
+    MjDivider(MjDivider),
+    MjGroup(MjGroup),
+    MjHero(MjHero),
+    MjImage(MjImage),
+    MjNavbar(MjNavbar),
+    MjRaw(MjRaw),
+    MjSection(MjSection),
+    MjSocial(MjSocial),
+    MjSpacer(MjSpacer),
+    MjTable(MjTable),
+    MjText(MjText),
+    MjWrapper(MjWrapper),
+    Node(Node<MjBodyChild>),
     Text(Text),
 }
 
-impl MJBodyChild {
+impl MjBodyChild {
     #[cfg(feature = "render")]
     pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
         match self {
             Self::Comment(elt) => elt,
-            Self::MJAccordion(elt) => elt,
-            Self::MJButton(elt) => elt,
-            Self::MJCarousel(elt) => elt,
-            Self::MJColumn(elt) => elt,
-            Self::MJDivider(elt) => elt,
-            Self::MJGroup(elt) => elt,
-            Self::MJHero(elt) => elt,
-            Self::MJImage(elt) => elt,
-            Self::MJNavbar(elt) => elt,
-            Self::MJRaw(elt) => elt,
-            Self::MJSection(elt) => elt,
-            Self::MJSocial(elt) => elt,
-            Self::MJSpacer(elt) => elt,
-            Self::MJTable(elt) => elt,
-            Self::MJText(elt) => elt,
-            Self::MJWrapper(elt) => elt,
+            Self::MjAccordion(elt) => elt,
+            Self::MjButton(elt) => elt,
+            Self::MjCarousel(elt) => elt,
+            Self::MjColumn(elt) => elt,
+            Self::MjDivider(elt) => elt,
+            Self::MjGroup(elt) => elt,
+            Self::MjHero(elt) => elt,
+            Self::MjImage(elt) => elt,
+            Self::MjNavbar(elt) => elt,
+            Self::MjRaw(elt) => elt,
+            Self::MjSection(elt) => elt,
+            Self::MjSocial(elt) => elt,
+            Self::MjSpacer(elt) => elt,
+            Self::MjTable(elt) => elt,
+            Self::MjText(elt) => elt,
+            Self::MjWrapper(elt) => elt,
             Self::Node(elt) => elt,
             Self::Text(elt) => elt,
         }
@@ -79,7 +79,7 @@ impl MJBodyChild {
 }
 
 #[cfg(feature = "render")]
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBodyChild {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBodyChild {
     fn is_raw(&self) -> bool {
         self.as_renderable().is_raw()
     }

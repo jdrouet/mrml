@@ -1,8 +1,8 @@
-use super::{MJAccordionElement, NAME};
+use super::{MjAccordionElement, NAME};
 use crate::helper::condition::negation_conditional_tag;
 use crate::helper::tag::Tag;
-use crate::mj_accordion_text::MJAccordionText;
-use crate::mj_accordion_title::MJAccordionTitle;
+use crate::mj_accordion_text::MjAccordionText;
+use crate::mj_accordion_title::MjAccordionTitle;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
@@ -20,13 +20,13 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "icon-unwrapped-alt",
 ];
 
-struct MJAccordionElementRender<'e, 'h> {
+struct MjAccordionElementRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJAccordionElement,
+    element: &'e MjAccordionElement,
     extra: Map<String, String>,
 }
 
-impl<'e, 'h> MJAccordionElementRender<'e, 'h> {
+impl<'e, 'h> MjAccordionElementRender<'e, 'h> {
     fn render_title(&self, opts: &Options) -> Result<String, Error> {
         if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(Rc::clone(&self.header));
@@ -35,7 +35,7 @@ impl<'e, 'h> MJAccordionElementRender<'e, 'h> {
             });
             renderer.render(opts)
         } else {
-            let child = MJAccordionTitle::default();
+            let child = MjAccordionTitle::default();
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
@@ -52,7 +52,7 @@ impl<'e, 'h> MJAccordionElementRender<'e, 'h> {
             });
             renderer.render(opts)
         } else {
-            let child = MJAccordionText::default();
+            let child = MjAccordionText::default();
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
@@ -66,7 +66,7 @@ impl<'e, 'h> MJAccordionElementRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJAccordionElementRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjAccordionElementRender<'e, 'h> {
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
         self.extra.insert(key.to_string(), value.to_string());
     }
@@ -112,9 +112,9 @@ impl<'e, 'h> Render<'h> for MJAccordionElementRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordionElement {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionElement {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJAccordionElementRender::<'e, 'h> {
+        Box::new(MjAccordionElementRender::<'e, 'h> {
             element: self,
             header,
             extra: Map::new(),

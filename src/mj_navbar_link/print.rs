@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let mut item = crate::mj_navbar_link::MJNavbarLink::default();
+        let mut item = crate::mj_navbar_link::MjNavbarLink::default();
         item.attributes
             .insert("src".to_string(), "http://localhost".into());
         assert_eq!(

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::mj_wrapper::MJWrapper;
+    use crate::mj_wrapper::MjWrapper;
     use crate::prelude::parse::Parsable;
 
     #[test]
@@ -9,6 +9,6 @@ mod tests {
         let mut tokenizer = xmlparser::Tokenizer::from(content);
         let _ = tokenizer.next().unwrap();
         let tag = xmlparser::StrSpan::from("<mj-wrapper");
-        MJWrapper::parse(tag, &mut tokenizer).unwrap();
+        MjWrapper::parse(tag, &mut tokenizer).unwrap();
     }
 }

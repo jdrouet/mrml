@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_social::MJSocial::default();
+        let item = crate::mj_social::MjSocial::default();
         assert_eq!("<mj-social />", item.dense_print());
     }
 }

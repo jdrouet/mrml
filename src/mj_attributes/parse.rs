@@ -1,18 +1,18 @@
-use super::MJAttributesChild;
-use crate::mj_attributes_all::MJAttributesAll;
+use super::MjAttributesChild;
+use crate::mj_attributes_all::MjAttributesAll;
 use crate::mj_attributes_all::NAME as MJ_ALL;
-use crate::mj_attributes_class::MJAttributesClass;
+use crate::mj_attributes_class::MjAttributesClass;
 use crate::mj_attributes_class::NAME as MJ_CLASS;
-use crate::mj_attributes_element::MJAttributesElement;
+use crate::mj_attributes_element::MjAttributesElement;
 use crate::prelude::parse::{Error, Parsable};
 use xmlparser::{StrSpan, Tokenizer};
 
-impl Parsable for MJAttributesChild {
+impl Parsable for MjAttributesChild {
     fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error> {
         match tag.as_str() {
-            MJ_ALL => Ok(MJAttributesAll::parse(tag, tokenizer)?.into()),
-            MJ_CLASS => Ok(MJAttributesClass::parse(tag, tokenizer)?.into()),
-            _ => Ok(MJAttributesElement::parse(tag, tokenizer)?.into()),
+            MJ_ALL => Ok(MjAttributesAll::parse(tag, tokenizer)?.into()),
+            MJ_CLASS => Ok(MjAttributesClass::parse(tag, tokenizer)?.into()),
+            _ => Ok(MjAttributesElement::parse(tag, tokenizer)?.into()),
         }
     }
 }

@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use crate::mj_title::MJTitle;
+    use crate::mj_title::MjTitle;
 
     #[test]
     fn serialize() {
-        let elt = MJTitle::from("Hello World");
+        let elt = MjTitle::from("Hello World");
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-title","children":"Hello World"}"#
@@ -13,9 +13,9 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MJTitle::from("Hello World");
+        let elt = MjTitle::from("Hello World");
         let json = serde_json::to_string(&elt).unwrap();
-        let res: MJTitle = serde_json::from_str(&json).unwrap();
+        let res: MjTitle = serde_json::from_str(&json).unwrap();
         assert_eq!(res.children, elt.children);
     }
 }

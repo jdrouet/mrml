@@ -1,4 +1,4 @@
-use super::{MJCarouselImage, NAME};
+use super::{MjCarouselImage, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -6,15 +6,15 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJCarouselImageRender<'e, 'h> {
+struct MjCarouselImageRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJCarouselImage,
+    element: &'e MjCarouselImage,
     extra: Map<String, String>,
     container_width: Option<Pixel>,
     index: usize,
 }
 
-impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
+impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
     fn set_style_images_img(&self, tag: Tag) -> Tag {
         tag.maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
@@ -128,7 +128,7 @@ impl<'e, 'h> MJCarouselImageRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJCarouselImageRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjCarouselImageRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "target" => Some("_blank"),
@@ -209,9 +209,9 @@ impl<'e, 'h> Render<'h> for MJCarouselImageRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJCarouselImage {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarouselImage {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJCarouselImageRender::<'e, 'h> {
+        Box::new(MjCarouselImageRender::<'e, 'h> {
             element: self,
             header,
             extra: Map::new(),

@@ -17,6 +17,6 @@ pub const NAME: &str = "mj-image";
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJImage {
+pub struct MjImage {
     pub attributes: Map<String, String>,
 }

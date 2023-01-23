@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_section::MJSection::default();
+        let item = crate::mj_section::MjSection::default();
         assert_eq!("<mj-section />", item.dense_print());
     }
 }

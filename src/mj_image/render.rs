@@ -1,4 +1,4 @@
-use super::{MJImage, NAME};
+use super::{MjImage, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -6,13 +6,13 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJImageRender<'e, 'h> {
+struct MjImageRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJImage,
+    element: &'e MjImage,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> MJImageRender<'e, 'h> {
+impl<'e, 'h> MjImageRender<'e, 'h> {
     fn is_fluid_on_mobile(&self) -> bool {
         self.attribute("fluid-on-mobile")
             .and_then(|value| value.parse::<bool>().ok())
@@ -132,7 +132,7 @@ impl<'e, 'h> MJImageRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJImageRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjImageRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "align" => Some("center"),
@@ -184,9 +184,9 @@ impl<'e, 'h> Render<'h> for MJImageRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJImage {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJImageRender::<'e, 'h> {
+        Box::new(MjImageRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

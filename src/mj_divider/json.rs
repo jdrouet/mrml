@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use crate::mj_divider::MJDivider;
+    use crate::mj_divider::MjDivider;
 
     #[test]
     fn serialize() {
-        let mut elt = MJDivider::default();
+        let mut elt = MjDivider::default();
         elt.attributes.insert("margin-bottom".into(), "20px".into());
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
@@ -14,8 +14,8 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MJDivider::default();
+        let elt = MjDivider::default();
         let json = serde_json::to_string(&elt).unwrap();
-        let _res: MJDivider = serde_json::from_str(&json).unwrap();
+        let _res: MjDivider = serde_json::from_str(&json).unwrap();
     }
 }

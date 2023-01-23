@@ -28,21 +28,21 @@ impl<T: Print> fmt::Display for Node<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::mj_body::MJBodyChild;
-    use crate::mj_raw::MJRawChild;
+    use crate::mj_body::MjBodyChild;
+    use crate::mj_raw::MjRawChild;
     use crate::prelude::print::Print;
 
     #[test]
     fn normal() {
-        let item = crate::node::Node::<MJBodyChild>::from("span");
+        let item = crate::node::Node::<MjBodyChild>::from("span");
         assert_eq!("<span></span>", item.dense_print());
-        let item = crate::node::Node::<MJRawChild>::from("span");
+        let item = crate::node::Node::<MjRawChild>::from("span");
         assert_eq!("<span></span>", item.dense_print());
     }
 
     #[test]
     fn with_attributes() {
-        let mut item = crate::node::Node::<MJBodyChild>::from("span");
+        let mut item = crate::node::Node::<MjBodyChild>::from("span");
         item.attributes
             .insert("color".to_string(), "red".to_string());
         item.children

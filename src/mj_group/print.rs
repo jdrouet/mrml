@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_group::MJGroup::default();
+        let item = crate::mj_group::MjGroup::default();
         assert_eq!("<mj-group />", item.dense_print());
     }
 }

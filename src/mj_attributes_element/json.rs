@@ -1,4 +1,4 @@
-use super::MJAttributesElement;
+use super::MjAttributesElement;
 use serde::de::{Error, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -7,7 +7,7 @@ use std::fmt;
 const NAME: &str = "mj-element";
 const FIELDS: [&str; 3] = ["type", "name", "attributes"];
 
-impl Serialize for MJAttributesElement {
+impl Serialize for MjAttributesElement {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -23,10 +23,10 @@ impl Serialize for MJAttributesElement {
 }
 
 #[derive(Default)]
-struct MJAttributesElementVisitor;
+struct MjAttributesElementVisitor;
 
-impl<'de> Visitor<'de> for MJAttributesElementVisitor {
-    type Value = MJAttributesElement;
+impl<'de> Visitor<'de> for MjAttributesElementVisitor {
+    type Value = MjAttributesElement;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("an map with properties type, name and attributes")
@@ -36,7 +36,7 @@ impl<'de> Visitor<'de> for MJAttributesElementVisitor {
     where
         M: MapAccess<'de>,
     {
-        let mut result = MJAttributesElement::default();
+        let mut result = MjAttributesElement::default();
         while let Some(key) = access.next_key::<String>()? {
             if key == "type" {
                 if access.next_value::<String>()? != NAME {
@@ -54,22 +54,22 @@ impl<'de> Visitor<'de> for MJAttributesElementVisitor {
     }
 }
 
-impl<'de> Deserialize<'de> for MJAttributesElement {
+impl<'de> Deserialize<'de> for MjAttributesElement {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_map(MJAttributesElementVisitor::default())
+        deserializer.deserialize_map(MjAttributesElementVisitor::default())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::mj_attributes_element::MJAttributesElement;
+    use crate::mj_attributes_element::MjAttributesElement;
 
     #[test]
     fn serialize() {
-        let mut elt = MJAttributesElement {
+        let mut elt = MjAttributesElement {
             name: "name".into(),
             ..Default::default()
         };
@@ -82,11 +82,11 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MJAttributesElement {
+        let elt = MjAttributesElement {
             name: "name".into(),
             ..Default::default()
         };
         let json = serde_json::to_string(&elt).unwrap();
-        let _res: MJAttributesElement = serde_json::from_str(&json).unwrap();
+        let _res: MjAttributesElement = serde_json::from_str(&json).unwrap();
     }
 }

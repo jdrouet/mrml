@@ -1,12 +1,12 @@
-use super::MJStyle;
+use super::MjStyle;
 use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
-struct MJStyleParser(MJStyle);
+struct MjStyleParser(MjStyle);
 
-impl Parser for MJStyleParser {
-    type Output = MJStyle;
+impl Parser for MjStyleParser {
+    type Output = MjStyle;
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(self.0)
@@ -27,9 +27,9 @@ impl Parser for MJStyleParser {
     }
 }
 
-impl Parsable for MJStyle {
+impl Parsable for MjStyle {
     fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        MJStyleParser::default().parse(tokenizer)?.build()
+        MjStyleParser::default().parse(tokenizer)?.build()
     }
 }
 

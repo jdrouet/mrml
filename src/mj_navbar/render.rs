@@ -1,4 +1,4 @@
-use super::{MJNavbar, MJNavbarChild, NAME};
+use super::{MjNavbar, MjNavbarChild, NAME};
 use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
 use crate::helper::random;
 use crate::helper::size::{Pixel, Size};
@@ -8,25 +8,25 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJNavbarChild {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
         match self {
-            Self::MJNavbarLink(elt) => elt.renderer(header),
+            Self::MjNavbarLink(elt) => elt.renderer(header),
             Self::Comment(elt) => elt.renderer(header),
         }
     }
 }
 
-struct MJNavbarRender<'e, 'h> {
+struct MjNavbarRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJNavbar,
+    element: &'e MjNavbar,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
     id: String,
 }
 
-impl<'e, 'h> MJNavbarRender<'e, 'h> {
+impl<'e, 'h> MjNavbarRender<'e, 'h> {
     fn set_style_input(&self, tag: Tag) -> Tag {
         tag.add_style("display", "none !important")
             .add_style("max-height", "0")
@@ -126,7 +126,7 @@ impl<'e, 'h> MJNavbarRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJNavbarRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "align" => Some("center"),
@@ -200,9 +200,9 @@ impl<'e, 'h> Render<'h> for MJNavbarRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJNavbar {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJNavbarRender::<'e, 'h> {
+        Box::new(MjNavbarRender::<'e, 'h> {
             element: self,
             header,
             id: random::generate(8),

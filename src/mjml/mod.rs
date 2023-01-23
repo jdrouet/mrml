@@ -1,5 +1,5 @@
-use crate::mj_body::MJBody;
-use crate::mj_head::MJHead;
+use crate::mj_body::MjBody;
+use crate::mj_head::MjHead;
 use crate::prelude::hash::Map;
 
 #[cfg(feature = "json")]
@@ -16,8 +16,8 @@ pub const NAME: &str = "mjml";
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 pub struct MJMLChildren {
-    head: Option<MJHead>,
-    body: Option<MJBody>,
+    head: Option<MjHead>,
+    body: Option<MjBody>,
 }
 
 #[derive(Debug, Default)]
@@ -31,11 +31,11 @@ pub struct MJML {
 }
 
 impl MJML {
-    pub fn body(&self) -> Option<&MJBody> {
+    pub fn body(&self) -> Option<&MjBody> {
         self.children.body.as_ref()
     }
 
-    pub fn head(&self) -> Option<&MJHead> {
+    pub fn head(&self) -> Option<&MjHead> {
         self.children.head.as_ref()
     }
 }

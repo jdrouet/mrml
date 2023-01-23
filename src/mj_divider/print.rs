@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let mut item = crate::mj_divider::MJDivider::default();
+        let mut item = crate::mj_divider::MjDivider::default();
         item.attributes
             .insert("src".to_string(), "http://localhost".into());
         assert_eq!(

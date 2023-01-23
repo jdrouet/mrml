@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_hero::MJHero::default();
+        let item = crate::mj_hero::MjHero::default();
         assert_eq!("<mj-hero />", item.dense_print());
     }
 }

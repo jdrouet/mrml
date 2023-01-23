@@ -1,4 +1,4 @@
-use super::{MJSection, NAME};
+use super::{MjSection, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Percent, Pixel};
 use crate::helper::tag::Tag;
@@ -16,7 +16,7 @@ fn is_vertical_position(value: &str) -> bool {
     value == "top" || value == "bottom" || value == "center"
 }
 
-pub trait WithMJSectionBackground<'h>: Render<'h> {
+pub trait WithMjSectionBackground<'h>: Render<'h> {
     fn has_background(&self) -> bool {
         self.attribute_exists("background-url")
     }
@@ -195,10 +195,10 @@ pub trait WithMJSectionBackground<'h>: Render<'h> {
     }
 }
 
-pub trait SectionLikeRender<'h>: WithMJSectionBackground<'h> {
+pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
     fn clone_header(&self) -> Rc<RefCell<Header<'h>>>;
     fn container_width(&self) -> &Option<Pixel>;
-    fn children(&self) -> &Vec<crate::mj_body::MJBodyChild>;
+    fn children(&self) -> &Vec<crate::mj_body::MjBodyChild>;
 
     fn is_full_width(&self) -> bool {
         self.attribute_exists("full-width")
@@ -419,19 +419,19 @@ pub trait SectionLikeRender<'h>: WithMJSectionBackground<'h> {
     }
 }
 
-struct MJSectionRender<'e, 'h> {
+struct MjSectionRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJSection,
+    element: &'e MjSection,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> WithMJSectionBackground<'h> for MJSectionRender<'e, 'h> {}
-impl<'e, 'h> SectionLikeRender<'h> for MJSectionRender<'e, 'h> {
+impl<'e, 'h> WithMjSectionBackground<'h> for MjSectionRender<'e, 'h> {}
+impl<'e, 'h> SectionLikeRender<'h> for MjSectionRender<'e, 'h> {
     fn clone_header(&self) -> Rc<RefCell<Header<'h>>> {
         Rc::clone(&self.header)
     }
 
-    fn children(&self) -> &Vec<crate::mj_body::MJBodyChild> {
+    fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
         &self.element.children
     }
 
@@ -440,7 +440,7 @@ impl<'e, 'h> SectionLikeRender<'h> for MJSectionRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJSectionRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjSectionRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "background-position" => Some("top center"),
@@ -479,9 +479,9 @@ impl<'e, 'h> Render<'h> for MJSectionRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJSection {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJSectionRender::<'e, 'h> {
+        Box::new(MjSectionRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

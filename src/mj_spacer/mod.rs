@@ -17,6 +17,6 @@ pub const NAME: &str = "mj-spacer";
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJSpacer {
+pub struct MjSpacer {
     pub attributes: Map<String, String>,
 }

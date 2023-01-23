@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use crate::mj_preview::MJPreview;
+    use crate::mj_preview::MjPreview;
 
     #[test]
     fn serialize() {
-        let elt = MJPreview::from("Hello World");
+        let elt = MjPreview::from("Hello World");
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-preview","children":"Hello World"}"#
@@ -13,9 +13,9 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MJPreview::from("Hello World");
+        let elt = MjPreview::from("Hello World");
         let json = serde_json::to_string(&elt).unwrap();
-        let res: MJPreview = serde_json::from_str(&json).unwrap();
+        let res: MjPreview = serde_json::from_str(&json).unwrap();
         assert_eq!(res.children, elt.children);
     }
 }

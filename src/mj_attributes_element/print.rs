@@ -1,8 +1,8 @@
-use super::MJAttributesElement;
+use super::MjAttributesElement;
 use crate::prelude::print::{self, Print};
 use crate::print_display;
 
-impl Print for MJAttributesElement {
+impl Print for MjAttributesElement {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
         print::open(
             &self.name,
@@ -15,7 +15,7 @@ impl Print for MJAttributesElement {
     }
 }
 
-print_display!(MJAttributesElement);
+print_display!(MjAttributesElement);
 
 #[cfg(test)]
 mod tests {
@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_attributes_element::MJAttributesElement::new("span".to_string());
+        let item = crate::mj_attributes_element::MjAttributesElement::new("span".to_string());
         assert_eq!("<span />", item.dense_print());
     }
 }

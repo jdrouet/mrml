@@ -1,10 +1,10 @@
-use super::{MJRaw, MJRawChild, NAME};
+use super::{MjRaw, MjRawChild, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJRawChild {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRawChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
         match self {
             Self::Comment(elt) => elt.renderer(header),
@@ -14,13 +14,13 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJRawChild {
     }
 }
 
-struct MJRawRender<'e, 'h> {
+struct MjRawRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJRaw,
+    element: &'e MjRaw,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> Render<'h> for MJRawRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjRawRender<'e, 'h> {
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
@@ -49,9 +49,9 @@ impl<'e, 'h> Render<'h> for MJRawRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJRaw {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRaw {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJRawRender::<'e, 'h> {
+        Box::new(MjRawRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

@@ -17,6 +17,6 @@ pub const NAME: &str = "mj-carousel-image";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJCarouselImage {
+pub struct MjCarouselImage {
     pub attributes: Map<String, String>,
 }

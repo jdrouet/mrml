@@ -11,7 +11,7 @@ pub const NAME: &str = "mj-font";
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintAttributes))]
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseAttributes))]
-pub struct MJFontAttributes {
+pub struct MjFontAttributes {
     name: String,
     href: String,
 }
@@ -22,11 +22,11 @@ pub struct MJFontAttributes {
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJFont {
-    pub attributes: MJFontAttributes,
+pub struct MjFont {
+    pub attributes: MjFontAttributes,
 }
 
-impl MJFont {
+impl MjFont {
     pub fn name(&self) -> &str {
         &self.attributes.name
     }

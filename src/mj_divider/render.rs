@@ -1,4 +1,4 @@
-use super::{MJDivider, NAME};
+use super::{MjDivider, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::size::Size;
@@ -8,13 +8,13 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJDividerRender<'e, 'h> {
+struct MjDividerRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJDivider,
+    element: &'e MjDivider,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> MJDividerRender<'e, 'h> {
+impl<'e, 'h> MjDividerRender<'e, 'h> {
     fn set_style_p_without_width(&self, tag: Tag) -> Tag {
         tag.add_style(
             "border-top",
@@ -68,7 +68,7 @@ impl<'e, 'h> MJDividerRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJDividerRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjDividerRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "align" => Some("center"),
@@ -102,9 +102,9 @@ impl<'e, 'h> Render<'h> for MJDividerRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJDivider {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjDivider {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJDividerRender::<'e, 'h> {
+        Box::new(MjDividerRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

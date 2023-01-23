@@ -13,23 +13,23 @@ pub const NAME: &str = "mj-title";
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJTitle {
+pub struct MjTitle {
     pub children: String,
 }
 
-impl MJTitle {
+impl MjTitle {
     pub fn content(&self) -> &str {
         &self.children
     }
 }
 
-impl From<String> for MJTitle {
+impl From<String> for MjTitle {
     fn from(children: String) -> Self {
         Self { children }
     }
 }
 
-impl From<&str> for MJTitle {
+impl From<&str> for MjTitle {
     fn from(value: &str) -> Self {
         Self::from(value.to_string())
     }

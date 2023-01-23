@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let mut item = crate::mj_carousel_image::MJCarouselImage::default();
+        let mut item = crate::mj_carousel_image::MjCarouselImage::default();
         item.attributes
             .insert("src".to_string(), "http://localhost".into());
         assert_eq!(

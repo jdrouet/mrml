@@ -1,4 +1,4 @@
-use super::{MJAccordionTitle, NAME};
+use super::{MjAccordionTitle, NAME};
 use crate::helper::condition::negation_conditional_tag;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -6,13 +6,13 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJAccordionTitleRender<'e, 'h> {
+struct MjAccordionTitleRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJAccordionTitle,
+    element: &'e MjAccordionTitle,
     extra: Map<String, String>,
 }
 
-impl<'e, 'h> MJAccordionTitleRender<'e, 'h> {
+impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
     fn set_style_img(&self, tag: Tag) -> Tag {
         tag.add_style("display", "none")
             .maybe_add_style("width", self.attribute("icon-width"))
@@ -66,7 +66,7 @@ impl<'e, 'h> MJAccordionTitleRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJAccordionTitleRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjAccordionTitleRender<'e, 'h> {
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
         self.extra.insert(key.to_string(), value.to_string());
     }
@@ -117,9 +117,9 @@ impl<'e, 'h> Render<'h> for MJAccordionTitleRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordionTitle {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionTitle {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJAccordionTitleRender::<'e, 'h> {
+        Box::new(MjAccordionTitleRender::<'e, 'h> {
             element: self,
             header,
             extra: Map::new(),

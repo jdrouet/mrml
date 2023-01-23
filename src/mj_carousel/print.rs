@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_carousel::MJCarousel::default();
+        let item = crate::mj_carousel::MjCarousel::default();
         assert_eq!("<mj-carousel />", item.dense_print());
     }
 

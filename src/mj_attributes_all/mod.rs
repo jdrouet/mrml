@@ -15,11 +15,11 @@ pub const NAME: &str = "mj-all";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJAttributesAll {
+pub struct MjAttributesAll {
     pub attributes: Map<String, String>,
 }
 
-impl MJAttributesAll {
+impl MjAttributesAll {
     pub fn attributes(&self) -> &Map<String, String> {
         &self.attributes
     }

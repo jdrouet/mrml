@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_attributes_all::MJAttributesAll::default();
+        let item = crate::mj_attributes_all::MjAttributesAll::default();
         assert_eq!("<mj-all />", item.dense_print());
     }
 }

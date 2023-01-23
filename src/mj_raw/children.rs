@@ -7,8 +7,8 @@ use crate::text::Text;
 #[cfg_attr(feature = "json", serde(untagged))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseChildren))]
-pub enum MJRawChild {
+pub enum MjRawChild {
     Comment(Comment),
-    Node(Node<MJRawChild>),
+    Node(Node<MjRawChild>),
     Text(Text),
 }

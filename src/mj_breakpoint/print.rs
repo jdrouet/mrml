@@ -1,12 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use crate::mj_breakpoint::{MJBreakpoint, MJBreakpointAttributes};
+    use crate::mj_breakpoint::{MjBreakpoint, MjBreakpointAttributes};
     use crate::prelude::print::Print;
 
     #[test]
     fn normal() {
-        let item = MJBreakpoint {
-            attributes: MJBreakpointAttributes {
+        let item = MjBreakpoint {
+            attributes: MjBreakpointAttributes {
                 width: String::from("10px"),
             },
         };

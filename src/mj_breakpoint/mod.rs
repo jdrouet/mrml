@@ -11,7 +11,7 @@ pub const NAME: &str = "mj-breakpoint";
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintAttributes))]
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseAttributes))]
-struct MJBreakpointAttributes {
+struct MjBreakpointAttributes {
     width: String,
 }
 
@@ -21,11 +21,11 @@ struct MJBreakpointAttributes {
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJBreakpoint {
-    attributes: MJBreakpointAttributes,
+pub struct MjBreakpoint {
+    attributes: MjBreakpointAttributes,
 }
 
-impl MJBreakpoint {
+impl MjBreakpoint {
     pub fn value(&self) -> &str {
         &self.attributes.width
     }

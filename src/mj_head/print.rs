@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let item = crate::mj_head::MJHead::default();
+        let item = crate::mj_head::MjHead::default();
         assert_eq!("<mj-head />", item.dense_print());
     }
 
@@ -33,9 +33,9 @@ mod tests {
 
     #[test]
     fn with_title() {
-        let mut item = crate::mj_head::MJHead::default();
-        item.children.push(crate::mj_head::MJHeadChild::MJTitle(
-            crate::mj_title::MJTitle::from("Hello World!"),
+        let mut item = crate::mj_head::MjHead::default();
+        item.children.push(crate::mj_head::MjHeadChild::MjTitle(
+            crate::mj_title::MjTitle::from("Hello World!"),
         ));
         assert_eq!(
             "<mj-head><mj-title>Hello World!</mj-title></mj-head>",

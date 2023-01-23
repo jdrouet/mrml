@@ -1,7 +1,7 @@
 use crate::helper::size::{Pixel, Size};
 use crate::helper::spacing::Spacing;
 use crate::helper::tag::Tag;
-use crate::mj_head::MJHead;
+use crate::mj_head::MjHead;
 use crate::prelude::hash::Map;
 use std::cell::{Ref, RefCell};
 use std::convert::TryFrom;
@@ -29,7 +29,7 @@ pub struct Options {
 }
 
 pub struct Header<'h> {
-    head: &'h Option<MJHead>,
+    head: &'h Option<MjHead>,
     attributes_all: Map<&'h str, &'h str>,
     attributes_class: Map<&'h str, Map<&'h str, &'h str>>,
     attributes_element: Map<&'h str, Map<&'h str, &'h str>>,
@@ -42,7 +42,7 @@ pub struct Header<'h> {
 }
 
 impl<'h> Header<'h> {
-    pub fn new(head: &'h Option<MJHead>) -> Self {
+    pub fn new(head: &'h Option<MjHead>) -> Self {
         Self {
             head,
             attributes_all: head
@@ -91,7 +91,7 @@ impl<'h> Header<'h> {
             .copied()
     }
 
-    pub fn head(&self) -> &Option<MJHead> {
+    pub fn head(&self) -> &Option<MjHead> {
         self.head
     }
 

@@ -1,12 +1,12 @@
-use super::MJAttributesClass;
+use super::MjAttributesClass;
 use crate::prelude::parse::{Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, Default)]
-struct MJAttributesClassParser(MJAttributesClass);
+struct MjAttributesClassParser(MjAttributesClass);
 
-impl Parser for MJAttributesClassParser {
-    type Output = MJAttributesClass;
+impl Parser for MjAttributesClassParser {
+    type Output = MjAttributesClass;
 
     fn build(self) -> Result<Self::Output, Error> {
         Ok(self.0)
@@ -24,9 +24,9 @@ impl Parser for MJAttributesClassParser {
     }
 }
 
-impl Parsable for MJAttributesClass {
+impl Parsable for MjAttributesClass {
     fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        MJAttributesClassParser::default().parse(tokenizer)?.build()
+        MjAttributesClassParser::default().parse(tokenizer)?.build()
     }
 }
 

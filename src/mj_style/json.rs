@@ -8,11 +8,11 @@ impl MjStyleAttributes {
 
 #[cfg(test)]
 mod tests {
-    use crate::mj_style::MJStyle;
+    use crate::mj_style::MjStyle;
 
     #[test]
     fn serialize() {
-        let elt = MJStyle::from("Hello World");
+        let elt = MjStyle::from("Hello World");
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-style","children":"Hello World"}"#
@@ -21,9 +21,9 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MJStyle::from("Hello World");
+        let elt = MjStyle::from("Hello World");
         let json = serde_json::to_string(&elt).unwrap();
-        let res: MJStyle = serde_json::from_str(&json).unwrap();
+        let res: MjStyle = serde_json::from_str(&json).unwrap();
         assert_eq!(res.children, elt.children);
     }
 }

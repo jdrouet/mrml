@@ -1,4 +1,4 @@
-use crate::mj_body::MJBodyChild;
+use crate::mj_body::MjBodyChild;
 use crate::prelude::hash::Map;
 
 #[cfg(feature = "json")]
@@ -18,7 +18,7 @@ pub const NAME: &str = "mj-button";
 #[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJButton {
+pub struct MjButton {
     pub attributes: Map<String, String>,
-    pub children: Vec<MJBodyChild>,
+    pub children: Vec<MjBodyChild>,
 }

@@ -1,4 +1,4 @@
-use super::{MJNavbarLink, NAME};
+use super::{MjNavbarLink, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
@@ -7,14 +7,14 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJNavbarLinkRender<'e, 'h> {
+struct MjNavbarLinkRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJNavbarLink,
+    element: &'e MjNavbarLink,
     extra: Map<String, String>,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> MJNavbarLinkRender<'e, 'h> {
+impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
     fn set_style_a(&self, tag: Tag) -> Tag {
         tag.add_style("display", "inline-block")
             .maybe_add_style("color", self.attribute("color"))
@@ -70,7 +70,7 @@ impl<'e, 'h> MJNavbarLinkRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJNavbarLinkRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjNavbarLinkRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "color" => Some("#000000"),
@@ -122,9 +122,9 @@ impl<'e, 'h> Render<'h> for MJNavbarLinkRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJNavbarLink {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarLink {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJNavbarLinkRender::<'e, 'h> {
+        Box::new(MjNavbarLinkRender::<'e, 'h> {
             element: self,
             header,
             extra: Map::new(),

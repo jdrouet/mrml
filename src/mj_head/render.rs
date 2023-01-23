@@ -1,4 +1,4 @@
-use super::MJHead;
+use super::MjHead;
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
 use crate::prelude::hash::Map;
@@ -45,7 +45,7 @@ p { display: block; margin: 13px 0; }
 <![endif]-->
 "#;
 
-impl MJHead {
+impl MjHead {
     pub fn build_attributes_all(&self) -> Map<&str, &str> {
         self.children
             .iter()
@@ -117,12 +117,12 @@ impl MJHead {
     }
 }
 
-pub struct MJHeadRender<'e, 'h> {
+pub struct MjHeadRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJHead,
+    element: &'e MjHead,
 }
 
-impl<'e, 'h> MJHeadRender<'e, 'h> {
+impl<'e, 'h> MjHeadRender<'e, 'h> {
     fn render_font_import(&self, href: &str) -> String {
         format!("@import url({href});")
     }
@@ -267,7 +267,7 @@ impl<'e, 'h> MJHeadRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjHeadRender<'e, 'h> {
     fn header(&self) -> Ref<Header<'h>> {
         self.header.borrow()
     }
@@ -298,9 +298,9 @@ impl<'e, 'h> Render<'h> for MJHeadRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJHead {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHead {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJHeadRender::<'e, 'h> {
+        Box::new(MjHeadRender::<'e, 'h> {
             element: self,
             header,
         })

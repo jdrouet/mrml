@@ -1,4 +1,4 @@
-use super::MJBody;
+use super::MjBody;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -7,12 +7,12 @@ use std::cell::{Ref, RefCell};
 use std::convert::TryFrom;
 use std::rc::Rc;
 
-struct MJBodyRender<'e, 'h> {
+struct MjBodyRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJBody,
+    element: &'e MjBody,
 }
 
-impl<'e, 'h> MJBodyRender<'e, 'h> {
+impl<'e, 'h> MjBodyRender<'e, 'h> {
     fn get_width(&self) -> Option<Pixel> {
         self.attribute("width")
             .and_then(|value| Pixel::try_from(value.as_str()).ok())
@@ -72,7 +72,7 @@ impl<'e, 'h> MJBodyRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJBodyRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjBodyRender<'e, 'h> {
     fn attributes(&self) -> Option<&Map<String, String>> {
         Some(&self.element.attributes)
     }
@@ -95,9 +95,9 @@ impl<'e, 'h> Render<'h> for MJBodyRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJBody {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBody {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJBodyRender::<'e, 'h> {
+        Box::new(MjBodyRender::<'e, 'h> {
             element: self,
             header,
         })

@@ -1,17 +1,17 @@
-use super::{MJAccordionText, NAME};
+use super::{MjAccordionText, NAME};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJAccordionTextRender<'e, 'h> {
+struct MjAccordionTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJAccordionText,
+    element: &'e MjAccordionText,
     extra: Map<String, String>,
 }
 
-impl<'e, 'h> MJAccordionTextRender<'e, 'h> {
+impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
     fn render_children(&self, opts: &Options) -> Result<String, Error> {
         let content = self
             .element
@@ -37,7 +37,7 @@ impl<'e, 'h> MJAccordionTextRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJAccordionTextRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjAccordionTextRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "line-height" => Some("1"),
@@ -85,9 +85,9 @@ impl<'e, 'h> Render<'h> for MJAccordionTextRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJAccordionText {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionText {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJAccordionTextRender::<'e, 'h> {
+        Box::new(MjAccordionTextRender::<'e, 'h> {
             element: self,
             header,
             extra: Map::default(),

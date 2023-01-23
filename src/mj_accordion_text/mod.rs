@@ -7,7 +7,7 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-use crate::mj_raw::MJRawChild;
+use crate::mj_raw::MjRawChild;
 use crate::prelude::hash::Map;
 
 pub const NAME: &str = "mj-accordion-text";
@@ -18,7 +18,7 @@ pub const NAME: &str = "mj-accordion-text";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJAccordionText {
+pub struct MjAccordionText {
     pub attributes: Map<String, String>,
-    pub children: Vec<MJRawChild>,
+    pub children: Vec<MjRawChild>,
 }

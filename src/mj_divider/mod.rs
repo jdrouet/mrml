@@ -17,6 +17,6 @@ pub const NAME: &str = "mj-divider";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJDivider {
+pub struct MjDivider {
     pub attributes: Map<String, String>,
 }

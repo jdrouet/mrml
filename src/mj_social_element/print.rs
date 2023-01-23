@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let mut item = crate::mj_social_element::MJSocialElement::default();
+        let mut item = crate::mj_social_element::MjSocialElement::default();
         item.attributes
             .insert("src".to_string(), "http://localhost".into());
         assert_eq!(

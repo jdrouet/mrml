@@ -10,7 +10,7 @@ mod render;
 
 use crate::prelude::hash::Map;
 
-pub use children::MJCarouselChild;
+pub use children::MjCarouselChild;
 
 pub const NAME: &str = "mj-carousel";
 
@@ -21,7 +21,7 @@ pub const NAME: &str = "mj-carousel";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJCarousel {
+pub struct MjCarousel {
     pub attributes: Map<String, String>,
-    pub children: Vec<MJCarouselChild>,
+    pub children: Vec<MjCarouselChild>,
 }

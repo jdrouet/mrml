@@ -4,7 +4,7 @@ mod tests {
 
     #[test]
     fn normal() {
-        let item = crate::mj_preview::MJPreview::from("Hello World!");
+        let item = crate::mj_preview::MjPreview::from("Hello World!");
         assert_eq!("<mj-preview>Hello World!</mj-preview>", item.dense_print());
         assert_eq!(
             "<mj-preview>Hello World!</mj-preview>\n",

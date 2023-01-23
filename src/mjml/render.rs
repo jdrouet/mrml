@@ -1,5 +1,5 @@
 use super::MJML;
-use crate::mj_head::MJHead;
+use crate::mj_head::MjHead;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
@@ -37,7 +37,7 @@ impl<'e, 'h> Render<'h> for MJMLRender<'e, 'h> {
             buf.push_str(&head.renderer(Rc::clone(&self.header)).render(opts)?);
         } else {
             buf.push_str(
-                &MJHead::default()
+                &MjHead::default()
                     .renderer(Rc::clone(&self.header))
                     .render(opts)?,
             );

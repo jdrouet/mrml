@@ -10,7 +10,7 @@ mod render;
 
 use crate::prelude::hash::Map;
 
-pub use children::MJAccordionChild;
+pub use children::MjAccordionChild;
 
 pub const NAME: &str = "mj-accordion";
 
@@ -21,7 +21,7 @@ pub const NAME: &str = "mj-accordion";
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MJAccordion {
+pub struct MjAccordion {
     pub attributes: Map<String, String>,
-    pub children: Vec<MJAccordionChild>,
+    pub children: Vec<MjAccordionChild>,
 }

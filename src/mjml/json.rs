@@ -1,6 +1,6 @@
 use super::MJMLChildren;
-use crate::mj_body::MJBody;
-use crate::mj_head::MJHead;
+use crate::mj_body::MjBody;
+use crate::mj_head::MjHead;
 use serde::de::{SeqAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -9,8 +9,8 @@ use std::fmt;
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(untagged)]
 pub enum MJMLChild {
-    MJHead(MJHead),
-    MJBody(MJBody),
+    MjHead(MjHead),
+    MjBody(MjBody),
 }
 
 impl MJMLChildren {
@@ -52,8 +52,8 @@ impl<'de> Visitor<'de> for MJMLChildrenVisitor {
         let mut result = MJMLChildren::default();
         while let Some(value) = access.next_element::<MJMLChild>()? {
             match value {
-                MJMLChild::MJHead(head) => result.head = Some(head),
-                MJMLChild::MJBody(body) => result.body = Some(body),
+                MJMLChild::MjHead(head) => result.head = Some(head),
+                MJMLChild::MjBody(body) => result.body = Some(body),
             };
         }
         Ok(result)

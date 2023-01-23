@@ -1,4 +1,4 @@
-use super::{MJGroup, NAME};
+use super::{MjGroup, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
@@ -7,15 +7,15 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJGroupRender<'e, 'h> {
+struct MjGroupRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJGroup,
+    element: &'e MjGroup,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MJGroupRender<'e, 'h> {
+impl<'e, 'h> MjGroupRender<'e, 'h> {
     fn current_width(&self) -> Pixel {
         let parent_width = self.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
@@ -118,7 +118,7 @@ impl<'e, 'h> MJGroupRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJGroupRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjGroupRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "direction" => Some("ltr"),
@@ -189,9 +189,9 @@ impl<'e, 'h> Render<'h> for MJGroupRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJGroup {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjGroup {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJGroupRender::<'e, 'h> {
+        Box::new(MjGroupRender::<'e, 'h> {
             element: self,
             header,
             container_width: None,

@@ -1,4 +1,4 @@
-use super::{MJButton, NAME};
+use super::{MjButton, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -6,12 +6,12 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-struct MJButtonRender<'e, 'h> {
+struct MjButtonRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
-    element: &'e MJButton,
+    element: &'e MjButton,
 }
 
-impl<'e, 'h> MJButtonRender<'e, 'h> {
+impl<'e, 'h> MjButtonRender<'e, 'h> {
     fn content_width(&self) -> Option<String> {
         if let Some(width) = self.attribute_as_pixel("width") {
             let pad_left = self
@@ -87,7 +87,7 @@ impl<'e, 'h> MJButtonRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MJButtonRender<'e, 'h> {
+impl<'e, 'h> Render<'h> for MjButtonRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "align" => Some("center"),
@@ -151,9 +151,9 @@ impl<'e, 'h> Render<'h> for MJButtonRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MJButton {
+impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjButton {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MJButtonRender::<'e, 'h> {
+        Box::new(MjButtonRender::<'e, 'h> {
             element: self,
             header,
         })
