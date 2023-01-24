@@ -2,7 +2,7 @@
 mod tests {
     #[test]
     fn success() {
-        crate::mjml::MJML::parse(
+        crate::mjml::Mjml::parse(
             r#"<mjml>
     <mj-body>
         <mj-button>

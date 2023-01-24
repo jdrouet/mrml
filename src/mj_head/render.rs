@@ -310,7 +310,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHead {
 #[cfg(test)]
 mod tests {
     use crate::helper::test::compare;
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
     #[test]
@@ -318,7 +318,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-attributes.mjml");
         let expected = include_str!("../../resources/compare/success/mj-attributes.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -328,7 +328,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-style.mjml");
         let expected = include_str!("../../resources/compare/success/mj-style.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

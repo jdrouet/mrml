@@ -18,7 +18,7 @@ mod tests {
   </mj-body>
 </mjml>
 "#;
-        let root = crate::mjml::MJML::parse(json).unwrap();
+        let root = crate::mjml::Mjml::parse(json).unwrap();
         assert_eq!(json, root.pretty_print());
     }
 }

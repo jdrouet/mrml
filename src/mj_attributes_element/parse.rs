@@ -40,7 +40,7 @@ impl Parsable for MjAttributesElement {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
 
     #[test]
     fn parse_complete() {
@@ -53,7 +53,7 @@ mod tests {
             </mj-head>
         </mjml>
         "#;
-        let elt = MJML::parse(template).unwrap();
+        let elt = Mjml::parse(template).unwrap();
         assert!(elt.head().is_some());
         assert!(elt.body().is_none());
         let head = elt.head().unwrap();

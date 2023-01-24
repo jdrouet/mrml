@@ -101,7 +101,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjText {
 #[cfg(test)]
 mod tests {
     use crate::helper::test::compare;
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
     #[test]
@@ -109,7 +109,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -119,7 +119,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-align.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-align.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -129,7 +129,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-class.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -139,7 +139,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-color.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-color.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -151,7 +151,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-text-container-background-color.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-text-container-background-color.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -161,7 +161,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-example.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-example.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -171,7 +171,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-font-family.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-font-family.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -181,7 +181,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-font-size.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-font-size.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -191,7 +191,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-font-style.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-font-style.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -201,7 +201,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-font-weight.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-font-weight.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -211,7 +211,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-height.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-height.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -221,7 +221,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-line-height.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-line-height.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -231,7 +231,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-text-padding.mjml");
         let expected = include_str!("../../resources/compare/success/mj-text-padding.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

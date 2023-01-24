@@ -37,7 +37,7 @@ impl Parsable for MjStyle {
 mod tests {
     #[test]
     fn success() {
-        let res = crate::mjml::MJML::parse(
+        let res = crate::mjml::Mjml::parse(
             r#"<mjml><mj-head><mj-style>.whatever {background-color: red};</mj-style></mj-head></mjml>"#,
         );
         println!("result: {res:?}");

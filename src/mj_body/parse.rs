@@ -62,7 +62,7 @@ impl Parsable for MjBodyChild {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
 
     #[test]
     fn parse_complete() {
@@ -74,7 +74,7 @@ mod tests {
             </mj-body>
         </mjml>
         "#;
-        let elt = MJML::parse(template).unwrap();
+        let elt = Mjml::parse(template).unwrap();
         assert!(elt.head().is_none());
         assert!(elt.body().is_some());
         let body = elt.body().unwrap();

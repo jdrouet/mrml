@@ -159,7 +159,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionChild {
 #[cfg(test)]
 mod tests {
     use crate::helper::test::compare;
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
     #[test]
@@ -167,7 +167,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
         let expected = include_str!("../../resources/compare/success/mj-accordion.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -179,7 +179,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-accordion-font-padding.mjml");
         let expected =
             include_str!("../../resources/compare/success/mj-accordion-font-padding.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -189,7 +189,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-accordion-icon.mjml");
         let expected = include_str!("../../resources/compare/success/mj-accordion-icon.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -199,7 +199,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-accordion-other.mjml");
         let expected = include_str!("../../resources/compare/success/mj-accordion-other.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

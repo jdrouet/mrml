@@ -1,27 +1,26 @@
 #[cfg(test)]
 mod tests {
-    use crate::mjml::{MJMLChildren, MJML};
-    use crate::prelude::hash::Map;
+    use crate::mjml::{Mjml, MjmlChildren};
     use crate::prelude::print::Print;
 
     #[test]
     fn empty() {
-        let item = MJML::default();
+        let item = Mjml::default();
         assert_eq!("<mjml />", format!("{item}"));
     }
 
     #[test]
     fn with_lang() {
-        let mut item = MJML::default();
-        item.attributes.insert("lang".to_string(), "fr".to_string());
+        let mut item = Mjml::default();
+        item.attributes.lang = Some("fr".to_string());
         assert_eq!("<mjml lang=\"fr\" />", format!("{item}"));
     }
 
     #[test]
     fn with_body() {
-        let item = MJML {
-            attributes: Map::default(),
-            children: MJMLChildren {
+        let item = Mjml {
+            attributes: Default::default(),
+            children: MjmlChildren {
                 head: None,
                 body: Some(crate::mj_body::MjBody::default()),
             },

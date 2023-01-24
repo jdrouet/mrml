@@ -67,7 +67,7 @@ pub enum Error {
     SizeLimit,
     /// Errors detected by the `xmlparser` crate.
     ParserError(xmlparser::Error),
-    /// The MJML document must have at least one element.
+    /// The Mjml document must have at least one element.
     NoRootNode,
 }
 

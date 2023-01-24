@@ -1,4 +1,4 @@
-use super::MJMLChildren;
+use super::{MjmlAttributes, MjmlChildren};
 use crate::mj_body::MjBody;
 use crate::mj_head::MjHead;
 use serde::de::{SeqAccess, Visitor};
@@ -6,20 +6,26 @@ use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
+impl MjmlAttributes {
+    pub fn is_empty(&self) -> bool {
+        self.owa.is_none() && self.lang.is_none() && self.dir.is_none()
+    }
+}
+
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(untagged)]
-pub enum MJMLChild {
+pub enum MjmlChild {
     MjHead(MjHead),
     MjBody(MjBody),
 }
 
-impl MJMLChildren {
+impl MjmlChildren {
     pub fn is_empty(&self) -> bool {
         self.head.is_none() && self.body.is_none()
     }
 }
 
-impl Serialize for MJMLChildren {
+impl Serialize for MjmlChildren {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -36,10 +42,10 @@ impl Serialize for MJMLChildren {
 }
 
 #[derive(Default)]
-struct MJMLChildrenVisitor;
+struct MjmlChildrenVisitor;
 
-impl<'de> Visitor<'de> for MJMLChildrenVisitor {
-    type Value = MJMLChildren;
+impl<'de> Visitor<'de> for MjmlChildrenVisitor {
+    type Value = MjmlChildren;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("a sequence with title and text elements")
@@ -49,40 +55,40 @@ impl<'de> Visitor<'de> for MJMLChildrenVisitor {
     where
         S: SeqAccess<'de>,
     {
-        let mut result = MJMLChildren::default();
-        while let Some(value) = access.next_element::<MJMLChild>()? {
+        let mut result = MjmlChildren::default();
+        while let Some(value) = access.next_element::<MjmlChild>()? {
             match value {
-                MJMLChild::MjHead(head) => result.head = Some(head),
-                MJMLChild::MjBody(body) => result.body = Some(body),
+                MjmlChild::MjHead(head) => result.head = Some(head),
+                MjmlChild::MjBody(body) => result.body = Some(body),
             };
         }
         Ok(result)
     }
 }
 
-impl<'de> Deserialize<'de> for MJMLChildren {
+impl<'de> Deserialize<'de> for MjmlChildren {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_seq(MJMLChildrenVisitor::default())
+        deserializer.deserialize_seq(MjmlChildrenVisitor::default())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
 
     #[test]
     fn serialize() {
-        let elt = MJML::default();
+        let elt = Mjml::default();
         assert_eq!(serde_json::to_string(&elt).unwrap(), r#"{"type":"mjml"}"#);
     }
 
     #[test]
     fn deserialize() {
         let json = r#"{"type":"mjml","attributes":{"lang":"fr"},"children":[{"type":"mj-head"},{"type":"mj-body","children":["Hello World!"]}]}"#;
-        let res: MJML = serde_json::from_str(json).unwrap();
+        let res: Mjml = serde_json::from_str(json).unwrap();
         assert!(res.children.head.is_some());
         assert!(res.children.body.is_some());
         let next = serde_json::to_string(&res).unwrap();

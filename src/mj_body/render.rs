@@ -107,7 +107,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBody {
 #[cfg(test)]
 mod tests {
     use crate::helper::test::compare;
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
     #[test]
@@ -115,7 +115,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-body.mjml");
         let expected = include_str!("../../resources/compare/success/mj-body.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         compare(expected, root.render(&opts).unwrap().as_str());
     }
 }

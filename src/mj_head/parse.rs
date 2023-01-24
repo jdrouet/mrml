@@ -61,14 +61,14 @@ impl Parsable for MjHead {
 mod tests {
     #[test]
     fn raw_children() {
-        let res = crate::mjml::MJML::parse(
+        let res = crate::mjml::Mjml::parse(
             r#"<mjml><mj-head><mj-raw>Hello World!</mj-raw></mj-head></mjml>"#,
         );
         assert!(res.is_ok());
     }
     #[test]
     fn unexpected_element() {
-        let res = crate::mjml::MJML::parse(
+        let res = crate::mjml::Mjml::parse(
             r#"<mjml><mj-head><mj-text>Hello World!</mj-text></mj-head></mjml>"#,
         );
         assert!(res.is_err());

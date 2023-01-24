@@ -25,7 +25,7 @@ mod tests {
   </mj-body>
 </mjml>
 "#;
-        assert!(crate::mjml::MJML::parse(json).is_ok());
+        assert!(crate::mjml::Mjml::parse(json).is_ok());
     }
 
     #[test]
@@ -38,6 +38,6 @@ mod tests {
   </mj-body>
 </mjml>
 "#;
-        assert!(crate::mjml::MJML::parse(json).is_err());
+        assert!(crate::mjml::Mjml::parse(json).is_err());
     }
 }

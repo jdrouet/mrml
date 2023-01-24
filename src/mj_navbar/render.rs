@@ -216,7 +216,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
 #[cfg(test)]
 mod tests {
     use crate::helper::test::compare;
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
     #[test]
@@ -224,7 +224,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-navbar.mjml");
         let expected = include_str!("../../resources/compare/success/mj-navbar.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -234,7 +234,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-navbar-align-class.mjml");
         let expected = include_str!("../../resources/compare/success/mj-navbar-align-class.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }
@@ -244,7 +244,7 @@ mod tests {
         let opts = Options::default();
         let template = include_str!("../../resources/compare/success/mj-navbar-ico.mjml");
         let expected = include_str!("../../resources/compare/success/mj-navbar-ico.html");
-        let root = MJML::parse(template).unwrap();
+        let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
         compare(expected, result.as_str());
     }

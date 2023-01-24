@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::mjml::MJML;
+    use crate::mjml::Mjml;
 
     #[test]
     fn parse_ending_tag() {
@@ -15,6 +15,6 @@ mod tests {
           </mj-body>
         </mjml>
         "#;
-        MJML::parse(template).unwrap();
+        Mjml::parse(template).unwrap();
     }
 }

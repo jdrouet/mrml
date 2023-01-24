@@ -22,7 +22,7 @@ mod tests {
   </mj-head>
 </mjml>
 "#;
-        let root = crate::mjml::MJML::parse(origin).unwrap();
+        let root = crate::mjml::Mjml::parse(origin).unwrap();
         assert_eq!(origin, root.pretty_print());
         let head = root.head().unwrap();
         assert_eq!(head.breakpoint().unwrap().value(), "12px");
