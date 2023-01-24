@@ -2,6 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/d/mrml)](https://crates.io/crates/mrml)
 ![Crates.io](https://img.shields.io/crates/v/mrml)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjolimail%2Fmrml-core.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjolimail%2Fmrml-core?ref=badge_shield)
 
 [![.github/workflows/main.yml](https://github.com/jolimail/mrml-core/actions/workflows/main.yml/badge.svg)](https://github.com/jolimail/mrml-core/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/jolimail/mrml-core/branch/main/graph/badge.svg?token=SIOPR0YWZA)](https://codecov.io/gh/jolimail/mrml-core)
@@ -80,3 +81,7 @@ With the same Linux amd64 machine, to render the amario template
 [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="35px" />](https://www.buymeacoffee.com/jdrouet)
 
 <i>Thanks to [zachzurn](https://github.com/zachzurn).</i>
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjolimail%2Fmrml-core.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjolimail%2Fmrml-core?ref=badge_large)
