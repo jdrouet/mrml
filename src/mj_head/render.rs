@@ -1,6 +1,7 @@
-use super::MjHead;
+use super::{MjHead, MjHeadChild};
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
+use crate::mj_include::head::MjIncludeHeadKind;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
@@ -44,6 +45,22 @@ p { display: block; margin: 13px 0; }
 </style>
 <![endif]-->
 "#;
+
+fn select_mj_styles<'a>(buffer: &mut Vec<&'a str>, children: &'a [MjHeadChild]) {
+    for child in children.iter() {
+        if let Some(mj_style) = child.as_mj_style() {
+            buffer.push(mj_style.children());
+        } else if let Some(mj_include) = child.as_mj_include() {
+            if let MjIncludeHeadKind::Css { inline: false } = mj_include.attributes.kind {
+                mj_include
+                    .children
+                    .iter()
+                    .filter_map(|c| c.as_text())
+                    .for_each(|c| buffer.push(c.inner_str()));
+            }
+        }
+    }
+}
 
 impl MjHead {
     pub fn build_attributes_all(&self) -> Map<&str, &str> {
@@ -234,36 +251,39 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
             }
         };
         let head_styles = {
-            let buf = self
-                .element
-                .children
-                .iter()
-                .filter_map(|child| child.as_mj_style())
-                .map(|child| child.children())
-                .collect::<Vec<_>>()
-                .join("\n");
-            if buf.is_empty() {
-                buf
+            let mut buffer = Vec::default();
+            select_mj_styles(&mut buffer, &self.element.children);
+            let buffer = buffer.join("\n");
+            if buffer.is_empty() {
+                buffer
             } else {
-                format!("<style type=\"text/css\">{buf}</style>")
+                format!("<style type=\"text/css\">{buffer}</style>")
             }
         };
         format!("{header_styles}\n{head_styles}").trim().to_string()
     }
 
     fn render_raw(&self, opts: &Options) -> Result<String, Error> {
+        let mut buffer: Vec<String> = Vec::new();
         let siblings = self.element.children.len();
-        self.element
-            .children
-            .iter()
-            .filter_map(|child| child.as_mj_raw())
-            .enumerate()
-            .try_fold(String::default(), |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
+        for child in self.element.children.iter() {
+            if let Some(mj_raw) = child.as_mj_raw() {
+                let mut renderer = mj_raw.renderer(Rc::clone(&self.header));
+                renderer.set_index(buffer.len());
                 renderer.set_siblings(siblings);
-                Ok(res + &renderer.render(opts)?)
-            })
+                buffer.push(renderer.render(opts)?);
+            } else if let Some(mj_include) = child.as_mj_include() {
+                for include_child in mj_include.children.iter() {
+                    if let Some(mj_raw) = include_child.as_mj_raw() {
+                        let mut renderer = mj_raw.renderer(Rc::clone(&self.header));
+                        renderer.set_index(buffer.len());
+                        renderer.set_siblings(siblings);
+                        buffer.push(renderer.render(opts)?);
+                    }
+                }
+            }
+        }
+        Ok(buffer.join(""))
     }
 }
 

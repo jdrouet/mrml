@@ -1,16 +1,27 @@
 use super::Node;
 use crate::comment::Comment;
+use crate::prelude::hash::Map;
 use crate::prelude::parse::{Error, Parsable, Parser};
 use crate::text::Text;
 use crate::{parse_attribute, parse_comment, parse_text};
 use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
-struct NodeParser<T>(Node<T>);
+struct NodeParser<T> {
+    opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+    tag: String,
+    attributes: Map<String, String>,
+    children: Vec<T>,
+}
 
 impl<T> NodeParser<T> {
-    pub fn new(tag: String) -> Self {
-        Self(Node::new(tag))
+    pub fn new(tag: String, opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Self {
+        Self {
+            opts,
+            tag,
+            attributes: Default::default(),
+            children: Vec::new(),
+        }
     }
 }
 
@@ -23,12 +34,16 @@ where
     type Output = Node<T>;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.0)
+        Ok(Node {
+            tag: self.tag,
+            attributes: self.attributes,
+            children: self.children,
+        })
     }
 
     fn should_ignore_children(&self) -> bool {
         matches!(
-            self.0.tag.as_str(),
+            self.tag.as_str(),
             "area"
                 | "base"
                 | "br"
@@ -53,7 +68,8 @@ where
         tag: xmlparser::StrSpan<'a>,
         tokenizer: &mut xmlparser::Tokenizer<'a>,
     ) -> Result<(), Error> {
-        self.0.children.push(T::parse(tag, tokenizer)?);
+        self.children
+            .push(T::parse(tag, tokenizer, self.opts.clone())?);
         Ok(())
     }
 
@@ -67,8 +83,12 @@ where
     T: From<Comment>,
     T: From<Text>,
 {
-    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error> {
-        NodeParser::<T>::new(tag.to_string())
+    fn parse<'a>(
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+        opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+    ) -> Result<Self, Error> {
+        NodeParser::<T>::new(tag.to_string(), opts)
             .parse(tokenizer)?
             .build()
     }

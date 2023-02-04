@@ -10,9 +10,14 @@ pub(super) struct Opts {
     tag: Option<String>,
     close_empty: Option<bool>,
     indent_children: Option<bool>,
+    children: Option<bool>,
 }
 
 impl Opts {
+    fn children(&self) -> bool {
+        self.children.unwrap_or(true)
+    }
+
     fn indent_children(&self) -> bool {
         self.indent_children.unwrap_or(true)
     }
@@ -64,13 +69,7 @@ impl Generator {
         let attrs = self.build_print_trait_attributes();
 
         match self.children_kind {
-            ChildrenKind::None => {
-                let close_empty = self.options.close_empty.unwrap_or(true);
-                quote! {
-                    crate::prelude::print::open(#tag_name, #attrs, #close_empty, pretty, level, indent_size)
-                }
-            }
-            ChildrenKind::String if self.options.indent_children() => {
+            ChildrenKind::String if self.options.children() && self.options.indent_children() => {
                 quote! {
                     if self.children.is_empty() {
                         crate::prelude::print::open(#tag_name, #attrs, true, pretty, level, indent_size)
@@ -82,7 +81,7 @@ impl Generator {
                     }
                 }
             }
-            ChildrenKind::String => {
+            ChildrenKind::String if self.options.children() => {
                 quote! {
                     if self.children.is_empty() {
                         crate::prelude::print::open(#tag_name, #attrs, true, pretty, level, indent_size)
@@ -98,7 +97,7 @@ impl Generator {
                     }
                 }
             }
-            ChildrenKind::Single => {
+            ChildrenKind::Single if self.options.children() => {
                 quote! {
                     let content = self.children.print(pretty, level + 1, indent_size);
                     if content.is_empty() {
@@ -111,7 +110,7 @@ impl Generator {
                     }
                 }
             }
-            ChildrenKind::List(_) => {
+            ChildrenKind::List(_) if self.options.children() => {
                 quote! {
                     if self.children.is_empty() {
                         crate::prelude::print::open(#tag_name, #attrs, true, pretty, level, indent_size)
@@ -123,6 +122,12 @@ impl Generator {
                         res.push_str(&crate::prelude::print::close(#tag_name, pretty, level, indent_size));
                         res
                     }
+                }
+            }
+            _ => {
+                let close_empty = self.options.close_empty.unwrap_or(true);
+                quote! {
+                    crate::prelude::print::open(#tag_name, #attrs, #close_empty, pretty, level, indent_size)
                 }
             }
         }

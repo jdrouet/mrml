@@ -1,3 +1,15 @@
+//! Module containing the `mj-accordion` element as defined in [the documentation](https://documentation.mjml.io/#mj-accordion).
+//!
+//! ```rust
+//! let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
+//! let root = mrml::parse(template).expect("parse template");
+//! let opts = mrml::prelude::render::Options::default();
+//! match root.render(&opts) {
+//!     Ok(content) => println!("{content}"),
+//!     Err(_) => println!("couldn't render mjml template"),
+//! };
+//! ```
+
 mod children;
 #[cfg(feature = "json")]
 mod json;

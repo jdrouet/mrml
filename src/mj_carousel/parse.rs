@@ -1,12 +1,18 @@
+use std::rc::Rc;
+
 use super::MjCarouselChild;
 use crate::mj_carousel_image::{MjCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
-use crate::prelude::parse::{Error, Parsable};
+use crate::prelude::parse::{Error, Parsable, ParserOptions};
 use xmlparser::{StrSpan, Tokenizer};
 
 impl Parsable for MjCarouselChild {
-    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error> {
+    fn parse<'a>(
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+        opts: Rc<ParserOptions>,
+    ) -> Result<Self, Error> {
         match tag.as_str() {
-            MJ_CAROUSEL_IMAGE => Ok(MjCarouselImage::parse(tag, tokenizer)?.into()),
+            MJ_CAROUSEL_IMAGE => Ok(MjCarouselImage::parse(tag, tokenizer, opts)?.into()),
             _ => Err(Error::UnexpectedElement(tag.start())),
         }
     }

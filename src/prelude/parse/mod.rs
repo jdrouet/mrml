@@ -1,4 +1,11 @@
+use std::rc::Rc;
 use xmlparser::{StrSpan, Token, Tokenizer};
+
+use self::loader::IncludeLoaderError;
+
+pub mod loader;
+pub mod memory_loader;
+pub mod noop_loader;
 
 #[macro_export]
 macro_rules! parse_attribute {
@@ -8,9 +15,7 @@ macro_rules! parse_attribute {
             name: xmlparser::StrSpan<'a>,
             value: xmlparser::StrSpan<'a>,
         ) -> Result<(), Error> {
-            self.0
-                .attributes
-                .insert(name.to_string(), value.to_string());
+            self.attributes.insert(name.to_string(), value.to_string());
             Ok(())
         }
     };
@@ -24,7 +29,8 @@ macro_rules! parse_child {
             tag: xmlparser::StrSpan<'a>,
             tokenizer: &mut xmlparser::Tokenizer<'a>,
         ) -> Result<(), Error> {
-            self.0.children.push($child_parser::parse(tag, tokenizer)?);
+            self.children
+                .push($child_parser::parse(tag, tokenizer, self.opts.clone())?);
             Ok(())
         }
     };
@@ -34,8 +40,7 @@ macro_rules! parse_child {
 macro_rules! parse_comment {
     () => {
         fn parse_child_comment(&mut self, value: xmlparser::StrSpan) -> Result<(), Error> {
-            self.0
-                .children
+            self.children
                 .push($crate::comment::Comment::from(value.as_str()).into());
             Ok(())
         }
@@ -46,8 +51,7 @@ macro_rules! parse_comment {
 macro_rules! parse_text {
     () => {
         fn parse_child_text(&mut self, value: xmlparser::StrSpan) -> Result<(), Error> {
-            self.0
-                .children
+            self.children
                 .push($crate::text::Text::from(value.as_str()).into());
             Ok(())
         }
@@ -69,6 +73,7 @@ pub enum Error {
     ParserError(xmlparser::Error),
     /// The Mjml document must have at least one element.
     NoRootNode,
+    IncludeLoaderError(IncludeLoaderError),
 }
 
 impl From<xmlparser::Error> for Error {
@@ -96,6 +101,9 @@ impl ToString for Error {
             Self::SizeLimit => "size limit reached".to_string(),
             Self::ParserError(inner) => format!("parsing error: {inner}"),
             Self::NoRootNode => "no root not found".to_string(),
+            Self::IncludeLoaderError(reason) => {
+                format!("unable to load included template: {reason}")
+            }
         }
     }
 }
@@ -108,15 +116,11 @@ pub(crate) fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>,
     }
 }
 
-pub(crate) fn is_element_start(token: &Token) -> bool {
-    matches!(
-        token,
-        Token::ElementStart {
-            prefix: _,
-            local: _,
-            span: _,
-        }
-    )
+pub(crate) fn is_element_start<'a>(token: &'a Token<'a>) -> Option<&'a StrSpan<'a>> {
+    match token {
+        Token::ElementStart { local, .. } => Some(local),
+        _ => None,
+    }
 }
 
 pub trait Parser: Sized {
@@ -211,5 +215,23 @@ pub trait Parser: Sized {
 }
 
 pub trait Parsable: Sized {
-    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error>;
+    fn parse<'a>(
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+        opts: Rc<ParserOptions>,
+    ) -> Result<Self, Error>;
+}
+
+#[derive(Debug)]
+pub struct ParserOptions {
+    pub include_loader: Box<dyn loader::IncludeLoader>,
+}
+
+#[allow(clippy::box_default)]
+impl Default for ParserOptions {
+    fn default() -> Self {
+        Self {
+            include_loader: Box::new(noop_loader::NoopIncludeLoader::default()),
+        }
+    }
 }

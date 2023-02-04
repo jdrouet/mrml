@@ -28,15 +28,58 @@ impl MjHead {
     pub fn breakpoint(&self) -> Option<&MjBreakpoint> {
         self.children
             .iter()
-            .find_map(|item| item.as_mj_breakpoint())
+            .filter_map(|item| {
+                if let Some(title) = item.as_mj_breakpoint() {
+                    Some(title)
+                } else if let Some(include) = item.as_mj_include() {
+                    include
+                        .children
+                        .iter()
+                        .filter_map(|child| child.as_mj_breakpoint())
+                        .next()
+                } else {
+                    None
+                }
+            })
+            .next()
     }
 
     pub fn preview(&self) -> Option<&MjPreview> {
-        self.children.iter().find_map(|item| item.as_mj_preview())
+        self.children
+            .iter()
+            .filter_map(|item| {
+                if let Some(title) = item.as_mj_preview() {
+                    Some(title)
+                } else if let Some(include) = item.as_mj_include() {
+                    include
+                        .children
+                        .iter()
+                        .filter_map(|child| child.as_mj_preview())
+                        .next()
+                } else {
+                    None
+                }
+            })
+            .next()
     }
 
     pub fn title(&self) -> Option<&MjTitle> {
-        self.children.iter().find_map(|item| item.as_mj_title())
+        self.children
+            .iter()
+            .filter_map(|item| {
+                if let Some(title) = item.as_mj_title() {
+                    Some(title)
+                } else if let Some(include) = item.as_mj_include() {
+                    include
+                        .children
+                        .iter()
+                        .filter_map(|child| child.as_mj_title())
+                        .next()
+                } else {
+                    None
+                }
+            })
+            .next()
     }
 
     pub fn children(&self) -> &Vec<MjHeadChild> {

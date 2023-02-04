@@ -41,7 +41,11 @@ fn create_builder_build_field(field: &Field) -> Option<proc_macro2::TokenStream>
 
 fn create_builder_insert_field(field: &Field) -> Option<proc_macro2::TokenStream> {
     if let Some(ref field_ident) = field.ident {
-        let attribute = to_kebab_case(&field_ident.to_string());
+        let attribute = match field_ident.to_string().as_str() {
+            // TODO make this a macro like #[mrml_parse(rename = "type")]
+            "kind" => "type".to_string(),
+            other => to_kebab_case(other),
+        };
         Some(quote! {
             #attribute => {
                 self.#field_ident = Some(value.to_string());

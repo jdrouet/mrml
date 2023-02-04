@@ -8,6 +8,12 @@ mod render;
 #[derive(Debug)]
 pub struct Text(String);
 
+impl Text {
+    pub fn inner_str(&self) -> &str {
+        &self.0
+    }
+}
+
 impl From<String> for Text {
     fn from(value: String) -> Self {
         Self(value)

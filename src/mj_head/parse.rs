@@ -13,32 +13,55 @@ use crate::mj_style::MjStyle;
 use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::MjTitle;
 use crate::mj_title::NAME as MJ_TITLE;
+use crate::prelude::parse::ParserOptions;
 use crate::prelude::parse::{Error, Parsable, Parser};
+use std::rc::Rc;
 use xmlparser::{StrSpan, Tokenizer};
 
 impl Parsable for MjHeadChild {
-    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, Error> {
+    fn parse<'a>(
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+        opts: Rc<ParserOptions>,
+    ) -> Result<Self, Error> {
         match tag.as_str() {
-            MJ_ATTRIBUTES => Ok(MjAttributes::parse(tag, tokenizer)?.into()),
-            MJ_BREAKPOINT => Ok(MjBreakpoint::parse(tag, tokenizer)?.into()),
-            MJ_FONT => Ok(MjFont::parse(tag, tokenizer)?.into()),
-            MJ_PREVIEW => Ok(MjPreview::parse(tag, tokenizer)?.into()),
-            MJ_RAW => Ok(MjRaw::parse(tag, tokenizer)?.into()),
-            MJ_STYLE => Ok(MjStyle::parse(tag, tokenizer)?.into()),
-            MJ_TITLE => Ok(MjTitle::parse(tag, tokenizer)?.into()),
+            MJ_ATTRIBUTES => Ok(MjAttributes::parse(tag, tokenizer, opts)?.into()),
+            MJ_BREAKPOINT => Ok(MjBreakpoint::parse(tag, tokenizer, opts)?.into()),
+            MJ_FONT => Ok(MjFont::parse(tag, tokenizer, opts)?.into()),
+            crate::mj_include::NAME => {
+                Ok(crate::mj_include::head::MjIncludeHead::parse(tag, tokenizer, opts)?.into())
+            }
+            MJ_PREVIEW => Ok(MjPreview::parse(tag, tokenizer, opts)?.into()),
+            MJ_RAW => Ok(MjRaw::parse(tag, tokenizer, opts)?.into()),
+            MJ_STYLE => Ok(MjStyle::parse(tag, tokenizer, opts)?.into()),
+            MJ_TITLE => Ok(MjTitle::parse(tag, tokenizer, opts)?.into()),
             _ => Err(Error::UnexpectedElement(tag.start())),
         }
     }
 }
 
-#[derive(Debug, Default)]
-struct MjHeadParser(MjHead);
+#[derive(Debug)]
+struct MjHeadParser {
+    opts: Rc<ParserOptions>,
+    children: Vec<MjHeadChild>,
+}
+
+impl MjHeadParser {
+    fn new(opts: Rc<ParserOptions>) -> Self {
+        Self {
+            opts,
+            children: Vec::default(),
+        }
+    }
+}
 
 impl Parser for MjHeadParser {
     type Output = MjHead;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.0)
+        Ok(MjHead {
+            children: self.children,
+        })
     }
 
     fn parse_child_element<'a>(
@@ -46,14 +69,19 @@ impl Parser for MjHeadParser {
         tag: StrSpan<'a>,
         tokenizer: &mut Tokenizer<'a>,
     ) -> Result<(), Error> {
-        self.0.children.push(MjHeadChild::parse(tag, tokenizer)?);
+        self.children
+            .push(MjHeadChild::parse(tag, tokenizer, self.opts.clone())?);
         Ok(())
     }
 }
 
 impl Parsable for MjHead {
-    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        MjHeadParser::default().parse(tokenizer)?.build()
+    fn parse(
+        _tag: StrSpan,
+        tokenizer: &mut Tokenizer,
+        opts: Rc<ParserOptions>,
+    ) -> Result<Self, Error> {
+        MjHeadParser::new(opts).parse(tokenizer)?.build()
     }
 }
 

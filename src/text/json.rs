@@ -53,7 +53,6 @@ mod tests {
     fn deserialize() {
         let elt = Text("Hello World".to_string());
         let json = serde_json::to_string(&elt).unwrap();
-        println!("json: {json}");
         let res: Text = serde_json::from_str(&json).unwrap();
         assert_eq!(res.0, elt.0);
     }

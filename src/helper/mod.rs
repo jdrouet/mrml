@@ -1,4 +1,4 @@
-#[cfg(feature = "render")]
+#[cfg(any(test, feature = "render"))]
 pub mod condition;
 #[cfg(feature = "render")]
 pub mod random;
@@ -13,5 +13,5 @@ pub mod style;
 #[cfg(feature = "render")]
 pub mod tag;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "parse"))]
 pub mod test;

@@ -158,7 +158,7 @@ fn create_parse_child_element(ast: &DeriveInput, opts: &Opts) -> proc_macro2::To
                 tokenizer: &mut xmlparser::Tokenizer<'a>,
             ) -> Result<(), crate::prelude::parse::Error> {
                 use crate::prelude::parse::Parsable;
-                self.children.push(<#ty>::parse(tag, tokenizer)?);
+                self.children.push(<#ty>::parse(tag, tokenizer, self.opts.clone())?);
                 Ok(())
             }
         },
@@ -189,13 +189,15 @@ pub fn derive(input: TokenStream) -> TokenStream {
     quote! {
         #[derive(Debug)]
         struct #parser_ident {
+            opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
             #attributes
             #children
         }
 
         impl #parser_ident {
-            fn new() -> Self {
+            fn new(opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Self {
                 Self {
+                    opts,
                     #attributes_new
                     #children_new
                 }
@@ -219,9 +221,9 @@ pub fn derive(input: TokenStream) -> TokenStream {
         }
 
         impl crate::prelude::parse::Parsable for #origin_ident {
-            fn parse(_tag: xmlparser::StrSpan, tokenizer: &mut xmlparser::Tokenizer) -> Result<Self, crate::prelude::parse::Error> {
+            fn parse(_tag: xmlparser::StrSpan, tokenizer: &mut xmlparser::Tokenizer, opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Result<Self, crate::prelude::parse::Error> {
                 use crate::prelude::parse::Parser;
-                #parser_ident::new().parse(tokenizer)?.build()
+                #parser_ident::new(opts).parse(tokenizer)?.build()
             }
         }
     }

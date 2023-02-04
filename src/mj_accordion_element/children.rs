@@ -6,12 +6,12 @@ use crate::mj_accordion_title::MjAccordionTitle;
 #[cfg(feature = "parse")]
 use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
 #[cfg(feature = "parse")]
-use crate::prelude::parse::{Error as ParserError, Parsable};
+use crate::prelude::parse::{Error as ParserError, Parsable, ParserOptions};
 #[cfg(feature = "render")]
 use crate::prelude::render::{Header, Render, Renderable};
 #[cfg(feature = "render")]
 use std::cell::RefCell;
-#[cfg(feature = "render")]
+#[cfg(any(feature = "render", feature = "parse"))]
 use std::rc::Rc;
 #[cfg(feature = "parse")]
 use xmlparser::{StrSpan, Tokenizer};
@@ -29,10 +29,14 @@ pub enum MjAccordionElementChild {
 
 #[cfg(feature = "parse")]
 impl Parsable for MjAccordionElementChild {
-    fn parse<'a>(tag: StrSpan<'a>, tokenizer: &mut Tokenizer<'a>) -> Result<Self, ParserError> {
+    fn parse<'a>(
+        tag: StrSpan<'a>,
+        tokenizer: &mut Tokenizer<'a>,
+        opts: Rc<ParserOptions>,
+    ) -> Result<Self, ParserError> {
         match tag.as_str() {
-            MJ_ACCORDION_TEXT => Ok(MjAccordionText::parse(tag, tokenizer)?.into()),
-            MJ_ACCORDION_TITLE => Ok(MjAccordionTitle::parse(tag, tokenizer)?.into()),
+            MJ_ACCORDION_TEXT => Ok(MjAccordionText::parse(tag, tokenizer, opts)?.into()),
+            MJ_ACCORDION_TITLE => Ok(MjAccordionTitle::parse(tag, tokenizer, opts)?.into()),
             _ => Err(ParserError::UnexpectedElement(tag.start())),
         }
     }

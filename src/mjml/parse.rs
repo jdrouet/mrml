@@ -4,21 +4,33 @@ use crate::mj_head::{MjHead, NAME as MJ_HEAD};
 use crate::prelude::parse::{is_element_start, next_token, Error, Parsable, Parser};
 use xmlparser::{StrSpan, Tokenizer};
 
-#[derive(Debug, Default)]
-struct MjmlParser(Mjml);
+#[derive(Debug)]
+struct MjmlParser {
+    opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+    element: Mjml,
+}
+
+impl MjmlParser {
+    fn new(opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Self {
+        Self {
+            opts,
+            element: Default::default(),
+        }
+    }
+}
 
 impl Parser for MjmlParser {
     type Output = Mjml;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.0)
+        Ok(self.element)
     }
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
         match name.as_str() {
-            "dir" => self.0.attributes.dir = Some(value.to_string()),
-            "lang" => self.0.attributes.lang = Some(value.to_string()),
-            "owa" => self.0.attributes.owa = Some(value.to_string()),
+            "dir" => self.element.attributes.dir = Some(value.to_string()),
+            "lang" => self.element.attributes.lang = Some(value.to_string()),
+            "owa" => self.element.attributes.owa = Some(value.to_string()),
             _ => return Err(Error::UnexpectedAttribute(name.start())),
         };
         Ok(())
@@ -31,12 +43,12 @@ impl Parser for MjmlParser {
     ) -> Result<(), Error> {
         match tag.as_str() {
             MJ_BODY => {
-                let elt = MjBody::parse(tag, tokenizer)?;
-                self.0.children.body = Some(elt);
+                let elt = MjBody::parse(tag, tokenizer, self.opts.clone())?;
+                self.element.children.body = Some(elt);
             }
             MJ_HEAD => {
-                let elt = MjHead::parse(tag, tokenizer)?;
-                self.0.children.head = Some(elt);
+                let elt = MjHead::parse(tag, tokenizer, self.opts.clone())?;
+                self.element.children.head = Some(elt);
             }
             _ => return Err(Error::UnexpectedElement(tag.start())),
         };
@@ -45,14 +57,53 @@ impl Parser for MjmlParser {
 }
 
 impl Mjml {
-    pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
+    /// Function to parse a raw mjml template with some parsing [options](crate::prelude::parse::ParserOptions).
+    ///
+    /// You can specify the kind of loader mrml needs to use for loading the content of
+    /// [`mj-include`](crate::mj_include) elements.
+    ///
+    /// You can take a look at the available loaders [here](crate::prelude::parse).
+    ///
+    /// ```rust
+    /// use mrml::mjml::Mjml;
+    /// use mrml::prelude::parse::ParserOptions;
+    /// use mrml::prelude::parse::memory_loader::MemoryIncludeLoader;
+    /// use std::rc::Rc;
+    ///
+    /// let options = Rc::new(ParserOptions {
+    ///     include_loader: Box::new(MemoryIncludeLoader::default()),
+    /// });
+    /// match Mjml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options) {
+    ///     Ok(_) => println!("Success!"),
+    ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
+    /// }
+    /// ```
+    pub fn parse_with_options<T: AsRef<str>>(
+        value: T,
+        opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+    ) -> Result<Self, Error> {
         let mut tokenizer = Tokenizer::from(value.as_ref());
         let token = next_token(&mut tokenizer)?;
-        if is_element_start(&token) {
-            MjmlParser::default().parse(&mut tokenizer)?.build()
+        if is_element_start(&token).is_some() {
+            MjmlParser::new(opts).parse(&mut tokenizer)?.build()
         } else {
             Err(Error::InvalidFormat)
         }
+    }
+
+    /// Function to parse a raw mjml template using the default parsing [options](crate::prelude::parse::ParserOptions).
+    ///
+    /// ```rust
+    /// use mrml::mjml::Mjml;
+    ///
+    /// match Mjml::parse("<mjml><mj-head /><mj-body /></mjml>") {
+    ///     Ok(_) => println!("Success!"),
+    ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
+    /// }
+    /// ```
+    pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
+        let opts = std::rc::Rc::new(crate::prelude::parse::ParserOptions::default());
+        Self::parse_with_options(value, opts)
     }
 }
 

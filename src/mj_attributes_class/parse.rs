@@ -1,32 +1,54 @@
+use std::rc::Rc;
+
 use super::MjAttributesClass;
-use crate::prelude::parse::{Error, Parsable, Parser};
+use crate::prelude::{
+    hash::Map,
+    parse::{Error, Parsable, Parser, ParserOptions},
+};
 use xmlparser::{StrSpan, Tokenizer};
 
-#[derive(Debug, Default)]
-struct MjAttributesClassParser(MjAttributesClass);
+#[derive(Debug)]
+struct MjAttributesClassParser {
+    name: String,
+    attributes: Map<String, String>,
+}
+
+impl MjAttributesClassParser {
+    fn new(_opts: Rc<ParserOptions>) -> Self {
+        Self {
+            name: String::default(),
+            attributes: Map::new(),
+        }
+    }
+}
 
 impl Parser for MjAttributesClassParser {
     type Output = MjAttributesClass;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.0)
+        Ok(MjAttributesClass {
+            name: self.name,
+            attributes: self.attributes,
+        })
     }
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
         if name.as_str() == "name" {
-            self.0.name = value.to_string();
+            self.name = value.to_string();
         } else {
-            self.0
-                .attributes
-                .insert(name.to_string(), value.to_string());
+            self.attributes.insert(name.to_string(), value.to_string());
         }
         Ok(())
     }
 }
 
 impl Parsable for MjAttributesClass {
-    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        MjAttributesClassParser::default().parse(tokenizer)?.build()
+    fn parse(
+        _tag: StrSpan,
+        tokenizer: &mut Tokenizer,
+        opts: Rc<ParserOptions>,
+    ) -> Result<Self, Error> {
+        MjAttributesClassParser::new(opts).parse(tokenizer)?.build()
     }
 }
 

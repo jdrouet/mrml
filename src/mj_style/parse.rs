@@ -1,20 +1,36 @@
-use super::MjStyle;
-use crate::prelude::parse::{Error, Parsable, Parser};
+use super::{MjStyle, MjStyleAttributes};
+use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use std::rc::Rc;
 use xmlparser::{StrSpan, Tokenizer};
 
-#[derive(Debug, Default)]
-struct MjStyleParser(MjStyle);
+#[derive(Debug)]
+struct MjStyleParser {
+    attributes: MjStyleAttributes,
+    children: String,
+}
+
+impl MjStyleParser {
+    fn new(_opts: Rc<ParserOptions>) -> Self {
+        Self {
+            attributes: Default::default(),
+            children: Default::default(),
+        }
+    }
+}
 
 impl Parser for MjStyleParser {
     type Output = MjStyle;
 
     fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.0)
+        Ok(MjStyle {
+            attributes: self.attributes,
+            children: self.children,
+        })
     }
 
     fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
         if name.as_str() == "inline" {
-            self.0.attributes.inline = Some(value.to_string());
+            self.attributes.inline = Some(value.to_string());
             Ok(())
         } else {
             Err(Error::UnexpectedAttribute(name.start()))
@@ -22,14 +38,18 @@ impl Parser for MjStyleParser {
     }
 
     fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
-        self.0.children = value.to_string();
+        self.children = value.to_string();
         Ok(())
     }
 }
 
 impl Parsable for MjStyle {
-    fn parse(_tag: StrSpan, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        MjStyleParser::default().parse(tokenizer)?.build()
+    fn parse(
+        _tag: StrSpan,
+        tokenizer: &mut Tokenizer,
+        opts: Rc<ParserOptions>,
+    ) -> Result<Self, Error> {
+        MjStyleParser::new(opts).parse(tokenizer)?.build()
     }
 }
 
@@ -40,7 +60,6 @@ mod tests {
         let res = crate::mjml::Mjml::parse(
             r#"<mjml><mj-head><mj-style>.whatever {background-color: red};</mj-style></mj-head></mjml>"#,
         );
-        println!("result: {res:?}");
         assert!(res.is_ok());
     }
 }
