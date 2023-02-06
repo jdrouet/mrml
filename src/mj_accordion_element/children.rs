@@ -7,11 +7,7 @@ use crate::mj_accordion_title::MjAccordionTitle;
 use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
 #[cfg(feature = "parse")]
 use crate::prelude::parse::{Error as ParserError, Parsable, ParserOptions};
-#[cfg(feature = "render")]
-use crate::prelude::render::{Header, Render, Renderable};
-#[cfg(feature = "render")]
-use std::cell::RefCell;
-#[cfg(any(feature = "render", feature = "parse"))]
+#[cfg(feature = "parse")]
 use std::rc::Rc;
 #[cfg(feature = "parse")]
 use xmlparser::{StrSpan, Tokenizer};
@@ -38,17 +34,6 @@ impl Parsable for MjAccordionElementChild {
             MJ_ACCORDION_TEXT => Ok(MjAccordionText::parse(tag, tokenizer, opts)?.into()),
             MJ_ACCORDION_TITLE => Ok(MjAccordionTitle::parse(tag, tokenizer, opts)?.into()),
             _ => Err(ParserError::UnexpectedElement(tag.start())),
-        }
-    }
-}
-
-#[cfg(feature = "render")]
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionElementChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        match self {
-            Self::Comment(elt) => elt.renderer(header),
-            Self::MjAccordionText(elt) => elt.renderer(header),
-            Self::MjAccordionTitle(elt) => elt.renderer(header),
         }
     }
 }

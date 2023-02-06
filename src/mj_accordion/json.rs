@@ -1,13 +1,16 @@
 #[cfg(test)]
 mod tests {
     use crate::mj_accordion::MjAccordion;
+    use crate::mj_accordion_element::MjAccordionElement;
 
     #[test]
     fn serialize() {
-        let elt = MjAccordion::default();
+        let mut elt = MjAccordion::default();
+        elt.attributes.insert("margin".into(), "42px".into());
+        elt.children.push(MjAccordionElement::default().into());
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-accordion"}"#
+            r#"{"type":"mj-accordion","attributes":{"margin":"42px"},"children":[{"type":"mj-accordion-element"}]}"#
         );
     }
 

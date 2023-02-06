@@ -55,11 +55,41 @@ fn derive_children_enum(ast: &DeriveInput, data_enum: &DataEnum) -> proc_macro2:
         })
         .collect::<proc_macro2::TokenStream>();
 
+    let as_tests = data_enum
+        .variants
+        .iter()
+        // TODO implement a proper test for Node items
+        .filter(|v| v.ident != "Node")
+        .map(|v| {
+            let as_fname = Ident::new(
+                &format!("as_{}", to_snake_case(&v.ident.to_string())),
+                v.ident.span(),
+            );
+            let field = get_variant_single_field(v).expect("a variant should have a field");
+
+            quote! {
+                #[test]
+                fn #as_fname() {
+                    let item = #field::default();
+                    let child = #name::from(item);
+                    assert!(child.#as_fname().is_some());
+                }
+            }
+        })
+        .collect::<proc_macro2::TokenStream>();
+
     quote! {
         #from_variants
 
         impl #name {
             #as_variants
+        }
+
+        #[cfg(test)]
+        mod macro_tests {
+            use super::*;
+
+            #as_tests
         }
     }
 }

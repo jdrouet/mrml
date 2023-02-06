@@ -96,3 +96,20 @@ pub struct MjIncludeBody {
     pub attributes: MjIncludeBodyAttributes,
     pub children: Vec<MjIncludeBodyChild>,
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyAttributes, MjIncludeBodyKind};
+
+    #[test]
+    fn should_debug() {
+        let element = MjIncludeBody {
+            attributes: MjIncludeBodyAttributes {
+                path: "partial.mjml".to_string(),
+                kind: MjIncludeBodyKind::Mjml,
+            },
+            children: Vec::new(),
+        };
+        let _ = format!("{element:?}");
+    }
+}

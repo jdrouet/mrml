@@ -64,15 +64,21 @@ impl<'de> Deserialize<'de> for MjAccordionElementChildren {
 #[cfg(test)]
 mod tests {
     use crate::mj_accordion_element::MjAccordionElement;
+    use crate::mj_accordion_title::MjAccordionTitle;
+    use crate::text::Text;
 
     #[test]
     fn serialize() {
         let mut elt = MjAccordionElement::default();
         elt.attributes
             .insert("margin".to_string(), "12px".to_string());
+        elt.children.title = Some(MjAccordionTitle {
+            attributes: Default::default(),
+            children: vec![Text::from("Hello".to_string())],
+        });
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"}}"#
+            r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"},"children":[{"type":"mj-accordion-title","children":["Hello"]}]}"#
         );
     }
 

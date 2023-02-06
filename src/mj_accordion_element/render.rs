@@ -121,3 +121,36 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionElement {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
+    use crate::mj_accordion_text::MjAccordionText;
+    use crate::mj_accordion_title::MjAccordionTitle;
+    use crate::prelude::render::*;
+    use crate::text::Text;
+
+    #[test]
+    fn basic() {
+        let opts = Options::default();
+        let head = Rc::new(RefCell::new(Header::new(&None)));
+        let element = MjAccordionElement {
+            attributes: Default::default(),
+            children: MjAccordionElementChildren {
+                title: Some(MjAccordionTitle {
+                    attributes: Default::default(),
+                    children: vec![Text::from("Hello World!".to_string())],
+                }),
+                text: Some(MjAccordionText {
+                    attributes: Default::default(),
+                    children: vec![Text::from("Lorem Ipsum".to_string()).into()],
+                }),
+            },
+        };
+        let renderer = element.renderer(head);
+        let _rendered = renderer.render(&opts).unwrap();
+    }
+}

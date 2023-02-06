@@ -67,3 +67,61 @@ impl Parsable for MjAccordionElement {
             .build()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::mj_accordion_element::MjAccordionElementChild;
+    use crate::prelude::parse::{is_element_start, next_token, Error, Parsable, ParserOptions};
+    use std::rc::Rc;
+    use xmlparser::Tokenizer;
+
+    #[test]
+    fn parse_title_child() {
+        let opts = Rc::new(ParserOptions::default());
+        let mut tokenizer = Tokenizer::from("<mj-accordion-title>Hello</mj-accordion-title>");
+        let token = next_token(&mut tokenizer).unwrap();
+        let tag = is_element_start(&token).unwrap();
+        let elt = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap();
+        assert!(elt.as_mj_accordion_title().is_some())
+    }
+
+    #[test]
+    fn parse_title_child_errored() {
+        let opts = Rc::new(ParserOptions::default());
+        let mut tokenizer =
+            Tokenizer::from("<mj-accordion-title><span>Hello</span></mj-accordion-title>");
+        let token = next_token(&mut tokenizer).unwrap();
+        let tag = is_element_start(&token).unwrap();
+        let err = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap_err();
+        assert!(matches!(err, Error::UnexpectedElement(21)));
+    }
+
+    #[test]
+    fn parse_text_child() {
+        let opts = Rc::new(ParserOptions::default());
+        let mut tokenizer = Tokenizer::from("<mj-accordion-text>Hello</mj-accordion-text>");
+        let token = next_token(&mut tokenizer).unwrap();
+        let tag = is_element_start(&token).unwrap();
+        let elt = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap();
+        assert!(elt.as_mj_accordion_text().is_some());
+    }
+
+    #[test]
+    fn parse_text_child_errored() {
+        let opts = Rc::new(ParserOptions::default());
+        let mut tokenizer = Tokenizer::from("<mj-accordion-text>");
+        let token = next_token(&mut tokenizer).unwrap();
+        let tag = is_element_start(&token).unwrap();
+        let err = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap_err();
+        assert!(matches!(err, Error::InvalidFormat));
+    }
+
+    #[test]
+    fn parse_unknown_child() {
+        let opts = Rc::new(ParserOptions::default());
+        let mut tokenizer = Tokenizer::from("<mj-pouwet>Hello</mj-pouwet>");
+        let token = next_token(&mut tokenizer).unwrap();
+        let tag = is_element_start(&token).unwrap();
+        assert!(MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).is_err());
+    }
+}

@@ -17,3 +17,13 @@ impl Parsable for MjAccordionChild {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn basic() {
+        let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
+        let result = crate::mjml::Mjml::parse(template).unwrap();
+        assert!(!format!("{result:?}").is_empty());
+    }
+}

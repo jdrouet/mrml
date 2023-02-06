@@ -6,8 +6,8 @@ impl super::MjIncludeBodyAttributes {
     pub fn as_map(&self) -> Map<String, String> {
         let mut res = Map::new();
         res.insert("path".to_string(), self.path.clone());
-        if self.kind == MjIncludeBodyKind::Html {
-            res.insert("type".into(), "html".into());
+        if self.kind != MjIncludeBodyKind::default() {
+            res.insert("type".into(), self.kind.to_string());
         }
         res
     }
@@ -18,6 +18,12 @@ mod tests {
     use crate::mj_button::MjButton;
     use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyChild, MjIncludeBodyKind};
     use crate::prelude::print::Print;
+
+    #[test]
+    fn kind_string() {
+        assert_eq!(MjIncludeBodyKind::Html.to_string(), "html");
+        assert_eq!(MjIncludeBodyKind::Mjml.to_string(), "mjml");
+    }
 
     #[test]
     fn simple() {

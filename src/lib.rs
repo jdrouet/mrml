@@ -132,3 +132,20 @@ pub fn parse_with_options<T: AsRef<str>>(
 pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parse::Error> {
     mjml::Mjml::parse(input)
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn parse_simple() {
+        let _ = crate::parse("<mjml><mj-head /><mj-body /></mjml>");
+    }
+
+    #[test]
+    fn parse_with_options() {
+        use crate::prelude::parse::ParserOptions;
+        use std::rc::Rc;
+
+        let options = Rc::new(ParserOptions::default());
+        let _ = crate::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options);
+    }
+}
