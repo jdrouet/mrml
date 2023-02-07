@@ -4,6 +4,8 @@ use xmlparser::{StrSpan, Token, Tokenizer};
 use self::loader::IncludeLoaderError;
 
 pub mod loader;
+#[cfg(feature = "local-loader")]
+pub mod local_loader;
 pub mod memory_loader;
 pub mod noop_loader;
 
