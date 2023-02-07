@@ -15,17 +15,62 @@ types:
   - refactor
   - build
   - perf
+  - test
 
 scopes:
   - ci
-  - deps
-  - style
   - readme
-  - wiki
   - script
-  - test
-  - mrml-cli
-  - mrml-core
-  - mrml-typings
-  - mrml-wasm
+  - e2e
+
+  - comment
+  - helper
+  - mj-accordion
+  - mj-accordion-element
+  - mj-accordion-text
+  - mj-accordion-title
+  - mj-attributes
+  - mj-attributes-all
+  - mj-attributes-class
+  - mj-attributes-element
+  - mj-body
+  - mj-breakpoint
+  - mj-button
+  - mj-carousel
+  - mj-carousel-image
+  - mj-column
+  - mj-divider
+  - mj-font
+  - mj-group
+  - mj-head
+  - mj-hero
+  - mj-image
+  - mj-include
+  - mj-navbar
+  - mj-navbar-link
+  - mj-preview
+  - mj-raw
+  - mj-section
+  - mj-social
+  - mj-social-element
+  - mj-spacer
+  - mj-style
+  - mj-table
+  - mj-text
+  - mj-title
+  - mj-wrapper
+  - node
+  - text
+
+  - macros
+  - macro common
+  - macro json
+  - macro mrml
+  - macro parse
+  - macro print
+
+  - prelude parse
+  - prelude hash
+  - prelude print
+  - prelude render
 
