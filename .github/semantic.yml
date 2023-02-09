@@ -18,6 +18,7 @@ types:
   - test
 
 scopes:
+  - deps
   - ci
   - readme
   - script
