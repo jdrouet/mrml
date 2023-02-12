@@ -62,54 +62,33 @@ macro_rules! parse_text {
     };
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("unexpected attribute at position {0}")]
     UnexpectedAttribute(usize),
+    #[error("unexpected element at position {0}")]
     UnexpectedElement(usize),
+    #[error("unexpected comment at position {0}")]
     UnexpectedComment(usize),
+    #[error("unexpected text at position {0}")]
     UnexpectedText(usize),
+    #[error("missing attribute {0}")]
     MissingAttribute(&'static str),
+    #[error("invalid element: {0}")]
     InvalidElement(String),
+    #[error("invalid format")]
     InvalidFormat,
     /// The input string should be smaller than 4GiB.
+    #[error("size limit reached")]
     SizeLimit,
     /// Errors detected by the `xmlparser` crate.
-    ParserError(xmlparser::Error),
+    #[error("unable to load included template")]
+    ParserError(#[from] xmlparser::Error),
     /// The Mjml document must have at least one element.
+    #[error("no root node found")]
     NoRootNode,
-    IncludeLoaderError(IncludeLoaderError),
-}
-
-impl From<xmlparser::Error> for Error {
-    fn from(err: xmlparser::Error) -> Self {
-        Error::ParserError(err)
-    }
-}
-
-impl ToString for Error {
-    fn to_string(&self) -> String {
-        match self {
-            Self::UnexpectedAttribute(position) => {
-                format!("unexpected attribute at position {position}")
-            }
-            Self::UnexpectedElement(position) => {
-                format!("unexpected element at position {position}")
-            }
-            Self::UnexpectedComment(position) => {
-                format!("unexpected comment at position {position}")
-            }
-            Self::UnexpectedText(position) => format!("unexpected text at position {position}"),
-            Self::MissingAttribute(field) => format!("missing attribute {field}"),
-            Self::InvalidElement(elt) => format!("invalid element: {elt}"),
-            Self::InvalidFormat => "invalid format".to_string(),
-            Self::SizeLimit => "size limit reached".to_string(),
-            Self::ParserError(inner) => format!("parsing error: {inner}"),
-            Self::NoRootNode => "no root not found".to_string(),
-            Self::IncludeLoaderError(reason) => {
-                format!("unable to load included template: {reason}")
-            }
-        }
-    }
+    #[error("unable to load included template")]
+    IncludeLoaderError(#[from] IncludeLoaderError),
 }
 
 pub(crate) fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, Error> {

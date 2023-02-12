@@ -9,17 +9,10 @@ use std::rc::Rc;
 
 use super::hash::Set;
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("unknown fragment {0}")]
     UnknownFragment(String),
-}
-
-impl ToString for Error {
-    fn to_string(&self) -> String {
-        match self {
-            Self::UnknownFragment(name) => format!("unknown fragment {name}"),
-        }
-    }
 }
 
 #[derive(Debug, Default)]
