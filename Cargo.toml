@@ -58,7 +58,7 @@ mrml-print-macros = { version = "0.1", path = "./lib/mrml-print-macros", optiona
 [dev-dependencies]
 criterion = "0.4"
 similar-asserts = "1.4"
-mockito = "0.31"
+mockito = "0.32"
 
 [workspace]
 members = [
