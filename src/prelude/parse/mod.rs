@@ -3,6 +3,8 @@ use xmlparser::{StrSpan, Token, Tokenizer};
 
 use self::loader::IncludeLoaderError;
 
+#[cfg(feature = "http-loader-base")]
+pub mod http_loader;
 pub mod loader;
 #[cfg(feature = "local-loader")]
 pub mod local_loader;

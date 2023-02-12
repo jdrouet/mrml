@@ -17,12 +17,16 @@ travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 
 [features]
 default = ["json", "parse", "print", "render"]
-json = ["mrml-json-macros", "serde", "serde_json"]
-parse = ["mrml-parse-macros", "xmlparser"]
-print = ["mrml-print-macros"]
-render = ["rand"]
-orderedmap = ["indexmap", "rustc-hash"]
+json = ["dep:mrml-json-macros", "dep:serde", "dep:serde_json"]
+parse = ["dep:mrml-parse-macros", "dep:xmlparser"]
+print = ["dep:mrml-print-macros"]
+render = ["dep:rand"]
+orderedmap = ["dep:indexmap", "dep:rustc-hash"]
 local-loader = []
+http-loader = ["http-loader-ureq"]
+http-loader-base = ["dep:url"]
+http-loader-reqwest = ["dep:reqwest", "http-loader-base"]
+http-loader-ureq = ["dep:ureq", "http-loader-base"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -37,6 +41,13 @@ xmlparser = { version = "0.13", optional = true }
 indexmap = { version = "1.9", features = ["serde-1"], optional = true }
 rustc-hash = { version = "1.1", optional = true }
 
+# http-loader feature related
+reqwest = { version = "0.11", default-features = false, features = [
+  "blocking",
+], optional = true }
+ureq = { version = "2.6", optional = true }
+url = { version = "^2", optional = true }
+
 # macros
 mrml-macros = { path = "./lib/mrml-macros" }
 mrml-json-macros = { path = "./lib/mrml-json-macros", optional = true }
@@ -46,6 +57,7 @@ mrml-print-macros = { path = "./lib/mrml-print-macros", optional = true }
 [dev-dependencies]
 criterion = "0.4"
 similar-asserts = "1.4"
+mockito = "0.31"
 
 [workspace]
 members = [
