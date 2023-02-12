@@ -69,9 +69,11 @@ With the same Linux amd64 machine, to render the amario template
 
 ## What is using MRML?
 
-[![](https://avatars.githubusercontent.com/u/1481354?s=20&v=4) mjml_nif](https://github.com/adoptoposs/mjml_nif) - Elixir library
+[mjml_nif](https://github.com/adoptoposs/mjml_nif) - Elixir library
 
-[![](https://avatars.githubusercontent.com/u/210414?s=20&v=4) mrml-ruby](https://github.com/hardpixel/mrml-ruby) - Ruby library
+[mrml-ruby](https://github.com/hardpixel/mrml-ruby) - Ruby library
+
+[mjml-python](https://github.com/mgd020/mjml-python) - Python library
 
 <i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
 
