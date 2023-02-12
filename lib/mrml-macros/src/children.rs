@@ -1,5 +1,5 @@
-use common_macros::{as_data_enum, get_variant_single_field};
 use inflector::cases::snakecase::to_snake_case;
+use mrml_common_macros::{as_data_enum, get_variant_single_field};
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DataEnum, DeriveInput, Ident};

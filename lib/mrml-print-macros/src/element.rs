@@ -1,5 +1,5 @@
-use common_macros::{get_attributes_field, get_children_kind, is_map, ChildrenKind};
 use darling::FromDeriveInput;
+use mrml_common_macros::{get_attributes_field, get_children_kind, is_map, ChildrenKind};
 use proc_macro2::{Ident, Span};
 use quote::quote;
 use syn::{DeriveInput, Type, TypePath};
@@ -35,7 +35,7 @@ impl From<(DeriveInput, Opts)> for Generator {
     fn from((ast, options): (DeriveInput, Opts)) -> Self {
         Self {
             struct_ident: ast.ident.clone(),
-            struct_generic: common_macros::get_generics(&ast),
+            struct_generic: mrml_common_macros::get_generics(&ast),
             attributes_field: get_attributes_field(&ast).cloned(),
             children_kind: get_children_kind(&ast),
             options,

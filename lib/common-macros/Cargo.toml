@@ -1,5 +1,5 @@
 [package]
-name = "common-macros"
+name = "mrml-common-macros"
 version = "0.1.0"
 edition = "2021"
 

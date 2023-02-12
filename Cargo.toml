@@ -50,10 +50,10 @@ ureq = { version = "2.6", optional = true }
 url = { version = "^2", optional = true }
 
 # macros
-mrml-macros = { path = "./lib/mrml-macros" }
-mrml-json-macros = { path = "./lib/mrml-json-macros", optional = true }
-mrml-parse-macros = { path = "./lib/mrml-parse-macros", optional = true }
-mrml-print-macros = { path = "./lib/mrml-print-macros", optional = true }
+mrml-macros = { version = "0.1", path = "./lib/mrml-macros" }
+mrml-json-macros = { version = "0.1", path = "./lib/mrml-json-macros", optional = true }
+mrml-parse-macros = { version = "0.1", path = "./lib/mrml-parse-macros", optional = true }
+mrml-print-macros = { version = "0.1", path = "./lib/mrml-print-macros", optional = true }
 
 [dev-dependencies]
 criterion = "0.4"

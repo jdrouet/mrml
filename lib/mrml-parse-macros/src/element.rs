@@ -1,5 +1,5 @@
-use common_macros::{get_attributes_kind, get_children_kind, AttributesKind, ChildrenKind};
 use darling::FromDeriveInput;
+use mrml_common_macros::{get_attributes_kind, get_children_kind, AttributesKind, ChildrenKind};
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Ident};

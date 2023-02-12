@@ -9,7 +9,7 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-common-macros = { path = "../common-macros" }
+mrml-common-macros = { version = "0.1", path = "../common-macros" }
 darling = "0.14"
 Inflector = "0.11"
 proc-macro2 = "1.0"

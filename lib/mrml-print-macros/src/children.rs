@@ -1,4 +1,4 @@
-use common_macros::{as_path, is_option};
+use mrml_common_macros::{as_path, is_option};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 use syn::{Data, DataEnum, DataStruct, DeriveInput};
@@ -17,7 +17,7 @@ pub(crate) struct EnumGenerator {
 impl From<(&DeriveInput, &DataEnum)> for EnumGenerator {
     fn from((ast, data): (&DeriveInput, &DataEnum)) -> Self {
         let ident = ast.ident.clone();
-        let generic = common_macros::get_generics(ast);
+        let generic = mrml_common_macros::get_generics(ast);
         let variants = data.variants.iter().map(|v| v.ident.clone()).collect();
 
         EnumGenerator {
@@ -72,7 +72,7 @@ pub(crate) struct StructGenerator {
 impl From<(&DeriveInput, &DataStruct)> for StructGenerator {
     fn from((ast, data): (&DeriveInput, &DataStruct)) -> Self {
         let ident = ast.ident.clone();
-        let generic = common_macros::get_generics(ast);
+        let generic = mrml_common_macros::get_generics(ast);
         let fields = data
             .fields
             .iter()

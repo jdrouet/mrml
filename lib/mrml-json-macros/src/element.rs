@@ -22,10 +22,10 @@ struct Generator {
 impl From<(DeriveInput, Opts)> for Generator {
     fn from((ast, options): (DeriveInput, Opts)) -> Self {
         let origin_ident = ast.ident.clone();
-        let origin_generic = common_macros::get_generics(&ast);
+        let origin_generic = mrml_common_macros::get_generics(&ast);
         let visitor_ident = syn::Ident::new(&format!("{origin_ident}Visitor"), origin_ident.span());
-        let has_attributes = common_macros::get_attributes_field(&ast).is_some();
-        let has_children = common_macros::get_children_field(&ast).is_some();
+        let has_attributes = mrml_common_macros::get_attributes_field(&ast).is_some();
+        let has_children = mrml_common_macros::get_children_field(&ast).is_some();
 
         Self {
             origin_ident,

@@ -1,4 +1,4 @@
-use common_macros::{as_path, get_fields, is_option};
+use mrml_common_macros::{as_path, get_fields, is_option};
 use proc_macro2::Ident;
 use quote::quote;
 use syn::DeriveInput;
@@ -13,7 +13,7 @@ impl From<DeriveInput> for Generator {
     fn from(ast: DeriveInput) -> Self {
         Self {
             struct_ident: ast.ident.clone(),
-            struct_generic: common_macros::get_generics(&ast),
+            struct_generic: mrml_common_macros::get_generics(&ast),
             fields: get_fields(&ast)
                 .into_iter()
                 .map(|f| (f.ident.clone(), as_path(f).map(is_option)))

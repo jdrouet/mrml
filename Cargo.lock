@@ -179,13 +179,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "common-macros"
-version = "0.1.0"
-dependencies = [
- "syn",
-]
-
-[[package]]
 name = "console"
 version = "0.15.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -694,12 +687,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "mrml-common-macros"
+version = "0.1.0"
+dependencies = [
+ "syn",
+]
+
+[[package]]
 name = "mrml-json-macros"
 version = "0.1.0"
 dependencies = [
  "Inflector",
- "common-macros",
  "darling",
+ "mrml-common-macros",
  "proc-macro2",
  "quote",
  "syn",
@@ -710,7 +710,7 @@ name = "mrml-macros"
 version = "0.1.0"
 dependencies = [
  "Inflector",
- "common-macros",
+ "mrml-common-macros",
  "proc-macro2",
  "quote",
  "syn",
@@ -721,8 +721,8 @@ name = "mrml-parse-macros"
 version = "0.1.0"
 dependencies = [
  "Inflector",
- "common-macros",
  "darling",
+ "mrml-common-macros",
  "proc-macro2",
  "quote",
  "syn",
@@ -732,8 +732,8 @@ dependencies = [
 name = "mrml-print-macros"
 version = "0.1.0"
 dependencies = [
- "common-macros",
  "darling",
+ "mrml-common-macros",
  "proc-macro2",
  "quote",
  "syn",

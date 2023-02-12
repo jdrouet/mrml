@@ -1,5 +1,5 @@
-use common_macros::{as_path, get_fields, is_option};
 use inflector::cases::kebabcase::to_kebab_case;
+use mrml_common_macros::{as_path, get_fields, is_option};
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Field, Ident};
