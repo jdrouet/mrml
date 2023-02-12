@@ -33,7 +33,7 @@ jobs:
         run: cargo fmt --check
 
       - name: run check on features
-        run: cargo hack check --feature-powerset --no-dev-deps
+        run: cargo hack check --each-feature --no-dev-deps
 
       - name: run check with tests
         run: cargo check --all-features --tests
