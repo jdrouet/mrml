@@ -16,7 +16,7 @@ codecov = { repository = "jdrouet/mrml", branch = "main" }
 travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 
 [features]
-default = ["json", "parse", "print", "render"]
+default = ["orderedmap", "json", "parse", "print", "render"]
 json = ["dep:mrml-json-macros", "dep:serde", "dep:serde_json"]
 parse = ["dep:mrml-parse-macros", "dep:xmlparser", "dep:thiserror"]
 print = ["dep:mrml-print-macros"]
