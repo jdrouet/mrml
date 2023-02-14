@@ -13,7 +13,7 @@
 
 ## Introduction
 
-This project is a reimplementation of the nice MJML markup language in Rust.
+This project is a reimplementation of the nice [MJML markup language](https://documentation.mjml.io/) in Rust.
 
 ## How to use it in my code
 
