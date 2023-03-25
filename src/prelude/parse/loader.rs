@@ -15,7 +15,7 @@ pub struct IncludeLoaderError {
     pub path: String,
     pub reason: ErrorKind,
     pub message: Option<&'static str>,
-    pub cause: Option<Box<dyn std::error::Error>>,
+    pub cause: Option<Box<dyn std::error::Error + Send + Sync + 'static>>,
 }
 
 impl IncludeLoaderError {
@@ -42,7 +42,7 @@ impl IncludeLoaderError {
         self
     }
 
-    pub fn with_cause(mut self, cause: Box<dyn std::error::Error>) -> Self {
+    pub fn with_cause(mut self, cause: Box<dyn std::error::Error + Send + Sync + 'static>) -> Self {
         self.cause = Some(cause);
         self
     }
@@ -64,7 +64,9 @@ impl std::fmt::Display for IncludeLoaderError {
 
 impl std::error::Error for IncludeLoaderError {
     fn cause(&self) -> Option<&dyn std::error::Error> {
-        self.cause.as_ref().map(|c| c.as_ref())
+        self.cause
+            .as_ref()
+            .map(|c| c.as_ref() as &dyn std::error::Error)
     }
 }
 
