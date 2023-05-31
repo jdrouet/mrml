@@ -56,7 +56,7 @@ mrml-parse-macros = { version = "0.1", path = "./lib/mrml-parse-macros", optiona
 mrml-print-macros = { version = "0.1", path = "./lib/mrml-print-macros", optional = true }
 
 [dev-dependencies]
-criterion = "0.4"
+criterion = "0.5"
 similar-asserts = "1.4"
 mockito = "1.0"
 
