@@ -1,13 +1,14 @@
+use super::hash::Set;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::spacing::Spacing;
 use crate::helper::tag::Tag;
 use crate::mj_head::MjHead;
 use crate::prelude::hash::Map;
+use std::borrow::Cow;
 use std::cell::{Ref, RefCell};
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::rc::Rc;
-
-use super::hash::Set;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -15,10 +16,42 @@ pub enum Error {
     UnknownFragment(String),
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Options {
     pub disable_comments: bool,
-    pub social_icon_origin: Option<String>,
+    pub social_icon_origin: Option<Cow<'static, str>>,
+    pub fonts: HashMap<String, Cow<'static, str>>,
+}
+
+impl Default for Options {
+    fn default() -> Self {
+        Self {
+            disable_comments: false,
+            social_icon_origin: None,
+            fonts: HashMap::from([
+                (
+                    "Open Sans".into(),
+                    "https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,700".into(),
+                ),
+                (
+                    "Droid Sans".into(),
+                    "https://fonts.googleapis.com/css?family=Droid+Sans:300,400,500,700".into(),
+                ),
+                (
+                    "Lato".into(),
+                    "https://fonts.googleapis.com/css?family=Lato:300,400,500,700".into(),
+                ),
+                (
+                    "Roboto".into(),
+                    "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700".into(),
+                ),
+                (
+                    "Ubuntu".into(),
+                    "https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700".into(),
+                ),
+            ]),
+        }
+    }
 }
 
 pub struct Header<'h> {

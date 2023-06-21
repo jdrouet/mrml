@@ -7,20 +7,6 @@ use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-fn google_font(name: &str) -> String {
-    format!(
-        "https://fonts.googleapis.com/css?family={}:300,400,500,700",
-        name.replace(' ', "+")
-    )
-}
-
-fn default_font(name: &str) -> Option<String> {
-    match name {
-        "Open Sans" | "Droid Sans" | "Lato" | "Roboto" | "Ubuntu" => Some(google_font(name)),
-        _ => None,
-    }
-}
-
 const STYLE_BASE: &str = r#"
 <style type="text/css">
 #outlook a { padding: 0; }
@@ -148,7 +134,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         format!("<link href=\"{href}\" rel=\"stylesheet\" type=\"text/css\">")
     }
 
-    fn render_font_families(&self) -> String {
+    fn render_font_families(&self, opts: &Options) -> String {
         let header = self.header.borrow();
         let used_font_families = header.used_font_families();
         if used_font_families.is_empty() {
@@ -158,8 +144,8 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         header
             .used_font_families()
             .iter()
-            .filter_map(|name| default_font(name))
-            .for_each(|href| links.push_str(&self.render_font_link(&href)));
+            .filter_map(|name| opts.fonts.get(name))
+            .for_each(|href| links.push_str(&self.render_font_link(href)));
         header
             .used_font_families()
             .iter()
@@ -169,8 +155,8 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         header
             .used_font_families()
             .iter()
-            .filter_map(|name| default_font(name))
-            .for_each(|href| imports.push_str(&self.render_font_import(&href)));
+            .filter_map(|name| opts.fonts.get(name))
+            .for_each(|href| imports.push_str(&self.render_font_import(href)));
         header
             .used_font_families()
             .iter()
@@ -309,7 +295,7 @@ impl<'e, 'h> Render<'h> for MjHeadRender<'e, 'h> {
         buf.push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
         buf.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
         buf.push_str(STYLE_BASE);
-        buf.push_str(&self.render_font_families());
+        buf.push_str(&self.render_font_families(opts));
         buf.push_str(&self.render_media_queries());
         buf.push_str(&self.render_styles());
         buf.push_str(&self.render_raw(opts)?);

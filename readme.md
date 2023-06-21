@@ -40,6 +40,14 @@ fn main() {
 }
 ```
 
+Available options are:
+
+| Name                 | Comment                                              | Default value                                                                                        |
+|----------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| `disable_comments`   | Strip comments out of rendered HTML                  | `false`                                                                                              |
+| `social_icon_origin` | Custom URL for fetching social icons                 | `None`                                                                                               |
+| `fonts`              | Default fonts imported in the HTML rendered by MJML  | [See default options](https://github.com/jolimail/mrml-core/blob/main/src/prelude/render.rs#L33-L54) |
+
 ## Why?
 
 - A Node.js server rendering an MJML template takes around 20 MB of RAM at startup and 130 MB under stress test. In Rust, less than 1.7 MB at startup and a bit less that 3 MB under stress test. The Rust version can also handle twice as many requests per second. You can perform the benchmarks by running `bash script/run-bench.sh`.
