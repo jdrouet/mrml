@@ -127,7 +127,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
                 td.mj-full-width-mobile {{ width: auto !important; }}
             }}
             "#,
-            self.header.borrow().breakpoint().to_string(),
+            self.header.borrow().breakpoint().lower().to_string(),
         )
     }
 }
@@ -196,7 +196,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
+
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -207,7 +207,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-image.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -217,7 +217,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-image-align.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -227,7 +227,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-image-border-radius.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -237,7 +237,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-image-border.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -247,7 +247,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-image-class.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -261,7 +261,7 @@ mod tests {
         );
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -271,7 +271,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-image-height.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -281,7 +281,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-image-href.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -291,6 +291,6 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-image-padding.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 }

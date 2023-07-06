@@ -114,7 +114,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjDivider {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
+
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -125,7 +125,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-divider.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -135,7 +135,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-divider-class.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -149,7 +149,7 @@ mod tests {
         );
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -159,7 +159,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-divider-padding.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -169,6 +169,6 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-divider-width.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 }

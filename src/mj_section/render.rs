@@ -1,5 +1,5 @@
 use super::{MjSection, NAME};
-use crate::helper::condition::conditional_tag;
+use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Percent, Pixel};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -226,9 +226,9 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         let vtextbox = Tag::new("v:textbox")
             .add_attribute("inset", "0,0,0,0")
             .add_style("mso-fit-shape-to-text", "true");
-        let before = conditional_tag(vrect.open() + &vfill.closed() + &vtextbox.open());
-        let after = conditional_tag(vtextbox.close() + &vrect.close());
-        before + content.as_ref() + &after
+        let before = vrect.open() + &vfill.closed() + &vtextbox.open();
+        let after = vtextbox.close() + &vrect.close();
+        before + END_CONDITIONAL_TAG + content.as_ref() + START_CONDITIONAL_TAG + &after
     }
 
     fn set_style_section_div(&self, tag: Tag) -> Tag {
@@ -265,9 +265,9 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
             .add_style("line-height", "0px")
             .add_style("font-size", "0px")
             .add_style("mso-line-height-rule", "exactly");
-        let before = conditional_tag(table.open() + &tr.open() + &td.open());
-        let after = conditional_tag(td.close() + &tr.close() + &table.close());
-        before + content.as_ref() + &after
+        let before = table.open() + &tr.open() + &td.open();
+        let after = td.close() + &tr.close() + &table.close();
+        conditional_tag(before + content.as_ref() + &after)
     }
 
     fn get_siblings(&self) -> usize {
@@ -282,25 +282,30 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
         let tr = Tag::tr();
-        let mut result = conditional_tag(tr.open());
-        for child in self.children().iter() {
-            let mut renderer = child.renderer(self.clone_header());
-            renderer.set_siblings(siblings);
-            renderer.set_raw_siblings(raw_siblings);
-            renderer.set_container_width(self.container_width().clone());
-            if child.is_raw() {
-                result.push_str(&renderer.render(opts)?);
-            } else {
-                let td = renderer
-                    .set_style("td-outlook", Tag::td())
-                    .maybe_add_attribute("align", renderer.attribute("align"))
-                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                result.push_str(&conditional_tag(td.open()));
-                result.push_str(&renderer.render(opts)?);
-                result.push_str(&conditional_tag(td.close()));
+        let mut result = tr.open();
+        let children = self.children();
+        if !children.is_empty() {
+            for child in self.children().iter() {
+                let mut renderer = child.renderer(self.clone_header());
+                renderer.set_siblings(siblings);
+                renderer.set_raw_siblings(raw_siblings);
+                renderer.set_container_width(self.container_width().clone());
+                if child.is_raw() {
+                    result.push_str(&renderer.render(opts)?);
+                } else {
+                    let td = renderer
+                        .set_style("td-outlook", Tag::td())
+                        .maybe_add_attribute("align", renderer.attribute("align"))
+                        .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
+                    result.push_str(&td.open());
+                    result.push_str(END_CONDITIONAL_TAG);
+                    result.push_str(&renderer.render(opts)?);
+                    result.push_str(START_CONDITIONAL_TAG);
+                    result.push_str(&td.close());
+                }
             }
         }
-        result.push_str(&conditional_tag(tr.close()));
+        result.push_str(&tr.close());
         Ok(result)
     }
 
@@ -363,8 +368,7 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         let inner_table = Tag::table_presentation();
 
         let content = self.render_wrapped_children(opts)?;
-        let content =
-            conditional_tag(inner_table.open()) + &content + &conditional_tag(inner_table.close());
+        let content = conditional_tag(inner_table.open() + &content + &inner_table.close());
         let content = td.render(content);
         let content = tr.render(content);
         let content = tbody.render(content);
@@ -398,7 +402,9 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = Tag::td();
-        let content = self.render_wrap(self.render_section(opts)?);
+        let content = self.render_section(opts)?;
+        let content =
+            self.render_wrap(END_CONDITIONAL_TAG.to_string() + &content + START_CONDITIONAL_TAG);
         let content = if self.has_background() {
             self.render_with_background(content)
         } else {
@@ -413,7 +419,7 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         let section = if self.has_background() {
             self.render_with_background(section)
         } else {
-            section
+            END_CONDITIONAL_TAG.to_string() + &section + START_CONDITIONAL_TAG
         };
         Ok(self.render_wrap(section))
     }
@@ -491,7 +497,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
+
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -502,7 +508,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-section.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -514,7 +520,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-section-background-color.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -526,7 +532,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-section-background-url-full.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -538,7 +544,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-section-background-url.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -548,7 +554,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-section-body-width.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -558,7 +564,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-section-border.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -570,7 +576,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-section-border-radius.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -580,7 +586,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-section-class.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -590,7 +596,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-section-direction.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -600,7 +606,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-section-full-width.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -610,7 +616,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-section-padding.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -620,6 +626,6 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-section-text-align.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 }

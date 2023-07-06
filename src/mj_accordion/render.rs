@@ -34,17 +34,17 @@ impl<'e, 'h> MjAccordionRender<'e, 'h> {
         @media yahoo, only screen and (min-width:0) {
           .mj-accordion-element { display:block; }
           input.mj-accordion-checkbox, .mj-accordion-less { display: none !important; }
-          input.mj-accordion-checkbox + * .mj-accordion-title { cursor: pointer; touch-action: manipulation; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
-          input.mj-accordion-checkbox + * .mj-accordion-content { overflow: hidden; display: none; }
-          input.mj-accordion-checkbox + * .mj-accordion-more { display: block !important; }
-          input.mj-accordion-checkbox:checked + * .mj-accordion-content { display: block; }
-          input.mj-accordion-checkbox:checked + * .mj-accordion-more { display: none !important; }
-          input.mj-accordion-checkbox:checked + * .mj-accordion-less { display: block !important; }
+          input.mj-accordion-checkbox+* .mj-accordion-title { cursor: pointer; touch-action: manipulation; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+          input.mj-accordion-checkbox+* .mj-accordion-content { overflow: hidden; display: none; }
+          input.mj-accordion-checkbox+* .mj-accordion-more { display: block !important; }
+          input.mj-accordion-checkbox:checked+* .mj-accordion-content { display: block; }
+          input.mj-accordion-checkbox:checked+* .mj-accordion-more { display: none !important; }
+          input.mj-accordion-checkbox:checked+* .mj-accordion-less { display: block !important; }
         }
 
-        .moz-text-html input.mj-accordion-checkbox + * .mj-accordion-title { cursor: auto; touch-action: auto; -webkit-user-select: auto; -moz-user-select: auto; user-select: auto; }
-        .moz-text-html input.mj-accordion-checkbox + * .mj-accordion-content { overflow: hidden; display: block; }
-        .moz-text-html input.mj-accordion-checkbox + * .mj-accordion-ico { display: none; }
+        .moz-text-html input.mj-accordion-checkbox+* .mj-accordion-title { cursor: auto; touch-action: auto; -webkit-user-select: auto; -moz-user-select: auto; user-select: auto; }
+        .moz-text-html input.mj-accordion-checkbox+* .mj-accordion-content { overflow: hidden; display: block; }
+        .moz-text-html input.mj-accordion-checkbox+* .mj-accordion-ico { display: none; }
 
         @goodbye { @gmail }
         "#.to_string()
@@ -128,8 +128,8 @@ impl<'e, 'h> Render<'h> for MjAccordionRender<'e, 'h> {
             .maybe_add_style("border", self.attribute("border"))
             .add_style("border-bottom", "none")
             .maybe_add_style("font-family", self.attribute("font-family"))
-            .add_attribute("cell-spacing", 0)
-            .add_attribute("cell-padding", 0)
+            .add_attribute("cellspacing", 0)
+            .add_attribute("cellpadding", 0)
             .add_class("mj-accordion")
             .render(tbody))
     }
@@ -158,7 +158,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionChild {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
+
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -169,7 +169,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-accordion.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -181,7 +181,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-accordion-font-padding.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -191,7 +191,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-accordion-icon.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -201,6 +201,6 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-accordion-other.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 }

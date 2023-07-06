@@ -1,0 +1,12 @@
+[package]
+name = "css-compare"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lightningcss = { version = "1.0.0-alpha.44", features = ["grid"], default-features = false }
+
+[dev-dependencies]
+similar-asserts = { version = "1.4" }

@@ -72,6 +72,10 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
 
     fn set_style_td(&self, tag: Tag) -> Tag {
         tag.maybe_add_style("padding", self.attribute("padding"))
+            .maybe_add_style("padding-top", self.attribute("padding-top"))
+            .maybe_add_style("padding-right", self.attribute("padding-right"))
+            .maybe_add_style("padding-bottom", self.attribute("padding-bottom"))
+            .maybe_add_style("padding-left", self.attribute("padding-left"))
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
@@ -168,6 +172,7 @@ impl<'e, 'h> Render<'h> for MjSocialElementRender<'e, 'h> {
             "padding" => Some("4px"),
             "target" => Some("_blank"),
             "text-decoration" => Some("none"),
+            "text-padding" => Some("4px 4px 4px 0"),
             "vertical-align" => Some("middle"),
             _ => None,
         }
@@ -227,7 +232,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialElement {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
+
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -240,6 +245,6 @@ mod tests {
             include_str!("../../resources/compare/success/mj-social-element-ending.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 }

@@ -97,6 +97,14 @@ impl Pixel {
             .next()
             .and_then(|value| Self::try_from(value).ok())
     }
+
+    pub fn lower(&self) -> Self {
+        if self.0 <= 1.0 {
+            Self(0.0)
+        } else {
+            Self(self.0 - 1.0)
+        }
+    }
 }
 
 impl TryFrom<&str> for Pixel {

@@ -199,6 +199,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
         let height = height - padding;
         let td = self
             .set_style_hero(Tag::td())
+            .add_style("height", format!("{height}px"))
             .maybe_add_attribute("background", self.attribute("background-url"))
             .add_attribute("height", height.to_string());
         Ok(td.render(self.render_content(opts)?))
@@ -296,7 +297,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHero {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
+
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -307,7 +308,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-hero.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -319,7 +320,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-hero-background-color.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -331,7 +332,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-hero-background-height.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -343,7 +344,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-hero-background-position.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -353,7 +354,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-hero-background-url.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -365,7 +366,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-hero-background-width.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -375,7 +376,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-hero-class.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -385,7 +386,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-hero-height.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -395,7 +396,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-hero-mode.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -405,7 +406,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-hero-vertical-align.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -415,6 +416,6 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-hero-width.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 }

@@ -100,7 +100,6 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjText {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -111,7 +110,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -121,7 +120,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-align.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -131,7 +130,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-class.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -141,7 +140,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-color.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -153,7 +152,7 @@ mod tests {
             include_str!("../../resources/compare/success/mj-text-container-background-color.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -163,7 +162,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-example.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -173,7 +172,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-font-family.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -183,7 +182,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-font-size.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -193,7 +192,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-font-style.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -203,7 +202,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-font-weight.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -213,7 +212,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-height.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -223,7 +222,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-line-height.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -233,6 +232,6 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-text-padding.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 }

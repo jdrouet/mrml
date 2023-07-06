@@ -75,7 +75,6 @@ impl Mjml {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -85,7 +84,7 @@ mod tests {
         let template = include_str!("../../resources/compare/success/mjml.mjml");
         let expected = include_str!("../../resources/compare/success/mjml.html");
         let root = Mjml::parse(template).unwrap();
-        compare(expected, root.render(&opts).unwrap().as_str());
+        html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
     }
 
     #[test]
@@ -102,7 +101,7 @@ mod tests {
         let template = include_str!("../../resources/template/air-astana.mjml");
         let expected = include_str!("../../resources/template/air-astana.html");
         let root = Mjml::parse(template).unwrap();
-        compare(expected, root.render(&opts).unwrap().as_str());
+        html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
     }
 
     #[test]

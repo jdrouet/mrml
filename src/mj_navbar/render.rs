@@ -120,7 +120,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
         }}
         "#,
-            self.header.borrow().breakpoint().to_string()
+            self.header.borrow().breakpoint().lower().to_string()
         );
         self.header.borrow_mut().add_style(style);
     }
@@ -215,7 +215,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
+
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -226,7 +226,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-navbar.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -236,7 +236,7 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-navbar-align-class.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 
     #[test]
@@ -246,6 +246,6 @@ mod tests {
         let expected = include_str!("../../resources/compare/success/mj-navbar-ico.html");
         let root = Mjml::parse(template).unwrap();
         let result = root.render(&opts).unwrap();
-        compare(expected, result.as_str());
+        html_compare::assert_similar(expected, result.as_str());
     }
 }

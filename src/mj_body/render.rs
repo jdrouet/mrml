@@ -106,7 +106,6 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBody {
 
 #[cfg(test)]
 mod tests {
-    use crate::helper::test::compare;
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
@@ -116,6 +115,6 @@ mod tests {
         let template = include_str!("../../resources/compare/success/mj-body.mjml");
         let expected = include_str!("../../resources/compare/success/mj-body.html");
         let root = Mjml::parse(template).unwrap();
-        compare(expected, root.render(&opts).unwrap().as_str());
+        html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
     }
 }

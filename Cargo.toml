@@ -57,12 +57,15 @@ mrml-print-macros = { version = "0.1", path = "./lib/mrml-print-macros", optiona
 
 [dev-dependencies]
 criterion = "0.5"
+html-compare = { version = "0.1", path = "./lib/html-compare" }
 similar-asserts = "1.4"
 mockito = "1.1"
 
 [workspace]
 members = [
   "./lib/common-macros",
+  "./lib/css-compare",
+  "./lib/html-compare",
   "./lib/mrml-json-macros",
   "./lib/mrml-macros",
   "./lib/mrml-parse-macros",

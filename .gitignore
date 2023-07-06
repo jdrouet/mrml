@@ -1,3 +1,4 @@
 /target
 /packages/*/target
 node_modules
+*.gen.html
