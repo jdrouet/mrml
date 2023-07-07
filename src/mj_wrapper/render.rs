@@ -57,7 +57,7 @@ impl<'e, 'h> SectionLikeRender<'h> for MjWrapperRender<'e, 'h> {
                 let td = renderer
                     .set_style("td-outlook", Tag::td())
                     .maybe_add_attribute("align", renderer.attribute("align"))
-                    .maybe_add_attribute("width", container_width.as_ref())
+                    .maybe_add_attribute("width", container_width.as_ref().cloned())
                     .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
                 result.push_str(&tr.open());
                 result.push_str(&td.open());

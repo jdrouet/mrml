@@ -108,8 +108,8 @@ impl<'e, 'h> Render<'h> for MjAccordionTitleRender<'e, 'h> {
         let tr = Tag::tr().render(content);
         let tbody = Tag::tbody().render(tr);
         let table = Tag::table()
-            .add_attribute("cellspacing", 0)
-            .add_attribute("cellpadding", 0)
+            .add_attribute("cellspacing", "0")
+            .add_attribute("cellpadding", "0")
             .add_style("width", "100%")
             .maybe_add_style("border-bottom", self.attribute("border"))
             .render(tbody);

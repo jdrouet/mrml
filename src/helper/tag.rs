@@ -1,11 +1,12 @@
 use crate::prelude::hash::{Map, Set};
+use std::borrow::Cow;
 
 pub struct Tag {
-    name: String,
-    attributes: Map<String, String>,
-    classes: Set<String>,
+    name: Cow<'static, str>,
+    attributes: Map<Cow<'static, str>, Cow<'static, str>>,
+    classes: Set<Cow<'static, str>>,
     // in order to keep the style in the same order the've been added
-    styles: Vec<(String, String)>,
+    styles: Vec<(Cow<'static, str>, Cow<'static, str>)>,
 }
 
 impl Tag {
@@ -34,17 +35,17 @@ impl Tag {
         Self::new("div")
     }
 
-    pub fn new<T: ToString>(name: T) -> Self {
+    pub fn new<N: Into<Cow<'static, str>>>(name: N) -> Self {
         Self {
-            name: name.to_string(),
+            name: name.into(),
             attributes: Map::new(),
             classes: Set::new(),
             styles: Vec::new(),
         }
     }
 
-    pub fn add_class<T: ToString>(mut self, value: T) -> Self {
-        self.classes.insert(value.to_string());
+    pub fn add_class<C: Into<Cow<'static, str>>>(mut self, value: C) -> Self {
+        self.classes.insert(value.into());
         self
     }
 
@@ -60,7 +61,7 @@ impl Tag {
         }
     }
 
-    pub fn maybe_add_class<T: ToString>(self, value: Option<T>) -> Self {
+    pub fn maybe_add_class<C: Into<Cow<'static, str>>>(self, value: Option<C>) -> Self {
         if let Some(value) = value {
             self.add_class(value)
         } else {
@@ -68,12 +69,20 @@ impl Tag {
         }
     }
 
-    pub fn add_attribute<V: ToString>(mut self, name: &str, value: V) -> Self {
-        self.attributes.insert(name.to_string(), value.to_string());
+    pub fn add_attribute<K: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+        mut self,
+        name: K,
+        value: V,
+    ) -> Self {
+        self.attributes.insert(name.into(), value.into());
         self
     }
 
-    pub fn maybe_add_attribute<T: ToString>(self, name: &str, value: Option<T>) -> Self {
+    pub fn maybe_add_attribute<K: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+        self,
+        name: K,
+        value: Option<V>,
+    ) -> Self {
         if let Some(value) = value {
             self.add_attribute(name, value)
         } else {
@@ -81,12 +90,20 @@ impl Tag {
         }
     }
 
-    pub fn add_style<T: ToString>(mut self, name: &str, value: T) -> Self {
-        self.styles.push((name.to_string(), value.to_string()));
+    pub fn add_style<N: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+        mut self,
+        name: N,
+        value: V,
+    ) -> Self {
+        self.styles.push((name.into(), value.into()));
         self
     }
 
-    pub fn maybe_add_style<T: ToString>(self, name: &str, value: Option<T>) -> Self {
+    pub fn maybe_add_style<N: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+        self,
+        name: N,
+        value: Option<V>,
+    ) -> Self {
         if let Some(value) = value {
             self.add_style(name, value)
         } else {

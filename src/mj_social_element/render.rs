@@ -111,7 +111,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         let tr = Tag::tr();
         let td = self.set_style_icon(Tag::td());
         let a = Tag::new("a")
-            .maybe_add_attribute("href", href.as_ref())
+            .maybe_add_attribute("href", href.clone())
             .maybe_add_attribute("rel", self.attribute("rel"))
             .maybe_add_attribute("target", self.attribute("target"));
         let img = self
@@ -141,7 +141,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         let td = self.set_style_td_text(Tag::td());
         let wrapper = if href.is_some() {
             Tag::new("a")
-                .maybe_add_attribute("href", href.as_ref())
+                .maybe_add_attribute("href", href.clone())
                 .maybe_add_attribute("rel", self.attribute("rel"))
                 .maybe_add_attribute("target", self.attribute("target"))
         } else {

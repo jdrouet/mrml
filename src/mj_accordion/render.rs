@@ -128,8 +128,8 @@ impl<'e, 'h> Render<'h> for MjAccordionRender<'e, 'h> {
             .maybe_add_style("border", self.attribute("border"))
             .add_style("border-bottom", "none")
             .maybe_add_style("font-family", self.attribute("font-family"))
-            .add_attribute("cellspacing", 0)
-            .add_attribute("cellpadding", 0)
+            .add_attribute("cellspacing", "0")
+            .add_attribute("cellpadding", "0")
             .add_class("mj-accordion")
             .render(tbody))
     }

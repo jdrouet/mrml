@@ -85,7 +85,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
         let input = self
             .set_style_input(Tag::new("input"))
             .add_class("mj-menu-checkbox")
-            .add_attribute("id", &self.id)
+            .add_attribute("id", self.id.clone())
             .add_attribute("type", "checkbox");
         let div = self
             .set_style_trigger(Tag::div())
@@ -94,7 +94,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .set_style_label(Tag::new("label"))
             .maybe_add_attribute("align", self.attribute("ico-align"))
             .add_class("mj-menu-label")
-            .add_attribute("for", &self.id);
+            .add_attribute("for", self.id.clone());
         let span_open = self
             .set_style_ico_open(Tag::new("span"))
             .add_class("mj-menu-icon-open");

@@ -75,8 +75,8 @@ impl<'e, 'h> Render<'h> for MjAccordionTextRender<'e, 'h> {
         let tr = Tag::tr().render(self.render_children(opts)?);
         let tbody = Tag::tbody().render(tr);
         let table = Tag::table()
-            .add_attribute("cellspacing", 0)
-            .add_attribute("cellpadding", 0)
+            .add_attribute("cellspacing", "0")
+            .add_attribute("cellpadding", "0")
             .add_style("width", "100%")
             .maybe_add_style("border-bottom", self.attribute("border"))
             .render(tbody);

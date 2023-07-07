@@ -93,7 +93,9 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
             .maybe_add_attribute("alt", self.attribute("alt"))
             .maybe_add_attribute(
                 "width",
-                self.container_width.as_ref().map(|item| item.value()),
+                self.container_width
+                    .as_ref()
+                    .map(|item| item.value().to_string()),
             )
             .closed();
         let label = Tag::new("label")
@@ -176,13 +178,15 @@ impl<'e, 'h> Render<'h> for MjCarouselImageRender<'e, 'h> {
     fn render(&self, _opts: &Options) -> Result<String, Error> {
         let img = self
             .set_style_images_img(Tag::new("img"))
-            .add_attribute("border", 0)
+            .add_attribute("border", "0")
             .maybe_add_attribute("alt", self.attribute("alt"))
             .maybe_add_attribute("src", self.attribute("src"))
             .maybe_add_attribute("title", self.attribute("title"))
             .maybe_add_attribute(
                 "width",
-                self.container_width.as_ref().map(|width| width.value()),
+                self.container_width
+                    .as_ref()
+                    .map(|width| width.value().to_string()),
             )
             .closed();
         let link = match self.attribute("href") {

@@ -151,9 +151,9 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
             .map(|(idx, _item)| {
                 let img = self
                     .set_style_controls_img(Tag::new("img"))
-                    .add_attribute("src", icon)
-                    .add_attribute("alt", direction)
-                    .maybe_add_attribute("width", icon_width)
+                    .add_attribute("src", icon.to_string())
+                    .add_attribute("alt", direction.to_string())
+                    .maybe_add_attribute("width", icon_width.map(|v| v.to_string()))
                     .closed();
                 Tag::new("label")
                     .add_attribute("for", format!("mj-carousel-{}-radio-{}", self.id, idx + 1))
