@@ -71,7 +71,7 @@ impl<'de> Deserialize<'de> for MjmlChildren {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_seq(MjmlChildrenVisitor::default())
+        deserializer.deserialize_seq(MjmlChildrenVisitor)
     }
 }
 

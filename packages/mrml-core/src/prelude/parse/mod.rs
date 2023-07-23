@@ -214,7 +214,7 @@ pub struct ParserOptions {
 impl Default for ParserOptions {
     fn default() -> Self {
         Self {
-            include_loader: Box::new(noop_loader::NoopIncludeLoader::default()),
+            include_loader: Box::new(noop_loader::NoopIncludeLoader),
         }
     }
 }

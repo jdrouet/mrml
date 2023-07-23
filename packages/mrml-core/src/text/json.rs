@@ -35,7 +35,7 @@ impl<'de> Deserialize<'de> for Text {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_str(TextVisitor::default())
+        deserializer.deserialize_str(TextVisitor)
     }
 }
 

@@ -57,7 +57,7 @@ impl<'de> Deserialize<'de> for MjAccordionElementChildren {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_seq(MjAccordionElementChildrenVisitor::default())
+        deserializer.deserialize_seq(MjAccordionElementChildrenVisitor)
     }
 }
 

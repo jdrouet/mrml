@@ -58,7 +58,7 @@ impl<'de> Deserialize<'de> for MjAttributesClass {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_map(MjAttributesClassVisitor::default())
+        deserializer.deserialize_map(MjAttributesClassVisitor)
     }
 }
 
