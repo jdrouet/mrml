@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand};
-use mrml::mjml::MJML;
+use mrml::mjml::Mjml;
 use mrml::prelude::print::Print;
 use mrml::prelude::render::Options as RenderOptions;
+use std::borrow::Cow;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -34,18 +35,18 @@ impl Options {
         buffer
     }
 
-    fn parse_json(&self, input: &str) -> Result<MJML, String> {
+    fn parse_json(&self, input: &str) -> Result<Mjml, String> {
         log::debug!("parsing json input");
-        serde_json::from_str::<MJML>(input)
+        serde_json::from_str::<Mjml>(input)
             .map_err(|err| format!("unable to parse json: {:?}", err))
     }
 
-    fn parse_mjml(&self, input: &str) -> Result<MJML, String> {
+    fn parse_mjml(&self, input: &str) -> Result<Mjml, String> {
         log::debug!("parsing mjml input");
-        MJML::parse(input).map_err(|err| format!("unable to parse mjml: {:?}", err))
+        Mjml::parse(input).map_err(|err| format!("unable to parse mjml: {:?}", err))
     }
 
-    fn parse_input(&self, input: &str) -> MJML {
+    fn parse_input(&self, input: &str) -> Mjml {
         if let Some(ref filename) = self.input {
             if filename.ends_with(".json") {
                 self.parse_json(input).unwrap()
@@ -80,8 +81,8 @@ impl Options {
 enum SubCommand {
     /// Format template to JSON
     FormatJSON(Format),
-    /// Format template to MJML
-    FormatMJML(Format),
+    /// Format template to Mjml
+    FormatMjml(Format),
     /// Render template to HTML
     Render(Render),
     /// Read input file and validate its structure
@@ -89,7 +90,7 @@ enum SubCommand {
 }
 
 impl SubCommand {
-    pub fn execute(self, root: &MJML) {
+    pub fn execute(self, root: &Mjml) {
         match self {
             Self::FormatJSON(opts) => {
                 log::debug!("format to json");
@@ -100,7 +101,7 @@ impl SubCommand {
                 };
                 println!("{}", output);
             }
-            Self::FormatMJML(opts) => {
+            Self::FormatMjml(opts) => {
                 log::debug!("format to mjml");
                 let output = if opts.pretty {
                     root.pretty_print()
@@ -141,7 +142,8 @@ impl From<Render> for RenderOptions {
     fn from(value: Render) -> Self {
         Self {
             disable_comments: value.disable_comments,
-            social_icon_origin: value.social_icon_origin,
+            social_icon_origin: value.social_icon_origin.map(Cow::Owned),
+            ..Default::default()
         }
     }
 }
