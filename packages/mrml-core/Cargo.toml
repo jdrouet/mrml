@@ -1,0 +1,72 @@
+[package]
+name = "mrml"
+description = "Rust implementation of MJML renderer"
+keywords = ["email", "mjml"]
+version = "2.0.0-rc3"
+authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
+edition = "2018"
+license-file = "license.md"
+repository = "https://github.com/jolimail/mrml-core/"
+readme = "readme.md"
+
+include = ["src/*", "Cargo.toml"]
+
+[badges]
+codecov = { repository = "jdrouet/mrml", branch = "main" }
+travis-ci = { repository = "jdrouet/mrml", branch = "main" }
+
+[features]
+default = ["orderedmap", "json", "parse", "print", "render"]
+json = ["dep:mrml-json-macros", "dep:serde", "dep:serde_json"]
+parse = ["dep:mrml-parse-macros", "dep:xmlparser", "dep:thiserror"]
+print = ["dep:mrml-print-macros"]
+render = ["dep:rand", "dep:thiserror"]
+orderedmap = ["dep:indexmap", "dep:rustc-hash"]
+local-loader = []
+http-loader = ["http-loader-ureq"]
+http-loader-base = ["dep:url"]
+http-loader-reqwest = ["dep:reqwest", "http-loader-base"]
+http-loader-ureq = ["dep:ureq", "http-loader-base"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = { default-features = false, features = [
+  "std",
+  "std_rng",
+], version = "0.8", optional = true }
+serde = { version = "1.0", optional = true, features = ["derive"] }
+serde_json = { version = "1.0", optional = true }
+xmlparser = { version = "0.13", optional = true }
+indexmap = { version = "1.9", features = ["serde-1"], optional = true }
+rustc-hash = { version = "1.1", optional = true }
+thiserror = { version = "1.0", optional = true }
+
+# http-loader feature related
+reqwest = { version = "0.11", default-features = false, features = [
+  "blocking",
+], optional = true }
+ureq = { version = "2.7", optional = true }
+url = { version = "^2", optional = true }
+
+# macros
+mrml-macros = { version = "0.1", path = "./lib/mrml-macros" }
+mrml-json-macros = { version = "0.1", path = "./lib/mrml-json-macros", optional = true }
+mrml-parse-macros = { version = "0.1", path = "./lib/mrml-parse-macros", optional = true }
+mrml-print-macros = { version = "0.1", path = "./lib/mrml-print-macros", optional = true }
+
+[dev-dependencies]
+criterion = "0.5"
+html-compare = { version = "0.1", path = "./lib/html-compare" }
+similar-asserts = "1.4"
+mockito = "1.1"
+
+[[bench]]
+name = "basic"
+path = "benches/basic.rs"
+harness = false
+
+[[bench]]
+name = "template"
+path = "benches/template.rs"
+harness = false

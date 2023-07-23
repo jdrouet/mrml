@@ -1,4 +1,14 @@
-on: [push]
+on:
+  push:
+    paths:
+      - .github/workflows/mrml-core-*
+      - packages/mrml-core/**
+      - Cargo.lock
+      - Cargo.toml
+
+defaults:
+  run:
+    working-directory: packages/mrml-core
 
 env:
   RUSTFLAGS: "-Dwarnings"
@@ -6,8 +16,8 @@ env:
 jobs:
   code-checking:
     runs-on: ubuntu-latest
-    concurrency: 
-      group: ${{ github.ref }}-code-checking
+    concurrency:
+      group: ${{ github.ref }}-mrml-core-code-checking
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v3
@@ -18,7 +28,7 @@ jobs:
           components: rustfmt,clippy
 
       - uses: taiki-e/install-action@cargo-hack
-          
+
       - uses: actions/cache@v3
         with:
           path: |
@@ -27,7 +37,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-code-checking-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-mrml-core-code-checking-${{ hashFiles('**/Cargo.lock') }}
 
       - name: run lint
         run: cargo fmt --check
@@ -45,8 +55,8 @@ jobs:
     runs-on: ubuntu-latest
     container: rust:1-bullseye
 
-    concurrency: 
-      group: ${{ github.ref }}-testing
+    concurrency:
+      group: ${{ github.ref }}-mrml-core-testing
       cancel-in-progress: true
 
     steps:
@@ -57,7 +67,7 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
-          
+
       - name: prepare cache
         uses: actions/cache@v3
         with:
@@ -67,7 +77,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-mrml-core-testing-${{ hashFiles('**/Cargo.lock') }}
 
       - name: install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov

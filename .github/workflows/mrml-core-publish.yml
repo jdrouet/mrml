@@ -1,7 +1,11 @@
 on:
   push:
-    tags:        
-      - 'v*'
+    tags:
+      - "mrml-core-v*"
+
+defaults:
+  run:
+    working-directory: packages/mrml-core
 
 name: Publish
 
@@ -9,7 +13,6 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    if: github.repository == 'jolimail/mrml-core'
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
