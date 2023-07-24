@@ -1,6 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: "cargo"
-    directory: "/"
+    directory: "/packages/mrml-cli"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "cargo"
+    directory: "/packages/mrml-core"
     schedule:
       interval: "daily"
