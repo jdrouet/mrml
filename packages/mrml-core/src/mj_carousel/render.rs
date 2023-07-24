@@ -1,6 +1,5 @@
 use super::{MjCarousel, MjCarouselChild, NAME};
 use crate::helper::condition::{mso_conditional_tag, mso_negation_conditional_tag};
-use crate::helper::random;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::style::Style;
 use crate::helper::tag::Tag;
@@ -458,10 +457,11 @@ impl<'e, 'h> Render<'h> for MjCarouselRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarousel {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+        let id = header.borrow().next_id();
         Box::new(MjCarouselRender::<'e, 'h> {
             element: self,
             header,
-            id: random::generate(8),
+            id,
             container_width: None,
             siblings: 1,
             raw_siblings: 0,

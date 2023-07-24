@@ -11,14 +11,14 @@ const iterate = (list, callback) =>
 const cleanupIds = (content) => {
   console.log(`⌛️ doing some cleanup on ids`);
   content = content
-    .replace(/for="([a-zA-Z0-9]+)"/g, 'for="aaaaaaaa"')
-    .replace(/id="([a-zA-Z0-9]+)"/g, 'id="aaaaaaaa"');
+    .replace(/for="([a-zA-Z0-9]+)"/g, 'for="00000000"')
+    .replace(/id="([a-zA-Z0-9]+)"/g, 'id="00000000"');
   let matches;
   while (matches = /mj-carousel-([a-zA-Z0-9]{12})-([a-zA-Z0-9\-]+)/g.exec(content)) {
     const carouselId = matches[1];
     const extension = matches[2];
-    content = content.replaceAll(`mj-carousel-${carouselId}-${extension}`, `mj-carousel-aaaaaaaa-${extension}`);
-    content = content.replaceAll(`mj-carousel-radio-${carouselId}`, `mj-carousel-radio-aaaaaaaa`);
+    content = content.replaceAll(`mj-carousel-${carouselId}-${extension}`, `mj-carousel-00000000-${extension}`);
+    content = content.replaceAll(`mj-carousel-radio-${carouselId}`, `mj-carousel-radio-00000000`);
   }
   return content;
 };
