@@ -998,7 +998,6 @@ dependencies = [
  "mrml-macros",
  "mrml-parse-macros",
  "mrml-print-macros",
- "rand",
  "reqwest",
  "rustc-hash",
  "serde",

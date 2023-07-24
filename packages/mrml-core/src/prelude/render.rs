@@ -9,6 +9,7 @@ use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicU16, Ordering};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -65,6 +66,7 @@ pub struct Header<'h> {
     media_queries: Map<String, Size>,
     styles: Set<String>,
     lang: Option<String>,
+    generator: AtomicU16,
 }
 
 impl<'h> Header<'h> {
@@ -96,6 +98,7 @@ impl<'h> Header<'h> {
             media_queries: Map::new(),
             styles: Set::new(),
             lang: Default::default(),
+            generator: AtomicU16::new(0),
         }
     }
 
@@ -182,6 +185,11 @@ impl<'h> Header<'h> {
 
     pub fn maybe_set_lang(&mut self, value: Option<String>) {
         self.lang = value;
+    }
+
+    pub fn next_id(&self) -> String {
+        let id = self.generator.fetch_add(1, Ordering::SeqCst);
+        format!("{id:0>8}")
     }
 }
 
@@ -381,4 +389,18 @@ pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
         &'element self,
         header: Rc<RefCell<Header<'header>>>,
     ) -> Box<dyn Render<'header> + 'render>;
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{cell::RefCell, rc::Rc};
+
+    #[test]
+    fn header_should_increase() {
+        let head = None;
+        let header = Rc::new(RefCell::new(super::Header::new(&head)));
+        assert_eq!(header.borrow().next_id(), "00000000");
+        assert_eq!(header.borrow().next_id(), "00000001");
+        assert_eq!(header.borrow().next_id(), "00000002");
+    }
 }

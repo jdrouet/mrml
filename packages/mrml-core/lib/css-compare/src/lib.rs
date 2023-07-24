@@ -386,22 +386,22 @@ mod tests {
     #[test]
     fn with_media_yahoo() {
         let expected = r#"@media screen, yahoo {
-    .mj-carousel-aaaaaaaa-icons-cell,
+    .mj-carousel-00000000-icons-cell,
     .mj-carousel-previous-icons,
     .mj-carousel-next-icons {
         display: none !important;
     }
-    .mj-carousel-aaaaaaaa-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-aaaaaaaa-thumbnail-1 {
+    .mj-carousel-00000000-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-00000000-thumbnail-1 {
         border-color: transparent;
     }
 }"#;
         let generated = r#"@media screen, yahoo {
-        .mj-carousel-aaaaaaaa-icons-cell,
+        .mj-carousel-00000000-icons-cell,
         .mj-carousel-previous-icons,
         .mj-carousel-next-icons {
             display: none !important;
         }
-        .mj-carousel-aaaaaaaa-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-aaaaaaaa-thumbnail-1 {
+        .mj-carousel-00000000-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-00000000-thumbnail-1 {
             border-color: transparent;
         }
     }"#;

@@ -1,6 +1,5 @@
 use super::{MjNavbar, MjNavbarChild, NAME};
 use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
-use crate::helper::random;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
@@ -202,10 +201,11 @@ impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+        let id = header.borrow().next_id();
         Box::new(MjNavbarRender::<'e, 'h> {
             element: self,
             header,
-            id: random::generate(8),
+            id,
             container_width: None,
             siblings: 1,
             raw_siblings: 0,
