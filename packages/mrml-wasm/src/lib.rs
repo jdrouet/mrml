@@ -24,7 +24,7 @@ impl From<RenderOptions> for mrml::prelude::render::Options {
     fn from(value: RenderOptions) -> Self {
         Self {
             disable_comments: value.disable_comments,
-            social_icon_origin: value.social_icon_origin.map(|inner| Cow::Owned(inner)),
+            social_icon_origin: value.social_icon_origin.map(Cow::Owned),
             fonts: value
                 .fonts
                 .into_iter()
@@ -40,7 +40,7 @@ fn to_html(
     render_options: &mrml::prelude::render::Options,
 ) -> Result<String, ToHtmlError> {
     let element = mrml::mjml::Mjml::parse(input)?;
-    let html = element.render(&render_options)?;
+    let html = element.render(render_options)?;
     Ok(html)
 }
 
