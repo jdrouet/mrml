@@ -9,3 +9,8 @@ updates:
     directory: "/packages/mrml-core"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "cargo"
+    directory: "/packages/mrml-wasm"
+    schedule:
+      interval: "daily"
