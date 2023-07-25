@@ -1,0 +1,87 @@
+on:
+  push:
+    paths:
+      - .github/workflows/mrml-wasm-*
+      - packages/mrml-wasm/**
+      - packages/mrml-core/**
+      - Cargo.lock
+      - Cargo.toml
+
+defaults:
+  run:
+    working-directory: packages/mrml-wasm
+
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  code-checking:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}-mrml-wasm-code-checking
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          components: rustfmt,clippy
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mrml-wasm-code-checking-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: run lint
+        run: cargo fmt --check
+
+      - name: run check
+        run: cargo check --all-features --tests
+
+      - name: run clippy
+        run: cargo clippy --all-targets --all-features --tests
+
+  testing:
+    runs-on: ubuntu-latest
+    container: rust:1-bullseye
+
+    concurrency:
+      group: ${{ github.ref }}-mrml-wasm-testing
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+
+      - name: install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mrml-wasm-testing-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: run unit tests
+        run: cargo test
+
+      - name: run integration tests
+        run: wasm-pack test --node
