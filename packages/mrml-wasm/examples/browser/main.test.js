@@ -10,7 +10,7 @@ describe('mrml-wasm in the browser', function () {
   it('should disable the comments', function () {
     const engine = new Engine();
     engine.setRenderOptions({
-      disable_comments: true,
+      disableComments: true,
       fonts: {},
     });
     const result = engine.toHtml(`<mjml>

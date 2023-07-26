@@ -9,6 +9,7 @@ use std::{borrow::Cow, collections::HashMap};
 use wasm_bindgen::prelude::*;
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
+#[serde(rename_all = "camelCase")]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 /// Rendering options
 pub struct RenderOptions {
