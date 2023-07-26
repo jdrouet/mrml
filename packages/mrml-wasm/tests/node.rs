@@ -28,3 +28,64 @@ fn is_should_fail_when_render_template() {
         _ => panic!("shouldn't compile"),
     }
 }
+
+#[wasm_bindgen_test]
+fn is_should_disable_comments() {
+    let template = "<mjml><mj-body><mj-text>Hello World</mj-text><!-- Goodbye --></mj-body></mjml>";
+    let mut engine = mrml_wasm::Engine::new();
+    engine.set_render_options(mrml_wasm::RenderOptions {
+        disable_comments: true,
+        ..Default::default()
+    });
+    let result = engine.to_html(template);
+    match result {
+        mrml_wasm::ToHtmlResult::Success { content } => {
+            assert_eq!(content.matches("Goodbye").count(), 0);
+        }
+        err => panic!("shouldn't fail {:?}", err),
+    }
+}
+
+#[wasm_bindgen_test]
+fn is_should_use_noop_include_loader_by_default() {
+    let template = "<mjml><mj-body><mj-text>Hello World</mj-text><mj-include path=\"./header.mjml\" /></mj-body></mjml>";
+    let mut engine = mrml_wasm::Engine::new();
+    engine.set_render_options(mrml_wasm::RenderOptions {
+        disable_comments: true,
+        ..Default::default()
+    });
+    let result = engine.to_html(template);
+    match result {
+        mrml_wasm::ToHtmlResult::Error(inner) => match inner {
+            ToHtmlError::Parser { message } => {
+                assert_eq!(message, "unable to load included template")
+            }
+            other => panic!("unexpected error {:?}", other),
+        },
+        _ => panic!("shouldn't compile"),
+    }
+}
+
+#[wasm_bindgen_test]
+fn is_should_use_memory_include_loader_by_default() {
+    let template = "<mjml><mj-body><mj-include path=\"./header.mjml\" /></mj-body></mjml>";
+    let mut engine = mrml_wasm::Engine::new();
+    engine.set_parser_options(mrml_wasm::ParserOptions {
+        include_loader: mrml_wasm::IncludeLoaderOptions::Memory(
+            mrml_wasm::MemoryIncludeLoaderOptions {
+                content: [(
+                    "./header.mjml".to_string(),
+                    "<mj-text>Hello World</mj-text>".to_string(),
+                )]
+                .into(),
+            },
+        ),
+    });
+    engine.set_render_options(mrml_wasm::RenderOptions {
+        disable_comments: true,
+        ..Default::default()
+    });
+    let result = engine.to_html(template);
+    let content = result.into_success();
+    assert_eq!(content.matches("Hello World").count(), 1);
+}
