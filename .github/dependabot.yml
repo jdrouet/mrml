@@ -14,3 +14,13 @@ updates:
     directory: "/packages/mrml-wasm"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/mrml-wasm/examples/browser"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/mrml-wasm/examples/node"
+    schedule:
+      interval: "weekly"
