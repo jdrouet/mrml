@@ -1,5 +1,8 @@
 //! Module containing a loader where all the possible files are stored in memory.
 
+use std::collections::HashMap;
+use std::iter::FromIterator;
+
 use super::loader::IncludeLoaderError;
 use crate::prelude::hash::Map;
 use crate::prelude::parse::loader::IncludeLoader;
@@ -40,6 +43,12 @@ impl<K: ToString, V: ToString> From<Vec<(K, V)>> for MemoryIncludeLoader {
                 res
             });
         MemoryIncludeLoader::from(res)
+    }
+}
+
+impl From<HashMap<String, String>> for MemoryIncludeLoader {
+    fn from(value: HashMap<String, String>) -> Self {
+        MemoryIncludeLoader(Map::from_iter(value.into_iter()))
     }
 }
 

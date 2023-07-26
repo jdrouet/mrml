@@ -4,43 +4,23 @@
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-use std::{borrow::Cow, collections::HashMap};
+mod parser;
+mod render;
+
+pub use crate::parser::*;
+pub use crate::render::*;
+
+use std::rc::Rc;
 
 use wasm_bindgen::prelude::*;
-
-#[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[serde(rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
-/// Rendering options
-pub struct RenderOptions {
-    /// If disabled, the comments won't be kept in the result. Disabled by default.
-    pub disable_comments: bool,
-    /// Base url of the server to fetch the social icons.
-    pub social_icon_origin: Option<String>,
-    /// Map of fonts that can be used.
-    pub fonts: HashMap<String, String>,
-}
-
-impl From<RenderOptions> for mrml::prelude::render::Options {
-    fn from(value: RenderOptions) -> Self {
-        Self {
-            disable_comments: value.disable_comments,
-            social_icon_origin: value.social_icon_origin.map(Cow::Owned),
-            fonts: value
-                .fonts
-                .into_iter()
-                .map(|(key, value)| (key, Cow::Owned(value)))
-                .collect(),
-        }
-    }
-}
 
 #[inline]
 fn to_html(
     input: &str,
+    parser_options: Rc<mrml::prelude::parse::ParserOptions>,
     render_options: &mrml::prelude::render::Options,
 ) -> Result<String, ToHtmlError> {
-    let element = mrml::mjml::Mjml::parse(input)?;
+    let element = mrml::parse_with_options(input, parser_options)?;
     let html = element.render(render_options)?;
     Ok(html)
 }
@@ -48,6 +28,7 @@ fn to_html(
 #[derive(Debug, Default)]
 #[wasm_bindgen]
 pub struct Engine {
+    parser: Rc<mrml::prelude::parse::ParserOptions>,
     render: mrml::prelude::render::Options,
 }
 
@@ -56,6 +37,12 @@ impl Engine {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Defines the parsing options.
+    #[wasm_bindgen(js_name = "setParserOptions")]
+    pub fn set_parser_options(&mut self, value: ParserOptions) {
+        self.parser = Rc::new(value.into());
     }
 
     /// Defines the rendering options.
@@ -67,7 +54,7 @@ impl Engine {
     /// Renders the mjml input into html.
     #[wasm_bindgen(js_name = "toHtml")]
     pub fn to_html(&self, input: &str) -> ToHtmlResult {
-        match to_html(input, &self.render) {
+        match to_html(input, self.parser.clone(), &self.render) {
             Ok(content) => ToHtmlResult::Success { content },
             Err(error) => ToHtmlResult::Error(error),
         }
@@ -104,6 +91,15 @@ impl From<mrml::prelude::render::Error> for ToHtmlError {
 pub enum ToHtmlResult {
     Success { content: String },
     Error(ToHtmlError),
+}
+
+impl ToHtmlResult {
+    pub fn into_success(self) -> String {
+        match self {
+            Self::Success { content } => content,
+            Self::Error(inner) => panic!("unexpected error {:?}", inner),
+        }
+    }
 }
 
 #[cfg(test)]

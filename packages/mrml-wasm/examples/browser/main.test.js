@@ -23,4 +23,41 @@ describe('mrml-wasm in the browser', function () {
     expect(result.type).toBe('success');
     expect(result.content).not.toContain('Goodbye');
   });
+
+  it('should use noop include loader by default', function () {
+    const engine = new Engine();
+    engine.setRenderOptions({
+      disableComments: true,
+      fonts: {},
+    });
+    const result = engine.toHtml(`<mjml>
+<mj-body>
+  <mj-include path="./header.mjml" />
+</mj-body>
+</mjml>`);
+    expect(result.type).toBe('error');
+  });
+
+  it('should use memory include loader', function () {
+    const engine = new Engine();
+    engine.setParserOptions({
+      includeLoader: {
+        type: 'memory',
+        content: {
+          './header.mjml': '<mj-text>Hello World</mj-text>',
+        },
+      },
+    });
+    engine.setRenderOptions({
+      disableComments: true,
+      fonts: {},
+    });
+    const result = engine.toHtml(`<mjml>
+<mj-body>
+  <mj-include path="./header.mjml" />
+</mj-body>
+</mjml>`);
+    expect(result.type).toBe('success');
+    expect(result.content).toContain('Hello World');
+  });
 });
