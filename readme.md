@@ -2,14 +2,14 @@
 
 [![Crates.io](https://img.shields.io/crates/d/mrml)](https://crates.io/crates/mrml)
 ![Crates.io](https://img.shields.io/crates/v/mrml)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjolimail%2Fmrml-core.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjolimail%2Fmrml-core?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjdrouet%2Fmrml.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjdrouet%2Fmrml?ref=badge_shield)
 
-[![.github/workflows/main.yml](https://github.com/jolimail/mrml-core/actions/workflows/main.yml/badge.svg)](https://github.com/jolimail/mrml-core/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/jolimail/mrml-core/branch/main/graph/badge.svg?token=SIOPR0YWZA)](https://codecov.io/gh/jolimail/mrml-core)
+[![.github/workflows/main.yml](https://github.com/jdrouet/mrml/actions/workflows/mrml-core-main.yml/badge.svg)](https://github.com/jdrouet/mrml/actions/workflows/mrml-core-main.yml)
+[![codecov](https://codecov.io/gh/jdrouet/mrml/branch/main/graph/badge.svg?token=SIOPR0YWZA)](https://codecov.io/gh/jdrouet/mrml)
 
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/jolimail/mrml-core.svg)](http://isitmaintained.com/project/jolimail/mrml-core "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/jolimail/mrml-core.svg)](http://isitmaintained.com/project/jdrouet/mrml "Percentage of issues still open")
-[![Maintainability](https://api.codeclimate.com/v1/badges/7ed23ef670d076ab69a4/maintainability)](https://codeclimate.com/github/jolimail/mrml-core/maintainability)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/jdrouet/mrml.svg)](http://isitmaintained.com/project/jdrouet/mrml "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/jdrouet/mrml.svg)](http://isitmaintained.com/project/jdrouet/mrml "Percentage of issues still open")
+[![Maintainability](https://api.codeclimate.com/v1/badges/7ed23ef670d076ab69a4/maintainability)](https://codeclimate.com/github/jdrouet/mrml/maintainability)
 
 ## Introduction
 
@@ -42,11 +42,11 @@ fn main() {
 
 Available options are:
 
-| Name                 | Comment                                              | Default value                                                                                        |
-|----------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| `disable_comments`   | Strip comments out of rendered HTML                  | `false`                                                                                              |
-| `social_icon_origin` | Custom URL for fetching social icons                 | `None`                                                                                               |
-| `fonts`              | Default fonts imported in the HTML rendered by MJML  | [See default options](https://github.com/jolimail/mrml-core/blob/main/src/prelude/render.rs#L33-L54) |
+| Name                 | Comment                                             | Default value                                                                                        |
+| -------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `disable_comments`   | Strip comments out of rendered HTML                 | `false`                                                                                              |
+| `social_icon_origin` | Custom URL for fetching social icons                | `None`                                                                                               |
+| `fonts`              | Default fonts imported in the HTML rendered by MJML | [See default options](https://github.com/jolimail/mrml-core/blob/main/src/prelude/render.rs#L33-L54) |
 
 ## Why?
 
@@ -92,6 +92,6 @@ With the same Linux amd64 machine, to render the amario template
 
 <i>Thanks to [zachzurn](https://github.com/zachzurn).</i>
 
-
 ## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjolimail%2Fmrml-core.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjolimail%2Fmrml-core?ref=badge_large)
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjdrouet%2Fmrml.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjdrouet%2Fmrml?ref=badge_large)
