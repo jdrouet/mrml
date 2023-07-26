@@ -86,9 +86,17 @@ jobs:
       - name: run integration tests
         run: wasm-pack test --node
 
-      - name: build for nodejs and run test in nodejs
+      - name: build for nodejs
+        run: wasm-pack build --target nodejs
+
+      - name: run node example
         run: |
-          wasm-pack build --target nodejs
           cd examples/node
           npm install
           node main.js
+
+      - name: run browser example tests
+        run: |
+          cd examples/browser
+          npm install
+          npm test
