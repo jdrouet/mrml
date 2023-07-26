@@ -1,8 +1,9 @@
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
     use crate::mj_wrapper::MjWrapper;
     use crate::prelude::parse::{Parsable, ParserOptions};
-    use std::rc::Rc;
 
     #[test]
     fn parse_br_element() {

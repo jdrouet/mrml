@@ -1,13 +1,15 @@
+use std::convert::TryFrom;
+use std::rc::Rc;
+use std::str::FromStr;
+
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::{MjIncludeBody, MjIncludeBodyAttributes, MjIncludeBodyChild, MjIncludeBodyKind};
 use crate::comment::Comment;
 use crate::mj_body::MjBodyChild;
 use crate::mj_wrapper::MjWrapper;
 use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
 use crate::text::Text;
-use std::convert::TryFrom;
-use std::rc::Rc;
-use std::str::FromStr;
-use xmlparser::{StrSpan, Tokenizer};
 
 impl From<Comment> for MjIncludeBodyChild {
     fn from(value: Comment) -> Self {
@@ -199,10 +201,11 @@ impl Parsable for MjIncludeBody {
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
     use crate::mj_include::body::MjIncludeBodyKind;
     use crate::prelude::parse::memory_loader::MemoryIncludeLoader;
     use crate::prelude::parse::{Error, ParserOptions};
-    use std::rc::Rc;
 
     #[test]
     fn basic_in_noop_resolver() {

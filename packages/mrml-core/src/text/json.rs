@@ -1,7 +1,9 @@
-use super::Text;
+use std::fmt;
+
 use serde::de::{Error, Visitor};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt;
+
+use super::Text;
 
 impl Serialize for Text {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

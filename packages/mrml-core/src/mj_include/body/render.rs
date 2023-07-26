@@ -1,8 +1,9 @@
+use std::cell::{Ref, RefCell};
+use std::rc::Rc;
+
 use super::{MjIncludeBody, MjIncludeBodyChild};
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
 
 impl MjIncludeBodyChild {
     pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {

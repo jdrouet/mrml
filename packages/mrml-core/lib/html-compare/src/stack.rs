@@ -1,5 +1,6 @@
-use htmlparser::{Token, Tokenizer};
 use std::collections::VecDeque;
+
+use htmlparser::{Token, Tokenizer};
 
 fn is_head_style_element_start(token: Token<'_>) -> bool {
     if let Token::ElementStart { prefix, local, .. } = token {

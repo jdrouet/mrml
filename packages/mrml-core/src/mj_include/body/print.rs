@@ -1,6 +1,5 @@
-use crate::prelude::hash::Map;
-
 use super::MjIncludeBodyKind;
+use crate::prelude::hash::Map;
 
 impl super::MjIncludeBodyAttributes {
     pub fn as_map(&self) -> Map<String, String> {

@@ -1,11 +1,12 @@
+use std::cell::{Ref, RefCell};
+use std::rc::Rc;
+
 use super::{MjHead, MjHeadChild};
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
 use crate::mj_include::head::MjIncludeHeadKind;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
 
 const STYLE_BASE: &str = r#"
 <style type="text/css">

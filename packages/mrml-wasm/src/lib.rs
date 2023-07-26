@@ -7,12 +7,12 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 mod parser;
 mod render;
 
-pub use crate::parser::*;
-pub use crate::render::*;
-
 use std::rc::Rc;
 
 use wasm_bindgen::prelude::*;
+
+pub use crate::parser::*;
+pub use crate::render::*;
 
 #[inline]
 fn to_html(

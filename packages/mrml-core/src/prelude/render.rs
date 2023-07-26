@@ -1,15 +1,16 @@
-use super::hash::Set;
-use crate::helper::size::{Pixel, Size};
-use crate::helper::spacing::Spacing;
-use crate::helper::tag::Tag;
-use crate::mj_head::MjHead;
-use crate::prelude::hash::Map;
 use std::borrow::Cow;
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicU16, Ordering};
+
+use super::hash::Set;
+use crate::helper::size::{Pixel, Size};
+use crate::helper::spacing::Spacing;
+use crate::helper::tag::Tag;
+use crate::mj_head::MjHead;
+use crate::prelude::hash::Map;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -393,7 +394,8 @@ pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
 
 #[cfg(test)]
 mod tests {
-    use std::{cell::RefCell, rc::Rc};
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
     #[test]
     fn header_should_increase() {

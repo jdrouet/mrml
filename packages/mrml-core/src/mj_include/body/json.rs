@@ -1,9 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::{
-        mj_button::MjButton,
-        mj_include::body::{MjIncludeBody, MjIncludeBodyChild, MjIncludeBodyKind},
-    };
+    use crate::mj_button::MjButton;
+    use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyChild, MjIncludeBodyKind};
 
     #[test]
     fn serialize_mjml() {

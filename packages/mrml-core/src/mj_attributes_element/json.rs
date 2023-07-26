@@ -1,8 +1,10 @@
-use super::MjAttributesElement;
+use std::fmt;
+
 use serde::de::{Error, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt;
+
+use super::MjAttributesElement;
 
 const NAME: &str = "mj-element";
 const FIELDS: [&str; 3] = ["type", "name", "attributes"];

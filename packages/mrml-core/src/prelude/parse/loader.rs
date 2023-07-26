@@ -1,14 +1,15 @@
-//! Module containing the trait for implementing an [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader).
+//! Module containing the trait for implementing an
+//! [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader).
 
-use super::ParserOptions;
-use crate::{
-    comment::Comment,
-    prelude::parse::{next_token, Error, Parsable},
-    text::Text,
-};
 use std::io::ErrorKind;
 use std::rc::Rc;
+
 use xmlparser::Token;
+
+use super::ParserOptions;
+use crate::comment::Comment;
+use crate::prelude::parse::{next_token, Error, Parsable};
+use crate::text::Text;
 
 #[derive(Debug)]
 pub struct IncludeLoaderError {
@@ -71,9 +72,12 @@ impl std::error::Error for IncludeLoaderError {
 }
 
 pub trait IncludeLoader: std::fmt::Debug {
-    /// This function is used to fetch the included template using the `path` attribute.
+    /// This function is used to fetch the included template using the `path`
+    /// attribute.
     ///
-    /// You can have an example of simple resolve function with the [`MemoryIncludeLoader`](crate::prelude::parse::memory_loader::MemoryIncludeLoader).
+    /// You can have an example of simple resolve function with the
+    /// [`MemoryIncludeLoader`](crate::prelude::parse::memory_loader::MemoryIncludeLoader).
+    ///
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
 }
 

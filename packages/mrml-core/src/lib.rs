@@ -23,8 +23,8 @@
 //! };
 //! ```
 //!
-//! You can also use the `mj-include` component by specifying a [loader](crate::prelude::parse).
-//! ```rust
+//! You can also use the `mj-include` component by specifying a
+//! [loader](crate::prelude::parse). ```rust
 //! use mrml::prelude::parse::ParserOptions;
 //! use mrml::prelude::parse::memory_loader::MemoryIncludeLoader;
 //! use std::rc::Rc;
@@ -41,12 +41,14 @@
 //!
 //! ### Why?
 //!
-//! A Node.js server rendering an MJML template takes around **20 MB** of RAM at startup and **130 MB** under stress test.
-//! In Rust, less than **1.7 MB** at startup and a bit less that **3 MB** under stress test.
-//! The Rust version can also handle twice as many requests per second.
-//! You can perform the benchmarks by running `bash script/run-bench.sh`.
+//! A Node.js server rendering an MJML template takes around **20 MB** of RAM at
+//! startup and **130 MB** under stress test. In Rust, less than **1.7 MB** at
+//! startup and a bit less that **3 MB** under stress test. The Rust version can
+//! also handle twice as many requests per second. You can perform the
+//! benchmarks by running `bash script/run-bench.sh`.
 //!
-//! Also, the JavaScript implementation cannot be run in the browser; the Rust one (and WebAssembly one) can be.
+//! Also, the JavaScript implementation cannot be run in the browser; the Rust
+//! one (and WebAssembly one) can be.
 
 pub mod comment;
 pub mod mj_accordion;
@@ -92,11 +94,12 @@ mod helper;
 mod macros;
 
 #[cfg(feature = "parse")]
-/// Function to parse a raw mjml template with some parsing [options](crate::prelude::parse::ParserOptions).
-/// This function is just an alias to [the `Mjml::parse_with_options` function](crate::mjml::Mjml).
+/// Function to parse a raw mjml template with some parsing
+/// [options](crate::prelude::parse::ParserOptions). This function is just an
+/// alias to [the `Mjml::parse_with_options` function](crate::mjml::Mjml).
 ///
-/// You can specify the kind of loader mrml needs to use for loading the content of
-/// [`mj-include`](crate::mj_include) elements.
+/// You can specify the kind of loader mrml needs to use for loading the content
+/// of [`mj-include`](crate::mj_include) elements.
 ///
 /// You can take a look at the available loaders [here](crate::prelude::parse).
 ///
@@ -121,7 +124,8 @@ pub fn parse_with_options<T: AsRef<str>>(
 }
 
 #[cfg(feature = "parse")]
-/// Function to parse a raw mjml template using the default parsing [options](crate::prelude::parse::ParserOptions).
+/// Function to parse a raw mjml template using the default parsing
+/// [options](crate::prelude::parse::ParserOptions).
 ///
 /// ```rust
 /// match mrml::parse("<mjml><mj-head /><mj-body /></mjml>") {
@@ -142,8 +146,9 @@ mod tests {
 
     #[test]
     fn parse_with_options() {
-        use crate::prelude::parse::ParserOptions;
         use std::rc::Rc;
+
+        use crate::prelude::parse::ParserOptions;
 
         let options = Rc::new(ParserOptions::default());
         let _ = crate::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options);

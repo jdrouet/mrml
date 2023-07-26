@@ -1,3 +1,8 @@
+#[cfg(feature = "render")]
+use std::cell::RefCell;
+#[cfg(feature = "render")]
+use std::rc::Rc;
+
 use crate::comment::Comment;
 use crate::mj_accordion::MjAccordion;
 use crate::mj_button::MjButton;
@@ -20,10 +25,6 @@ use crate::node::Node;
 #[cfg(feature = "render")]
 use crate::prelude::render::{Header, Render, Renderable};
 use crate::text::Text;
-#[cfg(feature = "render")]
-use std::cell::RefCell;
-#[cfg(feature = "render")]
-use std::rc::Rc;
 
 #[derive(Debug, mrml_macros::MrmlChildren)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]

@@ -1,11 +1,13 @@
-use std::{borrow::Cow, collections::HashMap};
+use std::borrow::Cow;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug, Default, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "camelCase")]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 /// Rendering options
 pub struct RenderOptions {
-    /// If disabled, the comments won't be kept in the result. Disabled by default.
+    /// If disabled, the comments won't be kept in the result. Disabled by
+    /// default.
     pub disable_comments: bool,
     /// Base url of the server to fetch the social icons.
     pub social_icon_origin: Option<String>,

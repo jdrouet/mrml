@@ -1,10 +1,10 @@
-use super::MjAttributesElement;
-use crate::prelude::{
-    hash::Map,
-    parse::{Error, Parsable, Parser, ParserOptions},
-};
 use std::rc::Rc;
+
 use xmlparser::{StrSpan, Tokenizer};
+
+use super::MjAttributesElement;
+use crate::prelude::hash::Map;
+use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
 
 #[derive(Debug)]
 struct MjAttributesElementParser {

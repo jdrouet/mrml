@@ -1,21 +1,15 @@
 use std::collections::{HashMap, HashSet};
 
-use lightningcss::{
-    error::{Error as CssError, ParserError},
-    properties::{
-        font::{FontFamily, FontWeight},
-        Property,
-    },
-    rules::{
-        font_face::{FontFaceProperty, FontFaceRule, FontStyle},
-        style::StyleRule,
-        unknown::UnknownAtRule,
-        CssRule,
-    },
-    stylesheet::{ParserOptions, PrinterOptions, StyleSheet},
-    traits::ToCss,
-    values::angle::Angle,
-};
+use lightningcss::error::{Error as CssError, ParserError};
+use lightningcss::properties::font::{FontFamily, FontWeight};
+use lightningcss::properties::Property;
+use lightningcss::rules::font_face::{FontFaceProperty, FontFaceRule, FontStyle};
+use lightningcss::rules::style::StyleRule;
+use lightningcss::rules::unknown::UnknownAtRule;
+use lightningcss::rules::CssRule;
+use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
+use lightningcss::traits::ToCss;
+use lightningcss::values::angle::Angle;
 
 #[derive(Debug)]
 pub enum Error<'a> {

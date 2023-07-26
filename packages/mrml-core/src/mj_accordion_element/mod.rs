@@ -8,11 +8,11 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+pub use children::MjAccordionElementChild;
+
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;
 use crate::prelude::hash::Map;
-
-pub use children::MjAccordionElementChild;
 
 pub const NAME: &str = "mj-accordion-element";
 

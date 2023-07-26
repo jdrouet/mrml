@@ -1,8 +1,9 @@
+use std::cell::{Ref, RefCell};
+use std::rc::Rc;
+
 use super::{MjRaw, MjRawChild, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRawChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {

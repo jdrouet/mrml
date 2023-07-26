@@ -8,8 +8,9 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-use crate::prelude::hash::Map;
 pub use children::MjBodyChild;
+
+use crate::prelude::hash::Map;
 
 pub const NAME: &str = "mj-body";
 

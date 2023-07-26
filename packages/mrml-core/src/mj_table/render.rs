@@ -1,11 +1,12 @@
+use std::cell::{Ref, RefCell};
+use std::rc::Rc;
+
 use super::{MjTable, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::mj_section::WithMjSectionBackground;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
 
 struct MjTableRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

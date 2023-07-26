@@ -1,4 +1,5 @@
-//! Module containing a loader where all the possible files are stored in memory.
+//! Module containing a loader where all the possible files are stored in
+//! memory.
 
 use std::collections::HashMap;
 use std::iter::FromIterator;
@@ -8,8 +9,10 @@ use crate::prelude::hash::Map;
 use crate::prelude::parse::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
-/// This struct is a simple [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
-/// you can store in a map all files you want to be able to use with [`mj-include`](crate::mj_include).
+/// This struct is a simple
+/// [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
+/// you can store in a map all files you want to be able to use with
+/// [`mj-include`](crate::mj_include).
 ///
 /// # Example
 /// ```rust

@@ -8,10 +8,11 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+pub use children::MjHeadChild;
+
 use crate::mj_breakpoint::MjBreakpoint;
 use crate::mj_preview::MjPreview;
 use crate::mj_title::MjTitle;
-pub use children::MjHeadChild;
 
 pub const NAME: &str = "mj-head";
 

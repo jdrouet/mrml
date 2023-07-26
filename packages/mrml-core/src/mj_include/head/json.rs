@@ -1,10 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::{
-        mj_include::head::{MjIncludeHead, MjIncludeHeadChild, MjIncludeHeadKind},
-        mj_title::MjTitle,
-        text::Text,
-    };
+    use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadChild, MjIncludeHeadKind};
+    use crate::mj_title::MjTitle;
+    use crate::text::Text;
 
     #[test]
     fn serialize_mjml() {

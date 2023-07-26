@@ -1,10 +1,12 @@
-//! Module containing a loader where all the possible files are stored on an http server.
+//! Module containing a loader where all the possible files are stored on an
+//! http server.
 
-use super::loader::IncludeLoaderError;
-use crate::prelude::parse::loader::IncludeLoader;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::io::ErrorKind;
+
+use super::loader::IncludeLoaderError;
+use crate::prelude::parse::loader::IncludeLoader;
 
 pub trait HttpFetcher: Default + Debug {
     fn fetch(
@@ -80,7 +82,8 @@ impl HttpFetcher for UreqFetcher {
 #[derive(Debug)]
 /// This enum is a representation of the origin filtering strategy.
 ///
-/// This enum implements the `Default` trait by denying everything by default for security reason.
+/// This enum implements the `Default` trait by denying everything by default
+/// for security reason.
 pub enum OriginList {
     Allow(HashSet<String>),
     Deny(HashSet<String>),
@@ -104,8 +107,10 @@ impl OriginList {
 }
 
 #[derive(Debug, Default)]
-/// This struct is an [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
-/// you can read a template from an http server and be able to use it with [`mj-include`](crate::mj_include).
+/// This struct is an
+/// [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
+/// you can read a template from an http server and be able to use it with
+/// [`mj-include`](crate::mj_include).
 ///
 /// # Example with `reqwest`
 /// ```rust
@@ -163,9 +168,12 @@ pub struct HttpIncludeLoader<F> {
 }
 
 impl<F: HttpFetcher> HttpIncludeLoader<F> {
-    /// Creates a new [`HttpIncludeLoader`](crate::prelude::parse::http_loader::HttpIncludeLoader) that allows all the origins.
+    /// Creates a new
+    /// [`HttpIncludeLoader`](crate::prelude::parse::http_loader::HttpIncludeLoader)
+    /// that allows all the origins.
     ///
-    /// If you use this method, you should be careful, you could be loading some data from anywhere.
+    /// If you use this method, you should be careful, you could be loading some
+    /// data from anywhere.
     pub fn allow_all() -> Self {
         Self {
             origin: OriginList::Deny(Default::default()),
@@ -254,7 +262,8 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
         self.headers = headers;
     }
 
-    /// Check that the given url provided by the `path` attribute in the `mj-include` complies with the filtering.
+    /// Check that the given url provided by the `path` attribute in the
+    /// `mj-include` complies with the filtering.
     fn check_url(&self, path: &str) -> Result<(), IncludeLoaderError> {
         let url = url::Url::parse(path).map_err(|err| {
             IncludeLoaderError::new(path, ErrorKind::InvalidInput)
@@ -280,8 +289,9 @@ impl<F: HttpFetcher> IncludeLoader for HttpIncludeLoader<F> {
 
 #[cfg(test)]
 mod common_tests {
-    use super::OriginList;
     use std::collections::HashSet;
+
+    use super::OriginList;
 
     #[test]
     fn origin_list_is_allowed() {
@@ -295,10 +305,11 @@ mod common_tests {
 
 #[cfg(all(test, feature = "http-loader-ureq"))]
 mod ureq_tests {
-    use super::{HttpIncludeLoader, UreqFetcher};
-    use crate::prelude::parse::loader::IncludeLoader;
     use std::collections::{HashMap, HashSet};
     use std::io::ErrorKind;
+
+    use super::{HttpIncludeLoader, UreqFetcher};
+    use crate::prelude::parse::loader::IncludeLoader;
 
     #[test]
     fn include_loader_should_implement_debug() {
@@ -405,10 +416,11 @@ mod ureq_tests {
 
 #[cfg(all(test, feature = "http-loader-reqwest"))]
 mod reqwest_tests {
-    use super::{HttpIncludeLoader, ReqwestFetcher};
-    use crate::prelude::parse::loader::IncludeLoader;
     use std::collections::{HashMap, HashSet};
     use std::io::ErrorKind;
+
+    use super::{HttpIncludeLoader, ReqwestFetcher};
+    use crate::prelude::parse::loader::IncludeLoader;
 
     #[test]
     fn include_loader_should_implement_debug() {

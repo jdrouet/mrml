@@ -1,6 +1,7 @@
+use std::fmt;
+
 use super::Node;
 use crate::prelude::print::{self, Print};
-use std::fmt;
 
 impl<T: Print> Print for Node<T> {
     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {

@@ -1,3 +1,6 @@
+use std::cell::{Ref, RefCell};
+use std::rc::Rc;
+
 use super::{MjWrapper, NAME};
 use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
@@ -5,8 +8,6 @@ use crate::helper::tag::Tag;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
 
 struct MjWrapperRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

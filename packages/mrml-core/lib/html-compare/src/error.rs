@@ -1,7 +1,9 @@
-use crate::token::{Attribute, ElementEnd, ElementStart};
+use std::collections::BTreeSet;
+
 use colored::Colorize;
 use htmlparser::{StrSpan, Token};
-use std::collections::BTreeSet;
+
+use crate::token::{Attribute, ElementEnd, ElementStart};
 
 #[derive(Debug)]
 pub enum ErrorKind<'a> {

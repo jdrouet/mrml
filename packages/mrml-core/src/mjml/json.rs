@@ -1,10 +1,12 @@
-use super::{MjmlAttributes, MjmlChildren};
-use crate::mj_body::MjBody;
-use crate::mj_head::MjHead;
+use std::fmt;
+
 use serde::de::{SeqAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt;
+
+use super::{MjmlAttributes, MjmlChildren};
+use crate::mj_body::MjBody;
+use crate::mj_head::MjHead;
 
 impl MjmlAttributes {
     pub fn is_empty(&self) -> bool {

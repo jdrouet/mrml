@@ -1,5 +1,6 @@
-use crate::helper::size::Size;
 use std::convert::TryFrom;
+
+use crate::helper::size::Size;
 
 /// representation of spacing
 pub struct Spacing(Size, Option<Size>, Option<Size>, Option<Size>);

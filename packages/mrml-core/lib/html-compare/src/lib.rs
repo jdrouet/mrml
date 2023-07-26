@@ -5,11 +5,13 @@ mod helper;
 mod stack;
 mod token;
 
+use std::collections::{BTreeMap, BTreeSet};
+
+use htmlparser::{ElementEnd as HtmlElementEnd, StrSpan, Token};
+
 use crate::error::*;
 use crate::helper::cleanup_text;
 use crate::token::*;
-use htmlparser::{ElementEnd as HtmlElementEnd, StrSpan, Token};
-use std::collections::{BTreeMap, BTreeSet};
 
 struct Cursor<'a> {
     expected: crate::stack::TokenStack<'a>,

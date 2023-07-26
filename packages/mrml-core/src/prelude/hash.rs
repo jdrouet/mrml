@@ -1,8 +1,6 @@
-use std::{
-    hash::Hash,
-    iter::FromIterator,
-    ops::{Deref, DerefMut},
-};
+use std::hash::Hash;
+use std::iter::FromIterator;
+use std::ops::{Deref, DerefMut};
 
 #[cfg(feature = "orderedmap")]
 use indexmap::{IndexMap, IndexSet};

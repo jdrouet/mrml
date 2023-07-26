@@ -1,9 +1,11 @@
+use std::rc::Rc;
+
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::{MjRaw, MjRawChild};
 use crate::node::Node;
 use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
 use crate::{parse_child, parse_comment, parse_text};
-use std::rc::Rc;
-use xmlparser::{StrSpan, Tokenizer};
 
 impl Parsable for MjRawChild {
     fn parse<'a>(

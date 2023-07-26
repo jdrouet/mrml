@@ -1,8 +1,9 @@
+use std::cell::{Ref, RefCell};
+use std::rc::Rc;
+
 use super::Mjml;
 use crate::mj_head::MjHead;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
 
 pub struct MjmlRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

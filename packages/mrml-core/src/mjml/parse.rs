@@ -1,8 +1,9 @@
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::Mjml;
 use crate::mj_body::{MjBody, NAME as MJ_BODY};
 use crate::mj_head::{MjHead, NAME as MJ_HEAD};
 use crate::prelude::parse::{is_element_start, next_token, Error, Parsable, Parser};
-use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
 struct MjmlParser {
@@ -57,12 +58,14 @@ impl Parser for MjmlParser {
 }
 
 impl Mjml {
-    /// Function to parse a raw mjml template with some parsing [options](crate::prelude::parse::ParserOptions).
+    /// Function to parse a raw mjml template with some parsing
+    /// [options](crate::prelude::parse::ParserOptions).
     ///
-    /// You can specify the kind of loader mrml needs to use for loading the content of
-    /// [`mj-include`](crate::mj_include) elements.
+    /// You can specify the kind of loader mrml needs to use for loading the
+    /// content of [`mj-include`](crate::mj_include) elements.
     ///
-    /// You can take a look at the available loaders [here](crate::prelude::parse).
+    /// You can take a look at the available loaders
+    /// [here](crate::prelude::parse).
     ///
     /// ```rust
     /// use mrml::mjml::Mjml;
@@ -91,7 +94,8 @@ impl Mjml {
         }
     }
 
-    /// Function to parse a raw mjml template using the default parsing [options](crate::prelude::parse::ParserOptions).
+    /// Function to parse a raw mjml template using the default parsing
+    /// [options](crate::prelude::parse::ParserOptions).
     ///
     /// ```rust
     /// use mrml::mjml::Mjml;

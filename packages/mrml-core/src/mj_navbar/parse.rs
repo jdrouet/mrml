@@ -1,9 +1,10 @@
 use std::rc::Rc;
 
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::MjNavbarChild;
 use crate::mj_navbar_link::{MjNavbarLink, NAME as MJ_NAVBAR_LINK};
 use crate::prelude::parse::{Error, Parsable, ParserOptions};
-use xmlparser::{StrSpan, Tokenizer};
 
 impl Parsable for MjNavbarChild {
     fn parse<'a>(

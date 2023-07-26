@@ -1,10 +1,11 @@
+use std::borrow::Cow;
+use std::fs::File;
+use std::io::prelude::*;
+
 use clap::{Parser, Subcommand};
 use mrml::mjml::Mjml;
 use mrml::prelude::print::Print;
 use mrml::prelude::render::Options as RenderOptions;
-use std::borrow::Cow;
-use std::fs::File;
-use std::io::prelude::*;
 
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -155,8 +156,9 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::Options;
     use clap::Parser;
+
+    use super::Options;
 
     fn execute(args: Vec<&str>) {
         Options::parse_from(args).execute();

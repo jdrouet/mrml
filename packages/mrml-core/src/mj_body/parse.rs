@@ -1,43 +1,28 @@
+use std::rc::Rc;
+
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::MjBodyChild;
-use crate::mj_accordion::MjAccordion;
-use crate::mj_accordion::NAME as MJ_ACCORDION;
-use crate::mj_button::MjButton;
-use crate::mj_button::NAME as MJ_BUTTON;
-use crate::mj_carousel::MjCarousel;
-use crate::mj_carousel::NAME as MJ_CAROUSEL;
-use crate::mj_column::MjColumn;
-use crate::mj_column::NAME as MJ_COLUMN;
-use crate::mj_divider::MjDivider;
-use crate::mj_divider::NAME as MJ_DIVIDER;
-use crate::mj_group::MjGroup;
-use crate::mj_group::NAME as MJ_GROUP;
-use crate::mj_hero::MjHero;
-use crate::mj_hero::NAME as MJ_HERO;
-use crate::mj_image::MjImage;
-use crate::mj_image::NAME as MJ_IMAGE;
+use crate::mj_accordion::{MjAccordion, NAME as MJ_ACCORDION};
+use crate::mj_button::{MjButton, NAME as MJ_BUTTON};
+use crate::mj_carousel::{MjCarousel, NAME as MJ_CAROUSEL};
+use crate::mj_column::{MjColumn, NAME as MJ_COLUMN};
+use crate::mj_divider::{MjDivider, NAME as MJ_DIVIDER};
+use crate::mj_group::{MjGroup, NAME as MJ_GROUP};
+use crate::mj_hero::{MjHero, NAME as MJ_HERO};
+use crate::mj_image::{MjImage, NAME as MJ_IMAGE};
 use crate::mj_include::body::MjIncludeBody;
 use crate::mj_include::NAME as MJ_INCLUDE;
-use crate::mj_navbar::MjNavbar;
-use crate::mj_navbar::NAME as MJ_NAVBAR;
-use crate::mj_raw::MjRaw;
-use crate::mj_raw::NAME as MJ_RAW;
-use crate::mj_section::MjSection;
-use crate::mj_section::NAME as MJ_SECTION;
-use crate::mj_social::MjSocial;
-use crate::mj_social::NAME as MJ_SOCIAL;
-use crate::mj_spacer::MjSpacer;
-use crate::mj_spacer::NAME as MJ_SPACER;
-use crate::mj_table::MjTable;
-use crate::mj_table::NAME as MJ_TABLE;
-use crate::mj_text::MjText;
-use crate::mj_text::NAME as MJ_TEXT;
-use crate::mj_wrapper::MjWrapper;
-use crate::mj_wrapper::NAME as MJ_WRAPPER;
+use crate::mj_navbar::{MjNavbar, NAME as MJ_NAVBAR};
+use crate::mj_raw::{MjRaw, NAME as MJ_RAW};
+use crate::mj_section::{MjSection, NAME as MJ_SECTION};
+use crate::mj_social::{MjSocial, NAME as MJ_SOCIAL};
+use crate::mj_spacer::{MjSpacer, NAME as MJ_SPACER};
+use crate::mj_table::{MjTable, NAME as MJ_TABLE};
+use crate::mj_text::{MjText, NAME as MJ_TEXT};
+use crate::mj_wrapper::{MjWrapper, NAME as MJ_WRAPPER};
 use crate::node::Node;
-use crate::prelude::parse::ParserOptions;
-use crate::prelude::parse::{Error, Parsable};
-use std::rc::Rc;
-use xmlparser::{StrSpan, Tokenizer};
+use crate::prelude::parse::{Error, Parsable, ParserOptions};
 
 impl Parsable for MjBodyChild {
     fn parse<'a>(

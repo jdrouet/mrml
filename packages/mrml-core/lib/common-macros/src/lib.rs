@@ -1,7 +1,8 @@
+use syn::punctuated::Punctuated;
+use syn::token::Comma;
 use syn::{
-    punctuated::Punctuated, token::Comma, Data, DataEnum, DataStruct, DeriveInput, Field, Fields,
-    FieldsNamed, FieldsUnnamed, GenericArgument, GenericParam, Ident, Path, PathArguments, Type,
-    TypeParam, TypePath, Variant,
+    Data, DataEnum, DataStruct, DeriveInput, Field, Fields, FieldsNamed, FieldsUnnamed,
+    GenericArgument, GenericParam, Ident, Path, PathArguments, Type, TypeParam, TypePath, Variant,
 };
 
 pub fn as_data_enum(ast: &DeriveInput) -> Option<&DataEnum> {

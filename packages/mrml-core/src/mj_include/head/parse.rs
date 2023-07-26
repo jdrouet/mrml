@@ -1,8 +1,11 @@
+use std::rc::Rc;
+use std::str::FromStr;
+
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild, MjIncludeHeadKind};
 use crate::mj_head::MjHeadChild;
 use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
-use std::{rc::Rc, str::FromStr};
-use xmlparser::{StrSpan, Tokenizer};
 
 impl std::convert::TryFrom<MjIncludeHeadChild> for MjHeadChild {
     type Error = Error;

@@ -1,9 +1,10 @@
 use std::rc::Rc;
 
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::MjAccordionChild;
 use crate::mj_accordion_element::{MjAccordionElement, NAME as MJ_ACCORDION_ELEMENT};
 use crate::prelude::parse::{Error, Parsable, ParserOptions};
-use xmlparser::{StrSpan, Tokenizer};
 
 impl Parsable for MjAccordionChild {
     fn parse<'a>(

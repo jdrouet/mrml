@@ -1,22 +1,16 @@
-use super::{MjHead, MjHeadChild};
-use crate::mj_attributes::MjAttributes;
-use crate::mj_attributes::NAME as MJ_ATTRIBUTES;
-use crate::mj_breakpoint::MjBreakpoint;
-use crate::mj_breakpoint::NAME as MJ_BREAKPOINT;
-use crate::mj_font::MjFont;
-use crate::mj_font::NAME as MJ_FONT;
-use crate::mj_preview::MjPreview;
-use crate::mj_preview::NAME as MJ_PREVIEW;
-use crate::mj_raw::MjRaw;
-use crate::mj_raw::NAME as MJ_RAW;
-use crate::mj_style::MjStyle;
-use crate::mj_style::NAME as MJ_STYLE;
-use crate::mj_title::MjTitle;
-use crate::mj_title::NAME as MJ_TITLE;
-use crate::prelude::parse::ParserOptions;
-use crate::prelude::parse::{Error, Parsable, Parser};
 use std::rc::Rc;
+
 use xmlparser::{StrSpan, Tokenizer};
+
+use super::{MjHead, MjHeadChild};
+use crate::mj_attributes::{MjAttributes, NAME as MJ_ATTRIBUTES};
+use crate::mj_breakpoint::{MjBreakpoint, NAME as MJ_BREAKPOINT};
+use crate::mj_font::{MjFont, NAME as MJ_FONT};
+use crate::mj_preview::{MjPreview, NAME as MJ_PREVIEW};
+use crate::mj_raw::{MjRaw, NAME as MJ_RAW};
+use crate::mj_style::{MjStyle, NAME as MJ_STYLE};
+use crate::mj_title::{MjTitle, NAME as MJ_TITLE};
+use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
 
 impl Parsable for MjHeadChild {
     fn parse<'a>(

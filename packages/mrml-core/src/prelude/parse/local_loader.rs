@@ -1,12 +1,17 @@
-//! Module containing a loader where all the possible files are stored on the filesystem.
+//! Module containing a loader where all the possible files are stored on the
+//! filesystem.
+
+use std::io::ErrorKind;
+use std::path::PathBuf;
 
 use super::loader::IncludeLoaderError;
 use crate::prelude::parse::loader::IncludeLoader;
-use std::{io::ErrorKind, path::PathBuf};
 
 #[derive(Debug, Default)]
-/// This struct is an [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
-/// you can read a template for the filesystem and be able to use it with [`mj-include`](crate::mj_include).
+/// This struct is an
+/// [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
+/// you can read a template for the filesystem and be able to use it with
+/// [`mj-include`](crate::mj_include).
 ///
 /// # Example
 /// ```rust
@@ -80,9 +85,11 @@ impl IncludeLoader for LocalIncludeLoader {
 
 #[cfg(test)]
 mod tests {
+    use std::io::ErrorKind;
+    use std::path::PathBuf;
+
     use super::LocalIncludeLoader;
     use crate::prelude::parse::loader::IncludeLoader;
-    use std::{io::ErrorKind, path::PathBuf};
 
     impl LocalIncludeLoader {
         fn current_dir() -> Self {

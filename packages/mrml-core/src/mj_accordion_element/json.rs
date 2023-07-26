@@ -1,8 +1,10 @@
-use super::{MjAccordionElementChild, MjAccordionElementChildren};
+use std::fmt;
+
 use serde::de::{SeqAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt;
+
+use super::{MjAccordionElementChild, MjAccordionElementChildren};
 
 impl MjAccordionElementChildren {
     pub fn is_empty(&self) -> bool {

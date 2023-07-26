@@ -1,11 +1,11 @@
 //! Module containing a loader that doesn't load any template.
 
+use super::loader::IncludeLoaderError;
 use crate::prelude::parse::loader::IncludeLoader;
 
-use super::loader::IncludeLoaderError;
-
 #[derive(Debug, Default)]
-/// This struct is a simple [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) that doesn't
+/// This struct is a simple
+/// [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) that doesn't
 /// resolve any template. This is the default loader.
 ///
 /// # Example

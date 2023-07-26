@@ -1,10 +1,11 @@
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::Node;
 use crate::comment::Comment;
 use crate::prelude::hash::Map;
 use crate::prelude::parse::{Error, Parsable, Parser};
 use crate::text::Text;
 use crate::{parse_attribute, parse_comment, parse_text};
-use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug)]
 struct NodeParser<T> {

@@ -1,5 +1,6 @@
-use crate::prelude::hash::{Map, Set};
 use std::borrow::Cow;
+
+use crate::prelude::hash::{Map, Set};
 
 pub struct Tag {
     name: Cow<'static, str>,

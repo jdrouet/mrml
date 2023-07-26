@@ -1,3 +1,9 @@
+#[cfg(feature = "parse")]
+use std::rc::Rc;
+
+#[cfg(feature = "parse")]
+use xmlparser::{StrSpan, Tokenizer};
+
 use crate::comment::Comment;
 use crate::mj_accordion_text::MjAccordionText;
 #[cfg(feature = "parse")]
@@ -7,10 +13,6 @@ use crate::mj_accordion_title::MjAccordionTitle;
 use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
 #[cfg(feature = "parse")]
 use crate::prelude::parse::{Error as ParserError, Parsable, ParserOptions};
-#[cfg(feature = "parse")]
-use std::rc::Rc;
-#[cfg(feature = "parse")]
-use xmlparser::{StrSpan, Tokenizer};
 
 #[derive(Debug, mrml_macros::MrmlChildren)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]

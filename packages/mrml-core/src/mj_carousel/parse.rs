@@ -1,9 +1,10 @@
 use std::rc::Rc;
 
+use xmlparser::{StrSpan, Tokenizer};
+
 use super::MjCarouselChild;
 use crate::mj_carousel_image::{MjCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
 use crate::prelude::parse::{Error, Parsable, ParserOptions};
-use xmlparser::{StrSpan, Tokenizer};
 
 impl Parsable for MjCarouselChild {
     fn parse<'a>(

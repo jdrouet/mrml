@@ -1,7 +1,8 @@
-use super::Comment;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
+
+use super::Comment;
+use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 
 struct CommentRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
