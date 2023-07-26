@@ -51,7 +51,7 @@ impl<K: ToString, V: ToString> From<Vec<(K, V)>> for MemoryIncludeLoader {
 
 impl From<HashMap<String, String>> for MemoryIncludeLoader {
     fn from(value: HashMap<String, String>) -> Self {
-        MemoryIncludeLoader(Map::from_iter(value.into_iter()))
+        MemoryIncludeLoader(Map::from_iter(value))
     }
 }
 
