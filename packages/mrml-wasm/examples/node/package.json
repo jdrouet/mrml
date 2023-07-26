@@ -1,0 +1,6 @@
+{
+  "name": "example-node",
+  "dependencies": {
+    "mrml-wasm": "file:../../pkg"
+  }
+}
