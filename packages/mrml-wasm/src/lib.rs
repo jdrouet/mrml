@@ -4,87 +4,15 @@
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-use std::{borrow::Cow, collections::HashMap, rc::Rc};
+mod parser;
+mod render;
+
+pub use crate::parser::*;
+pub use crate::render::*;
+
+use std::rc::Rc;
 
 use wasm_bindgen::prelude::*;
-
-#[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[serde(rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
-pub struct MemoryIncludeLoaderOptions {
-    pub content: HashMap<String, String>,
-}
-
-impl MemoryIncludeLoaderOptions {
-    pub fn build(self) -> Box<dyn mrml::prelude::parse::loader::IncludeLoader> {
-        Box::new(mrml::prelude::parse::memory_loader::MemoryIncludeLoader::from(self.content))
-    }
-}
-
-#[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[serde(tag = "type", rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
-pub enum IncludeLoaderOptions {
-    Noop,
-    Memory(MemoryIncludeLoaderOptions),
-}
-
-impl Default for IncludeLoaderOptions {
-    fn default() -> Self {
-        Self::Noop
-    }
-}
-
-impl IncludeLoaderOptions {
-    pub fn build(self) -> Box<dyn mrml::prelude::parse::loader::IncludeLoader> {
-        match self {
-            Self::Noop => Box::new(mrml::prelude::parse::noop_loader::NoopIncludeLoader),
-            Self::Memory(inner) => inner.build(),
-        }
-    }
-}
-
-#[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[serde(rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
-pub struct ParserOptions {
-    pub include_loader: IncludeLoaderOptions,
-}
-
-impl From<ParserOptions> for mrml::prelude::parse::ParserOptions {
-    fn from(value: ParserOptions) -> Self {
-        mrml::prelude::parse::ParserOptions {
-            include_loader: value.include_loader.build(),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Default, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[serde(rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
-/// Rendering options
-pub struct RenderOptions {
-    /// If disabled, the comments won't be kept in the result. Disabled by default.
-    pub disable_comments: bool,
-    /// Base url of the server to fetch the social icons.
-    pub social_icon_origin: Option<String>,
-    /// Map of fonts that can be used.
-    pub fonts: HashMap<String, String>,
-}
-
-impl From<RenderOptions> for mrml::prelude::render::Options {
-    fn from(value: RenderOptions) -> Self {
-        Self {
-            disable_comments: value.disable_comments,
-            social_icon_origin: value.social_icon_origin.map(Cow::Owned),
-            fonts: value
-                .fonts
-                .into_iter()
-                .map(|(key, value)| (key, Cow::Owned(value)))
-                .collect(),
-        }
-    }
-}
 
 #[inline]
 fn to_html(
