@@ -1,6 +1,12 @@
 {
   "name": "example-node",
+  "scripts": {
+    "test": "mocha *.test.js"
+  },
   "dependencies": {
     "mrml-wasm": "file:../../pkg"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0"
   }
 }

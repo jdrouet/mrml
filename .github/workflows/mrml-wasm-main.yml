@@ -61,7 +61,7 @@ jobs:
         run: |
           cd examples/node
           npm install
-          node main.js
+          npm test
 
       - name: run browser example tests
         run: |
