@@ -1,35 +1,29 @@
 on:
   push:
     paths:
-      - .github/workflows/mrml-cli-*
+      - .github/workflows/*.yml
       - packages/mrml-cli/**
       - packages/mrml-core/**
+      - packages/mrml-wasm/**
       - Cargo.lock
       - Cargo.toml
-
-defaults:
-  run:
-    working-directory: packages/mrml-cli
 
 env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  testing:
+  code-checking:
     runs-on: ubuntu-latest
-    container: rust:1-bullseye
-
     concurrency:
-      group: ${{ github.ref }}-mrml-cli-testing
+      group: ${{ github.ref }}-code-checking
       cancel-in-progress: true
-
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
+          components: rustfmt,clippy
 
       - uses: actions/cache@v3
         with:
@@ -39,7 +33,13 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-code-checking-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: run tests
-        run: cargo test
+      - name: run lint
+        run: cargo fmt --all --check
+
+      - name: run check
+        run: cargo check --all-features --tests --workspace
+
+      - name: run clippy
+        run: cargo clippy --all-targets --all-features --tests --workspace
