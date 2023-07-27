@@ -6,7 +6,7 @@ use std::fmt::Debug;
 use std::io::ErrorKind;
 
 use super::loader::IncludeLoaderError;
-use crate::prelude::parse::loader::IncludeLoader;
+use crate::prelude::parser::loader::IncludeLoader;
 
 pub trait HttpFetcher: Default + Debug {
     fn fetch(
@@ -108,7 +108,7 @@ impl OriginList {
 
 #[derive(Debug, Default)]
 /// This struct is an
-/// [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
+/// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) where
 /// you can read a template from an http server and be able to use it with
 /// [`mj-include`](crate::mj_include).
 ///
@@ -116,8 +116,8 @@ impl OriginList {
 /// ```rust
 /// #[cfg(feature = "http-loader-reqwest")]
 /// {
-///     use mrml::prelude::parse::http_loader::{HttpIncludeLoader, ReqwestFetcher};
-///     use mrml::prelude::parse::ParserOptions;
+///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, ReqwestFetcher};
+///     use mrml::prelude::parser::ParserOptions;
 ///     use std::collections::HashSet;
 ///     use std::rc::Rc;
 ///
@@ -141,8 +141,8 @@ impl OriginList {
 /// ```rust
 /// #[cfg(feature = "http-loader-ureq")]
 /// {
-///     use mrml::prelude::parse::http_loader::{HttpIncludeLoader, UreqFetcher};
-///     use mrml::prelude::parse::ParserOptions;
+///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, UreqFetcher};
+///     use mrml::prelude::parser::ParserOptions;
 ///     use std::collections::HashSet;
 ///     use std::rc::Rc;
 ///
@@ -169,7 +169,7 @@ pub struct HttpIncludeLoader<F> {
 
 impl<F: HttpFetcher> HttpIncludeLoader<F> {
     /// Creates a new
-    /// [`HttpIncludeLoader`](crate::prelude::parse::http_loader::HttpIncludeLoader)
+    /// [`HttpIncludeLoader`](crate::prelude::parser::http_loader::HttpIncludeLoader)
     /// that allows all the origins.
     ///
     /// If you use this method, you should be careful, you could be loading some
@@ -188,7 +188,7 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     /// ```rust
     /// #[cfg(feature = "http-loader-reqwest")]
     /// {
-    ///     use mrml::prelude::parse::http_loader::{HttpIncludeLoader, ReqwestFetcher};
+    ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, ReqwestFetcher};
     ///     use std::collections::HashSet;
     ///
     ///     let resolver = HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
@@ -199,7 +199,7 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     /// ```
     /// #[cfg(feature = "http-loader-ureq")]
     /// {
-    ///     use mrml::prelude::parse::http_loader::{HttpIncludeLoader, UreqFetcher};
+    ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, UreqFetcher};
     ///     use std::collections::HashSet;
     ///
     ///     let resolver = HttpIncludeLoader::<UreqFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
@@ -219,7 +219,7 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     /// ```rust
     /// #[cfg(feature = "http-loader-reqwest")]
     /// {
-    ///     use mrml::prelude::parse::http_loader::{HttpIncludeLoader, ReqwestFetcher};
+    ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, ReqwestFetcher};
     ///     use std::collections::HashSet;
     ///
     ///     let resolver = HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from(["http://somewhere.com".to_string()]));
@@ -230,7 +230,7 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     /// ```rust
     /// #[cfg(feature = "http-loader-ureq")]
     /// {
-    ///     use mrml::prelude::parse::http_loader::{HttpIncludeLoader, UreqFetcher};
+    ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, UreqFetcher};
     ///     use std::collections::HashSet;
     ///
     ///     let resolver = HttpIncludeLoader::<UreqFetcher>::new_allow(HashSet::from(["http://somewhere.com".to_string()]));
@@ -309,7 +309,7 @@ mod ureq_tests {
     use std::io::ErrorKind;
 
     use super::{HttpIncludeLoader, UreqFetcher};
-    use crate::prelude::parse::loader::IncludeLoader;
+    use crate::prelude::parser::loader::IncludeLoader;
 
     #[test]
     fn include_loader_should_implement_debug() {
@@ -420,7 +420,7 @@ mod reqwest_tests {
     use std::io::ErrorKind;
 
     use super::{HttpIncludeLoader, ReqwestFetcher};
-    use crate::prelude::parse::loader::IncludeLoader;
+    use crate::prelude::parser::loader::IncludeLoader;
 
     #[test]
     fn include_loader_should_implement_debug() {

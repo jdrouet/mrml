@@ -1,5 +1,5 @@
 //! Module containing the trait for implementing an
-//! [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader).
+//! [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader).
 
 use std::io::ErrorKind;
 use std::rc::Rc;
@@ -8,7 +8,7 @@ use xmlparser::Token;
 
 use super::ParserOptions;
 use crate::comment::Comment;
-use crate::prelude::parse::{next_token, Error, Parsable};
+use crate::prelude::parser::{next_token, Error, Parsable};
 use crate::text::Text;
 
 #[derive(Debug)]
@@ -76,7 +76,7 @@ pub trait IncludeLoader: std::fmt::Debug {
     /// attribute.
     ///
     /// You can have an example of simple resolve function with the
-    /// [`MemoryIncludeLoader`](crate::prelude::parse::memory_loader::MemoryIncludeLoader).
+    /// [`MemoryIncludeLoader`](crate::prelude::parser::memory_loader::MemoryIncludeLoader).
     ///
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
 }

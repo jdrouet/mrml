@@ -3,7 +3,7 @@ mod tests {
     use std::rc::Rc;
 
     use crate::mj_wrapper::MjWrapper;
-    use crate::prelude::parse::{Parsable, ParserOptions};
+    use crate::prelude::parser::{Parsable, ParserOptions};
 
     #[test]
     fn parse_br_element() {

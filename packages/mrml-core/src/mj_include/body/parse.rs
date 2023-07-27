@@ -8,7 +8,7 @@ use super::{MjIncludeBody, MjIncludeBodyAttributes, MjIncludeBodyChild, MjInclud
 use crate::comment::Comment;
 use crate::mj_body::MjBodyChild;
 use crate::mj_wrapper::MjWrapper;
-use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
 use crate::text::Text;
 
 impl From<Comment> for MjIncludeBodyChild {
@@ -165,7 +165,7 @@ impl Parser for MjIncludeBodyParser {
             .resolve(&self.attributes.path)
             .map_err(Error::IncludeLoaderError)?;
 
-        let child = crate::prelude::parse::loader::parse(&child, self.opts.clone())?;
+        let child = crate::prelude::parser::loader::parse(&child, self.opts.clone())?;
 
         let children = self.attributes.kind.wrap(vec![child])?;
 
@@ -204,8 +204,8 @@ mod tests {
     use std::rc::Rc;
 
     use crate::mj_include::body::MjIncludeBodyKind;
-    use crate::prelude::parse::memory_loader::MemoryIncludeLoader;
-    use crate::prelude::parse::{Error, ParserOptions};
+    use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
+    use crate::prelude::parser::{Error, ParserOptions};
 
     #[test]
     fn basic_in_noop_resolver() {

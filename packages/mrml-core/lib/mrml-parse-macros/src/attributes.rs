@@ -31,7 +31,7 @@ fn create_builder_build_field(field: &Field) -> Option<proc_macro2::TokenStream>
         } else {
             Some(quote! {
                 #field_ident: self.#field_ident
-                    .ok_or_else(|| crate::prelude::parse::Error::MissingAttribute(stringify!(#field_ident)))?,
+                    .ok_or_else(|| crate::prelude::parser::Error::MissingAttribute(stringify!(#field_ident)))?,
             })
         }
     } else {
@@ -81,16 +81,16 @@ fn create_builder(ast: &DeriveInput) -> proc_macro2::TokenStream {
         }
 
         impl #builder_ident {
-            fn build(self) -> Result<#ident, crate::prelude::parse::Error> {
+            fn build(self) -> Result<#ident, crate::prelude::parser::Error> {
                 Ok(#ident {
                     #(#build_fields)*
                 })
             }
 
-            fn insert<'a>(&mut self, name: xmlparser::StrSpan<'a>, value: xmlparser::StrSpan<'a>) -> Result<(), crate::prelude::parse::Error> {
+            fn insert<'a>(&mut self, name: xmlparser::StrSpan<'a>, value: xmlparser::StrSpan<'a>) -> Result<(), crate::prelude::parser::Error> {
                 match name.as_str() {
                     #(#insert_fields)*
-                    _ => return Err(crate::prelude::parse::Error::UnexpectedAttribute(name.start())),
+                    _ => return Err(crate::prelude::parser::Error::UnexpectedAttribute(name.start())),
                 };
                 Ok(())
             }

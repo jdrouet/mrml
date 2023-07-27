@@ -6,7 +6,7 @@ use super::MjAttributesChild;
 use crate::mj_attributes_all::{MjAttributesAll, NAME as MJ_ALL};
 use crate::mj_attributes_class::{MjAttributesClass, NAME as MJ_CLASS};
 use crate::mj_attributes_element::MjAttributesElement;
-use crate::prelude::parse::{Error, Parsable, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, ParserOptions};
 
 impl Parsable for MjAttributesChild {
     fn parse<'a>(

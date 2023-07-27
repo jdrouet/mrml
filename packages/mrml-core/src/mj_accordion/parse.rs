@@ -4,7 +4,7 @@ use xmlparser::{StrSpan, Tokenizer};
 
 use super::MjAccordionChild;
 use crate::mj_accordion_element::{MjAccordionElement, NAME as MJ_ACCORDION_ELEMENT};
-use crate::prelude::parse::{Error, Parsable, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, ParserOptions};
 
 impl Parsable for MjAccordionChild {
     fn parse<'a>(

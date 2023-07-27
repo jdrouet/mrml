@@ -3,20 +3,20 @@ use xmlparser::{StrSpan, Tokenizer};
 use super::Node;
 use crate::comment::Comment;
 use crate::prelude::hash::Map;
-use crate::prelude::parse::{Error, Parsable, Parser};
+use crate::prelude::parser::{Error, Parsable, Parser};
 use crate::text::Text;
 use crate::{parse_attribute, parse_comment, parse_text};
 
 #[derive(Debug)]
 struct NodeParser<T> {
-    opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+    opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
     tag: String,
     attributes: Map<String, String>,
     children: Vec<T>,
 }
 
 impl<T> NodeParser<T> {
-    pub fn new(tag: String, opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Self {
+    pub fn new(tag: String, opts: std::rc::Rc<crate::prelude::parser::ParserOptions>) -> Self {
         Self {
             opts,
             tag,
@@ -87,7 +87,7 @@ where
     fn parse<'a>(
         tag: StrSpan<'a>,
         tokenizer: &mut Tokenizer<'a>,
-        opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+        opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
     ) -> Result<Self, Error> {
         NodeParser::<T>::new(tag.to_string(), opts)
             .parse(tokenizer)?

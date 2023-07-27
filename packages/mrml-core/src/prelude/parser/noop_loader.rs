@@ -1,19 +1,19 @@
 //! Module containing a loader that doesn't load any template.
 
 use super::loader::IncludeLoaderError;
-use crate::prelude::parse::loader::IncludeLoader;
+use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
 /// This struct is a simple
-/// [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) that doesn't
+/// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) that doesn't
 /// resolve any template. This is the default loader.
 ///
 /// # Example
 /// ```rust
 /// use std::rc::Rc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
-/// use mrml::prelude::parse::noop_loader::NoopIncludeLoader;
-/// use mrml::prelude::parse::ParserOptions;
+/// use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+/// use mrml::prelude::parser::ParserOptions;
 ///
 /// // This could be done using `ParserOptions::default()`.
 /// let opts = ParserOptions {

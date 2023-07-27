@@ -17,9 +17,9 @@ impl Default for IncludeLoaderOptions {
 }
 
 impl IncludeLoaderOptions {
-    pub fn build(self) -> Box<dyn mrml::prelude::parse::loader::IncludeLoader> {
+    pub fn build(self) -> Box<dyn mrml::prelude::parser::loader::IncludeLoader> {
         match self {
-            Self::Noop => Box::new(mrml::prelude::parse::noop_loader::NoopIncludeLoader),
+            Self::Noop => Box::new(mrml::prelude::parser::noop_loader::NoopIncludeLoader),
             Self::Memory(inner) => inner.build(),
         }
     }
@@ -32,9 +32,9 @@ pub struct ParserOptions {
     pub include_loader: IncludeLoaderOptions,
 }
 
-impl From<ParserOptions> for mrml::prelude::parse::ParserOptions {
+impl From<ParserOptions> for mrml::prelude::parser::ParserOptions {
     fn from(value: ParserOptions) -> Self {
-        mrml::prelude::parse::ParserOptions {
+        mrml::prelude::parser::ParserOptions {
             include_loader: value.include_loader.build(),
         }
     }

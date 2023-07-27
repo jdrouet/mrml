@@ -47,7 +47,7 @@ mod tests {
     use crate::mj_accordion::MjAccordion;
     use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
     use crate::mj_accordion_title::MjAccordionTitle;
-    use crate::prelude::parse::{is_element_start, next_token, Parsable, ParserOptions};
+    use crate::prelude::parser::{is_element_start, next_token, Parsable, ParserOptions};
     use crate::prelude::print::Print;
     use crate::text::Text;
 

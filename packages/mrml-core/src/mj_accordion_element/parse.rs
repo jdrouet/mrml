@@ -7,7 +7,7 @@ use crate::mj_accordion_text::{MjAccordionText, NAME as MJ_ACCORDION_TEXT};
 use crate::mj_accordion_title::{MjAccordionTitle, NAME as MJ_ACCORDION_TITLE};
 use crate::parse_attribute;
 use crate::prelude::hash::Map;
-use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
 
 #[derive(Debug, Default)]
 struct MjAccordionElementParser {
@@ -77,7 +77,7 @@ mod tests {
     use xmlparser::Tokenizer;
 
     use crate::mj_accordion_element::MjAccordionElementChild;
-    use crate::prelude::parse::{is_element_start, next_token, Error, Parsable, ParserOptions};
+    use crate::prelude::parser::{is_element_start, next_token, Error, Parsable, ParserOptions};
 
     #[test]
     fn parse_title_child() {

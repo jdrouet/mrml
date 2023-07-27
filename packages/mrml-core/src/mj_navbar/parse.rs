@@ -4,7 +4,7 @@ use xmlparser::{StrSpan, Tokenizer};
 
 use super::MjNavbarChild;
 use crate::mj_navbar_link::{MjNavbarLink, NAME as MJ_NAVBAR_LINK};
-use crate::prelude::parse::{Error, Parsable, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, ParserOptions};
 
 impl Parsable for MjNavbarChild {
     fn parse<'a>(

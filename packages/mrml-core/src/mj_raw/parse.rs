@@ -4,7 +4,7 @@ use xmlparser::{StrSpan, Tokenizer};
 
 use super::{MjRaw, MjRawChild};
 use crate::node::Node;
-use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
 use crate::{parse_child, parse_comment, parse_text};
 
 impl Parsable for MjRawChild {

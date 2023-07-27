@@ -3,7 +3,7 @@ use std::rc::Rc;
 use xmlparser::{StrSpan, Tokenizer};
 
 use super::{MjStyle, MjStyleAttributes};
-use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
 
 #[derive(Debug)]
 struct MjStyleParser {

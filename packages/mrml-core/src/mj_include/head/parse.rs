@@ -5,7 +5,7 @@ use xmlparser::{StrSpan, Tokenizer};
 
 use super::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild, MjIncludeHeadKind};
 use crate::mj_head::MjHeadChild;
-use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
 
 impl std::convert::TryFrom<MjIncludeHeadChild> for MjHeadChild {
     type Error = Error;
@@ -108,7 +108,7 @@ impl Parser for MjIncludeHeadParser {
             }
             MjIncludeHeadKind::Css { inline: true } => todo!(),
             MjIncludeHeadKind::Mjml => {
-                let child = crate::prelude::parse::loader::parse::<MjIncludeHeadChild>(
+                let child = crate::prelude::parser::loader::parse::<MjIncludeHeadChild>(
                     &child,
                     self.opts.clone(),
                 )?;
@@ -155,8 +155,8 @@ mod tests {
     use std::rc::Rc;
 
     use crate::mj_include::head::MjIncludeHeadKind;
-    use crate::prelude::parse::memory_loader::MemoryIncludeLoader;
-    use crate::prelude::parse::{Error, ParserOptions};
+    use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
+    use crate::prelude::parser::{Error, ParserOptions};
 
     #[test]
     fn basic_in_noop_resolver() {

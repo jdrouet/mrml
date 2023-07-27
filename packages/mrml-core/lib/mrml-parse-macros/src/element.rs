@@ -71,7 +71,7 @@ fn create_parse_attribute(ast: &DeriveInput) -> proc_macro2::TokenStream {
                 &mut self,
                 name: xmlparser::StrSpan<'a>,
                 value: xmlparser::StrSpan<'a>,
-            ) -> Result<(), crate::prelude::parse::Error> {
+            ) -> Result<(), crate::prelude::parser::Error> {
                 self.attributes.insert(name.to_string(), value.to_string());
                 Ok(())
             }
@@ -81,7 +81,7 @@ fn create_parse_attribute(ast: &DeriveInput) -> proc_macro2::TokenStream {
                 &mut self,
                 name: xmlparser::StrSpan<'a>,
                 value: xmlparser::StrSpan<'a>,
-            ) -> Result<(), crate::prelude::parse::Error> {
+            ) -> Result<(), crate::prelude::parser::Error> {
                 self.attributes.insert(name, value)
             }
         },
@@ -121,7 +121,7 @@ fn create_children_build(ast: &DeriveInput) -> proc_macro2::TokenStream {
 fn create_parse_child_comment(ast: &DeriveInput, opts: &Opts) -> proc_macro2::TokenStream {
     match get_children_kind(ast) {
         ChildrenKind::List(_) if opts.child_comment() => quote! {
-            fn parse_child_comment(&mut self, value: xmlparser::StrSpan) -> Result<(), crate::prelude::parse::Error> {
+            fn parse_child_comment(&mut self, value: xmlparser::StrSpan) -> Result<(), crate::prelude::parser::Error> {
                 self.children
                     .push(crate::comment::Comment::from(value.as_str()).into());
                 Ok(())
@@ -134,13 +134,13 @@ fn create_parse_child_comment(ast: &DeriveInput, opts: &Opts) -> proc_macro2::To
 fn create_parse_child_text(ast: &DeriveInput, opts: &Opts) -> proc_macro2::TokenStream {
     match get_children_kind(ast) {
         ChildrenKind::String if opts.child_text() => quote! {
-            fn parse_child_text(&mut self, value: xmlparser::StrSpan) -> Result<(), crate::prelude::parse::Error> {
+            fn parse_child_text(&mut self, value: xmlparser::StrSpan) -> Result<(), crate::prelude::parser::Error> {
                 self.children = value.to_string();
                 Ok(())
             }
         },
         ChildrenKind::List(_) if opts.child_text() => quote! {
-            fn parse_child_text(&mut self, value: xmlparser::StrSpan) -> Result<(), crate::prelude::parse::Error> {
+            fn parse_child_text(&mut self, value: xmlparser::StrSpan) -> Result<(), crate::prelude::parser::Error> {
                 self.children.push(crate::text::Text::from(value.as_str()).into());
                 Ok(())
             }
@@ -156,8 +156,8 @@ fn create_parse_child_element(ast: &DeriveInput, opts: &Opts) -> proc_macro2::To
                 &mut self,
                 tag: xmlparser::StrSpan<'a>,
                 tokenizer: &mut xmlparser::Tokenizer<'a>,
-            ) -> Result<(), crate::prelude::parse::Error> {
-                use crate::prelude::parse::Parsable;
+            ) -> Result<(), crate::prelude::parser::Error> {
+                use crate::prelude::parser::Parsable;
                 self.children.push(<#ty>::parse(tag, tokenizer, self.opts.clone())?);
                 Ok(())
             }
@@ -189,13 +189,13 @@ pub fn derive(input: TokenStream) -> TokenStream {
     quote! {
         #[derive(Debug)]
         struct #parser_ident {
-            opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+            opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
             #attributes
             #children
         }
 
         impl #parser_ident {
-            fn new(opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Self {
+            fn new(opts: std::rc::Rc<crate::prelude::parser::ParserOptions>) -> Self {
                 Self {
                     opts,
                     #attributes_new
@@ -204,10 +204,10 @@ pub fn derive(input: TokenStream) -> TokenStream {
             }
         }
 
-        impl crate::prelude::parse::Parser for #parser_ident {
+        impl crate::prelude::parser::Parser for #parser_ident {
             type Output = #origin_ident;
 
-            fn build(self) -> Result<Self::Output, crate::prelude::parse::Error> {
+            fn build(self) -> Result<Self::Output, crate::prelude::parser::Error> {
                 Ok(#origin_ident {
                     #attributes_build
                     #children_build
@@ -220,9 +220,9 @@ pub fn derive(input: TokenStream) -> TokenStream {
             #parse_child_text
         }
 
-        impl crate::prelude::parse::Parsable for #origin_ident {
-            fn parse(_tag: xmlparser::StrSpan, tokenizer: &mut xmlparser::Tokenizer, opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Result<Self, crate::prelude::parse::Error> {
-                use crate::prelude::parse::Parser;
+        impl crate::prelude::parser::Parsable for #origin_ident {
+            fn parse(_tag: xmlparser::StrSpan, tokenizer: &mut xmlparser::Tokenizer, opts: std::rc::Rc<crate::prelude::parser::ParserOptions>) -> Result<Self, crate::prelude::parser::Error> {
+                use crate::prelude::parser::Parser;
                 #parser_ident::new(opts).parse(tokenizer)?.build()
             }
         }

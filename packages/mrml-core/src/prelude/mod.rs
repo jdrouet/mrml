@@ -1,5 +1,5 @@
 #[cfg(feature = "parse")]
-pub mod parse;
+pub mod parser;
 #[cfg(feature = "print")]
 pub mod print;
 #[cfg(feature = "render")]

@@ -10,7 +10,7 @@ use crate::mj_preview::{MjPreview, NAME as MJ_PREVIEW};
 use crate::mj_raw::{MjRaw, NAME as MJ_RAW};
 use crate::mj_style::{MjStyle, NAME as MJ_STYLE};
 use crate::mj_title::{MjTitle, NAME as MJ_TITLE};
-use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
 
 impl Parsable for MjHeadChild {
     fn parse<'a>(

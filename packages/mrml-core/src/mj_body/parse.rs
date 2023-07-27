@@ -22,7 +22,7 @@ use crate::mj_table::{MjTable, NAME as MJ_TABLE};
 use crate::mj_text::{MjText, NAME as MJ_TEXT};
 use crate::mj_wrapper::{MjWrapper, NAME as MJ_WRAPPER};
 use crate::node::Node;
-use crate::prelude::parse::{Error, Parsable, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, ParserOptions};
 
 impl Parsable for MjBodyChild {
     fn parse<'a>(

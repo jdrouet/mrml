@@ -4,7 +4,7 @@ use xmlparser::{StrSpan, Tokenizer};
 
 use super::MjSocialChild;
 use crate::mj_social_element::{MjSocialElement, NAME as MJ_SOCIAL_ELEMENT};
-use crate::prelude::parse::{Error, Parsable, ParserOptions};
+use crate::prelude::parser::{Error, Parsable, ParserOptions};
 
 impl Parsable for MjSocialChild {
     fn parse<'a>(

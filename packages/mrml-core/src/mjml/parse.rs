@@ -3,16 +3,16 @@ use xmlparser::{StrSpan, Tokenizer};
 use super::Mjml;
 use crate::mj_body::{MjBody, NAME as MJ_BODY};
 use crate::mj_head::{MjHead, NAME as MJ_HEAD};
-use crate::prelude::parse::{is_element_start, next_token, Error, Parsable, Parser};
+use crate::prelude::parser::{is_element_start, next_token, Error, Parsable, Parser};
 
 #[derive(Debug)]
 struct MjmlParser {
-    opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+    opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
     element: Mjml,
 }
 
 impl MjmlParser {
-    fn new(opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Self {
+    fn new(opts: std::rc::Rc<crate::prelude::parser::ParserOptions>) -> Self {
         Self {
             opts,
             element: Default::default(),
@@ -59,7 +59,7 @@ impl Parser for MjmlParser {
 
 impl Mjml {
     /// Function to parse a raw mjml template with some parsing
-    /// [options](crate::prelude::parse::ParserOptions).
+    /// [options](crate::prelude::parser::ParserOptions).
     ///
     /// You can specify the kind of loader mrml needs to use for loading the
     /// content of [`mj-include`](crate::mj_include) elements.
@@ -69,8 +69,8 @@ impl Mjml {
     ///
     /// ```rust
     /// use mrml::mjml::Mjml;
-    /// use mrml::prelude::parse::ParserOptions;
-    /// use mrml::prelude::parse::memory_loader::MemoryIncludeLoader;
+    /// use mrml::prelude::parser::ParserOptions;
+    /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
     /// use std::rc::Rc;
     ///
     /// let options = Rc::new(ParserOptions {
@@ -83,7 +83,7 @@ impl Mjml {
     /// ```
     pub fn parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+        opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
     ) -> Result<Self, Error> {
         let mut tokenizer = Tokenizer::from(value.as_ref());
         let token = next_token(&mut tokenizer)?;
@@ -95,7 +95,7 @@ impl Mjml {
     }
 
     /// Function to parse a raw mjml template using the default parsing
-    /// [options](crate::prelude::parse::ParserOptions).
+    /// [options](crate::prelude::parser::ParserOptions).
     ///
     /// ```rust
     /// use mrml::mjml::Mjml;
@@ -106,7 +106,7 @@ impl Mjml {
     /// }
     /// ```
     pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        let opts = std::rc::Rc::new(crate::prelude::parse::ParserOptions::default());
+        let opts = std::rc::Rc::new(crate::prelude::parser::ParserOptions::default());
         Self::parse_with_options(value, opts)
     }
 }
