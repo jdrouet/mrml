@@ -91,7 +91,7 @@ pub fn parse<T: Parsable + From<Comment> + From<Text>>(
         Token::Comment { text, span: _ } => Ok(Comment::from(text.to_string()).into()),
         Token::Text { text } => Ok(Text::from(text.to_string()).into()),
         Token::ElementStart { local, .. } => T::parse(local, &mut tokenizer, opts),
-        _ => Err(Error::InvalidFormat),
+        other => Err(Error::invalid_format(super::get_span(&other))),
     }
 }
 

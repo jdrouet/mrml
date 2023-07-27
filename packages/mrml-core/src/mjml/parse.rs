@@ -3,7 +3,7 @@ use xmlparser::{StrSpan, Tokenizer};
 use super::Mjml;
 use crate::mj_body::{MjBody, NAME as MJ_BODY};
 use crate::mj_head::{MjHead, NAME as MJ_HEAD};
-use crate::prelude::parser::{is_element_start, next_token, Error, Parsable, Parser};
+use crate::prelude::parser::{into_element_start, next_token, Error, Parsable, Parser};
 
 #[derive(Debug)]
 struct MjmlParser {
@@ -87,11 +87,9 @@ impl Mjml {
     ) -> Result<Self, Error> {
         let mut tokenizer = Tokenizer::from(value.as_ref());
         let token = next_token(&mut tokenizer)?;
-        if is_element_start(&token).is_some() {
-            MjmlParser::new(opts).parse(&mut tokenizer)?.build()
-        } else {
-            Err(Error::InvalidFormat)
-        }
+        // TODO make sure that it's mjml
+        let _start = into_element_start(&token)?;
+        MjmlParser::new(opts).parse(&mut tokenizer)?.build()
     }
 
     /// Function to parse a raw mjml template using the default parsing

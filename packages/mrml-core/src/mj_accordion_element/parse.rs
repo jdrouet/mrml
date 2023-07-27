@@ -117,7 +117,7 @@ mod tests {
         let token = next_token(&mut tokenizer).unwrap();
         let tag = is_element_start(&token).unwrap();
         let err = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap_err();
-        assert!(matches!(err, Error::InvalidFormat));
+        assert!(matches!(err, Error::InvalidFormat(_, _)));
     }
 
     #[test]
