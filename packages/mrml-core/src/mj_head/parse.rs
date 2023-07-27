@@ -10,7 +10,32 @@ use crate::mj_preview::{MjPreview, NAME as MJ_PREVIEW};
 use crate::mj_raw::{MjRaw, NAME as MJ_RAW};
 use crate::mj_style::{MjStyle, NAME as MJ_STYLE};
 use crate::mj_title::{MjTitle, NAME as MJ_TITLE};
-use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{
+    ChildrenParser, ElementEnd, ElementParser, Error, MrmlParser, Parsable, Parser, ParserOptions,
+};
+
+impl<'a> ChildrenParser<'a, Vec<MjHeadChild>> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<Vec<MjHeadChild>, Error> {
+        let mut children = Vec::new();
+        while let Some(token) = self.iterate() {
+            todo!()
+        }
+        Ok(children)
+    }
+}
+
+impl<'a> ElementParser<'a, MjHead> for MrmlParser<'a> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjHead, Error> {
+        let ending = self.assert_next_as::<ElementEnd>()?;
+        let children = if !ending.empty {
+            self.parse_children()?
+        } else {
+            Default::default()
+        };
+
+        Ok(MjHead { children })
+    }
+}
 
 impl Parsable for MjHeadChild {
     fn parse<'a>(

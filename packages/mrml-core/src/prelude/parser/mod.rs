@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{collections::HashMap, convert::TryFrom, rc::Rc};
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
@@ -73,6 +73,8 @@ pub enum Error {
     UnexpectedComment(usize),
     #[error("unexpected text at position {0}")]
     UnexpectedText(usize),
+    #[error("unexpected token at position {0}..{1}")]
+    UnexpectedToken(usize, usize),
     #[error("missing attribute {0}")]
     MissingAttribute(&'static str),
     #[error("invalid element: {0}")]
@@ -95,8 +97,12 @@ pub enum Error {
 }
 
 impl Error {
-    fn invalid_format((start, end): (usize, usize)) -> Self {
+    pub fn invalid_format((start, end): (usize, usize)) -> Self {
         Error::InvalidFormat(start, end)
+    }
+
+    pub fn unexpected_token((start, end): (usize, usize)) -> Self {
+        Error::UnexpectedToken(start, end)
     }
 }
 
@@ -250,5 +256,275 @@ impl Default for ParserOptions {
         Self {
             include_loader: Box::new(noop_loader::NoopIncludeLoader),
         }
+    }
+}
+
+pub trait MaybeFromToken<'a>: Sized {
+    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>>;
+}
+
+pub enum MrmlToken<'a> {
+    Attribute(Attribute<'a>),
+    Comment(Comment<'a>),
+    ElementClose(ElementClose<'a>),
+    ElementEnd(ElementEnd<'a>),
+    ElementStart(ElementStart<'a>),
+    Text(StrSpan<'a>),
+}
+
+impl<'a> MrmlToken<'a> {
+    pub fn range(&self) -> (usize, usize) {
+        let span = match self {
+            Self::Attribute(item) => item.span,
+            Self::Comment(item) => item.span,
+            Self::ElementClose(item) => item.span,
+            Self::ElementEnd(item) => item.span,
+            Self::ElementStart(item) => item.span,
+            Self::Text(item) => *item,
+        };
+        (span.start(), span.end())
+    }
+}
+
+impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
+    type Error = Error;
+
+    fn try_from(token: Token<'a>) -> Result<Self, Error> {
+        match token {
+            Token::Attribute {
+                prefix,
+                local,
+                value,
+                span,
+            } => Ok(Self::Attribute(Attribute {
+                prefix,
+                local,
+                value,
+                span,
+            })),
+            Token::Comment { text, span } => Ok(Self::Comment(Comment { text, span })),
+            Token::ElementStart {
+                prefix,
+                local,
+                span,
+            } => Ok(Self::ElementStart(ElementStart {
+                prefix,
+                local,
+                span,
+            })),
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Empty,
+                span,
+            } => Ok(Self::ElementEnd(ElementEnd { empty: true, span })),
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Open,
+                span,
+            } => Ok(Self::ElementEnd(ElementEnd { empty: false, span })),
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Close(prefix, local),
+                span,
+            } => Ok(Self::ElementClose(ElementClose {
+                span,
+                prefix,
+                local,
+            })),
+            Token::Text { text } => Ok(Self::Text(text)),
+            other => Err(Error::unexpected_token(get_span(&other))),
+        }
+    }
+}
+
+pub struct Attribute<'a> {
+    pub prefix: StrSpan<'a>,
+    pub local: StrSpan<'a>,
+    pub value: StrSpan<'a>,
+    pub span: StrSpan<'a>,
+}
+
+impl<'a> MaybeFromToken<'a> for Attribute<'a> {
+    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
+        match token {
+            Token::Attribute {
+                prefix,
+                local,
+                value,
+                span,
+            } => Ok(Attribute {
+                prefix,
+                local,
+                value,
+                span,
+            }),
+            other => Err(other),
+        }
+    }
+}
+
+pub struct Comment<'a> {
+    pub span: StrSpan<'a>,
+    pub text: StrSpan<'a>,
+}
+
+impl<'a> MaybeFromToken<'a> for Comment<'a> {
+    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
+        match token {
+            Token::Comment { span, text } => Ok(Comment { span, text }),
+            other => Err(other),
+        }
+    }
+}
+
+pub struct ElementClose<'a> {
+    pub span: StrSpan<'a>,
+    pub prefix: StrSpan<'a>,
+    pub local: StrSpan<'a>,
+}
+
+impl<'a> MaybeFromToken<'a> for ElementClose<'a> {
+    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
+        match token {
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Close(prefix, local),
+                span,
+            } => Ok(ElementClose {
+                span,
+                prefix,
+                local,
+            }),
+            other => Err(other),
+        }
+    }
+}
+
+pub struct ElementStart<'a> {
+    pub prefix: StrSpan<'a>,
+    pub local: StrSpan<'a>,
+    pub span: StrSpan<'a>,
+}
+
+impl<'a> MaybeFromToken<'a> for ElementStart<'a> {
+    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
+        match token {
+            Token::ElementStart {
+                prefix,
+                local,
+                span,
+            } => Ok(ElementStart {
+                prefix,
+                local,
+                span,
+            }),
+            other => Err(other),
+        }
+    }
+}
+
+pub struct ElementEnd<'a> {
+    pub span: StrSpan<'a>,
+    pub empty: bool,
+}
+
+impl<'a> MaybeFromToken<'a> for ElementEnd<'a> {
+    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
+        match token {
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Empty,
+                span,
+            } => Ok(ElementEnd { empty: true, span }),
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Open,
+                span,
+            } => Ok(ElementEnd { empty: false, span }),
+            other => Err(other),
+        }
+    }
+}
+
+pub trait ElementParser<'a, E> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<E, Error>;
+}
+
+pub trait AttributesParser<'a, A> {
+    fn parse_attributes(&mut self) -> Result<A, Error>;
+}
+
+pub trait ChildrenParser<'a, C> {
+    fn parse_children(&mut self) -> Result<C, Error>;
+}
+
+pub struct MrmlParser<'a> {
+    tokenizer: Tokenizer<'a>,
+    options: ParserOptions,
+    cache: Option<Result<Token<'a>, Error>>,
+}
+
+impl<'a> MrmlParser<'a> {
+    fn read_next_token(&mut self) -> Option<Result<Token<'a>, Error>> {
+        self.tokenizer.next().map(|res| res.map_err(Error::from))
+    }
+
+    pub fn iterate(&mut self) -> Option<Result<Token<'a>, Error>> {
+        let previous = std::mem::take(&mut self.cache);
+        self.cache = self.read_next_token();
+        previous
+    }
+
+    pub fn assert_iterate(&mut self) -> Result<Token<'a>, Error> {
+        let previous = std::mem::take(&mut self.cache);
+        let previous = previous.ok_or(Error::EndOfStream)?;
+        self.cache = self.read_next_token();
+        previous
+    }
+
+    pub fn next_as<T: MaybeFromToken<'a>>(&mut self) -> Result<Option<T>, Error> {
+        match std::mem::take(&mut self.cache) {
+            Some(Ok(token)) => match T::maybe_from(token) {
+                Ok(found) => {
+                    self.cache = self.read_next_token();
+                    Ok(Some(found))
+                }
+                Err(previous) => {
+                    self.cache = Some(Ok(previous));
+                    Ok(None)
+                }
+            },
+            Some(Err(inner)) => {
+                self.cache = self.read_next_token();
+                Err(inner)
+            }
+            None => Ok(None),
+        }
+    }
+
+    pub fn assert_next_as<T: MaybeFromToken<'a>>(&mut self) -> Result<T, Error> {
+        match self.iterate() {
+            Some(Ok(token)) => {
+                T::maybe_from(token).map_err(|token| Error::unexpected_token(get_span(&token)))
+            }
+            Some(Err(inner)) => Err(inner),
+            None => Err(Error::EndOfStream),
+        }
+    }
+
+    fn head_token(&self) -> &Option<Result<Token<'a>, Error>> {
+        &self.cache
+    }
+
+    pub fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, Error> {
+        self.next_as()
+    }
+
+    pub fn next_element_end(&mut self) -> Result<Option<ElementEnd<'a>>, Error> {
+        self.next_as()
+    }
+}
+
+impl<'a> AttributesParser<'a, HashMap<String, String>> for MrmlParser<'a> {
+    fn parse_attributes(&mut self) -> Result<HashMap<String, String>, Error> {
+        let mut result = HashMap::new();
+        while let Some(attr) = self.next_attribute()? {
+            result.insert(attr.local.to_string(), attr.value.to_string());
+        }
+        Ok(result)
     }
 }

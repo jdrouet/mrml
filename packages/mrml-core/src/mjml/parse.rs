@@ -1,9 +1,67 @@
+use std::convert::TryFrom;
+
 use xmlparser::{StrSpan, Tokenizer};
 
-use super::Mjml;
+use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::{MjBody, NAME as MJ_BODY};
 use crate::mj_head::{MjHead, NAME as MJ_HEAD};
+use crate::prelude::parser::{
+    self, AttributesParser, ChildrenParser, ElementEnd, ElementParser, MrmlParser, MrmlToken,
+};
 use crate::prelude::parser::{into_element_start, next_token, Error, Parsable, Parser};
+
+impl<'a> AttributesParser<'a, MjmlAttributes> for MrmlParser<'a> {
+    fn parse_attributes(&mut self) -> Result<MjmlAttributes, Error> {
+        let mut attrs = MjmlAttributes::default();
+        while let Some(token) = self.next_attribute()? {
+            match token.local.as_str() {
+                "owa" => attrs.owa = Some(token.value.to_string()),
+                "lang" => attrs.lang = Some(token.value.to_string()),
+                "dir" => attrs.dir = Some(token.value.to_string()),
+                _ => return Err(Error::UnexpectedAttribute(token.span.start())),
+            }
+        }
+        Ok(attrs)
+    }
+}
+
+impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<MjmlChildren, Error> {
+        let mut children = MjmlChildren::default();
+
+        loop {
+            match self.assert_iterate().and_then(MrmlToken::try_from)? {
+                MrmlToken::ElementClose(close) if close.local.as_str() == super::NAME => {
+                    return Ok(children);
+                }
+                MrmlToken::ElementStart(start) if start.local.as_str() == MJ_HEAD => {
+                    children.head = Some(self.parse(start.local)?);
+                }
+                // MrmlToken::ElementStart(start) if start.local.as_str() == MJ_BODY => {
+                //     children.body = Some(self.parse(start.local)?);
+                // }
+                other => return Err(Error::unexpected_token(other.range())),
+            }
+        }
+    }
+}
+
+impl<'a> ElementParser<'a, Mjml> for parser::MrmlParser<'a> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<Mjml, Error> {
+        let attributes = self.parse_attributes()?;
+        let ending = self.assert_next_as::<ElementEnd>()?;
+        let children = if !ending.empty {
+            self.parse_children()?
+        } else {
+            Default::default()
+        };
+
+        Ok(Mjml {
+            attributes,
+            children,
+        })
+    }
+}
 
 #[derive(Debug)]
 struct MjmlParser {

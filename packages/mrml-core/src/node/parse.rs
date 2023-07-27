@@ -3,9 +3,24 @@ use xmlparser::{StrSpan, Tokenizer};
 use super::Node;
 use crate::comment::Comment;
 use crate::prelude::hash::Map;
+// use crate::prelude::parser::{self, AttributesParser};
 use crate::prelude::parser::{Error, Parsable, Parser};
 use crate::text::Text;
 use crate::{parse_attribute, parse_comment, parse_text};
+
+// impl<'a, T> parser::ElementParser<'a, Node<T>> for parser::MrmlParser<'a> {
+//     fn parse(&mut self, tag: StrSpan<'a>) -> Result<Node<T>, Error> {
+//         let tag = tag.to_string();
+//         let attributes = self.parse_attributes()?;
+//         let children = self.parse_children()?;
+
+//         Ok(Node {
+//             tag,
+//             attributes,
+//             children,
+//         })
+//     }
+// }
 
 #[derive(Debug)]
 struct NodeParser<T> {
