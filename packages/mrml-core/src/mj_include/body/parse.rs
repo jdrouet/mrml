@@ -6,10 +6,126 @@ use xmlparser::{StrSpan, Tokenizer};
 
 use super::{MjIncludeBody, MjIncludeBodyAttributes, MjIncludeBodyChild, MjIncludeBodyKind};
 use crate::comment::Comment;
+use crate::mj_accordion::NAME as MJ_ACCORDION;
 use crate::mj_body::MjBodyChild;
+use crate::mj_button::NAME as MJ_BUTTON;
+use crate::mj_carousel::NAME as MJ_CAROUSEL;
+use crate::mj_column::NAME as MJ_COLUMN;
+use crate::mj_divider::NAME as MJ_DIVIDER;
+use crate::mj_group::NAME as MJ_GROUP;
+use crate::mj_hero::NAME as MJ_HERO;
+use crate::mj_image::NAME as MJ_IMAGE;
+use crate::mj_navbar::NAME as MJ_NAVBAR;
+use crate::mj_raw::NAME as MJ_RAW;
+use crate::mj_section::NAME as MJ_SECTION;
+use crate::mj_social::NAME as MJ_SOCIAL;
+use crate::mj_spacer::NAME as MJ_SPACER;
+use crate::mj_table::NAME as MJ_TABLE;
+use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::MjWrapper;
-use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
+use crate::mj_wrapper::NAME as MJ_WRAPPER;
+use crate::prelude::parser::{
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable,
+    Parser, ParserOptions,
+};
 use crate::text::Text;
+
+impl<'a> ElementParser<'a, MjIncludeBodyChild> for MrmlParser<'a> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeBodyChild, Error> {
+        match tag.as_str() {
+            MJ_ACCORDION => Ok(MjIncludeBodyChild::MjAccordion(self.parse(tag)?)),
+            MJ_BUTTON => Ok(MjIncludeBodyChild::MjButton(self.parse(tag)?)),
+            MJ_CAROUSEL => Ok(MjIncludeBodyChild::MjCarousel(self.parse(tag)?)),
+            MJ_COLUMN => Ok(MjIncludeBodyChild::MjColumn(self.parse(tag)?)),
+            MJ_DIVIDER => Ok(MjIncludeBodyChild::MjDivider(self.parse(tag)?)),
+            MJ_GROUP => Ok(MjIncludeBodyChild::MjGroup(self.parse(tag)?)),
+            MJ_HERO => Ok(MjIncludeBodyChild::MjHero(self.parse(tag)?)),
+            MJ_IMAGE => Ok(MjIncludeBodyChild::MjImage(self.parse(tag)?)),
+            MJ_NAVBAR => Ok(MjIncludeBodyChild::MjNavbar(self.parse(tag)?)),
+            MJ_RAW => Ok(MjIncludeBodyChild::MjRaw(self.parse(tag)?)),
+            MJ_SECTION => Ok(MjIncludeBodyChild::MjSection(self.parse(tag)?)),
+            MJ_SOCIAL => Ok(MjIncludeBodyChild::MjSocial(self.parse(tag)?)),
+            MJ_SPACER => Ok(MjIncludeBodyChild::MjSpacer(self.parse(tag)?)),
+            MJ_TABLE => Ok(MjIncludeBodyChild::MjTable(self.parse(tag)?)),
+            MJ_TEXT => Ok(MjIncludeBodyChild::MjText(self.parse(tag)?)),
+            MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(self.parse(tag)?)),
+            _ => Err(Error::UnexpectedElement(tag.start())),
+        }
+    }
+}
+
+impl<'a> AttributesParser<'a, MjIncludeBodyAttributes> for MrmlParser<'a> {
+    fn parse_attributes(&mut self) -> Result<MjIncludeBodyAttributes, Error> {
+        let mut path = None;
+        let mut kind = None;
+        while let Some(attr) = self.next_attribute()? {
+            match attr.local.as_str() {
+                "path" => {
+                    path = Some(attr.value.to_string());
+                }
+                "kind" => {
+                    kind = Some(MjIncludeBodyKind::from_str(attr.value.as_str())?);
+                }
+                _ => {
+                    return Err(Error::UnexpectedAttribute(attr.span.start()));
+                }
+            }
+        }
+        Ok(MjIncludeBodyAttributes {
+            path: path.ok_or_else(|| Error::MissingAttribute("path"))?,
+            kind: kind.ok_or_else(|| Error::MissingAttribute("kind"))?,
+        })
+    }
+}
+
+impl<'a> ChildrenParser<'a, Vec<MjIncludeBodyChild>> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<Vec<MjIncludeBodyChild>, Error> {
+        let mut result = Vec::new();
+
+        loop {
+            match self.assert_next()? {
+                MrmlToken::Comment(inner) => {
+                    result.push(MjIncludeBodyChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
+                }
+                MrmlToken::ElementStart(inner) => {
+                    result.push(self.parse(inner.local)?);
+                }
+                MrmlToken::ElementClose(inner) => {
+                    self.rewind(MrmlToken::ElementClose(inner));
+                    return Ok(result);
+                }
+                MrmlToken::Text(inner) => {
+                    result.push(MjIncludeBodyChild::Text(Text::from(inner.text.as_str())));
+                }
+                other => return Err(Error::unexpected_token(other.range())),
+            }
+        }
+    }
+}
+
+impl<'a> ElementParser<'a, MjIncludeBody> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjIncludeBody, Error> {
+        let attributes = self.parse_attributes()?;
+        let ending = self.assert_element_end()?;
+
+        if ending.empty {
+            return Ok(MjIncludeBody {
+                attributes,
+                children: Vec::new(),
+            });
+        }
+
+        let children = self.parse_children()?;
+        self.assert_element_close()?;
+
+        Ok(MjIncludeBody {
+            attributes,
+            children,
+        })
+    }
+}
 
 impl From<Comment> for MjIncludeBodyChild {
     fn from(value: Comment) -> Self {
