@@ -1,4 +1,4 @@
-use std::{collections::HashMap, convert::TryFrom, rc::Rc};
+use std::{collections::HashMap, convert::TryFrom, rc::Rc, sync::Arc};
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
@@ -470,11 +470,27 @@ pub trait ChildrenParser<'a, C> {
 
 pub struct MrmlParser<'a> {
     tokenizer: Tokenizer<'a>,
-    options: ParserOptions,
+    pub options: Arc<ParserOptions>,
     buffer: Vec<MrmlToken<'a>>,
 }
 
 impl<'a> MrmlParser<'a> {
+    pub fn new(source: &'a str, options: Arc<ParserOptions>) -> Self {
+        Self {
+            tokenizer: Tokenizer::from(source),
+            options,
+            buffer: Default::default(),
+        }
+    }
+
+    pub fn new_child<'b>(&self, source: &'b str) -> MrmlParser<'b> {
+        MrmlParser {
+            tokenizer: Tokenizer::from(source),
+            options: self.options.clone(),
+            buffer: Default::default(),
+        }
+    }
+
     fn read_next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
         self.tokenizer
             .next()

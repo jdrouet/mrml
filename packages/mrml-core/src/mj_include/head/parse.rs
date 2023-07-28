@@ -88,17 +88,35 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjIncludeHead, Error> {
-        let attributes = self.parse_attributes()?;
+        let attributes: MjIncludeHeadAttributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjIncludeHead {
-                attributes,
-                children: Vec::new(),
-            });
-        }
 
-        let children = self.parse_children()?;
-        self.assert_element_close()?;
+        let children = if ending.empty {
+            let children = self.parse_children()?;
+            self.assert_element_close()?;
+
+            children
+        } else {
+            Vec::new()
+        };
+
+        // if a mj-include has some content, we don't load it
+        let children: Vec<MjIncludeHeadChild> = if children.is_empty() {
+            let child = self.options.include_loader.resolve(&attributes.path)?;
+
+            match attributes.kind {
+                MjIncludeHeadKind::Css { inline: false } => {
+                    vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(
+                        child,
+                    ))]
+                }
+                MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
+                MjIncludeHeadKind::Mjml => self.new_child(child.as_str()).parse_children()?,
+                MjIncludeHeadKind::Html => todo!(),
+            }
+        } else {
+            children
+        };
 
         Ok(MjIncludeHead {
             attributes,
