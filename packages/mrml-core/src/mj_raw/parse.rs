@@ -6,14 +6,32 @@ use super::{MjRaw, MjRawChild};
 use crate::comment::Comment;
 use crate::node::Node;
 use crate::prelude::parser::{
-    ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable, Parser, ParserOptions,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable,
+    Parser, ParserOptions,
 };
 use crate::text::Text;
 use crate::{parse_child, parse_comment, parse_text};
 
 impl<'a> ElementParser<'a, Node<MjRawChild>> for MrmlParser<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<Node<MjRawChild>, Error> {
-        todo!()
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<Node<MjRawChild>, Error> {
+        let attributes = self.parse_attributes()?;
+        let ending = self.assert_element_end()?;
+        if ending.empty {
+            return Ok(Node {
+                tag: tag.to_string(),
+                attributes,
+                children: Vec::new(),
+            });
+        }
+
+        let children = self.parse_children()?;
+        self.assert_element_close()?;
+
+        Ok(Node {
+            tag: tag.to_string(),
+            attributes,
+            children,
+        })
     }
 }
 
