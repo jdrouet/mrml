@@ -11,8 +11,7 @@ impl<'a> ElementParser<'a, MjText> for MrmlParser<'a> {
             return Ok(MjText::default());
         }
 
-        let mut children = Vec::new();
-        // TODO parse children
+        let children = self.parse_children()?;
 
         self.assert_element_close()?;
 
