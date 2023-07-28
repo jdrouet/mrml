@@ -1,13 +1,10 @@
-use std::rc::Rc;
-
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
 use super::{MjCarousel, MjCarouselChild};
 use crate::comment::Comment;
-use crate::mj_carousel_image::{MjCarouselImage, NAME as MJ_CAROUSEL_IMAGE};
+use crate::mj_carousel_image::NAME as MJ_CAROUSEL_IMAGE;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable,
-    ParserOptions,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
 };
 
 impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
@@ -16,6 +13,7 @@ impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
 
         loop {
             match self.assert_next()? {
+                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::Comment(inner) => {
                     result.push(MjCarouselChild::Comment(Comment::from(inner.text.as_str())));
                 }
@@ -57,45 +55,31 @@ impl<'a> ElementParser<'a, MjCarousel> for MrmlParser<'a> {
     }
 }
 
-impl Parsable for MjCarouselChild {
-    fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        match tag.as_str() {
-            MJ_CAROUSEL_IMAGE => Ok(MjCarouselImage::parse(tag, tokenizer, opts)?.into()),
-            _ => Err(Error::UnexpectedElement(tag.start())),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
+    use crate::{mj_carousel::MjCarousel, prelude::parser::MrmlParser};
+
     #[test]
     fn with_all_children() {
-        let json = r#"<mjml>
-  <mj-body>
-    <mj-carousel>
-      <!-- comment -->
-      <mj-carousel-image />
-    </mj-carousel>
-  </mj-body>
-</mjml>
+        let raw = r#"<mj-carousel>
+    <!-- comment -->
+    <mj-carousel-image />
+</mj-carousel>
 "#;
-        assert!(crate::mjml::Mjml::parse(json).is_ok());
+        let _: MjCarousel = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
+    #[should_panic]
     fn with_unexpected_child() {
-        let json = r#"<mjml>
-  <mj-body>
-    <mj-carousel>
-      <mj-text>Nope</mj-text>
-    </mj-carousel>
-  </mj-body>
-</mjml>
+        let raw = r#"<mj-carousel>
+    <mj-text>Nope</mj-text>
+</mj-carousel>
 "#;
-        assert!(crate::mjml::Mjml::parse(json).is_err());
+        let _: MjCarousel = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }

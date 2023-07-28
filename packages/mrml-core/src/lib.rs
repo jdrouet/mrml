@@ -29,10 +29,10 @@
 //! ```rust
 //! use mrml::prelude::parser::ParserOptions;
 //! use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-//! use std::rc::Rc;
+//! use std::sync::Arc;
 //!
 //! let loader = MemoryIncludeLoader::from(vec![("partial.mjml", "<mj-button>Hello</mj-button>")]);
-//! let options = Rc::new(ParserOptions {
+//! let options = Arc::new(ParserOptions {
 //!     include_loader: Box::new(loader),
 //! });
 //! match mrml::parse_with_options("<mjml><mj-head /><mj-body><mj-include path=\"partial.mjml\" /></mj-body></mjml>", options) {
@@ -108,9 +108,9 @@ mod macros;
 /// ```rust
 /// use mrml::prelude::parser::ParserOptions;
 /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-/// use std::rc::Rc;
+/// use std::sync::Arc;
 ///
-/// let options = Rc::new(ParserOptions {
+/// let options = Arc::new(ParserOptions {
 ///     include_loader: Box::new(MemoryIncludeLoader::default()),
 /// });
 /// match mrml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options) {
@@ -120,9 +120,9 @@ mod macros;
 /// ```
 pub fn parse_with_options<T: AsRef<str>>(
     input: T,
-    opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
+    opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
-    mjml::Mjml::parse_with_options(input, opts)
+    crate::prelude::parser::MrmlParser::new(input.as_ref(), opts).parse_root()
 }
 
 #[cfg(feature = "parse")]
@@ -136,7 +136,7 @@ pub fn parse_with_options<T: AsRef<str>>(
 /// }
 /// ```
 pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
-    mjml::Mjml::parse(input)
+    crate::prelude::parser::MrmlParser::new(input.as_ref(), Default::default()).parse_root()
 }
 
 #[cfg(test)]
@@ -148,11 +148,7 @@ mod tests {
 
     #[test]
     fn parse_with_options() {
-        use std::rc::Rc;
-
-        use crate::prelude::parser::ParserOptions;
-
-        let options = Rc::new(ParserOptions::default());
-        let _ = crate::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options);
+        let _ =
+            crate::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", Default::default());
     }
 }

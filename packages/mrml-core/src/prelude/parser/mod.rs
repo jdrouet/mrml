@@ -1,4 +1,4 @@
-use std::{collections::HashMap, convert::TryFrom, rc::Rc, sync::Arc};
+use std::{collections::HashMap, convert::TryFrom, sync::Arc};
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
@@ -108,28 +108,6 @@ impl Error {
     }
 }
 
-pub(crate) fn next_token<'a>(tokenizer: &mut Tokenizer<'a>) -> Result<Token<'a>, Error> {
-    if let Some(token) = tokenizer.next() {
-        Ok(token?)
-    } else {
-        Err(Error::EndOfStream)
-    }
-}
-
-pub(crate) fn is_element_start<'a>(token: &'a Token<'a>) -> Option<&'a StrSpan<'a>> {
-    match token {
-        Token::ElementStart { local, .. } => Some(local),
-        _ => None,
-    }
-}
-
-pub(crate) fn into_element_start<'a>(token: &'a Token<'a>) -> Result<&'a StrSpan<'a>, Error> {
-    match token {
-        Token::ElementStart { local, .. } => Ok(local),
-        other => Err(Error::invalid_format(get_span(&other))),
-    }
-}
-
 fn get_span<'a>(token: &Token<'a>) -> (usize, usize) {
     match token {
         Token::Attribute { span, .. }
@@ -147,106 +125,6 @@ fn get_span<'a>(token: &Token<'a>) -> (usize, usize) {
     }
 }
 
-pub trait Parser: Sized {
-    type Output;
-
-    fn build(self) -> Result<Self::Output, Error>;
-
-    /// for elements like <br> or <meta>, they have no closing elements and
-    /// the parser should not check for children
-    fn should_ignore_children(&self) -> bool {
-        false
-    }
-
-    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, _value: StrSpan<'a>) -> Result<(), Error> {
-        Err(Error::UnexpectedAttribute(name.start()))
-    }
-
-    fn parse_children(&mut self, tokenizer: &mut Tokenizer<'_>) -> Result<(), Error> {
-        loop {
-            let token = next_token(tokenizer)?;
-            match token {
-                Token::Comment { text, span: _ } => {
-                    self.parse_child_comment(text)?;
-                }
-                Token::Text { text } => {
-                    if !text.trim().is_empty() {
-                        self.parse_child_text(text)?;
-                    }
-                }
-                Token::ElementStart {
-                    prefix: _,
-                    local,
-                    span: _,
-                } => {
-                    self.parse_child_element(local, tokenizer)?;
-                }
-                other => {
-                    return Err(Error::invalid_format(get_span(&other)));
-                }
-            };
-        }
-    }
-
-    fn parse_child_element<'a>(
-        &mut self,
-        tag: StrSpan<'a>,
-        _tokenizer: &mut Tokenizer<'a>,
-    ) -> Result<(), Error> {
-        Err(Error::UnexpectedElement(tag.start()))
-    }
-
-    fn parse_child_comment(&mut self, value: StrSpan) -> Result<(), Error> {
-        Err(Error::UnexpectedComment(value.start()))
-    }
-
-    fn parse_child_text(&mut self, value: StrSpan) -> Result<(), Error> {
-        Err(Error::UnexpectedText(value.start()))
-    }
-
-    fn parse(mut self, tokenizer: &mut Tokenizer) -> Result<Self, Error> {
-        loop {
-            let token = next_token(tokenizer)?;
-            match token {
-                Token::Attribute {
-                    prefix: _,
-                    local,
-                    value,
-                    span: _,
-                } => {
-                    self.parse_attribute(local, value)?;
-                }
-                Token::ElementEnd { end, span } => {
-                    match end {
-                        xmlparser::ElementEnd::Empty => {
-                            return Ok(self);
-                        }
-                        xmlparser::ElementEnd::Open => {
-                            if !self.should_ignore_children() {
-                                self.parse_children(tokenizer)?;
-                            }
-                            return Ok(self);
-                        }
-                        // unexpected
-                        _ => return Err(Error::InvalidFormat(span.start(), span.end())),
-                    }
-                }
-                other => {
-                    return Err(Error::invalid_format(get_span(&other)));
-                }
-            };
-        }
-    }
-}
-
-pub trait Parsable: Sized {
-    fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error>;
-}
-
 #[derive(Debug)]
 pub struct ParserOptions {
     pub include_loader: Box<dyn loader::IncludeLoader>,
@@ -261,10 +139,7 @@ impl Default for ParserOptions {
     }
 }
 
-pub trait MaybeFromToken<'a>: Sized {
-    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>>;
-}
-
+#[derive(Debug)]
 pub enum MrmlToken<'a> {
     Attribute(Attribute<'a>),
     Comment(Comment<'a>),
@@ -307,6 +182,15 @@ impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
                 end: xmlparser::ElementEnd::Open,
                 span,
             } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: false })),
+            Token::ElementStart {
+                prefix,
+                local,
+                span,
+            } => Ok(MrmlToken::ElementStart(ElementStart {
+                prefix,
+                local,
+                span,
+            })),
             Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
             other => Err(Error::unexpected_token(get_span(&other))),
         }
@@ -423,6 +307,7 @@ impl<'a> MrmlToken<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct Attribute<'a> {
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
@@ -430,28 +315,33 @@ pub struct Attribute<'a> {
     pub span: StrSpan<'a>,
 }
 
+#[derive(Debug)]
 pub struct Comment<'a> {
     pub span: StrSpan<'a>,
     pub text: StrSpan<'a>,
 }
 
+#[derive(Debug)]
 pub struct ElementClose<'a> {
     pub span: StrSpan<'a>,
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
 }
 
+#[derive(Debug)]
 pub struct ElementStart<'a> {
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
     pub span: StrSpan<'a>,
 }
 
+#[derive(Debug)]
 pub struct ElementEnd<'a> {
     pub span: StrSpan<'a>,
     pub empty: bool,
 }
 
+#[derive(Debug)]
 pub struct Text<'a> {
     pub text: StrSpan<'a>,
 }
@@ -495,6 +385,12 @@ impl<'a> MrmlParser<'a> {
         self.tokenizer
             .next()
             .map(|res| res.map_err(Error::from).and_then(MrmlToken::try_from))
+            .and_then(|token| match token {
+                Ok(MrmlToken::Text(inner)) if inner.text.trim().is_empty() => {
+                    self.read_next_token()
+                }
+                other => Some(other),
+            })
     }
 
     pub fn next(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
@@ -549,6 +445,15 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
+    pub fn assert_element_start(&mut self) -> Result<ElementStart<'a>, Error> {
+        match self.next() {
+            Some(Ok(MrmlToken::ElementStart(inner))) => Ok(inner),
+            Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
+            Some(Err(inner)) => Err(inner),
+            None => Err(Error::EndOfStream),
+        }
+    }
+
     pub fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, Error> {
         match self.next() {
             Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(inner),
@@ -577,6 +482,14 @@ impl<'a> MrmlParser<'a> {
             Some(Err(inner)) => Err(inner),
             None => Err(Error::EndOfStream),
         }
+    }
+
+    pub fn parse_root<T>(&mut self) -> Result<T, Error>
+    where
+        MrmlParser<'a>: ElementParser<'a, T>,
+    {
+        let start = self.assert_element_start()?;
+        self.parse(start.local)
     }
 }
 

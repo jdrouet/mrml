@@ -1,13 +1,10 @@
-use std::rc::Rc;
-
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
 use super::{MjAccordion, MjAccordionChild};
 use crate::comment::Comment;
-use crate::mj_accordion_element::{MjAccordionElement, NAME as MJ_ACCORDION_ELEMENT};
+use crate::mj_accordion_element::NAME as MJ_ACCORDION_ELEMENT;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable,
-    ParserOptions,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
 };
 
 impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
@@ -34,6 +31,7 @@ impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
+                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 other => return Err(Error::unexpected_token(other.range())),
             }
         }
@@ -62,25 +60,15 @@ impl<'a> ElementParser<'a, MjAccordion> for MrmlParser<'a> {
     }
 }
 
-impl Parsable for MjAccordionChild {
-    fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        match tag.as_str() {
-            MJ_ACCORDION_ELEMENT => Ok(MjAccordionElement::parse(tag, tokenizer, opts)?.into()),
-            _ => Err(Error::UnexpectedElement(tag.start())),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     #[test]
     fn basic() {
         let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
-        let result = crate::mjml::Mjml::parse(template).unwrap();
+        let result: crate::mjml::Mjml =
+            crate::prelude::parser::MrmlParser::new(template, Default::default())
+                .parse_root()
+                .unwrap();
         assert!(!format!("{result:?}").is_empty());
     }
 }

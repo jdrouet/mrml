@@ -33,21 +33,23 @@ impl<'a> ElementParser<'a, MjFont> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::Mjml;
+    use crate::{mj_font::MjFont, prelude::parser::MrmlParser};
 
     #[test]
     fn success() {
-        assert!(Mjml::parse(
-            r#"<mjml><mj-head><mj-font name="Comic" href="https://jolimail.io" /></mj-head></mjml>"#
+        let _: MjFont = MrmlParser::new(
+            r#"<mj-font name="Comic" href="https://jolimail.io" />"#,
+            Default::default(),
         )
-        .is_ok());
+        .parse_root()
+        .unwrap();
     }
 
     #[test]
+    #[should_panic]
     fn unexpected_attribute() {
-        assert!(
-            Mjml::parse(r#"<mjml><mj-head><mj-font unknown="whatever" /></mj-head></mjml>"#)
-                .is_err()
-        );
+        let _: MjFont = MrmlParser::new(r#"<mj-font unknown="whatever" />"#, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }

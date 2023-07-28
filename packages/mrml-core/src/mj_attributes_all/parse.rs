@@ -6,6 +6,10 @@ use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser}
 impl<'a> ElementParser<'a, MjAttributesAll> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAttributesAll, Error> {
         let attributes = self.parse_attributes()?;
+        let ending = self.assert_element_end()?;
+        if !ending.empty {
+            self.assert_element_close()?;
+        }
 
         Ok(MjAttributesAll { attributes })
     }
@@ -13,23 +17,13 @@ impl<'a> ElementParser<'a, MjAttributesAll> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::Mjml;
+    use crate::{mj_attributes_all::MjAttributesAll, prelude::parser::MrmlParser};
 
     #[test]
     fn parse_complete() {
-        let template = r#"
-        <mjml>
-            <mj-head>
-                <mj-attributes>
-                    <mj-all color="red" />
-                </mj-attributes>
-            </mj-head>
-        </mjml>
-        "#;
-        let elt = Mjml::parse(template).unwrap();
-        assert!(elt.head().is_some());
-        assert!(elt.body().is_none());
-        let head = elt.head().unwrap();
-        assert_eq!(head.children().len(), 1);
+        let raw = r#"<mj-all color="red" />"#;
+        let _: MjAttributesAll = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }

@@ -31,19 +31,22 @@ impl<'a> ElementParser<'a, MjBreakpoint> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
+    use crate::{mj_breakpoint::MjBreakpoint, prelude::parser::MrmlParser};
+
     #[test]
     fn success() {
-        let res = crate::mjml::Mjml::parse(
-            r#"<mjml><mj-head><mj-breakpoint width="42px" /></mj-head></mjml>"#,
-        );
-        assert!(res.is_ok());
+        let raw = r#"<mj-breakpoint width="42px" />"#;
+        let _: MjBreakpoint = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
+    #[should_panic]
     fn unexpected_attributes() {
-        let res = crate::mjml::Mjml::parse(
-            r#"<mjml><mj-head><mj-breakpoint whatever="42px" /></mj-head></mjml>"#,
-        );
-        assert!(res.is_err());
+        let raw = r#"<mj-breakpoint whatever="42px" />"#;
+        let _: MjBreakpoint = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }

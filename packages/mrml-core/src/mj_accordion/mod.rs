@@ -27,8 +27,6 @@ use crate::prelude::hash::Map;
 pub const NAME: &str = "mj-accordion";
 
 #[derive(Debug, Default)]
-#[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseComponent))]
-#[cfg_attr(feature = "parse", mrml_parse(child_text = false))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
 #[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
@@ -40,14 +38,10 @@ pub struct MjAccordion {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
-
-    use xmlparser::Tokenizer;
-
     use crate::mj_accordion::MjAccordion;
     use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
     use crate::mj_accordion_title::MjAccordionTitle;
-    use crate::prelude::parser::{is_element_start, next_token, Parsable, ParserOptions};
+    use crate::prelude::parser::MrmlParser;
     use crate::prelude::print::Print;
     use crate::text::Text;
 
@@ -68,11 +62,10 @@ mod tests {
             .into()],
         };
         let initial = element.print(false, 0, 2);
-        let opts = Rc::new(ParserOptions::default());
-        let mut tokenizer = Tokenizer::from("<mj-accordion><mj-accordion-element><mj-accordion-title>Hello World!</mj-accordion-title></mj-accordion-element></mj-accordion>");
-        let token = next_token(&mut tokenizer).unwrap();
-        let tag = is_element_start(&token).unwrap();
-        let elt = MjAccordion::parse(*tag, &mut tokenizer, opts).unwrap();
+        let raw ="<mj-accordion><mj-accordion-element><mj-accordion-title>Hello World!</mj-accordion-title></mj-accordion-element></mj-accordion>";
+        let elt: MjAccordion = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
         let result = elt.print(false, 0, 2);
         assert_eq!(initial, result);
     }

@@ -16,7 +16,7 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///
 /// # Example
 /// ```rust
-/// use std::rc::Rc;
+/// use std::sync::Arc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
 /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 /// use mrml::prelude::parser::ParserOptions;
@@ -30,7 +30,7 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     <mj-include path="basic.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(json, Rc::new(opts)) {
+/// match mrml::parse_with_options(json, Arc::new(opts)) {
 ///     Ok(_) => println!("Success!"),
 ///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 /// }

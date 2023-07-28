@@ -1,13 +1,10 @@
-use std::rc::Rc;
-
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
 use super::{MjSocial, MjSocialChild};
 use crate::comment::Comment;
-use crate::mj_social_element::{MjSocialElement, NAME as MJ_SOCIAL_ELEMENT};
+use crate::mj_social_element::NAME as MJ_SOCIAL_ELEMENT;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable,
-    ParserOptions,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
 };
 
 impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlParser<'a> {
@@ -30,6 +27,7 @@ impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlParser<'a> {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
+                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 other => return Err(Error::unexpected_token(other.range())),
             }
         }
@@ -54,18 +52,5 @@ impl<'a> ElementParser<'a, MjSocial> for MrmlParser<'a> {
             attributes,
             children,
         })
-    }
-}
-
-impl Parsable for MjSocialChild {
-    fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        match tag.as_str() {
-            MJ_SOCIAL_ELEMENT => Ok(MjSocialElement::parse(tag, tokenizer, opts)?.into()),
-            _ => Err(Error::UnexpectedElement(tag.start())),
-        }
     }
 }

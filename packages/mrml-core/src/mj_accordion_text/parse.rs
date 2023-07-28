@@ -6,12 +6,15 @@ use crate::prelude::parser::{AttributesParser, ChildrenParser, ElementParser, Er
 impl<'a> ElementParser<'a, MjAccordionText> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordionText, Error> {
         let attributes = self.parse_attributes()?;
-        let ending = self.next_element_end()?.ok_or(Error::EndOfStream)?;
-        let children = if !ending.empty {
-            self.parse_children()?
-        } else {
-            Default::default()
-        };
+        let ending = self.assert_element_end()?;
+        if ending.empty {
+            return Ok(MjAccordionText {
+                attributes,
+                children: Vec::new(),
+            });
+        }
+        let children = self.parse_children()?;
+        let _ = self.assert_element_close()?;
 
         Ok(MjAccordionText {
             attributes,

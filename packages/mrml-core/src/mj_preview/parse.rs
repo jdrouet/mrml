@@ -22,11 +22,15 @@ impl<'a> ElementParser<'a, MjPreview> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
+    use crate::{mj_preview::MjPreview, prelude::parser::MrmlParser};
+
     #[test]
     fn success() {
-        let res = crate::mjml::Mjml::parse(
-            r#"<mjml><mj-head><mj-preview>Hello World!</mj-preview></mj-head></mjml>"#,
-        );
-        assert!(res.is_ok());
+        let _: MjPreview = MrmlParser::new(
+            r#"<mj-preview>Hello World!</mj-preview>"#,
+            Default::default(),
+        )
+        .parse_root()
+        .unwrap();
     }
 }

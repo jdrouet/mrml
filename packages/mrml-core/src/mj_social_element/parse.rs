@@ -27,21 +27,17 @@ impl<'a> ElementParser<'a, MjSocialElement> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::Mjml;
+    use crate::{mj_social_element::MjSocialElement, prelude::parser::MrmlParser};
 
     #[test]
     fn parse_ending_tag() {
         let template = r#"
-        <mjml>
-          <mj-body>
-            <mj-social>
-              <mj-social-element name="facebook">
-                Share <b>test</b> hi
-              </mj-social-element>
-            </mj-social>
-          </mj-body>
-        </mjml>
+<mj-social-element name="facebook">
+    Share <b>test</b> hi
+</mj-social-element>
         "#;
-        Mjml::parse(template).unwrap();
+        let _: MjSocialElement = MrmlParser::new(template, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }

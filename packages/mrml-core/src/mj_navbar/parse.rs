@@ -1,13 +1,10 @@
-use std::rc::Rc;
-
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
 use super::{MjNavbar, MjNavbarChild};
 use crate::comment::Comment;
-use crate::mj_navbar_link::{MjNavbarLink, NAME as MJ_NAVBAR_LINK};
+use crate::mj_navbar_link::NAME as MJ_NAVBAR_LINK;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable,
-    ParserOptions,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
 };
 
 impl<'a> ChildrenParser<'a, Vec<MjNavbarChild>> for MrmlParser<'a> {
@@ -30,6 +27,7 @@ impl<'a> ChildrenParser<'a, Vec<MjNavbarChild>> for MrmlParser<'a> {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
+                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 other => return Err(Error::unexpected_token(other.range())),
             }
         }
@@ -55,18 +53,5 @@ impl<'a> ElementParser<'a, MjNavbar> for MrmlParser<'a> {
             attributes,
             children,
         })
-    }
-}
-
-impl Parsable for MjNavbarChild {
-    fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        match tag.as_str() {
-            MJ_NAVBAR_LINK => Ok(MjNavbarLink::parse(tag, tokenizer, opts)?.into()),
-            _ => Err(Error::UnexpectedElement(tag.start())),
-        }
     }
 }

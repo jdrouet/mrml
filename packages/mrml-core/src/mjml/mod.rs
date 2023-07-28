@@ -17,7 +17,6 @@ pub const NAME: &str = "mjml";
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintAttributes))]
-#[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseAttributes))]
 pub struct MjmlAttributes {
     #[cfg_attr(feature = "json", serde(skip_serializing_if = "Option::is_none"))]
     pub owa: Option<String>,

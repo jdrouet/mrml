@@ -2,15 +2,7 @@
 //! [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader).
 
 use std::io::ErrorKind;
-use std::rc::Rc;
 use std::sync::Arc;
-
-use xmlparser::Token;
-
-use super::ParserOptions;
-use crate::comment::Comment;
-use crate::prelude::parser::{next_token, Error, Parsable};
-use crate::text::Text;
 
 #[derive(Debug, Clone)]
 pub struct IncludeLoaderError {
@@ -80,20 +72,6 @@ pub trait IncludeLoader: std::fmt::Debug {
     /// [`MemoryIncludeLoader`](crate::prelude::parser::memory_loader::MemoryIncludeLoader).
     ///
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
-}
-
-pub fn parse<T: Parsable + From<Comment> + From<Text>>(
-    include: &str,
-    opts: Rc<ParserOptions>,
-) -> Result<T, Error> {
-    let mut tokenizer = xmlparser::Tokenizer::from(include);
-    let token = next_token(&mut tokenizer)?;
-    match token {
-        Token::Comment { text, span: _ } => Ok(Comment::from(text.to_string()).into()),
-        Token::Text { text } => Ok(Text::from(text.to_string()).into()),
-        Token::ElementStart { local, .. } => T::parse(local, &mut tokenizer, opts),
-        other => Err(Error::invalid_format(super::get_span(&other))),
-    }
 }
 
 #[cfg(test)]
