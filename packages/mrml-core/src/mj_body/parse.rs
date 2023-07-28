@@ -58,7 +58,7 @@ impl<'a> ElementParser<'a, MjBodyChild> for MrmlParser<'a> {
         match tag.as_str() {
             MJ_ACCORDION => Ok(MjBodyChild::MjAccordion(self.parse(tag)?)),
             MJ_BUTTON => Ok(MjBodyChild::MjButton(self.parse(tag)?)),
-            // MJ_CAROUSEL => Ok(MjCarousel::parse(tag, tokenizer, opts)?.into()),
+            MJ_CAROUSEL => Ok(MjBodyChild::MjCarousel(self.parse(tag)?)),
             MJ_COLUMN => Ok(MjBodyChild::MjColumn(self.parse(tag)?)),
             MJ_DIVIDER => Ok(MjBodyChild::MjDivider(self.parse(tag)?)),
             MJ_GROUP => Ok(MjBodyChild::MjGroup(self.parse(tag)?)),
