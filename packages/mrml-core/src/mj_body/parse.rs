@@ -72,7 +72,7 @@ impl<'a> ElementParser<'a, MjBodyChild> for MrmlParser<'a> {
             // MJ_SPACER => Ok(MjSpacer::parse(tag, tokenizer, opts)?.into()),
             // MJ_TABLE => Ok(MjTable::parse(tag, tokenizer, opts)?.into()),
             MJ_TEXT => Ok(MjBodyChild::MjText(self.parse(tag)?)),
-            // MJ_WRAPPER => Ok(MjWrapper::parse(tag, tokenizer, opts)?.into()),
+            MJ_WRAPPER => Ok(MjBodyChild::MjWrapper(self.parse(tag)?)),
             _ => Ok(MjBodyChild::Node(self.parse(tag)?)),
         }
     }
