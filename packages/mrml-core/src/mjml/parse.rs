@@ -1,12 +1,10 @@
-use std::convert::TryFrom;
-
 use xmlparser::{StrSpan, Tokenizer};
 
 use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::{MjBody, NAME as MJ_BODY};
 use crate::mj_head::{MjHead, NAME as MJ_HEAD};
 use crate::prelude::parser::{
-    self, AttributesParser, ChildrenParser, ElementEnd, ElementParser, MrmlParser, MrmlToken,
+    self, AttributesParser, ChildrenParser, ElementParser, MrmlParser, MrmlToken,
 };
 use crate::prelude::parser::{into_element_start, next_token, Error, Parsable, Parser};
 
@@ -30,7 +28,7 @@ impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
         let mut children = MjmlChildren::default();
 
         loop {
-            match self.assert_iterate().and_then(MrmlToken::try_from)? {
+            match self.assert_next()? {
                 MrmlToken::ElementClose(close) if close.local.as_str() == super::NAME => {
                     return Ok(children);
                 }
@@ -49,7 +47,7 @@ impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
 impl<'a> ElementParser<'a, Mjml> for parser::MrmlParser<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<Mjml, Error> {
         let attributes = self.parse_attributes()?;
-        let ending = self.assert_next_as::<ElementEnd>()?;
+        let ending = self.assert_element_end()?;
         let children = if !ending.empty {
             self.parse_children()?
         } else {

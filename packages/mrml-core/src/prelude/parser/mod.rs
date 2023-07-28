@@ -4,6 +4,8 @@ use xmlparser::{StrSpan, Token, Tokenizer};
 
 use self::loader::IncludeLoaderError;
 
+use super::hash::Map;
+
 #[cfg(feature = "http-loader-base")]
 pub mod http_loader;
 pub mod loader;
@@ -63,7 +65,7 @@ macro_rules! parse_text {
     };
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
     #[error("unexpected attribute at position {0}")]
     UnexpectedAttribute(usize),
@@ -269,7 +271,142 @@ pub enum MrmlToken<'a> {
     ElementClose(ElementClose<'a>),
     ElementEnd(ElementEnd<'a>),
     ElementStart(ElementStart<'a>),
-    Text(StrSpan<'a>),
+    Text(Text<'a>),
+}
+
+impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
+    type Error = Error;
+
+    fn try_from(value: Token<'a>) -> Result<Self, Self::Error> {
+        match value {
+            Token::Attribute {
+                prefix,
+                local,
+                value,
+                span,
+            } => Ok(MrmlToken::Attribute(Attribute {
+                prefix,
+                local,
+                value,
+                span,
+            })),
+            Token::Comment { text, span } => Ok(MrmlToken::Comment(Comment { span, text })),
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Close(prefix, local),
+                span,
+            } => Ok(MrmlToken::ElementClose(ElementClose {
+                span,
+                prefix,
+                local,
+            })),
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Empty,
+                span,
+            } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: true })),
+            Token::ElementEnd {
+                end: xmlparser::ElementEnd::Open,
+                span,
+            } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: false })),
+            Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
+            other => Err(Error::unexpected_token(get_span(&other))),
+        }
+    }
+}
+
+impl<'a> TryFrom<MrmlToken<'a>> for Attribute<'a> {
+    type Error = MrmlToken<'a>;
+
+    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
+        match value {
+            MrmlToken::Attribute(inner) => Ok(inner),
+            other => Err(other),
+        }
+    }
+}
+
+impl<'a> From<Attribute<'a>> for MrmlToken<'a> {
+    fn from(value: Attribute<'a>) -> Self {
+        Self::Attribute(value)
+    }
+}
+
+impl<'a> TryFrom<MrmlToken<'a>> for Comment<'a> {
+    type Error = MrmlToken<'a>;
+
+    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
+        match value {
+            MrmlToken::Comment(inner) => Ok(inner),
+            other => Err(other),
+        }
+    }
+}
+
+impl<'a> From<Comment<'a>> for MrmlToken<'a> {
+    fn from(value: Comment<'a>) -> Self {
+        Self::Comment(value)
+    }
+}
+
+impl<'a> TryFrom<MrmlToken<'a>> for ElementClose<'a> {
+    type Error = MrmlToken<'a>;
+
+    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
+        match value {
+            MrmlToken::ElementClose(inner) => Ok(inner),
+            other => Err(other),
+        }
+    }
+}
+
+impl<'a> From<ElementEnd<'a>> for MrmlToken<'a> {
+    fn from(value: ElementEnd<'a>) -> Self {
+        Self::ElementEnd(value)
+    }
+}
+
+impl<'a> TryFrom<MrmlToken<'a>> for ElementEnd<'a> {
+    type Error = MrmlToken<'a>;
+
+    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
+        match value {
+            MrmlToken::ElementEnd(inner) => Ok(inner),
+            other => Err(other),
+        }
+    }
+}
+
+impl<'a> From<ElementStart<'a>> for MrmlToken<'a> {
+    fn from(value: ElementStart<'a>) -> Self {
+        Self::ElementStart(value)
+    }
+}
+
+impl<'a> TryFrom<MrmlToken<'a>> for ElementStart<'a> {
+    type Error = MrmlToken<'a>;
+
+    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
+        match value {
+            MrmlToken::ElementStart(inner) => Ok(inner),
+            other => Err(other),
+        }
+    }
+}
+
+impl<'a> From<Text<'a>> for MrmlToken<'a> {
+    fn from(value: Text<'a>) -> Self {
+        Self::Text(value)
+    }
+}
+
+impl<'a> TryFrom<MrmlToken<'a>> for Text<'a> {
+    type Error = MrmlToken<'a>;
+
+    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
+        match value {
+            MrmlToken::Text(inner) => Ok(inner),
+            other => Err(other),
+        }
+    }
 }
 
 impl<'a> MrmlToken<'a> {
@@ -280,57 +417,9 @@ impl<'a> MrmlToken<'a> {
             Self::ElementClose(item) => item.span,
             Self::ElementEnd(item) => item.span,
             Self::ElementStart(item) => item.span,
-            Self::Text(item) => *item,
+            Self::Text(item) => item.text,
         };
         (span.start(), span.end())
-    }
-}
-
-impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
-    type Error = Error;
-
-    fn try_from(token: Token<'a>) -> Result<Self, Error> {
-        match token {
-            Token::Attribute {
-                prefix,
-                local,
-                value,
-                span,
-            } => Ok(Self::Attribute(Attribute {
-                prefix,
-                local,
-                value,
-                span,
-            })),
-            Token::Comment { text, span } => Ok(Self::Comment(Comment { text, span })),
-            Token::ElementStart {
-                prefix,
-                local,
-                span,
-            } => Ok(Self::ElementStart(ElementStart {
-                prefix,
-                local,
-                span,
-            })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Empty,
-                span,
-            } => Ok(Self::ElementEnd(ElementEnd { empty: true, span })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Open,
-                span,
-            } => Ok(Self::ElementEnd(ElementEnd { empty: false, span })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Close(prefix, local),
-                span,
-            } => Ok(Self::ElementClose(ElementClose {
-                span,
-                prefix,
-                local,
-            })),
-            Token::Text { text } => Ok(Self::Text(text)),
-            other => Err(Error::unexpected_token(get_span(&other))),
-        }
     }
 }
 
@@ -341,37 +430,9 @@ pub struct Attribute<'a> {
     pub span: StrSpan<'a>,
 }
 
-impl<'a> MaybeFromToken<'a> for Attribute<'a> {
-    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
-        match token {
-            Token::Attribute {
-                prefix,
-                local,
-                value,
-                span,
-            } => Ok(Attribute {
-                prefix,
-                local,
-                value,
-                span,
-            }),
-            other => Err(other),
-        }
-    }
-}
-
 pub struct Comment<'a> {
     pub span: StrSpan<'a>,
     pub text: StrSpan<'a>,
-}
-
-impl<'a> MaybeFromToken<'a> for Comment<'a> {
-    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
-        match token {
-            Token::Comment { span, text } => Ok(Comment { span, text }),
-            other => Err(other),
-        }
-    }
 }
 
 pub struct ElementClose<'a> {
@@ -380,43 +441,10 @@ pub struct ElementClose<'a> {
     pub local: StrSpan<'a>,
 }
 
-impl<'a> MaybeFromToken<'a> for ElementClose<'a> {
-    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
-        match token {
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Close(prefix, local),
-                span,
-            } => Ok(ElementClose {
-                span,
-                prefix,
-                local,
-            }),
-            other => Err(other),
-        }
-    }
-}
-
 pub struct ElementStart<'a> {
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
     pub span: StrSpan<'a>,
-}
-
-impl<'a> MaybeFromToken<'a> for ElementStart<'a> {
-    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
-        match token {
-            Token::ElementStart {
-                prefix,
-                local,
-                span,
-            } => Ok(ElementStart {
-                prefix,
-                local,
-                span,
-            }),
-            other => Err(other),
-        }
-    }
 }
 
 pub struct ElementEnd<'a> {
@@ -424,20 +452,8 @@ pub struct ElementEnd<'a> {
     pub empty: bool,
 }
 
-impl<'a> MaybeFromToken<'a> for ElementEnd<'a> {
-    fn maybe_from(token: Token<'a>) -> Result<Self, Token<'a>> {
-        match token {
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Empty,
-                span,
-            } => Ok(ElementEnd { empty: true, span }),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Open,
-                span,
-            } => Ok(ElementEnd { empty: false, span }),
-            other => Err(other),
-        }
-    }
+pub struct Text<'a> {
+    pub text: StrSpan<'a>,
 }
 
 pub trait ElementParser<'a, E> {
@@ -455,73 +471,112 @@ pub trait ChildrenParser<'a, C> {
 pub struct MrmlParser<'a> {
     tokenizer: Tokenizer<'a>,
     options: ParserOptions,
-    cache: Option<Result<Token<'a>, Error>>,
+    buffer: Vec<MrmlToken<'a>>,
 }
 
 impl<'a> MrmlParser<'a> {
-    fn read_next_token(&mut self) -> Option<Result<Token<'a>, Error>> {
-        self.tokenizer.next().map(|res| res.map_err(Error::from))
+    fn read_next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
+        self.tokenizer
+            .next()
+            .map(|res| res.map_err(Error::from).and_then(MrmlToken::try_from))
     }
 
-    pub fn iterate(&mut self) -> Option<Result<Token<'a>, Error>> {
-        let previous = std::mem::take(&mut self.cache);
-        self.cache = self.read_next_token();
-        previous
-    }
-
-    pub fn assert_iterate(&mut self) -> Result<Token<'a>, Error> {
-        let previous = std::mem::take(&mut self.cache);
-        let previous = previous.ok_or(Error::EndOfStream)?;
-        self.cache = self.read_next_token();
-        previous
-    }
-
-    pub fn next_as<T: MaybeFromToken<'a>>(&mut self) -> Result<Option<T>, Error> {
-        match std::mem::take(&mut self.cache) {
-            Some(Ok(token)) => match T::maybe_from(token) {
-                Ok(found) => {
-                    self.cache = self.read_next_token();
-                    Ok(Some(found))
-                }
-                Err(previous) => {
-                    self.cache = Some(Ok(previous));
-                    Ok(None)
-                }
-            },
-            Some(Err(inner)) => {
-                self.cache = self.read_next_token();
-                Err(inner)
-            }
-            None => Ok(None),
+    pub fn next(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
+        if let Some(item) = self.buffer.pop() {
+            Some(Ok(item))
+        } else {
+            self.read_next_token()
         }
     }
 
-    pub fn assert_next_as<T: MaybeFromToken<'a>>(&mut self) -> Result<T, Error> {
-        match self.iterate() {
-            Some(Ok(token)) => {
-                T::maybe_from(token).map_err(|token| Error::unexpected_token(get_span(&token)))
+    fn rewind(&mut self, token: MrmlToken<'a>) {
+        self.buffer.push(token);
+    }
+
+    pub fn assert_next(&mut self) -> Result<MrmlToken<'a>, Error> {
+        self.next().unwrap_or_else(|| Err(Error::EndOfStream))
+    }
+
+    pub fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, Error> {
+        match self.next() {
+            Some(Ok(MrmlToken::Attribute(inner))) => Ok(Some(inner)),
+            Some(Ok(other)) => {
+                self.rewind(other);
+                Ok(None)
             }
             Some(Err(inner)) => Err(inner),
             None => Err(Error::EndOfStream),
         }
     }
 
-    fn head_token(&self) -> &Option<Result<Token<'a>, Error>> {
-        &self.cache
-    }
-
-    pub fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, Error> {
-        self.next_as()
+    pub fn next_element_start(&mut self) -> Result<Option<ElementStart<'a>>, Error> {
+        match self.next() {
+            Some(Ok(MrmlToken::ElementStart(inner))) => Ok(Some(inner)),
+            Some(Ok(other)) => {
+                self.rewind(other);
+                Ok(None)
+            }
+            Some(Err(inner)) => Err(inner),
+            None => Err(Error::EndOfStream),
+        }
     }
 
     pub fn next_element_end(&mut self) -> Result<Option<ElementEnd<'a>>, Error> {
-        self.next_as()
+        match self.next() {
+            Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(Some(inner)),
+            Some(Ok(other)) => {
+                self.rewind(other);
+                Ok(None)
+            }
+            Some(Err(inner)) => Err(inner),
+            None => Err(Error::EndOfStream),
+        }
+    }
+
+    pub fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, Error> {
+        match self.next() {
+            Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(inner),
+            Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
+            Some(Err(inner)) => Err(inner),
+            None => Err(Error::EndOfStream),
+        }
+    }
+
+    pub fn assert_element_close(&mut self) -> Result<ElementClose<'a>, Error> {
+        match self.next() {
+            Some(Ok(MrmlToken::ElementClose(inner))) => Ok(inner),
+            Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
+            Some(Err(inner)) => Err(inner),
+            None => Err(Error::EndOfStream),
+        }
+    }
+
+    pub fn next_text(&mut self) -> Result<Option<Text<'a>>, Error> {
+        match self.next() {
+            Some(Ok(MrmlToken::Text(inner))) => Ok(Some(inner)),
+            Some(Ok(other)) => {
+                self.rewind(other);
+                Ok(None)
+            }
+            Some(Err(inner)) => Err(inner),
+            None => Err(Error::EndOfStream),
+        }
     }
 }
 
 impl<'a> AttributesParser<'a, HashMap<String, String>> for MrmlParser<'a> {
     fn parse_attributes(&mut self) -> Result<HashMap<String, String>, Error> {
         let mut result = HashMap::new();
+        while let Some(attr) = self.next_attribute()? {
+            result.insert(attr.local.to_string(), attr.value.to_string());
+        }
+        Ok(result)
+    }
+}
+
+impl<'a> AttributesParser<'a, Map<String, String>> for MrmlParser<'a> {
+    fn parse_attributes(&mut self) -> Result<Map<String, String>, Error> {
+        let mut result = Map::new();
         while let Some(attr) = self.next_attribute()? {
             result.insert(attr.local.to_string(), attr.value.to_string());
         }

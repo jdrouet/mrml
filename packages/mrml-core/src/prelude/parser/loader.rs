@@ -3,6 +3,7 @@
 
 use std::io::ErrorKind;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use xmlparser::Token;
 
@@ -11,12 +12,12 @@ use crate::comment::Comment;
 use crate::prelude::parser::{next_token, Error, Parsable};
 use crate::text::Text;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IncludeLoaderError {
     pub path: String,
     pub reason: ErrorKind,
     pub message: Option<&'static str>,
-    pub cause: Option<Box<dyn std::error::Error + Send + Sync + 'static>>,
+    pub cause: Option<Arc<dyn std::error::Error + Send + Sync + 'static>>,
 }
 
 impl IncludeLoaderError {
@@ -43,7 +44,7 @@ impl IncludeLoaderError {
         self
     }
 
-    pub fn with_cause(mut self, cause: Box<dyn std::error::Error + Send + Sync + 'static>) -> Self {
+    pub fn with_cause(mut self, cause: Arc<dyn std::error::Error + Send + Sync + 'static>) -> Self {
         self.cause = Some(cause);
         self
     }
@@ -97,7 +98,7 @@ pub fn parse<T: Parsable + From<Comment> + From<Text>>(
 
 #[cfg(test)]
 mod tests {
-    use std::io::ErrorKind;
+    use std::{io::ErrorKind, sync::Arc};
 
     use super::IncludeLoaderError;
 
@@ -123,7 +124,7 @@ mod tests {
     fn should_display_with_cause() {
         assert_eq!(
             IncludeLoaderError::new("foo.mjml", ErrorKind::NotFound)
-                .with_cause(Box::new(IncludeLoaderError::new(
+                .with_cause(Arc::new(IncludeLoaderError::new(
                     "bar.mjml",
                     ErrorKind::InvalidInput
                 )))

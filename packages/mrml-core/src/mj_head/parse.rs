@@ -6,27 +6,30 @@ use super::{MjHead, MjHeadChild};
 use crate::mj_attributes::{MjAttributes, NAME as MJ_ATTRIBUTES};
 use crate::mj_breakpoint::{MjBreakpoint, NAME as MJ_BREAKPOINT};
 use crate::mj_font::{MjFont, NAME as MJ_FONT};
+use crate::mj_include::head::MjIncludeHead;
+use crate::mj_include::NAME as MJ_INCLUDE;
 use crate::mj_preview::{MjPreview, NAME as MJ_PREVIEW};
 use crate::mj_raw::{MjRaw, NAME as MJ_RAW};
 use crate::mj_style::{MjStyle, NAME as MJ_STYLE};
 use crate::mj_title::{MjTitle, NAME as MJ_TITLE};
 use crate::prelude::parser::{
-    ChildrenParser, ElementEnd, ElementParser, Error, MrmlParser, Parsable, Parser, ParserOptions,
+    ChildrenParser, ElementParser, Error, MrmlParser, Parsable, Parser, ParserOptions,
 };
 
 impl<'a> ChildrenParser<'a, Vec<MjHeadChild>> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjHeadChild>, Error> {
         let mut children = Vec::new();
-        while let Some(token) = self.iterate() {
-            todo!()
+        while let Some(token) = self.next_element_start()? {
+            children.push(self.parse(token.local)?);
         }
+        let _ = self.assert_element_end()?;
         Ok(children)
     }
 }
 
 impl<'a> ElementParser<'a, MjHead> for MrmlParser<'a> {
-    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjHead, Error> {
-        let ending = self.assert_next_as::<ElementEnd>()?;
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjHead, Error> {
+        let ending = self.next_element_end()?.ok_or(Error::EndOfStream)?;
         let children = if !ending.empty {
             self.parse_children()?
         } else {
@@ -34,6 +37,22 @@ impl<'a> ElementParser<'a, MjHead> for MrmlParser<'a> {
         };
 
         Ok(MjHead { children })
+    }
+}
+
+impl<'a> ElementParser<'a, MjHeadChild> for MrmlParser<'a> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjHeadChild, Error> {
+        match tag.as_str() {
+            // MJ_ATTRIBUTES => self.parse(tag).map(MjHeadChild::MjAttributes),
+            MJ_BREAKPOINT => self.parse(tag).map(MjHeadChild::MjBreakpoint),
+            MJ_FONT => self.parse(tag).map(MjHeadChild::MjFont),
+            // MJ_INCLUDE => self.parse(tag).map(MjHeadChild::MjInclude),
+            // MJ_PREVIEW => self.parse(tag).map(MjHeadChild::MjPreview),
+            // MJ_RAW => self.parse(tag).map(MjHeadChild::MjRaw),
+            // MJ_STYLE => self.parse(tag).map(MjHeadChild::MjStyle),
+            MJ_TITLE => self.parse(tag).map(MjHeadChild::MjTitle),
+            _ => Err(Error::UnexpectedElement(tag.start())),
+        }
     }
 }
 
