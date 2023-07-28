@@ -8,7 +8,10 @@ impl<'a> ElementParser<'a, MjButton> for MrmlParser<'a> {
         let attributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
         if ending.empty {
-            return Ok(MjButton::default());
+            return Ok(MjButton {
+                attributes,
+                children: Vec::new(),
+            });
         }
 
         let children = self.parse_children()?;

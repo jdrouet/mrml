@@ -60,7 +60,7 @@ impl<'a> ElementParser<'a, MjBodyChild> for MrmlParser<'a> {
             MJ_BUTTON => Ok(MjBodyChild::MjButton(self.parse(tag)?)),
             // MJ_CAROUSEL => Ok(MjCarousel::parse(tag, tokenizer, opts)?.into()),
             MJ_COLUMN => Ok(MjBodyChild::MjColumn(self.parse(tag)?)),
-            // MJ_DIVIDER => Ok(MjDivider::parse(tag, tokenizer, opts)?.into()),
+            MJ_DIVIDER => Ok(MjBodyChild::MjDivider(self.parse(tag)?)),
             // MJ_GROUP => Ok(MjGroup::parse(tag, tokenizer, opts)?.into()),
             // MJ_HERO => Ok(MjHero::parse(tag, tokenizer, opts)?.into()),
             // MJ_IMAGE => Ok(MjImage::parse(tag, tokenizer, opts)?.into()),

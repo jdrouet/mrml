@@ -8,7 +8,10 @@ impl<'a> ElementParser<'a, MjColumn> for MrmlParser<'a> {
         let attributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
         if ending.empty {
-            return Ok(MjColumn::default());
+            return Ok(MjColumn {
+                attributes,
+                children: Vec::new(),
+            });
         }
 
         let children = self.parse_children()?;
