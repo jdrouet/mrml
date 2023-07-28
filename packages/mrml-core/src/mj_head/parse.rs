@@ -6,7 +6,6 @@ use super::{MjHead, MjHeadChild};
 use crate::mj_attributes::{MjAttributes, NAME as MJ_ATTRIBUTES};
 use crate::mj_breakpoint::{MjBreakpoint, NAME as MJ_BREAKPOINT};
 use crate::mj_font::{MjFont, NAME as MJ_FONT};
-use crate::mj_include::head::MjIncludeHead;
 use crate::mj_include::NAME as MJ_INCLUDE;
 use crate::mj_preview::{MjPreview, NAME as MJ_PREVIEW};
 use crate::mj_raw::{MjRaw, NAME as MJ_RAW};
@@ -43,13 +42,13 @@ impl<'a> ElementParser<'a, MjHead> for MrmlParser<'a> {
 impl<'a> ElementParser<'a, MjHeadChild> for MrmlParser<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjHeadChild, Error> {
         match tag.as_str() {
-            // MJ_ATTRIBUTES => self.parse(tag).map(MjHeadChild::MjAttributes),
+            MJ_ATTRIBUTES => self.parse(tag).map(MjHeadChild::MjAttributes),
             MJ_BREAKPOINT => self.parse(tag).map(MjHeadChild::MjBreakpoint),
             MJ_FONT => self.parse(tag).map(MjHeadChild::MjFont),
-            // MJ_INCLUDE => self.parse(tag).map(MjHeadChild::MjInclude),
+            MJ_INCLUDE => self.parse(tag).map(MjHeadChild::MjInclude),
             MJ_PREVIEW => self.parse(tag).map(MjHeadChild::MjPreview),
-            // MJ_RAW => self.parse(tag).map(MjHeadChild::MjRaw),
-            // MJ_STYLE => self.parse(tag).map(MjHeadChild::MjStyle),
+            MJ_RAW => self.parse(tag).map(MjHeadChild::MjRaw),
+            MJ_STYLE => self.parse(tag).map(MjHeadChild::MjStyle),
             MJ_TITLE => self.parse(tag).map(MjHeadChild::MjTitle),
             _ => Err(Error::UnexpectedElement(tag.start())),
         }

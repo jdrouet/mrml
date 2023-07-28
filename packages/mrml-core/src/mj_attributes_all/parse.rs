@@ -1,3 +1,16 @@
+use xmlparser::StrSpan;
+
+use super::MjAttributesAll;
+use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser};
+
+impl<'a> ElementParser<'a, MjAttributesAll> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAttributesAll, Error> {
+        let attributes = self.parse_attributes()?;
+
+        Ok(MjAttributesAll { attributes })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::mjml::Mjml;

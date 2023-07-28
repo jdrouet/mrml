@@ -4,7 +4,19 @@ use xmlparser::{StrSpan, Tokenizer};
 
 use super::MjAttributesElement;
 use crate::prelude::hash::Map;
-use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{Parsable, Parser, ParserOptions};
+
+impl<'a> ElementParser<'a, MjAttributesElement> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAttributesElement, Error> {
+        let mut attributes: Map<String, String> = self.parse_attributes()?;
+        let name: String = attributes
+            .remove("name")
+            .ok_or_else(|| Error::MissingAttribute("name"))?;
+
+        Ok(MjAttributesElement { name, attributes })
+    }
+}
 
 #[derive(Debug)]
 struct MjAttributesElementParser {

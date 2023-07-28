@@ -1,10 +1,7 @@
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
 use super::{MjFont, MjFontAttributes};
-use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, Parsable, Parser,
-    ParserOptions,
-};
+use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser};
 
 impl<'a> AttributesParser<'a, MjFontAttributes> for MrmlParser<'a> {
     fn parse_attributes(&mut self) -> Result<MjFontAttributes, Error> {

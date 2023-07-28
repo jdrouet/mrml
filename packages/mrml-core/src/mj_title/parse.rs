@@ -1,12 +1,10 @@
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
 use super::MjTitle;
-use crate::prelude::parser::{
-    ChildrenParser, ElementParser, Error, MrmlParser, Parsable, Parser, ParserOptions,
-};
+use crate::prelude::parser::{ElementParser, Error, MrmlParser};
 
 impl<'a> ElementParser<'a, MjTitle> for MrmlParser<'a> {
-    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjTitle, Error> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjTitle, Error> {
         let ending = self.assert_element_end()?;
         if ending.empty {
             return Ok(MjTitle::default());

@@ -1,10 +1,7 @@
 use xmlparser::StrSpan;
 
 use super::{MjBreakpoint, MjBreakpointAttributes};
-use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, Parsable, Parser,
-    ParserOptions,
-};
+use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser};
 
 impl<'a> AttributesParser<'a, MjBreakpointAttributes> for MrmlParser<'a> {
     fn parse_attributes(&mut self) -> Result<MjBreakpointAttributes, Error> {

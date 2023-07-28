@@ -3,9 +3,54 @@ use std::rc::Rc;
 use xmlparser::{StrSpan, Tokenizer};
 
 use super::{MjRaw, MjRawChild};
+use crate::comment::Comment;
 use crate::node::Node;
-use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{
+    ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable, Parser, ParserOptions,
+};
+use crate::text::Text;
 use crate::{parse_child, parse_comment, parse_text};
+
+impl<'a> ElementParser<'a, Node<MjRawChild>> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<Node<MjRawChild>, Error> {
+        todo!()
+    }
+}
+
+impl<'a> ChildrenParser<'a, Vec<MjRawChild>> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<Vec<MjRawChild>, Error> {
+        let mut children = Vec::new();
+        loop {
+            let token = self.assert_next()?;
+            match token {
+                MrmlToken::Comment(inner) => {
+                    children.push(MjRawChild::Comment(Comment::from(inner.text.as_str())));
+                }
+                MrmlToken::ElementStart(elt) => {
+                    children.push(MjRawChild::Node(self.parse(elt.local)?));
+                }
+                MrmlToken::Text(inner) => {
+                    children.push(MjRawChild::Text(Text::from(inner.text.as_str())));
+                }
+                MrmlToken::ElementClose(_) => return Ok(children),
+                other => return Err(Error::unexpected_token(other.range())),
+            }
+        }
+    }
+}
+
+impl<'a> ElementParser<'a, MjRaw> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjRaw, Error> {
+        let ending = self.next_element_end()?.ok_or(Error::EndOfStream)?;
+        let children = if !ending.empty {
+            self.parse_children()?
+        } else {
+            Default::default()
+        };
+
+        Ok(MjRaw { children })
+    }
+}
 
 impl Parsable for MjRawChild {
     fn parse<'a>(

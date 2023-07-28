@@ -4,8 +4,108 @@ use std::str::FromStr;
 use xmlparser::{StrSpan, Tokenizer};
 
 use super::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild, MjIncludeHeadKind};
+use crate::comment::Comment;
+use crate::mj_attributes::NAME as MJ_ATTRIBUTES;
+use crate::mj_breakpoint::NAME as MJ_BREAKPOINT;
+use crate::mj_font::NAME as MJ_FONT;
 use crate::mj_head::MjHeadChild;
-use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
+use crate::mj_preview::NAME as MJ_PREVIEW;
+use crate::mj_raw::NAME as MJ_RAW;
+use crate::mj_style::NAME as MJ_STYLE;
+use crate::mj_title::NAME as MJ_TITLE;
+use crate::prelude::parser::{
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken, Parsable,
+    Parser, ParserOptions,
+};
+use crate::text::Text;
+
+impl<'a> ElementParser<'a, MjIncludeHeadChild> for MrmlParser<'a> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeHeadChild, Error> {
+        match tag.as_str() {
+            MJ_ATTRIBUTES => self.parse(tag).map(MjIncludeHeadChild::MjAttributes),
+            MJ_BREAKPOINT => self.parse(tag).map(MjIncludeHeadChild::MjBreakpoint),
+            MJ_FONT => self.parse(tag).map(MjIncludeHeadChild::MjFont),
+            MJ_PREVIEW => self.parse(tag).map(MjIncludeHeadChild::MjPreview),
+            MJ_RAW => self.parse(tag).map(MjIncludeHeadChild::MjRaw),
+            MJ_STYLE => self.parse(tag).map(MjIncludeHeadChild::MjStyle),
+            MJ_TITLE => self.parse(tag).map(MjIncludeHeadChild::MjTitle),
+            _ => Err(Error::UnexpectedElement(tag.start())),
+        }
+    }
+}
+
+impl<'a> AttributesParser<'a, MjIncludeHeadAttributes> for MrmlParser<'a> {
+    fn parse_attributes(&mut self) -> Result<MjIncludeHeadAttributes, Error> {
+        let mut path = None;
+        let mut kind = None;
+        while let Some(attr) = self.next_attribute()? {
+            match attr.local.as_str() {
+                "path" => {
+                    path = Some(attr.value.to_string());
+                }
+                "kind" => {
+                    kind = Some(MjIncludeHeadKind::from_str(attr.value.as_str())?);
+                }
+                _ => {
+                    return Err(Error::UnexpectedAttribute(attr.span.start()));
+                }
+            }
+        }
+        Ok(MjIncludeHeadAttributes {
+            path: path.ok_or_else(|| Error::MissingAttribute("path"))?,
+            kind: kind.ok_or_else(|| Error::MissingAttribute("kind"))?,
+        })
+    }
+}
+
+impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<Vec<MjIncludeHeadChild>, Error> {
+        let mut result = Vec::new();
+        loop {
+            match self.assert_next()? {
+                MrmlToken::Comment(inner) => {
+                    result.push(MjIncludeHeadChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
+                }
+                MrmlToken::Text(inner) => {
+                    result.push(MjIncludeHeadChild::Text(Text::from(inner.text.as_str())));
+                }
+                MrmlToken::ElementStart(inner) => {
+                    result.push(self.parse(inner.local)?);
+                }
+                MrmlToken::ElementClose(close) => {
+                    self.rewind(MrmlToken::ElementClose(close));
+                    return Ok(result);
+                }
+                other => {
+                    return Err(Error::unexpected_token(other.range()));
+                }
+            }
+        }
+    }
+}
+
+impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjIncludeHead, Error> {
+        let attributes = self.parse_attributes()?;
+        let ending = self.assert_element_end()?;
+        if ending.empty {
+            return Ok(MjIncludeHead {
+                attributes,
+                children: Vec::new(),
+            });
+        }
+
+        let children = self.parse_children()?;
+        self.assert_element_close()?;
+
+        Ok(MjIncludeHead {
+            attributes,
+            children,
+        })
+    }
+}
 
 impl std::convert::TryFrom<MjIncludeHeadChild> for MjHeadChild {
     type Error = Error;

@@ -489,7 +489,7 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    fn rewind(&mut self, token: MrmlToken<'a>) {
+    pub fn rewind(&mut self, token: MrmlToken<'a>) {
         self.buffer.push(token);
     }
 
