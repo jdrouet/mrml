@@ -56,7 +56,7 @@ impl<'a> ElementParser<'a, Node<MjBodyChild>> for MrmlParser<'a> {
 impl<'a> ElementParser<'a, MjBodyChild> for MrmlParser<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjBodyChild, Error> {
         match tag.as_str() {
-            // MJ_ACCORDION => Ok(MjAccordion::parse(tag, tokenizer, opts)?.into()),
+            MJ_ACCORDION => Ok(MjBodyChild::MjAccordion(self.parse(tag)?)),
             MJ_BUTTON => Ok(MjBodyChild::MjButton(self.parse(tag)?)),
             // MJ_CAROUSEL => Ok(MjCarousel::parse(tag, tokenizer, opts)?.into()),
             MJ_COLUMN => Ok(MjBodyChild::MjColumn(self.parse(tag)?)),

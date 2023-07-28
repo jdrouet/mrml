@@ -7,7 +7,51 @@ use crate::mj_accordion_text::{MjAccordionText, NAME as MJ_ACCORDION_TEXT};
 use crate::mj_accordion_title::{MjAccordionTitle, NAME as MJ_ACCORDION_TITLE};
 use crate::parse_attribute;
 use crate::prelude::hash::Map;
-use crate::prelude::parser::{Error, Parsable, Parser, ParserOptions};
+use crate::prelude::parser::{
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, Parsable, Parser,
+    ParserOptions,
+};
+
+impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<MjAccordionElementChildren, Error> {
+        let mut result = MjAccordionElementChildren::default();
+
+        while let Some(open) = self.next_element_start()? {
+            match open.local.as_str() {
+                MJ_ACCORDION_TEXT => {
+                    result.text = Some(self.parse(open.local)?);
+                }
+                MJ_ACCORDION_TITLE => {
+                    result.title = Some(self.parse(open.local)?);
+                }
+                _ => return Err(Error::UnexpectedElement(open.span.start())),
+            }
+        }
+
+        Ok(result)
+    }
+}
+
+impl<'a> ElementParser<'a, MjAccordionElement> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordionElement, Error> {
+        let attributes = self.parse_attributes()?;
+        let ending = self.assert_element_end()?;
+        if ending.empty {
+            return Ok(MjAccordionElement {
+                attributes,
+                children: Default::default(),
+            });
+        }
+
+        let children = self.parse_children()?;
+        self.assert_element_close()?;
+
+        Ok(MjAccordionElement {
+            attributes,
+            children,
+        })
+    }
+}
 
 #[derive(Debug, Default)]
 struct MjAccordionElementParser {
