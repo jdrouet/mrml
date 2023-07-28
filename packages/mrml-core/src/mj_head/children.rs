@@ -12,7 +12,6 @@ use crate::mj_title::MjTitle;
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
-#[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseChildren))]
 pub enum MjHeadChild {
     Comment(Comment),
     MjAttributes(MjAttributes),

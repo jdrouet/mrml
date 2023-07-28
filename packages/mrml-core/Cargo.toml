@@ -18,7 +18,7 @@ travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 [features]
 default = ["orderedmap", "json", "parse", "print", "render"]
 json = ["dep:mrml-json-macros", "dep:serde", "dep:serde_json"]
-parse = ["dep:mrml-parse-macros", "dep:xmlparser", "dep:thiserror"]
+parse = ["dep:xmlparser", "dep:thiserror"]
 print = ["dep:mrml-print-macros"]
 render = ["dep:thiserror"]
 orderedmap = ["dep:indexmap", "dep:rustc-hash"]
@@ -48,7 +48,6 @@ url = { version = "^2", optional = true }
 # macros
 mrml-macros = { version = "0.1", path = "./lib/mrml-macros" }
 mrml-json-macros = { version = "0.1", path = "./lib/mrml-json-macros", optional = true }
-mrml-parse-macros = { version = "0.1", path = "./lib/mrml-parse-macros", optional = true }
 mrml-print-macros = { version = "0.1", path = "./lib/mrml-print-macros", optional = true }
 
 [dev-dependencies]

@@ -6,7 +6,6 @@ members = [
   "packages/mrml-core/lib/html-compare",
   "packages/mrml-core/lib/mrml-json-macros",
   "packages/mrml-core/lib/mrml-macros",
-  "packages/mrml-core/lib/mrml-parse-macros",
   "packages/mrml-core/lib/mrml-print-macros",
   "packages/mrml-core",
   "packages/mrml-wasm",

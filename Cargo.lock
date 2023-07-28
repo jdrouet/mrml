@@ -1055,7 +1055,6 @@ dependencies = [
  "mockito",
  "mrml-json-macros",
  "mrml-macros",
- "mrml-parse-macros",
  "mrml-print-macros",
  "reqwest",
  "rustc-hash",
@@ -1104,18 +1103,6 @@ name = "mrml-macros"
 version = "0.1.0"
 dependencies = [
  "Inflector",
- "mrml-common-macros",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "mrml-parse-macros"
-version = "0.1.0"
-dependencies = [
- "Inflector",
- "darling",
  "mrml-common-macros",
  "proc-macro2",
  "quote",

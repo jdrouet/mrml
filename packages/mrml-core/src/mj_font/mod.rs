@@ -10,7 +10,6 @@ pub const NAME: &str = "mj-font";
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintAttributes))]
-#[cfg_attr(feature = "parse", derive(mrml_parse_macros::MrmlParseAttributes))]
 pub struct MjFontAttributes {
     name: String,
     href: String,
