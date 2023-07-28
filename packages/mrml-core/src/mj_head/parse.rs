@@ -47,7 +47,7 @@ impl<'a> ElementParser<'a, MjHeadChild> for MrmlParser<'a> {
             MJ_BREAKPOINT => self.parse(tag).map(MjHeadChild::MjBreakpoint),
             MJ_FONT => self.parse(tag).map(MjHeadChild::MjFont),
             // MJ_INCLUDE => self.parse(tag).map(MjHeadChild::MjInclude),
-            // MJ_PREVIEW => self.parse(tag).map(MjHeadChild::MjPreview),
+            MJ_PREVIEW => self.parse(tag).map(MjHeadChild::MjPreview),
             // MJ_RAW => self.parse(tag).map(MjHeadChild::MjRaw),
             // MJ_STYLE => self.parse(tag).map(MjHeadChild::MjStyle),
             MJ_TITLE => self.parse(tag).map(MjHeadChild::MjTitle),
