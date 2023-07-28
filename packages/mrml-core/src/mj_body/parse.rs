@@ -67,7 +67,7 @@ impl<'a> ElementParser<'a, MjBodyChild> for MrmlParser<'a> {
             // MJ_INCLUDE => Ok(MjIncludeBody::parse(tag, tokenizer, opts)?.into()),
             // MJ_NAVBAR => Ok(MjNavbar::parse(tag, tokenizer, opts)?.into()),
             // MJ_RAW => Ok(MjRaw::parse(tag, tokenizer, opts)?.into()),
-            // MJ_SECTION => Ok(MjSection::parse(tag, tokenizer, opts)?.into()),
+            MJ_SECTION => Ok(MjBodyChild::MjSection(self.parse(tag)?)),
             // MJ_SOCIAL => Ok(MjSocial::parse(tag, tokenizer, opts)?.into()),
             // MJ_SPACER => Ok(MjSpacer::parse(tag, tokenizer, opts)?.into()),
             // MJ_TABLE => Ok(MjTable::parse(tag, tokenizer, opts)?.into()),
