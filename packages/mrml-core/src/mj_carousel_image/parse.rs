@@ -10,6 +10,6 @@ impl<'a> ElementParser<'a, MjCarouselImage> for MrmlParser<'a> {
         if !ending.empty {
             self.assert_element_close()?;
         }
-        return Ok(MjCarouselImage { attributes });
+        Ok(MjCarouselImage { attributes })
     }
 }

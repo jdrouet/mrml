@@ -59,7 +59,7 @@ impl<'a> AttributesParser<'a, MjIncludeHeadAttributes> for MrmlParser<'a> {
 impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjIncludeHeadChild>, Error> {
         let mut result = Vec::new();
-        while let Some(token) = self.next() {
+        while let Some(token) = self.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
                     result.push(MjIncludeHeadChild::Comment(Comment::from(

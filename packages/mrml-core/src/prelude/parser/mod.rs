@@ -108,7 +108,7 @@ impl Error {
     }
 }
 
-fn get_span<'a>(token: &Token<'a>) -> (usize, usize) {
+fn get_span(token: &Token<'_>) -> (usize, usize) {
     match token {
         Token::Attribute { span, .. }
         | Token::Cdata { span, .. }
@@ -393,7 +393,7 @@ impl<'a> MrmlParser<'a> {
             })
     }
 
-    pub fn next(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
+    pub fn next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
         if let Some(item) = self.buffer.pop() {
             Some(Ok(item))
         } else {
@@ -406,11 +406,11 @@ impl<'a> MrmlParser<'a> {
     }
 
     pub fn assert_next(&mut self) -> Result<MrmlToken<'a>, Error> {
-        self.next().unwrap_or_else(|| Err(Error::EndOfStream))
+        self.next_token().unwrap_or_else(|| Err(Error::EndOfStream))
     }
 
     pub fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, Error> {
-        match self.next() {
+        match self.next_token() {
             Some(Ok(MrmlToken::Attribute(inner))) => Ok(Some(inner)),
             Some(Ok(other)) => {
                 self.rewind(other);
@@ -422,7 +422,7 @@ impl<'a> MrmlParser<'a> {
     }
 
     pub fn next_element_start(&mut self) -> Result<Option<ElementStart<'a>>, Error> {
-        match self.next() {
+        match self.next_token() {
             Some(Ok(MrmlToken::ElementStart(inner))) => Ok(Some(inner)),
             Some(Ok(other)) => {
                 self.rewind(other);
@@ -434,7 +434,7 @@ impl<'a> MrmlParser<'a> {
     }
 
     pub fn next_element_end(&mut self) -> Result<Option<ElementEnd<'a>>, Error> {
-        match self.next() {
+        match self.next_token() {
             Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(Some(inner)),
             Some(Ok(other)) => {
                 self.rewind(other);
@@ -446,7 +446,7 @@ impl<'a> MrmlParser<'a> {
     }
 
     pub fn assert_element_start(&mut self) -> Result<ElementStart<'a>, Error> {
-        match self.next() {
+        match self.next_token() {
             Some(Ok(MrmlToken::ElementStart(inner))) => Ok(inner),
             Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
             Some(Err(inner)) => Err(inner),
@@ -455,7 +455,7 @@ impl<'a> MrmlParser<'a> {
     }
 
     pub fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, Error> {
-        match self.next() {
+        match self.next_token() {
             Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(inner),
             Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
             Some(Err(inner)) => Err(inner),
@@ -464,7 +464,7 @@ impl<'a> MrmlParser<'a> {
     }
 
     pub fn assert_element_close(&mut self) -> Result<ElementClose<'a>, Error> {
-        match self.next() {
+        match self.next_token() {
             Some(Ok(MrmlToken::ElementClose(inner))) => Ok(inner),
             Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
             Some(Err(inner)) => Err(inner),
@@ -473,7 +473,7 @@ impl<'a> MrmlParser<'a> {
     }
 
     pub fn next_text(&mut self) -> Result<Option<Text<'a>>, Error> {
-        match self.next() {
+        match self.next_token() {
             Some(Ok(MrmlToken::Text(inner))) => Ok(Some(inner)),
             Some(Ok(other)) => {
                 self.rewind(other);

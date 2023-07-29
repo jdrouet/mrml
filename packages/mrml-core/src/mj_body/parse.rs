@@ -97,7 +97,7 @@ impl<'a> ElementParser<'a, MjBodyChild> for MrmlParser<'a> {
 impl<'a> ChildrenParser<'a, Vec<MjBodyChild>> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjBodyChild>, Error> {
         let mut result = Vec::new();
-        while let Some(token) = self.next() {
+        while let Some(token) = self.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
                     result.push(MjBodyChild::Comment(Comment::from(inner.text.as_str())));
