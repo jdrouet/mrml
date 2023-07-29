@@ -4,6 +4,7 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::io::ErrorKind;
+use std::sync::Arc;
 
 use super::loader::IncludeLoaderError;
 use crate::prelude::parser::loader::IncludeLoader;
@@ -34,17 +35,17 @@ impl HttpFetcher for ReqwestFetcher {
         let res = req.send().map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::NotFound)
                 .with_message("unable to fetch template")
-                .with_cause(Box::new(err))
+                .with_cause(Arc::new(err))
         })?;
         let res = res.error_for_status().map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::NotFound)
                 .with_message("unable to fetch template")
-                .with_cause(Box::new(err))
+                .with_cause(Arc::new(err))
         })?;
         res.text().map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::InvalidData)
                 .with_message("unable to convert remote template as string")
-                .with_cause(Box::new(err))
+                .with_cause(Arc::new(err))
         })
     }
 }
@@ -68,13 +69,13 @@ impl HttpFetcher for UreqFetcher {
             .map_err(|err| {
                 IncludeLoaderError::new(url, ErrorKind::NotFound)
                     .with_message("unable to fetch template")
-                    .with_cause(Box::new(err))
+                    .with_cause(Arc::new(err))
             })?
             .into_string()
             .map_err(|err| {
                 IncludeLoaderError::new(url, ErrorKind::InvalidData)
                     .with_message("unable to convert remote template as string")
-                    .with_cause(Box::new(err))
+                    .with_cause(Arc::new(err))
             })
     }
 }
@@ -268,7 +269,7 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
         let url = url::Url::parse(path).map_err(|err| {
             IncludeLoaderError::new(path, ErrorKind::InvalidInput)
                 .with_message("unable to parse the provided url")
-                .with_cause(Box::new(err))
+                .with_cause(Arc::new(err))
         })?;
         let origin = url.origin().ascii_serialization();
         if self.origin.is_allowed(&origin) {

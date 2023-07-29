@@ -3,6 +3,7 @@
 
 use std::io::ErrorKind;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use super::loader::IncludeLoaderError;
 use crate::prelude::parser::loader::IncludeLoader;
@@ -78,7 +79,7 @@ impl IncludeLoader for LocalIncludeLoader {
         std::fs::read_to_string(path).map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::InvalidData)
                 .with_message("unable to load the template file")
-                .with_cause(Box::new(err))
+                .with_cause(Arc::new(err))
         })
     }
 }
