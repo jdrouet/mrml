@@ -171,21 +171,51 @@ impl From<Text> for MjIncludeBodyChild {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
-    use crate::prelude::parser::{Error, MrmlParser, ParserOptions};
+    use crate::prelude::parser::{MrmlParser, ParserOptions};
 
     #[test]
+    fn kind_parser() {
+        assert_eq!(
+            MjIncludeBodyKind::from_str("html").unwrap(),
+            MjIncludeBodyKind::Html
+        );
+        assert_eq!(
+            MjIncludeBodyKind::from_str("mjml").unwrap(),
+            MjIncludeBodyKind::Mjml
+        );
+        assert!(MjIncludeBodyKind::from_str("foo").is_err());
+    }
+
+    #[test]
+    #[should_panic(expected = "InvalidElement(\"invalid mj-include attribute kind \\\"foo\\\"\")")]
+    fn invalid_kind() {
+        let raw = r#"<mj-include type="foo" path="basic.mjml" />"#;
+        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "IncludeLoaderError(IncludeLoaderError { path: \"basic.mjml\", reason: NotFound, message: None, cause: None })"
+    )]
     fn basic_in_noop_resolver() {
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let res: Result<MjIncludeBody, Error> =
-            MrmlParser::new(raw, Default::default()).parse_root();
-        match res.unwrap_err() {
-            Error::IncludeLoaderError(origin) => {
-                assert_eq!(origin.reason, std::io::ErrorKind::NotFound);
-            }
-            _ => panic!("expected a IncludeLoaderError"),
-        }
+        let _: MjIncludeBody = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    fn basic_with_children() {
+        let raw = r#"<mj-include path="basic.mjml"><mj-text>Hello World</mj-text> <!-- Coucou --></mj-include>"#;
+        let _: MjIncludeBody = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
@@ -211,5 +241,62 @@ mod tests {
         let include: MjIncludeBody = MrmlParser::new(raw, opts.into()).parse_root().unwrap();
         assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
         let _content = include.children.first().unwrap();
+    }
+
+    #[test]
+    fn parse_all_kind_of_children() {
+        let raw = r#"<mj-include path="partial.html">
+    <mj-accordion />
+    <mj-button />
+    <mj-carousel />
+    <mj-column />
+    <mj-divider />
+    <mj-group />
+    <mj-hero />
+    <mj-image path="./here.png" />
+    <mj-navbar />
+    <mj-raw />
+    <mj-section />
+    <mj-social />
+    <mj-spacer />
+    <mj-table />
+    <mj-text />
+    <mj-wrapper />
+    <!-- hello -->
+    World
+</mj-include>"#;
+        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedElement(38)")]
+    fn parse_unexpected_child() {
+        let raw = r#"<mj-include path="partial.html">
+    <foo />
+</mj-include>"#;
+        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedAttribute(12)")]
+    fn invalid_attribute() {
+        let raw =
+            r#"<mj-include invalid="attribute" path="partial.html"><!-- empty --></mj-include>"#;
+        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "MissingAttribute(\"path\")")]
+    fn missing_path() {
+        let raw = r#"<mj-include><!-- empty --></mj-include>"#;
+        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }
