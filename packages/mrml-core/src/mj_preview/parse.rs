@@ -25,12 +25,19 @@ mod tests {
     use crate::{mj_preview::MjPreview, prelude::parser::MrmlParser};
 
     #[test]
-    fn success() {
+    fn should_parse() {
         let _: MjPreview = MrmlParser::new(
             r#"<mj-preview>Hello World!</mj-preview>"#,
             Default::default(),
         )
         .parse_root()
         .unwrap();
+    }
+
+    #[test]
+    fn should_parse_without_children() {
+        let _: MjPreview = MrmlParser::new(r#"<mj-preview />"#, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }
