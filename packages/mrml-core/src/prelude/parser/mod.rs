@@ -102,7 +102,7 @@ impl Default for ParserOptions {
 }
 
 #[derive(Debug)]
-pub enum MrmlToken<'a> {
+pub(crate) enum MrmlToken<'a> {
     Attribute(Attribute<'a>),
     Comment(Comment<'a>),
     ElementClose(ElementClose<'a>),
@@ -174,7 +174,8 @@ impl<'a> MrmlToken<'a> {
 }
 
 #[derive(Debug)]
-pub struct Attribute<'a> {
+pub(crate) struct Attribute<'a> {
+    #[allow(unused)]
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
     pub value: StrSpan<'a>,
@@ -182,51 +183,53 @@ pub struct Attribute<'a> {
 }
 
 #[derive(Debug)]
-pub struct Comment<'a> {
+pub(crate) struct Comment<'a> {
     pub span: StrSpan<'a>,
     pub text: StrSpan<'a>,
 }
 
 #[derive(Debug)]
-pub struct ElementClose<'a> {
-    pub span: StrSpan<'a>,
-    pub prefix: StrSpan<'a>,
-    pub local: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub struct ElementStart<'a> {
+pub(crate) struct ElementClose<'a> {
+    #[allow(unused)]
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
     pub span: StrSpan<'a>,
 }
 
 #[derive(Debug)]
-pub struct ElementEnd<'a> {
+pub(crate) struct ElementStart<'a> {
+    #[allow(unused)]
+    pub prefix: StrSpan<'a>,
+    pub local: StrSpan<'a>,
+    pub span: StrSpan<'a>,
+}
+
+#[derive(Debug)]
+pub(crate) struct ElementEnd<'a> {
     pub span: StrSpan<'a>,
     pub empty: bool,
 }
 
 #[derive(Debug)]
-pub struct Text<'a> {
+pub(crate) struct Text<'a> {
     pub text: StrSpan<'a>,
 }
 
-pub trait ElementParser<'a, E> {
+pub(crate) trait ElementParser<'a, E> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<E, Error>;
 }
 
-pub trait AttributesParser<'a, A> {
+pub(crate) trait AttributesParser<'a, A> {
     fn parse_attributes(&mut self) -> Result<A, Error>;
 }
 
-pub trait ChildrenParser<'a, C> {
+pub(crate) trait ChildrenParser<'a, C> {
     fn parse_children(&mut self) -> Result<C, Error>;
 }
 
 pub struct MrmlParser<'a> {
     tokenizer: Tokenizer<'a>,
-    pub options: Arc<ParserOptions>,
+    pub(crate) options: Arc<ParserOptions>,
     buffer: Vec<MrmlToken<'a>>,
 }
 
@@ -239,7 +242,7 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn new_child<'b>(&self, source: &'b str) -> MrmlParser<'b> {
+    pub(crate) fn new_child<'b>(&self, source: &'b str) -> MrmlParser<'b> {
         MrmlParser {
             tokenizer: Tokenizer::from(source),
             options: self.options.clone(),
@@ -259,7 +262,7 @@ impl<'a> MrmlParser<'a> {
             })
     }
 
-    pub fn next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
+    pub(crate) fn next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
         if let Some(item) = self.buffer.pop() {
             Some(Ok(item))
         } else {
@@ -267,15 +270,15 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn rewind(&mut self, token: MrmlToken<'a>) {
+    pub(crate) fn rewind(&mut self, token: MrmlToken<'a>) {
         self.buffer.push(token);
     }
 
-    pub fn assert_next(&mut self) -> Result<MrmlToken<'a>, Error> {
+    pub(crate) fn assert_next(&mut self) -> Result<MrmlToken<'a>, Error> {
         self.next_token().unwrap_or_else(|| Err(Error::EndOfStream))
     }
 
-    pub fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, Error> {
+    pub(crate) fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::Attribute(inner))) => Ok(Some(inner)),
             Some(Ok(other)) => {
@@ -287,7 +290,7 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn next_element_end(&mut self) -> Result<Option<ElementEnd<'a>>, Error> {
+    pub(crate) fn next_element_end(&mut self) -> Result<Option<ElementEnd<'a>>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(Some(inner)),
             Some(Ok(other)) => {
@@ -299,7 +302,7 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn assert_element_start(&mut self) -> Result<ElementStart<'a>, Error> {
+    pub(crate) fn assert_element_start(&mut self) -> Result<ElementStart<'a>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementStart(inner))) => Ok(inner),
             Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
@@ -308,7 +311,7 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, Error> {
+    pub(crate) fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(inner),
             Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
@@ -317,7 +320,7 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn assert_element_close(&mut self) -> Result<ElementClose<'a>, Error> {
+    pub(crate) fn assert_element_close(&mut self) -> Result<ElementClose<'a>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementClose(inner))) => Ok(inner),
             Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
@@ -326,7 +329,7 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn next_text(&mut self) -> Result<Option<Text<'a>>, Error> {
+    pub(crate) fn next_text(&mut self) -> Result<Option<Text<'a>>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::Text(inner))) => Ok(Some(inner)),
             Some(Ok(other)) => {
@@ -338,7 +341,7 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn parse_root<T>(&mut self) -> Result<T, Error>
+    pub(crate) fn parse_root<T>(&mut self) -> Result<T, Error>
     where
         MrmlParser<'a>: ElementParser<'a, T>,
     {
