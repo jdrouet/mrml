@@ -157,18 +157,6 @@ impl<'a> ElementParser<'a, MjIncludeBody> for MrmlParser<'a> {
     }
 }
 
-impl From<Comment> for MjIncludeBodyChild {
-    fn from(value: Comment) -> Self {
-        Self::Comment(value)
-    }
-}
-
-impl From<Text> for MjIncludeBodyChild {
-    fn from(value: Text) -> Self {
-        Self::Text(value)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use std::str::FromStr;

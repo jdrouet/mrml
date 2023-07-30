@@ -7,7 +7,6 @@ use crate::comment::Comment;
 use crate::mj_attributes::NAME as MJ_ATTRIBUTES;
 use crate::mj_breakpoint::NAME as MJ_BREAKPOINT;
 use crate::mj_font::NAME as MJ_FONT;
-use crate::mj_head::MjHeadChild;
 use crate::mj_preview::NAME as MJ_PREVIEW;
 use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_style::NAME as MJ_STYLE;
@@ -66,7 +65,6 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
                         inner.text.as_str(),
                     )));
                 }
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::Text(inner) => {
                     result.push(MjIncludeHeadChild::Text(Text::from(inner.text.as_str())));
                 }
@@ -122,26 +120,6 @@ impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
             attributes,
             children,
         })
-    }
-}
-
-impl std::convert::TryFrom<MjIncludeHeadChild> for MjHeadChild {
-    type Error = Error;
-
-    fn try_from(value: MjIncludeHeadChild) -> Result<Self, Self::Error> {
-        match value {
-            MjIncludeHeadChild::Comment(inner) => Ok(Self::Comment(inner)),
-            MjIncludeHeadChild::MjAttributes(inner) => Ok(Self::MjAttributes(inner)),
-            MjIncludeHeadChild::MjBreakpoint(inner) => Ok(Self::MjBreakpoint(inner)),
-            MjIncludeHeadChild::MjFont(inner) => Ok(Self::MjFont(inner)),
-            MjIncludeHeadChild::MjPreview(inner) => Ok(Self::MjPreview(inner)),
-            MjIncludeHeadChild::MjRaw(inner) => Ok(Self::MjRaw(inner)),
-            MjIncludeHeadChild::MjStyle(inner) => Ok(Self::MjStyle(inner)),
-            MjIncludeHeadChild::MjTitle(inner) => Ok(Self::MjTitle(inner)),
-            MjIncludeHeadChild::Text(_inner) => Err(Error::InvalidElement(
-                "Text element should be wrapped in another element".into(),
-            )),
-        }
     }
 }
 
