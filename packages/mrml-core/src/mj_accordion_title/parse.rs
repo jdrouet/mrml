@@ -39,3 +39,34 @@ impl<'a> ElementParser<'a, MjAccordionTitle> for MrmlParser<'a> {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::MjAccordionTitle;
+    use crate::prelude::parser::MrmlParser;
+
+    #[test]
+    fn should_work_with_child_text() {
+        let raw = "<mj-accordion-title>Hello</mj-accordion-title>";
+        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    fn should_work_with_no_children() {
+        let raw = "<mj-accordion-title />";
+        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "EndOfStream")]
+    fn should_error_with_no_closing() {
+        let raw = "<mj-accordion-title>";
+        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+}
