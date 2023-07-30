@@ -61,6 +61,34 @@ impl<'a> ElementParser<'a, MjAccordion> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::MjAccordion;
+    use crate::prelude::parser::MrmlParser;
+
+    macro_rules! should_success {
+        ($title:ident, $template:expr) => {
+            #[test]
+            fn $title() {
+                let raw = $template;
+                let _: MjAccordion = MrmlParser::new(raw, Default::default())
+                    .parse_root()
+                    .unwrap();
+            }
+        };
+    }
+
+    macro_rules! should_fail {
+        ($title:ident, $template:expr, $error:expr) => {
+            #[test]
+            #[should_panic(expected = $error)]
+            fn $title() {
+                let raw = $template;
+                let _: MjAccordion = MrmlParser::new(raw, Default::default())
+                    .parse_root()
+                    .unwrap();
+            }
+        };
+    }
+
     #[test]
     fn basic() {
         let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
@@ -70,4 +98,23 @@ mod tests {
                 .unwrap();
         assert!(!format!("{result:?}").is_empty());
     }
+
+    should_success!(
+        should_keep_comments,
+        "<mj-accordion><!-- comment --></mj-accordion>"
+    );
+
+    should_success!(should_work_empty, "<mj-accordion />");
+
+    should_fail!(
+        should_error_with_text,
+        "<mj-accordion>Hello</mj-accordion>",
+        "UnexpectedToken(14, 19)"
+    );
+
+    should_fail!(
+        should_error_with_unknown_element,
+        "<mj-accordion><span /></mj-accordion>",
+        "UnexpectedElement(14)"
+    );
 }
