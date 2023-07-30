@@ -30,4 +30,22 @@ mod tests {
             .parse_root()
             .unwrap();
     }
+
+    #[test]
+    #[should_panic(expected = "MissingAttribute(\"name\")")]
+    fn should_have_name() {
+        let raw = r#"<mj-class color="red" />"#;
+        let _: MjAttributesClass = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedToken(33, 42)")]
+    fn should_close() {
+        let raw = r#"<mj-class name="div" color="red"><whatever>"#;
+        let _: MjAttributesClass = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
 }
