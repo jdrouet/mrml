@@ -3,9 +3,7 @@ use xmlparser::StrSpan;
 use super::{MjAccordionElement, MjAccordionElementChildren};
 use crate::mj_accordion_text::NAME as MJ_ACCORDION_TEXT;
 use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
-use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
-};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
 impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<MjAccordionElementChildren, Error> {
@@ -39,17 +37,7 @@ impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, MjAccordionElement> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordionElement, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjAccordionElement {
-                attributes,
-                children: Default::default(),
-            });
-        }
-
-        let children = self.parse_children()?;
-        self.assert_element_close()?;
+        let (attributes, children) = self.parse_attributes_and_children()?;
 
         Ok(MjAccordionElement {
             attributes,

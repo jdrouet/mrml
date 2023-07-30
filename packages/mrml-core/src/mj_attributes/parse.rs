@@ -36,7 +36,7 @@ impl<'a> ChildrenParser<'a, Vec<MjAttributesChild>> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, MjAttributes> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAttributes, Error> {
-        let ending = self.next_element_end()?.ok_or(Error::EndOfStream)?;
+        let ending = self.assert_element_end()?;
         if ending.empty {
             return Ok(MjAttributes {
                 children: Default::default(),

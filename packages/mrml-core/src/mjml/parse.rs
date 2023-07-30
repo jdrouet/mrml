@@ -54,16 +54,7 @@ impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, Mjml> for parser::MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<Mjml, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
-
-        let children = if !ending.empty {
-            let children = self.parse_children()?;
-            self.assert_element_close()?;
-            children
-        } else {
-            Default::default()
-        };
+        let (attributes, children) = self.parse_attributes_and_children()?;
 
         Ok(Mjml {
             attributes,

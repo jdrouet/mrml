@@ -2,7 +2,7 @@ use xmlparser::StrSpan;
 
 use super::MjAccordionTitle;
 use crate::{
-    prelude::parser::{AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser},
+    prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser},
     text::Text,
 };
 
@@ -22,16 +22,7 @@ impl<'a> ChildrenParser<'a, Vec<Text>> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, MjAccordionTitle> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordionTitle, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjAccordionTitle {
-                attributes,
-                children: Default::default(),
-            });
-        }
-        let children = self.parse_children()?;
-        self.assert_element_close()?;
+        let (attributes, children) = self.parse_attributes_and_children()?;
 
         Ok(MjAccordionTitle {
             attributes,

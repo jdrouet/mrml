@@ -123,17 +123,7 @@ impl<'a> ChildrenParser<'a, Vec<MjBodyChild>> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, MjBody> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjBody, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjBody {
-                attributes,
-                children: Vec::new(),
-            });
-        }
-
-        let children = self.parse_children()?;
-        self.assert_element_close()?;
+        let (attributes, children) = self.parse_attributes_and_children()?;
 
         Ok(MjBody {
             attributes,

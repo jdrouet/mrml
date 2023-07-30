@@ -4,7 +4,7 @@ use super::{MjCarousel, MjCarouselChild};
 use crate::comment::Comment;
 use crate::mj_carousel_image::NAME as MJ_CAROUSEL_IMAGE;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+    ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
 };
 
 impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
@@ -35,17 +35,7 @@ impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, MjCarousel> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjCarousel, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjCarousel {
-                attributes,
-                children: Vec::new(),
-            });
-        }
-
-        let children = self.parse_children()?;
-        self.assert_element_close()?;
+        let (attributes, children) = self.parse_attributes_and_children()?;
 
         Ok(MjCarousel {
             attributes,

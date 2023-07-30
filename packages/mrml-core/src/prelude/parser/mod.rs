@@ -290,18 +290,6 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub(crate) fn next_element_end(&mut self) -> Result<Option<ElementEnd<'a>>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(Some(inner)),
-            Some(Ok(other)) => {
-                self.rewind(other);
-                Ok(None)
-            }
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
     pub(crate) fn assert_element_start(&mut self) -> Result<ElementStart<'a>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementStart(inner))) => Ok(inner),
@@ -347,6 +335,25 @@ impl<'a> MrmlParser<'a> {
     {
         let start = self.assert_element_start()?;
         self.parse(start.local)
+    }
+
+    pub(crate) fn parse_attributes_and_children<A, C>(&mut self) -> Result<(A, C), Error>
+    where
+        MrmlParser<'a>: AttributesParser<'a, A>,
+        MrmlParser<'a>: ChildrenParser<'a, C>,
+        C: Default,
+    {
+        let attributes: A = self.parse_attributes()?;
+        let ending = self.assert_element_end()?;
+        if ending.empty {
+            return Ok((attributes, Default::default()));
+        }
+
+        let children: C = self.parse_children()?;
+
+        self.assert_element_close()?;
+
+        Ok((attributes, children))
     }
 }
 

@@ -86,17 +86,8 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeHead, Error> {
-        let attributes: MjIncludeHeadAttributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
-
-        let children = if ending.empty {
-            Vec::new()
-        } else {
-            let children = self.parse_children()?;
-            self.assert_element_close()?;
-
-            children
-        };
+        let (attributes, children): (MjIncludeHeadAttributes, Vec<MjIncludeHeadChild>) =
+            self.parse_attributes_and_children()?;
 
         // if a mj-include has some content, we don't load it
         let children: Vec<MjIncludeHeadChild> = if children.is_empty() {

@@ -4,7 +4,7 @@ use super::{MjAccordion, MjAccordionChild};
 use crate::comment::Comment;
 use crate::mj_accordion_element::NAME as MJ_ACCORDION_ELEMENT;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+    ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
 };
 
 impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
@@ -39,18 +39,7 @@ impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
 
 impl<'a> ElementParser<'a, MjAccordion> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordion, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
-
-        if ending.empty {
-            return Ok(MjAccordion {
-                attributes,
-                children: Vec::new(),
-            });
-        }
-
-        let children = self.parse_children()?;
-        self.assert_element_close()?;
+        let (attributes, children) = self.parse_attributes_and_children()?;
 
         Ok(MjAccordion {
             attributes,
