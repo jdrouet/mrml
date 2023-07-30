@@ -14,57 +14,6 @@ pub mod local_loader;
 pub mod memory_loader;
 pub mod noop_loader;
 
-#[macro_export]
-macro_rules! parse_attribute {
-    () => {
-        fn parse_attribute<'a>(
-            &mut self,
-            name: xmlparser::StrSpan<'a>,
-            value: xmlparser::StrSpan<'a>,
-        ) -> Result<(), Error> {
-            self.attributes.insert(name.to_string(), value.to_string());
-            Ok(())
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! parse_child {
-    ($child_parser:ident) => {
-        fn parse_child_element<'a>(
-            &mut self,
-            tag: xmlparser::StrSpan<'a>,
-            tokenizer: &mut xmlparser::Tokenizer<'a>,
-        ) -> Result<(), Error> {
-            self.children
-                .push($child_parser::parse(tag, tokenizer, self.opts.clone())?);
-            Ok(())
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! parse_comment {
-    () => {
-        fn parse_child_comment(&mut self, value: xmlparser::StrSpan) -> Result<(), Error> {
-            self.children
-                .push($crate::comment::Comment::from(value.as_str()).into());
-            Ok(())
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! parse_text {
-    () => {
-        fn parse_child_text(&mut self, value: xmlparser::StrSpan) -> Result<(), Error> {
-            self.children
-                .push($crate::text::Text::from(value.as_str()).into());
-            Ok(())
-        }
-    };
-}
-
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
     #[error("unexpected attribute at position {0}")]
