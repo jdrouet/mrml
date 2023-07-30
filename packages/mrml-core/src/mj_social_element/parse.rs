@@ -30,6 +30,14 @@ mod tests {
     use crate::{mj_social_element::MjSocialElement, prelude::parser::MrmlParser};
 
     #[test]
+    fn parse_with_empty_children() {
+        let template = r#"<mj-social-element name="facebook" />"#;
+        let _: MjSocialElement = MrmlParser::new(template, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
     fn parse_ending_tag() {
         let template = r#"
 <mj-social-element name="facebook">
