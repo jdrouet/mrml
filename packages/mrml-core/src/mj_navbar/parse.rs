@@ -54,3 +54,51 @@ impl<'a> ElementParser<'a, MjNavbar> for MrmlParser<'a> {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::MjNavbar;
+    use crate::prelude::parser::MrmlParser;
+
+    macro_rules! assert_success {
+        ($title:ident, $template:expr) => {
+            #[test]
+            fn $title() {
+                let _: MjNavbar = MrmlParser::new($template, Default::default())
+                    .parse_root()
+                    .unwrap();
+            }
+        };
+    }
+
+    macro_rules! assert_fail {
+        ($title:ident, $template:expr, $error:expr) => {
+            #[test]
+            #[should_panic(expected = $error)]
+            fn $title() {
+                let _: MjNavbar = MrmlParser::new($template, Default::default())
+                    .parse_root()
+                    .unwrap();
+            }
+        };
+    }
+
+    assert_success!(should_handle_empty_children, "<mj-navbar />");
+
+    assert_success!(
+        should_handle_comments,
+        "<mj-navbar><!-- comment --></mj-navbar>"
+    );
+
+    assert_fail!(
+        should_error_with_text,
+        "<mj-navbar>Hello</mj-navbar>",
+        "UnexpectedToken(11, 16)"
+    );
+
+    assert_fail!(
+        should_error_with_other_element,
+        "<mj-navbar><span /></mj-navbar>",
+        "UnexpectedElement(11)"
+    );
+}
