@@ -3,9 +3,7 @@ use xmlparser::StrSpan;
 use super::{MjAccordion, MjAccordionChild};
 use crate::comment::Comment;
 use crate::mj_accordion_element::NAME as MJ_ACCORDION_ELEMENT;
-use crate::prelude::parser::{
-    ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
-};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
 impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjAccordionChild>, Error> {

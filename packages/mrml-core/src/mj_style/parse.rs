@@ -43,7 +43,8 @@ impl<'a> ElementParser<'a, MjStyle> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_style::MjStyle, prelude::parser::MrmlParser};
+    use crate::mj_style::MjStyle;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn should_work_empty() {

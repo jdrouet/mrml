@@ -22,7 +22,8 @@ impl<'a> ElementParser<'a, MjTitle> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_title::MjTitle, prelude::parser::MrmlParser};
+    use crate::mj_title::MjTitle;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn success() {

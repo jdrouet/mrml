@@ -40,10 +40,8 @@
 //         &mut self,
 //         tag: xmlparser::StrSpan<'a>,
 //         tokenizer: &mut xmlparser::Tokenizer<'a>,
-//     ) -> Result<(), Error> {
-//         self.children
-//             .push(T::parse(tag, tokenizer, self.opts.clone())?);
-//         Ok(())
+//     ) -> Result<(), Error> { self.children .push(T::parse(tag, tokenizer,
+//       self.opts.clone())?); Ok(())
 //     }
 
 //     parse_comment!();

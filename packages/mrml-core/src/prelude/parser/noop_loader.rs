@@ -5,8 +5,8 @@ use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
 /// This struct is a simple
-/// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) that doesn't
-/// resolve any template. This is the default loader.
+/// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) that
+/// doesn't resolve any template. This is the default loader.
 ///
 /// # Example
 /// ```rust

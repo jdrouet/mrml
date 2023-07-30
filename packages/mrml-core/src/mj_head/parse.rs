@@ -62,7 +62,8 @@ impl<'a> ElementParser<'a, MjHeadChild> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_head::MjHead, prelude::parser::MrmlParser};
+    use crate::mj_head::MjHead;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn raw_children() {

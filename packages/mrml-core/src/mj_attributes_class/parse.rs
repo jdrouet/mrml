@@ -21,7 +21,8 @@ impl<'a> ElementParser<'a, MjAttributesClass> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_attributes_class::MjAttributesClass, prelude::parser::MrmlParser};
+    use crate::mj_attributes_class::MjAttributesClass;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn parse_complete() {

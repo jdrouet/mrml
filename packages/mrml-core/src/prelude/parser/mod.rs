@@ -1,9 +1,10 @@
-use std::{convert::TryFrom, fmt::Display, sync::Arc};
+use std::convert::TryFrom;
+use std::fmt::Display;
+use std::sync::Arc;
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
 use self::loader::IncludeLoaderError;
-
 use super::hash::Map;
 
 #[cfg(feature = "http-loader-base")]

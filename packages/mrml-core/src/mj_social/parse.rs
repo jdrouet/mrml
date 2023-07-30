@@ -3,9 +3,7 @@ use xmlparser::StrSpan;
 use super::{MjSocial, MjSocialChild};
 use crate::comment::Comment;
 use crate::mj_social_element::NAME as MJ_SOCIAL_ELEMENT;
-use crate::prelude::parser::{
-    ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
-};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
 impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjSocialChild>, Error> {

@@ -3,9 +3,7 @@ use xmlparser::StrSpan;
 use super::{MjNavbar, MjNavbarChild};
 use crate::comment::Comment;
 use crate::mj_navbar_link::NAME as MJ_NAVBAR_LINK;
-use crate::prelude::parser::{
-    ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
-};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
 impl<'a> ChildrenParser<'a, Vec<MjNavbarChild>> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjNavbarChild>, Error> {

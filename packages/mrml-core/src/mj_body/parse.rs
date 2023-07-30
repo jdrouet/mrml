@@ -134,7 +134,8 @@ impl<'a> ElementParser<'a, MjBody> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_body::MjBody, prelude::parser::MrmlParser};
+    use crate::mj_body::MjBody;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn parse_complete() {

@@ -3,9 +3,8 @@ use xmlparser::StrSpan;
 use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
-use crate::prelude::parser::Error;
 use crate::prelude::parser::{
-    self, AttributesParser, ChildrenParser, ElementParser, MrmlParser, MrmlToken,
+    self, AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
 };
 
 impl<'a> AttributesParser<'a, MjmlAttributes> for MrmlParser<'a> {

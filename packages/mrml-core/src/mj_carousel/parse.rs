@@ -3,9 +3,7 @@ use xmlparser::StrSpan;
 use super::{MjCarousel, MjCarouselChild};
 use crate::comment::Comment;
 use crate::mj_carousel_image::NAME as MJ_CAROUSEL_IMAGE;
-use crate::prelude::parser::{
-    ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
-};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
 impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjCarouselChild>, Error> {
@@ -46,7 +44,8 @@ impl<'a> ElementParser<'a, MjCarousel> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_carousel::MjCarousel, prelude::parser::MrmlParser};
+    use crate::mj_carousel::MjCarousel;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn with_all_children() {

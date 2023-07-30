@@ -1,10 +1,8 @@
 use xmlparser::StrSpan;
 
 use super::MjAccordionTitle;
-use crate::{
-    prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser},
-    text::Text,
-};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser};
+use crate::text::Text;
 
 impl<'a> ChildrenParser<'a, Vec<Text>> for MrmlParser<'a> {
     fn parse_children(&mut self) -> Result<Vec<Text>, Error> {

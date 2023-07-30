@@ -70,13 +70,13 @@ pub trait IncludeLoader: std::fmt::Debug {
     ///
     /// You can have an example of simple resolve function with the
     /// [`MemoryIncludeLoader`](crate::prelude::parser::memory_loader::MemoryIncludeLoader).
-    ///
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
 }
 
 #[cfg(test)]
 mod tests {
-    use std::{io::ErrorKind, sync::Arc};
+    use std::io::ErrorKind;
+    use std::sync::Arc;
 
     use super::IncludeLoaderError;
 

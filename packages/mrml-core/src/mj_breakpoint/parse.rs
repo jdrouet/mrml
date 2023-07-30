@@ -31,7 +31,8 @@ impl<'a> ElementParser<'a, MjBreakpoint> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_breakpoint::MjBreakpoint, prelude::parser::MrmlParser};
+    use crate::mj_breakpoint::MjBreakpoint;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn success() {

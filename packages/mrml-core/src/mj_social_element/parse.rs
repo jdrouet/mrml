@@ -16,7 +16,8 @@ impl<'a> ElementParser<'a, MjSocialElement> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_social_element::MjSocialElement, prelude::parser::MrmlParser};
+    use crate::mj_social_element::MjSocialElement;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn parse_with_empty_children() {

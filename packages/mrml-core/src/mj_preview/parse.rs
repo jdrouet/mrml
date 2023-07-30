@@ -22,7 +22,8 @@ impl<'a> ElementParser<'a, MjPreview> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_preview::MjPreview, prelude::parser::MrmlParser};
+    use crate::mj_preview::MjPreview;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn should_parse() {

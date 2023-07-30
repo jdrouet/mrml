@@ -16,7 +16,8 @@ impl<'a> ElementParser<'a, MjButton> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_button::MjButton, prelude::parser::MrmlParser};
+    use crate::mj_button::MjButton;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn success() {

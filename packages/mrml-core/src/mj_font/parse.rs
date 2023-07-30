@@ -33,7 +33,8 @@ impl<'a> ElementParser<'a, MjFont> for MrmlParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mj_font::MjFont, prelude::parser::MrmlParser};
+    use crate::mj_font::MjFont;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn success() {
