@@ -20,14 +20,14 @@ impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
                     if inner.local.as_str() == MJ_CAROUSEL_IMAGE {
                         result.push(MjCarouselChild::MjCarouselImage(self.parse(inner.local)?));
                     } else {
-                        return Err(Error::UnexpectedElement(inner.span.start()));
+                        return Err(Error::UnexpectedElement(inner.span.into()));
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::unexpected_token(other.range())),
+                other => return Err(Error::UnexpectedToken(other.span())),
             }
         }
     }

@@ -20,14 +20,14 @@ impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlParser<'a> {
                     if inner.local.as_str() == MJ_SOCIAL_ELEMENT {
                         result.push(MjSocialChild::MjSocialElement(self.parse(inner.local)?));
                     } else {
-                        return Err(Error::UnexpectedElement(inner.span.start()));
+                        return Err(Error::UnexpectedElement(inner.span.into()));
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::unexpected_token(other.range())),
+                other => return Err(Error::UnexpectedToken(other.span())),
             }
         }
     }
@@ -91,12 +91,12 @@ mod tests {
     assert_fail!(
         should_error_with_text,
         "<mj-social>Hello</mj-social>",
-        "UnexpectedToken(11, 16)"
+        "UnexpectedToken(Span { start: 11, end: 16 })"
     );
 
     assert_fail!(
         should_error_with_other_element,
         "<mj-social><span /></mj-social>",
-        "UnexpectedElement(11)"
+        "UnexpectedElement(Span { start: 11, end: 16 })"
     );
 }

@@ -11,7 +11,7 @@ impl<'a> AttributesParser<'a, MjFontAttributes> for MrmlParser<'a> {
             match attrs.local.as_str() {
                 "name" => result.name = attrs.value.to_string(),
                 "href" => result.href = attrs.value.to_string(),
-                _ => return Err(Error::UnexpectedAttribute(attrs.span.start())),
+                _ => return Err(Error::UnexpectedAttribute(attrs.span.into())),
             }
         }
 
@@ -24,7 +24,7 @@ impl<'a> ElementParser<'a, MjFont> for MrmlParser<'a> {
         let attributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
         if !ending.empty {
-            return Err(Error::InvalidFormat(ending.span.start(), ending.span.end()));
+            return Err(Error::InvalidFormat(ending.span.into()));
         }
 
         Ok(MjFont { attributes })

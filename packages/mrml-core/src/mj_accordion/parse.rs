@@ -24,14 +24,14 @@ impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
                             self.parse(inner.local)?,
                         ));
                     } else {
-                        return Err(Error::UnexpectedElement(inner.span.start()));
+                        return Err(Error::UnexpectedElement(inner.span.into()));
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::unexpected_token(other.range())),
+                other => return Err(Error::UnexpectedToken(other.span())),
             }
         }
     }
@@ -109,12 +109,12 @@ mod tests {
     should_fail!(
         should_error_with_text,
         "<mj-accordion>Hello</mj-accordion>",
-        "UnexpectedToken(14, 19)"
+        "UnexpectedToken(Span { start: 14, end: 19 })"
     );
 
     should_fail!(
         should_error_with_unknown_element,
         "<mj-accordion><span /></mj-accordion>",
-        "UnexpectedElement(14)"
+        "UnexpectedElement(Span { start: 14, end: 19 })"
     );
 }

@@ -22,7 +22,7 @@ impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlParser<'a> {
                         result.title = Some(self.parse(inner.local)?);
                     }
                     _ => {
-                        return Err(Error::UnexpectedElement(inner.span.start()));
+                        return Err(Error::UnexpectedElement(inner.span.into()));
                     }
                 },
                 MrmlToken::ElementClose(inner) => {
@@ -30,7 +30,7 @@ impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlParser<'a> {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::unexpected_token(other.range()));
+                    return Err(Error::UnexpectedToken(other.span()));
                 }
             }
         }
@@ -74,7 +74,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedElement(22")]
+    #[should_panic(expected = "UnexpectedElement(Span { start: 22, end: 27 })")]
     fn should_error_with_unknown_child() {
         let raw = "<mj-accordion-element><span /></mj-accordion-element>";
         let _: MjAccordionElement = MrmlParser::new(raw, Default::default())
@@ -83,7 +83,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedToken(22, 38")]
+    #[should_panic(expected = "UnexpectedToken(Span { start: 22, end: 38 }")]
     fn should_error_with_comment() {
         let raw = "<mj-accordion-element><!-- comment --></mj-accordion-element>";
         let _: MjAccordionElement = MrmlParser::new(raw, Default::default())
@@ -108,7 +108,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedToken(20, 25)")]
+    #[should_panic(expected = "UnexpectedToken(Span { start: 20, end: 25 })")]
     fn title_should_error_with_span_child() {
         let raw = "<mj-accordion-title><span>Hello</span></mj-accordion-title>";
         let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())

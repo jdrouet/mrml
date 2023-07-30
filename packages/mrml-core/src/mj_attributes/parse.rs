@@ -28,7 +28,7 @@ impl<'a> ChildrenParser<'a, Vec<MjAttributesChild>> for MrmlParser<'a> {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::unexpected_token(other.range())),
+                other => return Err(Error::UnexpectedToken(other.span())),
             }
         }
     }

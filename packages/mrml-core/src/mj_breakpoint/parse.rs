@@ -10,7 +10,7 @@ impl<'a> AttributesParser<'a, MjBreakpointAttributes> for MrmlParser<'a> {
             if attr.local.as_str() == "width" {
                 result.width = attr.value.to_string();
             } else {
-                return Err(Error::UnexpectedAttribute(attr.span.start()));
+                return Err(Error::UnexpectedAttribute(attr.span.into()));
             }
         }
         Ok(result)
@@ -22,7 +22,7 @@ impl<'a> ElementParser<'a, MjBreakpoint> for MrmlParser<'a> {
         let attributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
         if !ending.empty {
-            return Err(Error::InvalidFormat(ending.span.start(), ending.span.end()));
+            return Err(Error::InvalidFormat(ending.span.into()));
         }
 
         Ok(MjBreakpoint { attributes })

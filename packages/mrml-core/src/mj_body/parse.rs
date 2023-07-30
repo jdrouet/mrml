@@ -113,7 +113,7 @@ impl<'a> ChildrenParser<'a, Vec<MjBodyChild>> for MrmlParser<'a> {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::unexpected_token(other.range()));
+                    return Err(Error::UnexpectedToken(other.span()));
                 }
             }
         }

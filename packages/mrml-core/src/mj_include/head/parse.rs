@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::convert::TryFrom;
 
 use xmlparser::StrSpan;
 
@@ -26,7 +26,7 @@ impl<'a> ElementParser<'a, MjIncludeHeadChild> for MrmlParser<'a> {
             MJ_RAW => self.parse(tag).map(MjIncludeHeadChild::MjRaw),
             MJ_STYLE => self.parse(tag).map(MjIncludeHeadChild::MjStyle),
             MJ_TITLE => self.parse(tag).map(MjIncludeHeadChild::MjTitle),
-            _ => Err(Error::UnexpectedElement(tag.start())),
+            _ => Err(Error::UnexpectedElement(tag.into())),
         }
     }
 }
@@ -41,15 +41,15 @@ impl<'a> AttributesParser<'a, MjIncludeHeadAttributes> for MrmlParser<'a> {
                     path = Some(attr.value.to_string());
                 }
                 "type" => {
-                    kind = Some(MjIncludeHeadKind::from_str(attr.value.as_str())?);
+                    kind = Some(MjIncludeHeadKind::try_from(attr.value)?);
                 }
                 _ => {
-                    return Err(Error::UnexpectedAttribute(attr.span.start()));
+                    return Err(Error::UnexpectedAttribute(attr.span.into()));
                 }
             }
         }
         Ok(MjIncludeHeadAttributes {
-            path: path.ok_or_else(|| Error::MissingAttribute("path"))?,
+            path: path.ok_or_else(|| Error::MissingAttribute("path", Default::default()))?,
             kind: kind.unwrap_or_default(),
         })
     }
@@ -76,7 +76,7 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::unexpected_token(other.range()));
+                    return Err(Error::UnexpectedToken(other.span()));
                 }
             }
         }
@@ -85,7 +85,7 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
 }
 
 impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjIncludeHead, Error> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeHead, Error> {
         let attributes: MjIncludeHeadAttributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
 
@@ -100,7 +100,14 @@ impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
 
         // if a mj-include has some content, we don't load it
         let children: Vec<MjIncludeHeadChild> = if children.is_empty() {
-            let child = self.options.include_loader.resolve(&attributes.path)?;
+            let child = self
+                .options
+                .include_loader
+                .resolve(&attributes.path)
+                .map_err(|source| Error::IncludeLoaderError {
+                    position: tag.into(),
+                    source,
+                })?;
 
             match attributes.kind {
                 MjIncludeHeadKind::Css { inline: false } => {
@@ -123,24 +130,24 @@ impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
     }
 }
 
-impl FromStr for MjIncludeHeadKind {
-    type Err = Error;
+impl<'a> TryFrom<StrSpan<'a>> for MjIncludeHeadKind {
+    type Error = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
+    fn try_from(s: StrSpan<'a>) -> Result<Self, Self::Error> {
+        match s.as_str() {
             "html" => Ok(Self::Html),
             "mjml" => Ok(Self::Mjml),
             "css" => Ok(Self::Css { inline: false }),
-            other => Err(Error::InvalidElement(format!(
-                "invalid mj-include attribute kind {other:?}"
-            ))),
+            _ => Err(Error::InvalidAttribute(s.into())),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
+    use std::convert::TryFrom;
+
+    use xmlparser::StrSpan;
 
     use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
@@ -149,22 +156,22 @@ mod tests {
     #[test]
     fn should_parse_every_kind() {
         assert_eq!(
-            MjIncludeHeadKind::from_str("html").unwrap(),
+            MjIncludeHeadKind::try_from(StrSpan::from("html")).unwrap(),
             MjIncludeHeadKind::Html
         );
         assert_eq!(
-            MjIncludeHeadKind::from_str("mjml").unwrap(),
+            MjIncludeHeadKind::try_from(StrSpan::from("mjml")).unwrap(),
             MjIncludeHeadKind::Mjml
         );
         assert_eq!(
-            MjIncludeHeadKind::from_str("css").unwrap(),
+            MjIncludeHeadKind::try_from(StrSpan::from("css")).unwrap(),
             MjIncludeHeadKind::Css { inline: false }
         );
-        assert!(MjIncludeHeadKind::from_str("other").is_err());
+        assert!(MjIncludeHeadKind::try_from(StrSpan::from("other")).is_err());
     }
 
     #[test]
-    #[should_panic(expected = "MissingAttribute(\"path\")")]
+    #[should_panic(expected = "MissingAttribute(\"path\", Span { start: 0, end: 0 })")]
     fn should_error_when_no_path() {
         let raw = r#"<mj-include />"#;
         let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
@@ -173,7 +180,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedAttribute(12)")]
+    #[should_panic(expected = "UnexpectedAttribute(Span { start: 12, end: 25 })")]
     fn should_error_when_unknown_attribute() {
         let raw = r#"<mj-include unknown="yep" />"#;
         let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
@@ -199,7 +206,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedElement(29)")]
+    #[should_panic(expected = "UnexpectedElement(Span { start: 29, end: 32 })")]
     fn should_error_unknown_children() {
         let raw = r#"<mj-include path="inmemory"><div /></mj-include>"#;
         let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
@@ -209,7 +216,7 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "IncludeLoaderError(IncludeLoaderError { path: \"basic.mjml\", reason: NotFound, message: None, cause: None })"
+        expected = "IncludeLoaderError { position: Span { start: 1, end: 11 }, source: IncludeLoaderError { path: \"basic.mjml\", reason: NotFound, message: None, cause: None } }"
     )]
     fn basic_in_noop_resolver() {
         let raw = r#"<mj-include path="basic.mjml" />"#;

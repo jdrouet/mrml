@@ -24,7 +24,7 @@ impl<'a> ChildrenParser<'a, Vec<MjHeadChild>> for MrmlParser<'a> {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::unexpected_token(other.range()));
+                    return Err(Error::UnexpectedToken(other.span()));
                 }
             }
         }
@@ -55,7 +55,7 @@ impl<'a> ElementParser<'a, MjHeadChild> for MrmlParser<'a> {
             MJ_RAW => self.parse(tag).map(MjHeadChild::MjRaw),
             MJ_STYLE => self.parse(tag).map(MjHeadChild::MjStyle),
             MJ_TITLE => self.parse(tag).map(MjHeadChild::MjTitle),
-            _ => Err(Error::UnexpectedElement(tag.start())),
+            _ => Err(Error::UnexpectedElement(tag.into())),
         }
     }
 }

@@ -16,7 +16,7 @@ impl<'a> AttributesParser<'a, MjmlAttributes> for MrmlParser<'a> {
                 "owa" => attrs.owa = Some(token.value.to_string()),
                 "lang" => attrs.lang = Some(token.value.to_string()),
                 "dir" => attrs.dir = Some(token.value.to_string()),
-                _ => return Err(Error::UnexpectedAttribute(token.span.start())),
+                _ => return Err(Error::UnexpectedAttribute(token.span.into())),
             }
         }
         Ok(attrs)
@@ -41,11 +41,11 @@ impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
                         children.body = Some(self.parse(start.local)?);
                     }
                     _ => {
-                        return Err(Error::UnexpectedElement(start.span.start()));
+                        return Err(Error::UnexpectedElement(start.span.into()));
                     }
                 },
                 other => {
-                    return Err(Error::unexpected_token(other.range()));
+                    return Err(Error::UnexpectedToken(other.span()));
                 }
             }
         }
@@ -173,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedAttribute(6)")]
+    #[should_panic(expected = "UnexpectedAttribute(Span { start: 6, end: 20 })")]
     fn should_fail_with_unknown_param() {
         let template = "<mjml unknown=\"true\"></mjml>";
         let elt = Mjml::parse(template).unwrap();
@@ -181,14 +181,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedToken(6, 11)")]
+    #[should_panic(expected = "UnexpectedToken(Span { start: 6, end: 11 })")]
     fn should_fail_with_text_as_child() {
         let template = "<mjml>Hello</mjml>";
         let _ = Mjml::parse(template).unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedElement(6)")]
+    #[should_panic(expected = "UnexpectedElement(Span { start: 6, end: 10 })")]
     fn should_fail_with_other_child() {
         let template = "<mjml><div /></mjml>";
         let _ = Mjml::parse(template).unwrap();

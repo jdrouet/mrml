@@ -10,7 +10,7 @@ impl<'a> AttributesParser<'a, MjStyleAttributes> for MrmlParser<'a> {
             if attr.local.as_str() == "inline" {
                 result.inline = Some(attr.value.to_string());
             } else {
-                return Err(Error::UnexpectedAttribute(attr.span.start()));
+                return Err(Error::UnexpectedAttribute(attr.span.into()));
             }
         }
         Ok(result)
@@ -70,7 +70,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedAttribute(10)")]
+    #[should_panic(expected = "UnexpectedAttribute(Span { start: 10, end: 21 })")]
     fn should_error_with_unknown_attribute() {
         let _: MjStyle = MrmlParser::new(
             r#"<mj-style oups="true">.whatever {background-color: red};</mj-style>"#,

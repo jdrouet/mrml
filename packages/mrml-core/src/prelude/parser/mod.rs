@@ -1,4 +1,4 @@
-use std::{convert::TryFrom, sync::Arc};
+use std::{convert::TryFrom, fmt::Display, sync::Arc};
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
@@ -14,24 +14,60 @@ pub mod local_loader;
 pub mod memory_loader;
 pub mod noop_loader;
 
+#[derive(Clone, Debug, Default)]
+pub struct Span {
+    pub start: usize,
+    pub end: usize,
+}
+
+impl Display for Span {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}..{}", self.start, self.end)
+    }
+}
+
+impl<'a> From<StrSpan<'a>> for Span {
+    fn from(value: StrSpan<'a>) -> Self {
+        Self {
+            start: value.start(),
+            end: value.end(),
+        }
+    }
+}
+
+impl<'a> From<Token<'a>> for Span {
+    fn from(value: Token<'a>) -> Self {
+        match value {
+            Token::Attribute { span, .. }
+            | Token::Cdata { span, .. }
+            | Token::Comment { span, .. }
+            | Token::Declaration { span, .. }
+            | Token::DtdEnd { span }
+            | Token::DtdStart { span, .. }
+            | Token::ElementEnd { span, .. }
+            | Token::ElementStart { span, .. }
+            | Token::EmptyDtd { span, .. }
+            | Token::EntityDeclaration { span, .. }
+            | Token::ProcessingInstruction { span, .. } => span.into(),
+            Token::Text { text } => text.into(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
     #[error("unexpected attribute at position {0}")]
-    UnexpectedAttribute(usize),
+    UnexpectedAttribute(Span),
     #[error("unexpected element at position {0}")]
-    UnexpectedElement(usize),
-    #[error("unexpected comment at position {0}")]
-    UnexpectedComment(usize),
-    #[error("unexpected text at position {0}")]
-    UnexpectedText(usize),
-    #[error("unexpected token at position {0}..{1}")]
-    UnexpectedToken(usize, usize),
-    #[error("missing attribute {0}")]
-    MissingAttribute(&'static str),
-    #[error("invalid element: {0}")]
-    InvalidElement(String),
+    UnexpectedElement(Span),
+    #[error("unexpected token at position {0}")]
+    UnexpectedToken(Span),
+    #[error("missing attribute {0} in element at position {1}")]
+    MissingAttribute(&'static str, Span),
+    #[error("invalid attribute at position {0}")]
+    InvalidAttribute(Span),
     #[error("invalid format at position {0}")]
-    InvalidFormat(usize, usize),
+    InvalidFormat(Span),
     #[error("unexpected end of stream")]
     EndOfStream,
     /// The input string should be smaller than 4GiB.
@@ -44,30 +80,11 @@ pub enum Error {
     #[error("no root node found")]
     NoRootNode,
     #[error("unable to load included template")]
-    IncludeLoaderError(#[from] IncludeLoaderError),
-}
-
-impl Error {
-    pub(crate) fn unexpected_token((start, end): (usize, usize)) -> Self {
-        Error::UnexpectedToken(start, end)
-    }
-}
-
-fn get_span(token: &Token<'_>) -> (usize, usize) {
-    match token {
-        Token::Attribute { span, .. }
-        | Token::Cdata { span, .. }
-        | Token::Comment { span, .. }
-        | Token::Declaration { span, .. }
-        | Token::DtdEnd { span }
-        | Token::DtdStart { span, .. }
-        | Token::ElementEnd { span, .. }
-        | Token::ElementStart { span, .. }
-        | Token::EmptyDtd { span, .. }
-        | Token::EntityDeclaration { span, .. }
-        | Token::ProcessingInstruction { span, .. } => (span.start(), span.end()),
-        Token::Text { text } => (text.start(), text.end()),
-    }
+    IncludeLoaderError {
+        position: Span,
+        #[source]
+        source: IncludeLoaderError,
+    },
 }
 
 #[derive(Debug)]
@@ -137,22 +154,22 @@ impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
                 span,
             })),
             Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
-            other => Err(Error::unexpected_token(get_span(&other))),
+            other => Err(Error::UnexpectedToken(other.into())),
         }
     }
 }
 
 impl<'a> MrmlToken<'a> {
-    pub fn range(&self) -> (usize, usize) {
-        let span = match self {
+    pub fn span(&self) -> Span {
+        match self {
             Self::Attribute(item) => item.span,
             Self::Comment(item) => item.span,
             Self::ElementClose(item) => item.span,
             Self::ElementEnd(item) => item.span,
             Self::ElementStart(item) => item.span,
             Self::Text(item) => item.text,
-        };
-        (span.start(), span.end())
+        }
+        .into()
     }
 }
 
@@ -285,7 +302,7 @@ impl<'a> MrmlParser<'a> {
     pub fn assert_element_start(&mut self) -> Result<ElementStart<'a>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementStart(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
+            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
             Some(Err(inner)) => Err(inner),
             None => Err(Error::EndOfStream),
         }
@@ -294,7 +311,7 @@ impl<'a> MrmlParser<'a> {
     pub fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
+            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
             Some(Err(inner)) => Err(inner),
             None => Err(Error::EndOfStream),
         }
@@ -303,7 +320,7 @@ impl<'a> MrmlParser<'a> {
     pub fn assert_element_close(&mut self) -> Result<ElementClose<'a>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementClose(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(Error::unexpected_token(other.range())),
+            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
             Some(Err(inner)) => Err(inner),
             None => Err(Error::EndOfStream),
         }
