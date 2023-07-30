@@ -162,23 +162,82 @@ impl FromStr for MjIncludeHeadKind {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
-    use crate::prelude::parser::{Error, MrmlParser, ParserOptions};
+    use crate::prelude::parser::{MrmlParser, ParserOptions};
 
     #[test]
+    fn should_parse_every_kind() {
+        assert_eq!(
+            MjIncludeHeadKind::from_str("html").unwrap(),
+            MjIncludeHeadKind::Html
+        );
+        assert_eq!(
+            MjIncludeHeadKind::from_str("mjml").unwrap(),
+            MjIncludeHeadKind::Mjml
+        );
+        assert_eq!(
+            MjIncludeHeadKind::from_str("css").unwrap(),
+            MjIncludeHeadKind::Css { inline: false }
+        );
+        assert!(MjIncludeHeadKind::from_str("other").is_err());
+    }
+
+    #[test]
+    #[should_panic(expected = "MissingAttribute(\"path\")")]
+    fn should_error_when_no_path() {
+        let raw = r#"<mj-include />"#;
+        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedAttribute(12)")]
+    fn should_error_when_unknown_attribute() {
+        let raw = r#"<mj-include unknown="yep" />"#;
+        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    fn should_parse_all_children() {
+        let raw = r#"<mj-include path="inmemory">
+    <mj-attributes />
+    <mj-breakpoint width="400px" />
+    <mj-font name="Comic" href="..." />
+    <mj-preview>Preview</mj-preview>
+    <mj-raw />
+    <mj-style />
+    <mj-title>Title</mj-title>
+    <!-- Comment -->
+</mj-include>"#;
+        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedElement(29)")]
+    fn should_error_unknown_children() {
+        let raw = r#"<mj-include path="inmemory"><div /></mj-include>"#;
+        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "IncludeLoaderError(IncludeLoaderError { path: \"basic.mjml\", reason: NotFound, message: None, cause: None })"
+    )]
     fn basic_in_noop_resolver() {
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let res: Result<MjIncludeHead, Error> =
-            MrmlParser::new(raw, Default::default()).parse_root();
-
-        let err = res.unwrap_err();
-        match err {
-            Error::IncludeLoaderError(origin) => {
-                assert_eq!(origin.reason, std::io::ErrorKind::NotFound);
-            }
-            _ => panic!("expected a IncludeLoaderError"),
-        }
+        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
