@@ -20,7 +20,7 @@ impl<'a> AttributesParser<'a, MjStyleAttributes> for MrmlParser<'a> {
 impl<'a> ElementParser<'a, MjStyle> for MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjStyle, Error> {
         let attributes = self.parse_attributes()?;
-        let ending = self.next_element_end()?.ok_or(Error::EndOfStream)?;
+        let ending = self.assert_element_end()?;
         if !ending.empty {
             let children = self
                 .next_text()?
@@ -46,9 +46,34 @@ mod tests {
     use crate::{mj_style::MjStyle, prelude::parser::MrmlParser};
 
     #[test]
-    fn success() {
+    fn should_work_empty() {
+        let _: MjStyle = MrmlParser::new(r#"<mj-style />"#, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    fn should_work_inline() {
+        let _: MjStyle = MrmlParser::new(r#"<mj-style inline="inline" />"#, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    fn should_work_basic() {
         let _: MjStyle = MrmlParser::new(
             r#"<mj-style>.whatever {background-color: red};</mj-style>"#,
+            Default::default(),
+        )
+        .parse_root()
+        .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedAttribute(10)")]
+    fn should_error_with_unknown_attribute() {
+        let _: MjStyle = MrmlParser::new(
+            r#"<mj-style oups="true">.whatever {background-color: red};</mj-style>"#,
             Default::default(),
         )
         .parse_root()
