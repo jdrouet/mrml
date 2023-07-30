@@ -13,7 +13,6 @@ impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
 
         loop {
             match self.assert_next()? {
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::Comment(inner) => {
                     result.push(MjCarouselChild::Comment(Comment::from(inner.text.as_str())));
                 }

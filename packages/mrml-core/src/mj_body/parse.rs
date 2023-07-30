@@ -102,7 +102,6 @@ impl<'a> ChildrenParser<'a, Vec<MjBodyChild>> for MrmlParser<'a> {
                 MrmlToken::Comment(inner) => {
                     result.push(MjBodyChild::Comment(Comment::from(inner.text.as_str())));
                 }
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::Text(inner) => {
                     result.push(MjBodyChild::Text(Text::from(inner.text.as_str())));
                 }

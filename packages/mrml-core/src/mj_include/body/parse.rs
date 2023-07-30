@@ -106,7 +106,6 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeBodyChild>> for MrmlParser<'a> {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::Text(inner) => {
                     result.push(MjIncludeBodyChild::Text(Text::from(inner.text.as_str())));
                 }

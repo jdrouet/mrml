@@ -31,7 +31,6 @@ impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 other => return Err(Error::unexpected_token(other.range())),
             }
         }

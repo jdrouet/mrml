@@ -30,6 +30,7 @@ impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
         loop {
             match self.assert_next()? {
                 MrmlToken::ElementClose(close) if close.local.as_str() == super::NAME => {
+                    self.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
                 }
                 MrmlToken::ElementStart(start) => match start.local.as_str() {
@@ -43,7 +44,6 @@ impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
                         return Err(Error::UnexpectedElement(start.span.start()));
                     }
                 },
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 other => {
                     return Err(Error::unexpected_token(other.range()));
                 }
@@ -56,8 +56,11 @@ impl<'a> ElementParser<'a, Mjml> for parser::MrmlParser<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<Mjml, Error> {
         let attributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
+
         let children = if !ending.empty {
-            self.parse_children()?
+            let children = self.parse_children()?;
+            self.assert_element_close()?;
+            children
         } else {
             Default::default()
         };
@@ -121,7 +124,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn simple() {
+    fn should_parse_with_options() {
+        let template = "<mjml></mjml>";
+        let elt = Mjml::parse_with_options(template, Default::default()).unwrap();
+        assert!(elt.children.body.is_none());
+        assert!(elt.children.head.is_none());
+    }
+
+    #[test]
+    fn should_parse() {
         let template = "<mjml></mjml>";
         let elt: Mjml = MrmlParser::new(template, Default::default())
             .parse_root()
@@ -131,16 +142,55 @@ mod tests {
     }
 
     #[test]
-    fn with_lang() {
+    fn should_parse_without_children() {
+        let template = "<mjml />";
+        let elt: Mjml = MrmlParser::new(template, Default::default())
+            .parse_root()
+            .unwrap();
+        assert!(elt.children.body.is_none());
+        assert!(elt.children.head.is_none());
+    }
+
+    #[test]
+    fn should_parse_with_lang() {
         let template = "<mjml lang=\"fr\"></mjml>";
         let elt = Mjml::parse(template).unwrap();
         assert_eq!(elt.attributes.lang.unwrap(), "fr");
     }
 
     #[test]
-    fn with_owa() {
+    fn should_parse_with_owa() {
         let template = "<mjml owa=\"desktop\"></mjml>";
         let elt = Mjml::parse(template).unwrap();
         assert_eq!(elt.attributes.owa.unwrap(), "desktop");
+    }
+
+    #[test]
+    fn should_parse_with_dir() {
+        let template = "<mjml dir=\"rtl\"></mjml>";
+        let elt = Mjml::parse(template).unwrap();
+        assert_eq!(elt.attributes.dir.unwrap(), "rtl");
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedAttribute(6)")]
+    fn should_fail_with_unknown_param() {
+        let template = "<mjml unknown=\"true\"></mjml>";
+        let elt = Mjml::parse(template).unwrap();
+        assert_eq!(elt.attributes.dir.unwrap(), "rtl");
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedToken(6, 11)")]
+    fn should_fail_with_text_as_child() {
+        let template = "<mjml>Hello</mjml>";
+        let _ = Mjml::parse(template).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedElement(6)")]
+    fn should_fail_with_other_child() {
+        let template = "<mjml><div /></mjml>";
+        let _ = Mjml::parse(template).unwrap();
     }
 }

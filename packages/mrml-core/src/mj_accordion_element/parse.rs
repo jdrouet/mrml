@@ -14,7 +14,6 @@ impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlParser<'a> {
         loop {
             let token = self.assert_next()?;
             match token {
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::ElementStart(inner) => match inner.local.as_str() {
                     MJ_ACCORDION_TEXT => {
                         result.text = Some(self.parse(inner.local)?);

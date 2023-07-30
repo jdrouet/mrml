@@ -43,7 +43,6 @@ impl<'a> ChildrenParser<'a, Vec<MjRawChild>> for MrmlParser<'a> {
                 MrmlToken::ElementStart(elt) => {
                     children.push(MjRawChild::Node(self.parse(elt.local)?));
                 }
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::Text(inner) => {
                     children.push(MjRawChild::Text(Text::from(inner.text.as_str())));
                 }

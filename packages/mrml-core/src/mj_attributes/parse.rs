@@ -21,7 +21,6 @@ impl<'a> ChildrenParser<'a, Vec<MjAttributesChild>> for MrmlParser<'a> {
 
         loop {
             match self.assert_next()? {
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.parse(inner.local)?);
                 }
@@ -29,7 +28,6 @@ impl<'a> ChildrenParser<'a, Vec<MjAttributesChild>> for MrmlParser<'a> {
                     self.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 other => return Err(Error::unexpected_token(other.range())),
             }
         }

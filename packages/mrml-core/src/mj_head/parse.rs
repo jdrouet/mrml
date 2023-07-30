@@ -16,7 +16,6 @@ impl<'a> ChildrenParser<'a, Vec<MjHeadChild>> for MrmlParser<'a> {
         let mut result = Vec::new();
         loop {
             match self.assert_next()? {
-                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {}
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.parse(inner.local)?);
                 }
