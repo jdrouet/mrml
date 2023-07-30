@@ -1,4 +1,4 @@
-use std::{collections::HashMap, convert::TryFrom, sync::Arc};
+use std::{convert::TryFrom, sync::Arc};
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
@@ -99,11 +99,7 @@ pub enum Error {
 }
 
 impl Error {
-    pub fn invalid_format((start, end): (usize, usize)) -> Self {
-        Error::InvalidFormat(start, end)
-    }
-
-    pub fn unexpected_token((start, end): (usize, usize)) -> Self {
+    pub(crate) fn unexpected_token((start, end): (usize, usize)) -> Self {
         Error::UnexpectedToken(start, end)
     }
 }
@@ -193,102 +189,6 @@ impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
             })),
             Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
             other => Err(Error::unexpected_token(get_span(&other))),
-        }
-    }
-}
-
-impl<'a> TryFrom<MrmlToken<'a>> for Attribute<'a> {
-    type Error = MrmlToken<'a>;
-
-    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
-        match value {
-            MrmlToken::Attribute(inner) => Ok(inner),
-            other => Err(other),
-        }
-    }
-}
-
-impl<'a> From<Attribute<'a>> for MrmlToken<'a> {
-    fn from(value: Attribute<'a>) -> Self {
-        Self::Attribute(value)
-    }
-}
-
-impl<'a> TryFrom<MrmlToken<'a>> for Comment<'a> {
-    type Error = MrmlToken<'a>;
-
-    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
-        match value {
-            MrmlToken::Comment(inner) => Ok(inner),
-            other => Err(other),
-        }
-    }
-}
-
-impl<'a> From<Comment<'a>> for MrmlToken<'a> {
-    fn from(value: Comment<'a>) -> Self {
-        Self::Comment(value)
-    }
-}
-
-impl<'a> TryFrom<MrmlToken<'a>> for ElementClose<'a> {
-    type Error = MrmlToken<'a>;
-
-    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
-        match value {
-            MrmlToken::ElementClose(inner) => Ok(inner),
-            other => Err(other),
-        }
-    }
-}
-
-impl<'a> From<ElementEnd<'a>> for MrmlToken<'a> {
-    fn from(value: ElementEnd<'a>) -> Self {
-        Self::ElementEnd(value)
-    }
-}
-
-impl<'a> TryFrom<MrmlToken<'a>> for ElementEnd<'a> {
-    type Error = MrmlToken<'a>;
-
-    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
-        match value {
-            MrmlToken::ElementEnd(inner) => Ok(inner),
-            other => Err(other),
-        }
-    }
-}
-
-impl<'a> From<ElementStart<'a>> for MrmlToken<'a> {
-    fn from(value: ElementStart<'a>) -> Self {
-        Self::ElementStart(value)
-    }
-}
-
-impl<'a> TryFrom<MrmlToken<'a>> for ElementStart<'a> {
-    type Error = MrmlToken<'a>;
-
-    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
-        match value {
-            MrmlToken::ElementStart(inner) => Ok(inner),
-            other => Err(other),
-        }
-    }
-}
-
-impl<'a> From<Text<'a>> for MrmlToken<'a> {
-    fn from(value: Text<'a>) -> Self {
-        Self::Text(value)
-    }
-}
-
-impl<'a> TryFrom<MrmlToken<'a>> for Text<'a> {
-    type Error = MrmlToken<'a>;
-
-    fn try_from(value: MrmlToken<'a>) -> Result<Self, Self::Error> {
-        match value {
-            MrmlToken::Text(inner) => Ok(inner),
-            other => Err(other),
         }
     }
 }
@@ -421,18 +321,6 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub fn next_element_start(&mut self) -> Result<Option<ElementStart<'a>>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::ElementStart(inner))) => Ok(Some(inner)),
-            Some(Ok(other)) => {
-                self.rewind(other);
-                Ok(None)
-            }
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
     pub fn next_element_end(&mut self) -> Result<Option<ElementEnd<'a>>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(Some(inner)),
@@ -490,16 +378,6 @@ impl<'a> MrmlParser<'a> {
     {
         let start = self.assert_element_start()?;
         self.parse(start.local)
-    }
-}
-
-impl<'a> AttributesParser<'a, HashMap<String, String>> for MrmlParser<'a> {
-    fn parse_attributes(&mut self) -> Result<HashMap<String, String>, Error> {
-        let mut result = HashMap::new();
-        while let Some(attr) = self.next_attribute()? {
-            result.insert(attr.local.to_string(), attr.value.to_string());
-        }
-        Ok(result)
     }
 }
 
