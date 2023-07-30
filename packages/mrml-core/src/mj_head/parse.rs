@@ -1,98 +1,88 @@
-use std::rc::Rc;
-
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
 use super::{MjHead, MjHeadChild};
-use crate::mj_attributes::{MjAttributes, NAME as MJ_ATTRIBUTES};
-use crate::mj_breakpoint::{MjBreakpoint, NAME as MJ_BREAKPOINT};
-use crate::mj_font::{MjFont, NAME as MJ_FONT};
-use crate::mj_preview::{MjPreview, NAME as MJ_PREVIEW};
-use crate::mj_raw::{MjRaw, NAME as MJ_RAW};
-use crate::mj_style::{MjStyle, NAME as MJ_STYLE};
-use crate::mj_title::{MjTitle, NAME as MJ_TITLE};
-use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use crate::mj_attributes::NAME as MJ_ATTRIBUTES;
+use crate::mj_breakpoint::NAME as MJ_BREAKPOINT;
+use crate::mj_font::NAME as MJ_FONT;
+use crate::mj_include::NAME as MJ_INCLUDE;
+use crate::mj_preview::NAME as MJ_PREVIEW;
+use crate::mj_raw::NAME as MJ_RAW;
+use crate::mj_style::NAME as MJ_STYLE;
+use crate::mj_title::NAME as MJ_TITLE;
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
-impl Parsable for MjHeadChild {
-    fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        match tag.as_str() {
-            MJ_ATTRIBUTES => Ok(MjAttributes::parse(tag, tokenizer, opts)?.into()),
-            MJ_BREAKPOINT => Ok(MjBreakpoint::parse(tag, tokenizer, opts)?.into()),
-            MJ_FONT => Ok(MjFont::parse(tag, tokenizer, opts)?.into()),
-            crate::mj_include::NAME => {
-                Ok(crate::mj_include::head::MjIncludeHead::parse(tag, tokenizer, opts)?.into())
+impl<'a> ChildrenParser<'a, Vec<MjHeadChild>> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<Vec<MjHeadChild>, Error> {
+        let mut result = Vec::new();
+        loop {
+            match self.assert_next()? {
+                MrmlToken::ElementStart(inner) => {
+                    result.push(self.parse(inner.local)?);
+                }
+                MrmlToken::ElementClose(close) => {
+                    self.rewind(MrmlToken::ElementClose(close));
+                    return Ok(result);
+                }
+                other => {
+                    return Err(Error::UnexpectedToken(other.span()));
+                }
             }
-            MJ_PREVIEW => Ok(MjPreview::parse(tag, tokenizer, opts)?.into()),
-            MJ_RAW => Ok(MjRaw::parse(tag, tokenizer, opts)?.into()),
-            MJ_STYLE => Ok(MjStyle::parse(tag, tokenizer, opts)?.into()),
-            MJ_TITLE => Ok(MjTitle::parse(tag, tokenizer, opts)?.into()),
-            _ => Err(Error::UnexpectedElement(tag.start())),
         }
     }
 }
 
-#[derive(Debug)]
-struct MjHeadParser {
-    opts: Rc<ParserOptions>,
-    children: Vec<MjHeadChild>,
-}
-
-impl MjHeadParser {
-    fn new(opts: Rc<ParserOptions>) -> Self {
-        Self {
-            opts,
-            children: Vec::default(),
+impl<'a> ElementParser<'a, MjHead> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjHead, Error> {
+        let ending = self.assert_element_end()?;
+        if ending.empty {
+            return Ok(MjHead::default());
         }
+        let children = self.parse_children()?;
+        self.assert_element_close()?;
+
+        Ok(MjHead { children })
     }
 }
 
-impl Parser for MjHeadParser {
-    type Output = MjHead;
-
-    fn build(self) -> Result<Self::Output, Error> {
-        Ok(MjHead {
-            children: self.children,
-        })
-    }
-
-    fn parse_child_element<'a>(
-        &mut self,
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-    ) -> Result<(), Error> {
-        self.children
-            .push(MjHeadChild::parse(tag, tokenizer, self.opts.clone())?);
-        Ok(())
-    }
-}
-
-impl Parsable for MjHead {
-    fn parse(
-        _tag: StrSpan,
-        tokenizer: &mut Tokenizer,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        MjHeadParser::new(opts).parse(tokenizer)?.build()
+impl<'a> ElementParser<'a, MjHeadChild> for MrmlParser<'a> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjHeadChild, Error> {
+        match tag.as_str() {
+            MJ_ATTRIBUTES => self.parse(tag).map(MjHeadChild::MjAttributes),
+            MJ_BREAKPOINT => self.parse(tag).map(MjHeadChild::MjBreakpoint),
+            MJ_FONT => self.parse(tag).map(MjHeadChild::MjFont),
+            MJ_INCLUDE => self.parse(tag).map(MjHeadChild::MjInclude),
+            MJ_PREVIEW => self.parse(tag).map(MjHeadChild::MjPreview),
+            MJ_RAW => self.parse(tag).map(MjHeadChild::MjRaw),
+            MJ_STYLE => self.parse(tag).map(MjHeadChild::MjStyle),
+            MJ_TITLE => self.parse(tag).map(MjHeadChild::MjTitle),
+            _ => Err(Error::UnexpectedElement(tag.into())),
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::mj_head::MjHead;
+    use crate::prelude::parser::MrmlParser;
+
     #[test]
     fn raw_children() {
-        let res = crate::mjml::Mjml::parse(
-            r#"<mjml><mj-head><mj-raw>Hello World!</mj-raw></mj-head></mjml>"#,
-        );
-        assert!(res.is_ok());
+        let _: MjHead = MrmlParser::new(
+            r#"<mj-head><mj-raw>Hello World!</mj-raw></mj-head>"#,
+            Default::default(),
+        )
+        .parse_root()
+        .unwrap();
     }
     #[test]
+    #[should_panic]
     fn unexpected_element() {
-        let res = crate::mjml::Mjml::parse(
-            r#"<mjml><mj-head><mj-text>Hello World!</mj-text></mj-head></mjml>"#,
-        );
-        assert!(res.is_err());
+        let item: MjHead = MrmlParser::new(
+            r#"<mj-head><mj-text>Hello World!</mj-text></mj-head>"#,
+            Default::default(),
+        )
+        .parse_root()
+        .unwrap();
+        println!("{item:?}");
     }
 }

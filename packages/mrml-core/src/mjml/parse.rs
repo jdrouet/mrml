@@ -1,65 +1,70 @@
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
-use super::Mjml;
-use crate::mj_body::{MjBody, NAME as MJ_BODY};
-use crate::mj_head::{MjHead, NAME as MJ_HEAD};
-use crate::prelude::parse::{is_element_start, next_token, Error, Parsable, Parser};
+use super::{Mjml, MjmlAttributes, MjmlChildren};
+use crate::mj_body::NAME as MJ_BODY;
+use crate::mj_head::NAME as MJ_HEAD;
+use crate::prelude::parser::{
+    self, AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+};
 
-#[derive(Debug)]
-struct MjmlParser {
-    opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
-    element: Mjml,
+impl<'a> AttributesParser<'a, MjmlAttributes> for MrmlParser<'a> {
+    fn parse_attributes(&mut self) -> Result<MjmlAttributes, Error> {
+        let mut attrs = MjmlAttributes::default();
+        while let Some(token) = self.next_attribute()? {
+            match token.local.as_str() {
+                "owa" => attrs.owa = Some(token.value.to_string()),
+                "lang" => attrs.lang = Some(token.value.to_string()),
+                "dir" => attrs.dir = Some(token.value.to_string()),
+                _ => return Err(Error::UnexpectedAttribute(token.span.into())),
+            }
+        }
+        Ok(attrs)
+    }
 }
 
-impl MjmlParser {
-    fn new(opts: std::rc::Rc<crate::prelude::parse::ParserOptions>) -> Self {
-        Self {
-            opts,
-            element: Default::default(),
+impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<MjmlChildren, Error> {
+        let mut children = MjmlChildren::default();
+
+        loop {
+            match self.assert_next()? {
+                MrmlToken::ElementClose(close) if close.local.as_str() == super::NAME => {
+                    self.rewind(MrmlToken::ElementClose(close));
+                    return Ok(children);
+                }
+                MrmlToken::ElementStart(start) => match start.local.as_str() {
+                    MJ_HEAD => {
+                        children.head = Some(self.parse(start.local)?);
+                    }
+                    MJ_BODY => {
+                        children.body = Some(self.parse(start.local)?);
+                    }
+                    _ => {
+                        return Err(Error::UnexpectedElement(start.span.into()));
+                    }
+                },
+                other => {
+                    return Err(Error::UnexpectedToken(other.span()));
+                }
+            }
         }
     }
 }
 
-impl Parser for MjmlParser {
-    type Output = Mjml;
+impl<'a> ElementParser<'a, Mjml> for parser::MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<Mjml, Error> {
+        let (attributes, children) = self.parse_attributes_and_children()?;
 
-    fn build(self) -> Result<Self::Output, Error> {
-        Ok(self.element)
-    }
-
-    fn parse_attribute<'a>(&mut self, name: StrSpan<'a>, value: StrSpan<'a>) -> Result<(), Error> {
-        match name.as_str() {
-            "dir" => self.element.attributes.dir = Some(value.to_string()),
-            "lang" => self.element.attributes.lang = Some(value.to_string()),
-            "owa" => self.element.attributes.owa = Some(value.to_string()),
-            _ => return Err(Error::UnexpectedAttribute(name.start())),
-        };
-        Ok(())
-    }
-
-    fn parse_child_element<'a>(
-        &mut self,
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-    ) -> Result<(), Error> {
-        match tag.as_str() {
-            MJ_BODY => {
-                let elt = MjBody::parse(tag, tokenizer, self.opts.clone())?;
-                self.element.children.body = Some(elt);
-            }
-            MJ_HEAD => {
-                let elt = MjHead::parse(tag, tokenizer, self.opts.clone())?;
-                self.element.children.head = Some(elt);
-            }
-            _ => return Err(Error::UnexpectedElement(tag.start())),
-        };
-        Ok(())
+        Ok(Mjml {
+            attributes,
+            children,
+        })
     }
 }
 
 impl Mjml {
     /// Function to parse a raw mjml template with some parsing
-    /// [options](crate::prelude::parse::ParserOptions).
+    /// [options](crate::prelude::parser::ParserOptions).
     ///
     /// You can specify the kind of loader mrml needs to use for loading the
     /// content of [`mj-include`](crate::mj_include) elements.
@@ -69,11 +74,11 @@ impl Mjml {
     ///
     /// ```rust
     /// use mrml::mjml::Mjml;
-    /// use mrml::prelude::parse::ParserOptions;
-    /// use mrml::prelude::parse::memory_loader::MemoryIncludeLoader;
-    /// use std::rc::Rc;
+    /// use mrml::prelude::parser::ParserOptions;
+    /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
+    /// use std::sync::Arc;
     ///
-    /// let options = Rc::new(ParserOptions {
+    /// let options = Arc::new(ParserOptions {
     ///     include_loader: Box::new(MemoryIncludeLoader::default()),
     /// });
     /// match Mjml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options) {
@@ -83,19 +88,13 @@ impl Mjml {
     /// ```
     pub fn parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::rc::Rc<crate::prelude::parse::ParserOptions>,
+        opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
     ) -> Result<Self, Error> {
-        let mut tokenizer = Tokenizer::from(value.as_ref());
-        let token = next_token(&mut tokenizer)?;
-        if is_element_start(&token).is_some() {
-            MjmlParser::new(opts).parse(&mut tokenizer)?.build()
-        } else {
-            Err(Error::InvalidFormat)
-        }
+        MrmlParser::new(value.as_ref(), opts).parse_root()
     }
 
     /// Function to parse a raw mjml template using the default parsing
-    /// [options](crate::prelude::parse::ParserOptions).
+    /// [options](crate::prelude::parser::ParserOptions).
     ///
     /// ```rust
     /// use mrml::mjml::Mjml;
@@ -106,8 +105,7 @@ impl Mjml {
     /// }
     /// ```
     pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        let opts = std::rc::Rc::new(crate::prelude::parse::ParserOptions::default());
-        Self::parse_with_options(value, opts)
+        MrmlParser::new(value.as_ref(), Default::default()).parse_root()
     }
 }
 
@@ -116,24 +114,73 @@ mod tests {
     use super::*;
 
     #[test]
-    fn simple() {
+    fn should_parse_with_options() {
         let template = "<mjml></mjml>";
-        let elt = Mjml::parse(template).unwrap();
+        let elt = Mjml::parse_with_options(template, Default::default()).unwrap();
         assert!(elt.children.body.is_none());
         assert!(elt.children.head.is_none());
     }
 
     #[test]
-    fn with_lang() {
+    fn should_parse() {
+        let template = "<mjml></mjml>";
+        let elt: Mjml = MrmlParser::new(template, Default::default())
+            .parse_root()
+            .unwrap();
+        assert!(elt.children.body.is_none());
+        assert!(elt.children.head.is_none());
+    }
+
+    #[test]
+    fn should_parse_without_children() {
+        let template = "<mjml />";
+        let elt: Mjml = MrmlParser::new(template, Default::default())
+            .parse_root()
+            .unwrap();
+        assert!(elt.children.body.is_none());
+        assert!(elt.children.head.is_none());
+    }
+
+    #[test]
+    fn should_parse_with_lang() {
         let template = "<mjml lang=\"fr\"></mjml>";
         let elt = Mjml::parse(template).unwrap();
         assert_eq!(elt.attributes.lang.unwrap(), "fr");
     }
 
     #[test]
-    fn with_owa() {
+    fn should_parse_with_owa() {
         let template = "<mjml owa=\"desktop\"></mjml>";
         let elt = Mjml::parse(template).unwrap();
         assert_eq!(elt.attributes.owa.unwrap(), "desktop");
+    }
+
+    #[test]
+    fn should_parse_with_dir() {
+        let template = "<mjml dir=\"rtl\"></mjml>";
+        let elt = Mjml::parse(template).unwrap();
+        assert_eq!(elt.attributes.dir.unwrap(), "rtl");
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedAttribute(Span { start: 6, end: 20 })")]
+    fn should_fail_with_unknown_param() {
+        let template = "<mjml unknown=\"true\"></mjml>";
+        let elt = Mjml::parse(template).unwrap();
+        assert_eq!(elt.attributes.dir.unwrap(), "rtl");
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedToken(Span { start: 6, end: 11 })")]
+    fn should_fail_with_text_as_child() {
+        let template = "<mjml>Hello</mjml>";
+        let _ = Mjml::parse(template).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedElement(Span { start: 6, end: 10 })")]
+    fn should_fail_with_other_child() {
+        let template = "<mjml><div /></mjml>";
+        let _ = Mjml::parse(template).unwrap();
     }
 }

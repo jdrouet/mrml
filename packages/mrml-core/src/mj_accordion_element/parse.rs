@@ -1,131 +1,123 @@
-use std::rc::Rc;
-
-use xmlparser::{StrSpan, Tokenizer};
+use xmlparser::StrSpan;
 
 use super::{MjAccordionElement, MjAccordionElementChildren};
-use crate::mj_accordion_text::{MjAccordionText, NAME as MJ_ACCORDION_TEXT};
-use crate::mj_accordion_title::{MjAccordionTitle, NAME as MJ_ACCORDION_TITLE};
-use crate::parse_attribute;
-use crate::prelude::hash::Map;
-use crate::prelude::parse::{Error, Parsable, Parser, ParserOptions};
+use crate::mj_accordion_text::NAME as MJ_ACCORDION_TEXT;
+use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
-#[derive(Debug, Default)]
-struct MjAccordionElementParser {
-    opts: Rc<ParserOptions>,
-    attributes: Map<String, String>,
-    children: MjAccordionElementChildren,
-}
+impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<MjAccordionElementChildren, Error> {
+        let mut result = MjAccordionElementChildren::default();
 
-impl MjAccordionElementParser {
-    fn new(opts: Rc<ParserOptions>) -> Self {
-        Self {
-            opts,
-            attributes: Map::default(),
-            children: Default::default(),
+        loop {
+            let token = self.assert_next()?;
+            match token {
+                MrmlToken::ElementStart(inner) => match inner.local.as_str() {
+                    MJ_ACCORDION_TEXT => {
+                        result.text = Some(self.parse(inner.local)?);
+                    }
+                    MJ_ACCORDION_TITLE => {
+                        result.title = Some(self.parse(inner.local)?);
+                    }
+                    _ => {
+                        return Err(Error::UnexpectedElement(inner.span.into()));
+                    }
+                },
+                MrmlToken::ElementClose(inner) => {
+                    self.rewind(MrmlToken::ElementClose(inner));
+                    return Ok(result);
+                }
+                other => {
+                    return Err(Error::UnexpectedToken(other.span()));
+                }
+            }
         }
     }
 }
 
-impl Parser for MjAccordionElementParser {
-    type Output = MjAccordionElement;
+impl<'a> ElementParser<'a, MjAccordionElement> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordionElement, Error> {
+        let (attributes, children) = self.parse_attributes_and_children()?;
 
-    fn build(self) -> Result<Self::Output, Error> {
         Ok(MjAccordionElement {
-            attributes: self.attributes,
-            children: self.children,
+            attributes,
+            children,
         })
-    }
-
-    parse_attribute!();
-
-    fn parse_child_element<'a>(
-        &mut self,
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-    ) -> Result<(), Error> {
-        match tag.as_str() {
-            MJ_ACCORDION_TEXT => {
-                self.children.text =
-                    Some(MjAccordionText::parse(tag, tokenizer, self.opts.clone())?)
-            }
-            MJ_ACCORDION_TITLE => {
-                self.children.title =
-                    Some(MjAccordionTitle::parse(tag, tokenizer, self.opts.clone())?)
-            }
-            _ => return Err(Error::UnexpectedElement(tag.start())),
-        };
-        Ok(())
-    }
-}
-
-impl Parsable for MjAccordionElement {
-    fn parse(
-        _tag: StrSpan,
-        tokenizer: &mut Tokenizer,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        MjAccordionElementParser::new(opts)
-            .parse(tokenizer)?
-            .build()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
-
-    use xmlparser::Tokenizer;
-
-    use crate::mj_accordion_element::MjAccordionElementChild;
-    use crate::prelude::parse::{is_element_start, next_token, Error, Parsable, ParserOptions};
+    use super::MjAccordionElement;
+    use crate::mj_accordion_text::MjAccordionText;
+    use crate::mj_accordion_title::MjAccordionTitle;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
-    fn parse_title_child() {
-        let opts = Rc::new(ParserOptions::default());
-        let mut tokenizer = Tokenizer::from("<mj-accordion-title>Hello</mj-accordion-title>");
-        let token = next_token(&mut tokenizer).unwrap();
-        let tag = is_element_start(&token).unwrap();
-        let elt = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap();
-        assert!(elt.as_mj_accordion_title().is_some())
+    fn should_work_with_no_children() {
+        let raw = "<mj-accordion-element />";
+        let _: MjAccordionElement = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
-    fn parse_title_child_errored() {
-        let opts = Rc::new(ParserOptions::default());
-        let mut tokenizer =
-            Tokenizer::from("<mj-accordion-title><span>Hello</span></mj-accordion-title>");
-        let token = next_token(&mut tokenizer).unwrap();
-        let tag = is_element_start(&token).unwrap();
-        let err = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap_err();
-        assert!(matches!(err, Error::UnexpectedElement(21)));
+    #[should_panic(expected = "UnexpectedElement(Span { start: 22, end: 27 })")]
+    fn should_error_with_unknown_child() {
+        let raw = "<mj-accordion-element><span /></mj-accordion-element>";
+        let _: MjAccordionElement = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
-    fn parse_text_child() {
-        let opts = Rc::new(ParserOptions::default());
-        let mut tokenizer = Tokenizer::from("<mj-accordion-text>Hello</mj-accordion-text>");
-        let token = next_token(&mut tokenizer).unwrap();
-        let tag = is_element_start(&token).unwrap();
-        let elt = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap();
-        assert!(elt.as_mj_accordion_text().is_some());
+    #[should_panic(expected = "UnexpectedToken(Span { start: 22, end: 38 }")]
+    fn should_error_with_comment() {
+        let raw = "<mj-accordion-element><!-- comment --></mj-accordion-element>";
+        let _: MjAccordionElement = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
-    fn parse_text_child_errored() {
-        let opts = Rc::new(ParserOptions::default());
-        let mut tokenizer = Tokenizer::from("<mj-accordion-text>");
-        let token = next_token(&mut tokenizer).unwrap();
-        let tag = is_element_start(&token).unwrap();
-        let err = MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).unwrap_err();
-        assert!(matches!(err, Error::InvalidFormat));
+    fn title_should_work_with_no_children() {
+        let raw = "<mj-accordion-title />";
+        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
-    fn parse_unknown_child() {
-        let opts = Rc::new(ParserOptions::default());
-        let mut tokenizer = Tokenizer::from("<mj-pouwet>Hello</mj-pouwet>");
-        let token = next_token(&mut tokenizer).unwrap();
-        let tag = is_element_start(&token).unwrap();
-        assert!(MjAccordionElementChild::parse(*tag, &mut tokenizer, opts).is_err());
+    fn title_should_work_with_child_text() {
+        let raw = "<mj-accordion-title>Hello</mj-accordion-title>";
+        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "UnexpectedToken(Span { start: 20, end: 25 })")]
+    fn title_should_error_with_span_child() {
+        let raw = "<mj-accordion-title><span>Hello</span></mj-accordion-title>";
+        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    fn text_should_work_with_child_text() {
+        let raw = "<mj-accordion-text>Hello</mj-accordion-text>";
+        let _: MjAccordionText = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "EndOfStream")]
+    fn text_should_error_with_no_closing() {
+        let raw = "<mj-accordion-text>";
+        let _: MjAccordionText = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }

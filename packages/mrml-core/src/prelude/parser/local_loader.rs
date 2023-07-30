@@ -3,13 +3,14 @@
 
 use std::io::ErrorKind;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use super::loader::IncludeLoaderError;
-use crate::prelude::parse::loader::IncludeLoader;
+use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
 /// This struct is an
-/// [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
+/// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) where
 /// you can read a template for the filesystem and be able to use it with
 /// [`mj-include`](crate::mj_include).
 ///
@@ -18,8 +19,8 @@ use crate::prelude::parse::loader::IncludeLoader;
 /// use std::path::PathBuf;
 /// use std::rc::Rc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
-/// use mrml::prelude::parse::local_loader::LocalIncludeLoader;
-/// use mrml::prelude::parse::ParserOptions;
+/// use mrml::prelude::parser::local_loader::LocalIncludeLoader;
+/// use mrml::prelude::parser::ParserOptions;
 ///
 /// let root = PathBuf::default()
 ///     .join("resources")
@@ -78,7 +79,7 @@ impl IncludeLoader for LocalIncludeLoader {
         std::fs::read_to_string(path).map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::InvalidData)
                 .with_message("unable to load the template file")
-                .with_cause(Box::new(err))
+                .with_cause(Arc::new(err))
         })
     }
 }
@@ -89,7 +90,7 @@ mod tests {
     use std::path::PathBuf;
 
     use super::LocalIncludeLoader;
-    use crate::prelude::parse::loader::IncludeLoader;
+    use crate::prelude::parser::loader::IncludeLoader;
 
     impl LocalIncludeLoader {
         fn current_dir() -> Self {

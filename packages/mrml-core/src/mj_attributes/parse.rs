@@ -1,48 +1,71 @@
-use std::rc::Rc;
+use xmlparser::StrSpan;
 
-use xmlparser::{StrSpan, Tokenizer};
+use super::{MjAttributes, MjAttributesChild};
+use crate::mj_attributes_all::NAME as MJ_ALL;
+use crate::mj_attributes_class::NAME as MJ_CLASS;
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
-use super::MjAttributesChild;
-use crate::mj_attributes_all::{MjAttributesAll, NAME as MJ_ALL};
-use crate::mj_attributes_class::{MjAttributesClass, NAME as MJ_CLASS};
-use crate::mj_attributes_element::MjAttributesElement;
-use crate::prelude::parse::{Error, Parsable, ParserOptions};
+impl<'a> ElementParser<'a, MjAttributesChild> for MrmlParser<'a> {
+    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjAttributesChild, Error> {
+        Ok(match tag.as_str() {
+            MJ_ALL => MjAttributesChild::MjAttributesAll(self.parse(tag)?),
+            MJ_CLASS => MjAttributesChild::MjAttributesClass(self.parse(tag)?),
+            _ => MjAttributesChild::MjAttributesElement(self.parse(tag)?),
+        })
+    }
+}
 
-impl Parsable for MjAttributesChild {
-    fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        match tag.as_str() {
-            MJ_ALL => Ok(MjAttributesAll::parse(tag, tokenizer, opts)?.into()),
-            MJ_CLASS => Ok(MjAttributesClass::parse(tag, tokenizer, opts)?.into()),
-            _ => Ok(MjAttributesElement::parse(tag, tokenizer, opts)?.into()),
+impl<'a> ChildrenParser<'a, Vec<MjAttributesChild>> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<Vec<MjAttributesChild>, Error> {
+        let mut result = Vec::new();
+
+        loop {
+            match self.assert_next()? {
+                MrmlToken::ElementStart(inner) => {
+                    result.push(self.parse(inner.local)?);
+                }
+                MrmlToken::ElementClose(inner) => {
+                    self.rewind(MrmlToken::ElementClose(inner));
+                    return Ok(result);
+                }
+                other => return Err(Error::UnexpectedToken(other.span())),
+            }
         }
+    }
+}
+
+impl<'a> ElementParser<'a, MjAttributes> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAttributes, Error> {
+        let ending = self.assert_element_end()?;
+        if ending.empty {
+            return Ok(MjAttributes {
+                children: Default::default(),
+            });
+        }
+
+        let children = self.parse_children()?;
+        self.assert_element_close()?;
+
+        Ok(MjAttributes { children })
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::Mjml;
+    use crate::mj_attributes::MjAttributes;
+    use crate::prelude::parser::MrmlParser;
 
     #[test]
     fn parse_complete() {
-        let template = r#"
-        <mjml>
-            <mj-head>
-                <mj-attributes>
-                    <mj-all color="red" />
-                    <mj-class name="head" color="green" />
-                    <span color="blue" />
-                </mj-attributes>
-            </mj-head>
-        </mjml>
+        let raw = r#"
+<mj-attributes>
+    <mj-all color="red" />
+    <mj-class name="head" color="green" />
+    <span color="blue" />
+</mj-attributes>
         "#;
-        let elt = Mjml::parse(template).unwrap();
-        assert!(elt.head().is_some());
-        assert!(elt.body().is_none());
-        let head = elt.head().unwrap();
-        assert_eq!(head.children().len(), 1);
+        let _: MjAttributes = MrmlParser::new(raw, Default::default())
+            .parse_root()
+            .unwrap();
     }
 }

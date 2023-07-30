@@ -1,20 +1,90 @@
-use std::rc::Rc;
+use xmlparser::StrSpan;
 
-use xmlparser::{StrSpan, Tokenizer};
+use super::{MjSocial, MjSocialChild};
+use crate::comment::Comment;
+use crate::mj_social_element::NAME as MJ_SOCIAL_ELEMENT;
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
 
-use super::MjSocialChild;
-use crate::mj_social_element::{MjSocialElement, NAME as MJ_SOCIAL_ELEMENT};
-use crate::prelude::parse::{Error, Parsable, ParserOptions};
+impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlParser<'a> {
+    fn parse_children(&mut self) -> Result<Vec<MjSocialChild>, Error> {
+        let mut result = Vec::new();
 
-impl Parsable for MjSocialChild {
-    fn parse<'a>(
-        tag: StrSpan<'a>,
-        tokenizer: &mut Tokenizer<'a>,
-        opts: Rc<ParserOptions>,
-    ) -> Result<Self, Error> {
-        match tag.as_str() {
-            MJ_SOCIAL_ELEMENT => Ok(MjSocialElement::parse(tag, tokenizer, opts)?.into()),
-            _ => Err(Error::UnexpectedElement(tag.start())),
+        loop {
+            match self.assert_next()? {
+                MrmlToken::Comment(inner) => {
+                    result.push(MjSocialChild::Comment(Comment::from(inner.text.as_str())));
+                }
+                MrmlToken::ElementStart(inner) => {
+                    if inner.local.as_str() == MJ_SOCIAL_ELEMENT {
+                        result.push(MjSocialChild::MjSocialElement(self.parse(inner.local)?));
+                    } else {
+                        return Err(Error::UnexpectedElement(inner.span.into()));
+                    }
+                }
+                MrmlToken::ElementClose(inner) => {
+                    self.rewind(MrmlToken::ElementClose(inner));
+                    return Ok(result);
+                }
+                other => return Err(Error::UnexpectedToken(other.span())),
+            }
         }
     }
+}
+
+impl<'a> ElementParser<'a, MjSocial> for MrmlParser<'a> {
+    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjSocial, Error> {
+        let (attributes, children) = self.parse_attributes_and_children()?;
+
+        Ok(MjSocial {
+            attributes,
+            children,
+        })
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::MjSocial;
+    use crate::prelude::parser::MrmlParser;
+
+    macro_rules! assert_success {
+        ($title:ident, $template:expr) => {
+            #[test]
+            fn $title() {
+                let _: MjSocial = MrmlParser::new($template, Default::default())
+                    .parse_root()
+                    .unwrap();
+            }
+        };
+    }
+
+    macro_rules! assert_fail {
+        ($title:ident, $template:expr, $error:expr) => {
+            #[test]
+            #[should_panic(expected = $error)]
+            fn $title() {
+                let _: MjSocial = MrmlParser::new($template, Default::default())
+                    .parse_root()
+                    .unwrap();
+            }
+        };
+    }
+
+    assert_success!(should_handle_empty_children, "<mj-social />");
+
+    assert_success!(
+        should_handle_comments,
+        "<mj-social><!-- comment --></mj-social>"
+    );
+
+    assert_fail!(
+        should_error_with_text,
+        "<mj-social>Hello</mj-social>",
+        "UnexpectedToken(Span { start: 11, end: 16 })"
+    );
+
+    assert_fail!(
+        should_error_with_other_element,
+        "<mj-social><span /></mj-social>",
+        "UnexpectedElement(Span { start: 11, end: 16 })"
+    );
 }

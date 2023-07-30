@@ -7,7 +7,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 mod parser;
 mod render;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 use wasm_bindgen::prelude::*;
 
@@ -17,7 +17,7 @@ pub use crate::render::*;
 #[inline]
 fn to_html(
     input: &str,
-    parser_options: Rc<mrml::prelude::parse::ParserOptions>,
+    parser_options: Arc<mrml::prelude::parser::ParserOptions>,
     render_options: &mrml::prelude::render::Options,
 ) -> Result<String, ToHtmlError> {
     let element = mrml::parse_with_options(input, parser_options)?;
@@ -28,7 +28,7 @@ fn to_html(
 #[derive(Debug, Default)]
 #[wasm_bindgen]
 pub struct Engine {
-    parser: Rc<mrml::prelude::parse::ParserOptions>,
+    parser: Arc<mrml::prelude::parser::ParserOptions>,
     render: mrml::prelude::render::Options,
 }
 
@@ -42,7 +42,7 @@ impl Engine {
     /// Defines the parsing options.
     #[wasm_bindgen(js_name = "setParserOptions")]
     pub fn set_parser_options(&mut self, value: ParserOptions) {
-        self.parser = Rc::new(value.into());
+        self.parser = Arc::new(value.into());
     }
 
     /// Defines the rendering options.
@@ -69,8 +69,8 @@ pub enum ToHtmlError {
     Render { message: String },
 }
 
-impl From<mrml::prelude::parse::Error> for ToHtmlError {
-    fn from(value: mrml::prelude::parse::Error) -> Self {
+impl From<mrml::prelude::parser::Error> for ToHtmlError {
+    fn from(value: mrml::prelude::parser::Error) -> Self {
         ToHtmlError::Parser {
             message: value.to_string(),
         }

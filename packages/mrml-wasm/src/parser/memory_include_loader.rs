@@ -8,7 +8,7 @@ pub struct MemoryIncludeLoaderOptions {
 }
 
 impl MemoryIncludeLoaderOptions {
-    pub fn build(self) -> Box<dyn mrml::prelude::parse::loader::IncludeLoader> {
-        Box::new(mrml::prelude::parse::memory_loader::MemoryIncludeLoader::from(self.content))
+    pub fn build(self) -> Box<dyn mrml::prelude::parser::loader::IncludeLoader> {
+        Box::new(mrml::prelude::parser::memory_loader::MemoryIncludeLoader::from(self.content))
     }
 }

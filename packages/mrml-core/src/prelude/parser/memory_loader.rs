@@ -6,20 +6,20 @@ use std::iter::FromIterator;
 
 use super::loader::IncludeLoaderError;
 use crate::prelude::hash::Map;
-use crate::prelude::parse::loader::IncludeLoader;
+use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
 /// This struct is a simple
-/// [`IncludeLoader`](crate::prelude::parse::loader::IncludeLoader) where
+/// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) where
 /// you can store in a map all files you want to be able to use with
 /// [`mj-include`](crate::mj_include).
 ///
 /// # Example
 /// ```rust
-/// use std::rc::Rc;
+/// use std::sync::Arc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
-/// use mrml::prelude::parse::memory_loader::MemoryIncludeLoader;
-/// use mrml::prelude::parse::ParserOptions;
+/// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
+/// use mrml::prelude::parser::ParserOptions;
 ///
 /// let resolver = MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-button>Hello</mj-button>")]);
 /// let opts = ParserOptions {
@@ -30,7 +30,7 @@ use crate::prelude::parse::loader::IncludeLoader;
 ///     <mj-include path="basic.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(json, Rc::new(opts)) {
+/// match mrml::parse_with_options(json, Arc::new(opts)) {
 ///     Ok(_) => println!("Success!"),
 ///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 /// }
