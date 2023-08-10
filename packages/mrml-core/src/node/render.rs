@@ -4,7 +4,7 @@ use std::rc::Rc;
 use super::Node;
 use crate::prelude::render::{Error, Header, Options, Render, Renderable};
 
-const SHOULD_SELF_CLOSE: [&'static str; 1] = ["script"];
+const SHOULD_SELF_CLOSE: [&str; 1] = ["script"];
 
 struct NodeRender<'e, 'h, T> {
     header: Rc<RefCell<Header<'h>>>,
