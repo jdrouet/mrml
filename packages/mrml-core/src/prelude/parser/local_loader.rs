@@ -17,7 +17,7 @@ use crate::prelude::parser::loader::IncludeLoader;
 /// # Example
 /// ```rust
 /// use std::path::PathBuf;
-/// use std::rc::Rc;
+/// use std::sync::Arc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
 /// use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 /// use mrml::prelude::parser::ParserOptions;
@@ -35,7 +35,7 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     <mj-include path="file:///mj-accordion.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(template, Rc::new(opts)) {
+/// match mrml::parse_with_options(template, Arc::new(opts)) {
 ///     Ok(_) => println!("Success!"),
 ///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 /// }
