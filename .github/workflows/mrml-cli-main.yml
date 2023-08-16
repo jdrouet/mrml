@@ -7,10 +7,6 @@ on:
       - Cargo.lock
       - Cargo.toml
 
-defaults:
-  run:
-    working-directory: packages/mrml-cli
-
 env:
   RUSTFLAGS: "-Dwarnings"
 
@@ -42,4 +38,40 @@ jobs:
           key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
 
       - name: run tests
-        run: cargo test
+        run: cargo test -p mrml-cli
+
+  building:
+    runs-on: ubuntu-latest
+    container: rust:1-bullseye
+
+    concurrency:
+      group: ${{ github.ref }}-mrml-cli-building
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: building the cli binary
+        run: cargo build --package mrml-cli --release
+
+      - name: publish file size metric
+        run: |
+          FILE_SIZE=$(du -sb target/release/mrml | awk '{ print $1 }')
+          curl https://codebench.cloud/binaries/codebench-cli-amd64 -o ./codebench-cli
+          chmod +x ./codebench-cli
+          TOKEN=${{ secrets.CODEBENCH_TOKEN }} ./codebench-cli publish --branch-name $GITHUB_REF_NAME --commit-hash $GITHUB_SHA --parameters unit=byte mrml-cli.binary.size gauge $FILE_SIZE
