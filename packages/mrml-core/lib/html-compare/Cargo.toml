@@ -1,12 +1,15 @@
 [package]
 name = "html-compare"
+description = "A simple library to compare html files"
+license = "MIT"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/jdrouet/mrml"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 colored = "2.0"
-css-compare = { path = "../css-compare" }
+css-compare = { path = "../css-compare", version = "0.1" }
 similar-asserts = "1.4"
 htmlparser = "0.1"
