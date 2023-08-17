@@ -13,6 +13,7 @@ pub mod loader;
 #[cfg(feature = "local-loader")]
 pub mod local_loader;
 pub mod memory_loader;
+pub mod multi_loader;
 pub mod noop_loader;
 
 #[derive(Clone, Debug, Default)]
