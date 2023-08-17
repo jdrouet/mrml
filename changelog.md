@@ -2,6 +2,83 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0-rc4] - 2023-08-17
+
+### Bug Fixes
+
+- Disable_comments is in camelCase
+- Script elements should remain with open and close element (#320)
+
+### Documentation
+
+- Update links in readme
+- Update code in example
+
+### Features
+
+- Bump mrml version
+- Remove randomness when generating component ids (#308)
+- Create wasm package (#312)
+- Add mj-include feature (#316)
+- Create multi include loader (#322)
+
+### Miscellaneous Tasks
+
+- Allow mastodon notification to fail
+- Implement real tool for comparing html (#107)
+- Move license files
+- Update cargo.toml to publish
+- Update cargo.toml to publish
+- Bump to 2.0.0-rc4
+
+### Refactor
+
+- Put cows in tag implementation 🐮  (#111)
+- Prepare for monotrepo
+- Move back mrml-cli to repository
+- Format code using rustfmt and create config
+- Apply clippy suggestions
+- Use a single MrmlParser structure with a visitor pattern (#317)
+
+### Styling
+
+- Apply clippy suggestions
+
+### Testing
+
+- Add node example with a test (#313)
+- Add browser example (#315)
+- Update node example to have test command
+- Add test with disabling comments
+
+### Build
+
+- Bump quote from 1.0.28 to 1.0.29 (#101)
+- Bump serde from 1.0.164 to 1.0.166 (#102)
+- Bump thiserror from 1.0.40 to 1.0.41 (#103)
+- Bump serde_json from 1.0.99 to 1.0.100 (#104)
+- Bump colored from 2.0.0 to 2.0.4 (#110)
+- Bump serde from 1.0.166 to 1.0.167 (#108)
+- Bump serde from 1.0.167 to 1.0.168 (#112)
+- Bump thiserror from 1.0.41 to 1.0.43 (#109)
+- Bump proc-macro2 from 1.0.63 to 1.0.64 (#113)
+- Bump serde_json from 1.0.100 to 1.0.102 (#114)
+- Bump semver from 5.7.1 to 5.7.2 in /scripts (#115)
+- Update dependabot configuration
+- Update env_logger requirement in /packages/mrml-cli (#309)
+- Bump thiserror from 1.0.43 to 1.0.44 (#305)
+- Update clap to 4.3
+- Update indexmap to 2.0
+
+### Ci
+
+- Move code-checking out of every workflow (#314)
+- Report mrml-cli metric to codebench (#321)
+
+### Doc
+
+- Update readme
+
 ## [2.0.0-rc3] - 2023-06-27
 
 ### Features
