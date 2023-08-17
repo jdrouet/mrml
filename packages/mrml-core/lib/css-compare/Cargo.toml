@@ -1,12 +1,17 @@
 [package]
 name = "css-compare"
+description = "A simple library to compare css stylesheets"
+license = "MIT"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/jdrouet/mrml"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-lightningcss = { version = "1.0.0-alpha.44", features = ["grid"], default-features = false }
+lightningcss = { version = "1.0.0-alpha.44", features = [
+  "grid",
+], default-features = false }
 
 [dev-dependencies]
 similar-asserts = { version = "1.4" }
