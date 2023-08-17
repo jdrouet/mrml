@@ -136,7 +136,7 @@ mod tests {
                     "<mj-button>Hello</mj-button>",
                 )])),
             )
-            .with_any(Box::new(NoopIncludeLoader));
+            .with_any(Box::<NoopIncludeLoader>::default());
 
         assert_eq!(
             resolver.resolve("file://basic.mjml").unwrap(),
@@ -170,8 +170,8 @@ mod tests {
         use crate::prelude::parser::noop_loader::NoopIncludeLoader;
 
         let mut resolver = MultiIncludeLoader::default();
-        resolver.add_starts_with("foo", Box::new(NoopIncludeLoader::default()));
-        resolver.add_any(Box::new(NoopIncludeLoader::default()));
+        resolver.add_starts_with("foo", Box::<NoopIncludeLoader>::default());
+        resolver.add_any(Box::<NoopIncludeLoader>::default());
         assert_eq!(resolver.0.len(), 2);
 
         assert_eq!(format!("{resolver:?}"), "MultiIncludeLoader([MultiIncludeLoaderItem { filter: StartsWith { value: \"foo\" }, loader: NoopIncludeLoader }, MultiIncludeLoaderItem { filter: Any, loader: NoopIncludeLoader }])");

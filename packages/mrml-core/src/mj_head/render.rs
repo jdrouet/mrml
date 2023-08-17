@@ -80,7 +80,7 @@ impl MjHead {
                     .iter()
                     .filter_map(|item| item.as_mj_attributes_class())
                     .fold(result, |mut res, class| {
-                        (*res.entry(class.name()).or_insert_with(Map::new)).extend(
+                        (*res.entry(class.name()).or_default()).extend(
                             class
                                 .attributes()
                                 .iter()
@@ -101,7 +101,7 @@ impl MjHead {
                     .iter()
                     .filter_map(|item| item.as_mj_attributes_element())
                     .fold(result, |mut res, element| {
-                        (*res.entry(element.name()).or_insert_with(Map::new)).extend(
+                        (*res.entry(element.name()).or_default()).extend(
                             element
                                 .attributes()
                                 .iter()
