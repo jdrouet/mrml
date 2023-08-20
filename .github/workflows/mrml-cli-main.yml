@@ -1,11 +1,8 @@
 on:
-  push:
-    paths:
-      - .github/workflows/mrml-cli-*
-      - packages/mrml-cli/**
-      - packages/mrml-core/**
-      - Cargo.lock
-      - Cargo.toml
+  merge_group:
+    types: [checks_requested]
+  workflow_call:
+  pull_request:
 
 env:
   RUSTFLAGS: "-Dwarnings"
