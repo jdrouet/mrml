@@ -72,4 +72,4 @@ jobs:
           curl https://codebench.cloud/binaries/codebench-cli-amd64 -o ./codebench-cli
           chmod +x ./codebench-cli
           ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} publish --parameters unit=byte mrml-cli.binary.size gauge $FILE_SIZE
-          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./codebench-cli --verbose --token ${{ secrets.CODEBENCH_TOKEN }} report
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} report
