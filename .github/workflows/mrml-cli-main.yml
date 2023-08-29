@@ -1,11 +1,8 @@
 on:
-  push:
-    paths:
-      - .github/workflows/mrml-cli-*
-      - packages/mrml-cli/**
-      - packages/mrml-core/**
-      - Cargo.lock
-      - Cargo.toml
+  merge_group:
+    types: [checks_requested]
+  workflow_call:
+  pull_request:
 
 env:
   RUSTFLAGS: "-Dwarnings"
@@ -74,4 +71,5 @@ jobs:
           FILE_SIZE=$(du -sb target/release/mrml | awk '{ print $1 }')
           curl https://codebench.cloud/binaries/codebench-cli-amd64 -o ./codebench-cli
           chmod +x ./codebench-cli
-          TOKEN=${{ secrets.CODEBENCH_TOKEN }} ./codebench-cli publish --branch-name $GITHUB_REF_NAME --commit-hash $GITHUB_SHA --parameters unit=byte mrml-cli.binary.size gauge $FILE_SIZE
+          ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} publish --parameters unit=byte mrml-cli.binary.size gauge $FILE_SIZE
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} report
