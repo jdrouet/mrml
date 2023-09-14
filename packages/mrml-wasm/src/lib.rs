@@ -40,6 +40,7 @@ impl Engine {
     }
 
     /// Defines the parsing options.
+    #[allow(clippy::arc_with_non_send_sync)]
     #[wasm_bindgen(js_name = "setParserOptions")]
     pub fn set_parser_options(&mut self, value: ParserOptions) {
         self.parser = Arc::new(value.into());

@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 use crate::helper::sort::sort_by_key;
 use crate::prelude::hash::Map;
 
@@ -26,8 +28,10 @@ pub fn attributes(attrs: Option<&Map<String, String>>) -> String {
             entries.sort_by(sort_by_key);
             entries
                 .iter()
-                .map(|(key, value)| format!(" {key}=\"{value}\""))
-                .collect::<String>()
+                .fold(String::default(), |mut res, (key, value)| {
+                    let _ = write!(res, " {key}=\"{value}\"");
+                    res
+                })
         })
         .unwrap_or_default()
 }
