@@ -31,7 +31,7 @@ tsify = { version = "0.4" }
 wasm-bindgen = { version = "0.2" }
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.34"
+wasm-bindgen-test = "0.3"
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.
