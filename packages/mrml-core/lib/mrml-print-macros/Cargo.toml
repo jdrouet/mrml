@@ -16,7 +16,7 @@ proc-macro = true
 
 [dependencies]
 mrml-common-macros = { version = "0.1", path = "../common-macros" }
-darling = "0.14"
+darling = "0.20"
 proc-macro2 = "1.0"
 quote = "1.0"
-syn = { version = "1.0", features = ["full", "fold"] }
+syn = { version = "2.0", features = ["full", "fold"] }
