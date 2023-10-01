@@ -11,6 +11,8 @@
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/jdrouet/mrml.svg)](http://isitmaintained.com/project/jdrouet/mrml "Percentage of issues still open")
 [![Maintainability](https://api.codeclimate.com/v1/badges/7ed23ef670d076ab69a4/maintainability)](https://codeclimate.com/github/jdrouet/mrml/maintainability)
 
+![mrml-cli.binary.size](https://codebench.cloud/projects/cc271904-d7c1-431b-81f6-f328b334c5f8/metrics/mrml-cli.binary.size/badge.svg?label=cli%20binary%20size)
+
 ## Introduction
 
 This project is a reimplementation of the nice [MJML markup language](https://documentation.mjml.io/) in Rust.
