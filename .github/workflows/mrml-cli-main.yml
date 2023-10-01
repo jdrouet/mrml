@@ -3,6 +3,9 @@ on:
     types: [checks_requested]
   workflow_call:
   pull_request:
+  push:
+    branch:
+      - main
 
 env:
   RUSTFLAGS: "-Dwarnings"
