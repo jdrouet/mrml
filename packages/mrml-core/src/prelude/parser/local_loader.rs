@@ -84,6 +84,19 @@ impl IncludeLoader for LocalIncludeLoader {
     }
 }
 
+#[cfg(feature = "async-loader")]
+#[async_trait::async_trait]
+impl super::loader::AsyncIncludeLoader for LocalIncludeLoader {
+    async fn resolve(&self, url: &str) -> Result<String, IncludeLoaderError> {
+        let path = self.build_path(url)?;
+        std::fs::read_to_string(path).map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::InvalidData)
+                .with_message("unable to load the template file")
+                .with_cause(Arc::new(err))
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::io::ErrorKind;

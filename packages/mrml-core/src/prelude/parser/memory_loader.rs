@@ -69,3 +69,14 @@ impl IncludeLoader for MemoryIncludeLoader {
             .ok_or_else(|| IncludeLoaderError::not_found(path))
     }
 }
+
+#[cfg(feature = "async-loader")]
+#[async_trait::async_trait]
+impl super::loader::AsyncIncludeLoader for MemoryIncludeLoader {
+    async fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        self.0
+            .get(path)
+            .cloned()
+            .ok_or_else(|| IncludeLoaderError::not_found(path))
+    }
+}

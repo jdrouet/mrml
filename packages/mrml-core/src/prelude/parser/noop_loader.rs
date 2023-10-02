@@ -36,3 +36,11 @@ impl IncludeLoader for NoopIncludeLoader {
         Err(IncludeLoaderError::not_found(path))
     }
 }
+
+#[cfg(feature = "async-loader")]
+#[async_trait::async_trait]
+impl super::loader::AsyncIncludeLoader for NoopIncludeLoader {
+    async fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        Err(IncludeLoaderError::not_found(path))
+    }
+}
