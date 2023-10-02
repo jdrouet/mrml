@@ -73,6 +73,14 @@ pub trait IncludeLoader: std::fmt::Debug {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
 }
 
+#[cfg(feature = "async-loader")]
+#[async_trait::async_trait]
+pub trait AsyncIncludeLoader {
+    /// This function is used to fetch the included template using the `path`
+    /// attribute.
+    async fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
+}
+
 #[cfg(test)]
 mod tests {
     use std::io::ErrorKind;

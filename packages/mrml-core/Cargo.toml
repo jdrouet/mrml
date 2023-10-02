@@ -16,15 +16,7 @@ codecov = { repository = "jdrouet/mrml", branch = "main" }
 travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 
 [features]
-default = [
-  "orderedmap",
-  "json",
-  "parse",
-  "print",
-  "render",
-  "async-loader",
-  "http-loader-ureq",
-]
+default = ["orderedmap", "json", "parse", "print", "render"]
 json = ["dep:mrml-json-macros", "dep:serde", "dep:serde_json"]
 parse = ["dep:xmlparser", "dep:thiserror"]
 print = ["dep:mrml-print-macros"]
@@ -64,6 +56,8 @@ mrml-print-macros = { version = "0.1", path = "./lib/mrml-print-macros", optiona
 [dev-dependencies]
 criterion = "0.5"
 html-compare = { version = "0.1", path = "./lib/html-compare" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 similar-asserts = "1.4"
 mockito = "1.1"
 tokio = { version = "1", features = ["full"] }

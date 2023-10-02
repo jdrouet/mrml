@@ -19,7 +19,7 @@ pub trait HttpFetcher: Default + Debug {
 
 #[cfg(feature = "async-loader")]
 #[async_trait::async_trait]
-pub trait AsyncHttpFetcher: Default + Debug {
+pub trait AsyncHttpFetcher: Default + Debug + Sync + Send {
     async fn fetch(
         &self,
         url: &str,
@@ -230,7 +230,7 @@ pub struct HttpIncludeLoader<F> {
     fetcher: F,
 }
 
-impl<F: HttpFetcher> HttpIncludeLoader<F> {
+impl<F: Default> HttpIncludeLoader<F> {
     /// Creates a new
     /// [`HttpIncludeLoader`](crate::prelude::parser::http_loader::HttpIncludeLoader)
     /// that allows all the origins.
@@ -347,6 +347,15 @@ impl<F: HttpFetcher> IncludeLoader for HttpIncludeLoader<F> {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.check_url(path)?;
         self.fetcher.fetch(path, &self.headers)
+    }
+}
+
+#[cfg(feature = "async-loader")]
+#[async_trait::async_trait]
+impl<F: AsyncHttpFetcher> super::loader::AsyncIncludeLoader for HttpIncludeLoader<F> {
+    async fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        self.check_url(path)?;
+        self.fetcher.fetch(path, &self.headers).await
     }
 }
 
@@ -582,6 +591,78 @@ mod reqwest_tests {
                 )]));
         let err = loader
             .resolve(&format!("{}/partial.mjml", mock_server.url()))
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::NotFound);
+        m.assert();
+    }
+}
+
+#[cfg(all(test, feature = "http-loader-reqwest", feature = "async-loader"))]
+mod async_reqwest_tests {
+    use std::collections::{HashMap, HashSet};
+    use std::io::ErrorKind;
+
+    use super::{AsyncReqwestFetcher, HttpIncludeLoader};
+    use crate::prelude::parser::loader::AsyncIncludeLoader;
+
+    #[tokio::test]
+    async fn include_loader_should_resolve_with_content() {
+        let partial = "<mj-text>Hello World!</mj-text>";
+        let mut mock_server = mockito::Server::new();
+        let m = mock_server
+            .mock("GET", "/partial.mjml")
+            .with_status(200)
+            .with_body("<mj-text>Hello World!</mj-text>")
+            .create();
+        let mut loader =
+            HttpIncludeLoader::<AsyncReqwestFetcher>::new_allow(HashSet::from([mock_server.url()]));
+        loader.set_header("foo", "bar");
+        loader.set_headers(Default::default());
+        let resolved = loader
+            .resolve(&format!("{}/partial.mjml", mock_server.url()))
+            .await
+            .unwrap();
+        assert_eq!(partial, resolved);
+        m.assert();
+    }
+
+    #[tokio::test]
+    async fn include_loader_should_resolve_with_not_found() {
+        let mut mock_server = mockito::Server::new();
+        let m = mock_server
+            .mock("GET", "/partial.mjml")
+            .with_status(404)
+            .with_body("Not Found")
+            .create();
+        let loader =
+            HttpIncludeLoader::<AsyncReqwestFetcher>::new_allow(HashSet::from([mock_server.url()]));
+        let err = loader
+            .resolve(&format!("{}/partial.mjml", mock_server.url()))
+            .await
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::NotFound);
+        m.assert();
+    }
+
+    #[tokio::test]
+    async fn include_loader_should_resolve_with_headers() {
+        let mut mock_server = mockito::Server::new();
+        let m = mock_server
+            .mock("GET", "/partial.mjml")
+            .match_header("user-agent", "mrml-test")
+            .with_status(404)
+            .with_body("Not Found")
+            .create();
+        let loader =
+            HttpIncludeLoader::<AsyncReqwestFetcher>::new_allow(HashSet::from([mock_server.url()]))
+                .with_header("user-agent", "invalid")
+                .with_headers(HashMap::from([(
+                    "user-agent".to_string(),
+                    "mrml-test".to_string(),
+                )]));
+        let err = loader
+            .resolve(&format!("{}/partial.mjml", mock_server.url()))
+            .await
             .unwrap_err();
         assert_eq!(err.reason, ErrorKind::NotFound);
         m.assert();
