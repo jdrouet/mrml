@@ -17,9 +17,28 @@ pub trait HttpFetcher: Default + Debug {
     ) -> Result<String, IncludeLoaderError>;
 }
 
+#[cfg(feature = "async-loader")]
+#[async_trait::async_trait]
+pub trait AsyncHttpFetcher: Default + Debug {
+    async fn fetch(
+        &self,
+        url: &str,
+        headers: &HashMap<String, String>,
+    ) -> Result<String, IncludeLoaderError>;
+}
+
 #[cfg(feature = "http-loader-reqwest")]
 #[derive(Debug, Default)]
-pub struct ReqwestFetcher(reqwest::blocking::Client);
+pub struct ReqwestFetcher {
+    client: reqwest::blocking::Client,
+}
+
+#[cfg(feature = "http-loader-reqwest")]
+impl From<reqwest::blocking::Client> for ReqwestFetcher {
+    fn from(client: reqwest::blocking::Client) -> Self {
+        Self { client }
+    }
+}
 
 #[cfg(feature = "http-loader-reqwest")]
 impl HttpFetcher for ReqwestFetcher {
@@ -28,7 +47,7 @@ impl HttpFetcher for ReqwestFetcher {
         url: &str,
         headers: &HashMap<String, String>,
     ) -> Result<String, IncludeLoaderError> {
-        let req = self.0.get(url);
+        let req = self.client.get(url);
         let req = headers
             .iter()
             .fold(req, |r, (key, value)| r.header(key, value));
@@ -43,6 +62,49 @@ impl HttpFetcher for ReqwestFetcher {
                 .with_cause(Arc::new(err))
         })?;
         res.text().map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::InvalidData)
+                .with_message("unable to convert remote template as string")
+                .with_cause(Arc::new(err))
+        })
+    }
+}
+
+#[cfg(all(feature = "http-loader-reqwest", feature = "async-loader"))]
+#[derive(Debug, Default)]
+pub struct AsyncReqwestFetcher {
+    client: reqwest::Client,
+}
+
+#[cfg(all(feature = "http-loader-reqwest", feature = "async-loader"))]
+impl From<reqwest::Client> for AsyncReqwestFetcher {
+    fn from(client: reqwest::Client) -> Self {
+        Self { client }
+    }
+}
+
+#[cfg(all(feature = "http-loader-reqwest", feature = "async-loader"))]
+#[async_trait::async_trait]
+impl AsyncHttpFetcher for AsyncReqwestFetcher {
+    async fn fetch(
+        &self,
+        url: &str,
+        headers: &HashMap<String, String>,
+    ) -> Result<String, IncludeLoaderError> {
+        let req = self.client.get(url);
+        let req = headers
+            .iter()
+            .fold(req, |r, (key, value)| r.header(key, value));
+        let res = req.send().await.map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::NotFound)
+                .with_message("unable to fetch template")
+                .with_cause(Arc::new(err))
+        })?;
+        let res = res.error_for_status().map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::NotFound)
+                .with_message("unable to fetch template")
+                .with_cause(Arc::new(err))
+        })?;
+        res.text().await.map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::InvalidData)
                 .with_message("unable to convert remote template as string")
                 .with_cause(Arc::new(err))
