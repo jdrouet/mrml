@@ -1,0 +1,21 @@
+on:
+  push:
+    branches:
+      - "main"
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  create-create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+      - name: run release-plz
+        uses: MarcoIeni/release-plz-action@v0.5
+        with:
+          command: release-pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
