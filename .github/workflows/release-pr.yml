@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: run release-plz
         uses: MarcoIeni/release-plz-action@v0.5
         with:
