@@ -74,5 +74,5 @@ jobs:
           FILE_SIZE=$(du -sb target/release/mrml | awk '{ print $1 }')
           curl https://codebench.cloud/binaries/codebench-cli-amd64 -o ./codebench-cli
           chmod +x ./codebench-cli
-          ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} publish mrml-cli.binary.size gauge $FILE_SIZE
+          ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} publish mrml-cli.binary.size $FILE_SIZE
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} report
