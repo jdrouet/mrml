@@ -6,4 +6,4 @@ threshold = 20
 expectation = "decrease"
 
 [metrics.tags]
-unit = "byte"
+unit = "B"
