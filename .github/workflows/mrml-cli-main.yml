@@ -77,3 +77,4 @@ jobs:
           ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} publish --github-check mrml-cli.binary.size $FILE_SIZE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUST_LOG: debug
