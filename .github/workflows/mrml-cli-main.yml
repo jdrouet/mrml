@@ -4,7 +4,7 @@ on:
   workflow_call:
   pull_request:
   push:
-    branch:
+    branches:
       - main
 
 env:
@@ -72,6 +72,6 @@ jobs:
       - name: publish file size metric
         run: |
           FILE_SIZE=$(du -sb target/release/mrml | awk '{ print $1 }')
-          curl https://codebench.cloud/binaries/codebench-cli-amd64 -o ./codebench-cli
-          chmod +x ./codebench-cli
-          ./codebench-cli --token ${{ secrets.CODEBENCH_TOKEN }} publish mrml-cli.binary.size $FILE_SIZE
+          curl https://ci-metrics.eu/binaries/cimetrics-cli-amd64 -o ./cimetrics-cli
+          chmod +x ./cimetrics-cli
+          ./cimetrics-cli --verbose --token ${{ secrets.CODEBENCH_TOKEN }} publish mrml-cli.binary.size $FILE_SIZE
