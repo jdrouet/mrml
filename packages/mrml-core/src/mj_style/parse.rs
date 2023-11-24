@@ -1,9 +1,9 @@
 use xmlparser::StrSpan;
 
 use super::{MjStyle, MjStyleAttributes};
-use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlCursor};
 
-impl<'a> AttributesParser<'a, MjStyleAttributes> for MrmlParser<'a> {
+impl<'a> AttributesParser<'a, MjStyleAttributes> for MrmlCursor<'a> {
     fn parse_attributes(&mut self) -> Result<MjStyleAttributes, Error> {
         let mut result = MjStyleAttributes::default();
         while let Some(attr) = self.next_attribute()? {
@@ -17,7 +17,7 @@ impl<'a> AttributesParser<'a, MjStyleAttributes> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjStyle> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjStyle> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjStyle, Error> {
         let attributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
@@ -44,40 +44,42 @@ impl<'a> ElementParser<'a, MjStyle> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_style::MjStyle;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn should_work_empty() {
-        let _: MjStyle = MrmlParser::new(r#"<mj-style />"#, Default::default())
+        let _: MjStyle = MrmlCursor::new(r#"<mj-style />"#, Default::default())
             .parse_root()
             .unwrap();
     }
 
     #[test]
     fn should_work_inline() {
-        let _: MjStyle = MrmlParser::new(r#"<mj-style inline="inline" />"#, Default::default())
+        let _: MjStyle = MrmlCursor::new(r#"<mj-style inline="inline" />"#, Default::default())
             .parse_root()
             .unwrap();
     }
 
     #[test]
     fn should_work_basic() {
-        let _: MjStyle = MrmlParser::new(
-            r#"<mj-style>.whatever {background-color: red};</mj-style>"#,
-            Default::default(),
-        )
-        .parse_root()
-        .unwrap();
+        let _: MjStyle =
+            MrmlCursor::new(
+                r#"<mj-style>.whatever {background-color: red};</mj-style>"#,
+                Default::default(),
+            )
+            .parse_root()
+            .unwrap();
     }
 
     #[test]
     #[should_panic(expected = "UnexpectedAttribute(Span { start: 10, end: 21 })")]
     fn should_error_with_unknown_attribute() {
-        let _: MjStyle = MrmlParser::new(
-            r#"<mj-style oups="true">.whatever {background-color: red};</mj-style>"#,
-            Default::default(),
-        )
-        .parse_root()
-        .unwrap();
+        let _: MjStyle =
+            MrmlCursor::new(
+                r#"<mj-style oups="true">.whatever {background-color: red};</mj-style>"#,
+                Default::default(),
+            )
+            .parse_root()
+            .unwrap();
     }
 }

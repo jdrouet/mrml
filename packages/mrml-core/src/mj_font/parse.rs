@@ -1,9 +1,9 @@
 use xmlparser::StrSpan;
 
 use super::{MjFont, MjFontAttributes};
-use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlCursor};
 
-impl<'a> AttributesParser<'a, MjFontAttributes> for MrmlParser<'a> {
+impl<'a> AttributesParser<'a, MjFontAttributes> for MrmlCursor<'a> {
     fn parse_attributes(&mut self) -> Result<MjFontAttributes, Error> {
         let mut result = MjFontAttributes::default();
 
@@ -19,7 +19,7 @@ impl<'a> AttributesParser<'a, MjFontAttributes> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjFont> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjFont> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjFont, Error> {
         let attributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
@@ -34,11 +34,11 @@ impl<'a> ElementParser<'a, MjFont> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_font::MjFont;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn success() {
-        let _: MjFont = MrmlParser::new(
+        let _: MjFont = MrmlCursor::new(
             r#"<mj-font name="Comic" href="https://jolimail.io" />"#,
             Default::default(),
         )
@@ -49,8 +49,9 @@ mod tests {
     #[test]
     #[should_panic]
     fn unexpected_attribute() {
-        let _: MjFont = MrmlParser::new(r#"<mj-font unknown="whatever" />"#, Default::default())
-            .parse_root()
-            .unwrap();
+        let _: MjFont =
+            MrmlCursor::new(r#"<mj-font unknown="whatever" />"#, Default::default())
+                .parse_root()
+                .unwrap();
     }
 }

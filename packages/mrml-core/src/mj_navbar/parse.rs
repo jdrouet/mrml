@@ -3,9 +3,9 @@ use xmlparser::StrSpan;
 use super::{MjNavbar, MjNavbarChild};
 use crate::comment::Comment;
 use crate::mj_navbar_link::NAME as MJ_NAVBAR_LINK;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
 
-impl<'a> ChildrenParser<'a, Vec<MjNavbarChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjNavbarChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjNavbarChild>, Error> {
         let mut result = Vec::new();
 
@@ -31,7 +31,7 @@ impl<'a> ChildrenParser<'a, Vec<MjNavbarChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjNavbar> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjNavbar> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjNavbar, Error> {
         let (attributes, children) = self.parse_attributes_and_children()?;
 
@@ -45,13 +45,13 @@ impl<'a> ElementParser<'a, MjNavbar> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use super::MjNavbar;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {
             #[test]
             fn $title() {
-                let _: MjNavbar = MrmlParser::new($template, Default::default())
+                let _: MjNavbar = MrmlCursor::new($template, Default::default())
                     .parse_root()
                     .unwrap();
             }
@@ -63,7 +63,7 @@ mod tests {
             #[test]
             #[should_panic(expected = $error)]
             fn $title() {
-                let _: MjNavbar = MrmlParser::new($template, Default::default())
+                let _: MjNavbar = MrmlCursor::new($template, Default::default())
                     .parse_root()
                     .unwrap();
             }

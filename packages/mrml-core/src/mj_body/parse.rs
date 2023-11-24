@@ -21,7 +21,7 @@ use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::NAME as MJ_WRAPPER;
 use crate::node::Node;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken,
 };
 use crate::text::Text;
 
@@ -45,7 +45,7 @@ fn should_ignore_children(tag: &str) -> bool {
     )
 }
 
-impl<'a> ElementParser<'a, Node<MjBodyChild>> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, Node<MjBodyChild>> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<Node<MjBodyChild>, Error> {
         let tag = tag.to_string();
         let attributes = self.parse_attributes()?;
@@ -69,7 +69,7 @@ impl<'a> ElementParser<'a, Node<MjBodyChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjBodyChild> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjBodyChild> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjBodyChild, Error> {
         match tag.as_str() {
             MJ_ACCORDION => Ok(MjBodyChild::MjAccordion(self.parse(tag)?)),
@@ -94,7 +94,7 @@ impl<'a> ElementParser<'a, MjBodyChild> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ChildrenParser<'a, Vec<MjBodyChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjBodyChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjBodyChild>, Error> {
         let mut result = Vec::new();
         while let Some(token) = self.next_token() {
@@ -121,7 +121,7 @@ impl<'a> ChildrenParser<'a, Vec<MjBodyChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjBody> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjBody> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjBody, Error> {
         let (attributes, children) = self.parse_attributes_and_children()?;
 
@@ -135,7 +135,7 @@ impl<'a> ElementParser<'a, MjBody> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_body::MjBody;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn parse_complete() {
@@ -145,7 +145,7 @@ mod tests {
     <mj-button>Hello World</mj-button>
 </mj-body>
         "#;
-        let body: MjBody = MrmlParser::new(raw, Default::default())
+        let body: MjBody = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
         assert_eq!(body.children.len(), 2);

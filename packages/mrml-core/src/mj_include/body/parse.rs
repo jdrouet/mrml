@@ -22,11 +22,11 @@ use crate::mj_table::NAME as MJ_TABLE;
 use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::{MjWrapper, NAME as MJ_WRAPPER};
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken,
 };
 use crate::text::Text;
 
-impl<'a> ElementParser<'a, MjIncludeBodyChild> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjIncludeBodyChild> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeBodyChild, Error> {
         match tag.as_str() {
             MJ_ACCORDION => Ok(MjIncludeBodyChild::MjAccordion(self.parse(tag)?)),
@@ -62,7 +62,7 @@ impl<'a> TryFrom<StrSpan<'a>> for MjIncludeBodyKind {
     }
 }
 
-impl<'a> AttributesParser<'a, MjIncludeBodyAttributes> for MrmlParser<'a> {
+impl<'a> AttributesParser<'a, MjIncludeBodyAttributes> for MrmlCursor<'a> {
     fn parse_attributes(&mut self) -> Result<MjIncludeBodyAttributes, Error> {
         let mut path = None;
         let mut kind = None;
@@ -86,16 +86,14 @@ impl<'a> AttributesParser<'a, MjIncludeBodyAttributes> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ChildrenParser<'a, Vec<MjIncludeBodyChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjIncludeBodyChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjIncludeBodyChild>, Error> {
         let mut result = Vec::new();
 
         while let Some(token) = self.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjIncludeBodyChild::Comment(Comment::from(
-                        inner.text.as_str(),
-                    )));
+                    result.push(MjIncludeBodyChild::Comment(Comment::from(inner.text.as_str())));
                 }
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.parse(inner.local)?);
@@ -115,7 +113,7 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeBodyChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjIncludeBody> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjIncludeBody> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeBody, Error> {
         let (attributes, children): (MjIncludeBodyAttributes, Vec<MjIncludeBodyChild>) =
             self.parse_attributes_and_children()?;
@@ -160,7 +158,7 @@ mod tests {
 
     use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
-    use crate::prelude::parser::{MrmlParser, ParserOptions};
+    use crate::prelude::parser::{MrmlCursor, ParserOptions};
 
     #[test]
     fn kind_parser() {
@@ -179,7 +177,7 @@ mod tests {
     #[should_panic(expected = "InvalidAttribute(Span { start: 18, end: 21 })")]
     fn invalid_kind() {
         let raw = r#"<mj-include type="foo" path="basic.mjml" />"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+        let _res: MjIncludeBody = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -190,7 +188,7 @@ mod tests {
     )]
     fn basic_in_noop_resolver() {
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let _: MjIncludeBody = MrmlParser::new(raw, Default::default())
+        let _: MjIncludeBody = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -198,7 +196,7 @@ mod tests {
     #[test]
     fn basic_with_children() {
         let raw = r#"<mj-include path="basic.mjml"><mj-text>Hello World</mj-text> <!-- Coucou --></mj-include>"#;
-        let _: MjIncludeBody = MrmlParser::new(raw, Default::default())
+        let _: MjIncludeBody = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -211,7 +209,7 @@ mod tests {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let include: MjIncludeBody = MrmlParser::new(raw, opts.into()).parse_root().unwrap();
+        let include: MjIncludeBody = MrmlCursor::new(raw, opts.into()).parse_root().unwrap();
         assert_eq!(include.attributes.kind, MjIncludeBodyKind::Mjml);
         let _content = include.children.first().unwrap();
     }
@@ -223,7 +221,7 @@ mod tests {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="partial.html" type="html" />"#;
-        let include: MjIncludeBody = MrmlParser::new(raw, opts.into()).parse_root().unwrap();
+        let include: MjIncludeBody = MrmlCursor::new(raw, opts.into()).parse_root().unwrap();
         assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
         let _content = include.children.first().unwrap();
     }
@@ -250,7 +248,7 @@ mod tests {
     <!-- hello -->
     World
 </mj-include>"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+        let _res: MjIncludeBody = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -261,7 +259,7 @@ mod tests {
         let raw = r#"<mj-include path="partial.html">
     <foo />
 </mj-include>"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+        let _res: MjIncludeBody = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -271,7 +269,7 @@ mod tests {
     fn invalid_attribute() {
         let raw =
             r#"<mj-include invalid="attribute" path="partial.html"><!-- empty --></mj-include>"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+        let _res: MjIncludeBody = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -280,7 +278,7 @@ mod tests {
     #[should_panic(expected = "MissingAttribute(\"path\", Span { start: 0, end: 0 })")]
     fn missing_path() {
         let raw = r#"<mj-include><!-- empty --></mj-include>"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
+        let _res: MjIncludeBody = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }

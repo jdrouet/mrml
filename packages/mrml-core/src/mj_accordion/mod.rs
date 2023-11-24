@@ -41,7 +41,7 @@ mod tests {
     use crate::mj_accordion::MjAccordion;
     use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
     use crate::mj_accordion_title::MjAccordionTitle;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
     use crate::prelude::print::Print;
     use crate::text::Text;
 
@@ -63,7 +63,7 @@ mod tests {
         };
         let initial = element.print(false, 0, 2);
         let raw ="<mj-accordion><mj-accordion-element><mj-accordion-title>Hello World!</mj-accordion-title></mj-accordion-element></mj-accordion>";
-        let elt: MjAccordion = MrmlParser::new(raw, Default::default())
+        let elt: MjAccordion = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
         let result = elt.print(false, 0, 2);

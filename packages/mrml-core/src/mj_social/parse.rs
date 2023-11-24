@@ -3,9 +3,9 @@ use xmlparser::StrSpan;
 use super::{MjSocial, MjSocialChild};
 use crate::comment::Comment;
 use crate::mj_social_element::NAME as MJ_SOCIAL_ELEMENT;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
 
-impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjSocialChild>, Error> {
         let mut result = Vec::new();
 
@@ -31,7 +31,7 @@ impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjSocial> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjSocial> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjSocial, Error> {
         let (attributes, children) = self.parse_attributes_and_children()?;
 
@@ -44,13 +44,13 @@ impl<'a> ElementParser<'a, MjSocial> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use super::MjSocial;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {
             #[test]
             fn $title() {
-                let _: MjSocial = MrmlParser::new($template, Default::default())
+                let _: MjSocial = MrmlCursor::new($template, Default::default())
                     .parse_root()
                     .unwrap();
             }
@@ -62,7 +62,7 @@ mod tests {
             #[test]
             #[should_panic(expected = $error)]
             fn $title() {
-                let _: MjSocial = MrmlParser::new($template, Default::default())
+                let _: MjSocial = MrmlCursor::new($template, Default::default())
                     .parse_root()
                     .unwrap();
             }

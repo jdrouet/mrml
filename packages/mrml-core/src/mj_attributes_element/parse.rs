@@ -2,9 +2,9 @@ use xmlparser::StrSpan;
 
 use super::MjAttributesElement;
 use crate::prelude::hash::Map;
-use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlCursor};
 
-impl<'a> ElementParser<'a, MjAttributesElement> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjAttributesElement> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjAttributesElement, Error> {
         let attributes: Map<String, String> = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
@@ -22,7 +22,7 @@ impl<'a> ElementParser<'a, MjAttributesElement> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_attributes::MjAttributes;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn parse_complete() {
@@ -31,7 +31,7 @@ mod tests {
     <mj-class name="whatever" color="red" />
 </mj-attributes>
         "#;
-        let _: MjAttributes = MrmlParser::new(raw, Default::default())
+        let _: MjAttributes = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }

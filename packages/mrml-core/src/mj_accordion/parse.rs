@@ -3,24 +3,20 @@ use xmlparser::StrSpan;
 use super::{MjAccordion, MjAccordionChild};
 use crate::comment::Comment;
 use crate::mj_accordion_element::NAME as MJ_ACCORDION_ELEMENT;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
 
-impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjAccordionChild>, Error> {
         let mut result = Vec::new();
 
         loop {
             match self.assert_next()? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjAccordionChild::Comment(Comment::from(
-                        inner.text.as_str(),
-                    )));
+                    result.push(MjAccordionChild::Comment(Comment::from(inner.text.as_str())));
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_ACCORDION_ELEMENT {
-                        result.push(MjAccordionChild::MjAccordionElement(
-                            self.parse(inner.local)?,
-                        ));
+                        result.push(MjAccordionChild::MjAccordionElement(self.parse(inner.local)?));
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }
@@ -35,7 +31,7 @@ impl<'a> ChildrenParser<'a, Vec<MjAccordionChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjAccordion> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjAccordion> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordion, Error> {
         let (attributes, children) = self.parse_attributes_and_children()?;
 
@@ -49,14 +45,14 @@ impl<'a> ElementParser<'a, MjAccordion> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use super::MjAccordion;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     macro_rules! should_success {
         ($title:ident, $template:expr) => {
             #[test]
             fn $title() {
                 let raw = $template;
-                let _: MjAccordion = MrmlParser::new(raw, Default::default())
+                let _: MjAccordion = MrmlCursor::new(raw, Default::default())
                     .parse_root()
                     .unwrap();
             }
@@ -69,7 +65,7 @@ mod tests {
             #[should_panic(expected = $error)]
             fn $title() {
                 let raw = $template;
-                let _: MjAccordion = MrmlParser::new(raw, Default::default())
+                let _: MjAccordion = MrmlCursor::new(raw, Default::default())
                     .parse_root()
                     .unwrap();
             }
@@ -80,7 +76,7 @@ mod tests {
     fn basic() {
         let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
         let result: crate::mjml::Mjml =
-            crate::prelude::parser::MrmlParser::new(template, Default::default())
+            crate::prelude::parser::MrmlCursor::new(template, Default::default())
                 .parse_root()
                 .unwrap();
         assert!(!format!("{result:?}").is_empty());

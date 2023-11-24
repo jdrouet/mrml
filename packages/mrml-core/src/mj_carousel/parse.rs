@@ -3,9 +3,9 @@ use xmlparser::StrSpan;
 use super::{MjCarousel, MjCarouselChild};
 use crate::comment::Comment;
 use crate::mj_carousel_image::NAME as MJ_CAROUSEL_IMAGE;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
 
-impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjCarouselChild>, Error> {
         let mut result = Vec::new();
 
@@ -31,7 +31,7 @@ impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjCarousel> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjCarousel> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjCarousel, Error> {
         let (attributes, children) = self.parse_attributes_and_children()?;
 
@@ -45,7 +45,7 @@ impl<'a> ElementParser<'a, MjCarousel> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_carousel::MjCarousel;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn with_all_children() {
@@ -54,7 +54,7 @@ mod tests {
     <mj-carousel-image />
 </mj-carousel>
 "#;
-        let _: MjCarousel = MrmlParser::new(raw, Default::default())
+        let _: MjCarousel = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -66,7 +66,7 @@ mod tests {
     <mj-text>Nope</mj-text>
 </mj-carousel>
 "#;
-        let _: MjCarousel = MrmlParser::new(raw, Default::default())
+        let _: MjCarousel = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }

@@ -12,11 +12,11 @@ use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::NAME as MJ_TITLE;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken,
 };
 use crate::text::Text;
 
-impl<'a> ElementParser<'a, MjIncludeHeadChild> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjIncludeHeadChild> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeHeadChild, Error> {
         match tag.as_str() {
             MJ_ATTRIBUTES => self.parse(tag).map(MjIncludeHeadChild::MjAttributes),
@@ -31,7 +31,7 @@ impl<'a> ElementParser<'a, MjIncludeHeadChild> for MrmlParser<'a> {
     }
 }
 
-impl<'a> AttributesParser<'a, MjIncludeHeadAttributes> for MrmlParser<'a> {
+impl<'a> AttributesParser<'a, MjIncludeHeadAttributes> for MrmlCursor<'a> {
     fn parse_attributes(&mut self) -> Result<MjIncludeHeadAttributes, Error> {
         let mut path = None;
         let mut kind = None;
@@ -55,15 +55,13 @@ impl<'a> AttributesParser<'a, MjIncludeHeadAttributes> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjIncludeHeadChild>, Error> {
         let mut result = Vec::new();
         while let Some(token) = self.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjIncludeHeadChild::Comment(Comment::from(
-                        inner.text.as_str(),
-                    )));
+                    result.push(MjIncludeHeadChild::Comment(Comment::from(inner.text.as_str())));
                 }
                 MrmlToken::Text(inner) => {
                     result.push(MjIncludeHeadChild::Text(Text::from(inner.text.as_str())));
@@ -84,7 +82,7 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeHeadChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjIncludeHead> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeHead, Error> {
         let (attributes, children): (MjIncludeHeadAttributes, Vec<MjIncludeHeadChild>) =
             self.parse_attributes_and_children()?;
@@ -102,9 +100,7 @@ impl<'a> ElementParser<'a, MjIncludeHead> for MrmlParser<'a> {
 
             match attributes.kind {
                 MjIncludeHeadKind::Css { inline: false } => {
-                    vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(
-                        child,
-                    ))]
+                    vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(child))]
                 }
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => self.new_child(child.as_str()).parse_children()?,
@@ -142,7 +138,7 @@ mod tests {
 
     use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
-    use crate::prelude::parser::{MrmlParser, ParserOptions};
+    use crate::prelude::parser::{MrmlCursor, ParserOptions};
 
     #[test]
     fn should_parse_every_kind() {
@@ -165,7 +161,7 @@ mod tests {
     #[should_panic(expected = "MissingAttribute(\"path\", Span { start: 0, end: 0 })")]
     fn should_error_when_no_path() {
         let raw = r#"<mj-include />"#;
-        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+        let _: MjIncludeHead = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -174,7 +170,7 @@ mod tests {
     #[should_panic(expected = "UnexpectedAttribute(Span { start: 12, end: 25 })")]
     fn should_error_when_unknown_attribute() {
         let raw = r#"<mj-include unknown="yep" />"#;
-        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+        let _: MjIncludeHead = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -191,7 +187,7 @@ mod tests {
     <mj-title>Title</mj-title>
     <!-- Comment -->
 </mj-include>"#;
-        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+        let _: MjIncludeHead = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -200,7 +196,7 @@ mod tests {
     #[should_panic(expected = "UnexpectedElement(Span { start: 29, end: 32 })")]
     fn should_error_unknown_children() {
         let raw = r#"<mj-include path="inmemory"><div /></mj-include>"#;
-        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+        let _: MjIncludeHead = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -211,7 +207,7 @@ mod tests {
     )]
     fn basic_in_noop_resolver() {
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let _: MjIncludeHead = MrmlParser::new(raw, Default::default())
+        let _: MjIncludeHead = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -224,7 +220,7 @@ mod tests {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let include: MjIncludeHead = MrmlParser::new(raw, opts.into()).parse_root().unwrap();
+        let include: MjIncludeHead = MrmlCursor::new(raw, opts.into()).parse_root().unwrap();
         assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
         let _content = include.children.first().unwrap();
     }
@@ -237,7 +233,7 @@ mod tests {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="partial.css" type="css" />"#;
-        let include: MjIncludeHead = MrmlParser::new(raw, opts.into()).parse_root().unwrap();
+        let include: MjIncludeHead = MrmlCursor::new(raw, opts.into()).parse_root().unwrap();
         assert_eq!(
             include.attributes.kind,
             MjIncludeHeadKind::Css { inline: false }

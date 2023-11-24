@@ -1,9 +1,9 @@
 use xmlparser::StrSpan;
 
 use super::MjTitle;
-use crate::prelude::parser::{ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{ElementParser, Error, MrmlCursor};
 
-impl<'a> ElementParser<'a, MjTitle> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjTitle> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjTitle, Error> {
         let ending = self.assert_element_end()?;
         if ending.empty {
@@ -23,12 +23,13 @@ impl<'a> ElementParser<'a, MjTitle> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_title::MjTitle;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn success() {
-        let _: MjTitle = MrmlParser::new("<mj-title>Hello World!</mj-title>", Default::default())
-            .parse_root()
-            .unwrap();
+        let _: MjTitle =
+            MrmlCursor::new("<mj-title>Hello World!</mj-title>", Default::default())
+                .parse_root()
+                .unwrap();
     }
 }

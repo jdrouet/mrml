@@ -133,11 +133,13 @@ impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
             Token::ElementEnd {
                 end: xmlparser::ElementEnd::Close(prefix, local),
                 span,
-            } => Ok(MrmlToken::ElementClose(ElementClose {
-                span,
-                prefix,
-                local,
-            })),
+            } => {
+                Ok(MrmlToken::ElementClose(ElementClose {
+                    span,
+                    prefix,
+                    local,
+                }))
+            }
             Token::ElementEnd {
                 end: xmlparser::ElementEnd::Empty,
                 span,
@@ -150,11 +152,13 @@ impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
                 prefix,
                 local,
                 span,
-            } => Ok(MrmlToken::ElementStart(ElementStart {
-                prefix,
-                local,
-                span,
-            })),
+            } => {
+                Ok(MrmlToken::ElementStart(ElementStart {
+                    prefix,
+                    local,
+                    span,
+                }))
+            }
             Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
             other => Err(Error::UnexpectedToken(other.into())),
         }
@@ -229,13 +233,13 @@ pub(crate) trait ChildrenParser<'a, C> {
     fn parse_children(&mut self) -> Result<C, Error>;
 }
 
-pub struct MrmlParser<'a> {
+pub struct MrmlCursor<'a> {
     tokenizer: Tokenizer<'a>,
     pub(crate) options: Arc<ParserOptions>,
     buffer: Vec<MrmlToken<'a>>,
 }
 
-impl<'a> MrmlParser<'a> {
+impl<'a> MrmlCursor<'a> {
     pub fn new(source: &'a str, options: Arc<ParserOptions>) -> Self {
         Self {
             tokenizer: Tokenizer::from(source),
@@ -244,8 +248,8 @@ impl<'a> MrmlParser<'a> {
         }
     }
 
-    pub(crate) fn new_child<'b>(&self, source: &'b str) -> MrmlParser<'b> {
-        MrmlParser {
+    pub(crate) fn new_child<'b>(&self, source: &'b str) -> MrmlCursor<'b> {
+        MrmlCursor {
             tokenizer: Tokenizer::from(source),
             options: self.options.clone(),
             buffer: Default::default(),
@@ -333,7 +337,7 @@ impl<'a> MrmlParser<'a> {
 
     pub(crate) fn parse_root<T>(&mut self) -> Result<T, Error>
     where
-        MrmlParser<'a>: ElementParser<'a, T>,
+        MrmlCursor<'a>: ElementParser<'a, T>,
     {
         let start = self.assert_element_start()?;
         self.parse(start.local)
@@ -341,8 +345,8 @@ impl<'a> MrmlParser<'a> {
 
     pub(crate) fn parse_attributes_and_children<A, C>(&mut self) -> Result<(A, C), Error>
     where
-        MrmlParser<'a>: AttributesParser<'a, A>,
-        MrmlParser<'a>: ChildrenParser<'a, C>,
+        MrmlCursor<'a>: AttributesParser<'a, A>,
+        MrmlCursor<'a>: ChildrenParser<'a, C>,
         C: Default,
     {
         let attributes: A = self.parse_attributes()?;
@@ -359,7 +363,7 @@ impl<'a> MrmlParser<'a> {
     }
 }
 
-impl<'a> AttributesParser<'a, Map<String, String>> for MrmlParser<'a> {
+impl<'a> AttributesParser<'a, Map<String, String>> for MrmlCursor<'a> {
     fn parse_attributes(&mut self) -> Result<Map<String, String>, Error> {
         let mut result = Map::new();
         while let Some(attr) = self.next_attribute()? {

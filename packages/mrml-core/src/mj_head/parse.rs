@@ -9,9 +9,9 @@ use crate::mj_preview::NAME as MJ_PREVIEW;
 use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::NAME as MJ_TITLE;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
 
-impl<'a> ChildrenParser<'a, Vec<MjHeadChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjHeadChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjHeadChild>, Error> {
         let mut result = Vec::new();
         loop {
@@ -31,7 +31,7 @@ impl<'a> ChildrenParser<'a, Vec<MjHeadChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjHead> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjHead> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjHead, Error> {
         let ending = self.assert_element_end()?;
         if ending.empty {
@@ -44,7 +44,7 @@ impl<'a> ElementParser<'a, MjHead> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjHeadChild> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjHeadChild> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjHeadChild, Error> {
         match tag.as_str() {
             MJ_ATTRIBUTES => self.parse(tag).map(MjHeadChild::MjAttributes),
@@ -63,11 +63,11 @@ impl<'a> ElementParser<'a, MjHeadChild> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_head::MjHead;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn raw_children() {
-        let _: MjHead = MrmlParser::new(
+        let _: MjHead = MrmlCursor::new(
             r#"<mj-head><mj-raw>Hello World!</mj-raw></mj-head>"#,
             Default::default(),
         )
@@ -77,7 +77,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn unexpected_element() {
-        let item: MjHead = MrmlParser::new(
+        let item: MjHead = MrmlCursor::new(
             r#"<mj-head><mj-text>Hello World!</mj-text></mj-head>"#,
             Default::default(),
         )

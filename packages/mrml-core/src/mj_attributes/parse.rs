@@ -3,9 +3,9 @@ use xmlparser::StrSpan;
 use super::{MjAttributes, MjAttributesChild};
 use crate::mj_attributes_all::NAME as MJ_ALL;
 use crate::mj_attributes_class::NAME as MJ_CLASS;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
 
-impl<'a> ElementParser<'a, MjAttributesChild> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjAttributesChild> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjAttributesChild, Error> {
         Ok(match tag.as_str() {
             MJ_ALL => MjAttributesChild::MjAttributesAll(self.parse(tag)?),
@@ -15,7 +15,7 @@ impl<'a> ElementParser<'a, MjAttributesChild> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ChildrenParser<'a, Vec<MjAttributesChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjAttributesChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjAttributesChild>, Error> {
         let mut result = Vec::new();
 
@@ -34,7 +34,7 @@ impl<'a> ChildrenParser<'a, Vec<MjAttributesChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjAttributes> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjAttributes> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAttributes, Error> {
         let ending = self.assert_element_end()?;
         if ending.empty {
@@ -53,7 +53,7 @@ impl<'a> ElementParser<'a, MjAttributes> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_attributes::MjAttributes;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn parse_complete() {
@@ -64,7 +64,7 @@ mod tests {
     <span color="blue" />
 </mj-attributes>
         "#;
-        let _: MjAttributes = MrmlParser::new(raw, Default::default())
+        let _: MjAttributes = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }

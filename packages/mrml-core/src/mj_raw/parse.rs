@@ -4,11 +4,11 @@ use super::{MjRaw, MjRawChild};
 use crate::comment::Comment;
 use crate::node::Node;
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+    AttributesParser, ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken,
 };
 use crate::text::Text;
 
-impl<'a> ElementParser<'a, Node<MjRawChild>> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, Node<MjRawChild>> for MrmlCursor<'a> {
     fn parse(&mut self, tag: StrSpan<'a>) -> Result<Node<MjRawChild>, Error> {
         let attributes = self.parse_attributes()?;
         let ending = self.assert_element_end()?;
@@ -31,7 +31,7 @@ impl<'a> ElementParser<'a, Node<MjRawChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ChildrenParser<'a, Vec<MjRawChild>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<MjRawChild>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<MjRawChild>, Error> {
         let mut children = Vec::new();
         loop {
@@ -56,7 +56,7 @@ impl<'a> ChildrenParser<'a, Vec<MjRawChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjRaw> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjRaw> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjRaw, Error> {
         let ending = self.assert_element_end()?;
         if ending.empty {

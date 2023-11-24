@@ -4,10 +4,10 @@ use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
 use crate::prelude::parser::{
-    self, AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+    self, AttributesParser, ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken,
 };
 
-impl<'a> AttributesParser<'a, MjmlAttributes> for MrmlParser<'a> {
+impl<'a> AttributesParser<'a, MjmlAttributes> for MrmlCursor<'a> {
     fn parse_attributes(&mut self) -> Result<MjmlAttributes, Error> {
         let mut attrs = MjmlAttributes::default();
         while let Some(token) = self.next_attribute()? {
@@ -22,7 +22,7 @@ impl<'a> AttributesParser<'a, MjmlAttributes> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<MjmlChildren, Error> {
         let mut children = MjmlChildren::default();
 
@@ -51,7 +51,7 @@ impl<'a> ChildrenParser<'a, MjmlChildren> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, Mjml> for parser::MrmlParser<'a> {
+impl<'a> ElementParser<'a, Mjml> for parser::MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<Mjml, Error> {
         let (attributes, children) = self.parse_attributes_and_children()?;
 
@@ -90,22 +90,13 @@ impl Mjml {
         value: T,
         opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
     ) -> Result<Self, Error> {
-        MrmlParser::new(value.as_ref(), opts).parse_root()
+        MrmlCursor::new(value.as_ref(), opts).parse_root()
     }
 
     /// Function to parse a raw mjml template using the default parsing
     /// [options](crate::prelude::parser::ParserOptions).
-    ///
-    /// ```rust
-    /// use mrml::mjml::Mjml;
-    ///
-    /// match Mjml::parse("<mjml><mj-head /><mj-body /></mjml>") {
-    ///     Ok(_) => println!("Success!"),
-    ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
-    /// }
-    /// ```
     pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        MrmlParser::new(value.as_ref(), Default::default()).parse_root()
+        MrmlCursor::new(value.as_ref(), Default::default()).parse_root()
     }
 }
 
@@ -124,7 +115,7 @@ mod tests {
     #[test]
     fn should_parse() {
         let template = "<mjml></mjml>";
-        let elt: Mjml = MrmlParser::new(template, Default::default())
+        let elt: Mjml = MrmlCursor::new(template, Default::default())
             .parse_root()
             .unwrap();
         assert!(elt.children.body.is_none());
@@ -134,7 +125,7 @@ mod tests {
     #[test]
     fn should_parse_without_children() {
         let template = "<mjml />";
-        let elt: Mjml = MrmlParser::new(template, Default::default())
+        let elt: Mjml = MrmlCursor::new(template, Default::default())
             .parse_root()
             .unwrap();
         assert!(elt.children.body.is_none());

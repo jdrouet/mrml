@@ -1,10 +1,10 @@
 use xmlparser::StrSpan;
 
 use super::MjAccordionTitle;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor};
 use crate::text::Text;
 
-impl<'a> ChildrenParser<'a, Vec<Text>> for MrmlParser<'a> {
+impl<'a> ChildrenParser<'a, Vec<Text>> for MrmlCursor<'a> {
     fn parse_children(&mut self) -> Result<Vec<Text>, Error> {
         let mut result = Vec::new();
 
@@ -18,7 +18,7 @@ impl<'a> ChildrenParser<'a, Vec<Text>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjAccordionTitle> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjAccordionTitle> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordionTitle, Error> {
         let (attributes, children) = self.parse_attributes_and_children()?;
 
@@ -32,12 +32,12 @@ impl<'a> ElementParser<'a, MjAccordionTitle> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use super::MjAccordionTitle;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     #[test]
     fn should_work_with_child_text() {
         let raw = "<mj-accordion-title>Hello</mj-accordion-title>";
-        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+        let _: MjAccordionTitle = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -45,7 +45,7 @@ mod tests {
     #[test]
     fn should_work_with_no_children() {
         let raw = "<mj-accordion-title />";
-        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+        let _: MjAccordionTitle = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }
@@ -54,7 +54,7 @@ mod tests {
     #[should_panic(expected = "EndOfStream")]
     fn should_error_with_no_closing() {
         let raw = "<mj-accordion-title>";
-        let _: MjAccordionTitle = MrmlParser::new(raw, Default::default())
+        let _: MjAccordionTitle = MrmlCursor::new(raw, Default::default())
             .parse_root()
             .unwrap();
     }

@@ -1,9 +1,9 @@
 use xmlparser::StrSpan;
 
 use super::MjNavbarLink;
-use crate::prelude::parser::{ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{ElementParser, Error, MrmlCursor};
 
-impl<'a> ElementParser<'a, MjNavbarLink> for MrmlParser<'a> {
+impl<'a> ElementParser<'a, MjNavbarLink> for MrmlCursor<'a> {
     fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjNavbarLink, Error> {
         let (attributes, children) = self.parse_attributes_and_children()?;
 
@@ -17,13 +17,13 @@ impl<'a> ElementParser<'a, MjNavbarLink> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use super::MjNavbarLink;
-    use crate::prelude::parser::MrmlParser;
+    use crate::prelude::parser::MrmlCursor;
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {
             #[test]
             fn $title() {
-                let _: MjNavbarLink = MrmlParser::new($template, Default::default())
+                let _: MjNavbarLink = MrmlCursor::new($template, Default::default())
                     .parse_root()
                     .unwrap();
             }
