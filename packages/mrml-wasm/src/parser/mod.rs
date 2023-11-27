@@ -17,7 +17,9 @@ impl Default for IncludeLoaderOptions {
 }
 
 impl IncludeLoaderOptions {
-    pub fn build(self) -> Box<dyn mrml::prelude::parser::loader::IncludeLoader> {
+    pub fn build(
+        self,
+    ) -> Box<dyn mrml::prelude::parser::loader::IncludeLoader + Sync + Send + 'static> {
         match self {
             Self::Noop => Box::new(mrml::prelude::parser::noop_loader::NoopIncludeLoader),
             Self::Memory(inner) => inner.build(),
