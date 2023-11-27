@@ -31,8 +31,13 @@ use crate::prelude::parser::loader::IncludeLoader;
 /// ```
 pub struct NoopIncludeLoader;
 
+#[async_trait::async_trait]
 impl IncludeLoader for NoopIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        Err(IncludeLoaderError::not_found(path))
+    }
+
+    async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         Err(IncludeLoaderError::not_found(path))
     }
 }

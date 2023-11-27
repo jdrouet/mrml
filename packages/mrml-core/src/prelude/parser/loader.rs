@@ -64,6 +64,7 @@ impl std::error::Error for IncludeLoaderError {
     }
 }
 
+#[async_trait::async_trait]
 pub trait IncludeLoader: std::fmt::Debug {
     /// This function is used to fetch the included template using the `path`
     /// attribute.
@@ -71,6 +72,8 @@ pub trait IncludeLoader: std::fmt::Debug {
     /// You can have an example of simple resolve function with the
     /// [`MemoryIncludeLoader`](crate::prelude::parser::memory_loader::MemoryIncludeLoader).
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
+
+    async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
 }
 
 #[cfg(test)]
@@ -102,10 +105,7 @@ mod tests {
     fn should_display_with_cause() {
         assert_eq!(
             IncludeLoaderError::new("foo.mjml", ErrorKind::NotFound)
-                .with_cause(Arc::new(IncludeLoaderError::new(
-                    "bar.mjml",
-                    ErrorKind::InvalidInput
-                )))
+                .with_cause(Arc::new(IncludeLoaderError::new("bar.mjml", ErrorKind::InvalidInput)))
                 .to_string(),
             "Unable to load template foo.mjml: entity not found",
         );

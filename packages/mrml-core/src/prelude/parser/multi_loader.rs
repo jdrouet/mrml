@@ -42,20 +42,20 @@ impl MultiIncludeLoader {
     fn with_item(
         mut self,
         filter: MultiIncludeLoaderFilter,
-        loader: Box<dyn IncludeLoader>,
+        loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
     ) -> Self {
         self.0.push(MultiIncludeLoaderItem { filter, loader });
         self
     }
 
-    pub fn with_any(self, loader: Box<dyn IncludeLoader>) -> Self {
+    pub fn with_any(self, loader: Box<dyn IncludeLoader + Sync + Send + 'static>) -> Self {
         self.with_item(MultiIncludeLoaderFilter::Any, loader)
     }
 
     pub fn with_starts_with<S: ToString>(
         self,
         starts_with: S,
-        loader: Box<dyn IncludeLoader>,
+        loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
     ) -> Self {
         self.with_item(
             MultiIncludeLoaderFilter::StartsWith {
@@ -65,15 +65,23 @@ impl MultiIncludeLoader {
         )
     }
 
-    fn add_item(&mut self, filter: MultiIncludeLoaderFilter, loader: Box<dyn IncludeLoader>) {
+    fn add_item(
+        &mut self,
+        filter: MultiIncludeLoaderFilter,
+        loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
+    ) {
         self.0.push(MultiIncludeLoaderItem { filter, loader });
     }
 
-    pub fn add_any(&mut self, loader: Box<dyn IncludeLoader>) {
+    pub fn add_any(&mut self, loader: Box<dyn IncludeLoader + Sync + Send + 'static>) {
         self.add_item(MultiIncludeLoaderFilter::Any, loader);
     }
 
-    pub fn add_starts_with<S: ToString>(&mut self, starts_with: S, loader: Box<dyn IncludeLoader>) {
+    pub fn add_starts_with<S: ToString>(
+        &mut self,
+        starts_with: S,
+        loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
+    ) {
         self.add_item(
             MultiIncludeLoaderFilter::StartsWith {
                 value: starts_with.to_string(),
@@ -101,9 +109,10 @@ impl MultiIncludeLoaderFilter {
 #[derive(Debug)]
 struct MultiIncludeLoaderItem {
     pub filter: MultiIncludeLoaderFilter,
-    pub loader: Box<dyn IncludeLoader>,
+    pub loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
 }
 
+#[async_trait::async_trait]
 impl IncludeLoader for MultiIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.0
@@ -114,6 +123,18 @@ impl IncludeLoader for MultiIncludeLoader {
                     .with_message("unable to find a compatible resolver")
             })
             .and_then(|item| item.loader.resolve(path))
+    }
+
+    async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        let item = self
+            .0
+            .iter()
+            .find(|item| item.filter.matches(path))
+            .ok_or_else(|| {
+                IncludeLoaderError::not_found(path)
+                    .with_message("unable to find a compatible resolver")
+            })?;
+        item.loader.async_resolve(path).await
     }
 }
 
@@ -131,10 +152,9 @@ mod tests {
         let resolver = MultiIncludeLoader::default()
             .with_starts_with(
                 "file://",
-                Box::new(MemoryIncludeLoader::from(vec![(
-                    "file://basic.mjml",
-                    "<mj-button>Hello</mj-button>",
-                )])),
+                Box::new(MemoryIncludeLoader::from(
+                    vec![("file://basic.mjml", "<mj-button>Hello</mj-button>")]
+                )),
             )
             .with_any(Box::<NoopIncludeLoader>::default());
 

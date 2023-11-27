@@ -221,10 +221,6 @@ pub(crate) struct Text<'a> {
     pub text: StrSpan<'a>,
 }
 
-// pub(crate) trait ElementParser<'a, E> {
-//     fn parse(&mut self, tag: StrSpan<'a>) -> Result<E, Error>;
-// }
-
 pub(crate) trait ParseElement<E> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<E, Error>;
 }
@@ -238,17 +234,9 @@ pub(crate) trait AsyncParseElement<E> {
     ) -> Result<E, Error>;
 }
 
-// pub(crate) trait AttributesParser<'a, A> {
-//     fn parse_attributes(&mut self) -> Result<A, Error>;
-// }
-
 pub(crate) trait ParseAttributes<A> {
     fn parse_attributes<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<A, Error>;
 }
-
-// pub(crate) trait ChildrenParser<'a, C> {
-//     fn parse_children(&mut self) -> Result<C, Error>;
-// }
 
 pub(crate) trait ParseChildren<C> {
     fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;

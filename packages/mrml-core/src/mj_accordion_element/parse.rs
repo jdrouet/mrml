@@ -58,8 +58,6 @@ impl ParseElement<MjAccordionElement> for MrmlParser {
 #[cfg(test)]
 mod tests {
     use super::MjAccordionElement;
-    use crate::mj_accordion_text::MjAccordionText;
-    use crate::mj_accordion_title::MjAccordionTitle;
 
     crate::should_parse!(
         should_work_with_no_children,
@@ -79,37 +77,5 @@ mod tests {
         MjAccordionElement,
         "<mj-accordion-element><!-- comment --></mj-accordion-element>",
         "UnexpectedToken(Span { start: 22, end: 38 }"
-    );
-
-    crate::should_parse!(
-        title_should_work_with_no_children,
-        MjAccordionElement,
-        "<mj-accordion-title />"
-    );
-
-    crate::should_parse!(
-        title_should_work_with_child_text,
-        MjAccordionElement,
-        "<mj-accordion-title>Hello</mj-accordion-title>"
-    );
-
-    crate::should_not_parse!(
-        title_should_error_with_span_child,
-        MjAccordionTitle,
-        "<mj-accordion-title><span>Hello</span></mj-accordion-title>",
-        "UnexpectedToken(Span { start: 20, end: 25 })"
-    );
-
-    crate::should_parse!(
-        text_should_work_with_child_text,
-        MjAccordionText,
-        "<mj-accordion-text>Hello</mj-accordion-text>"
-    );
-
-    crate::should_not_parse!(
-        without_closing_element,
-        MjAccordionTitle,
-        "<mj-accordion-text>",
-        "EndOfStream"
     );
 }

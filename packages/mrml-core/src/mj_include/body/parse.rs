@@ -22,8 +22,8 @@ use crate::mj_table::NAME as MJ_TABLE;
 use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::{MjWrapper, NAME as MJ_WRAPPER};
 use crate::prelude::parser::{
-    AsyncParseElement, Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren,
-    ParseElement,
+    AsyncParseChildren, AsyncParseElement, Error, MrmlCursor, MrmlParser, MrmlToken,
+    ParseAttributes, ParseChildren, ParseElement,
 };
 use crate::text::Text;
 
@@ -179,12 +179,12 @@ impl AsyncParseElement<MjIncludeBody> for MrmlParser {
             self.parse_attributes_and_children(cursor)?;
 
         // if a mj-include has some content, we don't load it
-        // TODO add async_resolve
         let children: Vec<MjIncludeBodyChild> = if children.is_empty() {
             let child = self
                 .options
                 .include_loader
-                .resolve(&attributes.path)
+                .async_resolve(&attributes.path)
+                .await
                 .map_err(|source| Error::IncludeLoaderError {
                     position: tag.into(),
                     source,
@@ -192,7 +192,7 @@ impl AsyncParseElement<MjIncludeBody> for MrmlParser {
             match attributes.kind {
                 MjIncludeBodyKind::Html => {
                     let mut sub = cursor.new_child(child.as_str());
-                    let children: Vec<MjBodyChild> = self.parse_children(&mut sub)?;
+                    let children: Vec<MjBodyChild> = self.async_parse_children(&mut sub).await?;
                     vec![MjIncludeBodyChild::MjWrapper(MjWrapper {
                         attributes: Default::default(),
                         children,

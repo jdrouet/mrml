@@ -39,12 +39,13 @@ pub struct MemoryIncludeLoader(pub Map<String, String>);
 
 impl<K: ToString, V: ToString> From<Vec<(K, V)>> for MemoryIncludeLoader {
     fn from(value: Vec<(K, V)>) -> Self {
-        let res = value
-            .into_iter()
-            .fold(Map::default(), |mut res, (key, value)| {
-                res.insert(key.to_string(), value.to_string());
-                res
-            });
+        let res =
+            value
+                .into_iter()
+                .fold(Map::default(), |mut res, (key, value)| {
+                    res.insert(key.to_string(), value.to_string());
+                    res
+                });
         MemoryIncludeLoader::from(res)
     }
 }
@@ -61,11 +62,16 @@ impl From<Map<String, String>> for MemoryIncludeLoader {
     }
 }
 
+#[async_trait::async_trait]
 impl IncludeLoader for MemoryIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.0
             .get(path)
             .cloned()
             .ok_or_else(|| IncludeLoaderError::not_found(path))
+    }
+
+    async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        self.resolve(path)
     }
 }

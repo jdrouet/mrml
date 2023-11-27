@@ -151,31 +151,31 @@ impl AsyncParseElement<MjIncludeHead> for MrmlParser {
             self.parse_attributes_and_children(cursor)?;
 
         // if a mj-include has some content, we don't load it
-        let children: Vec<MjIncludeHeadChild> =
-            if children.is_empty() {
-                let child = self
-                    .options
-                    .include_loader
-                    .resolve(&attributes.path)
-                    .map_err(|source| Error::IncludeLoaderError {
-                        position: tag.into(),
-                        source,
-                    })?;
+        let children: Vec<MjIncludeHeadChild> = if children.is_empty() {
+            let child = self
+                .options
+                .include_loader
+                .async_resolve(&attributes.path)
+                .await
+                .map_err(|source| Error::IncludeLoaderError {
+                    position: tag.into(),
+                    source,
+                })?;
 
-                match attributes.kind {
-                    MjIncludeHeadKind::Css { inline: false } => {
-                        vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(child))]
-                    }
-                    MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
-                    MjIncludeHeadKind::Mjml => {
-                        let mut sub = cursor.new_child(child.as_str());
-                        self.parse_children(&mut sub)?
-                    }
-                    MjIncludeHeadKind::Html => todo!(),
+            match attributes.kind {
+                MjIncludeHeadKind::Css { inline: false } => {
+                    vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(child))]
                 }
-            } else {
-                children
-            };
+                MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
+                MjIncludeHeadKind::Mjml => {
+                    let mut sub = cursor.new_child(child.as_str());
+                    self.parse_children(&mut sub)?
+                }
+                MjIncludeHeadKind::Html => unimplemented!(),
+            }
+        } else {
+            children
+        };
 
         Ok(MjIncludeHead {
             attributes,
