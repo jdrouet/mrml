@@ -226,7 +226,7 @@ pub(crate) trait ParseElement<E> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 pub(crate) trait AsyncParseElement<E> {
     async fn async_parse<'a>(
         &self,
@@ -244,7 +244,7 @@ pub(crate) trait ParseChildren<C> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 pub(crate) trait AsyncParseChildren<C> {
     async fn async_parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;
 }

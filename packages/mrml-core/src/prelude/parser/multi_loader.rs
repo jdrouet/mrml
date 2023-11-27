@@ -112,7 +112,7 @@ struct MultiIncludeLoaderItem {
     pub loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
 }
 
-#[cfg_attr(feature = "async", async_trait::async_trait)]
+#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl IncludeLoader for MultiIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.0

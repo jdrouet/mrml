@@ -45,7 +45,7 @@ impl ParseElement<MjStyle> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl crate::prelude::parser::AsyncParseElement<MjStyle> for MrmlParser {
     async fn async_parse<'a>(
         &self,

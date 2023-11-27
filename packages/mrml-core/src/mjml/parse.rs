@@ -52,7 +52,7 @@ impl ParseChildren<MjmlChildren> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl crate::prelude::parser::AsyncParseChildren<MjmlChildren> for MrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -99,7 +99,7 @@ impl ParseElement<Mjml> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl crate::prelude::parser::AsyncParseElement<Mjml> for MrmlParser {
     async fn async_parse<'a>(
         &self,

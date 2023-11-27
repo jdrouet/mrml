@@ -15,7 +15,7 @@ impl ParseElement<MjText> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl crate::prelude::parser::AsyncParseElement<MjText> for MrmlParser {
     async fn async_parse<'a>(
         &self,

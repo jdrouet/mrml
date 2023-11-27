@@ -74,7 +74,7 @@ impl ParseElement<Node<MjBodyChild>> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl crate::prelude::parser::AsyncParseElement<Node<MjBodyChild>> for MrmlParser {
     async fn async_parse<'a>(
         &self,
@@ -135,7 +135,7 @@ impl ParseElement<MjBodyChild> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl crate::prelude::parser::AsyncParseElement<MjBodyChild> for MrmlParser {
     async fn async_parse<'a>(
         &self,
@@ -193,7 +193,7 @@ impl ParseChildren<Vec<MjBodyChild>> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl crate::prelude::parser::AsyncParseChildren<Vec<MjBodyChild>> for MrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -238,7 +238,7 @@ impl ParseElement<MjBody> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl crate::prelude::parser::AsyncParseElement<MjBody> for MrmlParser {
     async fn async_parse<'a>(
         &self,
