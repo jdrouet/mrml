@@ -3,28 +3,33 @@ use xmlparser::StrSpan;
 use super::{MjAccordionElement, MjAccordionElementChildren};
 use crate::mj_accordion_text::NAME as MJ_ACCORDION_TEXT;
 use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
+use crate::prelude::parser::{
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
+};
 
-impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlCursor<'a> {
-    fn parse_children(&mut self) -> Result<MjAccordionElementChildren, Error> {
+impl ParseChildren<MjAccordionElementChildren> for MrmlParser {
+    fn parse_children<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<MjAccordionElementChildren, Error> {
         let mut result = MjAccordionElementChildren::default();
 
         loop {
-            let token = self.assert_next()?;
+            let token = cursor.assert_next()?;
             match token {
                 MrmlToken::ElementStart(inner) => match inner.local.as_str() {
                     MJ_ACCORDION_TEXT => {
-                        result.text = Some(self.parse(inner.local)?);
+                        result.text = Some(self.parse(cursor, inner.local)?);
                     }
                     MJ_ACCORDION_TITLE => {
-                        result.title = Some(self.parse(inner.local)?);
+                        result.title = Some(self.parse(cursor, inner.local)?);
                     }
                     _ => {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }
                 },
                 MrmlToken::ElementClose(inner) => {
-                    self.rewind(MrmlToken::ElementClose(inner));
+                    cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
                 other => {
@@ -35,9 +40,13 @@ impl<'a> ChildrenParser<'a, MjAccordionElementChildren> for MrmlCursor<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjAccordionElement> for MrmlCursor<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAccordionElement, Error> {
-        let (attributes, children) = self.parse_attributes_and_children()?;
+impl ParseElement<MjAccordionElement> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjAccordionElement, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
         Ok(MjAccordionElement {
             attributes,
@@ -51,73 +60,56 @@ mod tests {
     use super::MjAccordionElement;
     use crate::mj_accordion_text::MjAccordionText;
     use crate::mj_accordion_title::MjAccordionTitle;
-    use crate::prelude::parser::MrmlCursor;
 
-    #[test]
-    fn should_work_with_no_children() {
-        let raw = "<mj-accordion-element />";
-        let _: MjAccordionElement = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(
+        should_work_with_no_children,
+        MjAccordionElement,
+        "<mj-accordion-element />"
+    );
 
-    #[test]
-    #[should_panic(expected = "UnexpectedElement(Span { start: 22, end: 27 })")]
-    fn should_error_with_unknown_child() {
-        let raw = "<mj-accordion-element><span /></mj-accordion-element>";
-        let _: MjAccordionElement = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_not_parse!(
+        should_error_with_unknown_child,
+        MjAccordionElement,
+        "<mj-accordion-element><span /></mj-accordion-element>",
+        "UnexpectedElement(Span { start: 22, end: 27 })"
+    );
 
-    #[test]
-    #[should_panic(expected = "UnexpectedToken(Span { start: 22, end: 38 }")]
-    fn should_error_with_comment() {
-        let raw = "<mj-accordion-element><!-- comment --></mj-accordion-element>";
-        let _: MjAccordionElement = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_not_parse!(
+        should_error_with_comment,
+        MjAccordionElement,
+        "<mj-accordion-element><!-- comment --></mj-accordion-element>",
+        "UnexpectedToken(Span { start: 22, end: 38 }"
+    );
 
-    #[test]
-    fn title_should_work_with_no_children() {
-        let raw = "<mj-accordion-title />";
-        let _: MjAccordionTitle = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(
+        title_should_work_with_no_children,
+        MjAccordionElement,
+        "<mj-accordion-title />"
+    );
 
-    #[test]
-    fn title_should_work_with_child_text() {
-        let raw = "<mj-accordion-title>Hello</mj-accordion-title>";
-        let _: MjAccordionTitle = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(
+        title_should_work_with_child_text,
+        MjAccordionElement,
+        "<mj-accordion-title>Hello</mj-accordion-title>"
+    );
 
-    #[test]
-    #[should_panic(expected = "UnexpectedToken(Span { start: 20, end: 25 })")]
-    fn title_should_error_with_span_child() {
-        let raw = "<mj-accordion-title><span>Hello</span></mj-accordion-title>";
-        let _: MjAccordionTitle = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_not_parse!(
+        title_should_error_with_span_child,
+        MjAccordionTitle,
+        "<mj-accordion-title><span>Hello</span></mj-accordion-title>",
+        "UnexpectedToken(Span { start: 20, end: 25 })"
+    );
 
-    #[test]
-    fn text_should_work_with_child_text() {
-        let raw = "<mj-accordion-text>Hello</mj-accordion-text>";
-        let _: MjAccordionText = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(
+        text_should_work_with_child_text,
+        MjAccordionText,
+        "<mj-accordion-text>Hello</mj-accordion-text>"
+    );
 
-    #[test]
-    #[should_panic(expected = "EndOfStream")]
-    fn text_should_error_with_no_closing() {
-        let raw = "<mj-accordion-text>";
-        let _: MjAccordionText = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_not_parse!(
+        without_closing_element,
+        MjAccordionTitle,
+        "<mj-accordion-text>",
+        "EndOfStream"
+    );
 }

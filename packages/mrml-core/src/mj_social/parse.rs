@@ -3,26 +3,29 @@ use xmlparser::StrSpan;
 use super::{MjSocial, MjSocialChild};
 use crate::comment::Comment;
 use crate::mj_social_element::NAME as MJ_SOCIAL_ELEMENT;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
+use crate::prelude::parser::{
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
+};
 
-impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlCursor<'a> {
-    fn parse_children(&mut self) -> Result<Vec<MjSocialChild>, Error> {
+impl ParseChildren<Vec<MjSocialChild>> for MrmlParser {
+    fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<Vec<MjSocialChild>, Error> {
         let mut result = Vec::new();
 
         loop {
-            match self.assert_next()? {
+            match cursor.assert_next()? {
                 MrmlToken::Comment(inner) => {
                     result.push(MjSocialChild::Comment(Comment::from(inner.text.as_str())));
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_SOCIAL_ELEMENT {
-                        result.push(MjSocialChild::MjSocialElement(self.parse(inner.local)?));
+                        result
+                            .push(MjSocialChild::MjSocialElement(self.parse(cursor, inner.local)?));
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
-                    self.rewind(MrmlToken::ElementClose(inner));
+                    cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
                 other => return Err(Error::UnexpectedToken(other.span())),
@@ -31,9 +34,9 @@ impl<'a> ChildrenParser<'a, Vec<MjSocialChild>> for MrmlCursor<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjSocial> for MrmlCursor<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjSocial, Error> {
-        let (attributes, children) = self.parse_attributes_and_children()?;
+impl ParseElement<MjSocial> for MrmlParser {
+    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjSocial, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
         Ok(MjSocial {
             attributes,
@@ -41,31 +44,20 @@ impl<'a> ElementParser<'a, MjSocial> for MrmlCursor<'a> {
         })
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::MjSocial;
-    use crate::prelude::parser::MrmlCursor;
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {
-            #[test]
-            fn $title() {
-                let _: MjSocial = MrmlCursor::new($template, Default::default())
-                    .parse_root()
-                    .unwrap();
-            }
+            crate::should_parse!($title, MjSocial, $template);
         };
     }
 
     macro_rules! assert_fail {
         ($title:ident, $template:expr, $error:expr) => {
-            #[test]
-            #[should_panic(expected = $error)]
-            fn $title() {
-                let _: MjSocial = MrmlCursor::new($template, Default::default())
-                    .parse_root()
-                    .unwrap();
-            }
+            crate::should_not_parse!($title, MjSocial, $template, $error);
         };
     }
 

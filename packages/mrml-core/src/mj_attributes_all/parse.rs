@@ -1,14 +1,18 @@
 use xmlparser::StrSpan;
 
 use super::MjAttributesAll;
-use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlCursor};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
 
-impl<'a> ElementParser<'a, MjAttributesAll> for MrmlCursor<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjAttributesAll, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
+impl ParseElement<MjAttributesAll> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjAttributesAll, Error> {
+        let attributes = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
         if !ending.empty {
-            self.assert_element_close()?;
+            cursor.assert_element_close()?;
         }
 
         Ok(MjAttributesAll { attributes })
@@ -18,13 +22,6 @@ impl<'a> ElementParser<'a, MjAttributesAll> for MrmlCursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_attributes_all::MjAttributesAll;
-    use crate::prelude::parser::MrmlCursor;
 
-    #[test]
-    fn parse_complete() {
-        let raw = r#"<mj-all color="red" />"#;
-        let _: MjAttributesAll = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(parse_complete, MjAttributesAll, r#"<mj-all color="red" />"#);
 }

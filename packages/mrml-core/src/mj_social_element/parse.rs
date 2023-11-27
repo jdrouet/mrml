@@ -1,11 +1,15 @@
 use xmlparser::StrSpan;
 
 use super::MjSocialElement;
-use crate::prelude::parser::{ElementParser, Error, MrmlCursor};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl<'a> ElementParser<'a, MjSocialElement> for MrmlCursor<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjSocialElement, Error> {
-        let (attributes, children) = self.parse_attributes_and_children()?;
+impl ParseElement<MjSocialElement> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjSocialElement, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
         Ok(MjSocialElement {
             attributes,
@@ -17,25 +21,18 @@ impl<'a> ElementParser<'a, MjSocialElement> for MrmlCursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_social_element::MjSocialElement;
-    use crate::prelude::parser::MrmlCursor;
 
-    #[test]
-    fn parse_with_empty_children() {
-        let template = r#"<mj-social-element name="facebook" />"#;
-        let _: MjSocialElement = MrmlCursor::new(template, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(
+        parse_with_empty_children,
+        MjSocialElement,
+        r#"<mj-social-element name="facebook" />"#
+    );
 
-    #[test]
-    fn parse_ending_tag() {
-        let template = r#"
-<mj-social-element name="facebook">
+    crate::should_parse!(
+        parse_ending_tag,
+        MjSocialElement,
+        r#"<mj-social-element name="facebook">
     Share <b>test</b> hi
-</mj-social-element>
-        "#;
-        let _: MjSocialElement = MrmlCursor::new(template, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+</mj-social-element>"#
+    );
 }

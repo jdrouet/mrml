@@ -3,26 +3,33 @@ use xmlparser::StrSpan;
 use super::{MjCarousel, MjCarouselChild};
 use crate::comment::Comment;
 use crate::mj_carousel_image::NAME as MJ_CAROUSEL_IMAGE;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlCursor, MrmlToken};
+use crate::prelude::parser::{
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
+};
 
-impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlCursor<'a> {
-    fn parse_children(&mut self) -> Result<Vec<MjCarouselChild>, Error> {
+impl ParseChildren<Vec<MjCarouselChild>> for MrmlParser {
+    fn parse_children<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<Vec<MjCarouselChild>, Error> {
         let mut result = Vec::new();
 
         loop {
-            match self.assert_next()? {
+            match cursor.assert_next()? {
                 MrmlToken::Comment(inner) => {
                     result.push(MjCarouselChild::Comment(Comment::from(inner.text.as_str())));
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_CAROUSEL_IMAGE {
-                        result.push(MjCarouselChild::MjCarouselImage(self.parse(inner.local)?));
+                        result.push(
+                            MjCarouselChild::MjCarouselImage(self.parse(cursor, inner.local)?)
+                        );
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
-                    self.rewind(MrmlToken::ElementClose(inner));
+                    cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
                 other => return Err(Error::UnexpectedToken(other.span())),
@@ -31,9 +38,13 @@ impl<'a> ChildrenParser<'a, Vec<MjCarouselChild>> for MrmlCursor<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjCarousel> for MrmlCursor<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjCarousel, Error> {
-        let (attributes, children) = self.parse_attributes_and_children()?;
+impl ParseElement<MjCarousel> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjCarousel, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
         Ok(MjCarousel {
             attributes,
@@ -45,29 +56,23 @@ impl<'a> ElementParser<'a, MjCarousel> for MrmlCursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_carousel::MjCarousel;
-    use crate::prelude::parser::MrmlCursor;
 
-    #[test]
-    fn with_all_children() {
-        let raw = r#"<mj-carousel>
+    crate::should_parse!(
+        with_all_children,
+        MjCarousel,
+        r#"<mj-carousel>
     <!-- comment -->
     <mj-carousel-image />
 </mj-carousel>
-"#;
-        let _: MjCarousel = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+"#
+    );
 
-    #[test]
-    #[should_panic]
-    fn with_unexpected_child() {
-        let raw = r#"<mj-carousel>
-    <mj-text>Nope</mj-text>
-</mj-carousel>
-"#;
-        let _: MjCarousel = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_not_parse!(
+        with_unexpected_child,
+        MjCarousel,
+        r#"<mj-carousel>
+        <mj-text>Nope</mj-text>
+    </mj-carousel>
+"#
+    );
 }

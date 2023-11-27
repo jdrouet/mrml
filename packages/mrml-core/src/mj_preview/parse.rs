@@ -1,18 +1,22 @@
 use xmlparser::StrSpan;
 
 use super::MjPreview;
-use crate::prelude::parser::{ElementParser, Error, MrmlCursor};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl<'a> ElementParser<'a, MjPreview> for MrmlCursor<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjPreview, Error> {
-        let ending = self.assert_element_end()?;
+impl ParseElement<MjPreview> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjPreview, Error> {
+        let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok(MjPreview::default());
         }
 
-        let text = self.next_text()?.map(|inner| inner.text.to_string());
+        let text = cursor.next_text()?.map(|inner| inner.text.to_string());
 
-        self.assert_element_close()?;
+        cursor.assert_element_close()?;
 
         Ok(MjPreview {
             children: text.unwrap_or_default(),
@@ -23,22 +27,11 @@ impl<'a> ElementParser<'a, MjPreview> for MrmlCursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_preview::MjPreview;
-    use crate::prelude::parser::MrmlCursor;
 
-    #[test]
-    fn should_parse() {
-        let _: MjPreview = MrmlCursor::new(
-            r#"<mj-preview>Hello World!</mj-preview>"#,
-            Default::default(),
-        )
-        .parse_root()
-        .unwrap();
-    }
-
-    #[test]
-    fn should_parse_without_children() {
-        let _: MjPreview = MrmlCursor::new(r#"<mj-preview />"#, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(
+        should_parse,
+        MjPreview,
+        "<mj-preview>Hello World!</mj-preview>"
+    );
+    crate::should_parse!(should_parse_without_children, MjPreview, "<mj-preview />");
 }

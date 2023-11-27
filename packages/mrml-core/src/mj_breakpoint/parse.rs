@@ -1,12 +1,15 @@
 use xmlparser::StrSpan;
 
 use super::{MjBreakpoint, MjBreakpointAttributes};
-use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlCursor};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
 
-impl<'a> AttributesParser<'a, MjBreakpointAttributes> for MrmlCursor<'a> {
-    fn parse_attributes(&mut self) -> Result<MjBreakpointAttributes, Error> {
+impl ParseAttributes<MjBreakpointAttributes> for MrmlParser {
+    fn parse_attributes<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<MjBreakpointAttributes, Error> {
         let mut result = MjBreakpointAttributes::default();
-        while let Some(attr) = self.next_attribute()? {
+        while let Some(attr) = cursor.next_attribute()? {
             if attr.local.as_str() == "width" {
                 result.width = attr.value.to_string();
             } else {
@@ -17,10 +20,14 @@ impl<'a> AttributesParser<'a, MjBreakpointAttributes> for MrmlCursor<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjBreakpoint> for MrmlCursor<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjBreakpoint, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
+impl ParseElement<MjBreakpoint> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjBreakpoint, Error> {
+        let attributes = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
         if !ending.empty {
             return Err(Error::InvalidFormat(ending.span.into()));
         }
@@ -32,22 +39,11 @@ impl<'a> ElementParser<'a, MjBreakpoint> for MrmlCursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_breakpoint::MjBreakpoint;
-    use crate::prelude::parser::MrmlCursor;
 
-    #[test]
-    fn success() {
-        let raw = r#"<mj-breakpoint width="42px" />"#;
-        let _: MjBreakpoint = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
-
-    #[test]
-    #[should_panic]
-    fn unexpected_attributes() {
-        let raw = r#"<mj-breakpoint whatever="42px" />"#;
-        let _: MjBreakpoint = MrmlCursor::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(success, MjBreakpoint, r#"<mj-breakpoint width="42px" />"#);
+    crate::should_not_parse!(
+        unexpected_attributes,
+        MjBreakpoint,
+        r#"<mj-breakpoint whatever="42px" />"#
+    );
 }

@@ -1,11 +1,15 @@
 use xmlparser::StrSpan;
 
 use super::MjWrapper;
-use crate::prelude::parser::{ElementParser, Error, MrmlCursor};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl<'a> ElementParser<'a, MjWrapper> for MrmlCursor<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjWrapper, Error> {
-        let (attributes, children) = self.parse_attributes_and_children()?;
+impl ParseElement<MjWrapper> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjWrapper, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
         Ok(MjWrapper {
             attributes,
@@ -17,13 +21,10 @@ impl<'a> ElementParser<'a, MjWrapper> for MrmlCursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_wrapper::MjWrapper;
-    use crate::prelude::parser::MrmlCursor;
 
-    #[test]
-    fn parse_br_element() {
-        let content = "<mj-wrapper><h1>hello</h1><br><h2>world</h2></mj-wrapper>";
-        let _: MjWrapper = MrmlCursor::new(content, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_parse!(
+        parse_br_element,
+        MjWrapper,
+        "<mj-wrapper><h1>hello</h1><br><h2>world</h2></mj-wrapper>"
+    );
 }
