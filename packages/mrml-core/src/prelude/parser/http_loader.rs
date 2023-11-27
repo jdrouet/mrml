@@ -281,10 +281,16 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     }
 }
 
+#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl<F: HttpFetcher> IncludeLoader for HttpIncludeLoader<F> {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.check_url(path)?;
         self.fetcher.fetch(path, &self.headers)
+    }
+
+    #[cfg(feature = "async")]
+    async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        self.resolve(path)
     }
 }
 

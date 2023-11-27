@@ -73,6 +73,7 @@ impl LocalIncludeLoader {
     }
 }
 
+#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl IncludeLoader for LocalIncludeLoader {
     fn resolve(&self, url: &str) -> Result<String, IncludeLoaderError> {
         let path = self.build_path(url)?;
@@ -81,6 +82,11 @@ impl IncludeLoader for LocalIncludeLoader {
                 .with_message("unable to load the template file")
                 .with_cause(Arc::new(err))
         })
+    }
+
+    #[cfg(feature = "async")]
+    async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        self.resolve(path)
     }
 }
 

@@ -64,7 +64,7 @@ impl std::error::Error for IncludeLoaderError {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "async", async_trait::async_trait)]
 pub trait IncludeLoader: std::fmt::Debug {
     /// This function is used to fetch the included template using the `path`
     /// attribute.
@@ -73,6 +73,7 @@ pub trait IncludeLoader: std::fmt::Debug {
     /// [`MemoryIncludeLoader`](crate::prelude::parser::memory_loader::MemoryIncludeLoader).
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
 
+    #[cfg(feature = "async")]
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError>;
 }
 

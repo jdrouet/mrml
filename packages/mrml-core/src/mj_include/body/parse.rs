@@ -22,8 +22,7 @@ use crate::mj_table::NAME as MJ_TABLE;
 use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::{MjWrapper, NAME as MJ_WRAPPER};
 use crate::prelude::parser::{
-    AsyncParseChildren, AsyncParseElement, Error, MrmlCursor, MrmlParser, MrmlToken,
-    ParseAttributes, ParseChildren, ParseElement,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
 };
 use crate::text::Text;
 
@@ -168,13 +167,16 @@ impl ParseElement<MjIncludeBody> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseElement<MjIncludeBody> for MrmlParser {
+impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for MrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<MjIncludeBody, Error> {
+        use crate::prelude::parser::AsyncParseChildren;
+
         let (attributes, children): (MjIncludeBodyAttributes, Vec<MjIncludeBodyChild>) =
             self.parse_attributes_and_children(cursor)?;
 

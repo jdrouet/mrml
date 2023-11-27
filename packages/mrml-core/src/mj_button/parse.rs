@@ -1,7 +1,7 @@
 use xmlparser::StrSpan;
 
 use super::MjButton;
-use crate::prelude::parser::{AsyncParseElement, Error, MrmlCursor, MrmlParser, ParseElement};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
 impl ParseElement<MjButton> for MrmlParser {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjButton, Error> {
@@ -14,8 +14,9 @@ impl ParseElement<MjButton> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseElement<MjButton> for MrmlParser {
+impl crate::prelude::parser::AsyncParseElement<MjButton> for MrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

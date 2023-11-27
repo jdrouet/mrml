@@ -4,8 +4,7 @@ use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
 use crate::prelude::parser::{
-    AsyncParseChildren, AsyncParseElement, Error, MrmlCursor, MrmlParser, MrmlToken,
-    ParseAttributes, ParseChildren, ParseElement,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
 };
 
 impl ParseAttributes<MjmlAttributes> for MrmlParser {
@@ -52,12 +51,15 @@ impl ParseChildren<MjmlChildren> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseChildren<MjmlChildren> for MrmlParser {
+impl crate::prelude::parser::AsyncParseChildren<MjmlChildren> for MrmlParser {
     async fn async_parse_children<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
     ) -> Result<MjmlChildren, Error> {
+        use crate::prelude::parser::AsyncParseElement;
+
         let mut children = MjmlChildren::default();
 
         loop {
@@ -96,8 +98,9 @@ impl ParseElement<Mjml> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseElement<Mjml> for MrmlParser {
+impl crate::prelude::parser::AsyncParseElement<Mjml> for MrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

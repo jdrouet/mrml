@@ -12,8 +12,7 @@ use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::NAME as MJ_TITLE;
 use crate::prelude::parser::{
-    AsyncParseElement, Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren,
-    ParseElement,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
 };
 use crate::text::Text;
 
@@ -140,8 +139,9 @@ impl ParseElement<MjIncludeHead> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseElement<MjIncludeHead> for MrmlParser {
+impl crate::prelude::parser::AsyncParseElement<MjIncludeHead> for MrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

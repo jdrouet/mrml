@@ -225,6 +225,7 @@ pub(crate) trait ParseElement<E> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<E, Error>;
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
 pub(crate) trait AsyncParseElement<E> {
     async fn async_parse<'a>(
@@ -242,6 +243,7 @@ pub(crate) trait ParseChildren<C> {
     fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
 pub(crate) trait AsyncParseChildren<C> {
     async fn async_parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;
@@ -399,6 +401,7 @@ impl MrmlParser {
         Ok((attributes, children))
     }
 
+    #[cfg(feature = "async")]
     pub(crate) async fn async_parse_attributes_and_children<'a, A, C>(
         &self,
         cursor: &mut MrmlCursor<'a>,

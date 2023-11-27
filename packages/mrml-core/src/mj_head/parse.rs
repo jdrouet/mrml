@@ -10,8 +10,7 @@ use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::NAME as MJ_TITLE;
 use crate::prelude::parser::{
-    AsyncParseChildren, AsyncParseElement, Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren,
-    ParseElement,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
 impl ParseChildren<Vec<MjHeadChild>> for MrmlParser {
@@ -34,12 +33,15 @@ impl ParseChildren<Vec<MjHeadChild>> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseChildren<Vec<MjHeadChild>> for MrmlParser {
+impl crate::prelude::parser::AsyncParseChildren<Vec<MjHeadChild>> for MrmlParser {
     async fn async_parse_children<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
     ) -> Result<Vec<MjHeadChild>, Error> {
+        use crate::prelude::parser::AsyncParseElement;
+
         let mut result = Vec::new();
         loop {
             match cursor.assert_next()? {
@@ -71,13 +73,16 @@ impl ParseElement<MjHead> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseElement<MjHead> for MrmlParser {
+impl crate::prelude::parser::AsyncParseElement<MjHead> for MrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         _tag: StrSpan<'a>,
     ) -> Result<MjHead, Error> {
+        use crate::prelude::parser::AsyncParseChildren;
+
         let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok(MjHead::default());
@@ -109,8 +114,9 @@ impl ParseElement<MjHeadChild> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseElement<MjHeadChild> for MrmlParser {
+impl crate::prelude::parser::AsyncParseElement<MjHeadChild> for MrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

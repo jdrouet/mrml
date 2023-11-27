@@ -1,9 +1,7 @@
 use xmlparser::StrSpan;
 
 use super::{MjStyle, MjStyleAttributes};
-use crate::prelude::parser::{
-    AsyncParseElement, Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement,
-};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
 
 impl ParseAttributes<MjStyleAttributes> for MrmlParser {
     fn parse_attributes<'a>(
@@ -46,8 +44,9 @@ impl ParseElement<MjStyle> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncParseElement<MjStyle> for MrmlParser {
+impl crate::prelude::parser::AsyncParseElement<MjStyle> for MrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
