@@ -29,14 +29,14 @@ impl ReqwestIncludeLoaderInner {
     async fn fetch(&self, path: String) -> Result<String, IncludeLoaderError> {
         reqwest::get(format!("{}{path}", self.base_url))
             .await
-            .map_err(
-                |err| IncludeLoaderError::new(path.clone(), ErrorKind::Other).with_cause(Arc::new(err))
-            )?
+            .map_err(|err| {
+                IncludeLoaderError::new(path.clone(), ErrorKind::Other).with_cause(Arc::new(err))
+            })?
             .text()
             .await
-            .map_err(
-                |err| IncludeLoaderError::new(path, ErrorKind::Other).with_cause(Arc::new(err))
-            )
+            .map_err(|err| {
+                IncludeLoaderError::new(path, ErrorKind::Other).with_cause(Arc::new(err))
+            })
     }
 }
 

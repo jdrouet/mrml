@@ -21,9 +21,9 @@ impl ParseChildren<Vec<MjCarouselChild>> for MrmlParser {
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_CAROUSEL_IMAGE {
-                        result.push(
-                            MjCarouselChild::MjCarouselImage(self.parse(cursor, inner.local)?)
-                        );
+                        result.push(MjCarouselChild::MjCarouselImage(
+                            self.parse(cursor, inner.local)?,
+                        ));
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }

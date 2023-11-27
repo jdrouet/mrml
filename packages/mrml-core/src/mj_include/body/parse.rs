@@ -103,7 +103,9 @@ impl ParseChildren<Vec<MjIncludeBodyChild>> for MrmlParser {
         while let Some(token) = cursor.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjIncludeBodyChild::Comment(Comment::from(inner.text.as_str())));
+                    result.push(MjIncludeBodyChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
                 }
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.parse(cursor, inner.local)?);

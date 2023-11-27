@@ -75,7 +75,9 @@ impl ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser {
         while let Some(token) = cursor.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjIncludeHeadChild::Comment(Comment::from(inner.text.as_str())));
+                    result.push(MjIncludeHeadChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
                 }
                 MrmlToken::Text(inner) => {
                     result.push(MjIncludeHeadChild::Text(Text::from(inner.text.as_str())));
@@ -106,31 +108,32 @@ impl ParseElement<MjIncludeHead> for MrmlParser {
             self.parse_attributes_and_children(cursor)?;
 
         // if a mj-include has some content, we don't load it
-        let children: Vec<MjIncludeHeadChild> =
-            if children.is_empty() {
-                let child = self
-                    .options
-                    .include_loader
-                    .resolve(&attributes.path)
-                    .map_err(|source| Error::IncludeLoaderError {
-                        position: tag.into(),
-                        source,
-                    })?;
+        let children: Vec<MjIncludeHeadChild> = if children.is_empty() {
+            let child = self
+                .options
+                .include_loader
+                .resolve(&attributes.path)
+                .map_err(|source| Error::IncludeLoaderError {
+                    position: tag.into(),
+                    source,
+                })?;
 
-                match attributes.kind {
-                    MjIncludeHeadKind::Css { inline: false } => {
-                        vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(child))]
-                    }
-                    MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
-                    MjIncludeHeadKind::Mjml => {
-                        let mut sub = cursor.new_child(child.as_str());
-                        self.parse_children(&mut sub)?
-                    }
-                    MjIncludeHeadKind::Html => todo!(),
+            match attributes.kind {
+                MjIncludeHeadKind::Css { inline: false } => {
+                    vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(
+                        child,
+                    ))]
                 }
-            } else {
-                children
-            };
+                MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
+                MjIncludeHeadKind::Mjml => {
+                    let mut sub = cursor.new_child(child.as_str());
+                    self.parse_children(&mut sub)?
+                }
+                MjIncludeHeadKind::Html => todo!(),
+            }
+        } else {
+            children
+        };
 
         Ok(MjIncludeHead {
             attributes,
@@ -164,7 +167,9 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeHead> for MrmlParser {
 
             match attributes.kind {
                 MjIncludeHeadKind::Css { inline: false } => {
-                    vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(child))]
+                    vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(
+                        child,
+                    ))]
                 }
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => {

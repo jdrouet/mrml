@@ -18,7 +18,9 @@ impl ParseChildren<Vec<MjNavbarChild>> for MrmlParser {
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_NAVBAR_LINK {
-                        result.push(MjNavbarChild::MjNavbarLink(self.parse(cursor, inner.local)?));
+                        result.push(MjNavbarChild::MjNavbarLink(
+                            self.parse(cursor, inner.local)?,
+                        ));
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }

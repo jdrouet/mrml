@@ -133,13 +133,11 @@ impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
             Token::ElementEnd {
                 end: xmlparser::ElementEnd::Close(prefix, local),
                 span,
-            } => {
-                Ok(MrmlToken::ElementClose(ElementClose {
-                    span,
-                    prefix,
-                    local,
-                }))
-            }
+            } => Ok(MrmlToken::ElementClose(ElementClose {
+                span,
+                prefix,
+                local,
+            })),
             Token::ElementEnd {
                 end: xmlparser::ElementEnd::Empty,
                 span,
@@ -152,13 +150,11 @@ impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
                 prefix,
                 local,
                 span,
-            } => {
-                Ok(MrmlToken::ElementStart(ElementStart {
-                    prefix,
-                    local,
-                    span,
-                }))
-            }
+            } => Ok(MrmlToken::ElementStart(ElementStart {
+                prefix,
+                local,
+                span,
+            })),
             Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
             other => Err(Error::UnexpectedToken(other.into())),
         }

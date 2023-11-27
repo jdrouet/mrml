@@ -153,9 +153,10 @@ mod tests {
         let resolver = MultiIncludeLoader::default()
             .with_starts_with(
                 "file://",
-                Box::new(MemoryIncludeLoader::from(
-                    vec![("file://basic.mjml", "<mj-button>Hello</mj-button>")]
-                )),
+                Box::new(MemoryIncludeLoader::from(vec![(
+                    "file://basic.mjml",
+                    "<mj-button>Hello</mj-button>",
+                )])),
             )
             .with_any(Box::<NoopIncludeLoader>::default());
 

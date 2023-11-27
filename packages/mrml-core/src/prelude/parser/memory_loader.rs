@@ -39,13 +39,12 @@ pub struct MemoryIncludeLoader(pub Map<String, String>);
 
 impl<K: ToString, V: ToString> From<Vec<(K, V)>> for MemoryIncludeLoader {
     fn from(value: Vec<(K, V)>) -> Self {
-        let res =
-            value
-                .into_iter()
-                .fold(Map::default(), |mut res, (key, value)| {
-                    res.insert(key.to_string(), value.to_string());
-                    res
-                });
+        let res = value
+            .into_iter()
+            .fold(Map::default(), |mut res, (key, value)| {
+                res.insert(key.to_string(), value.to_string());
+                res
+            });
         MemoryIncludeLoader::from(res)
     }
 }
