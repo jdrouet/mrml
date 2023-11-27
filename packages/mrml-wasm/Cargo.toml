@@ -8,7 +8,8 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["console_error_panic_hook"]
+default = ["console_error_panic_hook", "reqwest-include-loader"]
+reqwest-include-loader = ["dep:async-trait", "dep:reqwest", "mrml/async"]
 
 [dependencies]
 # The `console_error_panic_hook` crate provides better debugging of panics by
@@ -29,6 +30,10 @@ serde-wasm-bindgen = { version = "0.6" }
 tsify = { version = "0.4" }
 
 wasm-bindgen = { version = "0.2" }
+
+# reqwest include loader
+async-trait = { version = "0.1", optional = true }
+reqwest = { version = "0.11", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"

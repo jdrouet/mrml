@@ -6,7 +6,7 @@ use mrml_wasm::ToHtmlError;
 use wasm_bindgen_test::*;
 
 #[wasm_bindgen_test]
-fn is_should_render_template() {
+fn it_should_render_template() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>";
     let engine = mrml_wasm::Engine::new();
     let result = engine.to_html(template);
@@ -14,7 +14,7 @@ fn is_should_render_template() {
 }
 
 #[wasm_bindgen_test]
-fn is_should_fail_when_render_template() {
+fn it_should_fail_when_render_template() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-";
     let engine = mrml_wasm::Engine::new();
     let result = engine.to_html(template);
@@ -30,7 +30,7 @@ fn is_should_fail_when_render_template() {
 }
 
 #[wasm_bindgen_test]
-fn is_should_disable_comments() {
+fn it_should_disable_comments() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text><!-- Goodbye --></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
     engine.set_render_options(mrml_wasm::RenderOptions {
@@ -47,7 +47,7 @@ fn is_should_disable_comments() {
 }
 
 #[wasm_bindgen_test]
-fn is_should_use_noop_include_loader_by_default() {
+fn it_should_use_noop_include_loader_by_default() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text><mj-include path=\"./header.mjml\" /></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
     engine.set_render_options(mrml_wasm::RenderOptions {
@@ -67,7 +67,7 @@ fn is_should_use_noop_include_loader_by_default() {
 }
 
 #[wasm_bindgen_test]
-fn is_should_use_memory_include_loader_by_default() {
+fn it_should_use_memory_include_loader_by_default() {
     let template = "<mjml><mj-body><mj-include path=\"./header.mjml\" /></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
     engine.set_parser_options(mrml_wasm::ParserOptions {

@@ -4,7 +4,7 @@
     "test": "mocha *.test.js"
   },
   "dependencies": {
-    "mrml-wasm": "file:../../pkg"
+    "mrml-wasm": "file:/Users/jeremie.drouet/Personal/mrml/packages/mrml-wasm/pkg"
   },
   "devDependencies": {
     "mocha": "^10.2.0"

@@ -48,9 +48,6 @@ jobs:
             target/
           key: ${{ runner.os }}-mrml-wasm-testing-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: run unit tests
-        run: cargo test
-
       - name: run integration tests
         run: wasm-pack test --node
 
