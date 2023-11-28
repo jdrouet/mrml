@@ -41,36 +41,6 @@ impl ParseElement<MjStyle> for MrmlParser {
     }
 }
 
-#[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<MjStyle> for MrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _: StrSpan<'a>,
-    ) -> Result<MjStyle, Error> {
-        let attributes = self.parse_attributes(cursor)?;
-        let ending = cursor.assert_element_end()?;
-        if !ending.empty {
-            let children = cursor
-                .next_text()?
-                .map(|txt| txt.text.to_string())
-                .unwrap_or_default();
-            cursor.assert_element_close()?;
-
-            Ok(MjStyle {
-                attributes,
-                children,
-            })
-        } else {
-            Ok(MjStyle {
-                attributes,
-                children: String::new(),
-            })
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::mj_style::MjStyle;

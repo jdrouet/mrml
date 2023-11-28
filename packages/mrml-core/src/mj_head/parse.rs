@@ -132,10 +132,7 @@ impl crate::prelude::parser::AsyncParseElement<MjHeadChild> for MrmlParser {
                 .map(MjHeadChild::MjInclude),
             MJ_PREVIEW => self.parse(cursor, tag).map(MjHeadChild::MjPreview),
             MJ_RAW => self.parse(cursor, tag).map(MjHeadChild::MjRaw),
-            MJ_STYLE => self
-                .async_parse(cursor, tag)
-                .await
-                .map(MjHeadChild::MjStyle),
+            MJ_STYLE => self.parse(cursor, tag).map(MjHeadChild::MjStyle),
             MJ_TITLE => self.parse(cursor, tag).map(MjHeadChild::MjTitle),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }
