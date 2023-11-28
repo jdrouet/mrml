@@ -460,8 +460,8 @@ macro_rules! should_not_parse {
         #[test]
         #[should_panic(expected = $message)]
         fn $name() {
-            let parser = crate::prelude::parser::MrmlParser::default();
-            let mut cursor = crate::prelude::parser::MrmlCursor::new($template);
+            let parser = $crate::prelude::parser::MrmlParser::default();
+            let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
             let _: $target = parser.parse_root(&mut cursor).unwrap();
         }
     };
