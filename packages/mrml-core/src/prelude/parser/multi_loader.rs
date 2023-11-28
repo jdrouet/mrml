@@ -144,7 +144,7 @@ mod tests {
     use std::io::ErrorKind;
 
     #[test]
-    fn should_resolve() {
+    fn should_resolve_sync() {
         use crate::prelude::parser::loader::IncludeLoader;
         use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
         use crate::prelude::parser::multi_loader::MultiIncludeLoader;
@@ -174,14 +174,68 @@ mod tests {
         assert!(err.message.is_none());
     }
 
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn should_resolve_async() {
+        use crate::prelude::parser::loader::IncludeLoader;
+        use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
+        use crate::prelude::parser::multi_loader::MultiIncludeLoader;
+        use crate::prelude::parser::noop_loader::NoopIncludeLoader;
+
+        let resolver = MultiIncludeLoader::default()
+            .with_starts_with(
+                "file://",
+                Box::new(MemoryIncludeLoader::from(vec![(
+                    "file://basic.mjml",
+                    "<mj-button>Hello</mj-button>",
+                )])),
+            )
+            .with_any(Box::<NoopIncludeLoader>::default());
+
+        assert_eq!(
+            resolver.async_resolve("file://basic.mjml").await.unwrap(),
+            "<mj-button>Hello</mj-button>"
+        );
+
+        let err = resolver
+            .async_resolve("file://not-found.mjml")
+            .await
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::NotFound);
+        // assert_eq!(err.message.unwrap(), "unable to find compatible resolver");
+
+        let err = resolver
+            .async_resolve("noop://not-found.mjml")
+            .await
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::NotFound);
+        assert!(err.message.is_none());
+    }
+
     #[test]
-    fn should_not_find_resolver() {
+    fn should_not_find_resolver_sync() {
         use crate::prelude::parser::loader::IncludeLoader;
         use crate::prelude::parser::multi_loader::MultiIncludeLoader;
 
         let resolver = MultiIncludeLoader::default();
 
         let err = resolver.resolve("file://not-found.mjml").unwrap_err();
+        assert_eq!(err.reason, ErrorKind::NotFound);
+        assert_eq!(err.message.unwrap(), "unable to find a compatible resolver");
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn should_not_find_resolver_async() {
+        use crate::prelude::parser::loader::IncludeLoader;
+        use crate::prelude::parser::multi_loader::MultiIncludeLoader;
+
+        let resolver = MultiIncludeLoader::default();
+
+        let err = resolver
+            .async_resolve("file://not-found.mjml")
+            .await
+            .unwrap_err();
         assert_eq!(err.reason, ErrorKind::NotFound);
         assert_eq!(err.message.unwrap(), "unable to find a compatible resolver");
     }
