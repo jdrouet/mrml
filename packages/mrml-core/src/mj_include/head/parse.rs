@@ -274,7 +274,7 @@ mod tests {
     );
 
     #[test]
-    fn basic_in_memory_resolver() {
+    fn basic_in_memory_resolver_sync() {
         let resolver =
             MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-title>Hello</mj-title>")]);
         let opts = ParserOptions {
@@ -288,8 +288,24 @@ mod tests {
         let _content = include.children.first().unwrap();
     }
 
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn basic_in_memory_resolver_async() {
+        let resolver =
+            MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-title>Hello</mj-title>")]);
+        let opts = ParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let raw = r#"<mj-include path="basic.mjml" />"#;
+        let parser = MrmlParser::new(Arc::new(opts));
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeHead = parser.async_parse_root(&mut cursor).await.unwrap();
+        assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
+        let _content = include.children.first().unwrap();
+    }
+
     #[test]
-    fn type_css_in_memory_resolver() {
+    fn type_css_in_memory_resolver_sync() {
         let resolver =
             MemoryIncludeLoader::from(vec![("partial.css", "* { background-color: red; }")]);
         let raw = r#"<mj-include path="partial.css" type="css" />"#;
@@ -299,6 +315,25 @@ mod tests {
         let parser = MrmlParser::new(Arc::new(opts));
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
+        assert_eq!(
+            include.attributes.kind,
+            MjIncludeHeadKind::Css { inline: false }
+        );
+        let _content = include.children.first().unwrap();
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn type_css_in_memory_resolver_async() {
+        let resolver =
+            MemoryIncludeLoader::from(vec![("partial.css", "* { background-color: red; }")]);
+        let raw = r#"<mj-include path="partial.css" type="css" />"#;
+        let opts = ParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let parser = MrmlParser::new(Arc::new(opts));
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeHead = parser.async_parse_root(&mut cursor).await.unwrap();
         assert_eq!(
             include.attributes.kind,
             MjIncludeHeadKind::Css { inline: false }

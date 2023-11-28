@@ -262,7 +262,7 @@ mod tests {
     );
 
     #[test]
-    fn basic_in_memory_resolver() {
+    fn basic_in_memory_resolver_sync() {
         let resolver =
             MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-button>Hello</mj-button>")]);
         let opts = ParserOptions {
@@ -277,8 +277,26 @@ mod tests {
         let _content = include.children.first().unwrap();
     }
 
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn basic_in_memory_resolver_async() {
+        let resolver =
+            MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-button>Hello</mj-button>")]);
+        let opts = ParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let raw = r#"<mj-include path="basic.mjml" />"#;
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeBody = MrmlParser::new(opts.into())
+            .async_parse_root(&mut cursor)
+            .await
+            .unwrap();
+        assert_eq!(include.attributes.kind, MjIncludeBodyKind::Mjml);
+        let _content = include.children.first().unwrap();
+    }
+
     #[test]
-    fn type_html_in_memory_resolver() {
+    fn type_html_in_memory_resolver_sync() {
         let resolver = MemoryIncludeLoader::from(vec![("partial.html", "<h1>Hello World!</h1>")]);
         let opts = ParserOptions {
             include_loader: Box::new(resolver),
@@ -287,6 +305,23 @@ mod tests {
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeBody = MrmlParser::new(opts.into())
             .parse_root(&mut cursor)
+            .unwrap();
+        assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
+        let _content = include.children.first().unwrap();
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn type_html_in_memory_resolver_async() {
+        let resolver = MemoryIncludeLoader::from(vec![("partial.html", "<h1>Hello World!</h1>")]);
+        let opts = ParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let raw = r#"<mj-include path="partial.html" type="html" />"#;
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeBody = MrmlParser::new(opts.into())
+            .async_parse_root(&mut cursor)
+            .await
             .unwrap();
         assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
         let _content = include.children.first().unwrap();
