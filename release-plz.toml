@@ -1,0 +1,5 @@
+[workspace]
+
+[[package]]
+name = "mrml-wasm"
+publish = false
