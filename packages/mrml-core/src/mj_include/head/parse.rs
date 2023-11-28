@@ -230,27 +230,24 @@ mod tests {
         assert!(MjIncludeHeadKind::try_from(StrSpan::from("other")).is_err());
     }
 
-    #[test]
-    #[should_panic(expected = "MissingAttribute(\"path\", Span { start: 0, end: 0 })")]
-    fn should_error_when_no_path() {
-        let raw = r#"<mj-include />"#;
-        let parser = MrmlParser::default();
-        let mut cursor = MrmlCursor::new(raw);
-        let _: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
-    }
+    crate::should_not_parse!(
+        should_error_when_no_path,
+        MjIncludeHead,
+        "<mj-include />",
+        "MissingAttribute(\"path\", Span { start: 0, end: 0 })"
+    );
 
-    #[test]
-    #[should_panic(expected = "UnexpectedAttribute(Span { start: 12, end: 25 })")]
-    fn should_error_when_unknown_attribute() {
-        let raw = r#"<mj-include unknown="yep" />"#;
-        let parser = MrmlParser::default();
-        let mut cursor = MrmlCursor::new(raw);
-        let _: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
-    }
+    crate::should_not_parse!(
+        should_error_when_unknown_attribute,
+        MjIncludeHead,
+        r#"<mj-include unknown="yep" />"#,
+        "UnexpectedAttribute(Span { start: 12, end: 25 })"
+    );
 
-    #[test]
-    fn should_parse_all_children() {
-        let raw = r#"<mj-include path="inmemory">
+    crate::should_parse!(
+        should_parse_all_children,
+        MjIncludeHead,
+        r#"<mj-include path="inmemory">
     <mj-attributes />
     <mj-breakpoint width="400px" />
     <mj-font name="Comic" href="..." />
@@ -259,31 +256,22 @@ mod tests {
     <mj-style />
     <mj-title>Title</mj-title>
     <!-- Comment -->
-</mj-include>"#;
-        let parser = MrmlParser::default();
-        let mut cursor = MrmlCursor::new(raw);
-        let _: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
-    }
+</mj-include>"#
+    );
 
-    #[test]
-    #[should_panic(expected = "UnexpectedElement(Span { start: 29, end: 32 })")]
-    fn should_error_unknown_children() {
-        let raw = r#"<mj-include path="inmemory"><div /></mj-include>"#;
-        let parser = MrmlParser::default();
-        let mut cursor = MrmlCursor::new(raw);
-        let _: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
-    }
+    crate::should_not_parse!(
+        should_error_unknown_children,
+        MjIncludeHead,
+        r#"<mj-include path="inmemory"><div /></mj-include>"#,
+        "UnexpectedElement(Span { start: 29, end: 32 })"
+    );
 
-    #[test]
-    #[should_panic(
-        expected = "IncludeLoaderError { position: Span { start: 1, end: 11 }, source: IncludeLoaderError { path: \"basic.mjml\", reason: NotFound, message: None, cause: None } }"
-    )]
-    fn basic_in_noop_resolver() {
-        let raw = r#"<mj-include path="basic.mjml" />"#;
-        let parser = MrmlParser::default();
-        let mut cursor = MrmlCursor::new(raw);
-        let _: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
-    }
+    crate::should_not_parse!(
+        basic_in_noop_resolver,
+        MjIncludeHead,
+        r#"<mj-include path="basic.mjml" />"#,
+        "IncludeLoaderError { position: Span { start: 1, end: 11 }, source: IncludeLoaderError { path: \"basic.mjml\", reason: NotFound, message: None, cause: None } }"
+    );
 
     #[test]
     fn basic_in_memory_resolver() {
