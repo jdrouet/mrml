@@ -197,101 +197,16 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-image.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-image.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn align() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-image-align.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-image-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border_radius() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-image-border-radius.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-image-border-radius.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-image-border.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-image-border.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-image-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-image-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn container_background_color() {
-        let opts = Options::default();
-        let template = include_str!(
-            "../../resources/compare/success/mj-image-container-background-color.mjml"
-        );
-        let expected = include_str!(
-            "../../resources/compare/success/mj-image-container-background-color.html"
-        );
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn height() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-image-height.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-image-height.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn href() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-image-href.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-image-href.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-image-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-image-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-image");
+    crate::should_render!(align, "mj-image-align");
+    crate::should_render!(border_radius, "mj-image-border-radius");
+    crate::should_render!(border, "mj-image-border");
+    crate::should_render!(class, "mj-image-class");
+    crate::should_render!(
+        container_background_color,
+        "mj-image-container-background-color"
+    );
+    crate::should_render!(height, "mj-image-height");
+    crate::should_render!(href, "mj-image-href");
+    crate::should_render!(padding, "mj-image-padding");
 }

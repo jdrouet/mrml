@@ -3,26 +3,30 @@ use xmlparser::StrSpan;
 use super::{MjNavbar, MjNavbarChild};
 use crate::comment::Comment;
 use crate::mj_navbar_link::NAME as MJ_NAVBAR_LINK;
-use crate::prelude::parser::{ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken};
+use crate::prelude::parser::{
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
+};
 
-impl<'a> ChildrenParser<'a, Vec<MjNavbarChild>> for MrmlParser<'a> {
-    fn parse_children(&mut self) -> Result<Vec<MjNavbarChild>, Error> {
+impl ParseChildren<Vec<MjNavbarChild>> for MrmlParser {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjNavbarChild>, Error> {
         let mut result = Vec::new();
 
         loop {
-            match self.assert_next()? {
+            match cursor.assert_next()? {
                 MrmlToken::Comment(inner) => {
                     result.push(MjNavbarChild::Comment(Comment::from(inner.text.as_str())));
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_NAVBAR_LINK {
-                        result.push(MjNavbarChild::MjNavbarLink(self.parse(inner.local)?));
+                        result.push(MjNavbarChild::MjNavbarLink(
+                            self.parse(cursor, inner.local)?,
+                        ));
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
-                    self.rewind(MrmlToken::ElementClose(inner));
+                    cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
                 other => return Err(Error::UnexpectedToken(other.span())),
@@ -31,9 +35,9 @@ impl<'a> ChildrenParser<'a, Vec<MjNavbarChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjNavbar> for MrmlParser<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjNavbar, Error> {
-        let (attributes, children) = self.parse_attributes_and_children()?;
+impl ParseElement<MjNavbar> for MrmlParser {
+    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjNavbar, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
         Ok(MjNavbar {
             attributes,
@@ -45,28 +49,16 @@ impl<'a> ElementParser<'a, MjNavbar> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use super::MjNavbar;
-    use crate::prelude::parser::MrmlParser;
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {
-            #[test]
-            fn $title() {
-                let _: MjNavbar = MrmlParser::new($template, Default::default())
-                    .parse_root()
-                    .unwrap();
-            }
+            crate::should_sync_parse!($title, MjNavbar, $template);
         };
     }
 
     macro_rules! assert_fail {
         ($title:ident, $template:expr, $error:expr) => {
-            #[test]
-            #[should_panic(expected = $error)]
-            fn $title() {
-                let _: MjNavbar = MrmlParser::new($template, Default::default())
-                    .parse_root()
-                    .unwrap();
-            }
+            crate::should_not_sync_parse!($title, MjNavbar, $template, $error);
         };
     }
 

@@ -498,135 +498,16 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-section.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-section.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_color() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-section-background-color.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-section-background-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_url_full() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-section-background-url-full.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-section-background-url-full.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_url() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-section-background-url.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-section-background-url.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn body_width() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-section-body-width.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-section-body-width.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-section-border.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-section-border.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border_radius() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-section-border-radius.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-section-border-radius.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-section-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-section-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn direction() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-section-direction.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-section-direction.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn full_width() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-section-full-width.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-section-full-width.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-section-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-section-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn text_align() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-section-text-align.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-section-text-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-section");
+    crate::should_render!(background_color, "mj-section-background-color");
+    crate::should_render!(background_url_full, "mj-section-background-url-full");
+    crate::should_render!(background_url, "mj-section-background-url");
+    crate::should_render!(body_width, "mj-section-body-width");
+    crate::should_render!(border, "mj-section-border");
+    crate::should_render!(border_radius, "mj-section-border-radius");
+    crate::should_render!(class, "mj-section-class");
+    crate::should_render!(direction, "mj-section-direction");
+    crate::should_render!(full_width, "mj-section-full-width");
+    crate::should_render!(padding, "mj-section-padding");
+    crate::should_render!(text_align, "mj-section-text-align");
 }

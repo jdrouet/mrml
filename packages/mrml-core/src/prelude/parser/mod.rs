@@ -91,7 +91,7 @@ pub enum Error {
 
 #[derive(Debug)]
 pub struct ParserOptions {
-    pub include_loader: Box<dyn loader::IncludeLoader>,
+    pub include_loader: Box<dyn loader::IncludeLoader + Send + Sync + 'static>,
 }
 
 #[allow(clippy::box_default)]
@@ -217,37 +217,50 @@ pub(crate) struct Text<'a> {
     pub text: StrSpan<'a>,
 }
 
-pub(crate) trait ElementParser<'a, E> {
-    fn parse(&mut self, tag: StrSpan<'a>) -> Result<E, Error>;
+pub(crate) trait ParseElement<E> {
+    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<E, Error>;
 }
 
-pub(crate) trait AttributesParser<'a, A> {
-    fn parse_attributes(&mut self) -> Result<A, Error>;
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+pub(crate) trait AsyncParseElement<E> {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        tag: StrSpan<'a>,
+    ) -> Result<E, Error>;
 }
 
-pub(crate) trait ChildrenParser<'a, C> {
-    fn parse_children(&mut self) -> Result<C, Error>;
+pub(crate) trait ParseAttributes<A> {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<A, Error>;
 }
 
-pub struct MrmlParser<'a> {
+pub(crate) trait ParseChildren<C> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<C, Error>;
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+pub(crate) trait AsyncParseChildren<C> {
+    async fn async_parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;
+}
+
+pub struct MrmlCursor<'a> {
     tokenizer: Tokenizer<'a>,
-    pub(crate) options: Arc<ParserOptions>,
     buffer: Vec<MrmlToken<'a>>,
 }
 
-impl<'a> MrmlParser<'a> {
-    pub fn new(source: &'a str, options: Arc<ParserOptions>) -> Self {
+impl<'a> MrmlCursor<'a> {
+    pub fn new(source: &'a str) -> Self {
         Self {
             tokenizer: Tokenizer::from(source),
-            options,
             buffer: Default::default(),
         }
     }
 
-    pub(crate) fn new_child<'b>(&self, source: &'b str) -> MrmlParser<'b> {
-        MrmlParser {
+    pub(crate) fn new_child<'b>(&self, source: &'b str) -> MrmlCursor<'b> {
+        MrmlCursor {
             tokenizer: Tokenizer::from(source),
-            options: self.options.clone(),
             buffer: Default::default(),
         }
     }
@@ -330,41 +343,208 @@ impl<'a> MrmlParser<'a> {
             None => Err(Error::EndOfStream),
         }
     }
+}
 
-    pub(crate) fn parse_root<T>(&mut self) -> Result<T, Error>
+// impl<'a> AttributesParser<'a, Map<String, String>> for MrmlCursor<'a> {
+//     fn parse_attributes(&mut self) -> Result<Map<String, String>, Error> {
+//         let mut result = Map::new();
+//         while let Some(attr) = self.next_attribute()? {
+//             result.insert(attr.local.to_string(), attr.value.to_string());
+//         }
+//         Ok(result)
+//     }
+// }
+
+#[derive(Default)]
+pub struct MrmlParser {
+    pub(crate) options: Arc<ParserOptions>,
+}
+
+impl MrmlParser {
+    pub fn new(options: Arc<ParserOptions>) -> Self {
+        Self { options }
+    }
+}
+
+impl MrmlParser {
+    pub(crate) fn parse_root<T>(&self, cursor: &mut MrmlCursor) -> Result<T, Error>
     where
-        MrmlParser<'a>: ElementParser<'a, T>,
+        MrmlParser: ParseElement<T>,
     {
-        let start = self.assert_element_start()?;
-        self.parse(start.local)
+        let start = cursor.assert_element_start()?;
+        self.parse(cursor, start.local)
     }
 
-    pub(crate) fn parse_attributes_and_children<A, C>(&mut self) -> Result<(A, C), Error>
+    #[cfg(feature = "async")]
+    pub(crate) async fn async_parse_root<T>(&self, cursor: &mut MrmlCursor<'_>) -> Result<T, Error>
     where
-        MrmlParser<'a>: AttributesParser<'a, A>,
-        MrmlParser<'a>: ChildrenParser<'a, C>,
+        MrmlParser: AsyncParseElement<T>,
+    {
+        let start = cursor.assert_element_start()?;
+        self.async_parse(cursor, start.local).await
+    }
+
+    pub(crate) fn parse_attributes_and_children<A, C>(
+        &self,
+        cursor: &mut MrmlCursor,
+    ) -> Result<(A, C), Error>
+    where
+        MrmlParser: ParseAttributes<A>,
+        MrmlParser: ParseChildren<C>,
         C: Default,
     {
-        let attributes: A = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
+        let attributes: A = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok((attributes, Default::default()));
         }
 
-        let children: C = self.parse_children()?;
+        let children: C = self.parse_children(cursor)?;
 
-        self.assert_element_close()?;
+        cursor.assert_element_close()?;
+
+        Ok((attributes, children))
+    }
+
+    #[cfg(feature = "async")]
+    pub(crate) async fn async_parse_attributes_and_children<'a, A, C>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<(A, C), Error>
+    where
+        MrmlParser: ParseAttributes<A>,
+        MrmlParser: AsyncParseChildren<C>,
+        C: Default,
+    {
+        let attributes: A = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
+        if ending.empty {
+            return Ok((attributes, Default::default()));
+        }
+
+        let children: C = self.async_parse_children(cursor).await?;
+
+        cursor.assert_element_close()?;
 
         Ok((attributes, children))
     }
 }
 
-impl<'a> AttributesParser<'a, Map<String, String>> for MrmlParser<'a> {
-    fn parse_attributes(&mut self) -> Result<Map<String, String>, Error> {
+impl ParseAttributes<Map<String, String>> for MrmlParser {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<Map<String, String>, Error> {
         let mut result = Map::new();
-        while let Some(attr) = self.next_attribute()? {
+        while let Some(attr) = cursor.next_attribute()? {
             result.insert(attr.local.to_string(), attr.value.to_string());
         }
         Ok(result)
     }
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        $crate::should_sync_parse!($name, $target, $template);
+        $crate::should_async_parse!($name, $target, $template);
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_sync_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, sync {
+            #[test]
+            fn fn_name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.parse_root(&mut cursor).unwrap();
+            }
+        });
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_async_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, "async" {
+            #[cfg(feature = "async")]
+            #[tokio::test]
+            async fn fn_name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.async_parse_root(&mut cursor).await.unwrap();
+            }
+        });
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_not_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        $crate::should_not_sync_parse!($name, $target, $template);
+        $crate::should_not_async_parse!($name, $target, $template);
+    };
+    ($name: ident, $target: ty, $template: literal, $message: literal) => {
+        $crate::should_not_sync_parse!($name, $target, $template, $message);
+        $crate::should_not_async_parse!($name, $target, $template, $message);
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_not_sync_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, sync {
+            #[test]
+            #[should_panic]
+            fn $name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.parse_root(&mut cursor).unwrap();
+            }
+        });
+    };
+    ($name: ident, $target: ty, $template: literal, $message: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, sync {
+            #[test]
+            #[should_panic(expected = $message)]
+            fn $name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.parse_root(&mut cursor).unwrap();
+            }
+        });
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_not_async_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, "async" {
+            #[cfg(feature = "async")]
+            #[tokio::test]
+            #[should_panic]
+            async fn fn_name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.async_parse_root(&mut cursor).await.unwrap();
+            }
+        });
+    };
+    ($name: ident, $target: ty, $template: literal, $message: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, "async" {
+            #[cfg(feature = "async")]
+            #[tokio::test]
+            #[should_panic(expected = $message)]
+            async fn fn_name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.async_parse_root(&mut cursor).await.unwrap();
+            }
+        });
+    };
 }

@@ -298,125 +298,15 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHero {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-hero.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-hero.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_color() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-hero-background-color.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-hero-background-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_height() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-hero-background-height.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-hero-background-height.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_position() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-hero-background-position.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-hero-background-position.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_url() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-hero-background-url.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-hero-background-url.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_width() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-hero-background-width.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-hero-background-width.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-hero-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-hero-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn height() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-hero-height.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-hero-height.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn mode() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-hero-mode.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-hero-mode.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn vertical_align() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-hero-vertical-align.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-hero-vertical-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn width() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-hero-width.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-hero-width.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-hero");
+    crate::should_render!(background_color, "mj-hero-background-color");
+    crate::should_render!(background_height, "mj-hero-background-height");
+    crate::should_render!(background_position, "mj-hero-background-position");
+    crate::should_render!(background_url, "mj-hero-background-url");
+    crate::should_render!(background_width, "mj-hero-background-width");
+    crate::should_render!(class, "mj-hero-class");
+    crate::should_render!(height, "mj-hero-height");
+    crate::should_render!(mode, "mj-hero-mode");
+    crate::should_render!(vertical_align, "mj-hero-vertical-align");
+    crate::should_render!(width, "mj-hero-width");
 }

@@ -1,18 +1,18 @@
 use xmlparser::StrSpan;
 
 use super::MjTitle;
-use crate::prelude::parser::{ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl<'a> ElementParser<'a, MjTitle> for MrmlParser<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjTitle, Error> {
-        let ending = self.assert_element_end()?;
+impl ParseElement<MjTitle> for MrmlParser {
+    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _: StrSpan<'a>) -> Result<MjTitle, Error> {
+        let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok(MjTitle::default());
         }
 
-        let text = self.next_text()?.map(|inner| inner.text.to_string());
+        let text = cursor.next_text()?.map(|inner| inner.text.to_string());
 
-        self.assert_element_close()?;
+        cursor.assert_element_close()?;
 
         Ok(MjTitle {
             children: text.unwrap_or_default(),
@@ -23,12 +23,7 @@ impl<'a> ElementParser<'a, MjTitle> for MrmlParser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::mj_title::MjTitle;
-    use crate::prelude::parser::MrmlParser;
 
-    #[test]
-    fn success() {
-        let _: MjTitle = MrmlParser::new("<mj-title>Hello World!</mj-title>", Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_sync_parse!(self_closing, MjTitle, "<mj-title />");
+    crate::should_sync_parse!(normal, MjTitle, "<mj-title>Hello World!</mj-title>");
 }

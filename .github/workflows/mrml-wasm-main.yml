@@ -1,11 +1,11 @@
 on:
+  merge_group:
+    types: [checks_requested]
+  workflow_call:
+  pull_request:
   push:
-    paths:
-      - .github/workflows/mrml-wasm-*
-      - packages/mrml-wasm/**
-      - packages/mrml-core/**
-      - Cargo.lock
-      - Cargo.toml
+    branches:
+      - main
 
 defaults:
   run:
@@ -47,9 +47,6 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-mrml-wasm-testing-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: run unit tests
-        run: cargo test
 
       - name: run integration tests
         run: wasm-pack test --node

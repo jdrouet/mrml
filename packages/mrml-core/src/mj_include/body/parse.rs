@@ -22,29 +22,33 @@ use crate::mj_table::NAME as MJ_TABLE;
 use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::{MjWrapper, NAME as MJ_WRAPPER};
 use crate::prelude::parser::{
-    AttributesParser, ChildrenParser, ElementParser, Error, MrmlParser, MrmlToken,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
 };
 use crate::text::Text;
 
-impl<'a> ElementParser<'a, MjIncludeBodyChild> for MrmlParser<'a> {
-    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeBodyChild, Error> {
+impl ParseElement<MjIncludeBodyChild> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        tag: StrSpan<'a>,
+    ) -> Result<MjIncludeBodyChild, Error> {
         match tag.as_str() {
-            MJ_ACCORDION => Ok(MjIncludeBodyChild::MjAccordion(self.parse(tag)?)),
-            MJ_BUTTON => Ok(MjIncludeBodyChild::MjButton(self.parse(tag)?)),
-            MJ_CAROUSEL => Ok(MjIncludeBodyChild::MjCarousel(self.parse(tag)?)),
-            MJ_COLUMN => Ok(MjIncludeBodyChild::MjColumn(self.parse(tag)?)),
-            MJ_DIVIDER => Ok(MjIncludeBodyChild::MjDivider(self.parse(tag)?)),
-            MJ_GROUP => Ok(MjIncludeBodyChild::MjGroup(self.parse(tag)?)),
-            MJ_HERO => Ok(MjIncludeBodyChild::MjHero(self.parse(tag)?)),
-            MJ_IMAGE => Ok(MjIncludeBodyChild::MjImage(self.parse(tag)?)),
-            MJ_NAVBAR => Ok(MjIncludeBodyChild::MjNavbar(self.parse(tag)?)),
-            MJ_RAW => Ok(MjIncludeBodyChild::MjRaw(self.parse(tag)?)),
-            MJ_SECTION => Ok(MjIncludeBodyChild::MjSection(self.parse(tag)?)),
-            MJ_SOCIAL => Ok(MjIncludeBodyChild::MjSocial(self.parse(tag)?)),
-            MJ_SPACER => Ok(MjIncludeBodyChild::MjSpacer(self.parse(tag)?)),
-            MJ_TABLE => Ok(MjIncludeBodyChild::MjTable(self.parse(tag)?)),
-            MJ_TEXT => Ok(MjIncludeBodyChild::MjText(self.parse(tag)?)),
-            MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(self.parse(tag)?)),
+            MJ_ACCORDION => Ok(MjIncludeBodyChild::MjAccordion(self.parse(cursor, tag)?)),
+            MJ_BUTTON => Ok(MjIncludeBodyChild::MjButton(self.parse(cursor, tag)?)),
+            MJ_CAROUSEL => Ok(MjIncludeBodyChild::MjCarousel(self.parse(cursor, tag)?)),
+            MJ_COLUMN => Ok(MjIncludeBodyChild::MjColumn(self.parse(cursor, tag)?)),
+            MJ_DIVIDER => Ok(MjIncludeBodyChild::MjDivider(self.parse(cursor, tag)?)),
+            MJ_GROUP => Ok(MjIncludeBodyChild::MjGroup(self.parse(cursor, tag)?)),
+            MJ_HERO => Ok(MjIncludeBodyChild::MjHero(self.parse(cursor, tag)?)),
+            MJ_IMAGE => Ok(MjIncludeBodyChild::MjImage(self.parse(cursor, tag)?)),
+            MJ_NAVBAR => Ok(MjIncludeBodyChild::MjNavbar(self.parse(cursor, tag)?)),
+            MJ_RAW => Ok(MjIncludeBodyChild::MjRaw(self.parse(cursor, tag)?)),
+            MJ_SECTION => Ok(MjIncludeBodyChild::MjSection(self.parse(cursor, tag)?)),
+            MJ_SOCIAL => Ok(MjIncludeBodyChild::MjSocial(self.parse(cursor, tag)?)),
+            MJ_SPACER => Ok(MjIncludeBodyChild::MjSpacer(self.parse(cursor, tag)?)),
+            MJ_TABLE => Ok(MjIncludeBodyChild::MjTable(self.parse(cursor, tag)?)),
+            MJ_TEXT => Ok(MjIncludeBodyChild::MjText(self.parse(cursor, tag)?)),
+            MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(self.parse(cursor, tag)?)),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }
     }
@@ -62,11 +66,14 @@ impl<'a> TryFrom<StrSpan<'a>> for MjIncludeBodyKind {
     }
 }
 
-impl<'a> AttributesParser<'a, MjIncludeBodyAttributes> for MrmlParser<'a> {
-    fn parse_attributes(&mut self) -> Result<MjIncludeBodyAttributes, Error> {
+impl ParseAttributes<MjIncludeBodyAttributes> for MrmlParser {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+    ) -> Result<MjIncludeBodyAttributes, Error> {
         let mut path = None;
-        let mut kind = None;
-        while let Some(attr) = self.next_attribute()? {
+        let mut kind: Option<MjIncludeBodyKind> = None;
+        while let Some(attr) = cursor.next_attribute()? {
             match attr.local.as_str() {
                 "path" => {
                     path = Some(attr.value.to_string());
@@ -86,11 +93,14 @@ impl<'a> AttributesParser<'a, MjIncludeBodyAttributes> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ChildrenParser<'a, Vec<MjIncludeBodyChild>> for MrmlParser<'a> {
-    fn parse_children(&mut self) -> Result<Vec<MjIncludeBodyChild>, Error> {
+impl ParseChildren<Vec<MjIncludeBodyChild>> for MrmlParser {
+    fn parse_children(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+    ) -> Result<Vec<MjIncludeBodyChild>, Error> {
         let mut result = Vec::new();
 
-        while let Some(token) = self.next_token() {
+        while let Some(token) = cursor.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
                     result.push(MjIncludeBodyChild::Comment(Comment::from(
@@ -98,10 +108,10 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeBodyChild>> for MrmlParser<'a> {
                     )));
                 }
                 MrmlToken::ElementStart(inner) => {
-                    result.push(self.parse(inner.local)?);
+                    result.push(self.parse(cursor, inner.local)?);
                 }
                 MrmlToken::ElementClose(inner) => {
-                    self.rewind(MrmlToken::ElementClose(inner));
+                    cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
                 MrmlToken::Text(inner) => {
@@ -115,10 +125,14 @@ impl<'a> ChildrenParser<'a, Vec<MjIncludeBodyChild>> for MrmlParser<'a> {
     }
 }
 
-impl<'a> ElementParser<'a, MjIncludeBody> for MrmlParser<'a> {
-    fn parse(&mut self, tag: StrSpan<'a>) -> Result<MjIncludeBody, Error> {
+impl ParseElement<MjIncludeBody> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        tag: StrSpan<'a>,
+    ) -> Result<MjIncludeBody, Error> {
         let (attributes, children): (MjIncludeBodyAttributes, Vec<MjIncludeBodyChild>) =
-            self.parse_attributes_and_children()?;
+            self.parse_attributes_and_children(cursor)?;
 
         // if a mj-include has some content, we don't load it
         let children: Vec<MjIncludeBodyChild> = if children.is_empty() {
@@ -132,14 +146,66 @@ impl<'a> ElementParser<'a, MjIncludeBody> for MrmlParser<'a> {
                 })?;
             match attributes.kind {
                 MjIncludeBodyKind::Html => {
-                    let children: Vec<MjBodyChild> =
-                        self.new_child(child.as_str()).parse_children()?;
+                    let mut sub = cursor.new_child(child.as_str());
+                    let children: Vec<MjBodyChild> = self.parse_children(&mut sub)?;
                     vec![MjIncludeBodyChild::MjWrapper(MjWrapper {
                         attributes: Default::default(),
                         children,
                     })]
                 }
-                MjIncludeBodyKind::Mjml => self.new_child(child.as_str()).parse_children()?,
+                MjIncludeBodyKind::Mjml => {
+                    let mut sub = cursor.new_child(child.as_str());
+                    self.parse_children(&mut sub)?
+                }
+            }
+        } else {
+            children
+        };
+
+        Ok(MjIncludeBody {
+            attributes,
+            children,
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for MrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        tag: StrSpan<'a>,
+    ) -> Result<MjIncludeBody, Error> {
+        use crate::prelude::parser::AsyncParseChildren;
+
+        let (attributes, children): (MjIncludeBodyAttributes, Vec<MjIncludeBodyChild>) =
+            self.parse_attributes_and_children(cursor)?;
+
+        // if a mj-include has some content, we don't load it
+        let children: Vec<MjIncludeBodyChild> = if children.is_empty() {
+            let child = self
+                .options
+                .include_loader
+                .async_resolve(&attributes.path)
+                .await
+                .map_err(|source| Error::IncludeLoaderError {
+                    position: tag.into(),
+                    source,
+                })?;
+            match attributes.kind {
+                MjIncludeBodyKind::Html => {
+                    let mut sub = cursor.new_child(child.as_str());
+                    let children: Vec<MjBodyChild> = self.async_parse_children(&mut sub).await?;
+                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper {
+                        attributes: Default::default(),
+                        children,
+                    })]
+                }
+                MjIncludeBodyKind::Mjml => {
+                    let mut sub = cursor.new_child(child.as_str());
+                    self.parse_children(&mut sub)?
+                }
             }
         } else {
             children
@@ -160,7 +226,7 @@ mod tests {
 
     use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
-    use crate::prelude::parser::{MrmlParser, ParserOptions};
+    use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions};
 
     #[test]
     fn kind_parser() {
@@ -175,62 +241,96 @@ mod tests {
         assert!(MjIncludeBodyKind::try_from(StrSpan::from("foo")).is_err());
     }
 
-    #[test]
-    #[should_panic(expected = "InvalidAttribute(Span { start: 18, end: 21 })")]
-    fn invalid_kind() {
-        let raw = r#"<mj-include type="foo" path="basic.mjml" />"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_not_parse!(
+        invalid_kind,
+        MjIncludeBody,
+        r#"<mj-include type="foo" path="basic.mjml" />"#,
+        "InvalidAttribute(Span { start: 18, end: 21 })"
+    );
+
+    crate::should_not_parse!(
+        not_found,
+        MjIncludeBody,
+        r#"<mj-include path="basic.mjml" />"#,
+        "IncludeLoaderError { position: Span { start: 1, end: 11 }, source: IncludeLoaderError { path: \"basic.mjml\", reason: NotFound, message: None, cause: None } }"
+    );
+
+    crate::should_parse!(
+        basic_with_children,
+        MjIncludeBody,
+        r#"<mj-include path="basic.mjml"><mj-text>Hello World</mj-text> <!-- Coucou --></mj-include>"#
+    );
 
     #[test]
-    #[should_panic(
-        expected = "IncludeLoaderError { position: Span { start: 1, end: 11 }, source: IncludeLoaderError { path: \"basic.mjml\", reason: NotFound, message: None, cause: None } }"
-    )]
-    fn basic_in_noop_resolver() {
-        let raw = r#"<mj-include path="basic.mjml" />"#;
-        let _: MjIncludeBody = MrmlParser::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
-
-    #[test]
-    fn basic_with_children() {
-        let raw = r#"<mj-include path="basic.mjml"><mj-text>Hello World</mj-text> <!-- Coucou --></mj-include>"#;
-        let _: MjIncludeBody = MrmlParser::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
-
-    #[test]
-    fn basic_in_memory_resolver() {
+    fn basic_in_memory_resolver_sync() {
         let resolver =
             MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-button>Hello</mj-button>")]);
         let opts = ParserOptions {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let include: MjIncludeBody = MrmlParser::new(raw, opts.into()).parse_root().unwrap();
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeBody = MrmlParser::new(opts.into())
+            .parse_root(&mut cursor)
+            .unwrap();
+        assert_eq!(include.attributes.kind, MjIncludeBodyKind::Mjml);
+        let _content = include.children.first().unwrap();
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn basic_in_memory_resolver_async() {
+        let resolver =
+            MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-button>Hello</mj-button>")]);
+        let opts = ParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let raw = r#"<mj-include path="basic.mjml" />"#;
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeBody = MrmlParser::new(opts.into())
+            .async_parse_root(&mut cursor)
+            .await
+            .unwrap();
         assert_eq!(include.attributes.kind, MjIncludeBodyKind::Mjml);
         let _content = include.children.first().unwrap();
     }
 
     #[test]
-    fn type_html_in_memory_resolver() {
+    fn type_html_in_memory_resolver_sync() {
         let resolver = MemoryIncludeLoader::from(vec![("partial.html", "<h1>Hello World!</h1>")]);
         let opts = ParserOptions {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="partial.html" type="html" />"#;
-        let include: MjIncludeBody = MrmlParser::new(raw, opts.into()).parse_root().unwrap();
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeBody = MrmlParser::new(opts.into())
+            .parse_root(&mut cursor)
+            .unwrap();
         assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
         let _content = include.children.first().unwrap();
     }
 
-    #[test]
-    fn parse_all_kind_of_children() {
-        let raw = r#"<mj-include path="partial.html">
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn type_html_in_memory_resolver_async() {
+        let resolver = MemoryIncludeLoader::from(vec![("partial.html", "<h1>Hello World!</h1>")]);
+        let opts = ParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let raw = r#"<mj-include path="partial.html" type="html" />"#;
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeBody = MrmlParser::new(opts.into())
+            .async_parse_root(&mut cursor)
+            .await
+            .unwrap();
+        assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
+        let _content = include.children.first().unwrap();
+    }
+
+    crate::should_parse!(
+        parse_all_kind_of_children,
+        MjIncludeBody,
+        r#"<mj-include path="partial.html">
     <mj-accordion />
     <mj-button />
     <mj-carousel />
@@ -249,39 +349,29 @@ mod tests {
     <mj-wrapper />
     <!-- hello -->
     World
-</mj-include>"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+</mj-include>"#
+    );
 
-    #[test]
-    #[should_panic(expected = "UnexpectedElement(Span { start: 38, end: 41 })")]
-    fn parse_unexpected_child() {
-        let raw = r#"<mj-include path="partial.html">
+    crate::should_not_parse!(
+        parse_unexpected_child,
+        MjIncludeBody,
+        r#"<mj-include path="partial.html">
     <foo />
-</mj-include>"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+</mj-include>"#,
+        "UnexpectedElement(Span { start: 38, end: 41 })"
+    );
 
-    #[test]
-    #[should_panic(expected = "UnexpectedAttribute(Span { start: 12, end: 31 })")]
-    fn invalid_attribute() {
-        let raw =
-            r#"<mj-include invalid="attribute" path="partial.html"><!-- empty --></mj-include>"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_not_parse!(
+        invalid_attribute,
+        MjIncludeBody,
+        r#"<mj-include invalid="attribute" path="partial.html"><!-- empty --></mj-include>"#,
+        "UnexpectedAttribute(Span { start: 12, end: 31 })"
+    );
 
-    #[test]
-    #[should_panic(expected = "MissingAttribute(\"path\", Span { start: 0, end: 0 })")]
-    fn missing_path() {
-        let raw = r#"<mj-include><!-- empty --></mj-include>"#;
-        let _res: MjIncludeBody = MrmlParser::new(raw, Default::default())
-            .parse_root()
-            .unwrap();
-    }
+    crate::should_not_parse!(
+        missing_path,
+        MjIncludeBody,
+        r#"<mj-include><!-- empty --></mj-include>"#,
+        "MissingAttribute(\"path\", Span { start: 0, end: 0 })"
+    );
 }

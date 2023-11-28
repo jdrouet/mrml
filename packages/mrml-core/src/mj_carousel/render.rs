@@ -472,61 +472,12 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarousel {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-carousel.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-carousel.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn align_border_radius_class() {
-        let opts = Options::default();
-        let template = include_str!(
-            "../../resources/compare/success/mj-carousel-align-border-radius-class.mjml"
-        );
-        let expected = include_str!(
-            "../../resources/compare/success/mj-carousel-align-border-radius-class.html"
-        );
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn icon() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-carousel-icon.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-carousel-icon.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn tb() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-carousel-tb.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-carousel-tb.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn thumbnails() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-carousel-thumbnails.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-carousel-thumbnails.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-carousel");
+    crate::should_render!(
+        align_border_radius_class,
+        "mj-carousel-align-border-radius-class"
+    );
+    crate::should_render!(icon, "mj-carousel-icon");
+    crate::should_render!(tb, "mj-carousel-tb");
+    crate::should_render!(thumbnails, "mj-carousel-thumbnails");
 }

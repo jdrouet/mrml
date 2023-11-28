@@ -122,21 +122,39 @@ pub fn parse_with_options<T: AsRef<str>>(
     input: T,
     opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
-    crate::prelude::parser::MrmlParser::new(input.as_ref(), opts).parse_root()
+    let parser = crate::prelude::parser::MrmlParser::new(opts);
+    let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
+    parser.parse_root(&mut cursor)
+}
+
+#[cfg(all(feature = "parse", feature = "async"))]
+/// Function to parse a raw mjml template with some parsing
+/// [options](crate::prelude::parser::ParserOptions).
+pub async fn async_parse_with_options<T: AsRef<str>>(
+    input: T,
+    opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
+) -> Result<mjml::Mjml, prelude::parser::Error> {
+    let parser = crate::prelude::parser::MrmlParser::new(opts);
+    let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
+    parser.parse_root(&mut cursor)
 }
 
 #[cfg(feature = "parse")]
 /// Function to parse a raw mjml template using the default parsing
 /// [options](crate::prelude::parser::ParserOptions).
-///
-/// ```rust
-/// match mrml::parse("<mjml><mj-head /><mj-body /></mjml>") {
-///     Ok(_) => println!("Success!"),
-///     Err(err) => eprintln!("Something went wrong: {err:?}"),
-/// }
-/// ```
 pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
-    crate::prelude::parser::MrmlParser::new(input.as_ref(), Default::default()).parse_root()
+    let parser = crate::prelude::parser::MrmlParser::default();
+    let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
+    parser.parse_root(&mut cursor)
+}
+
+#[cfg(all(feature = "parse", feature = "async"))]
+/// Function to parse a raw mjml template using the default parsing
+/// [options](crate::prelude::parser::ParserOptions).
+pub async fn async_parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
+    let parser = crate::prelude::parser::MrmlParser::default();
+    let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
+    parser.async_parse_root(&mut cursor).await
 }
 
 #[cfg(test)]

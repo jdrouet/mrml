@@ -61,11 +61,17 @@ impl From<Map<String, String>> for MemoryIncludeLoader {
     }
 }
 
+#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl IncludeLoader for MemoryIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.0
             .get(path)
             .cloned()
             .ok_or_else(|| IncludeLoaderError::not_found(path))
+    }
+
+    #[cfg(feature = "async")]
+    async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
+        self.resolve(path)
     }
 }

@@ -324,103 +324,13 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjColumn {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-column.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-column.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_color() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-column-background-color.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-column-background-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border_radius() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-column-border-radius.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-column-border-radius.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-column-border.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-column-border.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-column-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-column-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn inner_background_color() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-column-inner-background-color.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-column-inner-background-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-column-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-column-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn vertical_align() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-column-vertical-align.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-column-vertical-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn width() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-column-width.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-column-width.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-column");
+    crate::should_render!(background_color, "mj-column-background-color");
+    crate::should_render!(border_radius, "mj-column-border-radius");
+    crate::should_render!(border, "mj-column-border");
+    crate::should_render!(class, "mj-column-class");
+    crate::should_render!(inner_background_color, "mj-column-inner-background-color");
+    crate::should_render!(padding, "mj-column-padding");
+    crate::should_render!(vertical_align, "mj-column-vertical-align");
+    crate::should_render!(width, "mj-column-width");
 }

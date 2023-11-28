@@ -196,141 +196,20 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocial {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn align() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-align.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border_radius() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-border-radius.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-border-radius.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn color() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-color.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn container_background_color() {
-        let opts = Options::default();
-        let template = include_str!(
-            "../../resources/compare/success/mj-social-container-background-color.mjml"
-        );
-        let expected = include_str!(
-            "../../resources/compare/success/mj-social-container-background-color.html"
-        );
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_family() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-font-family.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-font-family.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-font.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-font.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn icon() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-icon.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-icon.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn link() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-link.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-link.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn mode() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-mode.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-mode.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn text() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-social-text.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-social-text.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-social");
+    crate::should_render!(align, "mj-social-align");
+    crate::should_render!(border_radius, "mj-social-border-radius");
+    crate::should_render!(class, "mj-social-class");
+    crate::should_render!(color, "mj-social-color");
+    crate::should_render!(
+        container_background_color,
+        "mj-social-container-background-color"
+    );
+    crate::should_render!(font_family, "mj-social-font-family");
+    crate::should_render!(font, "mj-social-font");
+    crate::should_render!(icon, "mj-social-icon");
+    crate::should_render!(link, "mj-social-link");
+    crate::should_render!(mode, "mj-social-mode");
+    crate::should_render!(padding, "mj-social-padding");
+    crate::should_render!(text, "mj-social-text");
 }

@@ -163,237 +163,29 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjButton {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn align() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-align.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-background.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-background.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border_radius() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-border-radius.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-border-radius.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-border.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-border.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn color() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-color.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn container_background_color() {
-        let opts = Options::default();
-        let template = include_str!(
-            "../../resources/compare/success/mj-button-container-background-color.mjml"
-        );
-        let expected = include_str!(
-            "../../resources/compare/success/mj-button-container-background-color.html"
-        );
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn example() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-example.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-example.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_family() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-font-family.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-font-family.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_size() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-font-size.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-font-size.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_style() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-font-style.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-font-style.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_weight() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-font-weight.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-font-weight.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn height() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-height.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-height.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn href() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-href.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-href.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn inner_padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-inner-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-inner-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn line_height() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-line-height.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-line-height.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn text_decoration() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-button-text-decoration.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-button-text-decoration.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn text_transform() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-button-text-transform.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-button-text-transform.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn vertical_align() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-button-vertical-align.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-button-vertical-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn width() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-button-width.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-button-width.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-button");
+    crate::should_render!(align, "mj-button-align");
+    crate::should_render!(background, "mj-button-background");
+    crate::should_render!(border_radius, "mj-button-border-radius");
+    crate::should_render!(border, "mj-button-border");
+    crate::should_render!(class, "mj-button-class");
+    crate::should_render!(color, "mj-button-color");
+    crate::should_render!(
+        container_background_color,
+        "mj-button-container-background-color"
+    );
+    crate::should_render!(example, "mj-button-example");
+    crate::should_render!(font_family, "mj-button-font-family");
+    crate::should_render!(font_size, "mj-button-font-size");
+    crate::should_render!(font_style, "mj-button-font-style");
+    crate::should_render!(font_weight, "mj-button-font-weight");
+    crate::should_render!(height, "mj-button-height");
+    crate::should_render!(href, "mj-button-href");
+    crate::should_render!(inner_padding, "mj-button-inner-padding");
+    crate::should_render!(line_height, "mj-button-line-height");
+    crate::should_render!(padding, "mj-button-padding");
+    crate::should_render!(text_decoration, "mj-button-text-decoration");
+    crate::should_render!(text_transform, "mj-button-text-transform");
+    crate::should_render!(vertical_align, "mj-button-vertical-align");
+    crate::should_render!(width, "mj-button-width");
 }

@@ -79,14 +79,7 @@ mod tests {
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;
 
-    #[test]
-    fn empty() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mjml.mjml");
-        let expected = include_str!("../../resources/compare/success/mjml.html");
-        let root = Mjml::parse(template).unwrap();
-        html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
-    }
+    crate::should_render!(empty, "mjml");
 
     #[test]
     fn template_amario() {

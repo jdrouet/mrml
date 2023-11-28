@@ -1,14 +1,18 @@
 use xmlparser::StrSpan;
 
 use super::MjCarouselImage;
-use crate::prelude::parser::{AttributesParser, ElementParser, Error, MrmlParser};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
 
-impl<'a> ElementParser<'a, MjCarouselImage> for MrmlParser<'a> {
-    fn parse(&mut self, _tag: StrSpan<'a>) -> Result<MjCarouselImage, Error> {
-        let attributes = self.parse_attributes()?;
-        let ending = self.assert_element_end()?;
+impl ParseElement<MjCarouselImage> for MrmlParser {
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjCarouselImage, Error> {
+        let attributes = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
         if !ending.empty {
-            self.assert_element_close()?;
+            cursor.assert_element_close()?;
         }
         Ok(MjCarouselImage { attributes })
     }

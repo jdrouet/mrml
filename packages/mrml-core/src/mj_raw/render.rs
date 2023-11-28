@@ -62,27 +62,6 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRaw {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-raw.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-raw.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn in_head() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-raw-head.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-raw-head.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-raw");
+    crate::should_render!(in_head, "mj-raw-head");
 }

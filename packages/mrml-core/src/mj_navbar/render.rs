@@ -216,37 +216,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-navbar.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-navbar.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn align_class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-navbar-align-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-navbar-align-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn ico() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-navbar-ico.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-navbar-ico.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-navbar");
+    crate::should_render!(align_class, "mj-navbar-align-class");
+    crate::should_render!(ico, "mj-navbar-ico");
 }
