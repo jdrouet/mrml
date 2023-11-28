@@ -1,6 +1,6 @@
 [package]
 name = "mrml-wasm"
-version = "0.1.0"
+version = "1.2.3"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2018"
 
@@ -18,7 +18,7 @@ reqwest-include-loader = ["dep:async-trait", "dep:reqwest", "mrml/async"]
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
-mrml = { version = "2.0.0-rc4", path = "../mrml-core", default-features = false, features = [
+mrml = { version = "2.0.0-rc.6", path = "../mrml-core", default-features = false, features = [
   "parse",
   "render",
 ] }
