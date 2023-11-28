@@ -2,7 +2,7 @@
 name = "mrml-json-macros"
 description = "Macros for the JSON feature of the MRML crate"
 keywords = ["email", "mjml"]
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2021"
 license-file = "../../license.md"

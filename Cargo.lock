@@ -443,7 +443,7 @@ dependencies = [
 
 [[package]]
 name = "css-compare"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "lightningcss",
  "similar-asserts",
@@ -1108,7 +1108,7 @@ dependencies = [
 
 [[package]]
 name = "mrml"
-version = "2.0.0-rc4"
+version = "2.0.0-rc4.1"
 dependencies = [
  "async-trait",
  "concat-idents",
@@ -1133,7 +1133,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-cli"
-version = "1.3.3"
+version = "1.4.0"
 dependencies = [
  "clap",
  "env_logger",
@@ -1145,14 +1145,14 @@ dependencies = [
 
 [[package]]
 name = "mrml-common-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "syn 2.0.37",
 ]
 
 [[package]]
 name = "mrml-json-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "Inflector",
  "darling",
@@ -1164,7 +1164,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "Inflector",
  "mrml-common-macros",
@@ -1175,7 +1175,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-print-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "darling",
  "mrml-common-macros",
