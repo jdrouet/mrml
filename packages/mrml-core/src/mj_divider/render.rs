@@ -114,61 +114,12 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjDivider {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-divider.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-divider.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-divider-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-divider-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn container_background_color() {
-        let opts = Options::default();
-        let template = include_str!(
-            "../../resources/compare/success/mj-divider-container-background-color.mjml"
-        );
-        let expected = include_str!(
-            "../../resources/compare/success/mj-divider-container-background-color.html"
-        );
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-divider-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-divider-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn width() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-divider-width.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-divider-width.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-divider");
+    crate::should_render!(class, "mj-divider-class");
+    crate::should_render!(
+        container_background_color,
+        "mj-divider-container-background-color"
+    );
+    crate::should_render!(padding, "mj-divider-padding");
+    crate::should_render!(width, "mj-divider-width");
 }

@@ -159,49 +159,8 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionChild {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-accordion.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_padding() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-accordion-font-padding.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-accordion-font-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn icon() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-accordion-icon.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-accordion-icon.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn other() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-accordion-other.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-accordion-other.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-accordion");
+    crate::should_render!(font_padding, "mj-accordion-font-padding");
+    crate::should_render!(icon, "mj-accordion-icon");
+    crate::should_render!(other, "mj-accordion-other");
 }

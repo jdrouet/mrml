@@ -233,19 +233,5 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialElement {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn render_ending_tag() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-social-element-ending.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-social-element-ending.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(render_ending_tag, "mj-social-element-ending");
 }

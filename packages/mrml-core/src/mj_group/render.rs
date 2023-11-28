@@ -204,69 +204,10 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjGroup {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-group.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-group.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background_color() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-group-background-color.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-group-background-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-group-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-group-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn direction() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-group-direction.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-group-direction.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn vertical_align() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-group-vertical-align.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-group-vertical-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn width() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-group-width.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-group-width.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-group");
+    crate::should_render!(background_color, "mj-group-background-color");
+    crate::should_render!(class, "mj-group-class");
+    crate::should_render!(direction, "mj-group-direction");
+    crate::should_render!(vertical_align, "mj-group-vertical-align");
+    crate::should_render!(width, "mj-group-width");
 }

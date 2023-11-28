@@ -101,138 +101,20 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjText {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn align() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-align.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-align.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn class() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-class.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-class.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn color() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-color.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn container_background_color() {
-        let opts = Options::default();
-        let template =
-            include_str!("../../resources/compare/success/mj-text-container-background-color.mjml");
-        let expected =
-            include_str!("../../resources/compare/success/mj-text-container-background-color.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn example() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-example.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-example.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_family() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-font-family.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-font-family.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_size() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-font-size.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-font-size.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_style() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-font-style.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-font-style.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn font_weight() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-font-weight.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-font-weight.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn height() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-height.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-height.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn line_height() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-line-height.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-line-height.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-text-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-text-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-text");
+    crate::should_render!(align, "mj-text-align");
+    crate::should_render!(class, "mj-text-class");
+    crate::should_render!(color, "mj-text-color");
+    crate::should_render!(
+        container_background_color,
+        "mj-text-container-background-color"
+    );
+    crate::should_render!(example, "mj-text-example");
+    crate::should_render!(font_family, "mj-text-font-family");
+    crate::should_render!(font_size, "mj-text-font-size");
+    crate::should_render!(font_style, "mj-text-font-style");
+    crate::should_render!(font_weight, "mj-text-font-weight");
+    crate::should_render!(height, "mj-text-height");
+    crate::should_render!(line_height, "mj-text-line-height");
+    crate::should_render!(padding, "mj-text-padding");
 }

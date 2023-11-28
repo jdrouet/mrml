@@ -124,56 +124,9 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjWrapper {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-wrapper.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-wrapper.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn background() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-wrapper-background.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-wrapper-background.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn border() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-wrapper-border.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-wrapper-border.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn other() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-wrapper-other.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-wrapper-other.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn padding() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-wrapper-padding.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-wrapper-padding.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-wrapper");
+    crate::should_render!(background, "mj-wrapper-background");
+    crate::should_render!(border, "mj-wrapper-border");
+    crate::should_render!(other, "mj-wrapper-other");
+    crate::should_render!(padding, "mj-wrapper-padding");
 }

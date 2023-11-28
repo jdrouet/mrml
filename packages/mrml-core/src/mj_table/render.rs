@@ -97,46 +97,8 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjTable {
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
-    #[test]
-    fn basic() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-table.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-table.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn table() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-table-table.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-table-table.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn text() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-table-text.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-table-text.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
-
-    #[test]
-    fn other() {
-        let opts = Options::default();
-        let template = include_str!("../../resources/compare/success/mj-table-other.mjml");
-        let expected = include_str!("../../resources/compare/success/mj-table-other.html");
-        let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
-        html_compare::assert_similar(expected, result.as_str());
-    }
+    crate::should_render!(basic, "mj-table");
+    crate::should_render!(table, "mj-table-table");
+    crate::should_render!(text, "mj-table-text");
+    crate::should_render!(other, "mj-table-other");
 }

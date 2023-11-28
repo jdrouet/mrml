@@ -406,3 +406,31 @@ mod tests {
         assert_eq!(header.borrow().next_id(), "00000002");
     }
 }
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_render {
+    ($name: ident, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, sync {
+            #[test]
+            fn fn_name() {
+                let opts = $crate::prelude::render::Options::default();
+                let template = include_str!(concat!("../../resources/compare/success/", $template, ".mjml"));
+                let expected = include_str!(concat!("../../resources/compare/success/", $template, ".html"));
+                let root = $crate::parse(template).unwrap();
+                html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
+            }
+        });
+        concat_idents::concat_idents!(fn_name = $name, _, "async" {
+            #[cfg(feature = "async")]
+            #[tokio::test]
+            async fn fn_name() {
+                let opts = $crate::prelude::render::Options::default();
+                let template = include_str!(concat!("../../resources/compare/success/", $template, ".mjml"));
+                let expected = include_str!(concat!("../../resources/compare/success/", $template, ".html"));
+                let root = $crate::async_parse(template).await.unwrap();
+                html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
+            }
+        });
+    };
+}
