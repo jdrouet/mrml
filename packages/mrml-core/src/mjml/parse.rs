@@ -148,12 +148,31 @@ impl Mjml {
         parser.parse_root(&mut cursor)
     }
 
+    #[cfg(feature = "async")]
+    pub async fn async_parse_with_options<T: AsRef<str>>(
+        value: T,
+        opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
+    ) -> Result<Self, Error> {
+        let parser = MrmlParser::new(opts);
+        let mut cursor = MrmlCursor::new(value.as_ref());
+        parser.async_parse_root(&mut cursor).await
+    }
+
     /// Function to parse a raw mjml template using the default parsing
     /// [options](crate::prelude::parser::ParserOptions).
     pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
         let parser = MrmlParser::default();
         let mut cursor = MrmlCursor::new(value.as_ref());
         parser.parse_root(&mut cursor)
+    }
+
+    #[cfg(feature = "async")]
+    /// Function to parse a raw mjml template using the default parsing
+    /// [options](crate::prelude::parser::ParserOptions).
+    pub async fn async_parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
+        let parser = MrmlParser::default();
+        let mut cursor = MrmlCursor::new(value.as_ref());
+        parser.async_parse_root(&mut cursor).await
     }
 }
 
@@ -162,33 +181,70 @@ mod tests {
     use super::*;
 
     #[test]
-    fn should_parse_with_options() {
+    fn should_parse_with_options_sync() {
         let template = "<mjml></mjml>";
         let elt = Mjml::parse_with_options(template, Default::default()).unwrap();
         assert!(elt.children.body.is_none());
         assert!(elt.children.head.is_none());
     }
 
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn should_parse_with_options_async() {
+        let template = "<mjml></mjml>";
+        let elt = Mjml::async_parse_with_options(template, Default::default())
+            .await
+            .unwrap();
+        assert!(elt.children.body.is_none());
+        assert!(elt.children.head.is_none());
+    }
+
     #[test]
-    fn should_parse() {
+    fn should_parse_sync() {
         let template = "<mjml></mjml>";
         let elt = Mjml::parse(template).unwrap();
         assert!(elt.children.body.is_none());
         assert!(elt.children.head.is_none());
     }
 
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn should_parse_async() {
+        let template = "<mjml></mjml>";
+        let elt = Mjml::async_parse(template).await.unwrap();
+        assert!(elt.children.body.is_none());
+        assert!(elt.children.head.is_none());
+    }
+
     #[test]
-    fn should_parse_without_children() {
+    fn should_parse_without_children_sync() {
         let template = "<mjml />";
         let elt: Mjml = Mjml::parse(template).unwrap();
         assert!(elt.children.body.is_none());
         assert!(elt.children.head.is_none());
     }
 
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn should_parse_without_children_async() {
+        let template = "<mjml />";
+        let elt: Mjml = Mjml::async_parse(template).await.unwrap();
+        assert!(elt.children.body.is_none());
+        assert!(elt.children.head.is_none());
+    }
+
     #[test]
-    fn should_parse_with_lang() {
+    fn should_parse_with_lang_sync() {
         let template = "<mjml lang=\"fr\"></mjml>";
         let elt = Mjml::parse(template).unwrap();
+        assert_eq!(elt.attributes.lang.unwrap(), "fr");
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn should_parse_with_lang_async() {
+        let template = "<mjml lang=\"fr\"></mjml>";
+        let elt = Mjml::async_parse(template).await.unwrap();
         assert_eq!(elt.attributes.lang.unwrap(), "fr");
     }
 
