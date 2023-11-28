@@ -14,7 +14,7 @@ use crate::prelude::parser::{
 };
 
 impl ParseChildren<Vec<MjHeadChild>> for MrmlParser {
-    fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<Vec<MjHeadChild>, Error> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjHeadChild>, Error> {
         let mut result = Vec::new();
         loop {
             match cursor.assert_next()? {

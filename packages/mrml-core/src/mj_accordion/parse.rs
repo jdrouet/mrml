@@ -8,9 +8,9 @@ use crate::prelude::parser::{
 };
 
 impl ParseChildren<Vec<MjAccordionChild>> for MrmlParser {
-    fn parse_children<'a>(
+    fn parse_children(
         &self,
-        cursor: &mut MrmlCursor<'a>,
+        cursor: &mut MrmlCursor<'_>,
     ) -> Result<Vec<MjAccordionChild>, Error> {
         let mut result = Vec::new();
 

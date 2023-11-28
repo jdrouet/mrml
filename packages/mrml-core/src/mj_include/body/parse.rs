@@ -67,9 +67,9 @@ impl<'a> TryFrom<StrSpan<'a>> for MjIncludeBodyKind {
 }
 
 impl ParseAttributes<MjIncludeBodyAttributes> for MrmlParser {
-    fn parse_attributes<'a>(
+    fn parse_attributes(
         &self,
-        cursor: &mut MrmlCursor<'a>,
+        cursor: &mut MrmlCursor<'_>,
     ) -> Result<MjIncludeBodyAttributes, Error> {
         let mut path = None;
         let mut kind: Option<MjIncludeBodyKind> = None;
@@ -94,9 +94,9 @@ impl ParseAttributes<MjIncludeBodyAttributes> for MrmlParser {
 }
 
 impl ParseChildren<Vec<MjIncludeBodyChild>> for MrmlParser {
-    fn parse_children<'a>(
+    fn parse_children(
         &self,
-        cursor: &mut MrmlCursor<'a>,
+        cursor: &mut MrmlCursor<'_>,
     ) -> Result<Vec<MjIncludeBodyChild>, Error> {
         let mut result = Vec::new();
 

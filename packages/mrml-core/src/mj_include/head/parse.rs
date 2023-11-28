@@ -40,9 +40,9 @@ impl ParseElement<MjIncludeHeadChild> for MrmlParser {
 }
 
 impl ParseAttributes<MjIncludeHeadAttributes> for MrmlParser {
-    fn parse_attributes<'a>(
+    fn parse_attributes(
         &self,
-        cursor: &mut MrmlCursor<'a>,
+        cursor: &mut MrmlCursor<'_>,
     ) -> Result<MjIncludeHeadAttributes, Error> {
         let mut path = None;
         let mut kind = None;
@@ -67,9 +67,9 @@ impl ParseAttributes<MjIncludeHeadAttributes> for MrmlParser {
 }
 
 impl ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser {
-    fn parse_children<'a>(
+    fn parse_children(
         &self,
-        cursor: &mut MrmlCursor<'a>,
+        cursor: &mut MrmlCursor<'_>,
     ) -> Result<Vec<MjIncludeHeadChild>, Error> {
         let mut result = Vec::new();
         while let Some(token) = cursor.next_token() {

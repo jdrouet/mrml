@@ -36,7 +36,7 @@ impl ParseElement<Node<MjRawChild>> for MrmlParser {
 }
 
 impl ParseChildren<Vec<MjRawChild>> for MrmlParser {
-    fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<Vec<MjRawChild>, Error> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjRawChild>, Error> {
         let mut children = Vec::new();
         loop {
             let token = cursor.assert_next()?;

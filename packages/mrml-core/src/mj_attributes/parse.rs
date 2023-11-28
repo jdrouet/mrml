@@ -22,9 +22,9 @@ impl ParseElement<MjAttributesChild> for MrmlParser {
 }
 
 impl ParseChildren<Vec<MjAttributesChild>> for MrmlParser {
-    fn parse_children<'a>(
+    fn parse_children(
         &self,
-        cursor: &mut MrmlCursor<'a>,
+        cursor: &mut MrmlCursor<'_>,
     ) -> Result<Vec<MjAttributesChild>, Error> {
         let mut result = Vec::new();
 

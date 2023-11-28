@@ -232,11 +232,11 @@ pub(crate) trait AsyncParseElement<E> {
 }
 
 pub(crate) trait ParseAttributes<A> {
-    fn parse_attributes<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<A, Error>;
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<A, Error>;
 }
 
 pub(crate) trait ParseChildren<C> {
-    fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<C, Error>;
 }
 
 #[cfg(feature = "async")]
@@ -422,10 +422,7 @@ impl MrmlParser {
 }
 
 impl ParseAttributes<Map<String, String>> for MrmlParser {
-    fn parse_attributes<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-    ) -> Result<Map<String, String>, Error> {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<Map<String, String>, Error> {
         let mut result = Map::new();
         while let Some(attr) = cursor.next_attribute()? {
             result.insert(attr.local.to_string(), attr.value.to_string());
@@ -440,8 +437,8 @@ macro_rules! should_parse {
     ($name: ident, $target: ty, $template: literal) => {
         #[test]
         fn $name() {
-            let parser = crate::prelude::parser::MrmlParser::default();
-            let mut cursor = crate::prelude::parser::MrmlCursor::new($template);
+            let parser = $crate::prelude::parser::MrmlParser::default();
+            let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
             let _: $target = parser.parse_root(&mut cursor).unwrap();
         }
     };
@@ -454,8 +451,8 @@ macro_rules! should_not_parse {
         #[test]
         #[should_panic]
         fn $name() {
-            let parser = crate::prelude::parser::MrmlParser::default();
-            let mut cursor = crate::prelude::parser::MrmlCursor::new($template);
+            let parser = $crate::prelude::parser::MrmlParser::default();
+            let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
             let _: $target = parser.parse_root(&mut cursor).unwrap();
         }
     };

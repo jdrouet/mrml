@@ -4,7 +4,7 @@ use super::{MjFont, MjFontAttributes};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
 
 impl ParseAttributes<MjFontAttributes> for MrmlParser {
-    fn parse_attributes<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<MjFontAttributes, Error> {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
         let mut result = MjFontAttributes::default();
 
         while let Some(attrs) = cursor.next_attribute()? {

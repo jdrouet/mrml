@@ -5,7 +5,7 @@ use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseChildren, Parse
 use crate::text::Text;
 
 impl ParseChildren<Vec<Text>> for MrmlParser {
-    fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<Vec<Text>, Error> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<Text>, Error> {
         let mut result = Vec::new();
 
         while let Some(item) = cursor.next_text()? {

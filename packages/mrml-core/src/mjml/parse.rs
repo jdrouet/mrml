@@ -8,7 +8,7 @@ use crate::prelude::parser::{
 };
 
 impl ParseAttributes<MjmlAttributes> for MrmlParser {
-    fn parse_attributes<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<MjmlAttributes, Error> {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
         let mut attrs = MjmlAttributes::default();
         while let Some(token) = cursor.next_attribute()? {
             match token.local.as_str() {
@@ -23,7 +23,7 @@ impl ParseAttributes<MjmlAttributes> for MrmlParser {
 }
 
 impl ParseChildren<MjmlChildren> for MrmlParser {
-    fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<MjmlChildren, Error> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlChildren, Error> {
         let mut children = MjmlChildren::default();
 
         loop {

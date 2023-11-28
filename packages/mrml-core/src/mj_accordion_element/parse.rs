@@ -8,9 +8,9 @@ use crate::prelude::parser::{
 };
 
 impl ParseChildren<MjAccordionElementChildren> for MrmlParser {
-    fn parse_children<'a>(
+    fn parse_children(
         &self,
-        cursor: &mut MrmlCursor<'a>,
+        cursor: &mut MrmlCursor<'_>,
     ) -> Result<MjAccordionElementChildren, Error> {
         let mut result = MjAccordionElementChildren::default();
 

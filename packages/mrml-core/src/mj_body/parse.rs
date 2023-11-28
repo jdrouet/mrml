@@ -166,7 +166,7 @@ impl crate::prelude::parser::AsyncParseElement<MjBodyChild> for MrmlParser {
 }
 
 impl ParseChildren<Vec<MjBodyChild>> for MrmlParser {
-    fn parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<Vec<MjBodyChild>, Error> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjBodyChild>, Error> {
         let mut result = Vec::new();
         while let Some(token) = cursor.next_token() {
             match token? {

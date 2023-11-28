@@ -4,9 +4,9 @@ use super::{MjBreakpoint, MjBreakpointAttributes};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
 
 impl ParseAttributes<MjBreakpointAttributes> for MrmlParser {
-    fn parse_attributes<'a>(
+    fn parse_attributes(
         &self,
-        cursor: &mut MrmlCursor<'a>,
+        cursor: &mut MrmlCursor<'_>,
     ) -> Result<MjBreakpointAttributes, Error> {
         let mut result = MjBreakpointAttributes::default();
         while let Some(attr) = cursor.next_attribute()? {
