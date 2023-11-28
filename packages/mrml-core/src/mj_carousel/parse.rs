@@ -8,10 +8,7 @@ use crate::prelude::parser::{
 };
 
 impl ParseChildren<Vec<MjCarouselChild>> for MrmlParser {
-    fn parse_children(
-        &self,
-        cursor: &mut MrmlCursor<'_>,
-    ) -> Result<Vec<MjCarouselChild>, Error> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjCarouselChild>, Error> {
         let mut result = Vec::new();
 
         loop {

@@ -22,10 +22,7 @@ impl ParseElement<MjAttributesChild> for MrmlParser {
 }
 
 impl ParseChildren<Vec<MjAttributesChild>> for MrmlParser {
-    fn parse_children(
-        &self,
-        cursor: &mut MrmlCursor<'_>,
-    ) -> Result<Vec<MjAttributesChild>, Error> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjAttributesChild>, Error> {
         let mut result = Vec::new();
 
         loop {

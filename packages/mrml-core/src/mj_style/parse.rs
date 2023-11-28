@@ -4,10 +4,7 @@ use super::{MjStyle, MjStyleAttributes};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
 
 impl ParseAttributes<MjStyleAttributes> for MrmlParser {
-    fn parse_attributes(
-        &self,
-        cursor: &mut MrmlCursor<'_>,
-    ) -> Result<MjStyleAttributes, Error> {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
         let mut result = MjStyleAttributes::default();
         while let Some(attr) = cursor.next_attribute()? {
             if attr.local.as_str() == "inline" {
