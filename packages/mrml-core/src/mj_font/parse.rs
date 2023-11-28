@@ -35,13 +35,13 @@ impl ParseElement<MjFont> for MrmlParser {
 mod tests {
     use crate::mj_font::MjFont;
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         success,
         MjFont,
         r#"<mj-font name="Comic" href="https://jolimail.io" />"#
     );
 
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         unexpected_attribute,
         MjFont,
         r#"<mj-font unknown="whatever" />"#

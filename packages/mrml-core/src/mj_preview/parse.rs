@@ -28,10 +28,10 @@ impl ParseElement<MjPreview> for MrmlParser {
 mod tests {
     use crate::mj_preview::MjPreview;
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         should_parse,
         MjPreview,
         "<mj-preview>Hello World!</mj-preview>"
     );
-    crate::should_parse!(should_parse_without_children, MjPreview, "<mj-preview />");
+    crate::should_sync_parse!(should_parse_without_children, MjPreview, "<mj-preview />");
 }

@@ -296,6 +296,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "concat-idents"
+version = "1.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f76990911f2267d837d9d0ad060aa63aaad170af40904b29461734c339030d4d"
+dependencies = [
+ "quote",
+ "syn 2.0.37",
+]
+
+[[package]]
 name = "console"
 version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1101,6 +1111,7 @@ name = "mrml"
 version = "2.0.0-rc4"
 dependencies = [
  "async-trait",
+ "concat-idents",
  "criterion",
  "html-compare",
  "indexmap 2.0.2",
@@ -1114,6 +1125,7 @@ dependencies = [
  "serde_json",
  "similar-asserts",
  "thiserror",
+ "tokio",
  "ureq",
  "url",
  "xmlparser",

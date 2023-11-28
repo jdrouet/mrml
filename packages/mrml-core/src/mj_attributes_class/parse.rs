@@ -27,18 +27,18 @@ impl ParseElement<MjAttributesClass> for MrmlParser {
 mod tests {
     use crate::mj_attributes_class::MjAttributesClass;
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         parse_complete,
         MjAttributesClass,
         r#"<mj-class name="whatever" color="red" />"#
     );
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         should_have_name,
         MjAttributesClass,
         r#"<mj-class color="red" />"#,
         "MissingAttribute(\"name\", Span { start: 1, end: 9 })"
     );
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         should_close,
         MjAttributesClass,
         r#"<mj-class name="div" color="red"><whatever>"#,

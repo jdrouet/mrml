@@ -64,7 +64,7 @@ impl ParseElement<MjAttributes> for MrmlParser {
 mod tests {
     use crate::mj_attributes::MjAttributes;
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         parse_complete,
         MjAttributes,
         r#"

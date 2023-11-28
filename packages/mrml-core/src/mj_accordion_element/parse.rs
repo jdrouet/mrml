@@ -59,20 +59,20 @@ impl ParseElement<MjAccordionElement> for MrmlParser {
 mod tests {
     use super::MjAccordionElement;
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         should_work_with_no_children,
         MjAccordionElement,
         "<mj-accordion-element />"
     );
 
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         should_error_with_unknown_child,
         MjAccordionElement,
         "<mj-accordion-element><span /></mj-accordion-element>",
         "UnexpectedElement(Span { start: 22, end: 27 })"
     );
 
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         should_error_with_comment,
         MjAccordionElement,
         "<mj-accordion-element><!-- comment --></mj-accordion-element>",

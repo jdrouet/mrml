@@ -375,6 +375,15 @@ impl MrmlParser {
         self.parse(cursor, start.local)
     }
 
+    #[cfg(feature = "async")]
+    pub(crate) async fn async_parse_root<T>(&self, cursor: &mut MrmlCursor<'_>) -> Result<T, Error>
+    where
+        MrmlParser: AsyncParseElement<T>,
+    {
+        let start = cursor.assert_element_start()?;
+        self.async_parse(cursor, start.local).await
+    }
+
     pub(crate) fn parse_attributes_and_children<A, C>(
         &self,
         cursor: &mut MrmlCursor,
@@ -435,12 +444,39 @@ impl ParseAttributes<Map<String, String>> for MrmlParser {
 #[macro_export]
 macro_rules! should_parse {
     ($name: ident, $target: ty, $template: literal) => {
-        #[test]
-        fn $name() {
-            let parser = $crate::prelude::parser::MrmlParser::default();
-            let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
-            let _: $target = parser.parse_root(&mut cursor).unwrap();
-        }
+        $crate::should_sync_parse!($name, $target, $template);
+        $crate::should_async_parse!($name, $target, $template);
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_sync_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, sync {
+            #[test]
+            fn fn_name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.parse_root(&mut cursor).unwrap();
+            }
+        });
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_async_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, "async" {
+            #[cfg(feature = "async")]
+            #[tokio::test]
+            async fn fn_name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.async_parse_root(&mut cursor).await.unwrap();
+            }
+        });
     };
 }
 
@@ -448,21 +484,67 @@ macro_rules! should_parse {
 #[macro_export]
 macro_rules! should_not_parse {
     ($name: ident, $target: ty, $template: literal) => {
-        #[test]
-        #[should_panic]
-        fn $name() {
-            let parser = $crate::prelude::parser::MrmlParser::default();
-            let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
-            let _: $target = parser.parse_root(&mut cursor).unwrap();
-        }
+        $crate::should_not_sync_parse!($name, $target, $template);
+        $crate::should_not_async_parse!($name, $target, $template);
     };
     ($name: ident, $target: ty, $template: literal, $message: literal) => {
-        #[test]
-        #[should_panic(expected = $message)]
-        fn $name() {
-            let parser = $crate::prelude::parser::MrmlParser::default();
-            let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
-            let _: $target = parser.parse_root(&mut cursor).unwrap();
-        }
+        $crate::should_not_sync_parse!($name, $target, $template, $message);
+        $crate::should_not_async_parse!($name, $target, $template, $message);
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_not_sync_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, sync {
+            #[test]
+            #[should_panic]
+            fn $name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.parse_root(&mut cursor).unwrap();
+            }
+        });
+    };
+    ($name: ident, $target: ty, $template: literal, $message: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, sync {
+            #[test]
+            #[should_panic(expected = $message)]
+            fn $name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.parse_root(&mut cursor).unwrap();
+            }
+        });
+    };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! should_not_async_parse {
+    ($name: ident, $target: ty, $template: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, "async" {
+            #[cfg(feature = "async")]
+            #[tokio::test]
+            #[should_panic]
+            async fn fn_name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.async_parse_root(&mut cursor).await.unwrap();
+            }
+        });
+    };
+    ($name: ident, $target: ty, $template: literal, $message: literal) => {
+        concat_idents::concat_idents!(fn_name = $name, _, "async" {
+            #[cfg(feature = "async")]
+            #[tokio::test]
+            #[should_panic(expected = $message)]
+            async fn fn_name() {
+                let parser = $crate::prelude::parser::MrmlParser::default();
+                let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
+                let _: $target = parser.async_parse_root(&mut cursor).await.unwrap();
+            }
+        });
     };
 }

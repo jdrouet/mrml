@@ -53,10 +53,12 @@ mrml-json-macros = { version = "0.1", path = "./lib/mrml-json-macros", optional 
 mrml-print-macros = { version = "0.1", path = "./lib/mrml-print-macros", optional = true }
 
 [dev-dependencies]
+concat-idents = "1.1"
 criterion = "0.5"
 html-compare = { version = "0.1", path = "./lib/html-compare" }
 similar-asserts = "1.4"
 mockito = "1.1"
+tokio = { version = "1.0", features = ["full"] }
 
 [[bench]]
 name = "basic"

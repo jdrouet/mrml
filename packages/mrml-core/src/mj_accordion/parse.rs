@@ -66,22 +66,22 @@ mod tests {
         assert!(!format!("{result:?}").is_empty());
     }
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         should_keep_comments,
         MjAccordion,
         "<mj-accordion><!-- comment --></mj-accordion>"
     );
 
-    crate::should_parse!(should_work_empty, MjAccordion, "<mj-accordion />");
+    crate::should_sync_parse!(should_work_empty, MjAccordion, "<mj-accordion />");
 
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         should_error_with_text,
         MjAccordion,
         "<mj-accordion>Hello</mj-accordion>",
         "UnexpectedToken(Span { start: 14, end: 19 })"
     );
 
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         should_error_with_unknown_element,
         MjAccordion,
         "<mj-accordion><span /></mj-accordion>",

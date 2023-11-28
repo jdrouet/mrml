@@ -22,13 +22,13 @@ impl ParseElement<MjSocialElement> for MrmlParser {
 mod tests {
     use crate::mj_social_element::MjSocialElement;
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         parse_with_empty_children,
         MjSocialElement,
         r#"<mj-social-element name="facebook" />"#
     );
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         parse_ending_tag,
         MjSocialElement,
         r#"<mj-social-element name="facebook">

@@ -37,19 +37,19 @@ impl ParseElement<MjAccordionTitle> for MrmlParser {
 mod tests {
     use super::MjAccordionTitle;
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         should_work_with_child_text,
         MjAccordionTitle,
         "<mj-accordion-title>Hello</mj-accordion-title>"
     );
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         should_work_with_no_children,
         MjAccordionTitle,
         "<mj-accordion-title />"
     );
 
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         should_error_with_no_closing,
         MjAccordionTitle,
         "<mj-accordion-title>",

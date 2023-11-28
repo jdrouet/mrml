@@ -76,13 +76,13 @@ mod tests {
     use crate::mj_style::MjStyle;
     use crate::prelude::parser::{MrmlCursor, MrmlParser};
 
-    crate::should_parse!(should_work_empty, MjStyle, "<mj-style />");
-    crate::should_parse!(
+    crate::should_sync_parse!(should_work_empty, MjStyle, "<mj-style />");
+    crate::should_sync_parse!(
         should_work_inline,
         MjStyle,
         r#"<mj-style inline="inline" />"#
     );
-    crate::should_parse!(
+    crate::should_sync_parse!(
         should_work_basic,
         MjStyle,
         r#"<mj-style>.whatever {background-color: red};</mj-style>"#

@@ -54,7 +54,7 @@ impl ParseElement<MjCarousel> for MrmlParser {
 mod tests {
     use crate::mj_carousel::MjCarousel;
 
-    crate::should_parse!(
+    crate::should_sync_parse!(
         with_all_children,
         MjCarousel,
         r#"<mj-carousel>
@@ -64,7 +64,7 @@ mod tests {
 "#
     );
 
-    crate::should_not_parse!(
+    crate::should_not_sync_parse!(
         with_unexpected_child,
         MjCarousel,
         r#"<mj-carousel>

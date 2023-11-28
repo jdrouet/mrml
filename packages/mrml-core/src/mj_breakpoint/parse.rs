@@ -40,8 +40,8 @@ impl ParseElement<MjBreakpoint> for MrmlParser {
 mod tests {
     use crate::mj_breakpoint::MjBreakpoint;
 
-    crate::should_parse!(success, MjBreakpoint, r#"<mj-breakpoint width="42px" />"#);
-    crate::should_not_parse!(
+    crate::should_sync_parse!(success, MjBreakpoint, r#"<mj-breakpoint width="42px" />"#);
+    crate::should_not_sync_parse!(
         unexpected_attributes,
         MjBreakpoint,
         r#"<mj-breakpoint whatever="42px" />"#

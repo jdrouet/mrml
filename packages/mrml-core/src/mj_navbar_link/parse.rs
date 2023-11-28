@@ -24,7 +24,7 @@ mod tests {
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {
-            crate::should_parse!($title, MjNavbarLink, $template);
+            crate::should_sync_parse!($title, MjNavbarLink, $template);
         };
     }
 

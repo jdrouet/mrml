@@ -23,5 +23,5 @@ impl ParseElement<MjAttributesAll> for MrmlParser {
 mod tests {
     use crate::mj_attributes_all::MjAttributesAll;
 
-    crate::should_parse!(parse_complete, MjAttributesAll, r#"<mj-all color="red" />"#);
+    crate::should_sync_parse!(parse_complete, MjAttributesAll, r#"<mj-all color="red" />"#);
 }

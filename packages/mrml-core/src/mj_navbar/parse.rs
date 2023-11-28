@@ -52,13 +52,13 @@ mod tests {
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {
-            crate::should_parse!($title, MjNavbar, $template);
+            crate::should_sync_parse!($title, MjNavbar, $template);
         };
     }
 
     macro_rules! assert_fail {
         ($title:ident, $template:expr, $error:expr) => {
-            crate::should_not_parse!($title, MjNavbar, $template, $error);
+            crate::should_not_sync_parse!($title, MjNavbar, $template, $error);
         };
     }
 

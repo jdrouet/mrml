@@ -266,4 +266,13 @@ mod tests {
     <mj-button>Hello World</mj-button>
 </mj-body>"#
     );
+
+    crate::should_async_parse!(
+        async_parse_complete,
+        MjBody,
+        r#"<mj-body>
+    <!-- Some comment -->
+    <mj-button>Hello World</mj-button>
+</mj-body>"#
+    );
 }
