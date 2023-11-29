@@ -136,7 +136,7 @@ pub async fn async_parse_with_options<T: AsRef<str>>(
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
     let parser = crate::prelude::parser::MrmlParser::new(opts);
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
-    parser.parse_root(&mut cursor)
+    parser.async_parse_root(&mut cursor).await
 }
 
 #[cfg(feature = "parse")]
