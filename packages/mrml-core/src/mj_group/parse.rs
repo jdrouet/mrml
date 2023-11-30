@@ -5,7 +5,7 @@ use super::MjGroup;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl ParseElement<MjGroup> for MrmlParser {
+impl<'opts> ParseElement<MjGroup> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjGroup, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 

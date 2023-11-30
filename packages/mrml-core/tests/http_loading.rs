@@ -39,5 +39,5 @@ fn sync_loading_include() {
     let options = ParserOptions {
         include_loader: Box::new(resolver),
     };
-    let _ = mrml::parse_with_options(template, options.into()).unwrap();
+    let _ = mrml::parse_with_options(template, &options).unwrap();
 }

@@ -360,21 +360,20 @@ impl<'a> MrmlCursor<'a> {
     }
 }
 
-#[derive(Default)]
-pub struct MrmlParser {
-    pub(crate) options: Rc<ParserOptions>,
+pub struct MrmlParser<'opts> {
+    pub(crate) options: &'opts ParserOptions,
 }
 
-impl MrmlParser {
-    pub fn new(options: Rc<ParserOptions>) -> Self {
+impl<'opts> MrmlParser<'opts> {
+    pub fn new(options: &'opts ParserOptions) -> Self {
         Self { options }
     }
 }
 
-impl MrmlParser {
+impl<'opts> MrmlParser<'opts> {
     pub(crate) fn parse_root<T>(&self, cursor: &mut MrmlCursor) -> Result<T, Error>
     where
-        MrmlParser: ParseElement<T>,
+        MrmlParser<'opts>: ParseElement<T>,
     {
         let start = cursor.assert_element_start()?;
         self.parse(cursor, start.local)
@@ -385,8 +384,8 @@ impl MrmlParser {
         cursor: &mut MrmlCursor,
     ) -> Result<(A, C), Error>
     where
-        MrmlParser: ParseAttributes<A>,
-        MrmlParser: ParseChildren<C>,
+        MrmlParser<'opts>: ParseAttributes<A>,
+        MrmlParser<'opts>: ParseChildren<C>,
         C: Default,
     {
         let attributes: A = self.parse_attributes(cursor)?;
@@ -403,7 +402,7 @@ impl MrmlParser {
     }
 }
 
-impl ParseAttributes<Map<String, String>> for MrmlParser {
+impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
     fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<Map<String, String>, Error> {
         parse_attributes_map(cursor)
     }
@@ -488,7 +487,8 @@ macro_rules! should_sync_parse {
         concat_idents::concat_idents!(fn_name = $name, _, sync {
             #[test]
             fn fn_name() {
-                let parser = $crate::prelude::parser::MrmlParser::default();
+                let opts = $crate::prelude::parser::ParserOptions::default();
+                let parser = $crate::prelude::parser::MrmlParser::new(&opts);
                 let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
                 let _: $target = parser.parse_root(&mut cursor).unwrap();
             }
@@ -533,7 +533,8 @@ macro_rules! should_not_sync_parse {
             #[test]
             #[should_panic]
             fn $name() {
-                let parser = $crate::prelude::parser::MrmlParser::default();
+                let opts = $crate::prelude::parser::ParserOptions::default();
+                let parser = $crate::prelude::parser::MrmlParser::new(&opts);
                 let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
                 let _: $target = parser.parse_root(&mut cursor).unwrap();
             }
@@ -544,7 +545,8 @@ macro_rules! should_not_sync_parse {
             #[test]
             #[should_panic(expected = $message)]
             fn $name() {
-                let parser = $crate::prelude::parser::MrmlParser::default();
+                let opts = $crate::prelude::parser::ParserOptions::default();
+                let parser = $crate::prelude::parser::MrmlParser::new(&opts);
                 let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
                 let _: $target = parser.parse_root(&mut cursor).unwrap();
             }

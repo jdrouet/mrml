@@ -120,7 +120,7 @@ mod macros;
 /// ```
 pub fn parse_with_options<T: AsRef<str>>(
     input: T,
-    opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
+    opts: &crate::prelude::parser::ParserOptions,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
     let parser = crate::prelude::parser::MrmlParser::new(opts);
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
@@ -143,7 +143,8 @@ pub async fn async_parse_with_options<T: AsRef<str>>(
 /// Function to parse a raw mjml template using the default parsing
 /// [options](crate::prelude::parser::ParserOptions).
 pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
-    let parser = crate::prelude::parser::MrmlParser::default();
+    let opts = crate::prelude::parser::ParserOptions::default();
+    let parser = crate::prelude::parser::MrmlParser::new(&opts);
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
     parser.parse_root(&mut cursor)
 }
@@ -167,6 +168,6 @@ mod tests {
     #[test]
     fn parse_with_options() {
         let _ =
-            crate::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", Default::default());
+            crate::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", &Default::default());
     }
 }

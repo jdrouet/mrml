@@ -5,7 +5,7 @@ use super::MjHero;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl ParseElement<MjHero> for MrmlParser {
+impl<'opts> ParseElement<MjHero> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjHero, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 

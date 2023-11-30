@@ -15,7 +15,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjDivider, Error> {
     Ok(MjDivider { attributes })
 }
 
-impl ParseElement<MjDivider> for MrmlParser {
+impl<'opts> ParseElement<MjDivider> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

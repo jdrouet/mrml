@@ -28,7 +28,7 @@ use crate::prelude::parser::{
 };
 use crate::text::Text;
 
-impl ParseElement<MjIncludeBodyChild> for MrmlParser {
+impl<'opts> ParseElement<MjIncludeBodyChild> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -153,7 +153,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeBodyAttribut
     })
 }
 
-impl ParseAttributes<MjIncludeBodyAttributes> for MrmlParser {
+impl<'opts> ParseAttributes<MjIncludeBodyAttributes> for MrmlParser<'opts> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -172,7 +172,7 @@ impl ParseAttributes<MjIncludeBodyAttributes> for AsyncMrmlParser {
     }
 }
 
-impl ParseChildren<Vec<MjIncludeBodyChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjIncludeBodyChild>> for MrmlParser<'opts> {
     fn parse_children(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -238,7 +238,7 @@ impl AsyncParseChildren<Vec<MjIncludeBodyChild>> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<MjIncludeBody> for MrmlParser {
+impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -383,9 +383,7 @@ mod tests {
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
         let mut cursor = MrmlCursor::new(raw);
-        let include: MjIncludeBody = MrmlParser::new(opts.into())
-            .parse_root(&mut cursor)
-            .unwrap();
+        let include: MjIncludeBody = MrmlParser::new(&opts).parse_root(&mut cursor).unwrap();
         assert_eq!(include.attributes.kind, MjIncludeBodyKind::Mjml);
         let _content = include.children.first().unwrap();
     }
@@ -418,9 +416,7 @@ mod tests {
         };
         let raw = r#"<mj-include path="partial.html" type="html" />"#;
         let mut cursor = MrmlCursor::new(raw);
-        let include: MjIncludeBody = MrmlParser::new(opts.into())
-            .parse_root(&mut cursor)
-            .unwrap();
+        let include: MjIncludeBody = MrmlParser::new(&opts).parse_root(&mut cursor).unwrap();
         assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
         let _content = include.children.first().unwrap();
     }

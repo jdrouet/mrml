@@ -5,7 +5,7 @@ use super::MjButton;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl ParseElement<MjButton> for MrmlParser {
+impl<'opts> ParseElement<MjButton> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjButton, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 

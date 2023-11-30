@@ -16,7 +16,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjSpacer, Error> {
     Ok(MjSpacer { attributes })
 }
 
-impl ParseElement<MjSpacer> for MrmlParser {
+impl<'opts> ParseElement<MjSpacer> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjSpacer, Error> {
         parse(cursor)
     }

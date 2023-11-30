@@ -16,7 +16,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjAttributesAll, Error> {
     Ok(MjAttributesAll { attributes })
 }
 
-impl ParseElement<MjAttributesAll> for MrmlParser {
+impl<'opts> ParseElement<MjAttributesAll> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

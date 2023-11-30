@@ -5,7 +5,7 @@ use super::MjSocialElement;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl ParseElement<MjSocialElement> for MrmlParser {
+impl<'opts> ParseElement<MjSocialElement> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

@@ -15,7 +15,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjCarouselImage, Error> {
     Ok(MjCarouselImage { attributes })
 }
 
-impl ParseElement<MjCarouselImage> for MrmlParser {
+impl<'opts> ParseElement<MjCarouselImage> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

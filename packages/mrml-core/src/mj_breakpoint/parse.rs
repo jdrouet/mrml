@@ -18,7 +18,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpointAttribute
     Ok(result)
 }
 
-impl ParseAttributes<MjBreakpointAttributes> for MrmlParser {
+impl<'opts> ParseAttributes<MjBreakpointAttributes> for MrmlParser<'opts> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -38,7 +38,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpoint, Error> {
     Ok(MjBreakpoint { attributes })
 }
 
-impl ParseElement<MjBreakpoint> for MrmlParser {
+impl<'opts> ParseElement<MjBreakpoint> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

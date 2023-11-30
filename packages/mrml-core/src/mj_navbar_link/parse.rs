@@ -5,7 +5,7 @@ use super::MjNavbarLink;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl ParseElement<MjNavbarLink> for MrmlParser {
+impl<'opts> ParseElement<MjNavbarLink> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

@@ -18,7 +18,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Er
     Ok(result)
 }
 
-impl ParseAttributes<MjStyleAttributes> for MrmlParser {
+impl<'opts> ParseAttributes<MjStyleAttributes> for MrmlParser<'opts> {
     fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
         parse_attributes(cursor)
     }
@@ -54,7 +54,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjStyle, Error> {
     }
 }
 
-impl ParseElement<MjStyle> for MrmlParser {
+impl<'opts> ParseElement<MjStyle> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _: StrSpan<'a>) -> Result<MjStyle, Error> {
         parse(cursor)
     }
@@ -75,7 +75,7 @@ impl AsyncParseElement<MjStyle> for AsyncMrmlParser {
 #[cfg(test)]
 mod tests {
     use crate::mj_style::MjStyle;
-    use crate::prelude::parser::{MrmlCursor, MrmlParser};
+    use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions};
 
     crate::should_sync_parse!(should_work_empty, MjStyle, "<mj-style />");
     crate::should_sync_parse!(
@@ -93,7 +93,8 @@ mod tests {
     #[should_panic(expected = "UnexpectedAttribute(Span { start: 10, end: 21 })")]
     fn should_error_with_unknown_attribute() {
         let template = r#"<mj-style oups="true">.whatever {background-color: red};</mj-style>"#;
-        let parser = MrmlParser::default();
+        let opts = ParserOptions::default();
+        let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(template);
         let _: MjStyle = parser.parse_root(&mut cursor).unwrap();
     }

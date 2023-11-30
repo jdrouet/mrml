@@ -21,7 +21,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjTitle, Error> {
     })
 }
 
-impl ParseElement<MjTitle> for MrmlParser {
+impl<'opts> ParseElement<MjTitle> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _: StrSpan<'a>) -> Result<MjTitle, Error> {
         parse(cursor)
     }

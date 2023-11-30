@@ -1,13 +1,13 @@
 use xmlparser::StrSpan;
 
 use super::{Mjml, MjmlAttributes, MjmlChildren};
-use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
 };
+use crate::{mj_body::NAME as MJ_BODY, prelude::parser::ParserOptions};
 
 #[inline]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
@@ -23,13 +23,13 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error
     Ok(attrs)
 }
 
-impl ParseAttributes<MjmlAttributes> for MrmlParser {
+impl<'opts> ParseAttributes<MjmlAttributes> for MrmlParser<'opts> {
     fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
         parse_attributes(cursor)
     }
 }
 
-impl ParseChildren<MjmlChildren> for MrmlParser {
+impl<'opts> ParseChildren<MjmlChildren> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlChildren, Error> {
         let mut children = MjmlChildren::default();
 
@@ -99,7 +99,7 @@ impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<Mjml> for MrmlParser {
+impl<'opts> ParseElement<Mjml> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<Mjml, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
@@ -153,7 +153,7 @@ impl Mjml {
     /// ```
     pub fn parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
+        opts: &ParserOptions,
     ) -> Result<Self, Error> {
         let parser = MrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
@@ -173,7 +173,8 @@ impl Mjml {
     /// Function to parse a raw mjml template using the default parsing
     /// [options](crate::prelude::parser::ParserOptions).
     pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        let parser = MrmlParser::default();
+        let opts = ParserOptions::default();
+        let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
         parser.parse_root(&mut cursor)
     }
@@ -195,7 +196,7 @@ mod tests {
     #[test]
     fn should_parse_with_options_sync() {
         let template = "<mjml></mjml>";
-        let elt = Mjml::parse_with_options(template, Default::default()).unwrap();
+        let elt = Mjml::parse_with_options(template, &Default::default()).unwrap();
         assert!(elt.children.body.is_none());
         assert!(elt.children.head.is_none());
     }

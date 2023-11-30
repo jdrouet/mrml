@@ -5,7 +5,7 @@ use super::MjWrapper;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl ParseElement<MjWrapper> for MrmlParser {
+impl<'opts> ParseElement<MjWrapper> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

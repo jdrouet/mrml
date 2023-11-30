@@ -19,7 +19,7 @@ fn parse_children(cursor: &mut MrmlCursor<'_>) -> Result<Vec<Text>, Error> {
     Ok(result)
 }
 
-impl ParseChildren<Vec<Text>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<Text>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<Text>, Error> {
         parse_children(cursor)
     }
@@ -36,7 +36,7 @@ impl AsyncParseChildren<Vec<Text>> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<MjAccordionTitle> for MrmlParser {
+impl<'opts> ParseElement<MjAccordionTitle> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

@@ -47,7 +47,7 @@ fn should_ignore_children(tag: &str) -> bool {
     )
 }
 
-impl ParseElement<Node<MjBodyChild>> for MrmlParser {
+impl<'opts> ParseElement<Node<MjBodyChild>> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -105,7 +105,7 @@ impl AsyncParseElement<Node<MjBodyChild>> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<MjBodyChild> for MrmlParser {
+impl<'opts> ParseElement<MjBodyChild> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -169,7 +169,7 @@ impl AsyncParseElement<MjBodyChild> for AsyncMrmlParser {
     }
 }
 
-impl ParseChildren<Vec<MjBodyChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjBodyChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjBodyChild>, Error> {
         let mut result = Vec::new();
         while let Some(token) = cursor.next_token() {
@@ -228,7 +228,7 @@ impl AsyncParseChildren<Vec<MjBodyChild>> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<MjBody> for MrmlParser {
+impl<'opts> ParseElement<MjBody> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjBody, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 

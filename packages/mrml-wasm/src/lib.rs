@@ -17,7 +17,7 @@ pub use crate::render::*;
 #[inline]
 fn to_html(
     input: &str,
-    parser_options: Rc<mrml::prelude::parser::ParserOptions>,
+    parser_options: &mrml::prelude::parser::ParserOptions,
     render_options: &mrml::prelude::render::Options,
 ) -> Result<String, ToHtmlError> {
     let element = mrml::parse_with_options(input, parser_options)?;
@@ -75,7 +75,7 @@ impl Engine {
     /// Renders the mjml input into html.
     #[wasm_bindgen(js_name = "toHtml")]
     pub fn to_html(&self, input: &str) -> ToHtmlResult {
-        match to_html(input, self.parser.clone(), &self.render) {
+        match to_html(input, &self.parser, &self.render) {
             Ok(content) => ToHtmlResult::Success { content },
             Err(error) => ToHtmlResult::Error(error),
         }

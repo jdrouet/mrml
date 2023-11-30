@@ -9,7 +9,7 @@ use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl ParseChildren<Vec<MjNavbarChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjNavbarChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjNavbarChild>, Error> {
         let mut result = Vec::new();
 
@@ -37,7 +37,7 @@ impl ParseChildren<Vec<MjNavbarChild>> for MrmlParser {
     }
 }
 
-impl ParseElement<MjNavbar> for MrmlParser {
+impl<'opts> ParseElement<MjNavbar> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjNavbar, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 

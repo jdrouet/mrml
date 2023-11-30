@@ -21,7 +21,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjPreview, Error> {
     })
 }
 
-impl ParseElement<MjPreview> for MrmlParser {
+impl<'opts> ParseElement<MjPreview> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

@@ -9,7 +9,7 @@ use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl ParseChildren<Vec<MjAccordionChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjAccordionChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjAccordionChild>, Error> {
         let mut result = Vec::new();
 
@@ -74,7 +74,7 @@ impl AsyncParseChildren<Vec<MjAccordionChild>> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<MjAccordion> for MrmlParser {
+impl<'opts> ParseElement<MjAccordion> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -110,13 +110,14 @@ impl AsyncParseElement<MjAccordion> for AsyncMrmlParser {
 mod tests {
     use super::MjAccordion;
     use crate::mjml::Mjml;
-    use crate::prelude::parser::{MrmlCursor, MrmlParser};
+    use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions};
 
     #[test]
     fn basic() {
         let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
         let mut cursor = MrmlCursor::new(template);
-        let result: Mjml = MrmlParser::default().parse_root(&mut cursor).unwrap();
+        let opts = ParserOptions::default();
+        let result: Mjml = MrmlParser::new(&opts).parse_root(&mut cursor).unwrap();
         assert!(!format!("{result:?}").is_empty());
     }
 

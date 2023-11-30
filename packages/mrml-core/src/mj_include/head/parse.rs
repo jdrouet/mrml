@@ -18,7 +18,7 @@ use crate::prelude::parser::{
 };
 use crate::text::Text;
 
-impl ParseElement<MjIncludeHeadChild> for MrmlParser {
+impl<'opts> ParseElement<MjIncludeHeadChild> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -106,7 +106,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeHeadAttribut
     })
 }
 
-impl ParseAttributes<MjIncludeHeadAttributes> for MrmlParser {
+impl<'opts> ParseAttributes<MjIncludeHeadAttributes> for MrmlParser<'opts> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -125,7 +125,7 @@ impl ParseAttributes<MjIncludeHeadAttributes> for AsyncMrmlParser {
     }
 }
 
-impl ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser<'opts> {
     fn parse_children(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -191,7 +191,7 @@ impl AsyncParseChildren<Vec<MjIncludeHeadChild>> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<MjIncludeHead> for MrmlParser {
+impl<'opts> ParseElement<MjIncludeHead> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -373,7 +373,7 @@ mod tests {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let parser = MrmlParser::new(opts.into());
+        let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
         assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
@@ -406,7 +406,7 @@ mod tests {
         let opts = ParserOptions {
             include_loader: Box::new(resolver),
         };
-        let parser = MrmlParser::new(opts.into());
+        let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
         assert_eq!(

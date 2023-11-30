@@ -15,7 +15,7 @@ use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl ParseChildren<Vec<MjHeadChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjHeadChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjHeadChild>, Error> {
         let mut result = Vec::new();
         loop {
@@ -62,7 +62,7 @@ impl AsyncParseChildren<Vec<MjHeadChild>> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<MjHead> for MrmlParser {
+impl<'opts> ParseElement<MjHead> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjHead, Error> {
         let ending = cursor.assert_element_end()?;
         if ending.empty {
@@ -94,7 +94,7 @@ impl AsyncParseElement<MjHead> for AsyncMrmlParser {
     }
 }
 
-impl ParseElement<MjHeadChild> for MrmlParser {
+impl<'opts> ParseElement<MjHeadChild> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
