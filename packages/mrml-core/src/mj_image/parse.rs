@@ -6,7 +6,7 @@ use crate::prelude::parser::{parse_attributes_map, Error, MrmlCursor, MrmlParser
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 
 #[inline]
-fn parse<'a>(cursor: &mut MrmlCursor<'a>) -> Result<MjImage, Error> {
+fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjImage, Error> {
     let attributes = parse_attributes_map(cursor)?;
     let ending = cursor.assert_element_end()?;
     if !ending.empty {

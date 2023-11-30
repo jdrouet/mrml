@@ -28,7 +28,7 @@ impl ParseAttributes<MjBreakpointAttributes> for MrmlParser {
 }
 
 #[inline]
-fn parse<'a>(cursor: &mut MrmlCursor<'a>) -> Result<MjBreakpoint, Error> {
+fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpoint, Error> {
     let attributes = parse_attributes(cursor)?;
     let ending = cursor.assert_element_end()?;
     if !ending.empty {

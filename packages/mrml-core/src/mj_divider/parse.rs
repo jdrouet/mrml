@@ -5,7 +5,7 @@ use crate::prelude::parser::{parse_attributes_map, Error, MrmlCursor, MrmlParser
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 
-fn parse<'a>(cursor: &mut MrmlCursor<'a>) -> Result<MjDivider, Error> {
+fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjDivider, Error> {
     let attributes = parse_attributes_map(cursor)?;
     let ending = cursor.assert_element_end()?;
     if !ending.empty {

@@ -34,7 +34,7 @@ impl ParseAttributes<MjFontAttributes> for AsyncMrmlParser {
 }
 
 #[inline]
-fn parse<'a>(cursor: &mut MrmlCursor<'a>) -> Result<MjFont, Error> {
+fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjFont, Error> {
     let attributes = parse_attributes(cursor)?;
     let ending = cursor.assert_element_end()?;
     if !ending.empty {
