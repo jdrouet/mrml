@@ -25,7 +25,7 @@ orderedmap = ["dep:indexmap", "dep:rustc-hash"]
 async = ["dep:async-trait"]
 local-loader = []
 http-loader = ["http-loader-ureq"]
-http-loader-base = ["dep:url"]
+http-loader-base = ["parse", "dep:url"]
 http-loader-blocking-reqwest = [
   "dep:reqwest",
   "http-loader-base",

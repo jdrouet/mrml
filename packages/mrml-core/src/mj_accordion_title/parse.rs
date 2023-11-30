@@ -1,20 +1,38 @@
 use xmlparser::StrSpan;
 
 use super::MjAccordionTitle;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseChildren, ParseElement};
 use crate::text::Text;
 
+#[inline]
+fn parse_children(cursor: &mut MrmlCursor<'_>) -> Result<Vec<Text>, Error> {
+    let mut result = Vec::new();
+
+    while let Some(item) = cursor.next_text()? {
+        if !item.text.trim().is_empty() {
+            result.push(Text::from(item.text.as_str()));
+        }
+    }
+
+    Ok(result)
+}
+
 impl ParseChildren<Vec<Text>> for MrmlParser {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<Text>, Error> {
-        let mut result = Vec::new();
+        parse_children(cursor)
+    }
+}
 
-        while let Some(item) = cursor.next_text()? {
-            if !item.text.trim().is_empty() {
-                result.push(Text::from(item.text.as_str()));
-            }
-        }
-
-        Ok(result)
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseChildren<Vec<Text>> for AsyncMrmlParser {
+    async fn async_parse_children<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<Vec<Text>, Error> {
+        parse_children(cursor)
     }
 }
 
@@ -25,6 +43,23 @@ impl ParseElement<MjAccordionTitle> for MrmlParser {
         _tag: StrSpan<'a>,
     ) -> Result<MjAccordionTitle, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
+
+        Ok(MjAccordionTitle {
+            attributes,
+            children,
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjAccordionTitle> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjAccordionTitle, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
 
         Ok(MjAccordionTitle {
             attributes,

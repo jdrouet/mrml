@@ -3,22 +3,29 @@ use xmlparser::StrSpan;
 use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
 };
 
+#[inline]
+fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
+    let mut attrs = MjmlAttributes::default();
+    while let Some(token) = cursor.next_attribute()? {
+        match token.local.as_str() {
+            "owa" => attrs.owa = Some(token.value.to_string()),
+            "lang" => attrs.lang = Some(token.value.to_string()),
+            "dir" => attrs.dir = Some(token.value.to_string()),
+            _ => return Err(Error::UnexpectedAttribute(token.span.into())),
+        }
+    }
+    Ok(attrs)
+}
+
 impl ParseAttributes<MjmlAttributes> for MrmlParser {
     fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
-        let mut attrs = MjmlAttributes::default();
-        while let Some(token) = cursor.next_attribute()? {
-            match token.local.as_str() {
-                "owa" => attrs.owa = Some(token.value.to_string()),
-                "lang" => attrs.lang = Some(token.value.to_string()),
-                "dir" => attrs.dir = Some(token.value.to_string()),
-                _ => return Err(Error::UnexpectedAttribute(token.span.into())),
-            }
-        }
-        Ok(attrs)
+        parse_attributes(cursor)
     }
 }
 
@@ -52,14 +59,19 @@ impl ParseChildren<MjmlChildren> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
+impl ParseAttributes<MjmlAttributes> for AsyncMrmlParser {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
+        parse_attributes(cursor)
+    }
+}
+
+#[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseChildren<MjmlChildren> for MrmlParser {
+impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
     ) -> Result<MjmlChildren, Error> {
-        use crate::prelude::parser::AsyncParseElement;
-
         let mut children = MjmlChildren::default();
 
         loop {
@@ -100,13 +112,13 @@ impl ParseElement<Mjml> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<Mjml> for MrmlParser {
+impl AsyncParseElement<Mjml> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         _tag: StrSpan<'a>,
     ) -> Result<Mjml, Error> {
-        let (attributes, children) = self.async_parse_attributes_and_children(cursor).await?;
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
 
         Ok(Mjml {
             attributes,
@@ -151,11 +163,11 @@ impl Mjml {
     #[cfg(feature = "async")]
     pub async fn async_parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
+        opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
     ) -> Result<Self, Error> {
-        let parser = MrmlParser::new(opts);
+        let parser = AsyncMrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
-        parser.async_parse_root(&mut cursor).await
+        parser.parse_root(&mut cursor).await
     }
 
     /// Function to parse a raw mjml template using the default parsing
@@ -170,9 +182,9 @@ impl Mjml {
     /// Function to parse a raw mjml template using the default parsing
     /// [options](crate::prelude::parser::ParserOptions).
     pub async fn async_parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        let parser = MrmlParser::default();
+        let parser = AsyncMrmlParser::default();
         let mut cursor = MrmlCursor::new(value.as_ref());
-        parser.async_parse_root(&mut cursor).await
+        parser.parse_root(&mut cursor).await
     }
 }
 

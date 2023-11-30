@@ -31,9 +31,7 @@ mod tests {
     fn simple() {
         let mut elt = MjIncludeHead::default();
         elt.attributes.path = "memory:include.mjml".to_string();
-        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from(
-            "Hello World!".to_owned(),
-        ))];
+        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from("Hello World!".to_owned()))];
         assert_eq!(
             elt.dense_print(),
             "<mj-include path=\"memory:include.mjml\" />"
@@ -45,9 +43,7 @@ mod tests {
         let mut elt = MjIncludeHead::default();
         elt.attributes.kind = MjIncludeHeadKind::Html;
         elt.attributes.path = "memory:include.html".to_string();
-        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from(
-            "Hello World!".to_owned(),
-        ))];
+        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from("Hello World!".to_owned()))];
         assert_eq!(
             elt.dense_print(),
             "<mj-include path=\"memory:include.html\" type=\"html\" />"

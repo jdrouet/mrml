@@ -1,33 +1,64 @@
 use xmlparser::StrSpan;
 
 use super::{MjFont, MjFontAttributes};
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
+
+#[inline]
+fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
+    let mut result = MjFontAttributes::default();
+
+    while let Some(attrs) = cursor.next_attribute()? {
+        match attrs.local.as_str() {
+            "name" => result.name = attrs.value.to_string(),
+            "href" => result.href = attrs.value.to_string(),
+            _ => return Err(Error::UnexpectedAttribute(attrs.span.into())),
+        }
+    }
+
+    Ok(result)
+}
 
 impl ParseAttributes<MjFontAttributes> for MrmlParser {
     fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
-        let mut result = MjFontAttributes::default();
-
-        while let Some(attrs) = cursor.next_attribute()? {
-            match attrs.local.as_str() {
-                "name" => result.name = attrs.value.to_string(),
-                "href" => result.href = attrs.value.to_string(),
-                _ => return Err(Error::UnexpectedAttribute(attrs.span.into())),
-            }
-        }
-
-        Ok(result)
+        parse_attributes(cursor)
     }
+}
+
+#[cfg(feature = "async")]
+impl ParseAttributes<MjFontAttributes> for AsyncMrmlParser {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
+        parse_attributes(cursor)
+    }
+}
+
+#[inline]
+fn parse<'a>(cursor: &mut MrmlCursor<'a>) -> Result<MjFont, Error> {
+    let attributes = parse_attributes(cursor)?;
+    let ending = cursor.assert_element_end()?;
+    if !ending.empty {
+        return Err(Error::InvalidFormat(ending.span.into()));
+    }
+
+    Ok(MjFont { attributes })
 }
 
 impl ParseElement<MjFont> for MrmlParser {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _: StrSpan<'a>) -> Result<MjFont, Error> {
-        let attributes = self.parse_attributes(cursor)?;
-        let ending = cursor.assert_element_end()?;
-        if !ending.empty {
-            return Err(Error::InvalidFormat(ending.span.into()));
-        }
+        parse(cursor)
+    }
+}
 
-        Ok(MjFont { attributes })
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjFont> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _: StrSpan<'a>,
+    ) -> Result<MjFont, Error> {
+        parse(cursor)
     }
 }
 

@@ -1,23 +1,41 @@
 use xmlparser::StrSpan;
 
 use super::{MjBreakpoint, MjBreakpointAttributes};
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
+
+#[inline]
+fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpointAttributes, Error> {
+    let mut result = MjBreakpointAttributes::default();
+    while let Some(attr) = cursor.next_attribute()? {
+        if attr.local.as_str() == "width" {
+            result.width = attr.value.to_string();
+        } else {
+            return Err(Error::UnexpectedAttribute(attr.span.into()));
+        }
+    }
+    Ok(result)
+}
 
 impl ParseAttributes<MjBreakpointAttributes> for MrmlParser {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
     ) -> Result<MjBreakpointAttributes, Error> {
-        let mut result = MjBreakpointAttributes::default();
-        while let Some(attr) = cursor.next_attribute()? {
-            if attr.local.as_str() == "width" {
-                result.width = attr.value.to_string();
-            } else {
-                return Err(Error::UnexpectedAttribute(attr.span.into()));
-            }
-        }
-        Ok(result)
+        parse_attributes(cursor)
     }
+}
+
+#[inline]
+fn parse<'a>(cursor: &mut MrmlCursor<'a>) -> Result<MjBreakpoint, Error> {
+    let attributes = parse_attributes(cursor)?;
+    let ending = cursor.assert_element_end()?;
+    if !ending.empty {
+        return Err(Error::InvalidFormat(ending.span.into()));
+    }
+
+    Ok(MjBreakpoint { attributes })
 }
 
 impl ParseElement<MjBreakpoint> for MrmlParser {
@@ -26,13 +44,19 @@ impl ParseElement<MjBreakpoint> for MrmlParser {
         cursor: &mut MrmlCursor<'a>,
         _tag: StrSpan<'a>,
     ) -> Result<MjBreakpoint, Error> {
-        let attributes = self.parse_attributes(cursor)?;
-        let ending = cursor.assert_element_end()?;
-        if !ending.empty {
-            return Err(Error::InvalidFormat(ending.span.into()));
-        }
+        parse(cursor)
+    }
+}
 
-        Ok(MjBreakpoint { attributes })
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjBreakpoint> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjBreakpoint, Error> {
+        parse(cursor)
     }
 }
 

@@ -36,17 +36,18 @@ pub struct MjAccordion {
     pub children: Vec<MjAccordionChild>,
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "parse", feature = "render"))]
 mod tests {
-    use crate::mj_accordion::MjAccordion;
-    use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
-    use crate::mj_accordion_title::MjAccordionTitle;
-    use crate::prelude::parser::{MrmlCursor, MrmlParser};
-    use crate::prelude::print::Print;
-    use crate::text::Text;
-
+    #[cfg(feature = "print")]
     #[test]
     fn chaining_print_parse() {
+        use crate::mj_accordion::MjAccordion;
+        use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
+        use crate::mj_accordion_title::MjAccordionTitle;
+        use crate::prelude::parser::{MrmlCursor, MrmlParser};
+        use crate::prelude::print::Print;
+        use crate::text::Text;
+
         let element = MjAccordion {
             attributes: Default::default(),
             children: vec![MjAccordionElement {
@@ -70,8 +71,14 @@ mod tests {
         assert_eq!(initial, result);
     }
 
+    #[cfg(feature = "json")]
     #[test]
     fn chaining_json_parse() {
+        use crate::mj_accordion::MjAccordion;
+        use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
+        use crate::mj_accordion_title::MjAccordionTitle;
+        use crate::text::Text;
+
         let element = MjAccordion {
             attributes: Default::default(),
             children: vec![MjAccordionElement {

@@ -8,6 +8,7 @@ mod tests {
         assert_eq!("<mj-carousel />", item.dense_print());
     }
 
+    #[cfg(feature = "parse")]
     #[test]
     fn with_images() {
         let json = r#"<mjml>

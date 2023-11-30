@@ -14,9 +14,7 @@ mod tests {
         item.attributes
             .insert("background-color".to_string(), "red".to_string());
         item.children
-            .push(crate::mj_body::MjBodyChild::from(crate::node::Node::from(
-                "span",
-            )));
+            .push(crate::mj_body::MjBodyChild::from(crate::node::Node::from("span")));
         assert_eq!(
             "<mj-body background-color=\"red\"><span></span></mj-body>",
             item.dense_print()

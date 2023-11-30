@@ -100,52 +100,56 @@ pub trait WithMjSectionBackground<'h>: Render<'h> {
         }
         let (bg_position_x, bg_position_y) = self.get_background_position();
         let bg_repeat = self.attribute_equals("background-repeat", "repeat");
-        let bg_position_x = match bg_position_x.as_str() {
-            "left" => "0%".to_string(),
-            "center" => "50%".to_string(),
-            "right" => "100%".to_string(),
-            _ => {
-                if bg_position_x.ends_with('%') {
-                    bg_position_x
-                } else {
-                    "50%".to_string()
+        let bg_position_x =
+            match bg_position_x.as_str() {
+                "left" => "0%".to_string(),
+                "center" => "50%".to_string(),
+                "right" => "100%".to_string(),
+                _ => {
+                    if bg_position_x.ends_with('%') {
+                        bg_position_x
+                    } else {
+                        "50%".to_string()
+                    }
                 }
-            }
-        };
-        let bg_position_y = match bg_position_y.as_str() {
-            "top" => "0%".to_string(),
-            "center" => "50%".to_string(),
-            "bottom" => "100%".to_string(),
-            _ => {
-                if bg_position_y.ends_with('%') {
-                    bg_position_y
-                } else {
-                    "0%".to_string()
+            };
+        let bg_position_y =
+            match bg_position_y.as_str() {
+                "top" => "0%".to_string(),
+                "center" => "50%".to_string(),
+                "bottom" => "100%".to_string(),
+                _ => {
+                    if bg_position_y.ends_with('%') {
+                        bg_position_y
+                    } else {
+                        "0%".to_string()
+                    }
                 }
-            }
-        };
-        let position_x = if let Ok(position) = Percent::try_from(bg_position_x.as_str()) {
-            if bg_repeat {
-                position.value() * 0.01
+            };
+        let position_x =
+            if let Ok(position) = Percent::try_from(bg_position_x.as_str()) {
+                if bg_repeat {
+                    position.value() * 0.01
+                } else {
+                    (position.value() - 50.0) * 0.01
+                }
+            } else if bg_repeat {
+                0.5
             } else {
-                (position.value() - 50.0) * 0.01
-            }
-        } else if bg_repeat {
-            0.5
-        } else {
-            0.0
-        };
-        let position_y = if let Ok(position) = Percent::try_from(bg_position_y.as_str()) {
-            if bg_repeat {
-                position.value() * 0.01
+                0.0
+            };
+        let position_y =
+            if let Ok(position) = Percent::try_from(bg_position_y.as_str()) {
+                if bg_repeat {
+                    position.value() * 0.01
+                } else {
+                    (position.value() - 50.0) * 0.01
+                }
+            } else if bg_repeat {
+                0.5
             } else {
-                (position.value() - 50.0) * 0.01
-            }
-        } else if bg_repeat {
-            0.5
-        } else {
-            0.0
-        };
+                0.0
+            };
         (
             format!("{position_x}, {position_y}"),
             format!("{position_x}, {position_y}"),
@@ -406,11 +410,12 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         let content = self.render_section(opts)?;
         let content =
             self.render_wrap(END_CONDITIONAL_TAG.to_string() + &content + START_CONDITIONAL_TAG);
-        let content = if self.has_background() {
-            self.render_with_background(content)
-        } else {
-            content
-        };
+        let content =
+            if self.has_background() {
+                self.render_with_background(content)
+            } else {
+                content
+            };
         Ok(table.render(tbody.render(tr.render(td.render(content)))))
     }
 

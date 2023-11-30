@@ -3,6 +3,8 @@ use xmlparser::StrSpan;
 use super::{MjNavbar, MjNavbarChild};
 use crate::comment::Comment;
 use crate::mj_navbar_link::NAME as MJ_NAVBAR_LINK;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
@@ -18,9 +20,7 @@ impl ParseChildren<Vec<MjNavbarChild>> for MrmlParser {
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_NAVBAR_LINK {
-                        result.push(MjNavbarChild::MjNavbarLink(
-                            self.parse(cursor, inner.local)?,
-                        ));
+                        result.push(MjNavbarChild::MjNavbarLink(self.parse(cursor, inner.local)?));
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }
@@ -38,6 +38,56 @@ impl ParseChildren<Vec<MjNavbarChild>> for MrmlParser {
 impl ParseElement<MjNavbar> for MrmlParser {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjNavbar, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
+
+        Ok(MjNavbar {
+            attributes,
+            children,
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseChildren<Vec<MjNavbarChild>> for AsyncMrmlParser {
+    async fn async_parse_children<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<Vec<MjNavbarChild>, Error> {
+        let mut result = Vec::new();
+
+        loop {
+            match cursor.assert_next()? {
+                MrmlToken::Comment(inner) => {
+                    result.push(MjNavbarChild::Comment(Comment::from(inner.text.as_str())));
+                }
+                MrmlToken::ElementStart(inner) => {
+                    if inner.local.as_str() == MJ_NAVBAR_LINK {
+                        result.push(MjNavbarChild::MjNavbarLink(
+                            self.async_parse(cursor, inner.local).await?,
+                        ));
+                    } else {
+                        return Err(Error::UnexpectedElement(inner.span.into()));
+                    }
+                }
+                MrmlToken::ElementClose(inner) => {
+                    cursor.rewind(MrmlToken::ElementClose(inner));
+                    return Ok(result);
+                }
+                other => return Err(Error::UnexpectedToken(other.span())),
+            }
+        }
+    }
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjNavbar> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjNavbar, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
 
         Ok(MjNavbar {
             attributes,

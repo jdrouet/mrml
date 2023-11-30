@@ -6,6 +6,8 @@ use std::iter::FromIterator;
 
 use super::loader::IncludeLoaderError;
 use crate::prelude::hash::Map;
+#[cfg(feature = "async")]
+use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
@@ -61,7 +63,6 @@ impl From<Map<String, String>> for MemoryIncludeLoader {
     }
 }
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl IncludeLoader for MemoryIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.0
@@ -69,9 +70,15 @@ impl IncludeLoader for MemoryIncludeLoader {
             .cloned()
             .ok_or_else(|| IncludeLoaderError::not_found(path))
     }
+}
 
-    #[cfg(feature = "async")]
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncIncludeLoader for MemoryIncludeLoader {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
-        self.resolve(path)
+        self.0
+            .get(path)
+            .cloned()
+            .ok_or_else(|| IncludeLoaderError::not_found(path))
     }
 }

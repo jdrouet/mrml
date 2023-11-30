@@ -1,43 +1,74 @@
 use xmlparser::StrSpan;
 
 use super::{MjStyle, MjStyleAttributes};
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
+
+#[inline]
+fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
+    let mut result = MjStyleAttributes::default();
+    while let Some(attr) = cursor.next_attribute()? {
+        if attr.local.as_str() == "inline" {
+            result.inline = Some(attr.value.to_string());
+        } else {
+            return Err(Error::UnexpectedAttribute(attr.span.into()));
+        }
+    }
+    Ok(result)
+}
 
 impl ParseAttributes<MjStyleAttributes> for MrmlParser {
     fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
-        let mut result = MjStyleAttributes::default();
-        while let Some(attr) = cursor.next_attribute()? {
-            if attr.local.as_str() == "inline" {
-                result.inline = Some(attr.value.to_string());
-            } else {
-                return Err(Error::UnexpectedAttribute(attr.span.into()));
-            }
-        }
-        Ok(result)
+        parse_attributes(cursor)
+    }
+}
+
+#[cfg(feature = "async")]
+impl ParseAttributes<MjStyleAttributes> for AsyncMrmlParser {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
+        parse_attributes(cursor)
+    }
+}
+
+#[inline]
+fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjStyle, Error> {
+    let attributes = parse_attributes(cursor)?;
+    let ending = cursor.assert_element_end()?;
+    if !ending.empty {
+        let children = cursor
+            .next_text()?
+            .map(|txt| txt.text.to_string())
+            .unwrap_or_default();
+        cursor.assert_element_close()?;
+
+        Ok(MjStyle {
+            attributes,
+            children,
+        })
+    } else {
+        Ok(MjStyle {
+            attributes,
+            children: String::new(),
+        })
     }
 }
 
 impl ParseElement<MjStyle> for MrmlParser {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _: StrSpan<'a>) -> Result<MjStyle, Error> {
-        let attributes = self.parse_attributes(cursor)?;
-        let ending = cursor.assert_element_end()?;
-        if !ending.empty {
-            let children = cursor
-                .next_text()?
-                .map(|txt| txt.text.to_string())
-                .unwrap_or_default();
-            cursor.assert_element_close()?;
+        parse(cursor)
+    }
+}
 
-            Ok(MjStyle {
-                attributes,
-                children,
-            })
-        } else {
-            Ok(MjStyle {
-                attributes,
-                children: String::new(),
-            })
-        }
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjStyle> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _: StrSpan<'a>,
+    ) -> Result<MjStyle, Error> {
+        parse(cursor)
     }
 }
 

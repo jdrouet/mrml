@@ -89,13 +89,14 @@ impl<'e, 'h> Render<'h> for MjAccordionElementRender<'e, 'h> {
     }
 
     fn render(&self, opts: &Options) -> Result<String, Error> {
-        let input = negation_conditional_tag(
-            Tag::new("input")
-                .add_attribute("type", "checkbox")
-                .add_class("mj-accordion-checkbox")
-                .add_style("display", "none")
-                .closed(),
-        );
+        let input =
+            negation_conditional_tag(
+                Tag::new("input")
+                    .add_attribute("type", "checkbox")
+                    .add_class("mj-accordion-checkbox")
+                    .add_style("display", "none")
+                    .closed(),
+            );
         let div = Tag::div().render(self.render_children(opts)?);
         let label = Tag::new("label")
             .add_class("mj-accordion-element")

@@ -23,12 +23,13 @@ impl SocialNetwork {
 impl SocialNetwork {
     // convert to a TryFrom with proper error handling
     pub fn find(name: &str) -> Option<Self> {
-        let (name, noshare) = if name.ends_with("-noshare") {
-            let (label, _noshare) = name.split_at(name.len() - 8);
-            (label, true)
-        } else {
-            (name, false)
-        };
+        let (name, noshare) =
+            if name.ends_with("-noshare") {
+                let (label, _noshare) = name.split_at(name.len() - 8);
+                (label, true)
+            } else {
+                (name, false)
+            };
 
         match name {
             "dribbble" => Some(Self::dribbble()),

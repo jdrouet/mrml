@@ -412,6 +412,7 @@ mod tests {
 macro_rules! should_render {
     ($name: ident, $template: literal) => {
         concat_idents::concat_idents!(fn_name = $name, _, sync {
+            #[cfg(feature = "parse")]
             #[test]
             fn fn_name() {
                 let opts = $crate::prelude::render::Options::default();
@@ -422,7 +423,7 @@ macro_rules! should_render {
             }
         });
         concat_idents::concat_idents!(fn_name = $name, _, "async" {
-            #[cfg(feature = "async")]
+            #[cfg(all(feature = "async", feature = "parse"))]
             #[tokio::test]
             async fn fn_name() {
                 let opts = $crate::prelude::render::Options::default();

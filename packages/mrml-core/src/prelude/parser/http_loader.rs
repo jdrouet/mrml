@@ -7,24 +7,26 @@ use std::io::ErrorKind;
 use std::sync::Arc;
 
 use super::loader::IncludeLoaderError;
+#[cfg(feature = "async")]
+use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 pub trait HttpFetcher: Default + Debug {
     fn fetch(
         &self,
         url: &str,
         headers: &HashMap<String, String>,
     ) -> Result<String, IncludeLoaderError>;
+}
 
-    #[cfg(feature = "async")]
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+pub trait AsyncHttpFetcher: Default + Debug {
     async fn async_fetch(
         &self,
         url: &str,
         headers: &HashMap<String, String>,
-    ) -> Result<String, IncludeLoaderError> {
-        self.fetch(url, headers)
-    }
+    ) -> Result<String, IncludeLoaderError>;
 }
 
 #[cfg(feature = "http-loader-blocking-reqwest")]
@@ -32,7 +34,6 @@ pub trait HttpFetcher: Default + Debug {
 pub struct BlockingReqwestFetcher(reqwest::blocking::Client);
 
 #[cfg(feature = "http-loader-blocking-reqwest")]
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl HttpFetcher for BlockingReqwestFetcher {
     fn fetch(
         &self,
@@ -65,19 +66,9 @@ impl HttpFetcher for BlockingReqwestFetcher {
 #[derive(Debug, Default)]
 pub struct AsyncReqwestFetcher(reqwest::Client);
 
-#[cfg(feature = "http-loader-blocking-reqwest")]
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
-impl HttpFetcher for AsyncReqwestFetcher {
-    fn fetch(
-        &self,
-        url: &str,
-        _headers: &HashMap<String, String>,
-    ) -> Result<String, IncludeLoaderError> {
-        Err(IncludeLoaderError::new(url, ErrorKind::Other)
-            .with_message("only async fetch is supported"))
-    }
-
-    #[cfg(feature = "async")]
+#[cfg(feature = "http-loader-async-reqwest")]
+#[async_trait::async_trait(?Send)]
+impl AsyncHttpFetcher for AsyncReqwestFetcher {
     async fn async_fetch(
         &self,
         url: &str,
@@ -104,12 +95,12 @@ impl HttpFetcher for AsyncReqwestFetcher {
         })
     }
 }
+
 #[cfg(feature = "http-loader-ureq")]
 #[derive(Debug, Default)]
 pub struct UreqFetcher;
 
 #[cfg(feature = "http-loader-ureq")]
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl HttpFetcher for UreqFetcher {
     fn fetch(
         &self,
@@ -137,9 +128,6 @@ impl HttpFetcher for UreqFetcher {
 
 #[derive(Debug)]
 /// This enum is a representation of the origin filtering strategy.
-///
-/// This enum implements the `Default` trait by denying everything by default
-/// for security reason.
 pub enum OriginList {
     Allow(HashSet<String>),
     Deny(HashSet<String>),
@@ -223,7 +211,7 @@ pub struct HttpIncludeLoader<F> {
     fetcher: F,
 }
 
-impl<F: HttpFetcher> HttpIncludeLoader<F> {
+impl<F: Default> HttpIncludeLoader<F> {
     /// Creates a new
     /// [`HttpIncludeLoader`](crate::prelude::parser::http_loader::HttpIncludeLoader)
     /// that allows all the origins.
@@ -336,14 +324,16 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     }
 }
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl<F: HttpFetcher> IncludeLoader for HttpIncludeLoader<F> {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.check_url(path)?;
         self.fetcher.fetch(path, &self.headers)
     }
+}
 
-    #[cfg(feature = "async")]
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl<F: AsyncHttpFetcher + Sync> AsyncIncludeLoader for HttpIncludeLoader<F> {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.check_url(path)?;
         self.fetcher.async_fetch(path, &self.headers).await

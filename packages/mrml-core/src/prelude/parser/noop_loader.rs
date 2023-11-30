@@ -1,5 +1,7 @@
 //! Module containing a loader that doesn't load any template.
 
+#[cfg(feature = "async")]
+use super::loader::AsyncIncludeLoader;
 use super::loader::IncludeLoaderError;
 use crate::prelude::parser::loader::IncludeLoader;
 
@@ -31,13 +33,15 @@ use crate::prelude::parser::loader::IncludeLoader;
 /// ```
 pub struct NoopIncludeLoader;
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl IncludeLoader for NoopIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         Err(IncludeLoaderError::not_found(path))
     }
+}
 
-    #[cfg(feature = "async")]
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncIncludeLoader for NoopIncludeLoader {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         Err(IncludeLoaderError::not_found(path))
     }

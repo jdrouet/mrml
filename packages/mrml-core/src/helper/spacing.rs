@@ -35,18 +35,21 @@ impl TryFrom<&str> for Spacing {
             Some(value) => Size::try_from(value)?,
             None => return Err(String::from("no value provided")),
         };
-        let right = match sections.next() {
-            Some(value) => Some(Size::try_from(value)?),
-            None => None,
-        };
-        let bottom = match sections.next() {
-            Some(value) => Some(Size::try_from(value)?),
-            None => None,
-        };
-        let left = match sections.next() {
-            Some(value) => Some(Size::try_from(value)?),
-            None => None,
-        };
+        let right =
+            match sections.next() {
+                Some(value) => Some(Size::try_from(value)?),
+                None => None,
+            };
+        let bottom =
+            match sections.next() {
+                Some(value) => Some(Size::try_from(value)?),
+                None => None,
+            };
+        let left =
+            match sections.next() {
+                Some(value) => Some(Size::try_from(value)?),
+                None => None,
+            };
         Ok(Spacing(top, right, bottom, left))
     }
 }

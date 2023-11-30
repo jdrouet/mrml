@@ -38,9 +38,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .attribute_as_size("width")
             .unwrap_or_else(|| Size::pixel(parent_width.value() / (non_raw_siblings as f32)));
         if let Size::Percent(pc) = container_width {
-            Some(Pixel::new(
-                (parent_width.value() * pc.value() / 100.0) - all_paddings,
-            ))
+            Some(Pixel::new((parent_width.value() * pc.value() / 100.0) - all_paddings))
         } else {
             Some(Pixel::new(container_width.value() - all_paddings))
         }
@@ -202,38 +200,42 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
         let current_width = self.current_width();
-        let content = self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_siblings(siblings);
-                renderer.set_container_width(current_width.clone());
-                let result = if child.is_raw() {
-                    renderer.render(opts)?
-                } else {
-                    let tr = Tag::tr();
-                    let td = Tag::td()
-                        .maybe_add_style(
-                            "background",
-                            renderer.attribute("container-background-color"),
-                        )
-                        .add_style("font-size", "0px")
-                        .maybe_add_style("padding", renderer.attribute("padding"))
-                        .maybe_add_style("padding-top", renderer.attribute("padding-top"))
-                        .maybe_add_style("padding-right", renderer.attribute("padding-right"))
-                        .maybe_add_style("padding-bottom", renderer.attribute("padding-bottom"))
-                        .maybe_add_style("padding-left", renderer.attribute("padding-left"))
-                        .add_style("word-break", "break-word")
-                        .maybe_add_attribute("align", renderer.attribute("align"))
-                        .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
-                        .maybe_add_class(renderer.attribute("css-class"));
-                    tr.render(td.render(renderer.render(opts)?))
-                };
-                Ok(res + &result)
-            },
-        )?;
+        let content =
+            self.element.children.iter().enumerate().try_fold(
+                String::default(),
+                |res, (index, child)| {
+                    let mut renderer = child.renderer(Rc::clone(&self.header));
+                    renderer.set_index(index);
+                    renderer.set_raw_siblings(raw_siblings);
+                    renderer.set_siblings(siblings);
+                    renderer.set_container_width(current_width.clone());
+                    let result = if child.is_raw() {
+                        renderer.render(opts)?
+                    } else {
+                        let tr = Tag::tr();
+                        let td = Tag::td()
+                            .maybe_add_style(
+                                "background",
+                                renderer.attribute("container-background-color"),
+                            )
+                            .add_style("font-size", "0px")
+                            .maybe_add_style("padding", renderer.attribute("padding"))
+                            .maybe_add_style("padding-top", renderer.attribute("padding-top"))
+                            .maybe_add_style("padding-right", renderer.attribute("padding-right"))
+                            .maybe_add_style("padding-bottom", renderer.attribute("padding-bottom"))
+                            .maybe_add_style("padding-left", renderer.attribute("padding-left"))
+                            .add_style("word-break", "break-word")
+                            .maybe_add_attribute("align", renderer.attribute("align"))
+                            .maybe_add_attribute(
+                                "vertical-align",
+                                renderer.attribute("vertical-align"),
+                            )
+                            .maybe_add_class(renderer.attribute("css-class"));
+                        tr.render(td.render(renderer.render(opts)?))
+                    };
+                    Ok(res + &result)
+                },
+            )?;
         Ok(table.render(tbody.render(content)))
     }
 }
@@ -300,11 +302,12 @@ impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
             .add_class("mj-outlook-group-fix")
             .add_class(classname)
             .maybe_add_class(self.attribute("css-class"));
-        let content = if self.has_gutter() {
-            self.render_gutter(opts)?
-        } else {
-            self.render_column(opts)?
-        };
+        let content =
+            if self.has_gutter() {
+                self.render_gutter(opts)?
+            } else {
+                self.render_column(opts)?
+            };
         Ok(div.render(content))
     }
 }

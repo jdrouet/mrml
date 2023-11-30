@@ -62,9 +62,7 @@ impl TryFrom<&str> for Size {
         } else if value.ends_with('%') {
             Ok(Self::Percent(Percent::try_from(value)?))
         } else {
-            Ok(Self::Raw(
-                value.parse::<f32>().map_err(|err| err.to_string())?,
-            ))
+            Ok(Self::Raw(value.parse::<f32>().map_err(|err| err.to_string())?))
         }
     }
 }

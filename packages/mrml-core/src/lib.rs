@@ -132,11 +132,11 @@ pub fn parse_with_options<T: AsRef<str>>(
 /// [options](crate::prelude::parser::ParserOptions).
 pub async fn async_parse_with_options<T: AsRef<str>>(
     input: T,
-    opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
+    opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
-    let parser = crate::prelude::parser::MrmlParser::new(opts);
+    let parser = crate::prelude::parser::AsyncMrmlParser::new(opts);
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
-    parser.async_parse_root(&mut cursor).await
+    parser.parse_root(&mut cursor).await
 }
 
 #[cfg(feature = "parse")]
@@ -152,12 +152,12 @@ pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Err
 /// Function to parse a raw mjml template using the default parsing
 /// [options](crate::prelude::parser::ParserOptions).
 pub async fn async_parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
-    let parser = crate::prelude::parser::MrmlParser::default();
+    let parser = crate::prelude::parser::AsyncMrmlParser::default();
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
-    parser.async_parse_root(&mut cursor).await
+    parser.parse_root(&mut cursor).await
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "parse"))]
 mod tests {
     #[test]
     fn parse_simple() {

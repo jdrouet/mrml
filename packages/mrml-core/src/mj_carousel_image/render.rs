@@ -190,14 +190,15 @@ impl<'e, 'h> Render<'h> for MjCarouselImageRender<'e, 'h> {
                     .map(|width| width.value().to_string()),
             )
             .closed();
-        let link = match self.attribute("href") {
-            None => img,
-            Some(href) => Tag::new("a")
-                .add_attribute("href", href)
-                .maybe_add_attribute("rel", self.attribute("rel"))
-                .add_attribute("target", "_blank")
-                .render(img),
-        };
+        let link =
+            match self.attribute("href") {
+                None => img,
+                Some(href) => Tag::new("a")
+                    .add_attribute("href", href)
+                    .maybe_add_attribute("rel", self.attribute("rel"))
+                    .add_attribute("target", "_blank")
+                    .render(img),
+            };
         let div = if self.index == 0 {
             Tag::div()
         } else {

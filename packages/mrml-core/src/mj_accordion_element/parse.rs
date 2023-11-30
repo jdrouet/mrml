@@ -3,6 +3,8 @@ use xmlparser::StrSpan;
 use super::{MjAccordionElement, MjAccordionElementChildren};
 use crate::mj_accordion_text::NAME as MJ_ACCORDION_TEXT;
 use crate::mj_accordion_title::NAME as MJ_ACCORDION_TITLE;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
@@ -40,6 +42,43 @@ impl ParseChildren<MjAccordionElementChildren> for MrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseChildren<MjAccordionElementChildren> for AsyncMrmlParser {
+    async fn async_parse_children<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<MjAccordionElementChildren, Error> {
+        let mut result = MjAccordionElementChildren::default();
+
+        loop {
+            let token = cursor.assert_next()?;
+            match token {
+                MrmlToken::ElementStart(inner) => {
+                    match inner.local.as_str() {
+                        MJ_ACCORDION_TEXT => {
+                            result.text = Some(self.async_parse(cursor, inner.local).await?);
+                        }
+                        MJ_ACCORDION_TITLE => {
+                            result.title = Some(self.async_parse(cursor, inner.local).await?);
+                        }
+                        _ => {
+                            return Err(Error::UnexpectedElement(inner.span.into()));
+                        }
+                    }
+                }
+                MrmlToken::ElementClose(inner) => {
+                    cursor.rewind(MrmlToken::ElementClose(inner));
+                    return Ok(result);
+                }
+                other => {
+                    return Err(Error::UnexpectedToken(other.span()));
+                }
+            }
+        }
+    }
+}
+
 impl ParseElement<MjAccordionElement> for MrmlParser {
     fn parse<'a>(
         &self,
@@ -47,6 +86,23 @@ impl ParseElement<MjAccordionElement> for MrmlParser {
         _tag: StrSpan<'a>,
     ) -> Result<MjAccordionElement, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
+
+        Ok(MjAccordionElement {
+            attributes,
+            children,
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjAccordionElement> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjAccordionElement, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
 
         Ok(MjAccordionElement {
             attributes,
