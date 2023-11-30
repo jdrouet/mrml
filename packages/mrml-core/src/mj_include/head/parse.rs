@@ -374,7 +374,7 @@ mod tests {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let parser = MrmlParser::new(Arc::new(opts));
+        let parser = MrmlParser::new(opts.into());
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
         assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
@@ -407,7 +407,7 @@ mod tests {
         let opts = ParserOptions {
             include_loader: Box::new(resolver),
         };
-        let parser = MrmlParser::new(Arc::new(opts));
+        let parser = MrmlParser::new(opts.into());
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
         assert_eq!(

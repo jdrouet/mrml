@@ -153,7 +153,7 @@ impl Mjml {
     /// ```
     pub fn parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
+        opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
     ) -> Result<Self, Error> {
         let parser = MrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());

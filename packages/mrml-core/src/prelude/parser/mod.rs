@@ -1,6 +1,6 @@
-use std::convert::TryFrom;
 use std::fmt::Display;
 use std::sync::Arc;
+use std::{convert::TryFrom, rc::Rc};
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
@@ -363,11 +363,11 @@ impl<'a> MrmlCursor<'a> {
 
 #[derive(Default)]
 pub struct MrmlParser {
-    pub(crate) options: Arc<ParserOptions>,
+    pub(crate) options: Rc<ParserOptions>,
 }
 
 impl MrmlParser {
-    pub fn new(options: Arc<ParserOptions>) -> Self {
+    pub fn new(options: Rc<ParserOptions>) -> Self {
         Self { options }
     }
 }

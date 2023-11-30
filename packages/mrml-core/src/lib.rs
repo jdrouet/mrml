@@ -120,7 +120,7 @@ mod macros;
 /// ```
 pub fn parse_with_options<T: AsRef<str>>(
     input: T,
-    opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
+    opts: std::rc::Rc<crate::prelude::parser::ParserOptions>,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
     let parser = crate::prelude::parser::MrmlParser::new(opts);
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());

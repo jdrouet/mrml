@@ -7,6 +7,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 mod parser;
 mod render;
 
+use std::rc::Rc;
 use std::sync::Arc;
 
 use wasm_bindgen::prelude::*;
@@ -17,7 +18,7 @@ pub use crate::render::*;
 #[inline]
 fn to_html(
     input: &str,
-    parser_options: Arc<mrml::prelude::parser::ParserOptions>,
+    parser_options: Rc<mrml::prelude::parser::ParserOptions>,
     render_options: &mrml::prelude::render::Options,
 ) -> Result<String, ToHtmlError> {
     let element = mrml::parse_with_options(input, parser_options)?;
@@ -39,7 +40,7 @@ async fn to_html_async(
 #[derive(Debug, Default)]
 #[wasm_bindgen]
 pub struct Engine {
-    parser: Arc<mrml::prelude::parser::ParserOptions>,
+    parser: Rc<mrml::prelude::parser::ParserOptions>,
     #[cfg(feature = "async")]
     async_parser: Arc<mrml::prelude::parser::AsyncParserOptions>,
     render: mrml::prelude::render::Options,
@@ -56,7 +57,7 @@ impl Engine {
     #[allow(clippy::arc_with_non_send_sync)]
     #[wasm_bindgen(js_name = "setParserOptions")]
     pub fn set_parser_options(&mut self, value: ParserOptions) {
-        self.parser = Arc::new(value.into());
+        self.parser = Rc::new(value.into());
     }
 
     /// Defines the async parsing options.
