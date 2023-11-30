@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use mrml::prelude::parser::http_loader::{AsyncReqwestFetcher, HttpIncludeLoader};
 use mrml::prelude::parser::loader::AsyncIncludeLoader;
@@ -14,7 +13,7 @@ impl ReqwestIncludeLoaderOptions {
         Self { headers }
     }
 
-    pub fn build_async(self) -> Arc<dyn AsyncIncludeLoader + Sync + Send + 'static> {
-        Arc::new(HttpIncludeLoader::<AsyncReqwestFetcher>::allow_all().with_headers(self.headers))
+    pub fn build_async(self) -> Box<dyn AsyncIncludeLoader + Sync + Send + 'static> {
+        Box::new(HttpIncludeLoader::<AsyncReqwestFetcher>::allow_all().with_headers(self.headers))
     }
 }

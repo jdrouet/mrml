@@ -67,12 +67,9 @@ impl Default for AsyncIncludeLoaderOptions {
 impl AsyncIncludeLoaderOptions {
     pub fn build_async(
         self,
-    ) -> std::sync::Arc<dyn mrml::prelude::parser::loader::AsyncIncludeLoader + Send + Sync + 'static>
-    {
+    ) -> Box<dyn mrml::prelude::parser::loader::AsyncIncludeLoader + Send + Sync + 'static> {
         match self {
-            Self::Noop => {
-                std::sync::Arc::new(mrml::prelude::parser::noop_loader::NoopIncludeLoader)
-            }
+            Self::Noop => Box::new(mrml::prelude::parser::noop_loader::NoopIncludeLoader),
             Self::Memory(inner) => inner.build_async(),
             #[cfg(feature = "reqwest-include-loader")]
             Self::Reqwest(inner) => inner.build_async(),

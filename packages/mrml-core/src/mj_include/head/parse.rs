@@ -389,7 +389,7 @@ mod tests {
         let resolver =
             MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-title>Hello</mj-title>")]);
         let opts = AsyncParserOptions {
-            include_loader: Arc::new(resolver),
+            include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
         let parser = AsyncMrmlParser::new(Arc::new(opts));
@@ -426,7 +426,7 @@ mod tests {
             MemoryIncludeLoader::from(vec![("partial.css", "* { background-color: red; }")]);
         let raw = r#"<mj-include path="partial.css" type="css" />"#;
         let opts = AsyncParserOptions {
-            include_loader: Arc::new(resolver),
+            include_loader: Box::new(resolver),
         };
         let parser = AsyncMrmlParser::new(Arc::new(opts));
         let mut cursor = MrmlCursor::new(raw);

@@ -18,7 +18,7 @@ async fn async_loading_include() {
         "https://gist.githubusercontent.com".to_string(),
     ]));
     let options = Arc::new(AsyncParserOptions {
-        include_loader: Arc::new(resolver),
+        include_loader: Box::new(resolver),
     });
     let _ = mrml::async_parse_with_options(template, options)
         .await
@@ -29,7 +29,7 @@ async fn async_loading_include() {
 #[test]
 fn sync_loading_include() {
     use std::collections::HashSet;
-    use std::sync::Arc;
+    use std::rc::Rc;
 
     use mrml::prelude::parser::http_loader::{BlockingReqwestFetcher, HttpIncludeLoader};
     use mrml::prelude::parser::ParserOptions;
@@ -38,7 +38,7 @@ fn sync_loading_include() {
     let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from([
         "https://gist.githubusercontent.com".to_string(),
     ]));
-    let options = Arc::new(ParserOptions {
+    let options = Rc::new(ParserOptions {
         include_loader: Box::new(resolver),
     });
     let _ = mrml::parse_with_options(template, options).unwrap();

@@ -15,10 +15,7 @@ impl MemoryIncludeLoaderOptions {
     #[cfg(feature = "async")]
     pub fn build_async(
         self,
-    ) -> std::sync::Arc<dyn mrml::prelude::parser::loader::AsyncIncludeLoader + Send + Sync + 'static>
-    {
-        std::sync::Arc::new(
-            mrml::prelude::parser::memory_loader::MemoryIncludeLoader::from(self.content),
-        )
+    ) -> Box<dyn mrml::prelude::parser::loader::AsyncIncludeLoader + Send + Sync + 'static> {
+        Box::new(mrml::prelude::parser::memory_loader::MemoryIncludeLoader::from(self.content))
     }
 }

@@ -393,14 +393,12 @@ mod tests {
     #[cfg(feature = "async")]
     #[tokio::test]
     async fn basic_in_memory_resolver_async() {
-        use std::sync::Arc;
-
         use crate::prelude::parser::{AsyncMrmlParser, AsyncParserOptions};
 
         let resolver =
             MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-button>Hello</mj-button>")]);
         let opts = AsyncParserOptions {
-            include_loader: Arc::new(resolver),
+            include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
         let mut cursor = MrmlCursor::new(raw);
@@ -430,13 +428,11 @@ mod tests {
     #[cfg(feature = "async")]
     #[tokio::test]
     async fn type_html_in_memory_resolver_async() {
-        use std::sync::Arc;
-
         use crate::prelude::parser::{AsyncMrmlParser, AsyncParserOptions};
 
         let resolver = MemoryIncludeLoader::from(vec![("partial.html", "<h1>Hello World!</h1>")]);
         let opts = AsyncParserOptions {
-            include_loader: Arc::new(resolver),
+            include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="partial.html" type="html" />"#;
         let mut cursor = MrmlCursor::new(raw);

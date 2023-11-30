@@ -106,7 +106,7 @@ impl Default for ParserOptions {
 #[cfg(feature = "async")]
 #[derive(Debug)]
 pub struct AsyncParserOptions {
-    pub include_loader: Arc<dyn loader::AsyncIncludeLoader + Send + Sync + 'static>,
+    pub include_loader: Box<dyn loader::AsyncIncludeLoader + Send + Sync + 'static>,
 }
 
 #[cfg(feature = "async")]
@@ -114,7 +114,7 @@ pub struct AsyncParserOptions {
 impl Default for AsyncParserOptions {
     fn default() -> Self {
         Self {
-            include_loader: Arc::new(noop_loader::NoopIncludeLoader),
+            include_loader: Box::new(noop_loader::NoopIncludeLoader),
         }
     }
 }
