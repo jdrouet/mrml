@@ -20,8 +20,9 @@ impl ParseChildren<Vec<MjSocialChild>> for MrmlParser {
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_SOCIAL_ELEMENT {
-                        result
-                            .push(MjSocialChild::MjSocialElement(self.parse(cursor, inner.local)?));
+                        result.push(MjSocialChild::MjSocialElement(
+                            self.parse(cursor, inner.local)?,
+                        ));
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }

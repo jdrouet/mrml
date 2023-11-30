@@ -140,15 +140,14 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
 
     fn render_text(&self, href: &Option<String>, opts: &Options) -> Result<String, Error> {
         let td = self.set_style_td_text(Tag::td());
-        let wrapper =
-            if href.is_some() {
-                Tag::new("a")
-                    .maybe_add_attribute("href", href.clone())
-                    .maybe_add_attribute("rel", self.attribute("rel"))
-                    .maybe_add_attribute("target", self.attribute("target"))
-            } else {
-                Tag::new("span")
-            };
+        let wrapper = if href.is_some() {
+            Tag::new("a")
+                .maybe_add_attribute("href", href.clone())
+                .maybe_add_attribute("rel", self.attribute("rel"))
+                .maybe_add_attribute("target", self.attribute("target"))
+        } else {
+            Tag::new("span")
+        };
         let wrapper = self.set_style_text(wrapper);
         let content = self
             .element

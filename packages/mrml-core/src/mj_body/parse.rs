@@ -143,9 +143,13 @@ impl AsyncParseElement<MjBodyChild> for AsyncMrmlParser {
         tag: StrSpan<'a>,
     ) -> Result<MjBodyChild, Error> {
         match tag.as_str() {
-            MJ_ACCORDION => Ok(MjBodyChild::MjAccordion(self.async_parse(cursor, tag).await?)),
+            MJ_ACCORDION => Ok(MjBodyChild::MjAccordion(
+                self.async_parse(cursor, tag).await?,
+            )),
             MJ_BUTTON => Ok(MjBodyChild::MjButton(self.async_parse(cursor, tag).await?)),
-            MJ_CAROUSEL => Ok(MjBodyChild::MjCarousel(self.async_parse(cursor, tag).await?)),
+            MJ_CAROUSEL => Ok(MjBodyChild::MjCarousel(
+                self.async_parse(cursor, tag).await?,
+            )),
             MJ_COLUMN => Ok(MjBodyChild::MjColumn(self.async_parse(cursor, tag).await?)),
             MJ_DIVIDER => Ok(MjBodyChild::MjDivider(self.async_parse(cursor, tag).await?)),
             MJ_GROUP => Ok(MjBodyChild::MjGroup(self.async_parse(cursor, tag).await?)),

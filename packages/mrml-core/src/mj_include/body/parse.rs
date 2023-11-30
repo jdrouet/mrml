@@ -65,24 +65,54 @@ impl AsyncParseElement<MjIncludeBodyChild> for AsyncMrmlParser {
         tag: StrSpan<'a>,
     ) -> Result<MjIncludeBodyChild, Error> {
         match tag.as_str() {
-            MJ_ACCORDION => {
-                Ok(MjIncludeBodyChild::MjAccordion(self.async_parse(cursor, tag).await?))
-            }
-            MJ_BUTTON => Ok(MjIncludeBodyChild::MjButton(self.async_parse(cursor, tag).await?)),
-            MJ_CAROUSEL => Ok(MjIncludeBodyChild::MjCarousel(self.async_parse(cursor, tag).await?)),
-            MJ_COLUMN => Ok(MjIncludeBodyChild::MjColumn(self.async_parse(cursor, tag).await?)),
-            MJ_DIVIDER => Ok(MjIncludeBodyChild::MjDivider(self.async_parse(cursor, tag).await?)),
-            MJ_GROUP => Ok(MjIncludeBodyChild::MjGroup(self.async_parse(cursor, tag).await?)),
-            MJ_HERO => Ok(MjIncludeBodyChild::MjHero(self.async_parse(cursor, tag).await?)),
-            MJ_IMAGE => Ok(MjIncludeBodyChild::MjImage(self.async_parse(cursor, tag).await?)),
-            MJ_NAVBAR => Ok(MjIncludeBodyChild::MjNavbar(self.async_parse(cursor, tag).await?)),
-            MJ_RAW => Ok(MjIncludeBodyChild::MjRaw(self.async_parse(cursor, tag).await?)),
-            MJ_SECTION => Ok(MjIncludeBodyChild::MjSection(self.async_parse(cursor, tag).await?)),
-            MJ_SOCIAL => Ok(MjIncludeBodyChild::MjSocial(self.async_parse(cursor, tag).await?)),
-            MJ_SPACER => Ok(MjIncludeBodyChild::MjSpacer(self.async_parse(cursor, tag).await?)),
-            MJ_TABLE => Ok(MjIncludeBodyChild::MjTable(self.async_parse(cursor, tag).await?)),
-            MJ_TEXT => Ok(MjIncludeBodyChild::MjText(self.async_parse(cursor, tag).await?)),
-            MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(self.async_parse(cursor, tag).await?)),
+            MJ_ACCORDION => Ok(MjIncludeBodyChild::MjAccordion(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_BUTTON => Ok(MjIncludeBodyChild::MjButton(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_CAROUSEL => Ok(MjIncludeBodyChild::MjCarousel(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_COLUMN => Ok(MjIncludeBodyChild::MjColumn(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_DIVIDER => Ok(MjIncludeBodyChild::MjDivider(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_GROUP => Ok(MjIncludeBodyChild::MjGroup(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_HERO => Ok(MjIncludeBodyChild::MjHero(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_IMAGE => Ok(MjIncludeBodyChild::MjImage(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_NAVBAR => Ok(MjIncludeBodyChild::MjNavbar(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_RAW => Ok(MjIncludeBodyChild::MjRaw(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_SECTION => Ok(MjIncludeBodyChild::MjSection(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_SOCIAL => Ok(MjIncludeBodyChild::MjSocial(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_SPACER => Ok(MjIncludeBodyChild::MjSpacer(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_TABLE => Ok(MjIncludeBodyChild::MjTable(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_TEXT => Ok(MjIncludeBodyChild::MjText(
+                self.async_parse(cursor, tag).await?,
+            )),
+            MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(
+                self.async_parse(cursor, tag).await?,
+            )),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }
     }
@@ -152,7 +182,9 @@ impl ParseChildren<Vec<MjIncludeBodyChild>> for MrmlParser {
         while let Some(token) = cursor.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjIncludeBodyChild::Comment(Comment::from(inner.text.as_str())));
+                    result.push(MjIncludeBodyChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
                 }
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.parse(cursor, inner.local)?);
@@ -184,7 +216,9 @@ impl AsyncParseChildren<Vec<MjIncludeBodyChild>> for AsyncMrmlParser {
         while let Some(token) = cursor.next_token() {
             match token? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjIncludeBodyChild::Comment(Comment::from(inner.text.as_str())));
+                    result.push(MjIncludeBodyChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
                 }
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.async_parse(cursor, inner.local).await?);

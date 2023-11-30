@@ -16,13 +16,15 @@ impl ParseChildren<Vec<MjAccordionChild>> for MrmlParser {
         loop {
             match cursor.assert_next()? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjAccordionChild::Comment(Comment::from(inner.text.as_str())));
+                    result.push(MjAccordionChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_ACCORDION_ELEMENT {
-                        result.push(
-                            MjAccordionChild::MjAccordionElement(self.parse(cursor, inner.local)?)
-                        );
+                        result.push(MjAccordionChild::MjAccordionElement(
+                            self.parse(cursor, inner.local)?,
+                        ));
                     } else {
                         return Err(Error::UnexpectedElement(inner.span.into()));
                     }
@@ -49,7 +51,9 @@ impl AsyncParseChildren<Vec<MjAccordionChild>> for AsyncMrmlParser {
         loop {
             match cursor.assert_next()? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjAccordionChild::Comment(Comment::from(inner.text.as_str())));
+                    result.push(MjAccordionChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
                 }
                 MrmlToken::ElementStart(inner) => {
                     if inner.local.as_str() == MJ_ACCORDION_ELEMENT {

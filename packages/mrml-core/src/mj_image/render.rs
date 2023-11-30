@@ -80,14 +80,13 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
     }
 
     fn set_style_table(&self, tag: Tag) -> Tag {
-        let tag =
-            if self.is_full_width() {
-                tag.add_style("min-width", "100%")
-                    .add_style("max-width", "100%")
-                    .maybe_add_style("width", self.get_content_width().map(|v| v.to_string()))
-            } else {
-                tag
-            };
+        let tag = if self.is_full_width() {
+            tag.add_style("min-width", "100%")
+                .add_style("max-width", "100%")
+                .maybe_add_style("width", self.get_content_width().map(|v| v.to_string()))
+        } else {
+            tag
+        };
         tag.add_style("border-collapse", "collapse")
             .add_style("border-spacing", "0px")
     }
@@ -166,24 +165,22 @@ impl<'e, 'h> Render<'h> for MjImageRender<'e, 'h> {
     fn render(&self, _opts: &Options) -> Result<String, Error> {
         let style = self.render_style();
         self.header.borrow_mut().add_style(style);
-        let class =
-            if self.is_fluid_on_mobile() {
-                Some("mj-full-width-mobile")
-            } else {
-                None
-            };
+        let class = if self.is_fluid_on_mobile() {
+            Some("mj-full-width-mobile")
+        } else {
+            None
+        };
         let table = self
             .set_style_table(Tag::table_presentation())
             .maybe_add_class(class);
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_td(Tag::td()).maybe_add_class(class);
-        let content =
-            if self.attribute_exists("href") {
-                self.render_link()
-            } else {
-                self.render_image()
-            };
+        let content = if self.attribute_exists("href") {
+            self.render_link()
+        } else {
+            self.render_image()
+        };
         Ok(table.render(tbody.render(tr.render(td.render(content)))))
     }
 }

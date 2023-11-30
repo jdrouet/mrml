@@ -54,19 +54,17 @@ impl AsyncParseChildren<MjAccordionElementChildren> for AsyncMrmlParser {
         loop {
             let token = cursor.assert_next()?;
             match token {
-                MrmlToken::ElementStart(inner) => {
-                    match inner.local.as_str() {
-                        MJ_ACCORDION_TEXT => {
-                            result.text = Some(self.async_parse(cursor, inner.local).await?);
-                        }
-                        MJ_ACCORDION_TITLE => {
-                            result.title = Some(self.async_parse(cursor, inner.local).await?);
-                        }
-                        _ => {
-                            return Err(Error::UnexpectedElement(inner.span.into()));
-                        }
+                MrmlToken::ElementStart(inner) => match inner.local.as_str() {
+                    MJ_ACCORDION_TEXT => {
+                        result.text = Some(self.async_parse(cursor, inner.local).await?);
                     }
-                }
+                    MJ_ACCORDION_TITLE => {
+                        result.title = Some(self.async_parse(cursor, inner.local).await?);
+                    }
+                    _ => {
+                        return Err(Error::UnexpectedElement(inner.span.into()));
+                    }
+                },
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);

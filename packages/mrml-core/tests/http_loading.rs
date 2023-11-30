@@ -14,9 +14,9 @@ async fn async_loading_include() {
     use mrml::prelude::parser::AsyncParserOptions;
 
     let template = format!("<mjml><mj-body><mj-include path={TEMPLATE_URL:?} /></mj-body></mjml>");
-    let resolver = HttpIncludeLoader::<AsyncReqwestFetcher>::new_allow(
-        HashSet::from(["https://gist.githubusercontent.com".to_string()])
-    );
+    let resolver = HttpIncludeLoader::<AsyncReqwestFetcher>::new_allow(HashSet::from([
+        "https://gist.githubusercontent.com".to_string(),
+    ]));
     let options = Arc::new(AsyncParserOptions {
         include_loader: Arc::new(resolver),
     });
@@ -35,9 +35,9 @@ fn sync_loading_include() {
     use mrml::prelude::parser::ParserOptions;
 
     let template = format!("<mjml><mj-body><mj-include path={TEMPLATE_URL:?} /></mj-body></mjml>");
-    let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(
-        HashSet::from(["https://gist.githubusercontent.com".to_string()])
-    );
+    let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from([
+        "https://gist.githubusercontent.com".to_string(),
+    ]));
     let options = Arc::new(ParserOptions {
         include_loader: Box::new(resolver),
     });

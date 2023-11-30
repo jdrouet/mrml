@@ -5,13 +5,12 @@ mod tests {
 
     #[test]
     fn normal() {
-        let item =
-            MjFont {
-                attributes: MjFontAttributes {
-                    name: String::from("Comic sans MS"),
-                    href: String::from("http://localhost"),
-                },
-            };
+        let item = MjFont {
+            attributes: MjFontAttributes {
+                name: String::from("Comic sans MS"),
+                href: String::from("http://localhost"),
+            },
+        };
         assert_eq!(
             "<mj-font href=\"http://localhost\" name=\"Comic sans MS\" />",
             item.dense_print()

@@ -8,7 +8,9 @@ mod tests {
     fn serialize_mjml() {
         let mut elt = MjIncludeHead::default();
         elt.attributes.path = "memory:include.mjml".to_string();
-        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from("Hello World!".to_owned()))];
+        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from(
+            "Hello World!".to_owned(),
+        ))];
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-include","attributes":{"path":"memory:include.mjml"},"children":[{"type":"mj-title","children":"Hello World!"}]}"#
@@ -20,7 +22,9 @@ mod tests {
         let mut elt = MjIncludeHead::default();
         elt.attributes.path = "memory:include.html".to_string();
         elt.attributes.kind = MjIncludeHeadKind::Html;
-        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from("Hello World!".to_owned()))];
+        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from(
+            "Hello World!".to_owned(),
+        ))];
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-include","attributes":{"path":"memory:include.html","type":"html"},"children":[{"type":"mj-title","children":"Hello World!"}]}"#
@@ -32,7 +36,9 @@ mod tests {
         let mut elt = MjIncludeHead::default();
         elt.attributes.path = "memory:include.css".to_string();
         elt.attributes.kind = MjIncludeHeadKind::Css { inline: false };
-        elt.children = vec![MjIncludeHeadChild::Text(Text::from("* { background-color: red; }"))];
+        elt.children = vec![MjIncludeHeadChild::Text(Text::from(
+            "* { background-color: red; }",
+        ))];
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-include","attributes":{"path":"memory:include.css","type":{"css":{"inline":false}}},"children":["* { background-color: red; }"]}"#
@@ -44,7 +50,9 @@ mod tests {
         let mut elt = MjIncludeHead::default();
         elt.attributes.path = "memory:include.css".to_string();
         elt.attributes.kind = MjIncludeHeadKind::Css { inline: true };
-        elt.children = vec![MjIncludeHeadChild::Text(Text::from("* { background-color: red; }"))];
+        elt.children = vec![MjIncludeHeadChild::Text(Text::from(
+            "* { background-color: red; }",
+        ))];
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-include","attributes":{"path":"memory:include.css","type":{"css":{"inline":true}}},"children":["* { background-color: red; }"]}"#

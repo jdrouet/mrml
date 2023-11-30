@@ -71,9 +71,9 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
         EXTRA_CONTAINER_KEY
             .iter()
             .zip(EXTRA_CHILD_KEY.iter())
-            .filter_map(
-                |(con_key, child_key)| self.attribute(con_key).map(|value| (*child_key, value))
-            )
+            .filter_map(|(con_key, child_key)| {
+                self.attribute(con_key).map(|value| (*child_key, value))
+            })
             .collect::<Vec<_>>()
     }
 
