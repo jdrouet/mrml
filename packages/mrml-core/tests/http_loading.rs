@@ -8,7 +8,6 @@ const TEMPLATE_URL: &str = "https://gist.githubusercontent.com/jdrouet/b0ac80fa0
 #[tokio::test]
 async fn async_loading_include() {
     use std::collections::HashSet;
-    use std::sync::Arc;
 
     use mrml::prelude::parser::http_loader::{AsyncReqwestFetcher, HttpIncludeLoader};
     use mrml::prelude::parser::AsyncParserOptions;
@@ -17,10 +16,10 @@ async fn async_loading_include() {
     let resolver = HttpIncludeLoader::<AsyncReqwestFetcher>::new_allow(HashSet::from([
         "https://gist.githubusercontent.com".to_string(),
     ]));
-    let options = Arc::new(AsyncParserOptions {
+    let options = AsyncParserOptions {
         include_loader: Box::new(resolver),
-    });
-    let _ = mrml::async_parse_with_options(template, options)
+    };
+    let _ = mrml::async_parse_with_options(template, options.into())
         .await
         .unwrap();
 }
@@ -29,7 +28,6 @@ async fn async_loading_include() {
 #[test]
 fn sync_loading_include() {
     use std::collections::HashSet;
-    use std::rc::Rc;
 
     use mrml::prelude::parser::http_loader::{BlockingReqwestFetcher, HttpIncludeLoader};
     use mrml::prelude::parser::ParserOptions;
@@ -38,8 +36,8 @@ fn sync_loading_include() {
     let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from([
         "https://gist.githubusercontent.com".to_string(),
     ]));
-    let options = Rc::new(ParserOptions {
+    let options = ParserOptions {
         include_loader: Box::new(resolver),
-    });
-    let _ = mrml::parse_with_options(template, options).unwrap();
+    };
+    let _ = mrml::parse_with_options(template, options.into()).unwrap();
 }

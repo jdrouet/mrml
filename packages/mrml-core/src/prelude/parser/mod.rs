@@ -1,5 +1,4 @@
 use std::fmt::Display;
-use std::sync::Arc;
 use std::{convert::TryFrom, rc::Rc};
 
 use xmlparser::{StrSpan, Token, Tokenizer};
@@ -413,12 +412,12 @@ impl ParseAttributes<Map<String, String>> for MrmlParser {
 #[cfg(feature = "async")]
 #[derive(Default)]
 pub struct AsyncMrmlParser {
-    pub(crate) options: Arc<AsyncParserOptions>,
+    pub(crate) options: Rc<AsyncParserOptions>,
 }
 
 #[cfg(feature = "async")]
 impl AsyncMrmlParser {
-    pub fn new(options: Arc<AsyncParserOptions>) -> Self {
+    pub fn new(options: Rc<AsyncParserOptions>) -> Self {
         Self { options }
     }
 }

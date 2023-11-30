@@ -8,7 +8,6 @@ mod parser;
 mod render;
 
 use std::rc::Rc;
-use std::sync::Arc;
 
 use wasm_bindgen::prelude::*;
 
@@ -29,7 +28,7 @@ fn to_html(
 #[inline]
 async fn to_html_async(
     input: &str,
-    parser_options: Arc<mrml::prelude::parser::AsyncParserOptions>,
+    parser_options: Rc<mrml::prelude::parser::AsyncParserOptions>,
     render_options: &mrml::prelude::render::Options,
 ) -> Result<String, ToHtmlError> {
     let element = mrml::async_parse_with_options(input, parser_options).await?;
@@ -42,7 +41,7 @@ async fn to_html_async(
 pub struct Engine {
     parser: Rc<mrml::prelude::parser::ParserOptions>,
     #[cfg(feature = "async")]
-    async_parser: Arc<mrml::prelude::parser::AsyncParserOptions>,
+    async_parser: Rc<mrml::prelude::parser::AsyncParserOptions>,
     render: mrml::prelude::render::Options,
 }
 
@@ -64,7 +63,7 @@ impl Engine {
     #[allow(clippy::arc_with_non_send_sync)]
     #[wasm_bindgen(js_name = "setAsyncParserOptions")]
     pub fn set_async_parser_options(&mut self, value: AsyncParserOptions) {
-        self.async_parser = Arc::new(value.into());
+        self.async_parser = Rc::new(value.into());
     }
 
     /// Defines the rendering options.

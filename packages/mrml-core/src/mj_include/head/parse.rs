@@ -298,7 +298,6 @@ impl<'a> TryFrom<StrSpan<'a>> for MjIncludeHeadKind {
 #[cfg(test)]
 mod tests {
     use std::convert::TryFrom;
-    use std::sync::Arc;
 
     use xmlparser::StrSpan;
 
@@ -392,7 +391,7 @@ mod tests {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let parser = AsyncMrmlParser::new(Arc::new(opts));
+        let parser = AsyncMrmlParser::new(opts.into());
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).await.unwrap();
         assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
@@ -428,7 +427,7 @@ mod tests {
         let opts = AsyncParserOptions {
             include_loader: Box::new(resolver),
         };
-        let parser = AsyncMrmlParser::new(Arc::new(opts));
+        let parser = AsyncMrmlParser::new(opts.into());
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).await.unwrap();
         assert_eq!(

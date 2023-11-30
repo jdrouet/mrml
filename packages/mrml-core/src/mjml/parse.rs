@@ -141,9 +141,9 @@ impl Mjml {
     /// use mrml::mjml::Mjml;
     /// use mrml::prelude::parser::ParserOptions;
     /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-    /// use std::sync::Arc;
+    /// use std::rc::Rc;
     ///
-    /// let options = Arc::new(ParserOptions {
+    /// let options = Rc::new(ParserOptions {
     ///     include_loader: Box::new(MemoryIncludeLoader::default()),
     /// });
     /// match Mjml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options) {
@@ -163,7 +163,7 @@ impl Mjml {
     #[cfg(feature = "async")]
     pub async fn async_parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
+        opts: std::rc::Rc<crate::prelude::parser::AsyncParserOptions>,
     ) -> Result<Self, Error> {
         let parser = AsyncMrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
