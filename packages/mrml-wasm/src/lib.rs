@@ -25,10 +25,23 @@ fn to_html(
     Ok(html)
 }
 
+#[inline]
+async fn to_html_async(
+    input: &str,
+    parser_options: Arc<mrml::prelude::parser::AsyncParserOptions>,
+    render_options: &mrml::prelude::render::Options,
+) -> Result<String, ToHtmlError> {
+    let element = mrml::async_parse_with_options(input, parser_options).await?;
+    let html = element.render(render_options)?;
+    Ok(html)
+}
+
 #[derive(Debug, Default)]
 #[wasm_bindgen]
 pub struct Engine {
     parser: Arc<mrml::prelude::parser::ParserOptions>,
+    #[cfg(feature = "async")]
+    async_parser: Arc<mrml::prelude::parser::AsyncParserOptions>,
     render: mrml::prelude::render::Options,
 }
 
@@ -46,6 +59,13 @@ impl Engine {
         self.parser = Arc::new(value.into());
     }
 
+    /// Defines the async parsing options.
+    #[allow(clippy::arc_with_non_send_sync)]
+    #[wasm_bindgen(js_name = "setAsyncParserOptions")]
+    pub fn set_async_parser_options(&mut self, value: AsyncParserOptions) {
+        self.async_parser = Arc::new(value.into());
+    }
+
     /// Defines the rendering options.
     #[wasm_bindgen(js_name = "setRenderOptions")]
     pub fn set_render_options(&mut self, value: RenderOptions) {
@@ -56,6 +76,16 @@ impl Engine {
     #[wasm_bindgen(js_name = "toHtml")]
     pub fn to_html(&self, input: &str) -> ToHtmlResult {
         match to_html(input, self.parser.clone(), &self.render) {
+            Ok(content) => ToHtmlResult::Success { content },
+            Err(error) => ToHtmlResult::Error(error),
+        }
+    }
+
+    /// Renders the mjml input into html.
+    #[cfg(feature = "async")]
+    #[wasm_bindgen(js_name = "toHtmlAsync")]
+    pub async fn to_html_async(&self, input: &str) -> ToHtmlResult {
+        match to_html_async(input, self.async_parser.clone(), &self.render).await {
             Ok(content) => ToHtmlResult::Success { content },
             Err(error) => ToHtmlResult::Error(error),
         }
@@ -100,6 +130,12 @@ impl ToHtmlResult {
             Self::Success { content } => content,
             Self::Error(inner) => panic!("unexpected error {:?}", inner),
         }
+    }
+}
+
+impl From<ToHtmlResult> for JsValue {
+    fn from(value: ToHtmlResult) -> Self {
+        serde_wasm_bindgen::to_value(&value).unwrap()
     }
 }
 
