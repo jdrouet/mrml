@@ -25,6 +25,7 @@ fn to_html(
     Ok(html)
 }
 
+#[cfg(feature = "async")]
 #[inline]
 async fn to_html_async(
     input: &str,
@@ -60,6 +61,7 @@ impl Engine {
     }
 
     /// Defines the async parsing options.
+    #[cfg(feature = "async")]
     #[allow(clippy::arc_with_non_send_sync)]
     #[wasm_bindgen(js_name = "setAsyncParserOptions")]
     pub fn set_async_parser_options(&mut self, value: AsyncParserOptions) {
