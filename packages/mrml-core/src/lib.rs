@@ -107,7 +107,6 @@ mod macros;
 /// ```rust
 /// use mrml::prelude::parser::ParserOptions;
 /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-/// use std::sync::Arc;
 ///
 /// let options = ParserOptions {
 ///     include_loader: Box::new(MemoryIncludeLoader::default()),
@@ -127,8 +126,30 @@ pub fn parse_with_options<T: AsRef<str>>(
 }
 
 #[cfg(all(feature = "parse", feature = "async"))]
-/// Function to parse a raw mjml template with some parsing
-/// [options](crate::prelude::parser::ParserOptions).
+/// Function to parse asynchronously a raw mjml template with some parsing
+/// [options](crate::prelude::parser::AsyncParserOptions). This function is just an
+/// alias to [the `Mjml::async_parse_with_options` function](crate::mjml::Mjml).
+///
+/// You can specify the kind of loader mrml needs to use for loading the content
+/// of [`mj-include`](crate::mj_include) elements.
+///
+/// You can take a look at the available loaders [here](crate::prelude::parse).
+///
+/// ```rust
+/// # tokio_test::block_on(async {
+/// use mrml::prelude::parser::AsyncParserOptions;
+/// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
+/// use std::rc::Rc;
+///
+/// let options = Rc::new(AsyncParserOptions {
+///     include_loader: Box::new(MemoryIncludeLoader::default()),
+/// });
+/// match mrml::async_parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options).await {
+///     Ok(_) => println!("Success!"),
+///     Err(err) => eprintln!("Something went wrong: {err:?}"),
+/// }
+/// # })
+/// ```
 pub async fn async_parse_with_options<T: AsRef<str>>(
     input: T,
     opts: std::rc::Rc<crate::prelude::parser::AsyncParserOptions>,
@@ -141,6 +162,13 @@ pub async fn async_parse_with_options<T: AsRef<str>>(
 #[cfg(feature = "parse")]
 /// Function to parse a raw mjml template using the default parsing
 /// [options](crate::prelude::parser::ParserOptions).
+///
+/// ```rust
+/// match mrml::parse("<mjml><mj-head /><mj-body /></mjml>") {
+///     Ok(_) => println!("Success!"),
+///     Err(err) => eprintln!("Something went wrong: {err:?}"),
+/// }
+/// ```
 pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
     let opts = crate::prelude::parser::ParserOptions::default();
     let parser = crate::prelude::parser::MrmlParser::new(&opts);
@@ -151,6 +179,15 @@ pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Err
 #[cfg(all(feature = "parse", feature = "async"))]
 /// Function to parse a raw mjml template using the default parsing
 /// [options](crate::prelude::parser::ParserOptions).
+///
+/// ```rust
+/// # tokio_test::block_on(async {
+/// match mrml::async_parse("<mjml><mj-head /><mj-body /></mjml>").await {
+///     Ok(_) => println!("Success!"),
+///     Err(err) => eprintln!("Something went wrong: {err:?}"),
+/// }
+/// # })
+/// ```
 pub async fn async_parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
     let parser = crate::prelude::parser::AsyncMrmlParser::default();
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());

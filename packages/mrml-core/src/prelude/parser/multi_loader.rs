@@ -44,6 +44,38 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 /// }
 /// ```
+///
+/// # Example async
+///
+/// ```rust
+/// #[cfg(feature = "http-loader-async-reqwest")]
+/// # tokio_test::block_on(async {
+/// use mrml::mj_include::body::MjIncludeBodyKind;
+/// use mrml::prelude::parser::http_loader::{AsyncReqwestFetcher, HttpIncludeLoader};
+/// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
+/// use mrml::prelude::parser::multi_loader::{MultiIncludeLoader, MultiIncludeLoaderItem, MultiIncludeLoaderFilter};
+/// use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+/// use mrml::prelude::parser::loader::AsyncIncludeLoader;
+/// use mrml::prelude::parser::AsyncParserOptions;
+/// use std::rc::Rc;
+///
+/// let resolver = MultiIncludeLoader::<Box<dyn AsyncIncludeLoader + Send + Sync + 'static>>::new()
+///     .with_starts_with("https://", Box::new(HttpIncludeLoader::<AsyncReqwestFetcher>::allow_all()))
+///     .with_any(Box::<NoopIncludeLoader>::default());
+/// let opts = AsyncParserOptions {
+///     include_loader: Box::new(resolver),
+/// };
+/// let json = r#"<mjml>
+///   <mj-body>
+///     <mj-include path="file://basic.mjml" />
+///   </mj-body>
+/// </mjml>"#;
+/// match mrml::async_parse_with_options(json, Rc::new(opts)).await {
+///     Ok(_) => println!("Success!"),
+///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
+/// }
+/// # })
+/// ```
 pub struct MultiIncludeLoader<T>(Vec<MultiIncludeLoaderItem<T>>);
 
 impl<T> MultiIncludeLoader<T> {
