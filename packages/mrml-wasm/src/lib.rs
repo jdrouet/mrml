@@ -143,13 +143,86 @@ impl From<ToHtmlResult> for JsValue {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+    use std::iter::FromIterator;
+    use wasm_bindgen_test::wasm_bindgen_test;
+
     use crate::{Engine, ToHtmlResult};
 
-    #[test]
-    fn it_should_render_template() {
+    #[wasm_bindgen_test]
+    fn it_should_render() {
         let template = "<mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>";
         let opts = Engine::new();
         let result = opts.to_html(template);
+        assert!(matches!(result, ToHtmlResult::Success { .. }));
+    }
+
+    #[wasm_bindgen_test]
+    fn it_should_error() {
+        let template = "<mjml><mj-body><mj-text>Hello World";
+        let opts = Engine::new();
+        let result = opts.to_html(template);
+        assert!(matches!(result, ToHtmlResult::Error(_)));
+    }
+
+    #[wasm_bindgen_test]
+    fn it_should_render_with_include() {
+        let template = "<mjml><mj-body><mj-include path=\"/hello-world.mjml\" /></mj-body></mjml>";
+        let mut opts = Engine::new();
+        opts.set_parser_options(crate::ParserOptions {
+            include_loader: crate::parser::IncludeLoaderOptions::Memory(
+                crate::parser::MemoryIncludeLoaderOptions {
+                    content: HashMap::from_iter([(
+                        "/hello-world.mjml".to_string(),
+                        "<mj-text>Hello World</mj-text>".to_string(),
+                    )]),
+                },
+            ),
+        });
+        let result = opts.to_html(template);
+        assert!(matches!(result, ToHtmlResult::Success { .. }));
+    }
+}
+
+#[cfg(all(test, feature = "async"))]
+mod async_tests {
+    use std::collections::HashMap;
+    use std::iter::FromIterator;
+    use wasm_bindgen_test::wasm_bindgen_test;
+
+    use crate::{Engine, ToHtmlResult};
+
+    #[wasm_bindgen_test]
+    async fn it_should_render() {
+        let template = "<mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>";
+        let opts = Engine::new();
+        let result = opts.to_html_async(template).await;
+        assert!(matches!(result, ToHtmlResult::Success { .. }));
+    }
+
+    #[wasm_bindgen_test]
+    async fn it_should_error() {
+        let template = "<mjml><mj-body><mj-text>Hello World";
+        let opts = Engine::new();
+        let result = opts.to_html_async(template).await;
+        assert!(matches!(result, ToHtmlResult::Error(_)));
+    }
+
+    #[wasm_bindgen_test]
+    async fn it_should_render_with_include() {
+        let template = "<mjml><mj-body><mj-include path=\"/hello-world.mjml\" /></mj-body></mjml>";
+        let mut opts = Engine::new();
+        opts.set_async_parser_options(crate::AsyncParserOptions {
+            include_loader: crate::parser::AsyncIncludeLoaderOptions::Memory(
+                crate::parser::MemoryIncludeLoaderOptions {
+                    content: HashMap::from_iter([(
+                        "/hello-world.mjml".to_string(),
+                        "<mj-text>Hello World</mj-text>".to_string(),
+                    )]),
+                },
+            ),
+        });
+        let result = opts.to_html_async(template).await;
         assert!(matches!(result, ToHtmlResult::Success { .. }));
     }
 }
