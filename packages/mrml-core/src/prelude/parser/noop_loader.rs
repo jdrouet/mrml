@@ -12,7 +12,6 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///
 /// # Example
 /// ```rust
-/// use std::sync::Arc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
 /// use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 /// use mrml::prelude::parser::ParserOptions;
@@ -26,7 +25,7 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     <mj-include path="basic.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(json, Arc::new(opts)) {
+/// match mrml::parse_with_options(json, &opts) {
 ///     Ok(_) => eprintln!("This should not happen!"),
 ///     Err(err) => println!("Couldn't parse template: {err:?}"),
 /// }

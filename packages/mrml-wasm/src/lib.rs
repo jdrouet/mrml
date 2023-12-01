@@ -28,7 +28,7 @@ fn to_html(
 #[inline]
 async fn to_html_async(
     input: &str,
-    parser_options: Rc<mrml::prelude::parser::AsyncParserOptions>,
+    parser_options: std::rc::Rc<mrml::prelude::parser::AsyncParserOptions>,
     render_options: &mrml::prelude::render::Options,
 ) -> Result<String, ToHtmlError> {
     let element = mrml::async_parse_with_options(input, parser_options).await?;

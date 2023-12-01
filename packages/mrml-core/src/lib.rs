@@ -29,13 +29,12 @@
 //! ```rust
 //! use mrml::prelude::parser::ParserOptions;
 //! use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-//! use std::sync::Arc;
 //!
 //! let loader = MemoryIncludeLoader::from(vec![("partial.mjml", "<mj-button>Hello</mj-button>")]);
-//! let options = Arc::new(ParserOptions {
+//! let options = ParserOptions {
 //!     include_loader: Box::new(loader),
-//! });
-//! match mrml::parse_with_options("<mjml><mj-head /><mj-body><mj-include path=\"partial.mjml\" /></mj-body></mjml>", options) {
+//! };
+//! match mrml::parse_with_options("<mjml><mj-head /><mj-body><mj-include path=\"partial.mjml\" /></mj-body></mjml>", &options) {
 //!     Ok(_) => println!("Success!"),
 //!     Err(err) => eprintln!("Something went wrong: {err:?}"),
 //! }
@@ -110,10 +109,10 @@ mod macros;
 /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 /// use std::sync::Arc;
 ///
-/// let options = Arc::new(ParserOptions {
+/// let options = ParserOptions {
 ///     include_loader: Box::new(MemoryIncludeLoader::default()),
-/// });
-/// match mrml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options) {
+/// };
+/// match mrml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", &options) {
 ///     Ok(_) => println!("Success!"),
 ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
 /// }

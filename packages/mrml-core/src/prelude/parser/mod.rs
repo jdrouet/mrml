@@ -1,5 +1,5 @@
+use std::convert::TryFrom;
 use std::fmt::Display;
-use std::{convert::TryFrom, rc::Rc};
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
@@ -105,7 +105,7 @@ impl Default for ParserOptions {
 #[cfg(feature = "async")]
 #[derive(Debug)]
 pub struct AsyncParserOptions {
-    pub include_loader: Box<dyn loader::AsyncIncludeLoader + Send + Sync + 'static>,
+    pub include_loader: Box<dyn loader::AsyncIncludeLoader + Send + Sync>,
 }
 
 #[cfg(feature = "async")]
@@ -411,12 +411,12 @@ impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
 #[cfg(feature = "async")]
 #[derive(Default)]
 pub struct AsyncMrmlParser {
-    pub(crate) options: Rc<AsyncParserOptions>,
+    pub(crate) options: std::rc::Rc<AsyncParserOptions>,
 }
 
 #[cfg(feature = "async")]
 impl AsyncMrmlParser {
-    pub fn new(options: Rc<AsyncParserOptions>) -> Self {
+    pub fn new(options: std::rc::Rc<AsyncParserOptions>) -> Self {
         Self { options }
     }
 }

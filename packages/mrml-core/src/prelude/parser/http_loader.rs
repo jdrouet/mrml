@@ -163,7 +163,6 @@ impl OriginList {
 ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, BlockingReqwestFetcher};
 ///     use mrml::prelude::parser::ParserOptions;
 ///     use std::collections::HashSet;
-///     use std::sync::Arc;
 ///
 ///     let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
 ///     let opts = ParserOptions {
@@ -174,7 +173,7 @@ impl OriginList {
 ///         <mj-include path="http://localhost/partials/mj-body.mjml" />
 ///       </mj-body>
 ///     </mjml>"#;
-///     match mrml::parse_with_options(template, Arc::new(opts)) {
+///     match mrml::parse_with_options(template, &opts) {
 ///         Ok(_) => println!("Success!"),
 ///         Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 ///     }
@@ -188,7 +187,6 @@ impl OriginList {
 ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, UreqFetcher};
 ///     use mrml::prelude::parser::ParserOptions;
 ///     use std::collections::HashSet;
-///     use std::sync::Arc;
 ///
 ///     let resolver = HttpIncludeLoader::<UreqFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
 ///     let opts = ParserOptions {
@@ -199,7 +197,7 @@ impl OriginList {
 ///         <mj-include path="http://localhost/partials/mj-body.mjml" />
 ///       </mj-body>
 ///     </mjml>"#;
-///     match mrml::parse_with_options(template, Arc::new(opts)) {
+///     match mrml::parse_with_options(template, &opts) {
 ///         Ok(_) => println!("Success!"),
 ///         Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 ///     }

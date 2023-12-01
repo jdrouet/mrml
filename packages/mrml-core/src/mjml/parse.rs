@@ -141,12 +141,11 @@ impl Mjml {
     /// use mrml::mjml::Mjml;
     /// use mrml::prelude::parser::ParserOptions;
     /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-    /// use std::rc::Rc;
     ///
-    /// let options = Rc::new(ParserOptions {
+    /// let options = ParserOptions {
     ///     include_loader: Box::new(MemoryIncludeLoader::default()),
-    /// });
-    /// match Mjml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options) {
+    /// };
+    /// match Mjml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", &options) {
     ///     Ok(_) => println!("Success!"),
     ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
     /// }
