@@ -1,4 +1,4 @@
-#[cfg(any(test, feature = "render"))]
+#[cfg(feature = "render")]
 pub mod condition;
 #[cfg(feature = "render")]
 pub mod size;

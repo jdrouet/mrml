@@ -7,6 +7,8 @@ use std::io::ErrorKind;
 use std::sync::Arc;
 
 use super::loader::IncludeLoaderError;
+#[cfg(feature = "async")]
+use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
 pub trait HttpFetcher: Default + Debug {
@@ -17,12 +19,22 @@ pub trait HttpFetcher: Default + Debug {
     ) -> Result<String, IncludeLoaderError>;
 }
 
-#[cfg(feature = "http-loader-reqwest")]
-#[derive(Debug, Default)]
-pub struct ReqwestFetcher(reqwest::blocking::Client);
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+pub trait AsyncHttpFetcher: Default + Debug {
+    async fn async_fetch(
+        &self,
+        url: &str,
+        headers: &HashMap<String, String>,
+    ) -> Result<String, IncludeLoaderError>;
+}
 
-#[cfg(feature = "http-loader-reqwest")]
-impl HttpFetcher for ReqwestFetcher {
+#[cfg(feature = "http-loader-blocking-reqwest")]
+#[derive(Debug, Default)]
+pub struct BlockingReqwestFetcher(reqwest::blocking::Client);
+
+#[cfg(feature = "http-loader-blocking-reqwest")]
+impl HttpFetcher for BlockingReqwestFetcher {
     fn fetch(
         &self,
         url: &str,
@@ -43,6 +55,40 @@ impl HttpFetcher for ReqwestFetcher {
                 .with_cause(Arc::new(err))
         })?;
         res.text().map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::InvalidData)
+                .with_message("unable to convert remote template as string")
+                .with_cause(Arc::new(err))
+        })
+    }
+}
+
+#[cfg(feature = "http-loader-async-reqwest")]
+#[derive(Debug, Default)]
+pub struct AsyncReqwestFetcher(reqwest::Client);
+
+#[cfg(feature = "http-loader-async-reqwest")]
+#[async_trait::async_trait(?Send)]
+impl AsyncHttpFetcher for AsyncReqwestFetcher {
+    async fn async_fetch(
+        &self,
+        url: &str,
+        headers: &HashMap<String, String>,
+    ) -> Result<String, IncludeLoaderError> {
+        let req = self.0.get(url);
+        let req = headers
+            .iter()
+            .fold(req, |r, (key, value)| r.header(key, value));
+        let res = req.send().await.map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::NotFound)
+                .with_message("unable to fetch template")
+                .with_cause(Arc::new(err))
+        })?;
+        let res = res.error_for_status().map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::NotFound)
+                .with_message("unable to fetch template")
+                .with_cause(Arc::new(err))
+        })?;
+        res.text().await.map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::InvalidData)
                 .with_message("unable to convert remote template as string")
                 .with_cause(Arc::new(err))
@@ -82,9 +128,6 @@ impl HttpFetcher for UreqFetcher {
 
 #[derive(Debug)]
 /// This enum is a representation of the origin filtering strategy.
-///
-/// This enum implements the `Default` trait by denying everything by default
-/// for security reason.
 pub enum OriginList {
     Allow(HashSet<String>),
     Deny(HashSet<String>),
@@ -115,14 +158,13 @@ impl OriginList {
 ///
 /// # Example with `reqwest`
 /// ```rust
-/// #[cfg(feature = "http-loader-reqwest")]
+/// #[cfg(feature = "http-loader-blocking-reqwest")]
 /// {
-///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, ReqwestFetcher};
+///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, BlockingReqwestFetcher};
 ///     use mrml::prelude::parser::ParserOptions;
 ///     use std::collections::HashSet;
-///     use std::sync::Arc;
 ///
-///     let resolver = HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
+///     let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
 ///     let opts = ParserOptions {
 ///         include_loader: Box::new(resolver),
 ///     };
@@ -131,7 +173,7 @@ impl OriginList {
 ///         <mj-include path="http://localhost/partials/mj-body.mjml" />
 ///       </mj-body>
 ///     </mjml>"#;
-///     match mrml::parse_with_options(template, Arc::new(opts)) {
+///     match mrml::parse_with_options(template, &opts) {
 ///         Ok(_) => println!("Success!"),
 ///         Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 ///     }
@@ -145,7 +187,6 @@ impl OriginList {
 ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, UreqFetcher};
 ///     use mrml::prelude::parser::ParserOptions;
 ///     use std::collections::HashSet;
-///     use std::sync::Arc;
 ///
 ///     let resolver = HttpIncludeLoader::<UreqFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
 ///     let opts = ParserOptions {
@@ -156,7 +197,7 @@ impl OriginList {
 ///         <mj-include path="http://localhost/partials/mj-body.mjml" />
 ///       </mj-body>
 ///     </mjml>"#;
-///     match mrml::parse_with_options(template, Arc::new(opts)) {
+///     match mrml::parse_with_options(template, &opts) {
 ///         Ok(_) => println!("Success!"),
 ///         Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 ///     }
@@ -168,7 +209,7 @@ pub struct HttpIncludeLoader<F> {
     fetcher: F,
 }
 
-impl<F: HttpFetcher> HttpIncludeLoader<F> {
+impl<F: Default> HttpIncludeLoader<F> {
     /// Creates a new
     /// [`HttpIncludeLoader`](crate::prelude::parser::http_loader::HttpIncludeLoader)
     /// that allows all the origins.
@@ -187,12 +228,12 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     ///
     /// # Example with `reqwest`
     /// ```rust
-    /// #[cfg(feature = "http-loader-reqwest")]
+    /// #[cfg(feature = "http-loader-blocking-reqwest")]
     /// {
-    ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, ReqwestFetcher};
+    ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, BlockingReqwestFetcher};
     ///     use std::collections::HashSet;
     ///
-    ///     let resolver = HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
+    ///     let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
     /// }
     /// ```
     ///
@@ -218,12 +259,12 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     ///
     /// # Example with `reqwest`
     /// ```rust
-    /// #[cfg(feature = "http-loader-reqwest")]
+    /// #[cfg(feature = "http-loader-blocking-reqwest")]
     /// {
-    ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, ReqwestFetcher};
+    ///     use mrml::prelude::parser::http_loader::{HttpIncludeLoader, BlockingReqwestFetcher};
     ///     use std::collections::HashSet;
     ///
-    ///     let resolver = HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from(["http://somewhere.com".to_string()]));
+    ///     let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from(["http://somewhere.com".to_string()]));
     /// }
     /// ```
     ///
@@ -281,16 +322,19 @@ impl<F: HttpFetcher> HttpIncludeLoader<F> {
     }
 }
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl<F: HttpFetcher> IncludeLoader for HttpIncludeLoader<F> {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.check_url(path)?;
         self.fetcher.fetch(path, &self.headers)
     }
+}
 
-    #[cfg(feature = "async")]
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl<F: AsyncHttpFetcher + Sync> AsyncIncludeLoader for HttpIncludeLoader<F> {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
-        self.resolve(path)
+        self.check_url(path)?;
+        self.fetcher.async_fetch(path, &self.headers).await
     }
 }
 
@@ -421,43 +465,46 @@ mod ureq_tests {
     }
 }
 
-#[cfg(all(test, feature = "http-loader-reqwest"))]
+#[cfg(all(test, feature = "http-loader-blocking-reqwest"))]
 mod reqwest_tests {
     use std::collections::{HashMap, HashSet};
     use std::io::ErrorKind;
 
-    use super::{HttpIncludeLoader, ReqwestFetcher};
+    use super::{BlockingReqwestFetcher, HttpIncludeLoader};
     use crate::prelude::parser::loader::IncludeLoader;
 
     #[test]
     fn include_loader_should_implement_debug() {
-        let _ = format!("{:?}", HttpIncludeLoader::<ReqwestFetcher>::default());
+        let _ = format!(
+            "{:?}",
+            HttpIncludeLoader::<BlockingReqwestFetcher>::default()
+        );
     }
 
     #[test]
     fn include_loader_should_validate_url() {
         // allow everything
-        assert!(HttpIncludeLoader::<ReqwestFetcher>::allow_all()
+        assert!(HttpIncludeLoader::<BlockingReqwestFetcher>::allow_all()
             .check_url("http://localhost/partial.mjml")
             .is_ok());
         // allow nothing
         assert!(
-            HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::default())
+            HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::default())
                 .check_url("http://localhost/partial.mjml")
                 .is_err()
         );
-        assert!(HttpIncludeLoader::<ReqwestFetcher>::default()
+        assert!(HttpIncludeLoader::<BlockingReqwestFetcher>::default()
             .check_url("http://localhost/partial.mjml")
             .is_err());
         // only deny some domains
-        let loader = HttpIncludeLoader::<ReqwestFetcher>::new_deny(HashSet::from([
+        let loader = HttpIncludeLoader::<BlockingReqwestFetcher>::new_deny(HashSet::from([
             "http://somewhere".to_string(),
         ]));
         assert!(loader.check_url("http://localhost/partial.mjml").is_ok());
         assert!(loader.check_url("http://somewhere/partial.mjml").is_err());
         assert!(loader.check_url("https://somewhere/partial.mjml").is_ok());
         // only allow some domains
-        let loader = HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from([
+        let loader = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from([
             "http://localhost".to_string(),
             "https://somewhere".to_string(),
         ]));
@@ -480,8 +527,9 @@ mod reqwest_tests {
             .with_status(200)
             .with_body("<mj-text>Hello World!</mj-text>")
             .create();
-        let mut loader =
-            HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from([mock_server.url()]));
+        let mut loader = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from([
+            mock_server.url(),
+        ]));
         loader.set_header("foo", "bar");
         loader.set_headers(Default::default());
         let resolved = loader
@@ -499,8 +547,9 @@ mod reqwest_tests {
             .with_status(404)
             .with_body("Not Found")
             .create();
-        let loader =
-            HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from([mock_server.url()]));
+        let loader = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from([
+            mock_server.url(),
+        ]));
         let err = loader
             .resolve(&format!("{}/partial.mjml", mock_server.url()))
             .unwrap_err();
@@ -517,13 +566,14 @@ mod reqwest_tests {
             .with_status(404)
             .with_body("Not Found")
             .create();
-        let loader =
-            HttpIncludeLoader::<ReqwestFetcher>::new_allow(HashSet::from([mock_server.url()]))
-                .with_header("user-agent", "invalid")
-                .with_headers(HashMap::from([(
-                    "user-agent".to_string(),
-                    "mrml-test".to_string(),
-                )]));
+        let loader = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from([
+            mock_server.url(),
+        ]))
+        .with_header("user-agent", "invalid")
+        .with_headers(HashMap::from([(
+            "user-agent".to_string(),
+            "mrml-test".to_string(),
+        )]));
         let err = loader
             .resolve(&format!("{}/partial.mjml", mock_server.url()))
             .unwrap_err();

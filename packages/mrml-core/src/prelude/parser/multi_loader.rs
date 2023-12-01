@@ -1,6 +1,8 @@
 //! Module containing a loader that is composed of multiple loaders.
 
 use super::loader::IncludeLoaderError;
+#[cfg(feature = "async")]
+use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
@@ -13,16 +15,22 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///
 /// # Example
 /// ```rust
-/// use std::sync::Arc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
 /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-/// use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
+/// use mrml::prelude::parser::multi_loader::{MultiIncludeLoader, MultiIncludeLoaderItem, MultiIncludeLoaderFilter};
 /// use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+/// use mrml::prelude::parser::loader::IncludeLoader;
 /// use mrml::prelude::parser::ParserOptions;
 ///
-/// let resolver = MultiIncludeLoader::default()
-///     .with_starts_with("file://", Box::new(MemoryIncludeLoader::from(vec![("file://basic.mjml", "<mj-button>Hello</mj-button>")])))
-///     .with_any(Box::new(NoopIncludeLoader));
+/// let resolver = MultiIncludeLoader::<Box<dyn IncludeLoader + 'static>>::new()
+///     .with_starts_with(
+///         "file://",
+///         Box::new(MemoryIncludeLoader::from(vec![(
+///             "file://basic.mjml",
+///             "<mj-button>Hello</mj-button>",
+///         )])),
+///     )
+///     .with_any(Box::<NoopIncludeLoader>::default());
 /// let opts = ParserOptions {
 ///     include_loader: Box::new(resolver),
 /// };
@@ -31,32 +39,60 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     <mj-include path="file://basic.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(json, Arc::new(opts)) {
+/// match mrml::parse_with_options(json, &opts) {
 ///     Ok(_) => println!("Success!"),
 ///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 /// }
 /// ```
-pub struct MultiIncludeLoader(Vec<MultiIncludeLoaderItem>);
+///
+/// # Example async
+///
+/// ```rust
+/// #[cfg(feature = "http-loader-async-reqwest")]
+/// # tokio_test::block_on(async {
+/// use mrml::mj_include::body::MjIncludeBodyKind;
+/// use mrml::prelude::parser::http_loader::{AsyncReqwestFetcher, HttpIncludeLoader};
+/// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
+/// use mrml::prelude::parser::multi_loader::{MultiIncludeLoader, MultiIncludeLoaderItem, MultiIncludeLoaderFilter};
+/// use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+/// use mrml::prelude::parser::loader::AsyncIncludeLoader;
+/// use mrml::prelude::parser::AsyncParserOptions;
+/// use std::rc::Rc;
+///
+/// let resolver = MultiIncludeLoader::<Box<dyn AsyncIncludeLoader + Send + Sync + 'static>>::new()
+///     .with_starts_with("https://", Box::new(HttpIncludeLoader::<AsyncReqwestFetcher>::allow_all()))
+///     .with_any(Box::<NoopIncludeLoader>::default());
+/// let opts = AsyncParserOptions {
+///     include_loader: Box::new(resolver),
+/// };
+/// let json = r#"<mjml>
+///   <mj-body>
+///     <mj-include path="file://basic.mjml" />
+///   </mj-body>
+/// </mjml>"#;
+/// match mrml::async_parse_with_options(json, Rc::new(opts)).await {
+///     Ok(_) => println!("Success!"),
+///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
+/// }
+/// # })
+/// ```
+pub struct MultiIncludeLoader<T>(Vec<MultiIncludeLoaderItem<T>>);
 
-impl MultiIncludeLoader {
-    fn with_item(
-        mut self,
-        filter: MultiIncludeLoaderFilter,
-        loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
-    ) -> Self {
+impl<T> MultiIncludeLoader<T> {
+    pub fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    fn with_item(mut self, filter: MultiIncludeLoaderFilter, loader: T) -> Self {
         self.0.push(MultiIncludeLoaderItem { filter, loader });
         self
     }
 
-    pub fn with_any(self, loader: Box<dyn IncludeLoader + Sync + Send + 'static>) -> Self {
+    pub fn with_any(self, loader: T) -> Self {
         self.with_item(MultiIncludeLoaderFilter::Any, loader)
     }
 
-    pub fn with_starts_with<S: ToString>(
-        self,
-        starts_with: S,
-        loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
-    ) -> Self {
+    pub fn with_starts_with<S: ToString>(self, starts_with: S, loader: T) -> Self {
         self.with_item(
             MultiIncludeLoaderFilter::StartsWith {
                 value: starts_with.to_string(),
@@ -65,23 +101,15 @@ impl MultiIncludeLoader {
         )
     }
 
-    fn add_item(
-        &mut self,
-        filter: MultiIncludeLoaderFilter,
-        loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
-    ) {
+    fn add_item(&mut self, filter: MultiIncludeLoaderFilter, loader: T) {
         self.0.push(MultiIncludeLoaderItem { filter, loader });
     }
 
-    pub fn add_any(&mut self, loader: Box<dyn IncludeLoader + Sync + Send + 'static>) {
+    pub fn add_any(&mut self, loader: T) {
         self.add_item(MultiIncludeLoaderFilter::Any, loader);
     }
 
-    pub fn add_starts_with<S: ToString>(
-        &mut self,
-        starts_with: S,
-        loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
-    ) {
+    pub fn add_starts_with<S: ToString>(&mut self, starts_with: S, loader: T) {
         self.add_item(
             MultiIncludeLoaderFilter::StartsWith {
                 value: starts_with.to_string(),
@@ -92,7 +120,7 @@ impl MultiIncludeLoader {
 }
 
 #[derive(Debug)]
-enum MultiIncludeLoaderFilter {
+pub enum MultiIncludeLoaderFilter {
     StartsWith { value: String },
     Any,
 }
@@ -107,13 +135,14 @@ impl MultiIncludeLoaderFilter {
 }
 
 #[derive(Debug)]
-struct MultiIncludeLoaderItem {
+pub struct MultiIncludeLoaderItem<T> {
     pub filter: MultiIncludeLoaderFilter,
-    pub loader: Box<dyn IncludeLoader + Sync + Send + 'static>,
+    pub loader: T,
 }
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
-impl IncludeLoader for MultiIncludeLoader {
+pub type MultiIncludeLoaderSync = MultiIncludeLoader<Box<dyn IncludeLoader + 'static>>;
+
+impl IncludeLoader for MultiIncludeLoaderSync {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.0
             .iter()
@@ -124,8 +153,15 @@ impl IncludeLoader for MultiIncludeLoader {
             })
             .and_then(|item| item.loader.resolve(path))
     }
+}
 
-    #[cfg(feature = "async")]
+#[cfg(feature = "async")]
+pub type MultiIncludeLoaderAsync =
+    MultiIncludeLoader<Box<dyn AsyncIncludeLoader + Sync + Send + 'static>>;
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncIncludeLoader for MultiIncludeLoaderAsync {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         let item = self
             .0
@@ -135,6 +171,7 @@ impl IncludeLoader for MultiIncludeLoader {
                 IncludeLoaderError::not_found(path)
                     .with_message("unable to find a compatible resolver")
             })?;
+
         item.loader.async_resolve(path).await
     }
 }
@@ -143,6 +180,8 @@ impl IncludeLoader for MultiIncludeLoader {
 mod tests {
     use std::io::ErrorKind;
 
+    use super::{MultiIncludeLoaderFilter, MultiIncludeLoaderItem};
+
     #[test]
     fn should_resolve_sync() {
         use crate::prelude::parser::loader::IncludeLoader;
@@ -150,16 +189,21 @@ mod tests {
         use crate::prelude::parser::multi_loader::MultiIncludeLoader;
         use crate::prelude::parser::noop_loader::NoopIncludeLoader;
 
-        let resolver = MultiIncludeLoader::default()
-            .with_starts_with(
-                "file://",
-                Box::new(MemoryIncludeLoader::from(vec![(
+        let resolver: MultiIncludeLoader<Box<dyn IncludeLoader>> = MultiIncludeLoader(vec![
+            MultiIncludeLoaderItem {
+                filter: MultiIncludeLoaderFilter::StartsWith {
+                    value: "file://".into(),
+                },
+                loader: Box::new(MemoryIncludeLoader::from(vec![(
                     "file://basic.mjml",
                     "<mj-button>Hello</mj-button>",
                 )])),
-            )
-            .with_any(Box::<NoopIncludeLoader>::default());
-
+            },
+            MultiIncludeLoaderItem {
+                filter: MultiIncludeLoaderFilter::Any,
+                loader: Box::<NoopIncludeLoader>::default(),
+            },
+        ]);
         assert_eq!(
             resolver.resolve("file://basic.mjml").unwrap(),
             "<mj-button>Hello</mj-button>"
@@ -167,47 +211,8 @@ mod tests {
 
         let err = resolver.resolve("file://not-found.mjml").unwrap_err();
         assert_eq!(err.reason, ErrorKind::NotFound);
-        // assert_eq!(err.message.unwrap(), "unable to find compatible resolver");
 
         let err = resolver.resolve("noop://not-found.mjml").unwrap_err();
-        assert_eq!(err.reason, ErrorKind::NotFound);
-        assert!(err.message.is_none());
-    }
-
-    #[cfg(feature = "async")]
-    #[tokio::test]
-    async fn should_resolve_async() {
-        use crate::prelude::parser::loader::IncludeLoader;
-        use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
-        use crate::prelude::parser::multi_loader::MultiIncludeLoader;
-        use crate::prelude::parser::noop_loader::NoopIncludeLoader;
-
-        let resolver = MultiIncludeLoader::default()
-            .with_starts_with(
-                "file://",
-                Box::new(MemoryIncludeLoader::from(vec![(
-                    "file://basic.mjml",
-                    "<mj-button>Hello</mj-button>",
-                )])),
-            )
-            .with_any(Box::<NoopIncludeLoader>::default());
-
-        assert_eq!(
-            resolver.async_resolve("file://basic.mjml").await.unwrap(),
-            "<mj-button>Hello</mj-button>"
-        );
-
-        let err = resolver
-            .async_resolve("file://not-found.mjml")
-            .await
-            .unwrap_err();
-        assert_eq!(err.reason, ErrorKind::NotFound);
-        // assert_eq!(err.message.unwrap(), "unable to find compatible resolver");
-
-        let err = resolver
-            .async_resolve("noop://not-found.mjml")
-            .await
-            .unwrap_err();
         assert_eq!(err.reason, ErrorKind::NotFound);
         assert!(err.message.is_none());
     }
@@ -217,25 +222,9 @@ mod tests {
         use crate::prelude::parser::loader::IncludeLoader;
         use crate::prelude::parser::multi_loader::MultiIncludeLoader;
 
-        let resolver = MultiIncludeLoader::default();
+        let resolver = MultiIncludeLoader(vec![]);
 
         let err = resolver.resolve("file://not-found.mjml").unwrap_err();
-        assert_eq!(err.reason, ErrorKind::NotFound);
-        assert_eq!(err.message.unwrap(), "unable to find a compatible resolver");
-    }
-
-    #[cfg(feature = "async")]
-    #[tokio::test]
-    async fn should_not_find_resolver_async() {
-        use crate::prelude::parser::loader::IncludeLoader;
-        use crate::prelude::parser::multi_loader::MultiIncludeLoader;
-
-        let resolver = MultiIncludeLoader::default();
-
-        let err = resolver
-            .async_resolve("file://not-found.mjml")
-            .await
-            .unwrap_err();
         assert_eq!(err.reason, ErrorKind::NotFound);
         assert_eq!(err.message.unwrap(), "unable to find a compatible resolver");
     }
@@ -251,5 +240,62 @@ mod tests {
         assert_eq!(resolver.0.len(), 2);
 
         assert_eq!(format!("{resolver:?}"), "MultiIncludeLoader([MultiIncludeLoaderItem { filter: StartsWith { value: \"foo\" }, loader: NoopIncludeLoader }, MultiIncludeLoaderItem { filter: Any, loader: NoopIncludeLoader }])");
+    }
+}
+
+#[cfg(all(test, feature = "async"))]
+mod async_tests {
+    use std::io::ErrorKind;
+
+    #[tokio::test]
+    async fn should_resolve_async() {
+        use crate::prelude::parser::loader::AsyncIncludeLoader;
+        use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
+        use crate::prelude::parser::multi_loader::MultiIncludeLoader;
+        use crate::prelude::parser::noop_loader::NoopIncludeLoader;
+
+        let resolver =
+            MultiIncludeLoader::<Box<dyn AsyncIncludeLoader + Sync + Send + 'static>>::new()
+                .with_starts_with(
+                    "file://",
+                    Box::new(MemoryIncludeLoader::from(vec![(
+                        "file://basic.mjml",
+                        "<mj-button>Hello</mj-button>",
+                    )])),
+                )
+                .with_any(Box::<NoopIncludeLoader>::default());
+
+        assert_eq!(
+            resolver.async_resolve("file://basic.mjml").await.unwrap(),
+            "<mj-button>Hello</mj-button>"
+        );
+
+        let err = resolver
+            .async_resolve("file://not-found.mjml")
+            .await
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::NotFound);
+
+        let err = resolver
+            .async_resolve("noop://not-found.mjml")
+            .await
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::NotFound);
+        assert!(err.message.is_none());
+    }
+
+    #[tokio::test]
+    async fn should_not_find_resolver_async() {
+        use crate::prelude::parser::loader::AsyncIncludeLoader;
+        use crate::prelude::parser::multi_loader::MultiIncludeLoader;
+
+        let resolver = MultiIncludeLoader::new();
+
+        let err = resolver
+            .async_resolve("file://not-found.mjml")
+            .await
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::NotFound);
+        assert_eq!(err.message.unwrap(), "unable to find a compatible resolver");
     }
 }

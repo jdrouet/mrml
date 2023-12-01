@@ -25,8 +25,13 @@ orderedmap = ["dep:indexmap", "dep:rustc-hash"]
 async = ["dep:async-trait"]
 local-loader = []
 http-loader = ["http-loader-ureq"]
-http-loader-base = ["dep:url"]
-http-loader-reqwest = ["dep:reqwest", "http-loader-base"]
+http-loader-base = ["parse", "dep:url"]
+http-loader-blocking-reqwest = [
+  "dep:reqwest",
+  "http-loader-base",
+  "reqwest/blocking",
+]
+http-loader-async-reqwest = ["dep:reqwest", "async", "http-loader-base"]
 http-loader-ureq = ["dep:ureq", "http-loader-base"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -42,7 +47,7 @@ thiserror = { version = "1.0", optional = true }
 
 # http-loader feature related
 reqwest = { version = "0.11", default-features = false, features = [
-  "blocking",
+  "rustls-tls",
 ], optional = true }
 ureq = { version = "2.7", optional = true }
 url = { version = "^2", optional = true }
@@ -59,6 +64,7 @@ html-compare = { version = "0.1", path = "./lib/html-compare" }
 similar-asserts = "1.4"
 mockito = "1.1"
 tokio = { version = "1.0", features = ["full"] }
+tokio-test = { version = "0.4" }
 
 [[bench]]
 name = "basic"

@@ -3,11 +3,13 @@ use xmlparser::StrSpan;
 use super::{MjSocial, MjSocialChild};
 use crate::comment::Comment;
 use crate::mj_social_element::NAME as MJ_SOCIAL_ELEMENT;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl ParseChildren<Vec<MjSocialChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjSocialChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjSocialChild>, Error> {
         let mut result = Vec::new();
 
@@ -35,9 +37,59 @@ impl ParseChildren<Vec<MjSocialChild>> for MrmlParser {
     }
 }
 
-impl ParseElement<MjSocial> for MrmlParser {
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseChildren<Vec<MjSocialChild>> for AsyncMrmlParser {
+    async fn async_parse_children<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<Vec<MjSocialChild>, Error> {
+        let mut result = Vec::new();
+
+        loop {
+            match cursor.assert_next()? {
+                MrmlToken::Comment(inner) => {
+                    result.push(MjSocialChild::Comment(Comment::from(inner.text.as_str())));
+                }
+                MrmlToken::ElementStart(inner) => {
+                    if inner.local.as_str() == MJ_SOCIAL_ELEMENT {
+                        result.push(MjSocialChild::MjSocialElement(
+                            self.async_parse(cursor, inner.local).await?,
+                        ));
+                    } else {
+                        return Err(Error::UnexpectedElement(inner.span.into()));
+                    }
+                }
+                MrmlToken::ElementClose(inner) => {
+                    cursor.rewind(MrmlToken::ElementClose(inner));
+                    return Ok(result);
+                }
+                other => return Err(Error::UnexpectedToken(other.span())),
+            }
+        }
+    }
+}
+
+impl<'opts> ParseElement<MjSocial> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjSocial, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
+
+        Ok(MjSocial {
+            attributes,
+            children,
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjSocial> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjSocial, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
 
         Ok(MjSocial {
             attributes,

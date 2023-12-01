@@ -36,7 +36,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Comment {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "parse"))]
 mod tests {
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;

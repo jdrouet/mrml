@@ -295,15 +295,17 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
         let base = Style::default()
             .add_str_selector(".mj-carousel-previous-icons")
             .add_str_selector(".mj-carousel-next-icons");
-        let base =
-            (0..length).fold(base, |res, idx| {
-                let ext = repeat(length - idx - 1, "+ * ");
-                let index = (idx + 1) % length + 1;
-                res.add_selector(format!(
+        let base = (0..length).fold(base, |res, idx| {
+            let ext = repeat(length - idx - 1, "+ * ");
+            let index = (idx + 1) % length + 1;
+            res.add_selector(format!(
                 ".mj-carousel-{}-radio-{}:checked {}+ .mj-carousel-content .mj-carousel-next-{}",
-                self.id, idx + 1, ext, index
+                self.id,
+                idx + 1,
+                ext,
+                index
             ))
-            });
+        });
         let base = (0..length).fold(base, |res, idx| {
             let ext = repeat(length - idx - 1, "+ * ");
             let index = (idx + length - 1) % length + 1;

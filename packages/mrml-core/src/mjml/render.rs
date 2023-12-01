@@ -74,7 +74,7 @@ impl Mjml {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "parse"))]
 mod tests {
     use crate::mjml::Mjml;
     use crate::prelude::render::Options;

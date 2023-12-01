@@ -9,11 +9,13 @@ use crate::mj_preview::NAME as MJ_PREVIEW;
 use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::NAME as MJ_TITLE;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl ParseChildren<Vec<MjHeadChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjHeadChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjHeadChild>, Error> {
         let mut result = Vec::new();
         loop {
@@ -35,7 +37,7 @@ impl ParseChildren<Vec<MjHeadChild>> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseChildren<Vec<MjHeadChild>> for MrmlParser {
+impl AsyncParseChildren<Vec<MjHeadChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -60,7 +62,7 @@ impl crate::prelude::parser::AsyncParseChildren<Vec<MjHeadChild>> for MrmlParser
     }
 }
 
-impl ParseElement<MjHead> for MrmlParser {
+impl<'opts> ParseElement<MjHead> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjHead, Error> {
         let ending = cursor.assert_element_end()?;
         if ending.empty {
@@ -75,14 +77,12 @@ impl ParseElement<MjHead> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<MjHead> for MrmlParser {
+impl AsyncParseElement<MjHead> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         _tag: StrSpan<'a>,
     ) -> Result<MjHead, Error> {
-        use crate::prelude::parser::AsyncParseChildren;
-
         let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok(MjHead::default());
@@ -94,7 +94,7 @@ impl crate::prelude::parser::AsyncParseElement<MjHead> for MrmlParser {
     }
 }
 
-impl ParseElement<MjHeadChild> for MrmlParser {
+impl<'opts> ParseElement<MjHeadChild> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -116,24 +116,39 @@ impl ParseElement<MjHeadChild> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<MjHeadChild> for MrmlParser {
+impl AsyncParseElement<MjHeadChild> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<MjHeadChild, Error> {
         match tag.as_str() {
-            MJ_ATTRIBUTES => self.parse(cursor, tag).map(MjHeadChild::MjAttributes),
-            MJ_BREAKPOINT => self.parse(cursor, tag).map(MjHeadChild::MjBreakpoint),
-            MJ_FONT => self.parse(cursor, tag).map(MjHeadChild::MjFont),
+            MJ_ATTRIBUTES => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjHeadChild::MjAttributes),
+            MJ_BREAKPOINT => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjHeadChild::MjBreakpoint),
+            MJ_FONT => self.async_parse(cursor, tag).await.map(MjHeadChild::MjFont),
             MJ_INCLUDE => self
                 .async_parse(cursor, tag)
                 .await
                 .map(MjHeadChild::MjInclude),
-            MJ_PREVIEW => self.parse(cursor, tag).map(MjHeadChild::MjPreview),
-            MJ_RAW => self.parse(cursor, tag).map(MjHeadChild::MjRaw),
-            MJ_STYLE => self.parse(cursor, tag).map(MjHeadChild::MjStyle),
-            MJ_TITLE => self.parse(cursor, tag).map(MjHeadChild::MjTitle),
+            MJ_PREVIEW => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjHeadChild::MjPreview),
+            MJ_RAW => self.async_parse(cursor, tag).await.map(MjHeadChild::MjRaw),
+            MJ_STYLE => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjHeadChild::MjStyle),
+            MJ_TITLE => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjHeadChild::MjTitle),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }
     }

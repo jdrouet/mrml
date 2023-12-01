@@ -6,6 +6,8 @@ use std::iter::FromIterator;
 
 use super::loader::IncludeLoaderError;
 use crate::prelude::hash::Map;
+#[cfg(feature = "async")]
+use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
@@ -16,7 +18,6 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///
 /// # Example
 /// ```rust
-/// use std::sync::Arc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
 /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 /// use mrml::prelude::parser::ParserOptions;
@@ -30,7 +31,7 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     <mj-include path="basic.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(json, Arc::new(opts)) {
+/// match mrml::parse_with_options(json, &opts) {
 ///     Ok(_) => println!("Success!"),
 ///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 /// }
@@ -61,7 +62,6 @@ impl From<Map<String, String>> for MemoryIncludeLoader {
     }
 }
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl IncludeLoader for MemoryIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.0
@@ -69,9 +69,15 @@ impl IncludeLoader for MemoryIncludeLoader {
             .cloned()
             .ok_or_else(|| IncludeLoaderError::not_found(path))
     }
+}
 
-    #[cfg(feature = "async")]
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncIncludeLoader for MemoryIncludeLoader {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
-        self.resolve(path)
+        self.0
+            .get(path)
+            .cloned()
+            .ok_or_else(|| IncludeLoaderError::not_found(path))
     }
 }

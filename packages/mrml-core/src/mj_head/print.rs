@@ -8,6 +8,7 @@ mod tests {
         assert_eq!("<mj-head />", item.dense_print());
     }
 
+    #[cfg(feature = "parse")]
     #[test]
     fn with_all() {
         let origin = r#"<mjml>

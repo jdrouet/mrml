@@ -1,5 +1,7 @@
 //! Module containing a loader that doesn't load any template.
 
+#[cfg(feature = "async")]
+use super::loader::AsyncIncludeLoader;
 use super::loader::IncludeLoaderError;
 use crate::prelude::parser::loader::IncludeLoader;
 
@@ -10,7 +12,6 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///
 /// # Example
 /// ```rust
-/// use std::sync::Arc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
 /// use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 /// use mrml::prelude::parser::ParserOptions;
@@ -24,20 +25,22 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     <mj-include path="basic.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(json, Arc::new(opts)) {
+/// match mrml::parse_with_options(json, &opts) {
 ///     Ok(_) => eprintln!("This should not happen!"),
 ///     Err(err) => println!("Couldn't parse template: {err:?}"),
 /// }
 /// ```
 pub struct NoopIncludeLoader;
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl IncludeLoader for NoopIncludeLoader {
     fn resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         Err(IncludeLoaderError::not_found(path))
     }
+}
 
-    #[cfg(feature = "async")]
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncIncludeLoader for NoopIncludeLoader {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         Err(IncludeLoaderError::not_found(path))
     }

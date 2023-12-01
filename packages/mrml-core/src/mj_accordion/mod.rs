@@ -36,17 +36,18 @@ pub struct MjAccordion {
     pub children: Vec<MjAccordionChild>,
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "parse", feature = "render"))]
 mod tests {
-    use crate::mj_accordion::MjAccordion;
-    use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
-    use crate::mj_accordion_title::MjAccordionTitle;
-    use crate::prelude::parser::{MrmlCursor, MrmlParser};
-    use crate::prelude::print::Print;
-    use crate::text::Text;
-
+    #[cfg(feature = "print")]
     #[test]
     fn chaining_print_parse() {
+        use crate::mj_accordion::MjAccordion;
+        use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
+        use crate::mj_accordion_title::MjAccordionTitle;
+        use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions};
+        use crate::prelude::print::Print;
+        use crate::text::Text;
+
         let element = MjAccordion {
             attributes: Default::default(),
             children: vec![MjAccordionElement {
@@ -63,15 +64,22 @@ mod tests {
         };
         let initial = element.print(false, 0, 2);
         let raw ="<mj-accordion><mj-accordion-element><mj-accordion-title>Hello World!</mj-accordion-title></mj-accordion-element></mj-accordion>";
-        let parser = MrmlParser::default();
+        let opts = ParserOptions::default();
+        let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(raw);
         let elt: MjAccordion = parser.parse_root(&mut cursor).unwrap();
         let result = elt.print(false, 0, 2);
         assert_eq!(initial, result);
     }
 
+    #[cfg(feature = "json")]
     #[test]
     fn chaining_json_parse() {
+        use crate::mj_accordion::MjAccordion;
+        use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
+        use crate::mj_accordion_title::MjAccordionTitle;
+        use crate::text::Text;
+
         let element = MjAccordion {
             attributes: Default::default(),
             children: vec![MjAccordionElement {

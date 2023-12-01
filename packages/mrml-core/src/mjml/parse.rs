@@ -1,28 +1,35 @@
 use xmlparser::StrSpan;
 
 use super::{Mjml, MjmlAttributes, MjmlChildren};
-use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
 };
+use crate::{mj_body::NAME as MJ_BODY, prelude::parser::ParserOptions};
 
-impl ParseAttributes<MjmlAttributes> for MrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
-        let mut attrs = MjmlAttributes::default();
-        while let Some(token) = cursor.next_attribute()? {
-            match token.local.as_str() {
-                "owa" => attrs.owa = Some(token.value.to_string()),
-                "lang" => attrs.lang = Some(token.value.to_string()),
-                "dir" => attrs.dir = Some(token.value.to_string()),
-                _ => return Err(Error::UnexpectedAttribute(token.span.into())),
-            }
+#[inline]
+fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
+    let mut attrs = MjmlAttributes::default();
+    while let Some(token) = cursor.next_attribute()? {
+        match token.local.as_str() {
+            "owa" => attrs.owa = Some(token.value.to_string()),
+            "lang" => attrs.lang = Some(token.value.to_string()),
+            "dir" => attrs.dir = Some(token.value.to_string()),
+            _ => return Err(Error::UnexpectedAttribute(token.span.into())),
         }
-        Ok(attrs)
+    }
+    Ok(attrs)
+}
+
+impl<'opts> ParseAttributes<MjmlAttributes> for MrmlParser<'opts> {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
+        parse_attributes(cursor)
     }
 }
 
-impl ParseChildren<MjmlChildren> for MrmlParser {
+impl<'opts> ParseChildren<MjmlChildren> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlChildren, Error> {
         let mut children = MjmlChildren::default();
 
@@ -52,14 +59,19 @@ impl ParseChildren<MjmlChildren> for MrmlParser {
 }
 
 #[cfg(feature = "async")]
+impl ParseAttributes<MjmlAttributes> for AsyncMrmlParser {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
+        parse_attributes(cursor)
+    }
+}
+
+#[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseChildren<MjmlChildren> for MrmlParser {
+impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
     ) -> Result<MjmlChildren, Error> {
-        use crate::prelude::parser::AsyncParseElement;
-
         let mut children = MjmlChildren::default();
 
         loop {
@@ -87,7 +99,7 @@ impl crate::prelude::parser::AsyncParseChildren<MjmlChildren> for MrmlParser {
     }
 }
 
-impl ParseElement<Mjml> for MrmlParser {
+impl<'opts> ParseElement<Mjml> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<Mjml, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
@@ -100,13 +112,13 @@ impl ParseElement<Mjml> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<Mjml> for MrmlParser {
+impl AsyncParseElement<Mjml> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         _tag: StrSpan<'a>,
     ) -> Result<Mjml, Error> {
-        let (attributes, children) = self.async_parse_attributes_and_children(cursor).await?;
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
 
         Ok(Mjml {
             attributes,
@@ -129,19 +141,18 @@ impl Mjml {
     /// use mrml::mjml::Mjml;
     /// use mrml::prelude::parser::ParserOptions;
     /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-    /// use std::sync::Arc;
     ///
-    /// let options = Arc::new(ParserOptions {
+    /// let options = ParserOptions {
     ///     include_loader: Box::new(MemoryIncludeLoader::default()),
-    /// });
-    /// match Mjml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options) {
+    /// };
+    /// match Mjml::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", &options) {
     ///     Ok(_) => println!("Success!"),
     ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
     /// }
     /// ```
     pub fn parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
+        opts: &ParserOptions,
     ) -> Result<Self, Error> {
         let parser = MrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
@@ -151,17 +162,18 @@ impl Mjml {
     #[cfg(feature = "async")]
     pub async fn async_parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::sync::Arc<crate::prelude::parser::ParserOptions>,
+        opts: std::rc::Rc<crate::prelude::parser::AsyncParserOptions>,
     ) -> Result<Self, Error> {
-        let parser = MrmlParser::new(opts);
+        let parser = AsyncMrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
-        parser.async_parse_root(&mut cursor).await
+        parser.parse_root(&mut cursor).await
     }
 
     /// Function to parse a raw mjml template using the default parsing
     /// [options](crate::prelude::parser::ParserOptions).
     pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        let parser = MrmlParser::default();
+        let opts = ParserOptions::default();
+        let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
         parser.parse_root(&mut cursor)
     }
@@ -170,9 +182,9 @@ impl Mjml {
     /// Function to parse a raw mjml template using the default parsing
     /// [options](crate::prelude::parser::ParserOptions).
     pub async fn async_parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        let parser = MrmlParser::default();
+        let parser = AsyncMrmlParser::default();
         let mut cursor = MrmlCursor::new(value.as_ref());
-        parser.async_parse_root(&mut cursor).await
+        parser.parse_root(&mut cursor).await
     }
 }
 
@@ -183,7 +195,7 @@ mod tests {
     #[test]
     fn should_parse_with_options_sync() {
         let template = "<mjml></mjml>";
-        let elt = Mjml::parse_with_options(template, Default::default()).unwrap();
+        let elt = Mjml::parse_with_options(template, &Default::default()).unwrap();
         assert!(elt.children.body.is_none());
         assert!(elt.children.head.is_none());
     }

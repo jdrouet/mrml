@@ -1,26 +1,45 @@
 use xmlparser::StrSpan;
 
 use super::MjPreview;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl ParseElement<MjPreview> for MrmlParser {
+#[inline]
+fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjPreview, Error> {
+    let ending = cursor.assert_element_end()?;
+    if ending.empty {
+        return Ok(MjPreview::default());
+    }
+
+    let text = cursor.next_text()?.map(|inner| inner.text.to_string());
+
+    cursor.assert_element_close()?;
+
+    Ok(MjPreview {
+        children: text.unwrap_or_default(),
+    })
+}
+
+impl<'opts> ParseElement<MjPreview> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         _tag: StrSpan<'a>,
     ) -> Result<MjPreview, Error> {
-        let ending = cursor.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjPreview::default());
-        }
+        parse(cursor)
+    }
+}
 
-        let text = cursor.next_text()?.map(|inner| inner.text.to_string());
-
-        cursor.assert_element_close()?;
-
-        Ok(MjPreview {
-            children: text.unwrap_or_default(),
-        })
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjPreview> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjPreview, Error> {
+        parse(cursor)
     }
 }
 

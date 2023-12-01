@@ -21,8 +21,10 @@ use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::NAME as MJ_WRAPPER;
 use crate::node::Node;
 use crate::prelude::parser::{
-    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
+    parse_attributes_map, Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::text::Text;
 
 fn should_ignore_children(tag: &str) -> bool {
@@ -45,14 +47,14 @@ fn should_ignore_children(tag: &str) -> bool {
     )
 }
 
-impl ParseElement<Node<MjBodyChild>> for MrmlParser {
+impl<'opts> ParseElement<Node<MjBodyChild>> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<Node<MjBodyChild>, Error> {
         let tag = tag.to_string();
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = parse_attributes_map(cursor)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty || should_ignore_children(tag.as_str()) {
             return Ok(Node {
@@ -75,16 +77,14 @@ impl ParseElement<Node<MjBodyChild>> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<Node<MjBodyChild>> for MrmlParser {
+impl AsyncParseElement<Node<MjBodyChild>> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<Node<MjBodyChild>, Error> {
-        use crate::prelude::parser::AsyncParseChildren;
-
         let tag = tag.to_string();
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = parse_attributes_map(cursor)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty || should_ignore_children(tag.as_str()) {
             return Ok(Node {
@@ -105,7 +105,7 @@ impl crate::prelude::parser::AsyncParseElement<Node<MjBodyChild>> for MrmlParser
     }
 }
 
-impl ParseElement<MjBodyChild> for MrmlParser {
+impl<'opts> ParseElement<MjBodyChild> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -136,36 +136,40 @@ impl ParseElement<MjBodyChild> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<MjBodyChild> for MrmlParser {
+impl AsyncParseElement<MjBodyChild> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<MjBodyChild, Error> {
         match tag.as_str() {
-            MJ_ACCORDION => Ok(MjBodyChild::MjAccordion(self.parse(cursor, tag)?)),
+            MJ_ACCORDION => Ok(MjBodyChild::MjAccordion(
+                self.async_parse(cursor, tag).await?,
+            )),
             MJ_BUTTON => Ok(MjBodyChild::MjButton(self.async_parse(cursor, tag).await?)),
-            MJ_CAROUSEL => Ok(MjBodyChild::MjCarousel(self.parse(cursor, tag)?)),
+            MJ_CAROUSEL => Ok(MjBodyChild::MjCarousel(
+                self.async_parse(cursor, tag).await?,
+            )),
             MJ_COLUMN => Ok(MjBodyChild::MjColumn(self.async_parse(cursor, tag).await?)),
-            MJ_DIVIDER => Ok(MjBodyChild::MjDivider(self.parse(cursor, tag)?)),
+            MJ_DIVIDER => Ok(MjBodyChild::MjDivider(self.async_parse(cursor, tag).await?)),
             MJ_GROUP => Ok(MjBodyChild::MjGroup(self.async_parse(cursor, tag).await?)),
             MJ_HERO => Ok(MjBodyChild::MjHero(self.async_parse(cursor, tag).await?)),
-            MJ_IMAGE => Ok(MjBodyChild::MjImage(self.parse(cursor, tag)?)),
+            MJ_IMAGE => Ok(MjBodyChild::MjImage(self.async_parse(cursor, tag).await?)),
             MJ_INCLUDE => Ok(MjBodyChild::MjInclude(self.async_parse(cursor, tag).await?)),
-            MJ_NAVBAR => Ok(MjBodyChild::MjNavbar(self.parse(cursor, tag)?)),
-            MJ_RAW => Ok(MjBodyChild::MjRaw(self.parse(cursor, tag)?)),
+            MJ_NAVBAR => Ok(MjBodyChild::MjNavbar(self.async_parse(cursor, tag).await?)),
+            MJ_RAW => Ok(MjBodyChild::MjRaw(self.async_parse(cursor, tag).await?)),
             MJ_SECTION => Ok(MjBodyChild::MjSection(self.async_parse(cursor, tag).await?)),
-            MJ_SOCIAL => Ok(MjBodyChild::MjSocial(self.parse(cursor, tag)?)),
-            MJ_SPACER => Ok(MjBodyChild::MjSpacer(self.parse(cursor, tag)?)),
+            MJ_SOCIAL => Ok(MjBodyChild::MjSocial(self.async_parse(cursor, tag).await?)),
+            MJ_SPACER => Ok(MjBodyChild::MjSpacer(self.async_parse(cursor, tag).await?)),
             MJ_TABLE => Ok(MjBodyChild::MjTable(self.async_parse(cursor, tag).await?)),
             MJ_TEXT => Ok(MjBodyChild::MjText(self.async_parse(cursor, tag).await?)),
-            MJ_WRAPPER => Ok(MjBodyChild::MjWrapper(self.parse(cursor, tag)?)),
+            MJ_WRAPPER => Ok(MjBodyChild::MjWrapper(self.async_parse(cursor, tag).await?)),
             _ => Ok(MjBodyChild::Node(self.async_parse(cursor, tag).await?)),
         }
     }
 }
 
-impl ParseChildren<Vec<MjBodyChild>> for MrmlParser {
+impl<'opts> ParseChildren<Vec<MjBodyChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjBodyChild>, Error> {
         let mut result = Vec::new();
         while let Some(token) = cursor.next_token() {
@@ -194,13 +198,11 @@ impl ParseChildren<Vec<MjBodyChild>> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseChildren<Vec<MjBodyChild>> for MrmlParser {
+impl AsyncParseChildren<Vec<MjBodyChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
     ) -> Result<Vec<MjBodyChild>, Error> {
-        use crate::prelude::parser::AsyncParseElement;
-
         let mut result = Vec::new();
         while let Some(token) = cursor.next_token() {
             match token? {
@@ -226,7 +228,7 @@ impl crate::prelude::parser::AsyncParseChildren<Vec<MjBodyChild>> for MrmlParser
     }
 }
 
-impl ParseElement<MjBody> for MrmlParser {
+impl<'opts> ParseElement<MjBody> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjBody, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
@@ -239,13 +241,13 @@ impl ParseElement<MjBody> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<MjBody> for MrmlParser {
+impl AsyncParseElement<MjBody> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         _tag: StrSpan<'a>,
     ) -> Result<MjBody, Error> {
-        let (attributes, children) = self.async_parse_attributes_and_children(cursor).await?;
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
 
         Ok(MjBody {
             attributes,

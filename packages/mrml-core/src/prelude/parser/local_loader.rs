@@ -6,6 +6,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use super::loader::IncludeLoaderError;
+#[cfg(feature = "async")]
+use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
@@ -17,7 +19,6 @@ use crate::prelude::parser::loader::IncludeLoader;
 /// # Example
 /// ```rust
 /// use std::path::PathBuf;
-/// use std::sync::Arc;
 /// use mrml::mj_include::body::MjIncludeBodyKind;
 /// use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 /// use mrml::prelude::parser::ParserOptions;
@@ -35,7 +36,7 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     <mj-include path="file:///mj-accordion.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(template, Arc::new(opts)) {
+/// match mrml::parse_with_options(template, &opts) {
 ///     Ok(_) => println!("Success!"),
 ///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 /// }
@@ -73,7 +74,6 @@ impl LocalIncludeLoader {
     }
 }
 
-#[cfg_attr(feature = "async", async_trait::async_trait(?Send))]
 impl IncludeLoader for LocalIncludeLoader {
     fn resolve(&self, url: &str) -> Result<String, IncludeLoaderError> {
         let path = self.build_path(url)?;
@@ -83,10 +83,18 @@ impl IncludeLoader for LocalIncludeLoader {
                 .with_cause(Arc::new(err))
         })
     }
+}
 
-    #[cfg(feature = "async")]
-    async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
-        self.resolve(path)
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncIncludeLoader for LocalIncludeLoader {
+    async fn async_resolve(&self, url: &str) -> Result<String, IncludeLoaderError> {
+        let path = self.build_path(url)?;
+        std::fs::read_to_string(path).map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::InvalidData)
+                .with_message("unable to load the template file")
+                .with_cause(Arc::new(err))
+        })
     }
 }
 

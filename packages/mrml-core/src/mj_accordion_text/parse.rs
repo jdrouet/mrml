@@ -1,15 +1,34 @@
 use xmlparser::StrSpan;
 
 use super::MjAccordionText;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseElement};
 
-impl ParseElement<MjAccordionText> for MrmlParser {
+impl<'opts> ParseElement<MjAccordionText> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         _tag: StrSpan<'a>,
     ) -> Result<MjAccordionText, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
+
+        Ok(MjAccordionText {
+            attributes,
+            children,
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjAccordionText> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjAccordionText, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
 
         Ok(MjAccordionText {
             attributes,

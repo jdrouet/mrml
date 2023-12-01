@@ -64,11 +64,12 @@ impl<'r, 'e: 'r, 'h: 'r, T: Renderable<'r, 'e, 'h>> Renderable<'r, 'e, 'h> for N
 
 #[cfg(test)]
 mod tests {
-    use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
-
+    #[cfg(feature = "parse")]
     #[test]
     fn empty_script_should_have_closing_element() {
+        use crate::mjml::Mjml;
+        use crate::prelude::render::Options;
+
         let opts = Options::default();
         let template = r#"<mjml>
     <mj-body>

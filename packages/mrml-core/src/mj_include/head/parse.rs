@@ -11,12 +11,14 @@ use crate::mj_preview::NAME as MJ_PREVIEW;
 use crate::mj_raw::NAME as MJ_RAW;
 use crate::mj_style::NAME as MJ_STYLE;
 use crate::mj_title::NAME as MJ_TITLE;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
 };
 use crate::text::Text;
 
-impl ParseElement<MjIncludeHeadChild> for MrmlParser {
+impl<'opts> ParseElement<MjIncludeHeadChild> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -39,34 +41,91 @@ impl ParseElement<MjIncludeHeadChild> for MrmlParser {
     }
 }
 
-impl ParseAttributes<MjIncludeHeadAttributes> for MrmlParser {
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjIncludeHeadChild> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        tag: StrSpan<'a>,
+    ) -> Result<MjIncludeHeadChild, Error> {
+        match tag.as_str() {
+            MJ_ATTRIBUTES => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjIncludeHeadChild::MjAttributes),
+            MJ_BREAKPOINT => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjIncludeHeadChild::MjBreakpoint),
+            MJ_FONT => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjIncludeHeadChild::MjFont),
+            MJ_PREVIEW => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjIncludeHeadChild::MjPreview),
+            MJ_RAW => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjIncludeHeadChild::MjRaw),
+            MJ_STYLE => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjIncludeHeadChild::MjStyle),
+            MJ_TITLE => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjIncludeHeadChild::MjTitle),
+            _ => Err(Error::UnexpectedElement(tag.into())),
+        }
+    }
+}
+
+#[inline]
+fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeHeadAttributes, Error> {
+    let mut path = None;
+    let mut kind = None;
+    while let Some(attr) = cursor.next_attribute()? {
+        match attr.local.as_str() {
+            "path" => {
+                path = Some(attr.value.to_string());
+            }
+            "type" => {
+                kind = Some(MjIncludeHeadKind::try_from(attr.value)?);
+            }
+            _ => {
+                return Err(Error::UnexpectedAttribute(attr.span.into()));
+            }
+        }
+    }
+    Ok(MjIncludeHeadAttributes {
+        path: path.ok_or_else(|| Error::MissingAttribute("path", Default::default()))?,
+        kind: kind.unwrap_or_default(),
+    })
+}
+
+impl<'opts> ParseAttributes<MjIncludeHeadAttributes> for MrmlParser<'opts> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
     ) -> Result<MjIncludeHeadAttributes, Error> {
-        let mut path = None;
-        let mut kind = None;
-        while let Some(attr) = cursor.next_attribute()? {
-            match attr.local.as_str() {
-                "path" => {
-                    path = Some(attr.value.to_string());
-                }
-                "type" => {
-                    kind = Some(MjIncludeHeadKind::try_from(attr.value)?);
-                }
-                _ => {
-                    return Err(Error::UnexpectedAttribute(attr.span.into()));
-                }
-            }
-        }
-        Ok(MjIncludeHeadAttributes {
-            path: path.ok_or_else(|| Error::MissingAttribute("path", Default::default()))?,
-            kind: kind.unwrap_or_default(),
-        })
+        parse_attributes(cursor)
     }
 }
 
-impl ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser {
+#[cfg(feature = "async")]
+impl ParseAttributes<MjIncludeHeadAttributes> for AsyncMrmlParser {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+    ) -> Result<MjIncludeHeadAttributes, Error> {
+        parse_attributes(cursor)
+    }
+}
+
+impl<'opts> ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser<'opts> {
     fn parse_children(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -98,7 +157,41 @@ impl ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser {
     }
 }
 
-impl ParseElement<MjIncludeHead> for MrmlParser {
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseChildren<Vec<MjIncludeHeadChild>> for AsyncMrmlParser {
+    async fn async_parse_children<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<Vec<MjIncludeHeadChild>, Error> {
+        let mut result = Vec::new();
+        while let Some(token) = cursor.next_token() {
+            match token? {
+                MrmlToken::Comment(inner) => {
+                    result.push(MjIncludeHeadChild::Comment(Comment::from(
+                        inner.text.as_str(),
+                    )));
+                }
+                MrmlToken::Text(inner) => {
+                    result.push(MjIncludeHeadChild::Text(Text::from(inner.text.as_str())));
+                }
+                MrmlToken::ElementStart(inner) => {
+                    result.push(self.async_parse(cursor, inner.local).await?);
+                }
+                MrmlToken::ElementClose(close) => {
+                    cursor.rewind(MrmlToken::ElementClose(close));
+                    return Ok(result);
+                }
+                other => {
+                    return Err(Error::UnexpectedToken(other.span()));
+                }
+            }
+        }
+        Ok(result)
+    }
+}
+
+impl<'opts> ParseElement<MjIncludeHead> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -144,14 +237,14 @@ impl ParseElement<MjIncludeHead> for MrmlParser {
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait(?Send)]
-impl crate::prelude::parser::AsyncParseElement<MjIncludeHead> for MrmlParser {
+impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<MjIncludeHead, Error> {
         let (attributes, children): (MjIncludeHeadAttributes, Vec<MjIncludeHeadChild>) =
-            self.parse_attributes_and_children(cursor)?;
+            self.parse_attributes_and_children(cursor).await?;
 
         // if a mj-include has some content, we don't load it
         let children: Vec<MjIncludeHeadChild> = if children.is_empty() {
@@ -174,7 +267,7 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeHead> for MrmlParser {
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());
-                    self.parse_children(&mut sub)?
+                    self.async_parse_children(&mut sub).await?
                 }
                 MjIncludeHeadKind::Html => unimplemented!(),
             }
@@ -205,7 +298,6 @@ impl<'a> TryFrom<StrSpan<'a>> for MjIncludeHeadKind {
 #[cfg(test)]
 mod tests {
     use std::convert::TryFrom;
-    use std::sync::Arc;
 
     use xmlparser::StrSpan;
 
@@ -281,7 +373,7 @@ mod tests {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let parser = MrmlParser::new(Arc::new(opts));
+        let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
         assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
@@ -291,15 +383,17 @@ mod tests {
     #[cfg(feature = "async")]
     #[tokio::test]
     async fn basic_in_memory_resolver_async() {
+        use crate::prelude::parser::{AsyncMrmlParser, AsyncParserOptions};
+
         let resolver =
             MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-title>Hello</mj-title>")]);
-        let opts = ParserOptions {
+        let opts = AsyncParserOptions {
             include_loader: Box::new(resolver),
         };
         let raw = r#"<mj-include path="basic.mjml" />"#;
-        let parser = MrmlParser::new(Arc::new(opts));
+        let parser = AsyncMrmlParser::new(opts.into());
         let mut cursor = MrmlCursor::new(raw);
-        let include: MjIncludeHead = parser.async_parse_root(&mut cursor).await.unwrap();
+        let include: MjIncludeHead = parser.parse_root(&mut cursor).await.unwrap();
         assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
         let _content = include.children.first().unwrap();
     }
@@ -312,7 +406,7 @@ mod tests {
         let opts = ParserOptions {
             include_loader: Box::new(resolver),
         };
-        let parser = MrmlParser::new(Arc::new(opts));
+        let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
         assert_eq!(
@@ -325,15 +419,17 @@ mod tests {
     #[cfg(feature = "async")]
     #[tokio::test]
     async fn type_css_in_memory_resolver_async() {
+        use crate::prelude::parser::{AsyncMrmlParser, AsyncParserOptions};
+
         let resolver =
             MemoryIncludeLoader::from(vec![("partial.css", "* { background-color: red; }")]);
         let raw = r#"<mj-include path="partial.css" type="css" />"#;
-        let opts = ParserOptions {
+        let opts = AsyncParserOptions {
             include_loader: Box::new(resolver),
         };
-        let parser = MrmlParser::new(Arc::new(opts));
+        let parser = AsyncMrmlParser::new(opts.into());
         let mut cursor = MrmlCursor::new(raw);
-        let include: MjIncludeHead = parser.async_parse_root(&mut cursor).await.unwrap();
+        let include: MjIncludeHead = parser.parse_root(&mut cursor).await.unwrap();
         assert_eq!(
             include.attributes.kind,
             MjIncludeHeadKind::Css { inline: false }

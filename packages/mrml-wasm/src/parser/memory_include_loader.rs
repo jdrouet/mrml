@@ -8,9 +8,14 @@ pub struct MemoryIncludeLoaderOptions {
 }
 
 impl MemoryIncludeLoaderOptions {
-    pub fn build(
+    pub fn build(self) -> Box<dyn mrml::prelude::parser::loader::IncludeLoader + 'static> {
+        Box::new(mrml::prelude::parser::memory_loader::MemoryIncludeLoader::from(self.content))
+    }
+
+    #[cfg(feature = "async")]
+    pub fn build_async(
         self,
-    ) -> Box<dyn mrml::prelude::parser::loader::IncludeLoader + Send + Sync + 'static> {
+    ) -> Box<dyn mrml::prelude::parser::loader::AsyncIncludeLoader + Send + Sync + 'static> {
         Box::new(mrml::prelude::parser::memory_loader::MemoryIncludeLoader::from(self.content))
     }
 }

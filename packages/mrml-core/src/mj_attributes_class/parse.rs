@@ -2,24 +2,43 @@ use xmlparser::StrSpan;
 
 use super::MjAttributesClass;
 use crate::prelude::hash::Map;
-use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
+use crate::prelude::parser::{parse_attributes_map, Error, MrmlCursor, MrmlParser, ParseElement};
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 
-impl ParseElement<MjAttributesClass> for MrmlParser {
+#[inline]
+fn parse<'a>(cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<MjAttributesClass, Error> {
+    let mut attributes: Map<String, String> = parse_attributes_map(cursor)?;
+    let name: String = attributes
+        .remove("name")
+        .ok_or_else(|| Error::MissingAttribute("name", tag.into()))?;
+    let ending = cursor.assert_element_end()?;
+    if !ending.empty {
+        cursor.assert_element_close()?;
+    }
+
+    Ok(MjAttributesClass { name, attributes })
+}
+
+impl<'opts> ParseElement<MjAttributesClass> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<MjAttributesClass, Error> {
-        let mut attributes: Map<String, String> = self.parse_attributes(cursor)?;
-        let name: String = attributes
-            .remove("name")
-            .ok_or_else(|| Error::MissingAttribute("name", tag.into()))?;
-        let ending = cursor.assert_element_end()?;
-        if !ending.empty {
-            cursor.assert_element_close()?;
-        }
+        parse(cursor, tag)
+    }
+}
 
-        Ok(MjAttributesClass { name, attributes })
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjAttributesClass> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        tag: StrSpan<'a>,
+    ) -> Result<MjAttributesClass, Error> {
+        parse(cursor, tag)
     }
 }
 

@@ -3,11 +3,13 @@ use xmlparser::StrSpan;
 use super::{MjAttributes, MjAttributesChild};
 use crate::mj_attributes_all::NAME as MJ_ALL;
 use crate::mj_attributes_class::NAME as MJ_CLASS;
+#[cfg(feature = "async")]
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl ParseElement<MjAttributesChild> for MrmlParser {
+impl<'opts> ParseElement<MjAttributesChild> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -21,7 +23,23 @@ impl ParseElement<MjAttributesChild> for MrmlParser {
     }
 }
 
-impl ParseChildren<Vec<MjAttributesChild>> for MrmlParser {
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjAttributesChild> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        tag: StrSpan<'a>,
+    ) -> Result<MjAttributesChild, Error> {
+        Ok(match tag.as_str() {
+            MJ_ALL => MjAttributesChild::MjAttributesAll(self.async_parse(cursor, tag).await?),
+            MJ_CLASS => MjAttributesChild::MjAttributesClass(self.async_parse(cursor, tag).await?),
+            _ => MjAttributesChild::MjAttributesElement(self.async_parse(cursor, tag).await?),
+        })
+    }
+}
+
+impl<'opts> ParseChildren<Vec<MjAttributesChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjAttributesChild>, Error> {
         let mut result = Vec::new();
 
@@ -40,7 +58,31 @@ impl ParseChildren<Vec<MjAttributesChild>> for MrmlParser {
     }
 }
 
-impl ParseElement<MjAttributes> for MrmlParser {
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseChildren<Vec<MjAttributesChild>> for AsyncMrmlParser {
+    async fn async_parse_children<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+    ) -> Result<Vec<MjAttributesChild>, Error> {
+        let mut result = Vec::new();
+
+        loop {
+            match cursor.assert_next()? {
+                MrmlToken::ElementStart(inner) => {
+                    result.push(self.async_parse(cursor, inner.local).await?);
+                }
+                MrmlToken::ElementClose(inner) => {
+                    cursor.rewind(MrmlToken::ElementClose(inner));
+                    return Ok(result);
+                }
+                other => return Err(Error::UnexpectedToken(other.span())),
+            }
+        }
+    }
+}
+
+impl<'opts> ParseElement<MjAttributes> for MrmlParser<'opts> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -54,6 +96,28 @@ impl ParseElement<MjAttributes> for MrmlParser {
         }
 
         let children = self.parse_children(cursor)?;
+        cursor.assert_element_close()?;
+
+        Ok(MjAttributes { children })
+    }
+}
+
+#[cfg(feature = "async")]
+#[async_trait::async_trait(?Send)]
+impl AsyncParseElement<MjAttributes> for AsyncMrmlParser {
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<MjAttributes, Error> {
+        let ending = cursor.assert_element_end()?;
+        if ending.empty {
+            return Ok(MjAttributes {
+                children: Default::default(),
+            });
+        }
+
+        let children = self.async_parse_children(cursor).await?;
         cursor.assert_element_close()?;
 
         Ok(MjAttributes { children })
