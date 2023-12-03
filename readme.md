@@ -23,7 +23,7 @@ Update your `cargo.toml`:
 
 ```toml
 [dependencies]
-mrml = "1.2"
+mrml = "2"
 serde = { version = "1.0", features = ["derive"] }
 ```
 
