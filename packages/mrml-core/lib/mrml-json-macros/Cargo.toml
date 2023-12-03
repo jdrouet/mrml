@@ -5,9 +5,9 @@ keywords = ["email", "mjml"]
 version = "0.1.1"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2021"
-license-file = "../../license.md"
+license-file = "license.md"
 repository = "https://github.com/jolimail/mrml-core/"
-readme = "../../readme.md"
+readme = "readme.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
