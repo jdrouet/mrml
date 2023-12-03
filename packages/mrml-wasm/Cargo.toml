@@ -19,7 +19,7 @@ reqwest-include-loader = ["async", "mrml/http-loader-async-reqwest"]
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
-mrml = { version = "2.0.0-rc.7", path = "../mrml-core", default-features = false, features = [
+mrml = { version = "2.0", path = "../mrml-core", default-features = false, features = [
   "parse",
   "render",
 ] }
