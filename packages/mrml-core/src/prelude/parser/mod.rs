@@ -90,7 +90,7 @@ pub enum Error {
 
 #[derive(Debug)]
 pub struct ParserOptions {
-    pub include_loader: Box<dyn loader::IncludeLoader>,
+    pub include_loader: Box<dyn loader::IncludeLoader + Send + Sync>,
 }
 
 #[allow(clippy::box_default)]
