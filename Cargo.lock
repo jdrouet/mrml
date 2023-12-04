@@ -1094,7 +1094,7 @@ dependencies = [
 
 [[package]]
 name = "mrml"
-version = "2.0.0"
+version = "2.1.0"
 dependencies = [
  "async-trait",
  "concat-idents",
@@ -1120,7 +1120,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-cli"
-version = "1.4.0"
+version = "1.4.1"
 dependencies = [
  "clap",
  "env_logger",
@@ -1132,14 +1132,14 @@ dependencies = [
 
 [[package]]
 name = "mrml-common-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "syn 2.0.37",
 ]
 
 [[package]]
 name = "mrml-json-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "Inflector",
  "darling",
@@ -1151,7 +1151,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "Inflector",
  "mrml-common-macros",
@@ -1162,7 +1162,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-print-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "darling",
  "mrml-common-macros",
