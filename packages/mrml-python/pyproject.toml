@@ -1,0 +1,18 @@
+[build-system]
+requires = ["maturin>=0.13,<0.14"]
+build-backend = "maturin"
+
+[project]
+name = "mrml"
+description = "A Python wrapper for MRML (Rust port of MJML)."
+readme = "readme.md"
+requires-python = ">=3.7"
+classifiers = [
+  "Programming Language :: Rust",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/jdrouet/mrml"
+"Bug Tracker" = "https://github.com/jdrouet/mrml/issues"
