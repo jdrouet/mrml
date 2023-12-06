@@ -1,0 +1,60 @@
+on:
+  push:
+    tags:
+      - "mrml-wasm-v*"
+
+name: Publish mrml wasm
+
+defaults:
+  run:
+    working-directory: packages/mrml-wasm
+
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  releasing:
+    runs-on: ubuntu-latest
+    container: rust:1-bullseye
+
+    concurrency:
+      group: ${{ github.ref }}-mrml-wasm-release
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mrml-wasm-testing-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: build release
+        run: wasm-pack build --target nodejs --release
+
+      - name: rename package
+        run: |
+          jq '.name = "mrml"' pkg/package.json > pkg/package-new.json
+          mv pkg/package-new.json pkg/package.json
+
+      - name: publish release
+        run: wasm-pack publish
