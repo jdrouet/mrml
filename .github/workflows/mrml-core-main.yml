@@ -47,7 +47,7 @@ jobs:
         uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: run tests
-        run: cargo llvm-cov --all-features --workspace --exclude mrml-wasm --lcov --output-path lcov.info
+        run: cargo llvm-cov --all-features --workspace --exclude mrml-python --exclude mrml-wasm --lcov --output-path lcov.info
 
       - name: upload coverage
         uses: codecov/codecov-action@v3
