@@ -1,5 +1,9 @@
 [workspace]
 
 [[package]]
+name = "mrml-python"
+publish = false
+
+[[package]]
 name = "mrml-wasm"
 publish = false
