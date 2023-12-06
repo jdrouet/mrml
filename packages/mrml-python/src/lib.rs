@@ -2,36 +2,62 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 
 use mrml::prelude::parser::loader::IncludeLoader;
+use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 use pyo3::exceptions::PyOSError;
 use pyo3::prelude::*;
 
 #[pyclass]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
+pub struct NoopIncludeLoaderOptions;
+
+#[pyclass]
+#[derive(Clone, Debug, Default)]
+pub struct MemoryIncludeLoaderOptions(HashMap<String, String>);
+
+// #[pyclass]
+#[derive(FromPyObject, Clone, Debug)]
 pub enum ParserIncludeLoaderOptions {
-    Noop,
+    Noop(NoopIncludeLoaderOptions),
+    Memory(MemoryIncludeLoaderOptions),
 }
 
 impl Default for ParserIncludeLoaderOptions {
     fn default() -> Self {
-        Self::Noop
-    }
-}
-
-#[pymethods]
-impl ParserIncludeLoaderOptions {
-    #[new]
-    pub fn noop() -> Self {
-        Self::Noop
+        Self::Noop(NoopIncludeLoaderOptions)
     }
 }
 
 impl ParserIncludeLoaderOptions {
-    fn build(&self) -> Box<dyn IncludeLoader + Send + Sync> {
+    fn build(self) -> Box<dyn IncludeLoader + Send + Sync> {
         match self {
-            Self::Noop => Box::<NoopIncludeLoader>::default(),
+            Self::Noop(_) => Box::<NoopIncludeLoader>::default(),
+            Self::Memory(MemoryIncludeLoaderOptions(inner)) => {
+                Box::new(MemoryIncludeLoader::from(inner))
+            }
         }
     }
+}
+
+impl IntoPy<PyObject> for ParserIncludeLoaderOptions {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        match self {
+            Self::Noop(inner) => inner.into_py(py),
+            Self::Memory(inner) => inner.into_py(py),
+        }
+    }
+}
+
+#[pyfunction]
+#[pyo3(name = "noop_loader")]
+pub fn noop_loader() -> ParserIncludeLoaderOptions {
+    ParserIncludeLoaderOptions::Noop(NoopIncludeLoaderOptions)
+}
+
+#[pyfunction]
+#[pyo3(name = "memory_loader", signature = (data = None))]
+pub fn memory_loader(data: Option<HashMap<String, String>>) -> ParserIncludeLoaderOptions {
+    ParserIncludeLoaderOptions::Memory(MemoryIncludeLoaderOptions(data.unwrap_or_default()))
 }
 
 #[pyclass]
@@ -44,8 +70,11 @@ pub struct ParserOptions {
 #[pymethods]
 impl ParserOptions {
     #[new]
-    pub fn new() -> Self {
-        Self::default()
+    #[pyo3(signature = (include_loader=None))]
+    pub fn new(include_loader: Option<ParserIncludeLoaderOptions>) -> Self {
+        Self {
+            include_loader: include_loader.unwrap_or_default(),
+        }
     }
 }
 
@@ -116,9 +145,12 @@ fn to_html(
 #[pymodule]
 #[pyo3(name = "mrml")]
 fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
-    m.add_class::<ParserIncludeLoaderOptions>()?;
+    m.add_class::<NoopIncludeLoaderOptions>()?;
+    m.add_class::<MemoryIncludeLoaderOptions>()?;
     m.add_class::<ParserOptions>()?;
     m.add_class::<RenderOptions>()?;
     m.add_function(wrap_pyfunction!(to_html, m)?)?;
+    m.add_function(wrap_pyfunction!(noop_loader, m)?)?;
+    m.add_function(wrap_pyfunction!(memory_loader, m)?)?;
     Ok(())
 }
