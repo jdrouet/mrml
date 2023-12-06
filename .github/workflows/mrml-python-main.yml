@@ -1,5 +1,7 @@
 on: [push]
 
+name: mrml-python main
+
 defaults:
   run:
     working-directory: packages/mrml-python

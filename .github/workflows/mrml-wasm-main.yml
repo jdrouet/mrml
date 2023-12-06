@@ -7,6 +7,8 @@ on:
     branches:
       - main
 
+name: mrml-wasm main
+
 defaults:
   run:
     working-directory: packages/mrml-wasm

@@ -1,3 +1,5 @@
+name: common
+
 on:
   merge_group:
     types: [checks_requested]

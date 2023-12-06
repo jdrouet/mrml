@@ -3,7 +3,7 @@ on:
     tags:
       - "mrml-v*"
 
-name: Notify mastodon for a release
+name: mrml-core release
 
 jobs:
   notify:

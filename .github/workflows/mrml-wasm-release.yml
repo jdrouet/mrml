@@ -3,7 +3,7 @@ on:
     tags:
       - "mrml-wasm-v*"
 
-name: Publish mrml wasm
+name: mrml-wasm release
 
 defaults:
   run:
