@@ -1,13 +1,9 @@
 on:
-  merge_group:
-    types: [checks_requested]
-  workflow_call:
-  pull_request:
   push:
-    branches:
-      - main
+    tags:
+      - "mrml-wasm-v*"
 
-name: mrml-wasm main
+name: mrml-wasm release
 
 defaults:
   run:
@@ -17,12 +13,12 @@ env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  testing:
+  releasing:
     runs-on: ubuntu-latest
     container: rust:1-bullseye
 
     concurrency:
-      group: ${{ github.ref }}-mrml-wasm-testing
+      group: ${{ github.ref }}-mrml-wasm-release
       cancel-in-progress: true
 
     steps:
@@ -33,9 +29,11 @@ jobs:
           toolchain: stable
           profile: minimal
 
+      # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
         with:
           node-version: latest
+          registry-url: 'https://registry.npmjs.org'
 
       - name: install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
@@ -50,20 +48,13 @@ jobs:
             target/
           key: ${{ runner.os }}-mrml-wasm-testing-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: run integration tests
-        run: wasm-pack test --node
+      - name: build release
+        run: wasm-pack build --target nodejs --release
 
-      - name: build for nodejs
-        run: wasm-pack build --target nodejs
-
-      - name: run node example
+      - name: rename package
         run: |
-          cd examples/node
-          npm install
-          npm test
+          jq '.name = "mrml"' pkg/package.json > pkg/package-new.json
+          mv pkg/package-new.json pkg/package.json
 
-      - name: run browser example tests
-        run: |
-          cd examples/browser
-          npm install
-          npm test
+      - name: publish release
+        run: wasm-pack publish
