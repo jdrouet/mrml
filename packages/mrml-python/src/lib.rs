@@ -29,7 +29,7 @@ impl ParserIncludeLoaderOptions {
 impl ParserIncludeLoaderOptions {
     fn build(&self) -> Box<dyn IncludeLoader + Send + Sync> {
         match self {
-            Self::Noop => Box::new(NoopIncludeLoader::default()),
+            Self::Noop => Box::<NoopIncludeLoader>::default(),
         }
     }
 }
