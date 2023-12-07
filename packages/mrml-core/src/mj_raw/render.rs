@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::{MjRaw, MjRawChild, NAME};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRawChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
@@ -34,7 +34,7 @@ impl<'e, 'h> Render<'h> for MjRawRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let siblings = self.element.children.len();
         self.element.children.iter().enumerate().try_fold(
             String::default(),

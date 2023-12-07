@@ -7,13 +7,13 @@ mod tests {
     use crate::mj_style::MjStyle;
     use crate::mj_title::MjTitle;
     use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
+    use crate::prelude::render::RenderOptions;
     use crate::text::Text;
 
     #[test]
     fn basic_mjml_kind_include_first() {
         let expected = {
-            let opts = Options::default();
+            let opts = RenderOptions::default();
             let mut mj_breakpoint = MjBreakpoint::default();
             mj_breakpoint.attributes.width = "500px".into();
             let mj_title = MjTitle::from("Hello New World!".to_string());
@@ -26,7 +26,7 @@ mod tests {
             root.render(&opts).unwrap()
         };
         let result = {
-            let opts = Options::default();
+            let opts = RenderOptions::default();
             let mut mj_breakpoint = MjBreakpoint::default();
             mj_breakpoint.attributes.width = "500px".into();
             let mj_title = MjTitle::from("Hello Old World!".to_string());
@@ -51,7 +51,7 @@ mod tests {
     #[test]
     fn basic_mjml_kind_include_last() {
         let expected = {
-            let opts = Options::default();
+            let opts = RenderOptions::default();
             let mut mj_breakpoint = MjBreakpoint::default();
             mj_breakpoint.attributes.width = "500px".into();
             let mj_title = MjTitle::from("Hello Old World!".to_string());
@@ -64,7 +64,7 @@ mod tests {
             root.render(&opts).unwrap()
         };
         let result = {
-            let opts = Options::default();
+            let opts = RenderOptions::default();
             let mut mj_breakpoint = MjBreakpoint::default();
             mj_breakpoint.attributes.width = "500px".into();
             let mj_title = MjTitle::from("Hello Old World!".to_string());
@@ -89,7 +89,7 @@ mod tests {
     #[test]
     fn css_kind() {
         let expected = {
-            let opts = Options::default();
+            let opts = RenderOptions::default();
             let mut mj_head = MjHead::default();
             mj_head
                 .children
@@ -103,7 +103,7 @@ mod tests {
             root.render(&opts).unwrap()
         };
         let result = {
-            let opts = Options::default();
+            let opts = RenderOptions::default();
             let mut mj_include = MjIncludeHead::default();
             mj_include.attributes.path = "partial.mjml".to_owned();
             mj_include.attributes.kind = MjIncludeHeadKind::Css { inline: false };

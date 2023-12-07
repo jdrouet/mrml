@@ -1,8 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use mrml::prelude::render::Options;
+use mrml::prelude::render::RenderOptions;
 
 fn render(input: &str) {
-    let opts = Options::default();
+    let opts = RenderOptions::default();
     let root = mrml::mjml::Mjml::parse(input).unwrap();
     root.render(&opts).unwrap();
 }

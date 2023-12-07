@@ -6,7 +6,7 @@ use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
@@ -77,7 +77,7 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             .collect::<Vec<_>>()
     }
 
-    fn render_horizontal(&self, opts: &Options) -> Result<String, Error> {
+    fn render_horizontal(&self, opts: &RenderOptions) -> Result<String, Error> {
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
         let td = Tag::td();
@@ -106,7 +106,7 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
         Ok(before + &content + &after)
     }
 
-    fn render_vertical(&self, opts: &Options) -> Result<String, Error> {
+    fn render_vertical(&self, opts: &RenderOptions) -> Result<String, Error> {
         let table = self.set_style_table_vertical(Tag::table_presentation());
         let child_attributes = self.build_child_attributes();
         let content = self.element.children.iter().enumerate().try_fold(
@@ -171,7 +171,7 @@ impl<'e, 'h> Render<'h> for MjSocialRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let font_families = self.attribute("font-family").unwrap_or_default(); // never happens
         self.header.borrow_mut().add_font_families(font_families);
         if self.is_horizontal() {

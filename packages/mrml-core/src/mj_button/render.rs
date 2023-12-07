@@ -5,7 +5,7 @@ use super::{MjButton, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjButtonRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -37,7 +37,7 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
         }
     }
 
-    fn render_children(&self, opts: &Options) -> Result<String, Error> {
+    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
         self.element
             .children
             .iter()
@@ -122,7 +122,7 @@ impl<'e, 'h> Render<'h> for MjButtonRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let font_family = self.attribute("font-family");
         self.header
             .borrow_mut()

@@ -7,7 +7,7 @@ use crate::helper::tag::Tag;
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
@@ -28,7 +28,7 @@ struct MjAccordionElementRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjAccordionElementRender<'e, 'h> {
-    fn render_title(&self, opts: &Options) -> Result<String, Error> {
+    fn render_title(&self, opts: &RenderOptions) -> Result<String, Error> {
         if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
@@ -45,7 +45,7 @@ impl<'e, 'h> MjAccordionElementRender<'e, 'h> {
         }
     }
 
-    fn render_text(&self, opts: &Options) -> Result<String, Error> {
+    fn render_text(&self, opts: &RenderOptions) -> Result<String, Error> {
         if let Some(ref child) = self.element.children.text {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
@@ -62,7 +62,7 @@ impl<'e, 'h> MjAccordionElementRender<'e, 'h> {
         }
     }
 
-    fn render_children(&self, opts: &Options) -> Result<String, Error> {
+    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
         Ok(self.render_title(opts)? + &self.render_text(opts)?)
     }
 }
@@ -88,7 +88,7 @@ impl<'e, 'h> Render<'h> for MjAccordionElementRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let input = negation_conditional_tag(
             Tag::new("input")
                 .add_attribute("type", "checkbox")
@@ -136,7 +136,7 @@ mod tests {
 
     #[test]
     fn basic() {
-        let opts = Options::default();
+        let opts = RenderOptions::default();
         let head = Rc::new(RefCell::new(Header::new(&None)));
         let element = MjAccordionElement {
             attributes: Default::default(),

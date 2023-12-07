@@ -6,7 +6,7 @@ use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjHeroRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -123,7 +123,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn render_children(&self, opts: &Options) -> Result<String, Error> {
+    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|c| c.is_raw()).count();
         self.element.children.iter().enumerate().try_fold(
@@ -162,7 +162,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
         )
     }
 
-    fn render_content(&self, opts: &Options) -> Result<String, Error> {
+    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
         let table = self
             .set_style_outlook_inner_table(Tag::table_borderless())
             .maybe_add_attribute("align", self.attribute("align"))
@@ -185,7 +185,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
         Ok(before + &content + &after)
     }
 
-    fn render_mode_fluid(&self, opts: &Options) -> Result<String, Error> {
+    fn render_mode_fluid(&self, opts: &RenderOptions) -> Result<String, Error> {
         let td_fluid = self.set_style_td_fluid(Tag::td());
         let td = self
             .set_style_hero(Tag::td())
@@ -193,7 +193,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
         Ok(td_fluid.closed() + &td.render(self.render_content(opts)?) + &td_fluid.closed())
     }
 
-    fn render_mode_fixed(&self, opts: &Options) -> Result<String, Error> {
+    fn render_mode_fixed(&self, opts: &RenderOptions) -> Result<String, Error> {
         // has a default value
         let height = self.attribute_as_pixel("height").unwrap().value();
         let padding = self.get_padding_vertical().value();
@@ -206,7 +206,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
         Ok(td.render(self.render_content(opts)?))
     }
 
-    fn render_mode(&self, opts: &Options) -> Result<String, Error> {
+    fn render_mode(&self, opts: &RenderOptions) -> Result<String, Error> {
         if let Some(ref mode) = self.attribute("mode") {
             if mode == "fluid" {
                 return self.render_mode_fluid(opts);
@@ -253,7 +253,7 @@ impl<'e, 'h> Render<'h> for MjHeroRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let outlook_table = self
             .set_style_outlook_table(Tag::table_presentation())
             .add_attribute("align", "center")

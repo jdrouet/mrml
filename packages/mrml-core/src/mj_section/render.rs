@@ -7,7 +7,7 @@ use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDI
 use crate::helper::size::{Percent, Pixel};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 fn is_horizontal_position(value: &str) -> bool {
     value == "left" || value == "right" || value == "center"
@@ -279,7 +279,7 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         self.children().iter().filter(|elt| elt.is_raw()).count()
     }
 
-    fn render_wrapped_children(&self, opts: &Options) -> Result<String, Error> {
+    fn render_wrapped_children(&self, opts: &RenderOptions) -> Result<String, Error> {
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
         let tr = Tag::tr();
@@ -341,7 +341,7 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
             .maybe_add_style("text-align", self.attribute("text-align"))
     }
 
-    fn render_section(&self, opts: &Options) -> Result<String, Error> {
+    fn render_section(&self, opts: &RenderOptions) -> Result<String, Error> {
         let is_full_width = self.is_full_width();
         let div = self
             .set_style_section_div(Tag::div())
@@ -398,7 +398,7 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
             .maybe_add_attribute("background", self.attribute("background-url"))
     }
 
-    fn render_full_width(&self, opts: &Options) -> Result<String, Error> {
+    fn render_full_width(&self, opts: &RenderOptions) -> Result<String, Error> {
         let table = self.get_full_width_table();
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -414,7 +414,7 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         Ok(table.render(tbody.render(tr.render(td.render(content)))))
     }
 
-    fn render_simple(&self, opts: &Options) -> Result<String, Error> {
+    fn render_simple(&self, opts: &RenderOptions) -> Result<String, Error> {
         let section = self.render_section(opts)?;
 
         let section = if self.has_background() {
@@ -477,7 +477,7 @@ impl<'e, 'h> Render<'h> for MjSectionRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         if self.is_full_width() {
             self.render_full_width(opts)
         } else {

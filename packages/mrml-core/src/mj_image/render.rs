@@ -5,7 +5,7 @@ use super::{MjImage, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjImageRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -162,7 +162,7 @@ impl<'e, 'h> Render<'h> for MjImageRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, _opts: &Options) -> Result<String, Error> {
+    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
         let style = self.render_style();
         self.header.borrow_mut().add_style(style);
         let class = if self.is_fluid_on_mobile() {

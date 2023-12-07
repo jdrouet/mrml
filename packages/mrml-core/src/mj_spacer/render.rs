@@ -5,7 +5,7 @@ use super::{MjSpacer, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjSpacerRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -37,7 +37,7 @@ impl<'e, 'h> Render<'h> for MjSpacerRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, _opts: &Options) -> Result<String, Error> {
+    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
         Ok(Tag::div()
             .maybe_add_style("height", self.attribute("height"))
             .maybe_add_style("line-height", self.attribute("height"))

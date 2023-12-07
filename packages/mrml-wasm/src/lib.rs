@@ -18,7 +18,7 @@ pub use crate::render::*;
 fn to_html(
     input: &str,
     parser_options: &mrml::prelude::parser::ParserOptions,
-    render_options: &mrml::prelude::render::Options,
+    render_options: &mrml::prelude::render::RenderOptions,
 ) -> Result<String, ToHtmlError> {
     let element = mrml::parse_with_options(input, parser_options)?;
     let html = element.render(render_options)?;
@@ -30,7 +30,7 @@ fn to_html(
 async fn to_html_async(
     input: &str,
     parser_options: std::rc::Rc<mrml::prelude::parser::AsyncParserOptions>,
-    render_options: &mrml::prelude::render::Options,
+    render_options: &mrml::prelude::render::RenderOptions,
 ) -> Result<String, ToHtmlError> {
     let element = mrml::async_parse_with_options(input, parser_options).await?;
     let html = element.render(render_options)?;
@@ -43,7 +43,7 @@ pub struct Engine {
     parser: Rc<mrml::prelude::parser::ParserOptions>,
     #[cfg(feature = "async")]
     async_parser: Rc<mrml::prelude::parser::AsyncParserOptions>,
-    render: mrml::prelude::render::Options,
+    render: mrml::prelude::render::RenderOptions,
 }
 
 #[wasm_bindgen]
@@ -145,6 +145,7 @@ impl From<ToHtmlResult> for JsValue {
 mod tests {
     use std::collections::HashMap;
     use std::iter::FromIterator;
+
     use wasm_bindgen_test::wasm_bindgen_test;
 
     use crate::{Engine, ToHtmlResult};
@@ -188,6 +189,7 @@ mod tests {
 mod async_tests {
     use std::collections::HashMap;
     use std::iter::FromIterator;
+
     use wasm_bindgen_test::wasm_bindgen_test;
 
     use crate::{Engine, ToHtmlResult};

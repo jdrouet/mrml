@@ -6,7 +6,7 @@ use super::{MjSocialElement, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
@@ -35,7 +35,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         self.attribute_as_size("icon-height")
     }
 
-    fn get_icon_src(&self, opts: &Options) -> Option<String> {
+    fn get_icon_src(&self, opts: &RenderOptions) -> Option<String> {
         self.attribute("src").or_else(|| {
             self.network.as_ref().map(|net| {
                 if let Some(ref origin) = opts.social_icon_origin {
@@ -106,7 +106,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
             .unwrap_or_default()
     }
 
-    fn render_icon(&self, href: &Option<String>, opts: &Options) -> String {
+    fn render_icon(&self, href: &Option<String>, opts: &RenderOptions) -> String {
         let table = self.set_style_table(Tag::table_presentation());
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -138,7 +138,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         }))))
     }
 
-    fn render_text(&self, href: &Option<String>, opts: &Options) -> Result<String, Error> {
+    fn render_text(&self, href: &Option<String>, opts: &RenderOptions) -> Result<String, Error> {
         let td = self.set_style_td_text(Tag::td());
         let wrapper = if href.is_some() {
             Tag::new("a")
@@ -203,7 +203,7 @@ impl<'e, 'h> Render<'h> for MjSocialElementRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let href = self.get_href();
         let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
         let td = self.set_style_td(Tag::td());

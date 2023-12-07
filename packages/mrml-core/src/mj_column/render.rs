@@ -5,7 +5,7 @@ use super::{MjColumn, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjColumnRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -178,7 +178,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn render_gutter(&self, opts: &Options) -> Result<String, Error> {
+    fn render_gutter(&self, opts: &RenderOptions) -> Result<String, Error> {
         let table = Tag::table_presentation().add_attribute("width", "100%");
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -194,7 +194,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render_column(&self, opts: &Options) -> Result<String, Error> {
+    fn render_column(&self, opts: &RenderOptions) -> Result<String, Error> {
         let table = self
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
@@ -290,7 +290,7 @@ impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let (classname, size) = self.get_column_class();
         self.header
             .borrow_mut()

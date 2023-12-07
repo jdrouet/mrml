@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::{MjIncludeBody, MjIncludeBodyChild};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 impl MjIncludeBodyChild {
     pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
@@ -59,7 +59,7 @@ impl<'e, 'h> Render<'h> for MjIncludeBodyRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let mut children = String::default();
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(Rc::clone(&self.header));
@@ -91,12 +91,12 @@ mod tests {
     use crate::mj_raw::{MjRaw, MjRawChild};
     use crate::mj_text::MjText;
     use crate::node::Node;
-    use crate::prelude::render::{Header, Options, Renderable};
+    use crate::prelude::render::{Header, RenderOptions, Renderable};
     use crate::text::Text;
 
     #[test]
     fn basic_mjml_kind() {
-        let opts = Options::default();
+        let opts = RenderOptions::default();
         let mj_head = Some(MjHead::default());
         let expected = {
             let header = Rc::new(RefCell::new(Header::new(&mj_head)));
@@ -118,7 +118,7 @@ mod tests {
 
     #[test]
     fn basic_html_kind() {
-        let opts = Options::default();
+        let opts = RenderOptions::default();
         let mj_head = Some(MjHead::default());
 
         let expected = {

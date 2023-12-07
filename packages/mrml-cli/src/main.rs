@@ -5,7 +5,7 @@ use std::io::prelude::*;
 use clap::{Parser, Subcommand};
 use mrml::mjml::Mjml;
 use mrml::prelude::print::Print;
-use mrml::prelude::render::Options as RenderOptions;
+use mrml::prelude::render::RenderOptions;
 
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]

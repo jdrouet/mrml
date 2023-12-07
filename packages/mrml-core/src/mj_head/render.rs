@@ -6,7 +6,7 @@ use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_
 use crate::helper::sort::sort_by_key;
 use crate::mj_include::head::MjIncludeHeadKind;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 const STYLE_BASE: &str = r#"
 <style type="text/css">
@@ -135,7 +135,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         format!("<link href=\"{href}\" rel=\"stylesheet\" type=\"text/css\">")
     }
 
-    fn render_font_families(&self, opts: &Options) -> String {
+    fn render_font_families(&self, opts: &RenderOptions) -> String {
         let header = self.header.borrow();
         let used_font_families = header.used_font_families();
         if used_font_families.is_empty() {
@@ -250,7 +250,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         format!("{header_styles}\n{head_styles}").trim().to_string()
     }
 
-    fn render_raw(&self, opts: &Options) -> Result<String, Error> {
+    fn render_raw(&self, opts: &RenderOptions) -> Result<String, Error> {
         let mut buffer: Vec<String> = Vec::new();
         let siblings = self.element.children.len();
         for child in self.element.children.iter() {
@@ -279,7 +279,7 @@ impl<'e, 'h> Render<'h> for MjHeadRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let mut buf = String::from("<head>");
         // we write the title even though there is no content
         buf.push_str("<title>");
