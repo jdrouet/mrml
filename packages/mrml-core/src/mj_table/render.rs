@@ -6,7 +6,7 @@ use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::mj_section::WithMjSectionBackground;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjTableRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -62,7 +62,7 @@ impl<'e, 'h> Render<'h> for MjTableRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let font_family = self.attribute("font-family");
         self.header
             .borrow_mut()

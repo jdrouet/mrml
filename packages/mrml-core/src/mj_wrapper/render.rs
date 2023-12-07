@@ -7,7 +7,7 @@ use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjWrapperRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -40,7 +40,7 @@ impl<'e, 'h> SectionLikeRender<'h> for MjWrapperRender<'e, 'h> {
         &self.container_width
     }
 
-    fn render_wrapped_children(&self, opts: &Options) -> Result<String, Error> {
+    fn render_wrapped_children(&self, opts: &RenderOptions) -> Result<String, Error> {
         let tr = Tag::tr();
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
@@ -103,7 +103,7 @@ impl<'e, 'h> Render<'h> for MjWrapperRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         if self.is_full_width() {
             self.render_full_width(opts)
         } else {

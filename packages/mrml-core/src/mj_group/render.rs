@@ -6,7 +6,7 @@ use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjGroupRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -78,7 +78,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             .add_style("width", self.current_width().to_string())
     }
 
-    fn render_children(&self, opts: &Options) -> Result<String, Error> {
+    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
         let current_width = self.current_width();
         let siblings = self.element.children.len();
         let raw_siblings = self
@@ -162,7 +162,7 @@ impl<'e, 'h> Render<'h> for MjGroupRender<'e, 'h> {
         }
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let (classname, size) = self.get_column_class();
         self.header
             .borrow_mut()

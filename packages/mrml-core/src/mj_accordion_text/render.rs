@@ -4,7 +4,7 @@ use std::rc::Rc;
 use super::{MjAccordionText, NAME};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjAccordionTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -13,7 +13,7 @@ struct MjAccordionTextRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
-    fn render_children(&self, opts: &Options) -> Result<String, Error> {
+    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
         let content = self
             .element
             .children
@@ -68,7 +68,7 @@ impl<'e, 'h> Render<'h> for MjAccordionTextRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let font_families = self.attribute("font-family");
         self.header
             .borrow_mut()

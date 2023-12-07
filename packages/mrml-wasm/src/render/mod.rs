@@ -15,7 +15,7 @@ pub struct RenderOptions {
     pub fonts: HashMap<String, String>,
 }
 
-impl From<RenderOptions> for mrml::prelude::render::Options {
+impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
     fn from(value: RenderOptions) -> Self {
         Self {
             disable_comments: value.disable_comments,

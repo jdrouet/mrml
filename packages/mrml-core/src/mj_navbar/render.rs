@@ -6,7 +6,7 @@ use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
@@ -174,7 +174,7 @@ impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         self.update_header();
         let div = Tag::div().add_class("mj-inline-links");
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));

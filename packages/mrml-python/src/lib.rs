@@ -104,9 +104,9 @@ impl RenderOptions {
     }
 }
 
-impl From<RenderOptions> for mrml::prelude::render::Options {
+impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
     fn from(value: RenderOptions) -> Self {
-        let mut opts = mrml::prelude::render::Options {
+        let mut opts = mrml::prelude::render::RenderOptions {
             disable_comments: value.disable_comments,
             ..Default::default()
         };

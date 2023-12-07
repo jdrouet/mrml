@@ -2,7 +2,7 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::Node;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 const SHOULD_SELF_CLOSE: [&str; 1] = ["script"];
 
@@ -23,7 +23,7 @@ where
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let mut buf = String::from("<");
         buf.push_str(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
@@ -68,9 +68,9 @@ mod tests {
     #[test]
     fn empty_script_should_have_closing_element() {
         use crate::mjml::Mjml;
-        use crate::prelude::render::Options;
+        use crate::prelude::render::RenderOptions;
 
-        let opts = Options::default();
+        let opts = RenderOptions::default();
         let template = r#"<mjml>
     <mj-body>
         <mj-section>

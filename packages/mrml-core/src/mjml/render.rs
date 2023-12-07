@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::Mjml;
 use crate::mj_head::MjHead;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 pub struct MjmlRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -15,7 +15,7 @@ impl<'e, 'h> Render<'h> for MjmlRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let body_content = if let Some(body) = self.element.body() {
             body.renderer(Rc::clone(&self.header)).render(opts)?
         } else {
@@ -54,7 +54,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Mjml {
 }
 
 impl Mjml {
-    pub fn render(&self, opts: &Options) -> Result<String, Error> {
+    pub fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let mut header = Header::new(&self.children.head);
         header.maybe_set_lang(self.attributes.lang.clone());
         let header = Rc::new(RefCell::new(header));
@@ -77,13 +77,13 @@ impl Mjml {
 #[cfg(all(test, feature = "parse"))]
 mod tests {
     use crate::mjml::Mjml;
-    use crate::prelude::render::Options;
+    use crate::prelude::render::RenderOptions;
 
     crate::should_render!(empty, "mjml");
 
     #[test]
     fn template_amario() {
-        let opts = Options::default();
+        let opts = RenderOptions::default();
         let template = include_str!("../../resources/template/amario.mjml");
         let root = Mjml::parse(template).unwrap();
         assert!(root.render(&opts).is_ok());
@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn template_air_astana() {
-        let opts = Options::default();
+        let opts = RenderOptions::default();
         let template = include_str!("../../resources/template/air-astana.mjml");
         let expected = include_str!("../../resources/template/air-astana.html");
         let root = Mjml::parse(template).unwrap();
@@ -102,7 +102,7 @@ mod tests {
     #[cfg(feature = "orderedmap")]
     fn stable_output() {
         let source = "<mjml><mj-body><mj-section><mj-column><mj-text>hi</mj-text></mj-column></mj-section></mj-body></mjml>";
-        let options = Options::default();
+        let options = RenderOptions::default();
 
         let root_1 = Mjml::parse(source).unwrap();
         let root_2 = Mjml::parse(source).unwrap();

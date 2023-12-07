@@ -5,7 +5,7 @@ use super::{MjText, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -27,7 +27,7 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
             .maybe_add_style("height", self.attribute("height"))
     }
 
-    fn render_content(&self, opts: &Options) -> Result<String, Error> {
+    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
         let res = self
             .element
             .children
@@ -39,7 +39,7 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
         Ok(self.set_style_text(Tag::div()).render(res))
     }
 
-    fn render_with_height(&self, height: &str, opts: &Options) -> Result<String, Error> {
+    fn render_with_height(&self, height: &str, opts: &RenderOptions) -> Result<String, Error> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
@@ -77,7 +77,7 @@ impl<'e, 'h> Render<'h> for MjTextRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let font_family = self.attribute("font-family");
         self.header
             .borrow_mut()

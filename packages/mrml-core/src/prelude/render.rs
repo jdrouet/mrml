@@ -18,14 +18,17 @@ pub enum Error {
     UnknownFragment(String),
 }
 
+#[deprecated = "use mrml::prelude::render::RenderOptions instead"]
+pub type Options = RenderOptions;
+
 #[derive(Debug)]
-pub struct Options {
+pub struct RenderOptions {
     pub disable_comments: bool,
     pub social_icon_origin: Option<Cow<'static, str>>,
     pub fonts: HashMap<String, Cow<'static, str>>,
 }
 
-impl Default for Options {
+impl Default for RenderOptions {
     fn default() -> Self {
         Self {
             disable_comments: false,
@@ -371,14 +374,14 @@ pub trait Render<'header> {
         }
     }
 
-    fn render_fragment(&self, name: &str, opts: &Options) -> Result<String, Error> {
+    fn render_fragment(&self, name: &str, opts: &RenderOptions) -> Result<String, Error> {
         match name {
             "main" => self.render(opts),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error>;
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error>;
 }
 
 pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
@@ -415,7 +418,7 @@ macro_rules! should_render {
             #[cfg(feature = "parse")]
             #[test]
             fn fn_name() {
-                let opts = $crate::prelude::render::Options::default();
+                let opts = $crate::prelude::render::RenderOptions::default();
                 let template = include_str!(concat!("../../resources/compare/success/", $template, ".mjml"));
                 let expected = include_str!(concat!("../../resources/compare/success/", $template, ".html"));
                 let root = $crate::parse(template).unwrap();
@@ -426,7 +429,7 @@ macro_rules! should_render {
             #[cfg(all(feature = "async", feature = "parse"))]
             #[tokio::test]
             async fn fn_name() {
-                let opts = $crate::prelude::render::Options::default();
+                let opts = $crate::prelude::render::RenderOptions::default();
                 let template = include_str!(concat!("../../resources/compare/success/", $template, ".mjml"));
                 let expected = include_str!(concat!("../../resources/compare/success/", $template, ".html"));
                 let root = $crate::async_parse(template).await.unwrap();

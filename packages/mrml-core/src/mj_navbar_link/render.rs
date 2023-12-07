@@ -6,7 +6,7 @@ use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjNavbarLinkRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -50,7 +50,7 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
         })
     }
 
-    fn render_content(&self, opts: &Options) -> Result<String, Error> {
+    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
         let link = self
             .set_style_a(Tag::new("a"))
             .add_class("mj-link")
@@ -111,7 +111,7 @@ impl<'e, 'h> Render<'h> for MjNavbarLinkRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let font_families = self.attribute("font-family");
         self.header
             .borrow_mut()

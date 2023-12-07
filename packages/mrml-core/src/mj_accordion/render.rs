@@ -5,7 +5,7 @@ use super::{MjAccordion, MjAccordionChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
@@ -109,7 +109,7 @@ impl<'e, 'h> Render<'h> for MjAccordionRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         self.update_header();
         let children = self
             .element

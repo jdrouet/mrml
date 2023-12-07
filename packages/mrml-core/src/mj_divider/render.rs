@@ -6,7 +6,7 @@ use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjDividerRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -97,7 +97,7 @@ impl<'e, 'h> Render<'h> for MjDividerRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, _opts: &Options) -> Result<String, Error> {
+    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
         Ok(self.set_style_p(Tag::new("p")).render("") + &self.render_after())
     }
 }

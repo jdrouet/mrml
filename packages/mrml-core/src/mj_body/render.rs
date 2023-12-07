@@ -6,7 +6,7 @@ use super::MjBody;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjBodyRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -51,7 +51,7 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
         }
     }
 
-    fn render_content(&self, opts: &Options) -> Result<String, Error> {
+    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
         let mut children = String::default();
@@ -89,7 +89,7 @@ impl<'e, 'h> Render<'h> for MjBodyRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let body = self.get_body_tag();
         let result = body.render(self.render_preview() + &self.render_content(opts)?);
         Ok(result)

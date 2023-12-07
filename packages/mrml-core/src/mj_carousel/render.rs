@@ -7,7 +7,7 @@ use crate::helper::size::{Pixel, Size};
 use crate::helper::style::Style;
 use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Options, Render, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarouselChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
@@ -89,7 +89,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
             .add_style("padding", "0px")
     }
 
-    fn render_radios(&self, opts: &Options) -> Result<String, Error> {
+    fn render_radios(&self, opts: &RenderOptions) -> Result<String, Error> {
         self.element
             .children
             .iter()
@@ -110,7 +110,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
             })
     }
 
-    fn render_thumbnails(&self, opts: &Options) -> Result<String, Error> {
+    fn render_thumbnails(&self, opts: &RenderOptions) -> Result<String, Error> {
         if self.attribute_equals("thumbnails", "visible") {
             let width = self.get_thumbnails_width();
             self.element
@@ -172,7 +172,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
             .render(div)
     }
 
-    fn render_images(&self, opts: &Options) -> Result<String, Error> {
+    fn render_images(&self, opts: &RenderOptions) -> Result<String, Error> {
         let content = self
             .element
             .children
@@ -197,7 +197,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
         Ok(self.set_style_images_td(Tag::td()).render(div))
     }
 
-    fn render_carousel(&self, opts: &Options) -> Result<String, Error> {
+    fn render_carousel(&self, opts: &RenderOptions) -> Result<String, Error> {
         let previous =
             self.render_controls("previous", self.attribute("left-icon").unwrap().as_str());
         let images = self.render_images(opts)?;
@@ -212,7 +212,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
         Ok(table)
     }
 
-    fn render_fallback(&self, opts: &Options) -> Result<String, Error> {
+    fn render_fallback(&self, opts: &RenderOptions) -> Result<String, Error> {
         match self
             .element
             .children
@@ -438,7 +438,7 @@ impl<'e, 'h> Render<'h> for MjCarouselRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &Options) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let styles = self.render_style();
         self.header.borrow_mut().maybe_add_style(styles);
         let radios = self.render_radios(opts)?;
