@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.2](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.4.1...mrml-cli-v1.4.2) - 2023-12-07
+
+### Other
+- *(mrml-core)* rename Options to RenderOptions ([#352](https://github.com/jdrouet/mrml/pull/352))
+
 ## [1.4.1](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.4.0...mrml-cli-v1.4.1) - 2023-12-04
 
 ### Other
