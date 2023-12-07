@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.3.0...mrml-wasm-v1.4.0) - 2023-12-07
+
+### Added
+- *(mrml-core)* make the include_loader be Send and Sync ([#347](https://github.com/jdrouet/mrml/pull/347))
+
+### Other
+- *(mrml-wasm)* update Cargo.toml
+- *(mrml-core)* rename Options to RenderOptions ([#352](https://github.com/jdrouet/mrml/pull/352))
+- update github actions configuration ([#351](https://github.com/jdrouet/mrml/pull/351))
+- release ([#348](https://github.com/jdrouet/mrml/pull/348))
+- *(mrml-core)* release version 2.0.0
+
 ## [1.3.0](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.2.3...mrml-wasm-v1.3.0) - 2023-12-01
 
 ### Added
