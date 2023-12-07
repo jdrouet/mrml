@@ -5,12 +5,14 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/mrml-python-main.yml'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'packages/mrml-core/**'
       - 'packages/mrml-python/**'
   pull_request:
     paths:
+      - '.github/workflows/mrml-python-main.yml'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'packages/mrml-core/**'

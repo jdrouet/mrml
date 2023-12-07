@@ -4,6 +4,7 @@ on:
   workflow_call:
   pull_request:
     paths:
+      - '.github/workflows/mrml-wasm-main.yml'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'packages/mrml-core/**'
@@ -12,6 +13,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/mrml-wasm-main.yml'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'packages/mrml-core/**'
