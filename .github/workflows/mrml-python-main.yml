@@ -4,7 +4,17 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'packages/mrml-core/**'
+      - 'packages/mrml-python/**'
   pull_request:
+    paths:
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'packages/mrml-core/**'
+      - 'packages/mrml-python/**'
   workflow_dispatch:
 
 permissions:

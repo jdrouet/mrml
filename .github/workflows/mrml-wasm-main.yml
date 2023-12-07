@@ -3,9 +3,19 @@ on:
     types: [checks_requested]
   workflow_call:
   pull_request:
+    paths:
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'packages/mrml-core/**'
+      - 'packages/mrml-wasm/**'
   push:
     branches:
       - main
+    paths:
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'packages/mrml-core/**'
+      - 'packages/mrml-wasm/**'
 
 name: mrml-wasm main
 

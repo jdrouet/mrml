@@ -5,9 +5,19 @@ on:
     types: [checks_requested]
   workflow_call:
   pull_request:
+    paths:
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'packages/mrml-cli/**'
+      - 'packages/mrml-core/**'
   push:
     branches:
       - main
+    paths:
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'packages/mrml-cli/**'
+      - 'packages/mrml-core/**'
 
 env:
   RUSTFLAGS: "-Dwarnings"
