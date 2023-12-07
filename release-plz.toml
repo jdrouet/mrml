@@ -1,1 +1,5 @@
 [workspace]
+
+[[package]]
+name = "mrml-python"
+publish = false
