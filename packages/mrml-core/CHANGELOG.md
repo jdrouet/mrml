@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0](https://github.com/jdrouet/mrml/compare/mrml-v2.1.1...mrml-v3.0.0) - 2023-12-19
+
+### Fixed
+- *(mrml-core)* make sure we can parse <mj-font></mj-font> ([#359](https://github.com/jdrouet/mrml/pull/359))
+- *(mrml-core)* remove Sync and Send from include loader ([#357](https://github.com/jdrouet/mrml/pull/357))
+
 ## [2.1.1](https://github.com/jdrouet/mrml/compare/mrml-v2.1.0...mrml-v2.1.1) - 2023-12-07
 
 ### Other

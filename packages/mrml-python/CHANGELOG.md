@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.0...mrml-python-v0.1.1) - 2023-12-19
+
+### Other
+- *(mrml-python)* update Cargo.toml
+- *(mrml-core)* rename Options to RenderOptions ([#352](https://github.com/jdrouet/mrml/pull/352))
+- *(mrml-python)* update readme
+- release ([#350](https://github.com/jdrouet/mrml/pull/350))
+
 ## [0.1.0](https://github.com/jdrouet/mrml/releases/tag/mrml-python-v0.1.0) - 2023-12-06
 
 ### Added
