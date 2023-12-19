@@ -7,7 +7,7 @@ authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2018"
 license-file = "license.md"
 repository = "https://github.com/jdrouet/mrml/"
-readme = "readme.md"
+readme = "README.md"
 
 [lib]
 name = "mrml_wasm"
