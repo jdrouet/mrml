@@ -38,7 +38,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjFont, Error> {
     let attributes = parse_attributes(cursor)?;
     let ending = cursor.assert_element_end()?;
     if !ending.empty {
-        return Err(Error::InvalidFormat(ending.span.into()));
+        cursor.assert_element_close()?;
     }
 
     Ok(MjFont { attributes })
