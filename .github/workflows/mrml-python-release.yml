@@ -114,3 +114,20 @@ jobs:
           command: upload
           args: --non-interactive --skip-existing dist/*
           working-directory: packages/mrml-python
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [release]
+    steps:
+      - name: notify mastodon
+        uses: cbrgm/mastodon-github-action@v1
+        with:
+          message: |
+            👋 Hey! I just released a new version of mrml-python!
+            Take a look at it, it's made in #rustlang, it's #opensource and it's a #freesoftware!"
+            https://github.com/jdrouet/mrml and https://pypi.org/project/mrml/
+          visibility: "public"
+        env:
+          MASTODON_URL: ${{ secrets.MASTODON_URL }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+        continue-on-error: true

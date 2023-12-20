@@ -16,7 +16,7 @@ jobs:
           message: |
             👋 Hey! I just released a new version of mrml!
             Take a look at it, it's made in #rustlang, it's #opensource and it's a #freesoftware!"
-            https://github.com/jdrouet/mrml
+            https://github.com/jdrouet/mrml and https://crates.io/crates/mrml
           visibility: "public"
         env:
           MASTODON_URL: ${{ secrets.MASTODON_URL }}
