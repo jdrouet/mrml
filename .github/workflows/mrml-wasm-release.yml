@@ -16,7 +16,6 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
-    container: rust:1-bullseye
 
     concurrency:
       group: ${{ github.ref }}-mrml-wasm-release
