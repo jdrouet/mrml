@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.0...mrml-wasm-v1.4.1) - 2023-12-20
+
+### Other
+- release ([#360](https://github.com/jdrouet/mrml/pull/360))
+
 ## [1.4.0](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.3.0...mrml-wasm-v1.4.0) - 2023-12-07
 
 ### Added
