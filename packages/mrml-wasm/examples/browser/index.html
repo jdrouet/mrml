@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browser testing</title>
+</head>
+
+<body>
+  <div style="display:flex;flex-direction:row;">
+    <textarea id="input" style="flex:1;"
+      rows="30"><mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml></textarea>
+    <textarea id="output" style="flex:1;" rows="30"></textarea>
+  </div>
+  <div style="display:flex;justify-content: center;">
+    <button id="build-bundler">With bundler target</button>
+    <button id="build-web">With web target</button>
+  </div>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>

@@ -4,20 +4,20 @@ on:
   workflow_call:
   pull_request:
     paths:
-      - '.github/workflows/mrml-wasm-main.yml'
-      - 'Cargo.lock'
-      - 'Cargo.toml'
-      - 'packages/mrml-core/**'
-      - 'packages/mrml-wasm/**'
+      - ".github/workflows/mrml-wasm-main.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "packages/mrml-core/**"
+      - "packages/mrml-wasm/**"
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/mrml-wasm-main.yml'
-      - 'Cargo.lock'
-      - 'Cargo.toml'
-      - 'packages/mrml-core/**'
-      - 'packages/mrml-wasm/**'
+      - ".github/workflows/mrml-wasm-main.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "packages/mrml-core/**"
+      - "packages/mrml-wasm/**"
 
 name: mrml-wasm main
 
@@ -66,7 +66,7 @@ jobs:
         run: wasm-pack test --node
 
       - name: build for nodejs
-        run: wasm-pack build --target nodejs
+        run: bash build.sh
 
       - name: run node example
         run: |
@@ -78,4 +78,4 @@ jobs:
         run: |
           cd examples/browser
           npm install
-          npm test
+          npm run build

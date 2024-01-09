@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: latest
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
 
       - name: install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
@@ -49,12 +49,7 @@ jobs:
           key: ${{ runner.os }}-mrml-wasm-testing-${{ hashFiles('**/Cargo.lock') }}
 
       - name: build release
-        run: wasm-pack build --target nodejs --release
-
-      - name: rename package
-        run: |
-          jq '.name = "mrml"' pkg/package.json > pkg/package-new.json
-          mv pkg/package-new.json pkg/package.json
+        run: bash build.sh
 
       - name: publish release
         run: wasm-pack publish
