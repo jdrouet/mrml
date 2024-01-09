@@ -2,7 +2,7 @@
 name = "mrml-wasm"
 description = "Wasm wrapping on MRML"
 keywords = ["email", "mjml"]
-version = "1.4.1"
+version = "1.4.2"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2018"
 license-file = "license.md"
