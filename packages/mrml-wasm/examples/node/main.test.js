@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { Engine } = require("mrml-wasm");
+const { Engine } = require("mrml-wasm/nodejs/mrml_wasm");
 const { describe, it } = require("node:test");
 
 describe('mrml-wasm in node', function () {
