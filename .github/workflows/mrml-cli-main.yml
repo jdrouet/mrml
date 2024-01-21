@@ -6,20 +6,20 @@ on:
   workflow_call:
   pull_request:
     paths:
-      - '.github/workflows/mrml-cli-main.yml'
-      - 'Cargo.lock'
-      - 'Cargo.toml'
-      - 'packages/mrml-cli/**'
-      - 'packages/mrml-core/**'
+      - ".github/workflows/mrml-cli-main.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "packages/mrml-cli/**"
+      - "packages/mrml-core/**"
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/mrml-cli-main.yml'
-      - 'Cargo.lock'
-      - 'Cargo.toml'
-      - 'packages/mrml-cli/**'
-      - 'packages/mrml-core/**'
+      - ".github/workflows/mrml-cli-main.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "packages/mrml-cli/**"
+      - "packages/mrml-core/**"
 
 env:
   RUSTFLAGS: "-Dwarnings"
@@ -82,10 +82,3 @@ jobs:
 
       - name: building the cli binary
         run: cargo build --package mrml-cli --release
-
-      - name: publish file size metric
-        run: |
-          FILE_SIZE=$(du -sb target/release/mrml | awk '{ print $1 }')
-          curl https://ci-metrics.eu/binaries/cimetrics-cli-amd64 -o ./cimetrics-cli
-          chmod +x ./cimetrics-cli
-          ./cimetrics-cli --verbose --token ${{ secrets.CODEBENCH_TOKEN }} publish mrml-cli.binary.size $FILE_SIZE

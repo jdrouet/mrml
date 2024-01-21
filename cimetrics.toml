@@ -1,9 +1,0 @@
-version = "v1"
-
-[[metrics]]
-name = "mrml-cli.binary.size"
-threshold = 20
-expectation = "decrease"
-
-[metrics.tags]
-unit = "B"
