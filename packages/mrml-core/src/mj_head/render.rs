@@ -183,11 +183,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         if header.media_queries().is_empty() {
             return String::default();
         }
-        let mut classnames = header
-            .media_queries()
-            .iter()
-            .map(|(key, value)| (key, value))
-            .collect::<Vec<_>>();
+        let mut classnames = header.media_queries().iter().collect::<Vec<_>>();
         classnames.sort_by(sort_by_key);
         let breakpoint = header.breakpoint().to_string();
         let mut buf = String::from("<style type=\"text/css\">");
