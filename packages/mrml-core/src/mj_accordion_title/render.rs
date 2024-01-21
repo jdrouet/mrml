@@ -101,7 +101,7 @@ impl<'e, 'h> Render<'h> for MjAccordionTitleRender<'e, 'h> {
         self.header
             .borrow_mut()
             .maybe_add_font_families(font_families);
-        let mut content = vec![self.render_title(opts)?, self.render_icons()];
+        let mut content = [self.render_title(opts)?, self.render_icons()];
         if !self.attribute_equals("icon-position", "right") {
             content.reverse();
         }

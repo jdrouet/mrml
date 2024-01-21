@@ -396,21 +396,6 @@ pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
 }
 
 #[cfg(test)]
-mod tests {
-    use std::cell::RefCell;
-    use std::rc::Rc;
-
-    #[test]
-    fn header_should_increase() {
-        let head = None;
-        let header = Rc::new(RefCell::new(super::Header::new(&head)));
-        assert_eq!(header.borrow().next_id(), "00000000");
-        assert_eq!(header.borrow().next_id(), "00000001");
-        assert_eq!(header.borrow().next_id(), "00000002");
-    }
-}
-
-#[cfg(test)]
 #[macro_export]
 macro_rules! should_render {
     ($name: ident, $template: literal) => {
@@ -437,4 +422,19 @@ macro_rules! should_render {
             }
         });
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    #[test]
+    fn header_should_increase() {
+        let head = None;
+        let header = Rc::new(RefCell::new(super::Header::new(&head)));
+        assert_eq!(header.borrow().next_id(), "00000000");
+        assert_eq!(header.borrow().next_id(), "00000001");
+        assert_eq!(header.borrow().next_id(), "00000002");
+    }
 }
