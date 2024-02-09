@@ -38,6 +38,15 @@ where
     pub fn new() -> Self {
         Map(MapImpl::new())
     }
+
+    #[cfg(feature = "orderedmap")]
+    #[inline]
+    pub fn remove<Q: ?Sized>(&mut self, key: &Q) -> Option<V>
+    where
+        Q: Hash + indexmap::Equivalent<K>,
+    {
+        self.shift_remove(key)
+    }
 }
 
 impl<K, V> Deref for Map<K, V>
