@@ -292,7 +292,9 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
                 renderer.set_raw_siblings(raw_siblings);
                 renderer.set_container_width(self.container_width().clone());
                 if child.is_raw() {
+                    result.push_str(END_CONDITIONAL_TAG);
                     result.push_str(&renderer.render(opts)?);
+                    result.push_str(START_CONDITIONAL_TAG);
                 } else {
                     let td = renderer
                         .set_style("td-outlook", Tag::td())
@@ -498,6 +500,9 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
 
 #[cfg(test)]
 mod tests {
+    // error reported in https://github.com/jdrouet/mrml/issues/370
+    crate::should_render!(comment, "comment");
+
     crate::should_render!(basic, "mj-section");
     crate::should_render!(background_color, "mj-section-background-color");
     crate::should_render!(background_url_full, "mj-section-background-url-full");
