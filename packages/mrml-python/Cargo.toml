@@ -2,7 +2,7 @@
 name = "mrml-python"
 description = "Python wrapping on MRML"
 keywords = ["email", "mjml"]
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2021"
 license-file = "license.md"
@@ -16,5 +16,5 @@ name = "mrml"
 crate-type = ["cdylib"]
 
 [dependencies]
-mrml = { version = "3.0.0", path = "../mrml-core" }
+mrml = { version = "3.0.1", path = "../mrml-core" }
 pyo3 = { version = "0.20.0", features = ["extension-module"] }

@@ -2,7 +2,7 @@
 name = "mrml-cli"
 description = "CLI for the Rust implementation of MJML renderer"
 keywords = ["cli", "email", "mjml"]
-version = "1.4.3"
+version = "1.4.4"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 license-file = "license.md"
 edition = "2018"

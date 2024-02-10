@@ -1113,7 +1113,7 @@ dependencies = [
 
 [[package]]
 name = "mrml"
-version = "3.0.0"
+version = "3.0.1"
 dependencies = [
  "async-trait",
  "concat-idents",
@@ -1139,7 +1139,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-cli"
-version = "1.4.3"
+version = "1.4.4"
 dependencies = [
  "clap",
  "env_logger",
@@ -1192,7 +1192,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-python"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "mrml",
  "pyo3",

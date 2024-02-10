@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.4](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.4.3...mrml-cli-v1.4.4) - 2024-02-10
+
+### Other
+- *(deps)* Update env_logger requirement in /packages/mrml-cli ([#367](https://github.com/jdrouet/mrml/pull/367))
+
 ## [1.4.3](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.4.2...mrml-cli-v1.4.3) - 2023-12-19
 
 ### Other
