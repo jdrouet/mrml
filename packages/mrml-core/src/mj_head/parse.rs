@@ -20,6 +20,11 @@ impl<'opts> ParseChildren<Vec<MjHeadChild>> for MrmlParser<'opts> {
         let mut result = Vec::new();
         loop {
             match cursor.assert_next()? {
+                MrmlToken::Comment(inner) => {
+                    result.push(MjHeadChild::Comment(crate::comment::Comment::from(
+                        inner.text.as_str(),
+                    )));
+                }
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.parse(cursor, inner.local)?);
                 }
@@ -47,6 +52,11 @@ impl AsyncParseChildren<Vec<MjHeadChild>> for AsyncMrmlParser {
         let mut result = Vec::new();
         loop {
             match cursor.assert_next()? {
+                MrmlToken::Comment(inner) => {
+                    result.push(MjHeadChild::Comment(crate::comment::Comment::from(
+                        inner.text.as_str(),
+                    )));
+                }
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.async_parse(cursor, inner.local).await?);
                 }
@@ -163,6 +173,8 @@ mod tests {
         MjHead,
         "<mj-head><mj-raw>Hello World!</mj-raw></mj-head>"
     );
+
+    crate::should_parse!(with_comment, MjHead, "<mj-head><!-- HEAD --></mj-head>");
 
     crate::should_not_parse!(
         unexpected_element,
