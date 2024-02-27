@@ -1,0 +1,14 @@
+<mjml>
+  <mj-head>
+    <mj-include path="mj-head-include-attributes.mjml" />
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text mj-class="heading">
+          coucou
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
