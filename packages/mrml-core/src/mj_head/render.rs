@@ -1,6 +1,5 @@
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
-use std::slice::Iter;
 
 use super::{MjHead, MjHeadChild};
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
@@ -51,6 +50,62 @@ fn select_mj_styles<'a>(buffer: &mut Vec<&'a str>, children: &'a [MjHeadChild]) 
     }
 }
 
+fn extract_attributes_all<'a>(
+    result: Map<&'a str, &'a str>,
+    attrs: &'a MjAttributes,
+) -> Map<&'a str, &'a str> {
+    attrs
+        .children()
+        .iter()
+        .filter_map(|item| item.as_mj_attributes_all())
+        .fold(result, |mut res, all| {
+            res.extend(
+                all.attributes()
+                    .iter()
+                    .map(|(k, v)| (k.as_str(), v.as_str())),
+            );
+            res
+        })
+}
+
+fn extract_attributes_class<'a>(
+    result: Map<&'a str, Map<&'a str, &'a str>>,
+    attrs: &'a MjAttributes,
+) -> Map<&'a str, Map<&'a str, &'a str>> {
+    attrs
+        .children()
+        .iter()
+        .filter_map(|item| item.as_mj_attributes_class())
+        .fold(result, |mut res, class| {
+            (*res.entry(class.name()).or_default()).extend(
+                class
+                    .attributes()
+                    .iter()
+                    .map(|(k, v)| (k.as_str(), v.as_str())),
+            );
+            res
+        })
+}
+
+fn extract_attributes_element<'a>(
+    result: Map<&'a str, Map<&'a str, &'a str>>,
+    attrs: &'a MjAttributes,
+) -> Map<&'a str, Map<&'a str, &'a str>> {
+    attrs
+        .children()
+        .iter()
+        .filter_map(|item| item.as_mj_attributes_element())
+        .fold(result, |mut res, element| {
+            (*res.entry(element.name()).or_default()).extend(
+                element
+                    .attributes()
+                    .iter()
+                    .map(|(k, v)| (k.as_str(), v.as_str())),
+            );
+            res
+        })
+}
+
 impl MjHead {
     pub fn build_attributes_all(&self) -> Map<&str, &str> {
         // First resolve attributes in <mj-include> tags
@@ -60,12 +115,12 @@ impl MjHead {
             .filter_map(|item| item.as_mj_include())
             .flat_map(|item| item.children.iter())
             .filter_map(|item| item.as_mj_attributes())
-            .fold(Map::<&str, &str>::new(), Self::extract_attributes_all);
+            .fold(Map::<&str, &str>::new(), extract_attributes_all);
 
         self.children
             .iter()
             .filter_map(|item| item.as_mj_attributes())
-            .fold(init, Self::extract_attributes_all)
+            .fold(init, extract_attributes_all)
     }
 
     pub fn build_attributes_class(&self) -> Map<&str, Map<&str, &str>> {
@@ -78,13 +133,13 @@ impl MjHead {
             .filter_map(|item| item.as_mj_attributes())
             .fold(
                 Map::<&str, Map<&str, &str>>::new(),
-                Self::extract_attributes_class,
+                extract_attributes_class,
             );
 
         self.children
             .iter()
             .filter_map(|item| item.as_mj_attributes())
-            .fold(init, Self::extract_attributes_class)
+            .fold(init, extract_attributes_class)
     }
 
     pub fn build_attributes_element(&self) -> Map<&str, Map<&str, &str>> {
@@ -97,13 +152,13 @@ impl MjHead {
             .filter_map(|item| item.as_mj_attributes())
             .fold(
                 Map::<&str, Map<&str, &str>>::new(),
-                Self::extract_attributes_element,
+                extract_attributes_element,
             );
 
         self.children
             .iter()
             .filter_map(|item| item.as_mj_attributes())
-            .fold(init, Self::extract_attributes_element)
+            .fold(init, extract_attributes_element)
     }
 
     pub fn build_font_families(&self) -> Map<&str, &str> {
@@ -121,62 +176,6 @@ impl MjHead {
             .map(|item| (item.name(), item.href()))
             .chain(init)
             .collect::<Map<&str, &str>>()
-    }
-
-    fn extract_attributes_all<'a>(
-        result: Map<&'a str, &'a str>,
-        attrs: &'a MjAttributes,
-    ) -> Map<&'a str, &'a str> {
-        attrs
-            .children()
-            .iter()
-            .filter_map(|item| item.as_mj_attributes_all())
-            .fold(result, |mut res, all| {
-                res.extend(
-                    all.attributes()
-                        .iter()
-                        .map(|(k, v)| (k.as_str(), v.as_str())),
-                );
-                res
-            })
-    }
-
-    fn extract_attributes_class<'a>(
-        result: Map<&'a str, Map<&'a str, &'a str>>,
-        attrs: &'a MjAttributes,
-    ) -> Map<&'a str, Map<&'a str, &'a str>> {
-        attrs
-            .children()
-            .iter()
-            .filter_map(|item| item.as_mj_attributes_class())
-            .fold(result, |mut res, class| {
-                (*res.entry(class.name()).or_default()).extend(
-                    class
-                        .attributes()
-                        .iter()
-                        .map(|(k, v)| (k.as_str(), v.as_str())),
-                );
-                res
-            })
-    }
-
-    fn extract_attributes_element<'a>(
-        result: Map<&'a str, Map<&'a str, &'a str>>,
-        attrs: &'a MjAttributes,
-    ) -> Map<&'a str, Map<&'a str, &'a str>> {
-        attrs
-            .children()
-            .iter()
-            .filter_map(|item| item.as_mj_attributes_element())
-            .fold(result, |mut res, element| {
-                (*res.entry(element.name()).or_default()).extend(
-                    element
-                        .attributes()
-                        .iter()
-                        .map(|(k, v)| (k.as_str(), v.as_str())),
-                );
-                res
-            })
     }
 }
 
