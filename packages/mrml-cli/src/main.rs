@@ -188,11 +188,11 @@ mod tests {
 
     use super::Options;
 
-    fn execute(args: Vec<&str>) {
+    fn execute<const N: usize>(args: [&str; N]) {
         Options::parse_from(args).execute();
     }
 
-    fn execute_stdin(args: Vec<&str>, input: &str) {
+    fn execute_stdin<const N: usize>(args: [&str; N], input: &str) {
         let opts = Options::parse_from(args);
         let root = opts.parse_input(input);
         opts.subcmd.execute(&root);
@@ -201,35 +201,35 @@ mod tests {
     #[test]
     #[should_panic]
     fn missing_file() {
-        execute(vec!["mrml-cli", "./cant/be/found.mjml", "validate"]);
+        execute(["mrml-cli", "./cant/be/found.mjml", "validate"]);
     }
 
     #[test]
     #[should_panic]
     fn unknown_extension() {
-        execute(vec!["mrml-cli", "./cant/be/found.txt", "validate"]);
+        execute(["mrml-cli", "./cant/be/found.txt", "validate"]);
     }
 
     #[test]
     #[should_panic]
     fn unknown_extension_stdin() {
-        execute_stdin(vec!["mrml-cli", "validate"], "###");
+        execute_stdin(["mrml-cli", "validate"], "###");
     }
 
     #[test]
     fn format_json_amario_stdio() {
         let input = include_str!("../resources/amario.mjml");
-        execute_stdin(vec!["mrml-cli", "format-json"], input);
+        execute_stdin(["mrml-cli", "format-json"], input);
     }
 
     #[test]
     fn format_json_amario() {
-        execute(vec!["mrml-cli", "./resources/amario.mjml", "format-json"]);
+        execute(["mrml-cli", "./resources/amario.mjml", "format-json"]);
     }
 
     #[test]
     fn format_json_pretty_amario() {
-        execute(vec![
+        execute([
             "mrml-cli",
             "./resources/amario.mjml",
             "format-json",
@@ -239,12 +239,12 @@ mod tests {
 
     #[test]
     fn format_mjml_amario() {
-        execute(vec!["mrml-cli", "./resources/amario.json", "format-mjml"]);
+        execute(["mrml-cli", "./resources/amario.json", "format-mjml"]);
     }
 
     #[test]
     fn format_mjml_pretty_amario() {
-        execute(vec![
+        execute([
             "mrml-cli",
             "./resources/amario.json",
             "format-mjml",
@@ -254,22 +254,22 @@ mod tests {
 
     #[test]
     fn render_amario() {
-        execute(vec!["mrml-cli", "./resources/amario.mjml", "render"]);
+        execute(["mrml-cli", "./resources/amario.mjml", "render"]);
     }
 
     #[test]
     fn validate_amario_json() {
-        execute(vec!["mrml-cli", "./resources/amario.json", "validate"]);
+        execute(["mrml-cli", "./resources/amario.json", "validate"]);
     }
 
     #[test]
     fn validate_amario_mjml() {
-        execute(vec!["mrml-cli", "./resources/amario.mjml", "validate"]);
+        execute(["mrml-cli", "./resources/amario.mjml", "validate"]);
     }
 
     #[test]
     fn render_with_include() {
-        execute(vec![
+        execute([
             "mrml-cli",
             "--local-loader",
             "./resources/partials",
