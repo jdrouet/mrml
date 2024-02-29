@@ -1,7 +1,9 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 use mrml::prelude::parser::loader::IncludeLoader;
+use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 use pyo3::exceptions::PyOSError;
@@ -15,11 +17,16 @@ pub struct NoopIncludeLoaderOptions;
 #[derive(Clone, Debug, Default)]
 pub struct MemoryIncludeLoaderOptions(HashMap<String, String>);
 
+#[pyclass]
+#[derive(Clone, Debug, Default)]
+pub struct LocalIncludeLoaderOptions(PathBuf);
+
 // #[pyclass]
 #[derive(FromPyObject, Clone, Debug)]
 pub enum ParserIncludeLoaderOptions {
     Noop(NoopIncludeLoaderOptions),
     Memory(MemoryIncludeLoaderOptions),
+    Local(LocalIncludeLoaderOptions),
 }
 
 impl Default for ParserIncludeLoaderOptions {
@@ -35,6 +42,9 @@ impl ParserIncludeLoaderOptions {
             Self::Memory(MemoryIncludeLoaderOptions(inner)) => {
                 Box::new(MemoryIncludeLoader::from(inner))
             }
+            Self::Local(LocalIncludeLoaderOptions(inner)) => {
+                Box::new(LocalIncludeLoader::new(inner))
+            }
         }
     }
 }
@@ -44,6 +54,7 @@ impl IntoPy<PyObject> for ParserIncludeLoaderOptions {
         match self {
             Self::Noop(inner) => inner.into_py(py),
             Self::Memory(inner) => inner.into_py(py),
+            Self::Local(inner) => inner.into_py(py),
         }
     }
 }
@@ -58,6 +69,20 @@ pub fn noop_loader() -> ParserIncludeLoaderOptions {
 #[pyo3(name = "memory_loader", signature = (data = None))]
 pub fn memory_loader(data: Option<HashMap<String, String>>) -> ParserIncludeLoaderOptions {
     ParserIncludeLoaderOptions::Memory(MemoryIncludeLoaderOptions(data.unwrap_or_default()))
+}
+
+#[pyfunction]
+#[pyo3(name = "local_loader", signature = (data = None))]
+pub fn local_loader(data: Option<String>) -> ParserIncludeLoaderOptions {
+    let path = match data.map(PathBuf::from) {
+        Some(path) if path.is_absolute() => path,
+        Some(path) => std::env::current_dir()
+            .ok()
+            .map(|v| v.join(path))
+            .unwrap_or_default(),
+        None => std::env::current_dir().unwrap_or_default(),
+    };
+    ParserIncludeLoaderOptions::Local(LocalIncludeLoaderOptions(path))
 }
 
 #[pyclass]
@@ -147,10 +172,12 @@ fn to_html(
 fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_class::<NoopIncludeLoaderOptions>()?;
     m.add_class::<MemoryIncludeLoaderOptions>()?;
+    m.add_class::<LocalIncludeLoaderOptions>()?;
     m.add_class::<ParserOptions>()?;
     m.add_class::<RenderOptions>()?;
     m.add_function(wrap_pyfunction!(to_html, m)?)?;
     m.add_function(wrap_pyfunction!(noop_loader, m)?)?;
+    m.add_function(wrap_pyfunction!(local_loader, m)?)?;
     m.add_function(wrap_pyfunction!(memory_loader, m)?)?;
     Ok(())
 }
