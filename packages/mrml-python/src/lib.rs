@@ -1,7 +1,10 @@
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::path::PathBuf;
 
+use mrml::prelude::parser::http_loader::{HttpIncludeLoader, UreqFetcher};
 use mrml::prelude::parser::loader::IncludeLoader;
+use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 use pyo3::exceptions::PyOSError;
@@ -15,11 +18,37 @@ pub struct NoopIncludeLoaderOptions;
 #[derive(Clone, Debug, Default)]
 pub struct MemoryIncludeLoaderOptions(HashMap<String, String>);
 
+#[pyclass]
+#[derive(Clone, Debug, Default)]
+pub struct LocalIncludeLoaderOptions(PathBuf);
+
+#[pyclass]
+#[derive(Clone, Debug)]
+pub enum HttpIncludeLoaderOptionsMode {
+    Allow,
+    Deny,
+}
+
+impl Default for HttpIncludeLoaderOptionsMode {
+    fn default() -> Self {
+        Self::Allow
+    }
+}
+
+#[pyclass]
+#[derive(Clone, Debug, Default)]
+pub struct HttpIncludeLoaderOptions {
+    mode: HttpIncludeLoaderOptionsMode,
+    list: HashSet<String>,
+}
+
 // #[pyclass]
 #[derive(FromPyObject, Clone, Debug)]
 pub enum ParserIncludeLoaderOptions {
     Noop(NoopIncludeLoaderOptions),
     Memory(MemoryIncludeLoaderOptions),
+    Local(LocalIncludeLoaderOptions),
+    Http(HttpIncludeLoaderOptions),
 }
 
 impl Default for ParserIncludeLoaderOptions {
@@ -35,6 +64,17 @@ impl ParserIncludeLoaderOptions {
             Self::Memory(MemoryIncludeLoaderOptions(inner)) => {
                 Box::new(MemoryIncludeLoader::from(inner))
             }
+            Self::Local(LocalIncludeLoaderOptions(inner)) => {
+                Box::new(LocalIncludeLoader::new(inner))
+            }
+            Self::Http(HttpIncludeLoaderOptions { mode, list }) => match mode {
+                HttpIncludeLoaderOptionsMode::Allow => {
+                    Box::new(HttpIncludeLoader::<UreqFetcher>::new_allow(list))
+                }
+                HttpIncludeLoaderOptionsMode::Deny => {
+                    Box::new(HttpIncludeLoader::<UreqFetcher>::new_deny(list))
+                }
+            },
         }
     }
 }
@@ -44,6 +84,8 @@ impl IntoPy<PyObject> for ParserIncludeLoaderOptions {
         match self {
             Self::Noop(inner) => inner.into_py(py),
             Self::Memory(inner) => inner.into_py(py),
+            Self::Local(inner) => inner.into_py(py),
+            Self::Http(inner) => inner.into_py(py),
         }
     }
 }
@@ -58,6 +100,34 @@ pub fn noop_loader() -> ParserIncludeLoaderOptions {
 #[pyo3(name = "memory_loader", signature = (data = None))]
 pub fn memory_loader(data: Option<HashMap<String, String>>) -> ParserIncludeLoaderOptions {
     ParserIncludeLoaderOptions::Memory(MemoryIncludeLoaderOptions(data.unwrap_or_default()))
+}
+
+#[pyfunction]
+#[pyo3(name = "local_loader", signature = (data = None))]
+pub fn local_loader(data: Option<String>) -> PyResult<ParserIncludeLoaderOptions> {
+    let path = match data.map(PathBuf::from) {
+        Some(path) if path.is_absolute() => path,
+        Some(path) => std::env::current_dir()
+            .map_err(|err| PyErr::new::<pyo3::exceptions::PyException, String>(err.to_string()))?
+            .join(path),
+        None => std::env::current_dir()
+            .map_err(|err| PyErr::new::<pyo3::exceptions::PyException, String>(err.to_string()))?,
+    };
+    Ok(ParserIncludeLoaderOptions::Local(
+        LocalIncludeLoaderOptions(path),
+    ))
+}
+
+#[pyfunction]
+#[pyo3(name = "http_loader", signature = (mode = None, list = None))]
+pub fn http_loader(
+    mode: Option<HttpIncludeLoaderOptionsMode>,
+    list: Option<HashSet<String>>,
+) -> ParserIncludeLoaderOptions {
+    ParserIncludeLoaderOptions::Http(HttpIncludeLoaderOptions {
+        mode: mode.unwrap_or(HttpIncludeLoaderOptionsMode::Allow),
+        list: list.unwrap_or_default(),
+    })
 }
 
 #[pyclass]
@@ -147,10 +217,15 @@ fn to_html(
 fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_class::<NoopIncludeLoaderOptions>()?;
     m.add_class::<MemoryIncludeLoaderOptions>()?;
+    m.add_class::<LocalIncludeLoaderOptions>()?;
+    m.add_class::<HttpIncludeLoaderOptions>()?;
+    m.add_class::<HttpIncludeLoaderOptionsMode>()?;
     m.add_class::<ParserOptions>()?;
     m.add_class::<RenderOptions>()?;
     m.add_function(wrap_pyfunction!(to_html, m)?)?;
     m.add_function(wrap_pyfunction!(noop_loader, m)?)?;
+    m.add_function(wrap_pyfunction!(local_loader, m)?)?;
+    m.add_function(wrap_pyfunction!(http_loader, m)?)?;
     m.add_function(wrap_pyfunction!(memory_loader, m)?)?;
     Ok(())
 }
