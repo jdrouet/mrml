@@ -1,0 +1,72 @@
+name: mrml-cli release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        required: true
+        type: string
+
+jobs:
+  build-binary:
+    name: build binary for ${{ matrix.platform.release_for }}
+    runs-on: ${{ matrix.platform.os }}
+
+    strategy:
+      matrix:
+        platform:
+          - release_for: linux-x86_64
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            filename: mrml-cli_linux-x86_64
+            command: build
+
+          - release_for: linux-arm64
+            os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            filename: mrml-cli_linux-arm64
+            command: build
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: build binary
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: ${{ matrix.platform.command }}
+          target: ${{ matrix.platform.target }}
+          args: "--locked --release --package mrml-cli"
+          strip: true
+      - name: move binary file
+        run: mv target/${{ matrix.platform.target }}/release/mrml target/${{ matrix.platform.filename }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.release_for }}
+          path: target/${{ matrix.platform.filename }}
+
+  release-binaries:
+    runs-on: ubuntu-latest
+    needs: [build-binary]
+    steps:
+      - name: download amd64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-x86_64
+      - name: download arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arm64
+      - name: display downloaded files
+        run: ls -R
+      - name: get release id from tag
+        id: release_id
+        run: |
+          release_id=$(curl -L -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" $GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/tags/${{ inputs.release_tag }} | jq .id)
+          echo "release_id=$release_id" >> $GITHUB_OUTPUT
+      - name: upload the artifacts
+        uses: skx/github-action-publish-binaries@release-2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          releaseId: ${{ steps.release_id.outputs.release_id }}
+          args: "mrml-cli_*"
