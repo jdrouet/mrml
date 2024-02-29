@@ -1,9 +1,14 @@
 use std::borrow::Cow;
 use std::fs::File;
 use std::io::prelude::*;
+use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 use mrml::mjml::Mjml;
+use mrml::prelude::parser::loader::IncludeLoader;
+use mrml::prelude::parser::local_loader::LocalIncludeLoader;
+use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+use mrml::prelude::parser::ParserOptions;
 use mrml::prelude::print::Print;
 use mrml::prelude::render::RenderOptions;
 
@@ -15,6 +20,9 @@ struct Options {
     /// Path to your mjml file
     #[clap(index = 1)]
     pub input: Option<String>,
+    /// Path to a directory containing templates that can be used with mj-include
+    #[clap(long)]
+    pub local_loader: Option<PathBuf>,
 }
 
 impl Options {
@@ -42,9 +50,29 @@ impl Options {
             .map_err(|err| format!("unable to parse json: {:?}", err))
     }
 
+    fn include_loader(&self) -> Result<Box<dyn IncludeLoader>, String> {
+        Ok(match self.local_loader {
+            Some(ref path) => {
+                let path = if path.is_absolute() {
+                    path.to_path_buf()
+                } else {
+                    std::env::current_dir()
+                        .map_err(|err| err.to_string())?
+                        .join(path)
+                };
+                Box::new(LocalIncludeLoader::new(path))
+            }
+            None => Box::<NoopIncludeLoader>::default(),
+        })
+    }
+
     fn parse_mjml(&self, input: &str) -> Result<Mjml, String> {
         log::debug!("parsing mjml input");
-        Mjml::parse(input).map_err(|err| format!("unable to parse mjml: {:?}", err))
+        let options = ParserOptions {
+            include_loader: self.include_loader()?,
+        };
+        Mjml::parse_with_options(input, &options)
+            .map_err(|err| format!("unable to parse mjml: {:?}", err))
     }
 
     fn parse_input(&self, input: &str) -> Mjml {
@@ -237,5 +265,16 @@ mod tests {
     #[test]
     fn validate_amario_mjml() {
         execute(vec!["mrml-cli", "./resources/amario.mjml", "validate"]);
+    }
+
+    #[test]
+    fn render_with_include() {
+        execute(vec![
+            "mrml-cli",
+            "--local-loader",
+            "./resources/partials",
+            "./resources/with-include.mjml",
+            "render",
+        ]);
     }
 }

@@ -1,0 +1,5 @@
+<mjml>
+  <mj-body>
+    <mj-include path="file:///hello-world.mjml" />
+  </mj-body>
+</mjml>
