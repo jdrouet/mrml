@@ -1,11 +1,26 @@
 use std::borrow::Cow;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::prelude::*;
+use std::iter::FromIterator;
+use std::path::PathBuf;
 
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use mrml::mjml::Mjml;
+use mrml::prelude::parser::http_loader::{HttpIncludeLoader, UreqFetcher};
+use mrml::prelude::parser::loader::IncludeLoader;
+use mrml::prelude::parser::local_loader::LocalIncludeLoader;
+use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
+use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+use mrml::prelude::parser::ParserOptions;
 use mrml::prelude::print::Print;
 use mrml::prelude::render::RenderOptions;
+
+#[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
+pub enum HttpLoaderMode {
+    Allow,
+    Deny,
+}
 
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -15,6 +30,13 @@ struct Options {
     /// Path to your mjml file
     #[clap(index = 1)]
     pub input: Option<String>,
+    /// Path to a directory containing templates that can be used with mj-include
+    #[clap(long)]
+    pub local_loader: Option<PathBuf>,
+    #[clap(long, action = clap::ArgAction::Append)]
+    pub http_loader: Vec<String>,
+    #[clap(long)]
+    pub http_loader_mode: Option<HttpLoaderMode>,
 }
 
 impl Options {
@@ -42,9 +64,52 @@ impl Options {
             .map_err(|err| format!("unable to parse json: {:?}", err))
     }
 
+    fn http_include_loader(&self) -> Box<dyn IncludeLoader> {
+        let list = HashSet::from_iter(self.http_loader.iter().cloned());
+        match self.http_loader_mode {
+            Some(HttpLoaderMode::Deny) => {
+                Box::new(HttpIncludeLoader::<UreqFetcher>::new_deny(list))
+            }
+            _ => Box::new(HttpIncludeLoader::<UreqFetcher>::new_allow(list)),
+        }
+    }
+
+    fn local_include_loader(&self) -> Result<Option<Box<dyn IncludeLoader>>, String> {
+        Ok(match self.local_loader {
+            Some(ref path) => {
+                let path = if path.is_absolute() {
+                    path.to_path_buf()
+                } else {
+                    std::env::current_dir()
+                        .map_err(|err| err.to_string())?
+                        .join(path)
+                };
+                Some(Box::new(LocalIncludeLoader::new(path)))
+            }
+            None => None,
+        })
+    }
+
+    fn include_loader(&self) -> Result<Box<dyn IncludeLoader>, String> {
+        Ok(match self.local_include_loader()? {
+            Some(local) => Box::new(
+                MultiIncludeLoader::new()
+                    .with_starts_with("file://", local)
+                    .with_starts_with("http://", self.http_include_loader())
+                    .with_starts_with("https://", self.http_include_loader())
+                    .with_any(Box::<NoopIncludeLoader>::default()),
+            ),
+            None => self.http_include_loader(),
+        })
+    }
+
     fn parse_mjml(&self, input: &str) -> Result<Mjml, String> {
         log::debug!("parsing mjml input");
-        Mjml::parse(input).map_err(|err| format!("unable to parse mjml: {:?}", err))
+        let options = ParserOptions {
+            include_loader: self.include_loader()?,
+        };
+        Mjml::parse_with_options(input, &options)
+            .map_err(|err| format!("unable to parse mjml: {:?}", err))
     }
 
     fn parse_input(&self, input: &str) -> Mjml {
@@ -160,11 +225,11 @@ mod tests {
 
     use super::Options;
 
-    fn execute(args: Vec<&str>) {
+    fn execute<const N: usize>(args: [&str; N]) {
         Options::parse_from(args).execute();
     }
 
-    fn execute_stdin(args: Vec<&str>, input: &str) {
+    fn execute_stdin<const N: usize>(args: [&str; N], input: &str) {
         let opts = Options::parse_from(args);
         let root = opts.parse_input(input);
         opts.subcmd.execute(&root);
@@ -173,35 +238,35 @@ mod tests {
     #[test]
     #[should_panic]
     fn missing_file() {
-        execute(vec!["mrml-cli", "./cant/be/found.mjml", "validate"]);
+        execute(["mrml-cli", "./cant/be/found.mjml", "validate"]);
     }
 
     #[test]
     #[should_panic]
     fn unknown_extension() {
-        execute(vec!["mrml-cli", "./cant/be/found.txt", "validate"]);
+        execute(["mrml-cli", "./cant/be/found.txt", "validate"]);
     }
 
     #[test]
     #[should_panic]
     fn unknown_extension_stdin() {
-        execute_stdin(vec!["mrml-cli", "validate"], "###");
+        execute_stdin(["mrml-cli", "validate"], "###");
     }
 
     #[test]
     fn format_json_amario_stdio() {
         let input = include_str!("../resources/amario.mjml");
-        execute_stdin(vec!["mrml-cli", "format-json"], input);
+        execute_stdin(["mrml-cli", "format-json"], input);
     }
 
     #[test]
     fn format_json_amario() {
-        execute(vec!["mrml-cli", "./resources/amario.mjml", "format-json"]);
+        execute(["mrml-cli", "./resources/amario.mjml", "format-json"]);
     }
 
     #[test]
     fn format_json_pretty_amario() {
-        execute(vec![
+        execute([
             "mrml-cli",
             "./resources/amario.mjml",
             "format-json",
@@ -211,12 +276,12 @@ mod tests {
 
     #[test]
     fn format_mjml_amario() {
-        execute(vec!["mrml-cli", "./resources/amario.json", "format-mjml"]);
+        execute(["mrml-cli", "./resources/amario.json", "format-mjml"]);
     }
 
     #[test]
     fn format_mjml_pretty_amario() {
-        execute(vec![
+        execute([
             "mrml-cli",
             "./resources/amario.json",
             "format-mjml",
@@ -226,16 +291,103 @@ mod tests {
 
     #[test]
     fn render_amario() {
-        execute(vec!["mrml-cli", "./resources/amario.mjml", "render"]);
+        execute(["mrml-cli", "./resources/amario.mjml", "render"]);
     }
 
     #[test]
     fn validate_amario_json() {
-        execute(vec!["mrml-cli", "./resources/amario.json", "validate"]);
+        execute(["mrml-cli", "./resources/amario.json", "validate"]);
     }
 
     #[test]
     fn validate_amario_mjml() {
-        execute(vec!["mrml-cli", "./resources/amario.mjml", "validate"]);
+        execute(["mrml-cli", "./resources/amario.mjml", "validate"]);
+    }
+
+    #[test]
+    fn render_with_multi_include() {
+        execute([
+            "mrml-cli",
+            "--local-loader",
+            "./resources/partials",
+            "--http-loader",
+            "https://gist.githubusercontent.com",
+            "--http-loader-mode",
+            "allow",
+            "./resources/with-multi-include.mjml",
+            "render",
+        ]);
+    }
+
+    #[test]
+    fn render_with_local_include() {
+        execute([
+            "mrml-cli",
+            "--local-loader",
+            "./resources/partials",
+            "./resources/with-local-include.mjml",
+            "render",
+        ]);
+    }
+
+    #[test]
+    fn render_with_http_include() {
+        execute([
+            "mrml-cli",
+            "--http-loader",
+            "https://gist.githubusercontent.com",
+            "--http-loader-mode",
+            "allow",
+            "./resources/with-http-include.mjml",
+            "render",
+        ]);
+    }
+
+    #[test]
+    fn render_with_http_include_with_multiple_values() {
+        execute([
+            "mrml-cli",
+            "--http-loader",
+            "https://github.com",
+            "--http-loader",
+            "https://gist.githubusercontent.com",
+            "--http-loader",
+            "https://whatever.com",
+            "--http-loader-mode",
+            "allow",
+            "./resources/with-http-include.mjml",
+            "render",
+        ]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn render_with_http_include_should_block_github() {
+        execute([
+            "mrml-cli",
+            "--http-loader",
+            "https://gist.githubusercontent.com",
+            "--http-loader-mode",
+            "deny",
+            "./resources/with-http-include.mjml",
+            "render",
+        ]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn render_with_http_include_block_everything_by_default() {
+        execute(["mrml-cli", "./resources/with-http-include.mjml", "render"]);
+    }
+
+    #[test]
+    fn render_with_http_include_allow_everything() {
+        execute([
+            "mrml-cli",
+            "--http-loader-mode",
+            "deny",
+            "./resources/with-http-include.mjml",
+            "render",
+        ]);
     }
 }
