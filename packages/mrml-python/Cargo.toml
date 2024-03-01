@@ -2,7 +2,7 @@
 name = "mrml-python"
 description = "Python wrapping on MRML"
 keywords = ["email", "mjml"]
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2021"
 license-file = "license.md"

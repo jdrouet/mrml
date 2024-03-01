@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.4.6...mrml-cli-v1.5.0) - 2024-03-01
+
+### Added
+- *(mrml-cli)* handle mj-include with http and local loaders ([#380](https://github.com/jdrouet/mrml/pull/380))
+
 ## [1.4.6](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.4.5...mrml-python-v1.4.6) - 2024-02-28
 
 ### Other
