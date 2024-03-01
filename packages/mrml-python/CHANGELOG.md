@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.4...mrml-python-v0.1.5) - 2024-03-01
+
+### Added
+- *(mrml-python)* implement mj-include ([#381](https://github.com/jdrouet/mrml/pull/381))
+
 ## [0.1.4](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.3...mrml-python-v0.1.4) - 2024-02-28
 
 ### Other
