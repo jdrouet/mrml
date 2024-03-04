@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.4](https://github.com/jdrouet/mrml/compare/mrml-v3.0.3...mrml-v3.0.4) - 2024-03-04
+
+### Fixed
+- *(mrml-core)* ensure fonts are rendered once ([#383](https://github.com/jdrouet/mrml/pull/383))
+
 ## [3.0.3](https://github.com/jdrouet/mrml/compare/mrml-v3.0.2...mrml-v3.0.3) - 2024-02-28
 
 ### Fixed
