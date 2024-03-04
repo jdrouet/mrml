@@ -179,48 +179,45 @@ impl MjHead {
     }
 }
 
+fn render_font_import(target: &mut String, href: &str) {
+    target.push_str("@import url(");
+    target.push_str(href);
+    target.push_str(");");
+}
+
+fn render_font_link(target: &mut String, href: &str) {
+    target.push_str("<link href=\"");
+    target.push_str(href);
+    target.push_str("\" rel=\"stylesheet\" type=\"text/css\">");
+}
+
 pub struct MjHeadRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
     element: &'e MjHead,
 }
 
 impl<'e, 'h> MjHeadRender<'e, 'h> {
-    fn render_font_import(&self, href: &str) -> String {
-        format!("@import url({href});")
-    }
-
-    fn render_font_link(&self, href: &str) -> String {
-        format!("<link href=\"{href}\" rel=\"stylesheet\" type=\"text/css\">")
-    }
-
     fn render_font_families(&self, opts: &RenderOptions) -> String {
         let header = self.header.borrow();
         let used_font_families = header.used_font_families();
         if used_font_families.is_empty() {
             return String::default();
         }
+
         let mut links = String::default();
-        header
-            .used_font_families()
-            .iter()
-            .filter_map(|name| opts.fonts.get(name))
-            .for_each(|href| links.push_str(&self.render_font_link(href)));
-        header
-            .used_font_families()
-            .iter()
-            .filter_map(|name| header.font_families().get(name.as_str()))
-            .for_each(|href| links.push_str(&self.render_font_link(href)));
         let mut imports = String::default();
-        header
-            .used_font_families()
-            .iter()
-            .filter_map(|name| opts.fonts.get(name))
-            .for_each(|href| imports.push_str(&self.render_font_import(href)));
-        header
-            .used_font_families()
-            .iter()
-            .filter_map(|name| header.font_families().get(name.as_str()))
-            .for_each(|href| imports.push_str(&self.render_font_import(href)));
+        for name in header.used_font_families().iter() {
+            if let Some(href) = header.font_families().get(name.as_str()) {
+                render_font_link(&mut links, href);
+                render_font_import(&mut imports, href);
+            } else if let Some(href) = opts.fonts.get(name) {
+                render_font_link(&mut links, href);
+                render_font_import(&mut imports, href);
+            } else {
+                // TODO log a warning
+            }
+        }
+
         if links.is_empty() && imports.is_empty() {
             String::default()
         } else {
