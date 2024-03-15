@@ -2,7 +2,7 @@
 name = "mrml-cli"
 description = "CLI for the Rust implementation of MJML renderer"
 keywords = ["cli", "email", "mjml"]
-version = "1.5.1"
+version = "1.5.2"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 license-file = "license.md"
 edition = "2018"
@@ -15,7 +15,7 @@ path = "src/main.rs"
 name = "mrml"
 
 [dependencies]
-mrml = { version = "3.0.4", path = "../mrml-core", features = [
+mrml = { version = "3.1.0", path = "../mrml-core", features = [
   "http-loader-ureq",
   "local-loader",
 ] }
