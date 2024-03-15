@@ -190,7 +190,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
                         .children
                         .iter()
                         .filter_map(|child| child.as_mj_style())
-                        .map(|child| child.children.as_str())
+                        .map(|child| child.children.trim())
                 })
                 .chain(
                     item.as_mj_include()
@@ -206,13 +206,13 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
                                 .children
                                 .iter()
                                 .filter_map(|item| item.as_text())
-                                .map(|text| text.inner_str())
+                                .map(|text| text.inner_str().trim())
                         }),
                 )
                 .chain(
                     item.as_mj_style()
                         .into_iter()
-                        .map(|item| item.children.as_str()),
+                        .map(|item| item.children.trim()),
                 )
         })
     }
