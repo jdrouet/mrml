@@ -1,7 +1,7 @@
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-use super::{MjHead, MjHeadChild};
+use super::MjHead;
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
 use crate::mj_attributes::MjAttributes;
@@ -33,22 +33,6 @@ p { display: block; margin: 13px 0; }
 </style>
 <![endif]-->
 "#;
-
-fn select_mj_styles<'a>(buffer: &mut Vec<&'a str>, children: &'a [MjHeadChild]) {
-    for child in children.iter() {
-        if let Some(mj_style) = child.as_mj_style() {
-            buffer.push(mj_style.children());
-        } else if let Some(mj_include) = child.as_mj_include() {
-            if let MjIncludeHeadKind::Css { inline: false } = mj_include.attributes.kind {
-                mj_include
-                    .children
-                    .iter()
-                    .filter_map(|c| c.as_text())
-                    .for_each(|c| buffer.push(c.inner_str()));
-            }
-        }
-    }
-}
 
 fn extract_attributes_all<'a>(
     result: Map<&'a str, &'a str>,
@@ -197,6 +181,42 @@ pub struct MjHeadRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjHeadRender<'e, 'h> {
+    fn mj_style_iter(&self) -> impl Iterator<Item = &str> {
+        self.element.children.iter().flat_map(|item| {
+            item.as_mj_include()
+                .into_iter()
+                .flat_map(|inner| {
+                    inner
+                        .children
+                        .iter()
+                        .filter_map(|child| child.as_mj_style())
+                        .map(|child| child.children.as_str())
+                })
+                .chain(
+                    item.as_mj_include()
+                        .into_iter()
+                        .filter(|child| {
+                            matches!(
+                                child.attributes.kind,
+                                MjIncludeHeadKind::Css { inline: false }
+                            )
+                        })
+                        .flat_map(|child| {
+                            child
+                                .children
+                                .iter()
+                                .filter_map(|item| item.as_text())
+                                .map(|text| text.inner_str())
+                        }),
+                )
+                .chain(
+                    item.as_mj_style()
+                        .into_iter()
+                        .map(|item| item.children.as_str()),
+                )
+        })
+    }
+
     fn render_font_families(&self, opts: &RenderOptions) -> String {
         let header = self.header.borrow();
         let used_font_families = header.used_font_families();
@@ -289,9 +309,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
             }
         };
         let head_styles = {
-            let mut buffer = Vec::default();
-            select_mj_styles(&mut buffer, &self.element.children);
-            let buffer = buffer.join("\n");
+            let buffer = itertools::join(self.mj_style_iter(), "\n");
             if buffer.is_empty() {
                 buffer
             } else {

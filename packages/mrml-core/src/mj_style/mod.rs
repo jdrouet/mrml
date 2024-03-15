@@ -26,6 +26,10 @@ pub struct MjStyle {
 }
 
 impl MjStyle {
+    pub fn is_inline(&self) -> bool {
+        matches!(self.attributes.inline.as_deref(), Some("inline"))
+    }
+
     pub fn children(&self) -> &str {
         &self.children
     }
