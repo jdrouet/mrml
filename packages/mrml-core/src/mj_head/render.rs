@@ -4,7 +4,6 @@ use std::rc::Rc;
 use super::{MjHead, MjHeadChild};
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
-use crate::mj_attributes::MjAttributes;
 use crate::mj_include::head::MjIncludeHeadKind;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
@@ -34,26 +33,7 @@ p { display: block; margin: 13px 0; }
 <![endif]-->
 "#;
 
-fn extract_attributes_class<'a>(
-    result: Map<&'a str, Map<&'a str, &'a str>>,
-    attrs: &'a MjAttributes,
-) -> Map<&'a str, Map<&'a str, &'a str>> {
-    attrs
-        .children()
-        .iter()
-        .filter_map(|item| item.as_mj_attributes_class())
-        .fold(result, |mut res, class| {
-            (*res.entry(class.name()).or_default()).extend(
-                class
-                    .attributes()
-                    .iter()
-                    .map(|(k, v)| (k.as_str(), v.as_str())),
-            );
-            res
-        })
-}
-
-fn combine_element_attributes<'a>(
+fn combine_attribute_map<'a>(
     mut res: Map<&'a str, Map<&'a str, &'a str>>,
     (name, key, value): (&'a str, &'a str, &'a str),
 ) -> Map<&'a str, Map<&'a str, &'a str>> {
@@ -80,22 +60,17 @@ impl MjHead {
     }
 
     pub fn build_attributes_class(&self) -> Map<&str, Map<&str, &str>> {
-        // First resolve attributes in <mj-include> tags
-        let init = self
-            .children
-            .iter()
-            .filter_map(|item| item.as_mj_include())
-            .flat_map(|item| item.children.iter())
-            .filter_map(|item| item.as_mj_attributes())
-            .fold(
-                Map::<&str, Map<&str, &str>>::new(),
-                extract_attributes_class,
-            );
-
         self.children
             .iter()
-            .filter_map(|item| item.as_mj_attributes())
-            .fold(init, extract_attributes_class)
+            .fold(Map::new(), |res, item| match item {
+                MjHeadChild::MjAttributes(inner) => inner
+                    .mj_attributes_class_iter()
+                    .fold(res, combine_attribute_map),
+                MjHeadChild::MjInclude(inner) if inner.attributes.kind.is_mjml() => inner
+                    .mj_attributes_class_iter()
+                    .fold(res, combine_attribute_map),
+                _ => res,
+            })
     }
 
     pub fn build_attributes_element(&self) -> Map<&str, Map<&str, &str>> {
@@ -104,10 +79,10 @@ impl MjHead {
             .fold(Map::new(), |res, item| match item {
                 MjHeadChild::MjAttributes(inner) => inner
                     .mj_attributes_element_iter()
-                    .fold(res, combine_element_attributes),
+                    .fold(res, combine_attribute_map),
                 MjHeadChild::MjInclude(inner) if inner.attributes.kind.is_mjml() => inner
                     .mj_attributes_element_iter()
-                    .fold(res, combine_element_attributes),
+                    .fold(res, combine_attribute_map),
                 _ => res,
             })
     }
@@ -357,6 +332,7 @@ mod tests {
     use crate::{
         mj_attributes::{MjAttributes, MjAttributesChild},
         mj_attributes_all::MjAttributesAll,
+        mj_attributes_class::MjAttributesClass,
         mj_attributes_element::MjAttributesElement,
         mj_head::{MjHead, MjHeadChild},
         mj_include::head::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild},
@@ -409,6 +385,65 @@ mod tests {
         assert_eq!(
             element.build_attributes_all().get("text-align"),
             Some("right").as_ref()
+        );
+    }
+
+    #[test]
+    fn should_keep_order_with_mj_include_attributes_class() {
+        let element = MjHead {
+            children: vec![
+                MjHeadChild::MjAttributes(MjAttributes {
+                    children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                        name: String::from("foo"),
+                        attributes: Map::from_iter([(
+                            String::from("font-size"),
+                            String::from("42px"),
+                        )]),
+                    })],
+                }),
+                MjHeadChild::MjInclude(MjIncludeHead {
+                    attributes: MjIncludeHeadAttributes {
+                        path: String::from("foo"),
+                        kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
+                    },
+                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
+                        children: vec![
+                            MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                                name: String::from("foo"),
+                                attributes: Map::from_iter([(
+                                    String::from("font-size"),
+                                    String::from("21px"),
+                                )]),
+                            }),
+                            MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                                name: String::from("bar"),
+                                attributes: Map::from_iter([(
+                                    String::from("text-align"),
+                                    String::from("center"),
+                                )]),
+                            }),
+                        ],
+                    })],
+                }),
+                MjHeadChild::MjAttributes(MjAttributes {
+                    children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                        name: String::from("bar"),
+                        attributes: Map::from_iter([(
+                            String::from("text-align"),
+                            String::from("left"),
+                        )]),
+                    })],
+                }),
+            ],
+        };
+        let attributes = element.build_attributes_class();
+        assert_eq!(
+            attributes.get("foo").unwrap().get("font-size"),
+            Some("21px").as_ref()
+        );
+        assert_eq!(
+            attributes.get("bar").unwrap().get("text-align"),
+            Some("left").as_ref()
         );
     }
 
