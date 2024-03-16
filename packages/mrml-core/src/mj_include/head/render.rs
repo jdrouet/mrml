@@ -55,6 +55,14 @@ impl super::MjIncludeHeadKind {
     pub(crate) fn is_mjml(&self) -> bool {
         matches!(self, Self::Mjml)
     }
+
+    #[inline]
+    pub(crate) fn is_css(&self, value: bool) -> bool {
+        match self {
+            Self::Css { inline } => *inline == value,
+            _ => false,
+        }
+    }
 }
 
 #[cfg(test)]
