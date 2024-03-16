@@ -9,8 +9,8 @@ mod print;
 
 #[derive(Debug, Default)]
 pub struct MjAttributesElement {
-    name: String,
-    attributes: Map<String, String>,
+    pub(crate) name: String,
+    pub(crate) attributes: Map<String, String>,
 }
 
 impl MjAttributesElement {

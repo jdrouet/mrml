@@ -1,4 +1,4 @@
-#![cfg(feature = "parse")]
+#![cfg(all(feature = "parse", feature = "render"))]
 
 use mrml::prelude::render::RenderOptions;
 

@@ -22,7 +22,7 @@ pub const NAME: &str = "mj-head";
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjHead {
-    pub children: Vec<MjHeadChild>,
+    pub(crate) children: Vec<MjHeadChild>,
 }
 
 impl MjHead {

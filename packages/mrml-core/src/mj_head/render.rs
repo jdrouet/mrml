@@ -1,10 +1,9 @@
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-use super::MjHead;
+use super::{MjHead, MjHeadChild};
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
-use crate::mj_attributes::MjAttributes;
 use crate::mj_include::head::MjIncludeHeadKind;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
@@ -34,115 +33,58 @@ p { display: block; margin: 13px 0; }
 <![endif]-->
 "#;
 
-fn extract_attributes_all<'a>(
-    result: Map<&'a str, &'a str>,
-    attrs: &'a MjAttributes,
-) -> Map<&'a str, &'a str> {
-    attrs
-        .children()
-        .iter()
-        .filter_map(|item| item.as_mj_attributes_all())
-        .fold(result, |mut res, all| {
-            res.extend(
-                all.attributes()
-                    .iter()
-                    .map(|(k, v)| (k.as_str(), v.as_str())),
-            );
-            res
-        })
-}
-
-fn extract_attributes_class<'a>(
-    result: Map<&'a str, Map<&'a str, &'a str>>,
-    attrs: &'a MjAttributes,
+fn combine_attribute_map<'a>(
+    mut res: Map<&'a str, Map<&'a str, &'a str>>,
+    (name, key, value): (&'a str, &'a str, &'a str),
 ) -> Map<&'a str, Map<&'a str, &'a str>> {
-    attrs
-        .children()
-        .iter()
-        .filter_map(|item| item.as_mj_attributes_class())
-        .fold(result, |mut res, class| {
-            (*res.entry(class.name()).or_default()).extend(
-                class
-                    .attributes()
-                    .iter()
-                    .map(|(k, v)| (k.as_str(), v.as_str())),
-            );
-            res
-        })
-}
-
-fn extract_attributes_element<'a>(
-    result: Map<&'a str, Map<&'a str, &'a str>>,
-    attrs: &'a MjAttributes,
-) -> Map<&'a str, Map<&'a str, &'a str>> {
-    attrs
-        .children()
-        .iter()
-        .filter_map(|item| item.as_mj_attributes_element())
-        .fold(result, |mut res, element| {
-            (*res.entry(element.name()).or_default()).extend(
-                element
-                    .attributes()
-                    .iter()
-                    .map(|(k, v)| (k.as_str(), v.as_str())),
-            );
-            res
-        })
+    let entry = res.entry(name).or_default();
+    entry.insert(key, value);
+    res
 }
 
 impl MjHead {
-    pub fn build_attributes_all(&self) -> Map<&str, &str> {
-        // First resolve attributes in <mj-include> tags
-        let init = self
-            .children
-            .iter()
-            .filter_map(|item| item.as_mj_include())
-            .flat_map(|item| item.children.iter())
-            .filter_map(|item| item.as_mj_attributes())
-            .fold(Map::<&str, &str>::new(), extract_attributes_all);
-
+    pub(crate) fn build_attributes_all(&self) -> Map<&str, &str> {
         self.children
             .iter()
-            .filter_map(|item| item.as_mj_attributes())
-            .fold(init, extract_attributes_all)
+            .fold(Map::new(), |mut res, item| match item {
+                MjHeadChild::MjAttributes(inner) => {
+                    res.extend(inner.mj_attributes_all_iter());
+                    res
+                }
+                MjHeadChild::MjInclude(inner) if inner.attributes.kind.is_mjml() => {
+                    res.extend(inner.mj_attributes_all_iter());
+                    res
+                }
+                _ => res,
+            })
     }
 
     pub fn build_attributes_class(&self) -> Map<&str, Map<&str, &str>> {
-        // First resolve attributes in <mj-include> tags
-        let init = self
-            .children
-            .iter()
-            .filter_map(|item| item.as_mj_include())
-            .flat_map(|item| item.children.iter())
-            .filter_map(|item| item.as_mj_attributes())
-            .fold(
-                Map::<&str, Map<&str, &str>>::new(),
-                extract_attributes_class,
-            );
-
         self.children
             .iter()
-            .filter_map(|item| item.as_mj_attributes())
-            .fold(init, extract_attributes_class)
+            .fold(Map::new(), |res, item| match item {
+                MjHeadChild::MjAttributes(inner) => inner
+                    .mj_attributes_class_iter()
+                    .fold(res, combine_attribute_map),
+                MjHeadChild::MjInclude(inner) if inner.attributes.kind.is_mjml() => inner
+                    .mj_attributes_class_iter()
+                    .fold(res, combine_attribute_map),
+                _ => res,
+            })
     }
 
     pub fn build_attributes_element(&self) -> Map<&str, Map<&str, &str>> {
-        // First resolve attributes in <mj-include> tags
-        let init = self
-            .children
-            .iter()
-            .filter_map(|item| item.as_mj_include())
-            .flat_map(|item| item.children.iter())
-            .filter_map(|item| item.as_mj_attributes())
-            .fold(
-                Map::<&str, Map<&str, &str>>::new(),
-                extract_attributes_element,
-            );
-
         self.children
             .iter()
-            .filter_map(|item| item.as_mj_attributes())
-            .fold(init, extract_attributes_element)
+            .fold(Map::new(), |res, item| match item {
+                MjHeadChild::MjAttributes(inner) => inner
+                    .mj_attributes_element_iter()
+                    .fold(res, combine_attribute_map),
+                MjHeadChild::MjInclude(inner) if inner.attributes.kind.is_mjml() => inner
+                    .mj_attributes_element_iter()
+                    .fold(res, combine_attribute_map),
+                _ => res,
+            })
     }
 
     pub fn build_font_families(&self) -> Map<&str, &str> {
@@ -385,6 +327,179 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHead {
 
 #[cfg(test)]
 mod tests {
+    use std::iter::FromIterator;
+
+    use crate::{
+        mj_attributes::{MjAttributes, MjAttributesChild},
+        mj_attributes_all::MjAttributesAll,
+        mj_attributes_class::MjAttributesClass,
+        mj_attributes_element::MjAttributesElement,
+        mj_head::{MjHead, MjHeadChild},
+        mj_include::head::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild},
+        prelude::hash::Map,
+    };
+
     crate::should_render!(attributes_basic, "mj-attributes");
     crate::should_render!(style_basic, "mj-style");
+
+    #[test]
+    fn should_keep_order_with_mj_include_attributes_all() {
+        let element = MjHead {
+            children: vec![
+                MjHeadChild::MjAttributes(MjAttributes {
+                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
+                        attributes: Map::from_iter([(
+                            String::from("font-size"),
+                            String::from("42px"),
+                        )]),
+                    })],
+                }),
+                MjHeadChild::MjInclude(MjIncludeHead {
+                    attributes: MjIncludeHeadAttributes {
+                        path: String::from("foo"),
+                        kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
+                    },
+                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
+                        children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
+                            attributes: Map::from_iter([
+                                (String::from("font-size"), String::from("21px")),
+                                (String::from("text-align"), String::from("center")),
+                            ]),
+                        })],
+                    })],
+                }),
+                MjHeadChild::MjAttributes(MjAttributes {
+                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
+                        attributes: Map::from_iter([(
+                            String::from("text-align"),
+                            String::from("right"),
+                        )]),
+                    })],
+                }),
+            ],
+        };
+        assert_eq!(
+            element.build_attributes_all().get("font-size"),
+            Some("21px").as_ref()
+        );
+        assert_eq!(
+            element.build_attributes_all().get("text-align"),
+            Some("right").as_ref()
+        );
+    }
+
+    #[test]
+    fn should_keep_order_with_mj_include_attributes_class() {
+        let element = MjHead {
+            children: vec![
+                MjHeadChild::MjAttributes(MjAttributes {
+                    children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                        name: String::from("foo"),
+                        attributes: Map::from_iter([(
+                            String::from("font-size"),
+                            String::from("42px"),
+                        )]),
+                    })],
+                }),
+                MjHeadChild::MjInclude(MjIncludeHead {
+                    attributes: MjIncludeHeadAttributes {
+                        path: String::from("foo"),
+                        kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
+                    },
+                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
+                        children: vec![
+                            MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                                name: String::from("foo"),
+                                attributes: Map::from_iter([(
+                                    String::from("font-size"),
+                                    String::from("21px"),
+                                )]),
+                            }),
+                            MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                                name: String::from("bar"),
+                                attributes: Map::from_iter([(
+                                    String::from("text-align"),
+                                    String::from("center"),
+                                )]),
+                            }),
+                        ],
+                    })],
+                }),
+                MjHeadChild::MjAttributes(MjAttributes {
+                    children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                        name: String::from("bar"),
+                        attributes: Map::from_iter([(
+                            String::from("text-align"),
+                            String::from("left"),
+                        )]),
+                    })],
+                }),
+            ],
+        };
+        let attributes = element.build_attributes_class();
+        assert_eq!(
+            attributes.get("foo").unwrap().get("font-size"),
+            Some("21px").as_ref()
+        );
+        assert_eq!(
+            attributes.get("bar").unwrap().get("text-align"),
+            Some("left").as_ref()
+        );
+    }
+
+    #[test]
+    fn should_keep_order_with_mj_include_attributes_element() {
+        let element = MjHead {
+            children: vec![
+                MjHeadChild::MjAttributes(MjAttributes {
+                    children: vec![MjAttributesChild::MjAttributesElement(
+                        MjAttributesElement {
+                            name: String::from("mj-text"),
+                            attributes: Map::from_iter([(
+                                String::from("font-size"),
+                                String::from("42px"),
+                            )]),
+                        },
+                    )],
+                }),
+                MjHeadChild::MjInclude(MjIncludeHead {
+                    attributes: MjIncludeHeadAttributes {
+                        path: String::from("foo"),
+                        kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
+                    },
+                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
+                        children: vec![MjAttributesChild::MjAttributesElement(
+                            MjAttributesElement {
+                                name: String::from("mj-text"),
+                                attributes: Map::from_iter([
+                                    (String::from("font-size"), String::from("21px")),
+                                    (String::from("text-align"), String::from("center")),
+                                ]),
+                            },
+                        )],
+                    })],
+                }),
+                MjHeadChild::MjAttributes(MjAttributes {
+                    children: vec![MjAttributesChild::MjAttributesElement(
+                        MjAttributesElement {
+                            name: String::from("mj-text"),
+                            attributes: Map::from_iter([(
+                                String::from("text-align"),
+                                String::from("left"),
+                            )]),
+                        },
+                    )],
+                }),
+            ],
+        };
+        let attributes = element.build_attributes_element();
+        assert_eq!(
+            attributes.get("mj-text").unwrap().get("font-size"),
+            Some("21px").as_ref()
+        );
+        assert_eq!(
+            attributes.get("mj-text").unwrap().get("text-align"),
+            Some("left").as_ref()
+        );
+    }
 }
