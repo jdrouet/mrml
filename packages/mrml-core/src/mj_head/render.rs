@@ -88,20 +88,20 @@ impl MjHead {
     }
 
     pub fn build_font_families(&self) -> Map<&str, &str> {
-        let init = self
-            .children
-            .iter()
-            .filter_map(|item| item.as_mj_include())
-            .flat_map(|item| item.children.iter())
-            .filter_map(|item| item.as_mj_font())
-            .map(|item| (item.name(), item.href()));
+        use std::iter::FromIterator;
 
-        self.children
-            .iter()
-            .filter_map(|item| item.as_mj_font())
-            .map(|item| (item.name(), item.href()))
-            .chain(init)
-            .collect::<Map<&str, &str>>()
+        Map::from_iter(
+            self.children
+                .iter()
+                .flat_map(|item| {
+                    item.as_mj_font()
+                        .into_iter()
+                        .chain(item.as_mj_include().into_iter().flat_map(|incl| {
+                            incl.children.iter().filter_map(|child| child.as_mj_font())
+                        }))
+                })
+                .map(|font| (font.name(), font.href())),
+        )
     }
 }
 
@@ -334,6 +334,7 @@ mod tests {
         mj_attributes_all::MjAttributesAll,
         mj_attributes_class::MjAttributesClass,
         mj_attributes_element::MjAttributesElement,
+        mj_font::MjFont,
         mj_head::{MjHead, MjHeadChild},
         mj_include::head::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild},
         prelude::hash::Map,
@@ -501,5 +502,28 @@ mod tests {
             attributes.get("mj-text").unwrap().get("text-align"),
             Some("left").as_ref()
         );
+    }
+
+    #[test]
+    fn should_keep_order_with_mj_font() {
+        let element = MjHead {
+            children: vec![
+                MjHeadChild::MjFont(MjFont::new("foo", "http://foo/root")),
+                MjHeadChild::MjInclude(MjIncludeHead {
+                    attributes: MjIncludeHeadAttributes {
+                        path: String::from("foo"),
+                        kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
+                    },
+                    children: vec![
+                        MjIncludeHeadChild::MjFont(MjFont::new("foo", "http://foo/include")),
+                        MjIncludeHeadChild::MjFont(MjFont::new("bar", "http://bar/include")),
+                    ],
+                }),
+                MjHeadChild::MjFont(MjFont::new("bar", "http://bar/root")),
+            ],
+        };
+        let fonts = element.build_font_families();
+        assert_eq!(fonts.get("foo"), Some("http://foo/include").as_ref());
+        assert_eq!(fonts.get("bar"), Some("http://bar/root").as_ref());
     }
 }
