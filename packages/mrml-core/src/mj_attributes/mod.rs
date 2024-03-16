@@ -16,10 +16,23 @@ pub const NAME: &str = "mj-attributes";
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjAttributes {
-    children: Vec<MjAttributesChild>,
+    pub(crate) children: Vec<MjAttributesChild>,
 }
 
 impl MjAttributes {
+    #[cfg(feature = "render")]
+    pub(crate) fn mj_attributes_all_iter(&self) -> impl Iterator<Item = (&str, &str)> {
+        self.children
+            .iter()
+            .filter_map(|child| child.as_mj_attributes_all())
+            .flat_map(|child| {
+                child
+                    .attributes
+                    .iter()
+                    .map(|(k, v)| (k.as_str(), v.as_str()))
+            })
+    }
+
     pub fn children(&self) -> &Vec<MjAttributesChild> {
         &self.children
     }

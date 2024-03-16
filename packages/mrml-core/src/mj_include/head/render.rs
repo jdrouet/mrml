@@ -1,3 +1,26 @@
+impl super::MjIncludeHead {
+    pub(crate) fn mj_attributes_all_iter(&self) -> impl Iterator<Item = (&str, &str)> {
+        self.children
+            .iter()
+            .filter_map(|child| child.as_mj_attributes())
+            .flat_map(|child| {
+                child
+                    .children
+                    .iter()
+                    .filter_map(|inner| inner.as_mj_attributes_all())
+            })
+            .flat_map(|child| child.attributes.iter())
+            .map(|(k, v)| (k.as_str(), v.as_str()))
+    }
+}
+
+impl super::MjIncludeHeadKind {
+    #[inline]
+    pub(crate) fn is_mjml(&self) -> bool {
+        matches!(self, Self::Mjml)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::mj_body::MjBody;

@@ -1,4 +1,4 @@
-#![cfg(feature = "parse")]
+#![cfg(all(feature = "parse", feature = "render"))]
 
 #[test]
 fn should_apply_head_includes() {
