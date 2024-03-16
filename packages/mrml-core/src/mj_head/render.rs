@@ -1,10 +1,9 @@
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-use super::{MjHead, MjHeadChild};
+use super::MjHead;
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
-use crate::mj_include::head::MjIncludeHeadKind;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
@@ -46,62 +45,66 @@ impl MjHead {
     pub(crate) fn build_attributes_all(&self) -> Map<&str, &str> {
         self.children
             .iter()
-            .fold(Map::new(), |mut res, item| match item {
-                MjHeadChild::MjAttributes(inner) => {
-                    res.extend(inner.mj_attributes_all_iter());
-                    res
-                }
-                MjHeadChild::MjInclude(inner) if inner.attributes.kind.is_mjml() => {
-                    res.extend(inner.mj_attributes_all_iter());
-                    res
-                }
-                _ => res,
+            .flat_map(|item| {
+                item.as_mj_attributes()
+                    .into_iter()
+                    .flat_map(|inner| inner.mj_attributes_all_iter())
+                    .chain(
+                        item.as_mj_include()
+                            .filter(|item| item.attributes.kind.is_mjml())
+                            .into_iter()
+                            .flat_map(|inner| inner.mj_attributes_all_iter()),
+                    )
             })
+            .collect()
     }
 
     pub fn build_attributes_class(&self) -> Map<&str, Map<&str, &str>> {
         self.children
             .iter()
-            .fold(Map::new(), |res, item| match item {
-                MjHeadChild::MjAttributes(inner) => inner
-                    .mj_attributes_class_iter()
-                    .fold(res, combine_attribute_map),
-                MjHeadChild::MjInclude(inner) if inner.attributes.kind.is_mjml() => inner
-                    .mj_attributes_class_iter()
-                    .fold(res, combine_attribute_map),
-                _ => res,
+            .flat_map(|item| {
+                item.as_mj_attributes()
+                    .into_iter()
+                    .flat_map(|inner| inner.mj_attributes_class_iter())
+                    .chain(
+                        item.as_mj_include()
+                            .filter(|item| item.attributes.kind.is_mjml())
+                            .into_iter()
+                            .flat_map(|inner| inner.mj_attributes_class_iter()),
+                    )
             })
+            .fold(Map::new(), combine_attribute_map)
     }
 
     pub fn build_attributes_element(&self) -> Map<&str, Map<&str, &str>> {
         self.children
             .iter()
-            .fold(Map::new(), |res, item| match item {
-                MjHeadChild::MjAttributes(inner) => inner
-                    .mj_attributes_element_iter()
-                    .fold(res, combine_attribute_map),
-                MjHeadChild::MjInclude(inner) if inner.attributes.kind.is_mjml() => inner
-                    .mj_attributes_element_iter()
-                    .fold(res, combine_attribute_map),
-                _ => res,
+            .flat_map(|item| {
+                item.as_mj_attributes()
+                    .into_iter()
+                    .flat_map(|inner| inner.mj_attributes_element_iter())
+                    .chain(
+                        item.as_mj_include()
+                            .filter(|item| item.attributes.kind.is_mjml())
+                            .into_iter()
+                            .flat_map(|inner| inner.mj_attributes_element_iter()),
+                    )
             })
+            .fold(Map::new(), combine_attribute_map)
     }
 
     pub fn build_font_families(&self) -> Map<&str, &str> {
-        let init = self
-            .children
-            .iter()
-            .filter_map(|item| item.as_mj_include())
-            .flat_map(|item| item.children.iter())
-            .filter_map(|item| item.as_mj_font())
-            .map(|item| (item.name(), item.href()));
-
         self.children
             .iter()
-            .filter_map(|item| item.as_mj_font())
-            .map(|item| (item.name(), item.href()))
-            .chain(init)
-            .collect::<Map<&str, &str>>()
+            .flat_map(|item| {
+                item.as_mj_font().into_iter().chain(
+                    item.as_mj_include().into_iter().flat_map(|incl| {
+                        incl.children.iter().filter_map(|child| child.as_mj_font())
+                    }),
+                )
+            })
+            .map(|font| (font.name(), font.href()))
+            .collect()
     }
 }
 
@@ -137,12 +140,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
                 .chain(
                     item.as_mj_include()
                         .into_iter()
-                        .filter(|child| {
-                            matches!(
-                                child.attributes.kind,
-                                MjIncludeHeadKind::Css { inline: false }
-                            )
-                        })
+                        .filter(|child| child.attributes.kind.is_css(false))
                         .flat_map(|child| {
                             child
                                 .children
@@ -334,6 +332,7 @@ mod tests {
         mj_attributes_all::MjAttributesAll,
         mj_attributes_class::MjAttributesClass,
         mj_attributes_element::MjAttributesElement,
+        mj_font::MjFont,
         mj_head::{MjHead, MjHeadChild},
         mj_include::head::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild},
         prelude::hash::Map,
@@ -501,5 +500,28 @@ mod tests {
             attributes.get("mj-text").unwrap().get("text-align"),
             Some("left").as_ref()
         );
+    }
+
+    #[test]
+    fn should_keep_order_with_mj_font() {
+        let element = MjHead {
+            children: vec![
+                MjHeadChild::MjFont(MjFont::new("foo", "http://foo/root")),
+                MjHeadChild::MjInclude(MjIncludeHead {
+                    attributes: MjIncludeHeadAttributes {
+                        path: String::from("foo"),
+                        kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
+                    },
+                    children: vec![
+                        MjIncludeHeadChild::MjFont(MjFont::new("foo", "http://foo/include")),
+                        MjIncludeHeadChild::MjFont(MjFont::new("bar", "http://bar/include")),
+                    ],
+                }),
+                MjHeadChild::MjFont(MjFont::new("bar", "http://bar/root")),
+            ],
+        };
+        let fonts = element.build_font_families();
+        assert_eq!(fonts.get("foo"), Some("http://foo/include").as_ref());
+        assert_eq!(fonts.get("bar"), Some("http://bar/root").as_ref());
     }
 }

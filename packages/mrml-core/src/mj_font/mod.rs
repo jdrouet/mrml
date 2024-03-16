@@ -24,6 +24,18 @@ pub struct MjFont {
     pub attributes: MjFontAttributes,
 }
 
+#[cfg(all(test, feature = "render"))]
+impl MjFont {
+    pub(crate) fn new<N: Into<String>, H: Into<String>>(name: N, href: H) -> Self {
+        Self {
+            attributes: MjFontAttributes {
+                name: name.into(),
+                href: href.into(),
+            },
+        }
+    }
+}
+
 impl MjFont {
     pub fn name(&self) -> &str {
         &self.attributes.name
