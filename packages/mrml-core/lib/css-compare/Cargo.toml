@@ -1,7 +1,7 @@
 [package]
 name = "css-compare"
 description = "A simple library to compare css stylesheets"
-license = "AGPL-3.0"
+license = "MIT"
 version = "0.1.1"
 edition = "2021"
 repository = "https://github.com/jdrouet/mrml"

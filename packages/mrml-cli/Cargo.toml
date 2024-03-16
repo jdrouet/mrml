@@ -4,7 +4,7 @@ description = "CLI for the Rust implementation of MJML renderer"
 keywords = ["cli", "email", "mjml"]
 version = "1.5.2"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
-license = "AGPL-3.0"
+license = "MIT"
 edition = "2018"
 readme = "readme.md"
 
