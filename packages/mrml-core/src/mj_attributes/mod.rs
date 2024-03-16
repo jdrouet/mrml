@@ -19,8 +19,8 @@ pub struct MjAttributes {
     pub(crate) children: Vec<MjAttributesChild>,
 }
 
+#[cfg(feature = "render")]
 impl MjAttributes {
-    #[cfg(feature = "render")]
     pub(crate) fn mj_attributes_all_iter(&self) -> impl Iterator<Item = (&str, &str)> {
         self.children
             .iter()
@@ -33,6 +33,20 @@ impl MjAttributes {
             })
     }
 
+    pub(crate) fn mj_attributes_element_iter(&self) -> impl Iterator<Item = (&str, &str, &str)> {
+        self.children
+            .iter()
+            .filter_map(|child| child.as_mj_attributes_element())
+            .flat_map(|child| {
+                child
+                    .attributes
+                    .iter()
+                    .map(move |(k, v)| (child.name.as_str(), k.as_str(), v.as_str()))
+            })
+    }
+}
+
+impl MjAttributes {
     pub fn children(&self) -> &Vec<MjAttributesChild> {
         &self.children
     }

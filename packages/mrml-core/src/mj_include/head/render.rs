@@ -12,6 +12,24 @@ impl super::MjIncludeHead {
             .flat_map(|child| child.attributes.iter())
             .map(|(k, v)| (k.as_str(), v.as_str()))
     }
+
+    pub(crate) fn mj_attributes_element_iter(&self) -> impl Iterator<Item = (&str, &str, &str)> {
+        self.children
+            .iter()
+            .filter_map(|child| child.as_mj_attributes())
+            .flat_map(|child| {
+                child
+                    .children
+                    .iter()
+                    .filter_map(|inner| inner.as_mj_attributes_element())
+            })
+            .flat_map(|child| {
+                child
+                    .attributes
+                    .iter()
+                    .map(move |(k, v)| (child.name.as_str(), k.as_str(), v.as_str()))
+            })
+    }
 }
 
 impl super::MjIncludeHeadKind {
