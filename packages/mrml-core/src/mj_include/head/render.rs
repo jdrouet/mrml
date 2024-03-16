@@ -83,7 +83,7 @@ mod tests {
             let opts = RenderOptions::default();
             let mut mj_breakpoint = MjBreakpoint::default();
             mj_breakpoint.attributes.width = "500px".into();
-            let mj_title = MjTitle::from("Hello New World!".to_string());
+            let mj_title = MjTitle::from("Hello Old World!".to_string());
             let mut mj_head = MjHead::default();
             mj_head.children.push(mj_breakpoint.into());
             mj_head.children.push(mj_title.into());
@@ -121,7 +121,7 @@ mod tests {
             let opts = RenderOptions::default();
             let mut mj_breakpoint = MjBreakpoint::default();
             mj_breakpoint.attributes.width = "500px".into();
-            let mj_title = MjTitle::from("Hello Old World!".to_string());
+            let mj_title = MjTitle::from("Hello New World!".to_string());
             let mut mj_head = MjHead::default();
             mj_head.children.push(mj_breakpoint.into());
             mj_head.children.push(mj_title.into());

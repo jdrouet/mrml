@@ -48,39 +48,39 @@ impl MjHead {
     pub fn preview(&self) -> Option<&MjPreview> {
         self.children
             .iter()
-            .filter_map(|item| {
-                if let Some(title) = item.as_mj_preview() {
-                    Some(title)
-                } else if let Some(include) = item.as_mj_include() {
-                    include
-                        .children
-                        .iter()
-                        .filter_map(|child| child.as_mj_preview())
-                        .next()
-                } else {
-                    None
-                }
+            .flat_map(|item| {
+                item.as_mj_preview().into_iter().chain(
+                    item.as_mj_include()
+                        .into_iter()
+                        .filter(|item| item.attributes.kind.is_mjml())
+                        .flat_map(|inner| {
+                            inner
+                                .children
+                                .iter()
+                                .filter_map(|child| child.as_mj_preview())
+                        }),
+                )
             })
-            .next()
+            .last()
     }
 
     pub fn title(&self) -> Option<&MjTitle> {
         self.children
             .iter()
-            .filter_map(|item| {
-                if let Some(title) = item.as_mj_title() {
-                    Some(title)
-                } else if let Some(include) = item.as_mj_include() {
-                    include
-                        .children
-                        .iter()
-                        .filter_map(|child| child.as_mj_title())
-                        .next()
-                } else {
-                    None
-                }
+            .flat_map(|item| {
+                item.as_mj_title().into_iter().chain(
+                    item.as_mj_include()
+                        .into_iter()
+                        .filter(|item| item.attributes.kind.is_mjml())
+                        .flat_map(|inner| {
+                            inner
+                                .children
+                                .iter()
+                                .filter_map(|child| child.as_mj_title())
+                        }),
+                )
             })
-            .next()
+            .last()
     }
 
     pub fn children(&self) -> &Vec<MjHeadChild> {
