@@ -10,10 +10,6 @@ mod render;
 
 pub use children::MjHeadChild;
 
-use crate::mj_breakpoint::MjBreakpoint;
-use crate::mj_preview::MjPreview;
-use crate::mj_title::MjTitle;
-
 pub const NAME: &str = "mj-head";
 
 #[derive(Debug, Default)]
@@ -22,30 +18,31 @@ pub const NAME: &str = "mj-head";
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjHead {
-    pub(crate) children: Vec<MjHeadChild>,
+    pub children: Vec<MjHeadChild>,
 }
 
+#[cfg(feature = "render")]
 impl MjHead {
-    pub fn breakpoint(&self) -> Option<&MjBreakpoint> {
+    pub fn breakpoint(&self) -> Option<&crate::mj_breakpoint::MjBreakpoint> {
         self.children
             .iter()
-            .filter_map(|item| {
-                if let Some(title) = item.as_mj_breakpoint() {
-                    Some(title)
-                } else if let Some(include) = item.as_mj_include() {
-                    include
-                        .children
-                        .iter()
-                        .filter_map(|child| child.as_mj_breakpoint())
-                        .next()
-                } else {
-                    None
-                }
+            .flat_map(|item| {
+                item.as_mj_breakpoint().into_iter().chain(
+                    item.as_mj_include()
+                        .into_iter()
+                        .filter(|item| item.attributes.kind.is_mjml())
+                        .flat_map(|inner| {
+                            inner
+                                .children
+                                .iter()
+                                .filter_map(|child| child.as_mj_breakpoint())
+                        }),
+                )
             })
-            .next()
+            .last()
     }
 
-    pub fn preview(&self) -> Option<&MjPreview> {
+    pub fn preview(&self) -> Option<&crate::mj_preview::MjPreview> {
         self.children
             .iter()
             .flat_map(|item| {
@@ -64,7 +61,7 @@ impl MjHead {
             .last()
     }
 
-    pub fn title(&self) -> Option<&MjTitle> {
+    pub fn title(&self) -> Option<&crate::mj_title::MjTitle> {
         self.children
             .iter()
             .flat_map(|item| {
