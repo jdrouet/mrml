@@ -42,7 +42,7 @@ fn combine_attribute_map<'a>(
 }
 
 impl MjHead {
-    pub(crate) fn build_attributes_all(&self) -> Map<&str, &str> {
+    pub fn build_attributes_all(&self) -> Map<&str, &str> {
         self.children
             .iter()
             .flat_map(|item| {
