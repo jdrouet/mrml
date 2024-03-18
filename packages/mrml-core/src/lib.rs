@@ -152,7 +152,7 @@ pub fn parse_with_options<T: AsRef<str>>(
 /// ```
 pub async fn async_parse_with_options<T: AsRef<str>>(
     input: T,
-    opts: std::rc::Rc<crate::prelude::parser::AsyncParserOptions>,
+    opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
     let parser = crate::prelude::parser::AsyncMrmlParser::new(opts);
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());

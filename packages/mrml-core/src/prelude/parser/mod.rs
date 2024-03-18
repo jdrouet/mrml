@@ -411,12 +411,12 @@ impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
 #[cfg(feature = "async")]
 #[derive(Default)]
 pub struct AsyncMrmlParser {
-    pub(crate) options: std::rc::Rc<AsyncParserOptions>,
+    pub(crate) options: std::sync::Arc<AsyncParserOptions>,
 }
 
 #[cfg(feature = "async")]
 impl AsyncMrmlParser {
-    pub fn new(options: std::rc::Rc<AsyncParserOptions>) -> Self {
+    pub fn new(options: std::sync::Arc<AsyncParserOptions>) -> Self {
         Self { options }
     }
 }

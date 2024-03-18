@@ -162,7 +162,7 @@ impl Mjml {
     #[cfg(feature = "async")]
     pub async fn async_parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::rc::Rc<crate::prelude::parser::AsyncParserOptions>,
+        opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
     ) -> Result<Self, Error> {
         let parser = AsyncMrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
