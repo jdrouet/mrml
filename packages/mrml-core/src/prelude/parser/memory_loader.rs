@@ -72,7 +72,7 @@ impl IncludeLoader for MemoryIncludeLoader {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncIncludeLoader for MemoryIncludeLoader {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.0

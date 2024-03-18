@@ -57,7 +57,6 @@ use crate::prelude::parser::loader::IncludeLoader;
 /// use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 /// use mrml::prelude::parser::loader::AsyncIncludeLoader;
 /// use mrml::prelude::parser::AsyncParserOptions;
-/// use std::rc::Rc;
 ///
 /// let resolver = MultiIncludeLoader::<Box<dyn AsyncIncludeLoader + Send + Sync + 'static>>::new()
 ///     .with_starts_with("https://", Box::new(HttpIncludeLoader::<AsyncReqwestFetcher>::allow_all()))
@@ -70,7 +69,7 @@ use crate::prelude::parser::loader::IncludeLoader;
 ///     <mj-include path="file://basic.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::async_parse_with_options(json, Rc::new(opts)).await {
+/// match mrml::async_parse_with_options(json, std::sync::Arc::new(opts)).await {
 ///     Ok(_) => println!("Success!"),
 ///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
 /// }
@@ -160,7 +159,7 @@ pub type MultiIncludeLoaderAsync =
     MultiIncludeLoader<Box<dyn AsyncIncludeLoader + Sync + Send + 'static>>;
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncIncludeLoader for MultiIncludeLoaderAsync {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         let item = self

@@ -39,7 +39,7 @@ impl IncludeLoader for NoopIncludeLoader {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncIncludeLoader for NoopIncludeLoader {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         Err(IncludeLoaderError::not_found(path))

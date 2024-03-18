@@ -86,7 +86,7 @@ impl IncludeLoader for LocalIncludeLoader {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncIncludeLoader for LocalIncludeLoader {
     async fn async_resolve(&self, url: &str) -> Result<String, IncludeLoaderError> {
         let path = self.build_path(url)?;

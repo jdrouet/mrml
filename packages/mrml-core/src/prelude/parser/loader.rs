@@ -74,7 +74,7 @@ pub trait IncludeLoader: std::fmt::Debug {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 pub trait AsyncIncludeLoader: std::fmt::Debug {
     /// This function is used to fetch the included template using the `path`
     /// attribute.

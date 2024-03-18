@@ -139,9 +139,8 @@ pub fn parse_with_options<T: AsRef<str>>(
 /// # tokio_test::block_on(async {
 /// use mrml::prelude::parser::AsyncParserOptions;
 /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-/// use std::rc::Rc;
 ///
-/// let options = Rc::new(AsyncParserOptions {
+/// let options = std::sync::Arc::new(AsyncParserOptions {
 ///     include_loader: Box::new(MemoryIncludeLoader::default()),
 /// });
 /// match mrml::async_parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options).await {
