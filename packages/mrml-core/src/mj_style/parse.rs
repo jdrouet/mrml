@@ -61,7 +61,7 @@ impl<'opts> ParseElement<MjStyle> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjStyle> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

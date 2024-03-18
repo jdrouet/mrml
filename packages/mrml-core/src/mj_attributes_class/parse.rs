@@ -31,7 +31,7 @@ impl<'opts> ParseElement<MjAttributesClass> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjAttributesClass> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

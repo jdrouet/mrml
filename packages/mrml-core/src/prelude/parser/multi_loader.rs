@@ -87,10 +87,12 @@ impl<T> MultiIncludeLoader<T> {
         self
     }
 
+    #[inline]
     pub fn with_any(self, loader: T) -> Self {
         self.with_item(MultiIncludeLoaderFilter::Any, loader)
     }
 
+    #[inline]
     pub fn with_starts_with<S: ToString>(self, starts_with: S, loader: T) -> Self {
         self.with_item(
             MultiIncludeLoaderFilter::StartsWith {
@@ -104,10 +106,12 @@ impl<T> MultiIncludeLoader<T> {
         self.0.push(MultiIncludeLoaderItem { filter, loader });
     }
 
+    #[inline]
     pub fn add_any(&mut self, loader: T) {
         self.add_item(MultiIncludeLoaderFilter::Any, loader);
     }
 
+    #[inline]
     pub fn add_starts_with<S: ToString>(&mut self, starts_with: S, loader: T) {
         self.add_item(
             MultiIncludeLoaderFilter::StartsWith {

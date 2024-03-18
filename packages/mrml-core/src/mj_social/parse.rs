@@ -38,7 +38,7 @@ impl<'opts> ParseChildren<Vec<MjSocialChild>> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseChildren<Vec<MjSocialChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -82,7 +82,7 @@ impl<'opts> ParseElement<MjSocial> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjSocial> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

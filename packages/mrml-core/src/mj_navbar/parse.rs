@@ -49,7 +49,7 @@ impl<'opts> ParseElement<MjNavbar> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseChildren<Vec<MjNavbarChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -82,7 +82,7 @@ impl AsyncParseChildren<Vec<MjNavbarChild>> for AsyncMrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjNavbar> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

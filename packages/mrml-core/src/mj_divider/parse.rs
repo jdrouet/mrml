@@ -26,7 +26,7 @@ impl<'opts> ParseElement<MjDivider> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjDivider> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

@@ -38,7 +38,7 @@ impl<'opts> ParseChildren<Vec<MjCarouselChild>> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseChildren<Vec<MjCarouselChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -86,7 +86,7 @@ impl<'opts> ParseElement<MjCarousel> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjCarousel> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

@@ -49,7 +49,7 @@ impl<'opts> ParseElement<MjBreakpoint> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjBreakpoint> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

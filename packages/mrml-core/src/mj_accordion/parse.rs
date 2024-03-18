@@ -40,7 +40,7 @@ impl<'opts> ParseChildren<Vec<MjAccordionChild>> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseChildren<Vec<MjAccordionChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -90,7 +90,7 @@ impl<'opts> ParseElement<MjAccordion> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjAccordion> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

@@ -42,7 +42,7 @@ impl<'opts> ParseElement<MjIncludeHeadChild> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjIncludeHeadChild> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
@@ -158,7 +158,7 @@ impl<'opts> ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseChildren<Vec<MjIncludeHeadChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -236,7 +236,7 @@ impl<'opts> ParseElement<MjIncludeHead> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

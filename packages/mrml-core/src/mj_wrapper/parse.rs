@@ -21,7 +21,7 @@ impl<'opts> ParseElement<MjWrapper> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait]
 impl AsyncParseElement<MjWrapper> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
