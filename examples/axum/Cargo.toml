@@ -6,8 +6,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-axum = { version = "0.7.4" }
+axum = { version = "0.7.4", features = ["macros"] }
+mrml = { version = "*", path = "../../packages/mrml-core", features = [
+  "async",
+  "http-loader-async-reqwest",
+] }
 serde = { version = "1.0.197", features = ["derive"] }
 tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
 tracing = { version = "0.1.40" }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+
+[dev-dependencies]
+serde_json = { version = "1.0.114" }
+tower = { version = "0.4.13" }
