@@ -1,32 +1,39 @@
 //! This project is a reimplementation of the nice [MJML](https://mjml.io/) markup language in Rust.
 //!
-//! [![codecov](https://codecov.io/gh/jolimail/mrml-core/branch/main/graph/badge.svg?token=SIOPR0YWZA)](https://codecov.io/gh/jolimail/mrml-core)
-//! [![.github/workflows/main.yml](https://github.com/jolimail/mrml-core/actions/workflows/main.yml/badge.svg)](https://github.com/jolimail/mrml-core/actions/workflows/main.yml)
-//! [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/jolimail/mrml-core.svg)](http://isitmaintained.com/project/jolimail/mrml-core "Average time to resolve an issue")
-//! [![Percentage of issues still open](http://isitmaintained.com/badge/open/jolimail/mrml-core.svg)](http://isitmaintained.com/project/jolimail/mrml-core "Percentage of issues still open")
-//! [![Maintainability](https://api.codeclimate.com/v1/badges/7ed23ef670d076ab69a4/maintainability)](https://codeclimate.com/github/jolimail/mrml-core/maintainability)
+//! [![.github/workflows/main.yml](https://github.com/jdrouet/mrml/actions/workflows/mrml-core-main.yml/badge.svg)](https://github.com/jdrouet/mrml/actions/workflows/mrml-core-main.yml)
+//! [![codecov](https://codecov.io/gh/jdrouet/mrml/branch/main/graph/badge.svg?token=SIOPR0YWZA)](https://codecov.io/gh/jdrouet/mrml)
+//! [![Maintainability](https://api.codeclimate.com/v1/badges/7ed23ef670d076ab69a4/maintainability)](https://codeclimate.com/github/jdrouet/mrml/maintainability)
+//!
+//! # How to use?
 //!
 //! To use it you can simply update your `Cargo.toml` by adding
 //! ```toml
 //! [dependencies]
-//! mrml = "1.2"
-//! serde = { version = "1.0", features = ["derive"] }
+//! mrml = { version = "3" }
+//! serde = { version = "1", features = ["derive"] }
 //! ```
 //!
 //! And you can then just create a `main.rs` with the following code
 //! ```rust
+//! # #[cfg(feature = "parse")]
+//! # {
 //! let root = mrml::parse("<mjml><mj-body></mj-body></mjml>").expect("parse template");
 //! let opts = mrml::prelude::render::Options::default();
 //! match root.render(&opts) {
 //!     Ok(content) => println!("{}", content),
 //!     Err(_) => println!("couldn't render mjml template"),
 //! };
+//! # }
 //! ```
 //!
+//! ## Using `mj-include`
+//!
 //! You can also use the `mj-include` component by specifying a
-//! [loader](crate::prelude::parse).
+//! [loader](crate::prelude::parser).
 //!
 //! ```rust
+//! # #[cfg(feature = "parse")]
+//! # {
 //! use mrml::prelude::parser::ParserOptions;
 //! use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 //!
@@ -38,9 +45,53 @@
 //!     Ok(_) => println!("Success!"),
 //!     Err(err) => eprintln!("Something went wrong: {err:?}"),
 //! }
+//! # }
 //! ```
 //!
-//! ### Why?
+//! ## Using `mj-include` with an async loader
+//!
+//! If you want to use the async version to fetch the includes, you've to enable the `async` feature and the required loaders (`http-loader-async-reqwest` in this example).
+//!
+//! ```rust
+//! # #[cfg(all(feature = "parse", feature = "render", feature = "async"))]
+//! # tokio_test::block_on(async {
+//! use mrml::prelude::parser::http_loader::{AsyncReqwestFetcher, HttpIncludeLoader};
+//! use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
+//! use mrml::prelude::parser::local_loader::LocalIncludeLoader;
+//! use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
+//! use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+//! use mrml::prelude::parser::loader::AsyncIncludeLoader;
+//! use mrml::prelude::parser::AsyncParserOptions;
+//! use mrml::prelude::render::RenderOptions;
+//! use std::path::PathBuf;
+//! use std::sync::Arc;
+//!
+//! let resolver = MultiIncludeLoader::<Box<dyn AsyncIncludeLoader + Send + Sync + 'static>>::new()
+//!     .with_starts_with("memory://", Box::new(MemoryIncludeLoader::from(vec![("basic.mjml", "<mj-button>Hello</mj-button>")])))
+//!     .with_starts_with("file://", Box::new(LocalIncludeLoader::new(PathBuf::default().join("resources").join("compare").join("success"))))
+//!     .with_starts_with("https://", Box::new(HttpIncludeLoader::<AsyncReqwestFetcher>::allow_all()))
+//!     .with_any(Box::<NoopIncludeLoader>::default());
+//! let parser_options = AsyncParserOptions {
+//!     include_loader: Box::new(resolver),
+//! };
+//! let render_options = RenderOptions::default();
+//! let json = r#"<mjml>
+//! <mj-body>
+//! <mj-include path="file://basic.mjml" />
+//! <mj-include path="memory://basic.mjml" />
+//! </mj-body>
+//! </mjml>"#;
+//! match mrml::async_parse_with_options(json, Arc::new(parser_options)).await {
+//!     Ok(mjml) => match mjml.render(&render_options) {
+//!         Ok(html) => println!("{html}"),
+//!         Err(err) => eprintln!("Couldn't render template: {err:?}"),
+//!     },
+//!     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
+//! }
+//! # })
+//! ```
+//!
+//! # Why?
 //!
 //! A Node.js server rendering an MJML template takes around **20 MB** of RAM at
 //! startup and **130 MB** under stress test. In Rust, less than **1.7 MB** at
@@ -102,7 +153,7 @@ mod macros;
 /// You can specify the kind of loader mrml needs to use for loading the content
 /// of [`mj-include`](crate::mj_include) elements.
 ///
-/// You can take a look at the available loaders [here](crate::prelude::parse).
+/// You can take a look at the available loaders [here](crate::prelude::parser).
 ///
 /// ```rust
 /// use mrml::prelude::parser::ParserOptions;

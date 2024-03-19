@@ -6,9 +6,8 @@ use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
-/// This struct is a
-/// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) where
-/// you can define a strategy of resolver depending on the path.
+/// This struct is a [`IncludeLoader`] where you can define a strategy of
+/// resolver depending on the path.
 /// That way, you can have a resolver for paths starting with `https://` and
 /// another resolver for local files where the paths start with `file://`.
 /// If no provider match the path, a `NotFound` error will be returned.

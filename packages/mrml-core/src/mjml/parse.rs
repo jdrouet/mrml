@@ -137,7 +137,7 @@ impl Mjml {
     /// content of [`mj-include`](crate::mj_include) elements.
     ///
     /// You can take a look at the available loaders
-    /// [here](crate::prelude::parse).
+    /// [here](crate::prelude::parser).
     ///
     /// ```rust
     /// use mrml::mjml::Mjml;
