@@ -1,5 +1,9 @@
 [workspace]
 
 [[package]]
+name = "axum-mrml"
+release = false
+
+[[package]]
 name = "mrml-python"
-publish = false
+publish_no_verify = true
