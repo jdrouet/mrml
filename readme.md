@@ -11,8 +11,6 @@
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/jdrouet/mrml.svg)](http://isitmaintained.com/project/jdrouet/mrml "Percentage of issues still open")
 [![Maintainability](https://api.codeclimate.com/v1/badges/7ed23ef670d076ab69a4/maintainability)](https://codeclimate.com/github/jdrouet/mrml/maintainability)
 
-![mrml-cli.binary.size](https://codebench.cloud/projects/cc271904-d7c1-431b-81f6-f328b334c5f8/metrics/mrml-cli.binary.size/badge.svg?label=cli%20binary%20size)
-
 ## Introduction
 
 This project is a reimplementation of the nice [MJML markup language](https://documentation.mjml.io/) in Rust.
@@ -23,32 +21,77 @@ Update your `cargo.toml`:
 
 ```toml
 [dependencies]
-mrml = "2"
+mrml = "3"
 serde = { version = "1.0", features = ["derive"] }
 ```
 
 Create your `main.rs`:
 
 ```rust
-use mrml;
+use mrml::prelude::parser::http_loader::{HttpIncludeLoader, BlockingReqwestFetcher};
+use mrml::prelude::parser::ParserOptions;
+use mrml::prelude::render::RenderOptions;
+use std::collections::HashSet;
+
 
 fn main() {
-    let root = mrml::parse("<mjml><mj-body></mj-body></mjml>").expect("parse template");
-    let opts = mrml::prelude::render::Options::default();
-    match root.render(&opts) {
-        Ok(content) => println!("{}", content),
-        Err(_) => println!("couldn't render mjml template"),
-    };
+  let resolver = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from(["http://localhost".to_string()]));
+  let parser_options = ParserOptions {
+      include_loader: Box::new(resolver),
+  };
+  let render_options = RenderOptions::default();
+  let template = r#"<mjml>
+  <mj-body>
+    <mj-include path="http://localhost/partials/mj-body.mjml" />
+  </mj-body>
+</mjml>"#;
+  match mrml::parse_with_options(template, &parser_options) {
+      Ok(mjml) => match mjml.render(&render_options) {
+        Ok(html) => println!("{html}"),
+        Err(err) => eprintln!("Couldn't render template: {err:?}"),
+      },
+      Err(err) => eprintln!("Couldn't parse template: {err:?}"),
+  }
 }
 ```
 
-Available options are:
+It's also possible to use an async include loader
 
-| Name                 | Comment                                             | Default value                                                                                        |
-| -------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `disable_comments`   | Strip comments out of rendered HTML                 | `false`                                                                                              |
-| `social_icon_origin` | Custom URL for fetching social icons                | `None`                                                                                               |
-| `fonts`              | Default fonts imported in the HTML rendered by MJML | [See default options](https://github.com/jolimail/mrml-core/blob/main/src/prelude/render.rs#L33-L54) |
+```rust
+use mrml::mj_include::body::MjIncludeBodyKind;
+use mrml::prelude::parser::http_loader::{AsyncReqwestFetcher, HttpIncludeLoader};
+use mrml::prelude::parser::local_loader::LocalIncludeLoader;
+use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
+use mrml::prelude::parser::multi_loader::{MultiIncludeLoader, MultiIncludeLoaderItem, MultiIncludeLoaderFilter};
+use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+use mrml::prelude::parser::loader::AsyncIncludeLoader;
+use mrml::prelude::parser::AsyncParserOptions;
+use mrml::prelude::render::RenderOptions;
+
+#[tokio::main]
+async fn main() {
+  let resolver = MultiIncludeLoader::<Box<dyn AsyncIncludeLoader + Send + Sync + 'static>>::new()
+      .with_starts_with("file://", Box::new(LocalIncludeLoader::new(PathBuf::default().join("resources").join("compare").join("success"))))
+      .with_starts_with("https://", Box::new(HttpIncludeLoader::<AsyncReqwestFetcher>::allow_all()))
+      .with_any(Box::<NoopIncludeLoader>::default());
+  let parser_options = AsyncParserOptions {
+      include_loader: Box::new(resolver),
+  };
+  let render_options = RenderOptions::default();
+  let json = r#"<mjml>
+  <mj-body>
+    <mj-include path="file://basic.mjml" />
+  </mj-body>
+</mjml>"#;
+  match mrml::async_parse_with_options(json, std::sync::Arc::new(parser_options)).await {
+      Ok(mjml) => match mjml.render(&render_options) {
+        Ok(html) => println!("{html}"),
+        Err(err) => eprintln!("Couldn't render template: {err:?}"),
+      },
+      Err(err) => eprintln!("Couldn't parse template: {err:?}"),
+  }
+}
+```
 
 ## Why?
 
@@ -69,7 +112,6 @@ With the same Linux amd64 machine, to render the amario template
 ## Missing implementations
 
 - `mj-style[inline]`: not yet implemented. It requires parsing the generated html to apply the inline styles afterward (that's how it's done in mjml) which would kill the performances. Applying it at render time would improve the performance but it would still require to parse the CSS.
-- `mj-include`: not yet implemented. It requires to handle loading remote templates when using mrml in a wasm (browser or server side) format, which implies being able to load from a different location (`file://`, `https://`, relative, etc).
 
 ## Who is using MRML?
 
@@ -86,13 +128,6 @@ With the same Linux amd64 machine, to render the amario template
 [mjml-python](https://github.com/mgd020/mjml-python) - Python library
 
 <i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
-
-## You want to sponsor us?
-
-[<img src="https://liberapay.com/assets/liberapay/icon-v2_white-on-yellow.svg?etag=.Z1LYSBJ8Z6GWUeLUUEf2XA~~" height="35px" />](https://liberapay.com/jdrouet/)
-[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="35px" />](https://www.buymeacoffee.com/jdrouet)
-
-<i>Thanks to [zachzurn](https://github.com/zachzurn).</i>
 
 ## License
 

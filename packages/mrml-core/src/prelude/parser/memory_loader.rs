@@ -11,10 +11,8 @@ use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
 #[derive(Debug, Default)]
-/// This struct is a simple
-/// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) where
-/// you can store in a map all files you want to be able to use with
-/// [`mj-include`](crate::mj_include).
+/// This struct is a simple [`IncludeLoader`] where you can store in a map all
+/// files you want to be able to use with [`mj-include`](crate::mj_include).
 ///
 /// # Example
 /// ```rust

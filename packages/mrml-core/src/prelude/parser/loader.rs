@@ -1,5 +1,4 @@
-//! Module containing the trait for implementing an
-//! [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader).
+//! Module containing the trait for implementing an [`IncludeLoader`].
 
 use std::io::ErrorKind;
 use std::sync::Arc;
