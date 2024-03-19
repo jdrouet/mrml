@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.6](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.5...mrml-wasm-v1.4.6) - 2024-03-19
+
+### Other
+- *(mrml-core)* move everythin in Arc ([#392](https://github.com/jdrouet/mrml/pull/392))
+
 ## [1.4.5](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.4...mrml-wasm-v1.4.5) - 2024-03-15
 
 ### Other
