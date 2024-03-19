@@ -163,7 +163,8 @@ pub type MultiIncludeLoaderAsync =
     MultiIncludeLoader<Box<dyn AsyncIncludeLoader + Sync + Send + 'static>>;
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncIncludeLoader for MultiIncludeLoaderAsync {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         let item = self

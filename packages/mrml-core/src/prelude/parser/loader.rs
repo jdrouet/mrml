@@ -74,7 +74,8 @@ pub trait IncludeLoader: std::fmt::Debug {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 pub trait AsyncIncludeLoader: std::fmt::Debug {
     /// This function is used to fetch the included template using the `path`
     /// attribute.
