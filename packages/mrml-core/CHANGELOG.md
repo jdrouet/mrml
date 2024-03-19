@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.1](https://github.com/jdrouet/mrml/compare/mrml-v3.1.0...mrml-v3.1.1) - 2024-03-19
+
+### Other
+- add python usage
+- update readme and documentation
+- *(mrml-core)* move everythin in Arc ([#392](https://github.com/jdrouet/mrml/pull/392))
+- *(mrml-core)* keep public build_attributes_all
+- *(mrml-core)* make sure mj-head children are considered in order ([#390](https://github.com/jdrouet/mrml/pull/390))
+- make sure chaining include and mj-attributes are taken in order ([#389](https://github.com/jdrouet/mrml/pull/389))
+
 ## [3.1.0](https://github.com/jdrouet/mrml/compare/mrml-v3.0.4...mrml-v3.1.0) - 2024-03-15
 
 ### Added
