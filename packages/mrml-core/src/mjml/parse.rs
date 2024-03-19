@@ -66,7 +66,8 @@ impl ParseAttributes<MjmlAttributes> for AsyncMrmlParser {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -111,7 +112,8 @@ impl<'opts> ParseElement<Mjml> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncParseElement<Mjml> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
@@ -162,7 +164,7 @@ impl Mjml {
     #[cfg(feature = "async")]
     pub async fn async_parse_with_options<T: AsRef<str>>(
         value: T,
-        opts: std::rc::Rc<crate::prelude::parser::AsyncParserOptions>,
+        opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
     ) -> Result<Self, Error> {
         let parser = AsyncMrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());

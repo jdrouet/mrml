@@ -38,7 +38,8 @@ impl<'opts> ParseElement<Node<MjRawChild>> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncParseElement<Node<MjRawChild>> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,
@@ -92,7 +93,8 @@ impl<'opts> ParseChildren<Vec<MjRawChild>> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncParseChildren<Vec<MjRawChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -137,7 +139,8 @@ impl<'opts> ParseElement<MjRaw> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncParseElement<MjRaw> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

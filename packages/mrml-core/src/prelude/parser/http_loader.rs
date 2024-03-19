@@ -20,7 +20,8 @@ pub trait HttpFetcher: Default + Debug {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 pub trait AsyncHttpFetcher: Default + Debug {
     async fn async_fetch(
         &self,
@@ -67,7 +68,8 @@ impl HttpFetcher for BlockingReqwestFetcher {
 pub struct AsyncReqwestFetcher(reqwest::Client);
 
 #[cfg(feature = "http-loader-async-reqwest")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncHttpFetcher for AsyncReqwestFetcher {
     async fn async_fetch(
         &self,
@@ -330,8 +332,9 @@ impl<F: HttpFetcher> IncludeLoader for HttpIncludeLoader<F> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
-impl<F: AsyncHttpFetcher + Sync> AsyncIncludeLoader for HttpIncludeLoader<F> {
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+impl<F: AsyncHttpFetcher + Sync + Send> AsyncIncludeLoader for HttpIncludeLoader<F> {
     async fn async_resolve(&self, path: &str) -> Result<String, IncludeLoaderError> {
         self.check_url(path)?;
         self.fetcher.async_fetch(path, &self.headers).await

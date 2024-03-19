@@ -23,7 +23,8 @@ impl<'opts> ParseElement<MjImage> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncParseElement<MjImage> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

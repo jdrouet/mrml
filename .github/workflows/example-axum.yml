@@ -1,0 +1,54 @@
+name: example-axum
+
+on:
+  merge_group:
+    types: [checks_requested]
+  workflow_call:
+  pull_request:
+    paths:
+      - ".github/workflows/example-axum.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "examples/axum/**"
+      - "packages/mrml-core/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/example-axum.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "examples/axum/**"
+      - "packages/mrml-core/**"
+
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: ${{ github.ref }}-example-axum
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-exampl-axum-testing-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: run tests
+        run: cargo test -p axum-mrml

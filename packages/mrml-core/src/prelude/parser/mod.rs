@@ -237,7 +237,8 @@ pub(crate) trait ParseElement<E> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 pub(crate) trait AsyncParseElement<E> {
     async fn async_parse<'a>(
         &self,
@@ -255,7 +256,8 @@ pub(crate) trait ParseChildren<C> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 pub(crate) trait AsyncParseChildren<C> {
     async fn async_parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;
 }
@@ -411,12 +413,12 @@ impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
 #[cfg(feature = "async")]
 #[derive(Default)]
 pub struct AsyncMrmlParser {
-    pub(crate) options: std::rc::Rc<AsyncParserOptions>,
+    pub(crate) options: std::sync::Arc<AsyncParserOptions>,
 }
 
 #[cfg(feature = "async")]
 impl AsyncMrmlParser {
-    pub fn new(options: std::rc::Rc<AsyncParserOptions>) -> Self {
+    pub fn new(options: std::sync::Arc<AsyncParserOptions>) -> Self {
         Self { options }
     }
 }

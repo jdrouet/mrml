@@ -40,7 +40,8 @@ impl<'opts> ParseChildren<Vec<MjAccordionChild>> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncParseChildren<Vec<MjAccordionChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
@@ -90,7 +91,8 @@ impl<'opts> ParseElement<MjAccordion> for MrmlParser<'opts> {
 }
 
 #[cfg(feature = "async")]
-#[async_trait::async_trait(?Send)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
 impl AsyncParseElement<MjAccordion> for AsyncMrmlParser {
     async fn async_parse<'a>(
         &self,

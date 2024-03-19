@@ -139,9 +139,8 @@ pub fn parse_with_options<T: AsRef<str>>(
 /// # tokio_test::block_on(async {
 /// use mrml::prelude::parser::AsyncParserOptions;
 /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-/// use std::rc::Rc;
 ///
-/// let options = Rc::new(AsyncParserOptions {
+/// let options = std::sync::Arc::new(AsyncParserOptions {
 ///     include_loader: Box::new(MemoryIncludeLoader::default()),
 /// });
 /// match mrml::async_parse_with_options("<mjml><mj-head /><mj-body /></mjml>", options).await {
@@ -152,7 +151,7 @@ pub fn parse_with_options<T: AsRef<str>>(
 /// ```
 pub async fn async_parse_with_options<T: AsRef<str>>(
     input: T,
-    opts: std::rc::Rc<crate::prelude::parser::AsyncParserOptions>,
+    opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
     let parser = crate::prelude::parser::AsyncMrmlParser::new(opts);
     let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
