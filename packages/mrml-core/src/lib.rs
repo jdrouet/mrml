@@ -82,6 +82,26 @@
 //! # })
 //! ```
 //!
+//! ## Using `mrml` in Python
+//!
+//! This crate can also be used in Python. The crate is available with pypi and
+//! you can find some documentation [here](https://pypi.org/project/mrml/).
+//!
+//! ```python
+//! import mrml
+//!
+//! # without options
+//! result = mrml.to_html("<mjml></mjml>")
+//! assert result.startswith("<!doctype html>")
+//!
+//! # with options
+//! parser_options = mrml.ParserOptions(include_loader = mrml.memory_loader({
+//!     'hello-world.mjml': '<mj-text>Hello World!</mj-text>',
+//! }))
+//! result = mrml.to_html("<mjml><mj-body><mj-include path=\"hello-world.mjml\" /></mj-body></mjml>", parser_options = parser_options)
+//! assert result.startswith("<!doctype html>")
+//! ```
+//!
 //! # Why?
 //!
 //! A Node.js server rendering an MJML template takes around **20 MB** of RAM at
