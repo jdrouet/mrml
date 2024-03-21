@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.3](https://github.com/jdrouet/mrml/compare/mrml-v3.1.2...mrml-v3.1.3) - 2024-03-21
+
+### Other
+- *(deps)* Update reqwest requirement in /packages/mrml-core ([#395](https://github.com/jdrouet/mrml/pull/395))
+
 ## [3.1.2](https://github.com/jdrouet/mrml/compare/mrml-v3.1.1...mrml-v3.1.2) - 2024-03-21
 
 ### Other
