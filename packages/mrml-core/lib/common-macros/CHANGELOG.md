@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/jdrouet/mrml/compare/mrml-common-macros-v0.1.2...mrml-common-macros-v0.1.3) - 2024-03-21
+
+### Other
+- switch license to MIT ([#388](https://github.com/jdrouet/mrml/pull/388))
+
 ## [0.1.2](https://github.com/jdrouet/mrml/compare/mrml-common-macros-v0.1.1...mrml-common-macros-v0.1.2) - 2023-12-04
 
 ### Other

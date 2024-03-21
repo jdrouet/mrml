@@ -2,7 +2,7 @@
 name = "mrml-common-macros"
 description = "Common macros for the MRML crate"
 keywords = ["email", "mjml"]
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2021"
 license = "MIT"
