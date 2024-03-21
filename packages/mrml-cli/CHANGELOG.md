@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.4](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.5.3...mrml-cli-v1.5.4) - 2024-03-21
+
+### Other
+- switch license to MIT ([#388](https://github.com/jdrouet/mrml/pull/388))
+
 ## [1.5.3](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.5.2...mrml-cli-v1.5.3) - 2024-03-19
 
 ### Other
