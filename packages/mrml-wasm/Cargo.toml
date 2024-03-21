@@ -5,7 +5,7 @@ keywords = ["email", "mjml"]
 version = "1.4.6"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2018"
-license-file = "license.md"
+license = "MIT"
 repository = "https://github.com/jdrouet/mrml/"
 readme = "README.md"
 
