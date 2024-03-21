@@ -41,6 +41,10 @@ enum EngineError {
 
 impl IntoResponse for EngineError {
     fn into_response(self) -> axum::response::Response {
+        match self {
+            Self::Parse(ref inner) => tracing::debug!("unable to parse: {inner:?}"),
+            Self::Render(ref inner) => tracing::debug!("unable to render: {inner:?}"),
+        };
         (
             axum::http::StatusCode::BAD_REQUEST,
             format!("unable to convert template: {self:?}"),
