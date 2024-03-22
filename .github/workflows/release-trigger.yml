@@ -1,0 +1,34 @@
+name: release trigger
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  mrml-cli:
+    name: trigger release for mrml-cli
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/mrml-cli-v')
+    steps:
+      - run: gh workflow run mrml-cli-release.yml -F release_tag=${GITHUB_REF##*/}
+
+  mrml-core:
+    name: trigger release for mrml-core
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/mrml-v')
+    steps:
+      - run: gh workflow run mrml-core-release.yml -F release_tag=${GITHUB_REF##*/}
+
+  mrml-python:
+    name: trigger release for mrml-python
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/mrml-python-v')
+    steps:
+      - run: gh workflow run mrml-python-release.yml -F release_tag=${GITHUB_REF##*/}
+
+  mrml-wasm:
+    name: trigger release for mrml-wasm
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/mrml-wasm-v')
+    steps:
+      - run: gh workflow run mrml-wasm-release.yml -F release_tag=${GITHUB_REF##*/} -F publish=true

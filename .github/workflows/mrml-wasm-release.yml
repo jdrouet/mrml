@@ -1,8 +1,13 @@
 on:
-  push:
-    tags:
-      - "mrml-wasm-v*"
   workflow_dispatch:
+    inputs:
+      release_tag:
+        type: string
+        required: true
+      publish:
+        type: boolean
+        required: false
+        default: false
 
 name: mrml-wasm release
 
@@ -52,19 +57,22 @@ jobs:
         run: bash build.sh
 
       - name: publish release
-        run: wasm-pack publish
+        if: inputs.publish
+        run: cd pkg && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   notify:
     runs-on: ubuntu-latest
     needs: [release]
+
     steps:
       - name: notify mastodon
         uses: cbrgm/mastodon-github-action@v1
         with:
           message: |
             👋 Hey! I just released a new version of mrml for javascript!
-            Take a look at it, it's made in #rustlang, it's #opensource and it's a #freesoftware!"
-            https://github.com/jdrouet/mrml and https://www.npmjs.com/package/mrml
+            https://github.com/jdrouet/mrml/releases/tag/${{ inputs.release_tag }} and https://www.npmjs.com/package/mrml
           visibility: "public"
         env:
           MASTODON_URL: ${{ secrets.MASTODON_URL }}
