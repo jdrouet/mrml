@@ -55,6 +55,9 @@ jobs:
           yarn
           yarn link mrml
           yarn build
+        env:
+          BASE_URL: https://jdrouet.github.io/mrml/
+          PROD: true
 
       - name: setup pages
         uses: actions/configure-pages@v4
