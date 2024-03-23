@@ -95,7 +95,7 @@ async fn main() {
 
 ## Why?
 
-- A Node.js server rendering an MJML template takes around 20 MB of RAM at startup and 130 MB under stress test. In Rust, less than 1.7 MB at startup and a bit less that 3 MB under stress test. The Rust version can also handle twice as many requests per second. You can perform the benchmarks by running `bash script/run-bench.sh`.
+- A Node.js server rendering an MJML template takes around 20 MB of RAM at startup and 130 MB under stress test. In Rust, less than 1.7 MB at startup and a bit less that 3 MB under stress test.
 - The JavaScript implementation cannot be run in the browser; the Rust one (and WebAssembly one) can be.
 
 ## You want to contribute?
@@ -104,10 +104,23 @@ Feel free to read our [contributing](./contributing.md) section and the [code of
 
 ## Performance
 
-With the same Linux amd64 machine, to render the amario template
+With the same Linux amd64 machine, to render the amario template using [hyperfine](https://github.com/sharkdp/hyperfine) (see the script in the `benchmarks` folder).
 
-- Node: 606.59ms
-- Rust: 3.48ms
+```
+Benchmark 1: mjml /amario.mjml
+  Time (mean ± σ):     634.1 ms ±   5.2 ms    [User: 669.3 ms, System: 168.2 ms]
+  Range (min … max):   625.8 ms … 642.3 ms    10 runs
+
+Benchmark 2: /usr/bin/mrml /amario.mjml render
+  Time (mean ± σ):       5.6 ms ±   0.1 ms    [User: 2.8 ms, System: 2.9 ms]
+  Range (min … max):     5.5 ms …   7.1 ms    494 runs
+
+Summary
+  /usr/bin/mrml /amario.mjml render ran
+  112.83 ± 2.12 times faster than mjml /amario.mjml
+```
+
+From this, you can see that `mrml` is **more than 110 faster** than `mjml`.
 
 ## Missing implementations
 
