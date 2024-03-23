@@ -1,0 +1,67 @@
+name: deploy static content to github pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          registry-url: "https://registry.npmjs.org"
+      - name: install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-example-demo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: build release
+        working-directory: packages/mrml-wasm
+        run: bash build.sh
+      - name: prepare linking package
+        working-directory: packages/mrml-wasm/pkg
+        run: yarn link
+      - name: install packages
+        working-directory: examples/demo
+        run: |
+          yarn
+          yarn link mrml
+          yarn build
+
+      - name: setup pages
+        uses: actions/configure-pages@v4
+      - name: upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "examples/demo/dist"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
