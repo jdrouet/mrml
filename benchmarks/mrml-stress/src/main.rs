@@ -18,6 +18,6 @@ fn main() {
     }
     let end = std::time::Instant::now();
     println!("done!");
-    let duration = end.duration_since(start).as_micros();
-    println!("executed in {duration} micro seconds");
+    let duration = end.duration_since(start).as_secs_f64() * 1000.0;
+    println!("executed in {duration}ms");
 }

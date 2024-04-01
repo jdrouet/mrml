@@ -1,1 +1,4 @@
 target
+benchmarks/mjml-stress/node_modules
+examples/demo/dist
+examples/demo/node_modules

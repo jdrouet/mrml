@@ -1,0 +1,6 @@
+{
+  "name": "mjml-stress",
+  "dependencies": {
+    "mjml": "latest"
+  }
+}
