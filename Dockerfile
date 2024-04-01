@@ -3,7 +3,8 @@ FROM --platform=$BUILDPLATFORM rust:1-bookworm AS vendor
 ENV USER=root
 
 WORKDIR /code
-RUN cargo init --bin --name axum-mrml /code/examples/axum \
+RUN cargo init --bin --name mrml-stress /code/benchmarks/mrml-stress \
+  && cargo init --bin --name axum-mrml /code/examples/axum \
   && cargo init --bin --name mrml-cli /code/packages/mrml-cli \
   && cargo init --lib --name mrml /code/packages/mrml-core \
   && cargo init --lib --name mrml-common-macros /code/packages/mrml-core/lib/common-macros \
@@ -16,6 +17,7 @@ RUN cargo init --bin --name axum-mrml /code/examples/axum \
   && cargo init --lib --name mrml-warm /code/packages/mrml-wasm
 COPY Cargo.lock /code/Cargo.lock
 COPY Cargo.toml /code/Cargo.toml
+COPY benchmarks/mrml-stress/Cargo.toml /code/benchmarks/mrml-stress/Cargo.toml
 COPY examples/axum/Cargo.toml /code/examples/axum/Cargo.toml
 COPY packages/mrml-cli/Cargo.toml /code/packages/mrml-cli/Cargo.toml
 COPY packages/mrml-core/Cargo.toml /code/packages/mrml-core/Cargo.toml

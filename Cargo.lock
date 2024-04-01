@@ -1378,6 +1378,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mrml-stress"
+version = "0.1.0"
+dependencies = [
+ "mrml",
+]
+
+[[package]]
 name = "mrml-wasm"
 version = "1.4.8"
 dependencies = [
