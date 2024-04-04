@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.4](https://github.com/jdrouet/mrml/compare/mrml-v3.1.3...mrml-v3.1.4) - 2024-04-04
+
+### Fixed
+- *(mrml-core)* make sure <br> can be parsed in mj-raw
+
 ## [3.1.3](https://github.com/jdrouet/mrml/compare/mrml-v3.1.2...mrml-v3.1.3) - 2024-03-21
 
 ### Other
