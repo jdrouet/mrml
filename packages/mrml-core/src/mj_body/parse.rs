@@ -21,31 +21,12 @@ use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::NAME as MJ_WRAPPER;
 use crate::node::Node;
 use crate::prelude::parser::{
-    parse_attributes_map, Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
+    parse_attributes_map, should_ignore_children, Error, MrmlCursor, MrmlParser, MrmlToken,
+    ParseChildren, ParseElement,
 };
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::text::Text;
-
-fn should_ignore_children(tag: &str) -> bool {
-    matches!(
-        tag,
-        "area"
-            | "base"
-            | "br"
-            | "col"
-            | "embed"
-            | "hr"
-            | "img"
-            | "input"
-            | "link"
-            | "meta"
-            | "param"
-            | "source"
-            | "track"
-            | "wbr"
-    )
-}
 
 impl<'opts> ParseElement<Node<MjBodyChild>> for MrmlParser<'opts> {
     fn parse<'a>(

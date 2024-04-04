@@ -3,11 +3,12 @@ use xmlparser::StrSpan;
 use super::{MjRaw, MjRawChild};
 use crate::comment::Comment;
 use crate::node::Node;
+use crate::prelude::parser::{
+    should_ignore_children, Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes,
+    ParseChildren, ParseElement,
+};
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
-use crate::prelude::parser::{
-    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
-};
 use crate::text::Text;
 
 impl<'opts> ParseElement<Node<MjRawChild>> for MrmlParser<'opts> {
@@ -18,7 +19,7 @@ impl<'opts> ParseElement<Node<MjRawChild>> for MrmlParser<'opts> {
     ) -> Result<Node<MjRawChild>, Error> {
         let attributes = self.parse_attributes(cursor)?;
         let ending = cursor.assert_element_end()?;
-        if ending.empty {
+        if ending.empty || should_ignore_children(tag.as_str()) {
             return Ok(Node {
                 tag: tag.to_string(),
                 attributes,
@@ -48,7 +49,7 @@ impl AsyncParseElement<Node<MjRawChild>> for AsyncMrmlParser {
     ) -> Result<Node<MjRawChild>, Error> {
         let attributes = self.parse_attributes(cursor)?;
         let ending = cursor.assert_element_end()?;
-        if ending.empty {
+        if ending.empty || should_ignore_children(tag.as_str()) {
             return Ok(Node {
                 tag: tag.to_string(),
                 attributes,
