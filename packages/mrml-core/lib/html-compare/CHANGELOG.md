@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.1...html-compare-v0.1.2) - 2024-04-13
+
+### Fixed
+- *(mrml-core)* only void element should self close
+
 ## [0.1.1](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.0...html-compare-v0.1.1) - 2024-03-21
 
 ### Other

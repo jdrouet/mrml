@@ -2,7 +2,7 @@
 name = "html-compare"
 description = "A simple library to compare html files"
 license = "MIT"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 repository = "https://github.com/jdrouet/mrml"
 
