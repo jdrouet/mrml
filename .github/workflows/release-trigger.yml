@@ -2,7 +2,7 @@ name: release trigger
 
 on:
   release:
-    types: [published]
+    types: [released]
 
 jobs:
   mrml-cli:
