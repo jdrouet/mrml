@@ -20,9 +20,9 @@ use crate::mj_table::NAME as MJ_TABLE;
 use crate::mj_text::NAME as MJ_TEXT;
 use crate::mj_wrapper::NAME as MJ_WRAPPER;
 use crate::node::Node;
+use crate::prelude::is_void_element;
 use crate::prelude::parser::{
-    parse_attributes_map, should_ignore_children, Error, MrmlCursor, MrmlParser, MrmlToken,
-    ParseChildren, ParseElement,
+    parse_attributes_map, Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
@@ -37,7 +37,7 @@ impl<'opts> ParseElement<Node<MjBodyChild>> for MrmlParser<'opts> {
         let tag = tag.to_string();
         let attributes = parse_attributes_map(cursor)?;
         let ending = cursor.assert_element_end()?;
-        if ending.empty || should_ignore_children(tag.as_str()) {
+        if ending.empty || is_void_element(tag.as_str()) {
             return Ok(Node {
                 tag,
                 attributes,
@@ -68,7 +68,7 @@ impl AsyncParseElement<Node<MjBodyChild>> for AsyncMrmlParser {
         let tag = tag.to_string();
         let attributes = parse_attributes_map(cursor)?;
         let ending = cursor.assert_element_end()?;
-        if ending.empty || should_ignore_children(tag.as_str()) {
+        if ending.empty || is_void_element(tag.as_str()) {
             return Ok(Node {
                 tag,
                 attributes,
