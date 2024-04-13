@@ -15,26 +15,6 @@ pub mod memory_loader;
 pub mod multi_loader;
 pub mod noop_loader;
 
-pub(crate) fn should_ignore_children(tag: &str) -> bool {
-    matches!(
-        tag,
-        "area"
-            | "base"
-            | "br"
-            | "col"
-            | "embed"
-            | "hr"
-            | "img"
-            | "input"
-            | "link"
-            | "meta"
-            | "param"
-            | "source"
-            | "track"
-            | "wbr"
-    )
-}
-
 #[derive(Clone, Debug, Default)]
 pub struct Span {
     pub start: usize,

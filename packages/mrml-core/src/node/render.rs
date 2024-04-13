@@ -2,9 +2,8 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::Node;
+use crate::prelude::is_void_element;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
-
-const SHOULD_SELF_CLOSE: [&str; 1] = ["script"];
 
 struct NodeRender<'e, 'h, T> {
     header: Rc<RefCell<Header<'h>>>,
@@ -33,10 +32,14 @@ where
             buf.push_str(value);
             buf.push('"');
         }
-        if self.element.children.is_empty()
-            && !SHOULD_SELF_CLOSE.contains(&self.element.tag.as_str())
-        {
-            buf.push_str(" />");
+        if self.element.children.is_empty() {
+            if is_void_element(self.element.tag.as_str()) {
+                buf.push_str(" />");
+            } else {
+                buf.push_str("></");
+                buf.push_str(&self.element.tag);
+                buf.push('>');
+            }
         } else {
             buf.push('>');
             for (index, child) in self.element.children.iter().enumerate() {

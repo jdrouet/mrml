@@ -248,7 +248,7 @@ fn compare_elements<'a>(
     let ending = compare_attributes(cursor, expected.clone(), generated.clone())?;
 
     if matches!(ending.end, HtmlElementEnd::Open)
-        && !["br", "meta"].contains(&expected.local.as_str())
+        && !matches!(expected.local.as_str(), "br" | "meta")
     {
         compare_all(cursor, &expected.local, expected.span, generated.span)?;
     }
