@@ -3,6 +3,8 @@ use crate::mjml::Mjml;
 
 #[cfg(feature = "parse")]
 pub mod parse;
+#[cfg(feature = "render")]
+pub mod render;
 
 #[derive(Debug)]
 /// Representation of the `mjml` and its attributes and children defined
