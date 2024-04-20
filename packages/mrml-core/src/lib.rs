@@ -162,6 +162,9 @@ pub mod node;
 pub mod prelude;
 pub mod text;
 
+// Only used to ignore the comments at the root level
+mod root;
+
 mod helper;
 mod macros;
 
@@ -191,9 +194,8 @@ pub fn parse_with_options<T: AsRef<str>>(
     input: T,
     opts: &crate::prelude::parser::ParserOptions,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
-    let parser = crate::prelude::parser::MrmlParser::new(opts);
-    let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
-    parser.parse_root(&mut cursor)
+    let root = crate::root::Root::parse_with_options(input, opts)?;
+    root.into_mjml().ok_or(prelude::parser::Error::NoRootNode)
 }
 
 #[cfg(all(feature = "parse", feature = "async"))]
@@ -224,9 +226,8 @@ pub async fn async_parse_with_options<T: AsRef<str>>(
     input: T,
     opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
 ) -> Result<mjml::Mjml, prelude::parser::Error> {
-    let parser = crate::prelude::parser::AsyncMrmlParser::new(opts);
-    let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
-    parser.parse_root(&mut cursor).await
+    let root = crate::root::Root::async_parse_with_options(input, opts).await?;
+    root.into_mjml().ok_or(prelude::parser::Error::NoRootNode)
 }
 
 #[cfg(feature = "parse")]
@@ -241,9 +242,7 @@ pub async fn async_parse_with_options<T: AsRef<str>>(
 /// ```
 pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
     let opts = crate::prelude::parser::ParserOptions::default();
-    let parser = crate::prelude::parser::MrmlParser::new(&opts);
-    let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
-    parser.parse_root(&mut cursor)
+    parse_with_options(input, &opts)
 }
 
 #[cfg(all(feature = "parse", feature = "async"))]
@@ -259,9 +258,8 @@ pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Err
 /// # })
 /// ```
 pub async fn async_parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
-    let parser = crate::prelude::parser::AsyncMrmlParser::default();
-    let mut cursor = crate::prelude::parser::MrmlCursor::new(input.as_ref());
-    parser.parse_root(&mut cursor).await
+    let opts = std::sync::Arc::new(crate::prelude::parser::AsyncParserOptions::default());
+    async_parse_with_options(input, opts).await
 }
 
 #[cfg(all(test, feature = "parse"))]
