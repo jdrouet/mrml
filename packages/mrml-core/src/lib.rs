@@ -160,8 +160,10 @@ pub mod mj_wrapper;
 pub mod mjml;
 pub mod node;
 pub mod prelude;
-pub mod root;
 pub mod text;
+
+// Only used to ignore the comments at the root level
+mod root;
 
 mod helper;
 mod macros;

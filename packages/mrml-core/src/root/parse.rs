@@ -81,7 +81,7 @@ impl super::Root {
     ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
     /// }
     /// ```
-    pub fn parse_with_options<T: AsRef<str>>(
+    pub(crate) fn parse_with_options<T: AsRef<str>>(
         value: T,
         opts: &ParserOptions,
     ) -> Result<Self, Error> {
@@ -91,7 +91,7 @@ impl super::Root {
     }
 
     #[cfg(feature = "async")]
-    pub async fn async_parse_with_options<T: AsRef<str>>(
+    pub(crate) async fn async_parse_with_options<T: AsRef<str>>(
         value: T,
         opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
     ) -> Result<Self, Error> {
@@ -99,27 +99,6 @@ impl super::Root {
         use crate::prelude::parser::AsyncParseChildren;
 
         let parser = AsyncMrmlParser::new(opts);
-        let mut cursor = MrmlCursor::new(value.as_ref());
-        Ok(Self(parser.async_parse_children(&mut cursor).await?))
-    }
-
-    /// Function to parse a raw mjml template using the default parsing
-    /// [options](crate::prelude::parser::ParserOptions).
-    pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        let opts = ParserOptions::default();
-        let parser = MrmlParser::new(&opts);
-        let mut cursor = MrmlCursor::new(value.as_ref());
-        Ok(Self(parser.parse_children(&mut cursor)?))
-    }
-
-    #[cfg(feature = "async")]
-    /// Function to parse a raw mjml template using the default parsing
-    /// [options](crate::prelude::parser::ParserOptions).
-    pub async fn async_parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
-        use crate::prelude::parser::AsyncMrmlParser;
-        use crate::prelude::parser::AsyncParseChildren;
-
-        let parser = AsyncMrmlParser::default();
         let mut cursor = MrmlCursor::new(value.as_ref());
         Ok(Self(parser.async_parse_children(&mut cursor).await?))
     }

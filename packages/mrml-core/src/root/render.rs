@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
-pub struct RootRender<'e, 'h> {
+pub(crate) struct RootRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
     element: &'e super::Root,
 }
