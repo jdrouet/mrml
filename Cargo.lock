@@ -1318,7 +1318,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-cli"
-version = "1.5.7"
+version = "1.5.8"
 dependencies = [
  "clap",
  "env_logger",
@@ -1371,7 +1371,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-python"
-version = "0.1.12"
+version = "0.1.13"
 dependencies = [
  "mrml",
  "pyo3",

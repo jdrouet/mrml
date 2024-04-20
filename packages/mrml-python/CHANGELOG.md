@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.13](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.12...mrml-python-v0.1.13) - 2024-04-20
+
+### Added
+- *(mrml-python)* add initial pyi file
+
+### Other
+- *(mrml-python)* Bump pyo3 from 0.20.0 to 0.21.2
+
 ## [0.1.12](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.11...mrml-python-v0.1.12) - 2024-04-13
 
 ### Other
