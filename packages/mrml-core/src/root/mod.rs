@@ -7,8 +7,6 @@ pub mod parse;
 pub mod render;
 
 #[derive(Debug)]
-/// Representation of the `mjml` and its attributes and children defined
-/// in the [mjml documentation](https://documentation.mjml.io/#mjml).
 pub enum RootChild {
     Mjml(Mjml),
     Comment(Comment),
