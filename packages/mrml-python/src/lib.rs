@@ -214,7 +214,7 @@ fn to_html(
 
 #[pymodule]
 #[pyo3(name = "mrml")]
-fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<NoopIncludeLoaderOptions>()?;
     m.add_class::<MemoryIncludeLoaderOptions>()?;
     m.add_class::<LocalIncludeLoaderOptions>()?;
