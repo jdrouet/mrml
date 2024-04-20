@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.8](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.5.7...mrml-cli-v1.5.8) - 2024-04-20
+
+### Other
+- update Cargo.lock dependencies
+
 ## [1.5.7](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.5.6...mrml-cli-v1.5.7) - 2024-04-13
 
 ### Other
