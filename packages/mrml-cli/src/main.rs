@@ -12,9 +12,55 @@ use mrml::prelude::parser::loader::IncludeLoader;
 use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
-use mrml::prelude::parser::ParserOptions;
+use mrml::prelude::parser::{Error as ParserError, ParserOptions};
 use mrml::prelude::print::Print;
 use mrml::prelude::render::RenderOptions;
+
+fn format_parser_error(error: ParserError) -> String {
+    let msg = match error {
+        ParserError::EndOfStream => String::from("invalid format"),
+        ParserError::UnexpectedAttribute(token) => {
+            format!(
+                "unexpected attribute at position {}:{}",
+                token.start, token.end
+            )
+        }
+        ParserError::UnexpectedElement(token) => {
+            format!(
+                "unexpected element at position {}:{}",
+                token.start, token.end
+            )
+        }
+        ParserError::UnexpectedToken(token) => {
+            format!("unexpected token at position {}:{}", token.start, token.end)
+        }
+        ParserError::InvalidAttribute(token) => {
+            format!(
+                "invalid attribute at position {}:{}",
+                token.start, token.end
+            )
+        }
+        ParserError::InvalidFormat(token) => {
+            format!("invalid format at position {}:{}", token.start, token.end)
+        }
+        ParserError::IncludeLoaderError { position, source } => {
+            format!(
+                "something when wront when loading include at position {}:{}: {source:?}",
+                position.start, position.end
+            )
+        }
+        ParserError::MissingAttribute(name, span) => format!(
+            "missing attribute {name:?} at position {}:{}",
+            span.start, span.end
+        ),
+        ParserError::SizeLimit => String::from("reached the max size limit"),
+        ParserError::NoRootNode => {
+            String::from("couldn't parse document: couldn't find mjml element")
+        }
+        ParserError::ParserError(inner) => format!("something went wront while parsing {inner}"),
+    };
+    format!("couldn't parse document: {msg}")
+}
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
 pub enum HttpLoaderMode {
@@ -30,7 +76,8 @@ struct Options {
     /// Path to your mjml file
     #[clap(index = 1)]
     pub input: Option<String>,
-    /// Path to a directory containing templates that can be used with mj-include
+    /// Path to a directory containing templates that can be used with
+    /// mj-include
     #[clap(long)]
     pub local_loader: Option<PathBuf>,
     #[clap(long, action = clap::ArgAction::Append)]
@@ -40,28 +87,29 @@ struct Options {
 }
 
 impl Options {
-    fn read_file(&self, filename: &str) -> String {
+    fn read_file(&self, filename: &str) -> Result<String, String> {
         log::debug!("reading from file {}", filename);
-        let mut file = File::open(filename).expect("couldn't find file");
+        let mut file =
+            File::open(filename).map_err(|err| format!("couldn't open {filename:?}: {err}"))?;
         let mut content = String::new();
         file.read_to_string(&mut content)
-            .expect("couldn't read file");
-        content
+            .map_err(|err| format!("couldn't read {filename:?}: {err}"))?;
+        Ok(content)
     }
 
-    fn read_stdin(&self) -> String {
+    fn read_stdin(&self) -> Result<String, String> {
         log::info!("waiting for input...");
         let mut buffer = String::new();
         std::io::stdin()
             .read_to_string(&mut buffer)
-            .expect("couldn't read input");
-        buffer
+            .map_err(|err| format!("couldn't read stdin: {err}"))?;
+        Ok(buffer)
     }
 
     fn parse_json(&self, input: &str) -> Result<Mjml, String> {
         log::debug!("parsing json input");
         serde_json::from_str::<Mjml>(input)
-            .map_err(|err| format!("unable to parse json: {:?}", err))
+            .map_err(|err| format!("unable to parse json input: {err:?}"))
     }
 
     fn http_include_loader(&self) -> Box<dyn IncludeLoader> {
@@ -81,7 +129,7 @@ impl Options {
                     path.to_path_buf()
                 } else {
                     std::env::current_dir()
-                        .map_err(|err| err.to_string())?
+                        .map_err(|err| format!("unable to detect current directory: {err:?}"))?
                         .join(path)
                 };
                 Some(Box::new(LocalIncludeLoader::new(path)))
@@ -108,27 +156,24 @@ impl Options {
         let options = ParserOptions {
             include_loader: self.include_loader()?,
         };
-        Mjml::parse_with_options(input, &options)
-            .map_err(|err| format!("unable to parse mjml: {:?}", err))
+        Mjml::parse_with_options(input, &options).map_err(format_parser_error)
     }
 
-    fn parse_input(&self, input: &str) -> Mjml {
+    fn parse_input(&self, input: &str) -> Result<Mjml, String> {
         if let Some(ref filename) = self.input {
             if filename.ends_with(".json") {
-                self.parse_json(input).unwrap()
+                self.parse_json(input)
             } else if filename.ends_with(".mjml") {
-                self.parse_mjml(input).unwrap()
+                self.parse_mjml(input)
             } else {
-                panic!("unknown file type");
+                Err(format!("unable to detect file type for {filename:?}"))
             }
         } else {
-            self.parse_mjml(input)
-                .or_else(|_| self.parse_json(input))
-                .expect("unable to parse input")
+            self.parse_mjml(input).or_else(|_| self.parse_json(input))
         }
     }
 
-    fn read_input(&self) -> String {
+    fn read_input(&self) -> Result<String, String> {
         if let Some(ref filename) = self.input {
             self.read_file(filename)
         } else {
@@ -136,10 +181,10 @@ impl Options {
         }
     }
 
-    pub fn execute(self) {
-        let root = self.read_input();
-        let root = self.parse_input(&root);
-        self.subcmd.execute(&root);
+    pub fn execute(self) -> Result<(), String> {
+        let root = self.read_input()?;
+        let root = self.parse_input(&root)?;
+        self.subcmd.execute(&root)
     }
 }
 
@@ -156,7 +201,7 @@ enum SubCommand {
 }
 
 impl SubCommand {
-    pub fn execute(self, root: &Mjml) {
+    pub fn execute(self, root: &Mjml) -> Result<(), String> {
         match self {
             Self::FormatJSON(opts) => {
                 log::debug!("format to json");
@@ -184,6 +229,7 @@ impl SubCommand {
             }
             Self::Validate => log::debug!("validate"),
         };
+        Ok(())
     }
 }
 
@@ -216,7 +262,10 @@ impl From<Render> for RenderOptions {
 
 fn main() {
     env_logger::init();
-    Options::parse().execute();
+    if let Err(error) = Options::parse().execute() {
+        eprintln!("{error}");
+        std::process::exit(1);
+    }
 }
 
 #[cfg(test)]
@@ -226,13 +275,13 @@ mod tests {
     use super::Options;
 
     fn execute<const N: usize>(args: [&str; N]) {
-        Options::parse_from(args).execute();
+        Options::parse_from(args).execute().unwrap()
     }
 
     fn execute_stdin<const N: usize>(args: [&str; N], input: &str) {
         let opts = Options::parse_from(args);
-        let root = opts.parse_input(input);
-        opts.subcmd.execute(&root);
+        let root = opts.parse_input(input).unwrap();
+        opts.subcmd.execute(&root).unwrap()
     }
 
     #[test]
