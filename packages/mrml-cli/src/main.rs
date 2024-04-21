@@ -87,31 +87,25 @@ struct Options {
 }
 
 impl Options {
-    fn read_file(&self, filename: &str) -> String {
+    fn read_file(&self, filename: &str) -> Result<String, String> {
         log::debug!("reading from file {}", filename);
-        let mut file = match File::open(filename) {
-            Ok(inner) => inner,
-            Err(error) => {
-                eprintln!("couldn't open {filename:?}: {error}");
-                std::process::exit(1);
-            }
-        };
+        let mut file =
+            File::open(filename).map_err(|err| format!("couldn't open {filename:?}: {err}"))?;
         let mut content = String::new();
-        if let Err(error) = file.read_to_string(&mut content) {
-            eprintln!("couldn't read {filename:?}: {error}");
-            std::process::exit(1);
-        };
-        content
+        file.read_to_string(&mut content)
+            .map_err(|err| format!("couldn't read {filename:?}: {err}"))?;
+        Ok(content)
     }
 
-    fn read_stdin(&self) -> String {
+    fn read_stdin(&self) -> Result<String, String> {
         log::info!("waiting for input...");
         let mut buffer = String::new();
-        if let Err(error) = std::io::stdin().read_to_string(&mut buffer) {
-            eprintln!("couldn't read stdin: {error}");
-            std::process::exit(1);
-        }
-        buffer
+        std::io::stdin()
+            .read_to_string(&mut buffer)
+            .map_err(|err| {
+                format!("couldn't read stdin: {err}")
+            })?;
+        Ok(buffer)
     }
 
     fn parse_json(&self, input: &str) -> Result<Mjml, String> {
@@ -167,34 +161,21 @@ impl Options {
         Mjml::parse_with_options(input, &options).map_err(format_parser_error)
     }
 
-    fn parse_input(&self, input: &str) -> Mjml {
+    fn parse_input(&self, input: &str) -> Result<Mjml, String> {
         if let Some(ref filename) = self.input {
-            let result = if filename.ends_with(".json") {
+            if filename.ends_with(".json") {
                 self.parse_json(input)
             } else if filename.ends_with(".mjml") {
                 self.parse_mjml(input)
             } else {
                 Err(format!("unable to detect file type for {filename:?}"))
-            };
-            match result {
-                Ok(inner) => inner,
-                Err(error) => {
-                    eprintln!("{error}");
-                    std::process::exit(1);
-                }
             }
         } else {
-            match self.parse_mjml(input).or_else(|_| self.parse_json(input)) {
-                Ok(inner) => inner,
-                Err(err) => {
-                    eprintln!("{err}");
-                    std::process::exit(1);
-                }
-            }
+            self.parse_mjml(input).or_else(|_| self.parse_json(input))
         }
     }
 
-    fn read_input(&self) -> String {
+    fn read_input(&self) -> Result<String, String> {
         if let Some(ref filename) = self.input {
             self.read_file(filename)
         } else {
@@ -202,10 +183,10 @@ impl Options {
         }
     }
 
-    pub fn execute(self) {
-        let root = self.read_input();
-        let root = self.parse_input(&root);
-        self.subcmd.execute(&root);
+    pub fn execute(self) -> Result<(), String> {
+        let root = self.read_input()?;
+        let root = self.parse_input(&root)?;
+        self.subcmd.execute(&root)
     }
 }
 
@@ -222,7 +203,7 @@ enum SubCommand {
 }
 
 impl SubCommand {
-    pub fn execute(self, root: &Mjml) {
+    pub fn execute(self, root: &Mjml) -> Result<(), String> {
         match self {
             Self::FormatJSON(opts) => {
                 log::debug!("format to json");
@@ -250,6 +231,7 @@ impl SubCommand {
             }
             Self::Validate => log::debug!("validate"),
         };
+        Ok(())
     }
 }
 
@@ -282,7 +264,10 @@ impl From<Render> for RenderOptions {
 
 fn main() {
     env_logger::init();
-    Options::parse().execute();
+    if let Err(error) = Options::parse().execute() {
+        eprintln!("{error}");
+        std::process::exit(1);
+    }
 }
 
 #[cfg(test)]
@@ -292,13 +277,13 @@ mod tests {
     use super::Options;
 
     fn execute<const N: usize>(args: [&str; N]) {
-        Options::parse_from(args).execute();
+        Options::parse_from(args).execute().unwrap()
     }
 
     fn execute_stdin<const N: usize>(args: [&str; N], input: &str) {
         let opts = Options::parse_from(args);
-        let root = opts.parse_input(input);
-        opts.subcmd.execute(&root);
+        let root = opts.parse_input(input).unwrap();
+        opts.subcmd.execute(&root).unwrap()
     }
 
     #[test]
