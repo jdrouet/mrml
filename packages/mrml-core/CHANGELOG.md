@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0](https://github.com/jdrouet/mrml/compare/mrml-v3.1.5...mrml-v3.2.0) - 2024-04-21
+
+### Added
+- *(mrml-core)* allow to have comments at root level ([#414](https://github.com/jdrouet/mrml/pull/414))
+
+### Other
+- *(deps)* Bump rustls from 1.0.0-alpha.46 to 1.0.0-alpha.55
+
 ## [3.1.5](https://github.com/jdrouet/mrml/compare/mrml-v3.1.4...mrml-v3.1.5) - 2024-04-13
 
 ### Fixed

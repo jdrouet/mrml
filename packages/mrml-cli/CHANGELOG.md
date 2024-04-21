@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.9](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.5.8...mrml-cli-v1.5.9) - 2024-04-21
+
+### Other
+- updated the following local packages: mrml
+
 ## [1.5.8](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.5.7...mrml-cli-v1.5.8) - 2024-04-20
 
 ### Other
