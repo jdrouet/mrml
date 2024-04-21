@@ -12,9 +12,56 @@ use mrml::prelude::parser::loader::IncludeLoader;
 use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
+use mrml::prelude::parser::Error as ParserError;
 use mrml::prelude::parser::ParserOptions;
 use mrml::prelude::print::Print;
 use mrml::prelude::render::RenderOptions;
+
+fn format_parser_error(error: ParserError) -> String {
+    let msg = match error {
+        ParserError::EndOfStream => String::from("invalid format"),
+        ParserError::UnexpectedAttribute(token) => {
+            format!(
+                "unexpected attribute at position {}:{}",
+                token.start, token.end
+            )
+        }
+        ParserError::UnexpectedElement(token) => {
+            format!(
+                "unexpected element at position {}:{}",
+                token.start, token.end
+            )
+        }
+        ParserError::UnexpectedToken(token) => {
+            format!("unexpected token at position {}:{}", token.start, token.end)
+        }
+        ParserError::InvalidAttribute(token) => {
+            format!(
+                "invalid attribute at position {}:{}",
+                token.start, token.end
+            )
+        }
+        ParserError::InvalidFormat(token) => {
+            format!("invalid format at position {}:{}", token.start, token.end)
+        }
+        ParserError::IncludeLoaderError { position, source } => {
+            format!(
+                "something when wront when loading include at position {}:{}: {source:?}",
+                position.start, position.end
+            )
+        }
+        ParserError::MissingAttribute(name, span) => format!(
+            "missing attribute {name:?} at position {}:{}",
+            span.start, span.end
+        ),
+        ParserError::SizeLimit => String::from("reached the max size limit"),
+        ParserError::NoRootNode => {
+            String::from("couldn't parse document: couldn't find mjml element")
+        }
+        ParserError::ParserError(inner) => format!("something went wront while parsing {inner}"),
+    };
+    format!("couldn't parse document: {msg}")
+}
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
 pub enum HttpLoaderMode {
@@ -42,26 +89,35 @@ struct Options {
 impl Options {
     fn read_file(&self, filename: &str) -> String {
         log::debug!("reading from file {}", filename);
-        let mut file = File::open(filename).expect("couldn't find file");
+        let mut file = match File::open(filename) {
+            Ok(inner) => inner,
+            Err(error) => {
+                eprintln!("couldn't open {filename:?}: {error}");
+                std::process::exit(1);
+            }
+        };
         let mut content = String::new();
-        file.read_to_string(&mut content)
-            .expect("couldn't read file");
+        if let Err(error) = file.read_to_string(&mut content) {
+            eprintln!("couldn't read {filename:?}: {error}");
+            std::process::exit(1);
+        };
         content
     }
 
     fn read_stdin(&self) -> String {
         log::info!("waiting for input...");
         let mut buffer = String::new();
-        std::io::stdin()
-            .read_to_string(&mut buffer)
-            .expect("couldn't read input");
+        if let Err(error) = std::io::stdin().read_to_string(&mut buffer) {
+            eprintln!("couldn't read stdin: {error}");
+            std::process::exit(1);
+        }
         buffer
     }
 
     fn parse_json(&self, input: &str) -> Result<Mjml, String> {
         log::debug!("parsing json input");
         serde_json::from_str::<Mjml>(input)
-            .map_err(|err| format!("unable to parse json: {:?}", err))
+            .map_err(|err| format!("unable to parse json input: {err:?}"))
     }
 
     fn http_include_loader(&self) -> Box<dyn IncludeLoader> {
@@ -81,7 +137,7 @@ impl Options {
                     path.to_path_buf()
                 } else {
                     std::env::current_dir()
-                        .map_err(|err| err.to_string())?
+                        .map_err(|err| format!("unable to detect current directory: {err:?}"))?
                         .join(path)
                 };
                 Some(Box::new(LocalIncludeLoader::new(path)))
@@ -108,23 +164,33 @@ impl Options {
         let options = ParserOptions {
             include_loader: self.include_loader()?,
         };
-        Mjml::parse_with_options(input, &options)
-            .map_err(|err| format!("unable to parse mjml: {:?}", err))
+        Mjml::parse_with_options(input, &options).map_err(format_parser_error)
     }
 
     fn parse_input(&self, input: &str) -> Mjml {
         if let Some(ref filename) = self.input {
-            if filename.ends_with(".json") {
-                self.parse_json(input).unwrap()
+            let result = if filename.ends_with(".json") {
+                self.parse_json(input)
             } else if filename.ends_with(".mjml") {
-                self.parse_mjml(input).unwrap()
+                self.parse_mjml(input)
             } else {
-                panic!("unknown file type");
+                Err(format!("unable to detect file type for {filename:?}"))
+            };
+            match result {
+                Ok(inner) => inner,
+                Err(error) => {
+                    eprintln!("{error}");
+                    std::process::exit(1);
+                }
             }
         } else {
-            self.parse_mjml(input)
-                .or_else(|_| self.parse_json(input))
-                .expect("unable to parse input")
+            match self.parse_mjml(input).or_else(|_| self.parse_json(input)) {
+                Ok(inner) => inner,
+                Err(err) => {
+                    eprintln!("{err}");
+                    std::process::exit(1);
+                }
+            }
         }
     }
 
