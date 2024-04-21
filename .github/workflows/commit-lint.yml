@@ -35,7 +35,7 @@ jobs:
           scopes: |
             deps
             deps-dev
-            mrml-ci
+            mrml-cli
             mrml-core
             mrml-python
             mrml-wasm
