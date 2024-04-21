@@ -12,8 +12,7 @@ use mrml::prelude::parser::loader::IncludeLoader;
 use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
-use mrml::prelude::parser::Error as ParserError;
-use mrml::prelude::parser::ParserOptions;
+use mrml::prelude::parser::{Error as ParserError, ParserOptions};
 use mrml::prelude::print::Print;
 use mrml::prelude::render::RenderOptions;
 
@@ -77,7 +76,8 @@ struct Options {
     /// Path to your mjml file
     #[clap(index = 1)]
     pub input: Option<String>,
-    /// Path to a directory containing templates that can be used with mj-include
+    /// Path to a directory containing templates that can be used with
+    /// mj-include
     #[clap(long)]
     pub local_loader: Option<PathBuf>,
     #[clap(long, action = clap::ArgAction::Append)]
@@ -102,9 +102,7 @@ impl Options {
         let mut buffer = String::new();
         std::io::stdin()
             .read_to_string(&mut buffer)
-            .map_err(|err| {
-                format!("couldn't read stdin: {err}")
-            })?;
+            .map_err(|err| format!("couldn't read stdin: {err}"))?;
         Ok(buffer)
     }
 
