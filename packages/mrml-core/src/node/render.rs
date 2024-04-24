@@ -10,7 +10,7 @@ struct NodeRender<'e, 'h, T> {
     element: &'e Node<T>,
 }
 
-impl<'r, 'e: 'r, 'h: 'r, T> Render<'h> for NodeRender<'e, 'h, T>
+impl<'r, 'e: 'r, 'h: 'r, T> Render<'e, 'h> for NodeRender<'e, 'h, T>
 where
     T: Renderable<'r, 'e, 'h>,
 {
@@ -57,7 +57,7 @@ where
 }
 
 impl<'r, 'e: 'r, 'h: 'r, T: Renderable<'r, 'e, 'h>> Renderable<'r, 'e, 'h> for Node<T> {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(NodeRender::<'e, 'h> {
             element: self,
             header,

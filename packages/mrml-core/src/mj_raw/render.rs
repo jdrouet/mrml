@@ -6,7 +6,7 @@ use crate::helper::size::Pixel;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRawChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         match self {
             Self::Comment(elt) => elt.renderer(header),
             Self::Node(elt) => elt.renderer(header),
@@ -21,7 +21,7 @@ struct MjRawRender<'e, 'h> {
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> Render<'h> for MjRawRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjRawRender<'e, 'h> {
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
@@ -51,7 +51,7 @@ impl<'e, 'h> Render<'h> for MjRawRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRaw {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjRawRender::<'e, 'h> {
             element: self,
             header,

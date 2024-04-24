@@ -5,7 +5,6 @@ use super::{MjTable, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::mj_section::WithMjSectionBackground;
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjTableRender<'e, 'h> {
@@ -14,7 +13,7 @@ struct MjTableRender<'e, 'h> {
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> WithMjSectionBackground<'h> for MjTableRender<'e, 'h> {}
+impl<'e, 'h> WithMjSectionBackground<'e, 'h> for MjTableRender<'e, 'h> {}
 
 impl<'e, 'h> MjTableRender<'e, 'h> {
     fn set_style_table(&self, tag: Tag) -> Tag {
@@ -28,7 +27,7 @@ impl<'e, 'h> MjTableRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjTableRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "align" => Some("left"),
@@ -46,8 +45,8 @@ impl<'e, 'h> Render<'h> for MjTableRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -86,7 +85,7 @@ impl<'e, 'h> Render<'h> for MjTableRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjTable {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjTableRender::<'e, 'h> {
             element: self,
             header,

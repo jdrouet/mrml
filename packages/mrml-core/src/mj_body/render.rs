@@ -5,7 +5,6 @@ use std::rc::Rc;
 use super::MjBody;
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjBodyRender<'e, 'h> {
@@ -73,9 +72,9 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjBodyRender<'e, 'h> {
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn default_attribute(&self, key: &str) -> Option<&str> {
@@ -97,7 +96,7 @@ impl<'e, 'h> Render<'h> for MjBodyRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBody {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjBodyRender::<'e, 'h> {
             element: self,
             header,

@@ -6,7 +6,6 @@ use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjWrapperRender<'e, 'h> {
@@ -25,9 +24,9 @@ impl<'e, 'h> MjWrapperRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> WithMjSectionBackground<'h> for MjWrapperRender<'e, 'h> {}
+impl<'e, 'h> WithMjSectionBackground<'e, 'h> for MjWrapperRender<'e, 'h> {}
 
-impl<'e, 'h> SectionLikeRender<'h> for MjWrapperRender<'e, 'h> {
+impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
     fn clone_header(&self) -> Rc<RefCell<Header<'h>>> {
         Rc::clone(&self.header)
     }
@@ -73,7 +72,7 @@ impl<'e, 'h> SectionLikeRender<'h> for MjWrapperRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjWrapperRender<'e, 'h> {
+impl<'r, 'e: 'r, 'h: 'r> Render<'e, 'h> for MjWrapperRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "background-position" => Some("top center"),
@@ -87,8 +86,8 @@ impl<'e, 'h> Render<'h> for MjWrapperRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -113,7 +112,7 @@ impl<'e, 'h> Render<'h> for MjWrapperRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjWrapper {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjWrapperRender::<'e, 'h> {
             element: self,
             header,

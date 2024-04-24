@@ -238,7 +238,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "direction" => Some("ltr"),
@@ -251,12 +251,12 @@ impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
         self.current_width().map(Size::Pixel)
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn extra_attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.extra)
+    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
+        self.extra.get(key).map(|v| v.as_str())
     }
 
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
@@ -310,7 +310,7 @@ impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjColumn {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjColumnRender::<'e, 'h> {
             element: self,
             header,

@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjIncludeBody, MjIncludeBodyChild};
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 impl MjIncludeBodyChild {
@@ -31,12 +30,12 @@ impl MjIncludeBodyChild {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjIncludeBodyChild {
+impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjIncludeBodyChild {
     fn is_raw(&self) -> bool {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         self.as_renderable().renderer(header)
     }
 }
@@ -46,12 +45,12 @@ struct MjIncludeBodyRender<'e, 'h> {
     element: &'e MjIncludeBody,
 }
 
-impl<'e, 'h> Render<'h> for MjIncludeBodyRender<'e, 'h> {
-    fn attributes(&self) -> Option<&Map<String, String>> {
+impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
+    fn raw_attribute(&self, _: &str) -> Option<&'e str> {
         None
     }
 
-    fn default_attribute(&self, _key: &str) -> Option<&str> {
+    fn default_attribute(&self, _: &str) -> Option<&str> {
         None
     }
 
@@ -72,7 +71,7 @@ impl<'e, 'h> Render<'h> for MjIncludeBodyRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjIncludeBody {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjIncludeBodyRender::<'e, 'h> {
             element: self,
             header,

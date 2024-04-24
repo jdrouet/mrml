@@ -197,17 +197,17 @@ impl<'h> Header<'h> {
     }
 }
 
-pub trait Render<'header> {
+pub trait Render<'element, 'header> {
     fn header(&self) -> Ref<Header<'header>>;
     fn tag(&self) -> Option<&str> {
         None
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
+    fn raw_attribute(&self, _: &str) -> Option<&'element str> {
         None
     }
 
-    fn extra_attributes(&self) -> Option<&Map<String, String>> {
+    fn raw_extra_attribute(&self, _: &str) -> Option<&str> {
         None
     }
 
@@ -317,24 +317,20 @@ pub trait Render<'header> {
     }
 
     fn attribute(&self, key: &str) -> Option<String> {
-        if let Some(value) = self.attributes().and_then(|attrs| attrs.get(key)) {
-            return Some(value.clone());
+        if let Some(value) = self.raw_attribute(key) {
+            return Some(value.to_string());
         }
-        if let Some(value) = self.extra_attributes().and_then(|attrs| attrs.get(key)) {
-            return Some(value.clone());
+        if let Some(value) = self.raw_extra_attribute(key) {
+            return Some(value.to_string());
         }
         let header = self.header();
-        if let Some(value) = self
-            .attributes()
-            .and_then(|attrs| attrs.get("mj-class"))
-            .and_then(|mj_classes| {
-                mj_classes
-                    .split(' ')
-                    .map(|mj_class| mj_class.trim())
-                    .filter_map(|mj_class| header.attribute_class(mj_class, key))
-                    .next()
-            })
-        {
+        if let Some(value) = self.raw_attribute("mj-class").and_then(|mj_classes| {
+            mj_classes
+                .split(' ')
+                .map(|mj_class| mj_class.trim())
+                .filter_map(|mj_class| header.attribute_class(mj_class, key))
+                .next()
+        }) {
             return Some(value.to_string());
         }
         if let Some(tag) = self.tag() {
@@ -392,7 +388,7 @@ pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
     fn renderer(
         &'element self,
         header: Rc<RefCell<Header<'header>>>,
-    ) -> Box<dyn Render<'header> + 'render>;
+    ) -> Box<dyn Render<'element, 'header> + 'render>;
 }
 
 #[cfg(test)]

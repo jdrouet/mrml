@@ -283,7 +283,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjHeadRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjHeadRender<'e, 'h> {
     fn header(&self) -> Ref<Header<'h>> {
         self.header.borrow()
     }
@@ -315,7 +315,7 @@ impl<'e, 'h> Render<'h> for MjHeadRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHead {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjHeadRender::<'e, 'h> {
             element: self,
             header,

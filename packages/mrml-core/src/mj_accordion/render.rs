@@ -4,7 +4,6 @@ use std::rc::Rc;
 use super::{MjAccordion, MjAccordionChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
@@ -54,7 +53,7 @@ impl<'e, 'h> MjAccordionRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjAccordionRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "border" => Some("2px solid black"),
@@ -72,8 +71,8 @@ impl<'e, 'h> Render<'h> for MjAccordionRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -130,7 +129,7 @@ impl<'e, 'h> Render<'h> for MjAccordionRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordion {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjAccordionRender::<'e, 'h> {
             element: self,
             header,
@@ -142,7 +141,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordion {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         match self {
             Self::MjAccordionElement(elt) => elt.renderer(header),
             Self::Comment(elt) => elt.renderer(header),

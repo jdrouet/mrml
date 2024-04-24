@@ -67,13 +67,13 @@ impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjAccordionTitleRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
         self.extra.insert(key.to_string(), value.to_string());
     }
 
-    fn extra_attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.extra)
+    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
+        self.extra.get(key).map(|v| v.as_str())
     }
 
     fn default_attribute(&self, name: &str) -> Option<&str> {
@@ -84,8 +84,8 @@ impl<'e, 'h> Render<'h> for MjAccordionTitleRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -119,7 +119,7 @@ impl<'e, 'h> Render<'h> for MjAccordionTitleRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionTitle {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjAccordionTitleRender::<'e, 'h> {
             element: self,
             header,

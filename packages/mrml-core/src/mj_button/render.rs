@@ -4,7 +4,6 @@ use std::rc::Rc;
 use super::{MjButton, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjButtonRender<'e, 'h> {
@@ -88,7 +87,7 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjButtonRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "align" => Some("center"),
@@ -110,8 +109,8 @@ impl<'e, 'h> Render<'h> for MjButtonRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -153,7 +152,7 @@ impl<'e, 'h> Render<'h> for MjButtonRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjButton {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjButtonRender::<'e, 'h> {
             element: self,
             header,

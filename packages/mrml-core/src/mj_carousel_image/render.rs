@@ -131,7 +131,7 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjCarouselImageRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "target" => Some("_blank"),
@@ -143,12 +143,12 @@ impl<'e, 'h> Render<'h> for MjCarouselImageRender<'e, 'h> {
         self.extra.insert(key.to_string(), value.to_string());
     }
 
-    fn extra_attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.extra)
+    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
+        self.extra.get(key).map(|v| v.as_str())
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -215,7 +215,7 @@ impl<'e, 'h> Render<'h> for MjCarouselImageRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarouselImage {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjCarouselImageRender::<'e, 'h> {
             element: self,
             header,

@@ -9,7 +9,7 @@ struct CommentRender<'e, 'h> {
     element: &'e Comment,
 }
 
-impl<'e, 'h> Render<'h> for CommentRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for CommentRender<'e, 'h> {
     fn header(&self) -> Ref<Header<'h>> {
         self.header.borrow()
     }
@@ -28,7 +28,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Comment {
         true
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(CommentRender::<'e, 'h> {
             element: self,
             header,

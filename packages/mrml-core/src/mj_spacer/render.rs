@@ -4,7 +4,6 @@ use std::rc::Rc;
 use super::{MjSpacer, NAME};
 use crate::helper::size::Pixel;
 use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 struct MjSpacerRender<'e, 'h> {
@@ -13,7 +12,7 @@ struct MjSpacerRender<'e, 'h> {
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> Render<'h> for MjSpacerRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
     fn default_attribute(&self, key: &str) -> Option<&str> {
         match key {
             "height" => Some("20px"),
@@ -21,8 +20,8 @@ impl<'e, 'h> Render<'h> for MjSpacerRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -46,7 +45,7 @@ impl<'e, 'h> Render<'h> for MjSpacerRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSpacer {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjSpacerRender::<'e, 'h> {
             element: self,
             header,

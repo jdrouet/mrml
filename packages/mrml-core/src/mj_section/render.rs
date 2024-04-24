@@ -6,7 +6,6 @@ use super::{MjSection, NAME};
 use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Percent, Pixel};
 use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 fn is_horizontal_position(value: &str) -> bool {
@@ -17,7 +16,7 @@ fn is_vertical_position(value: &str) -> bool {
     value == "top" || value == "bottom" || value == "center"
 }
 
-pub trait WithMjSectionBackground<'h>: Render<'h> {
+pub trait WithMjSectionBackground<'e, 'h>: Render<'e, 'h> {
     fn has_background(&self) -> bool {
         self.attribute_exists("background-url")
     }
@@ -196,7 +195,7 @@ pub trait WithMjSectionBackground<'h>: Render<'h> {
     }
 }
 
-pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
+pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
     fn clone_header(&self) -> Rc<RefCell<Header<'h>>>;
     fn container_width(&self) -> &Option<Pixel>;
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild>;
@@ -434,8 +433,8 @@ struct MjSectionRender<'e, 'h> {
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> WithMjSectionBackground<'h> for MjSectionRender<'e, 'h> {}
-impl<'e, 'h> SectionLikeRender<'h> for MjSectionRender<'e, 'h> {
+impl<'e, 'h> WithMjSectionBackground<'e, 'h> for MjSectionRender<'e, 'h> {}
+impl<'e, 'h> SectionLikeRender<'e, 'h> for MjSectionRender<'e, 'h> {
     fn clone_header(&self) -> Rc<RefCell<Header<'h>>> {
         Rc::clone(&self.header)
     }
@@ -449,7 +448,7 @@ impl<'e, 'h> SectionLikeRender<'h> for MjSectionRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjSectionRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjSectionRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "background-position" => Some("top center"),
@@ -463,8 +462,8 @@ impl<'e, 'h> Render<'h> for MjSectionRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -489,7 +488,7 @@ impl<'e, 'h> Render<'h> for MjSectionRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjSectionRender::<'e, 'h> {
             element: self,
             header,

@@ -5,11 +5,10 @@ use super::{MjNavbar, MjNavbarChild, NAME};
 use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         match self {
             Self::MjNavbarLink(elt) => elt.renderer(header),
             Self::Comment(elt) => elt.renderer(header),
@@ -126,7 +125,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
     fn default_attribute(&self, name: &str) -> Option<&str> {
         match name {
             "align" => Some("center"),
@@ -144,8 +143,8 @@ impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -201,7 +200,7 @@ impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         let id = header.borrow().next_id();
         Box::new(MjNavbarRender::<'e, 'h> {
             element: self,

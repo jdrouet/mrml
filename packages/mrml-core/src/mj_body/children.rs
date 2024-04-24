@@ -82,12 +82,12 @@ impl MjBodyChild {
 }
 
 #[cfg(feature = "render")]
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBodyChild {
+impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjBodyChild {
     fn is_raw(&self) -> bool {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
         self.as_renderable().renderer(header)
     }
 }
