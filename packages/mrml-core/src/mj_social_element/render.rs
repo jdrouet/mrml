@@ -162,7 +162,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("left"),
             "color" => Some("#000"),

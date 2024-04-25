@@ -39,7 +39,7 @@ impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "line-height" => Some("1"),
             "font-size" => Some("13px"),

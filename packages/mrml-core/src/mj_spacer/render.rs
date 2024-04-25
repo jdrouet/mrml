@@ -13,7 +13,7 @@ struct MjSpacerRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "height" => Some("20px"),
             _ => None,

@@ -28,7 +28,7 @@ impl<'e, 'h> MjTableRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("left"),
             "border" => Some("none"),

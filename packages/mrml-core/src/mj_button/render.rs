@@ -88,7 +88,7 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
             "background-color" => Some("#414141"),

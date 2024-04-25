@@ -132,7 +132,7 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "target" => Some("_blank"),
             _ => None,

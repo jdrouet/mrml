@@ -391,7 +391,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjCarouselRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
             "border-radius" => Some("6px"),

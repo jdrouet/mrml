@@ -76,7 +76,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
         self.extra.get(key).map(|v| v.as_str())
     }
 
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "font-size" => Some("13px"),
             "padding" => Some("16px"),

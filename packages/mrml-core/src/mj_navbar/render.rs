@@ -126,7 +126,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
             "ico-align" => Some("center"),

@@ -54,7 +54,7 @@ impl<'e, 'h> MjAccordionRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "border" => Some("2px solid black"),
             "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif"),

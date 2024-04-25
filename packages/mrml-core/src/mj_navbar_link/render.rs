@@ -72,7 +72,7 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "color" => Some("#000000"),
             "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif"),

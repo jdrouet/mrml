@@ -239,7 +239,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
             "vertical-align" => Some("top"),

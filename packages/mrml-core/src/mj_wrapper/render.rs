@@ -73,7 +73,7 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Render<'e, 'h> for MjWrapperRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-position" => Some("top center"),
             "background-repeat" => Some("repeat"),

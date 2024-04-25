@@ -124,7 +124,7 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
             "border-radius" => Some("3px"),

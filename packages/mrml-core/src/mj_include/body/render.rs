@@ -50,7 +50,7 @@ impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
         None
     }
 
-    fn default_attribute(&self, _: &str) -> Option<&str> {
+    fn default_attribute(&self, _: &str) -> Option<&'static str> {
         None
     }
 

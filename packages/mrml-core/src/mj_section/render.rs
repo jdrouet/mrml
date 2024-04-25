@@ -449,7 +449,7 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjSectionRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjSectionRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-position" => Some("top center"),
             "background-repeat" => Some("repeat"),

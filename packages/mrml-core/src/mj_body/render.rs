@@ -77,7 +77,7 @@ impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "width" => Some("600px"),
             _ => None,

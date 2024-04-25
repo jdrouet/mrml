@@ -312,7 +312,7 @@ pub trait Render<'element, 'header> {
         self.attribute_as_size("width")
     }
 
-    fn default_attribute(&self, _key: &str) -> Option<&str> {
+    fn default_attribute(&self, _key: &str) -> Option<&'static str> {
         None
     }
 

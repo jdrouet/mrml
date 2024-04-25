@@ -68,7 +68,7 @@ impl<'e, 'h> MjDividerRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjDividerRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
             "border-color" => Some("#000000"),

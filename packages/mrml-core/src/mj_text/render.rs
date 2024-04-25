@@ -52,7 +52,7 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjTextRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("left"),
             "color" => Some("#000000"),

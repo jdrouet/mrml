@@ -133,7 +133,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
             "border" => Some("0"),

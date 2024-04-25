@@ -119,7 +119,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
             _ => None,
