@@ -2,9 +2,8 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjAccordionText, NAME};
-use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 struct MjAccordionTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

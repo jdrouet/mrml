@@ -8,5 +8,3 @@ pub mod sort;
 pub mod spacing;
 #[cfg(feature = "render")]
 pub mod style;
-#[cfg(feature = "render")]
-pub mod tag;

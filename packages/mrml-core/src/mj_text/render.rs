@@ -3,8 +3,7 @@ use std::rc::Rc;
 
 use super::{MjText, NAME};
 use crate::helper::condition::conditional_tag;
-use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 struct MjTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

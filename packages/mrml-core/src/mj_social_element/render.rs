@@ -4,9 +4,8 @@ use std::rc::Rc;
 use super::network::SocialNetwork;
 use super::{MjSocialElement, NAME};
 use crate::helper::size::{Pixel, Size};
-use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 

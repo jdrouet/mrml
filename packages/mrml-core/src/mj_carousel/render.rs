@@ -5,8 +5,7 @@ use super::{MjCarousel, MjCarouselChild, NAME};
 use crate::helper::condition::{mso_conditional_tag, mso_negation_conditional_tag};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::style::Style;
-use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarouselChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {

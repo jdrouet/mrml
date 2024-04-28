@@ -5,8 +5,7 @@ use std::rc::Rc;
 use super::{MjSection, NAME};
 use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Percent, Pixel};
-use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 fn is_horizontal_position(value: &str) -> bool {
     value == "left" || value == "right" || value == "center"

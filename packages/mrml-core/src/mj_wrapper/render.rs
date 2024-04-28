@@ -4,9 +4,8 @@ use std::rc::Rc;
 use super::{MjWrapper, NAME};
 use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
-use crate::helper::tag::Tag;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 struct MjWrapperRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

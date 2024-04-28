@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 
+use super::RenderBuffer;
 use crate::prelude::hash::{Map, Set};
 
 pub struct Tag {
@@ -51,7 +52,7 @@ impl Tag {
     }
 
     pub fn add_suffixed_class<T: AsRef<str>>(self, value: T, suffix: &str) -> Self {
-        self.add_class(format!("{}-{}", value.as_ref(), suffix))
+        self.add_class(format!("{}-{suffix}", value.as_ref()))
     }
 
     pub fn maybe_add_suffixed_class<T: AsRef<str>>(self, value: Option<T>, suffix: &str) -> Self {
@@ -113,51 +114,87 @@ impl Tag {
     }
 
     fn opening(&self) -> String {
-        let mut res = String::from("<");
-        res.push_str(&self.name);
-        for (key, value) in self.attributes.iter() {
-            res.push(' ');
-            res.push_str(key);
-            res.push_str("=\"");
-            res.push_str(value);
-            res.push('"');
-        }
-        if !self.classes.is_empty() {
-            res.push_str(" class=\"");
-            for (index, classname) in self.classes.iter().enumerate() {
-                if index > 0 {
-                    res.push(' ');
-                }
-                res.push_str(classname);
-            }
-            res.push('"');
-        }
-        if !self.styles.is_empty() {
-            res.push_str(" style=\"");
-            for (key, value) in self.styles.iter() {
-                res.push_str(key);
-                res.push(':');
-                res.push_str(value);
-                res.push(';');
-            }
-            res.push('"');
-        }
+        let mut res = String::new();
+        self.render_opening(&mut res);
         res
     }
 
+    fn render_opening(&self, b: &mut RenderBuffer) {
+        b.push('<');
+        b.push_str(&self.name);
+        for (key, value) in self.attributes.iter() {
+            b.push(' ');
+            b.push_str(key);
+            b.push_str("=\"");
+            b.push_str(value);
+            b.push('"');
+        }
+        if !self.classes.is_empty() {
+            b.push_str(" class=\"");
+            for (index, classname) in self.classes.iter().enumerate() {
+                if index > 0 {
+                    b.push(' ');
+                }
+                b.push_str(classname);
+            }
+            b.push('"');
+        }
+        if !self.styles.is_empty() {
+            b.push_str(" style=\"");
+            for (key, value) in self.styles.iter() {
+                b.push_str(key);
+                b.push(':');
+                b.push_str(value);
+                b.push(';');
+            }
+            b.push('"');
+        }
+    }
+
     pub fn open(&self) -> String {
-        self.opening() + ">"
+        let mut buffer = String::new();
+        self.render_open(&mut buffer);
+        buffer
+    }
+
+    pub fn render_open(&self, b: &mut RenderBuffer) {
+        self.render_opening(b);
+        b.push('>');
     }
 
     pub fn close(&self) -> String {
         format!("</{}>", self.name)
     }
 
+    pub fn render_close(&self, b: &mut RenderBuffer) {
+        b.push_str("</");
+        b.push_str(self.name.as_ref());
+        b.push('>');
+    }
+
     pub fn closed(&self) -> String {
         self.opening() + " />"
     }
 
+    pub fn render_closed(&self, b: &mut RenderBuffer) {
+        self.render_opening(b);
+        b.push_str(" />");
+    }
+
+    pub fn render_with<F>(&self, buf: &mut RenderBuffer, cb: F)
+    where
+        F: FnOnce(&mut RenderBuffer),
+    {
+        self.render_open(buf);
+        cb(buf);
+        self.render_close(buf);
+    }
+
     pub fn render<T: AsRef<str>>(&self, input: T) -> String {
-        self.open() + input.as_ref() + &self.close()
+        let mut buf = String::default();
+        self.render_open(&mut buf);
+        buf.push_str(input.as_ref());
+        self.render_close(&mut buf);
+        buf
     }
 }

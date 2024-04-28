@@ -3,8 +3,7 @@ use std::rc::Rc;
 
 use super::{MjAccordion, MjAccordionChild, NAME};
 use crate::helper::size::{Pixel, Size};
-use crate::helper::tag::Tag;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",

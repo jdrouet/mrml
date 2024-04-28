@@ -4,9 +4,8 @@ use std::rc::Rc;
 use super::{MjNavbarLink, NAME};
 use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
-use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 struct MjNavbarLinkRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,

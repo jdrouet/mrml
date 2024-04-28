@@ -3,11 +3,10 @@ use std::rc::Rc;
 
 use super::{MjAccordionElement, NAME};
 use crate::helper::condition::negation_conditional_tag;
-use crate::helper::tag::Tag;
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
