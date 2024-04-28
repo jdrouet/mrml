@@ -190,6 +190,12 @@ impl Tag {
         self.render_close(buf);
     }
 
+    pub fn render_text(&self, buf: &mut RenderBuffer, value: &str) {
+        self.render_open(buf);
+        buf.push_str(value);
+        self.render_close(buf);
+    }
+
     pub fn render<T: AsRef<str>>(&self, input: T) -> String {
         let mut buf = String::default();
         self.render_open(&mut buf);

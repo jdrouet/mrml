@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use super::MjBody;
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjBodyRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -31,7 +31,7 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
     }
 
-    fn render_preview(&self) -> String {
+    fn render_preview(&self, buf: &mut RenderBuffer) {
         if let Some(value) = self
             .header
             .borrow()
@@ -40,19 +40,17 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
             .and_then(|h| h.preview())
             .map(|p| p.content())
         {
-            String::from(
-                r#"<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">"#,
-            ) + value
-                + "</div>"
-        } else {
-            String::default()
+            buf.push_str(r#"<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">"#);
+            buf.push_str(value);
+            buf.push_str("</div>");
         }
     }
 
-    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_content(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
-        let mut children = String::default();
+
+        div.render_open(buf);
         let raw_siblings = self
             .element
             .children
@@ -65,9 +63,10 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(self.element.children.len());
-            children.push_str(&renderer.render(opts)?);
+            renderer.render(opts, buf)?;
         }
-        Ok(div.render(children))
+        div.render_close(buf);
+        Ok(())
     }
 }
 
@@ -87,10 +86,13 @@ impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let body = self.get_body_tag();
-        let result = body.render(self.render_preview() + &self.render_content(opts)?);
-        Ok(result)
+        body.render_open(buf);
+        self.render_preview(buf);
+        self.render_content(opts, buf)?;
+        body.render_close(buf);
+        Ok(())
     }
 }
 

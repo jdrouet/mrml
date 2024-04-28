@@ -2,9 +2,9 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjGroup, NAME};
-use crate::helper::condition::conditional_tag;
+use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Pixel, Size};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjGroupRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -76,7 +76,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             .add_style("width", self.current_width().to_string())
     }
 
-    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_children(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let current_width = self.current_width();
         let siblings = self.element.children.len();
         let raw_siblings = self
@@ -85,35 +85,38 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             .iter()
             .filter(|item| item.is_raw())
             .count();
-        self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                renderer.set_siblings(siblings);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_container_width(Some(current_width.clone()));
-                renderer.add_extra_attribute("mobile-width", "mobile-width");
-                let result = if child.is_raw() {
-                    renderer.render(opts)?
-                } else {
-                    let td = Tag::td()
-                        .maybe_add_style("align", renderer.attribute("align"))
-                        .maybe_add_style("vertical-align", renderer.attribute("vertical-align"))
-                        .maybe_add_style(
-                            "width",
-                            renderer
-                                .get_width()
-                                .map(|w| w.to_string())
-                                .or_else(|| renderer.attribute("width")),
-                        );
-                    conditional_tag(td.open())
-                        + &renderer.render(opts)?
-                        + &conditional_tag(td.close())
-                };
-                Ok(res + &result)
-            },
-        )
+
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_index(index);
+            renderer.set_siblings(siblings);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_container_width(Some(current_width.clone()));
+            renderer.add_extra_attribute("mobile-width", "mobile-width");
+            if child.is_raw() {
+                renderer.render(opts, buf)?;
+            } else {
+                let td = Tag::td()
+                    .maybe_add_style("align", renderer.attribute("align"))
+                    .maybe_add_style("vertical-align", renderer.attribute("vertical-align"))
+                    .maybe_add_style(
+                        "width",
+                        renderer
+                            .get_width()
+                            .map(|w| w.to_string())
+                            .or_else(|| renderer.attribute("width")),
+                    );
+
+                buf.push_str(START_CONDITIONAL_TAG);
+                td.render_open(buf);
+                buf.push_str(END_CONDITIONAL_TAG);
+                renderer.render(opts, buf)?;
+                buf.push_str(START_CONDITIONAL_TAG);
+                td.render_close(buf);
+                buf.push_str(END_CONDITIONAL_TAG);
+            }
+        }
+        Ok(())
     }
 }
 
@@ -160,7 +163,7 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         }
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
         self.header
             .borrow_mut()
@@ -181,10 +184,20 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
             }),
         );
         let tr = Tag::tr();
-        let content = conditional_tag(table.open() + &tr.open())
-            + &self.render_children(opts)?
-            + &conditional_tag(tr.close() + &table.close());
-        Ok(div.render(content))
+
+        div.render_open(buf);
+        buf.push_str(START_CONDITIONAL_TAG);
+        table.render_open(buf);
+        tr.render_open(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        self.render_children(opts, buf)?;
+        buf.push_str(START_CONDITIONAL_TAG);
+        tr.render_close(buf);
+        table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        div.render_close(buf);
+
+        Ok(())
     }
 }
 

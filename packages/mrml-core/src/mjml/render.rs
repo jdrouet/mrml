@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::Mjml;
 use crate::mj_head::MjHead;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
 
 pub struct MjmlRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -15,13 +15,15 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let body_content = if let Some(body) = self.element.body() {
-            body.renderer(Rc::clone(&self.header)).render(opts)?
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        let mut body_buf = RenderBuffer::default();
+        if let Some(body) = self.element.body() {
+            body.renderer(Rc::clone(&self.header))
+                .render(opts, &mut body_buf)?;
         } else {
-            String::from("<body></body>")
-        };
-        let mut buf = String::from("<!doctype html>");
+            body_buf.push_str("<body></body>");
+        }
+        buf.push_str("<!doctype html>");
         buf.push_str("<html ");
         if let Some(ref lang) = self.element.attributes.lang {
             buf.push_str("lang=\"");
@@ -30,17 +32,15 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
         }
         buf.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
         if let Some(head) = self.element.head() {
-            buf.push_str(&head.renderer(Rc::clone(&self.header)).render(opts)?);
+            head.renderer(Rc::clone(&self.header)).render(opts, buf)?;
         } else {
-            buf.push_str(
-                &MjHead::default()
-                    .renderer(Rc::clone(&self.header))
-                    .render(opts)?,
-            );
+            MjHead::default()
+                .renderer(Rc::clone(&self.header))
+                .render(opts, buf)?;
         }
-        buf.push_str(&body_content);
+        buf.push_str(body_buf.as_str());
         buf.push_str("</html>");
-        Ok(buf)
+        Ok(())
     }
 }
 
@@ -58,7 +58,9 @@ impl Mjml {
         let mut header = Header::new(&self.children.head);
         header.maybe_set_lang(self.attributes.lang.clone());
         let header = Rc::new(RefCell::new(header));
-        self.renderer(header).render(opts)
+        let mut buf = RenderBuffer::default();
+        self.renderer(header).render(opts, &mut buf)?;
+        Ok(buf)
     }
 
     pub fn get_title(&self) -> Option<String> {

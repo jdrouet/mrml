@@ -2,9 +2,12 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjNavbar, MjNavbarChild, NAME};
-use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
+use crate::helper::condition::{
+    END_CONDITIONAL_TAG, END_NEGATION_CONDITIONAL_TAG, START_CONDITIONAL_TAG,
+    START_MSO_NEGATION_CONDITIONAL_TAG,
+};
 use crate::helper::size::{Pixel, Size};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
@@ -79,7 +82,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .is_some()
     }
 
-    fn render_hamburger(&self) -> String {
+    fn render_hamburger(&self, buf: &mut RenderBuffer) {
         let input = self
             .set_style_input(Tag::new("input"))
             .add_class("mj-menu-checkbox")
@@ -99,10 +102,27 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
         let span_close = self
             .set_style_ico_close(Tag::new("span"))
             .add_class("mj-menu-icon-close");
-        let content = span_open.render(self.attribute("ico-open").unwrap_or_default())
-            + &span_close.render(self.attribute("ico-close").unwrap_or_default());
-        let content = div.render(label.render(content));
-        mso_negation_conditional_tag(input.closed()) + &content
+
+        buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
+        input.render_closed(buf);
+        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
+
+        div.render_open(buf);
+        label.render_open(buf);
+
+        span_open.render_open(buf);
+        if let Some(attr) = self.attribute("ico-open") {
+            buf.push_str(&attr);
+        }
+        span_open.render_close(buf);
+        span_close.render_open(buf);
+        if let Some(attr) = self.attribute("ico-close") {
+            buf.push_str(&attr);
+        }
+        span_close.render_close(buf);
+
+        label.render_close(buf);
+        div.render_close(buf);
     }
 
     fn update_header(&self) {
@@ -172,29 +192,36 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         self.update_header();
         let div = Tag::div().add_class("mj-inline-links");
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
         let base_url = self.attribute("base-url");
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.maybe_add_extra_attribute("navbar-base-url", base_url.clone());
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        let before = conditional_tag(table.open() + &tr.open());
-        let after = conditional_tag(tr.close() + &table.close());
-        let content = div.render(before + &content + &after);
+
         if self.has_hamburger() {
-            Ok(self.render_hamburger() + &content)
-        } else {
-            Ok(content)
+            self.render_hamburger(buf);
         }
+
+        div.render_open(buf);
+        buf.push_str(START_CONDITIONAL_TAG);
+        table.render_open(buf);
+        tr.render_open(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+
+        for child in self.element.children.iter() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.maybe_add_extra_attribute("navbar-base-url", base_url.clone());
+            renderer.render(opts, buf)?;
+        }
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        tr.render_close(buf);
+        table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        div.render_close(buf);
+
+        Ok(())
     }
 }
 

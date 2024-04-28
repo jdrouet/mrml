@@ -4,7 +4,7 @@ use std::rc::Rc;
 use super::{MjCarouselImage, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjCarouselImageRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -45,7 +45,7 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
             .add_style("height", "auto")
     }
 
-    fn render_radio(&self) -> String {
+    fn render_radio(&self, buf: &mut RenderBuffer) {
         self.set_style_radio_input(Tag::new("input"))
             .add_class("mj-carousel-radio")
             .maybe_add_class(
@@ -79,10 +79,10 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
                     .get("carousel-id")
                     .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
             )
-            .closed()
+            .render_closed(buf);
     }
 
-    pub fn render_thumbnail(&self) -> Result<String, Error> {
+    pub fn render_thumbnail(&self, buf: &mut RenderBuffer) -> Result<(), Error> {
         let img = self
             .set_style_thumbnails_img(Tag::new("img"))
             .maybe_add_attribute(
@@ -96,17 +96,14 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
                 self.container_width
                     .as_ref()
                     .map(|item| item.value().to_string()),
-            )
-            .closed();
-        let label = Tag::new("label")
-            .maybe_add_attribute(
-                "for",
-                self.extra
-                    .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
-            )
-            .render(img);
-        Ok(self
+            );
+        let label = Tag::new("label").maybe_add_attribute(
+            "for",
+            self.extra
+                .get("carousel-id")
+                .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
+        );
+        let link = self
             .set_style_thumbnails_a(Tag::new("a"))
             .add_attribute("href", format!("#{}", self.index + 1))
             .maybe_add_attribute("target", self.attribute("target"))
@@ -125,8 +122,15 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
             .maybe_add_style(
                 "width",
                 self.container_width.as_ref().map(|item| item.to_string()),
-            )
-            .render(label))
+            );
+
+        link.render_open(buf);
+        label.render_open(buf);
+        img.render_closed(buf);
+        label.render_close(buf);
+        link.render_close(buf);
+
+        Ok(())
     }
 }
 
@@ -166,16 +170,21 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render_fragment(&self, name: &str, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_fragment(
+        &self,
+        name: &str,
+        opts: &RenderOptions,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         match name {
-            "main" => self.render(opts),
-            "radio" => Ok(self.render_radio()),
-            "thumbnail" => self.render_thumbnail(),
+            "main" => self.render(opts, buf),
+            "radio" => Ok(self.render_radio(buf)),
+            "thumbnail" => self.render_thumbnail(buf),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let img = self
             .set_style_images_img(Tag::new("img"))
             .add_attribute("border", "0")
@@ -187,16 +196,7 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
                 self.container_width
                     .as_ref()
                     .map(|width| width.value().to_string()),
-            )
-            .closed();
-        let link = match self.attribute("href") {
-            None => img,
-            Some(href) => Tag::new("a")
-                .add_attribute("href", href)
-                .maybe_add_attribute("rel", self.attribute("rel"))
-                .add_attribute("target", "_blank")
-                .render(img),
-        };
+            );
         let div = if self.index == 0 {
             Tag::div()
         } else {
@@ -207,9 +207,23 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
         let div = div
             .add_class("mj-carousel-image")
             .add_class(format!("mj-carousel-image-{}", self.index + 1))
-            .maybe_add_class(self.attribute("css-class"))
-            .render(link);
-        Ok(div)
+            .maybe_add_class(self.attribute("css-class"));
+
+        div.render_open(buf);
+        if let Some(href) = self.attribute("href") {
+            let link = Tag::new("a")
+                .add_attribute("href", href)
+                .maybe_add_attribute("rel", self.attribute("rel"))
+                .add_attribute("target", "_blank");
+            link.render_open(buf);
+            img.render_closed(buf);
+            link.render_close(buf);
+        } else {
+            img.render_closed(buf);
+        }
+        div.render_close(buf);
+
+        Ok(())
     }
 }
 

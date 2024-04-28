@@ -2,8 +2,8 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjText, NAME};
-use crate::helper::condition::conditional_tag;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -25,28 +25,42 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
             .maybe_add_style("height", self.attribute("height"))
     }
 
-    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let res = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        Ok(self.set_style_text(Tag::div()).render(res))
+    fn render_content(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        let root = self.set_style_text(Tag::div());
+        root.render_open(buf);
+        for child in self.element.children.iter() {
+            let renderer = child.renderer(Rc::clone(&self.header));
+            renderer.render(opts, buf)?;
+        }
+        root.render_close(buf);
+        Ok(())
     }
 
-    fn render_with_height(&self, height: &str, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_with_height(
+        &self,
+        height: &str,
+        opts: &RenderOptions,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
             .add_attribute("height", height.to_owned())
             .add_style("vertical-align", "top")
             .add_style("height", height.to_owned());
-        Ok(conditional_tag(table.open() + &tr.open() + &td.open())
-            + &self.render_content(opts)?
-            + &conditional_tag(td.close() + &tr.close() + &table.close()))
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        table.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        self.render_content(opts, buf)?;
+        buf.push_str(START_CONDITIONAL_TAG);
+        td.render_close(buf);
+        tr.render_close(buf);
+        table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        Ok(())
     }
 }
 
@@ -75,15 +89,15 @@ impl<'e, 'h> Render<'e, 'h> for MjTextRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
         self.header
             .borrow_mut()
             .maybe_add_font_families(font_family);
         if let Some(ref height) = self.attribute("height") {
-            self.render_with_height(height, opts)
+            self.render_with_height(height, opts, buf)
         } else {
-            self.render_content(opts)
+            self.render_content(opts, buf)
         }
     }
 }

@@ -418,7 +418,7 @@ pub fn compare<'a>(expected: &'a str, generated: &'a str) -> Result<(), Error<'a
 
 pub fn assert_similar(expected: &str, generated: &str) {
     if let Err(error) = compare(expected, generated) {
-        panic!("{error}");
+        panic!("{error}\n\n## EXPECTED\n\n{expected}\n\n## GENERATED\n\n{generated}");
     }
 }
 

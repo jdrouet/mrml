@@ -2,7 +2,7 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjIncludeBody, MjIncludeBodyChild};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
 
 impl MjIncludeBodyChild {
     pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
@@ -58,15 +58,14 @@ impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut children = String::default();
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             renderer.set_index(index);
             renderer.set_siblings(self.element.children.len());
-            children.push_str(&renderer.render(opts)?);
+            renderer.render(opts, buf)?;
         }
-        Ok(children)
+        Ok(())
     }
 }
 
@@ -101,7 +100,9 @@ mod tests {
             let header = Rc::new(RefCell::new(Header::new(&mj_head)));
             let elt = MjText::default();
             let renderer = elt.renderer(header);
-            renderer.render(&opts).unwrap()
+            let mut buf = String::default();
+            renderer.render(&opts, &mut buf).unwrap();
+            buf
         };
         let result = {
             let header = Rc::new(RefCell::new(Header::new(&mj_head)));
@@ -110,7 +111,9 @@ mod tests {
             elt.children
                 .push(MjIncludeBodyChild::MjText(MjText::default()));
             let renderer = elt.renderer(header);
-            renderer.render(&opts).unwrap()
+            let mut buf = String::default();
+            renderer.render(&opts, &mut buf).unwrap();
+            buf
         };
         assert_eq!(expected, result);
     }
@@ -130,7 +133,9 @@ mod tests {
             let mut root = MjRaw::default();
             root.children.push(MjRawChild::Node(node));
             let renderer = root.renderer(header);
-            renderer.render(&opts).unwrap()
+            let mut buf = String::default();
+            renderer.render(&opts, &mut buf).unwrap();
+            buf
         };
         let result = {
             let header = Rc::new(RefCell::new(Header::new(&mj_head)));
@@ -145,7 +150,9 @@ mod tests {
             elt.children.push(MjIncludeBodyChild::Node(node));
 
             let renderer = elt.renderer(header);
-            renderer.render(&opts).unwrap()
+            let mut buf = String::default();
+            renderer.render(&opts, &mut buf).unwrap();
+            buf
         };
         assert_eq!(expected, result);
     }

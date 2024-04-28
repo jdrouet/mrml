@@ -3,9 +3,9 @@ use std::convert::TryFrom;
 use std::rc::Rc;
 
 use super::{MjSection, NAME};
-use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
+use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Percent, Pixel};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 fn is_horizontal_position(value: &str) -> bool {
     value == "left" || value == "right" || value == "center"
@@ -203,7 +203,10 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         self.attribute_exists("full-width")
     }
 
-    fn render_with_background<T: AsRef<str>>(&self, content: T) -> String {
+    fn render_with_background<F>(&self, buf: &mut RenderBuffer, content: F) -> Result<(), Error>
+    where
+        F: Fn(&mut RenderBuffer) -> Result<(), Error>,
+    {
         let full_width = self.is_full_width();
         let vrect = Tag::new("v:rect")
             .maybe_add_attribute(
@@ -225,9 +228,17 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         let vtextbox = Tag::new("v:textbox")
             .add_attribute("inset", "0,0,0,0")
             .add_style("mso-fit-shape-to-text", "true");
-        let before = vrect.open() + &vfill.closed() + &vtextbox.open();
-        let after = vtextbox.close() + &vrect.close();
-        before + END_CONDITIONAL_TAG + content.as_ref() + START_CONDITIONAL_TAG + &after
+
+        vrect.render_open(buf);
+        vfill.render_closed(buf);
+        vtextbox.render_open(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        content(buf)?;
+        buf.push_str(START_CONDITIONAL_TAG);
+        vtextbox.render_close(buf);
+        vrect.render_close(buf);
+
+        Ok(())
     }
 
     fn set_style_section_div(&self, tag: Tag) -> Tag {
@@ -244,7 +255,10 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             )
     }
 
-    fn render_wrap<T: AsRef<str>>(&self, content: T) -> String {
+    fn render_wrap<F>(&self, buf: &mut RenderBuffer, content: F) -> Result<(), Error>
+    where
+        F: Fn(&mut RenderBuffer) -> Result<(), Error>,
+    {
         let table = Tag::table_presentation()
             .maybe_add_attribute("bgcolor", self.attribute("background-color"))
             .add_attribute("align", "center")
@@ -264,9 +278,18 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             .add_style("line-height", "0px")
             .add_style("font-size", "0px")
             .add_style("mso-line-height-rule", "exactly");
-        let before = table.open() + &tr.open() + &td.open();
-        let after = td.close() + &tr.close() + &table.close();
-        conditional_tag(before + content.as_ref() + &after)
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        table.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+        content(buf)?;
+        td.render_close(buf);
+        tr.render_close(buf);
+        table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+
+        Ok(())
     }
 
     fn get_siblings(&self) -> usize {
@@ -277,37 +300,39 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         self.children().iter().filter(|elt| elt.is_raw()).count()
     }
 
-    fn render_wrapped_children(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_wrapped_children(
+        &self,
+        opts: &RenderOptions,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
         let tr = Tag::tr();
-        let mut result = tr.open();
-        let children = self.children();
-        if !children.is_empty() {
-            for child in self.children().iter() {
-                let mut renderer = child.renderer(self.clone_header());
-                renderer.set_siblings(siblings);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_container_width(self.container_width().clone());
-                if child.is_raw() {
-                    result.push_str(END_CONDITIONAL_TAG);
-                    result.push_str(&renderer.render(opts)?);
-                    result.push_str(START_CONDITIONAL_TAG);
-                } else {
-                    let td = renderer
-                        .set_style("td-outlook", Tag::td())
-                        .maybe_add_attribute("align", renderer.attribute("align"))
-                        .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                    result.push_str(&td.open());
-                    result.push_str(END_CONDITIONAL_TAG);
-                    result.push_str(&renderer.render(opts)?);
-                    result.push_str(START_CONDITIONAL_TAG);
-                    result.push_str(&td.close());
-                }
+
+        tr.render_open(buf);
+        for child in self.children().iter() {
+            let mut renderer = child.renderer(self.clone_header());
+            renderer.set_siblings(siblings);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_container_width(self.container_width().clone());
+            if child.is_raw() {
+                buf.push_str(END_CONDITIONAL_TAG);
+                renderer.render(opts, buf)?;
+                buf.push_str(START_CONDITIONAL_TAG);
+            } else {
+                let td = renderer
+                    .set_style("td-outlook", Tag::td())
+                    .maybe_add_attribute("align", renderer.attribute("align"))
+                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
+                td.render_open(buf);
+                buf.push_str(END_CONDITIONAL_TAG);
+                renderer.render(opts, buf)?;
+                buf.push_str(START_CONDITIONAL_TAG);
+                td.render_close(buf);
             }
         }
-        result.push_str(&tr.close());
-        Ok(result)
+        tr.render_close(buf);
+        Ok(())
     }
 
     fn set_style_section_inner_div(&self, tag: Tag) -> Tag {
@@ -341,7 +366,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             .maybe_add_style("text-align", self.attribute("text-align"))
     }
 
-    fn render_section(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_section(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let is_full_width = self.is_full_width();
         let div = self
             .set_style_section_div(Tag::div())
@@ -368,17 +393,30 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         let td = self.set_style_section_td(Tag::td());
         let inner_table = Tag::table_presentation();
 
-        let content = self.render_wrapped_children(opts)?;
-        let content = conditional_tag(inner_table.open() + &content + &inner_table.close());
-        let content = td.render(content);
-        let content = tr.render(content);
-        let content = tbody.render(content);
-        let content = table.render(content);
-        Ok(div.render(if self.has_background() {
-            inner_div.render(content)
-        } else {
-            content
-        }))
+        let has_bg = self.has_background();
+        div.render_open(buf);
+        if has_bg {
+            inner_div.render_open(buf);
+        }
+        table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+        buf.push_str(START_CONDITIONAL_TAG);
+        inner_table.render_open(buf);
+        self.render_wrapped_children(opts, buf)?;
+        inner_table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        td.render_close(buf);
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        table.render_close(buf);
+        if has_bg {
+            inner_div.render_close(buf);
+        }
+        div.render_close(buf);
+
+        Ok(())
     }
 
     fn set_style_table_full_width(&self, tag: Tag) -> Tag {
@@ -398,31 +436,66 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             .maybe_add_attribute("background", self.attribute("background-url"))
     }
 
-    fn render_full_width(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_full_width(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = self.get_full_width_table();
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = Tag::td();
-        let content = self.render_section(opts)?;
-        let content =
-            self.render_wrap(END_CONDITIONAL_TAG.to_string() + &content + START_CONDITIONAL_TAG);
-        let content = if self.has_background() {
-            self.render_with_background(content)
+
+        // let content = self.render_section(opts)?;
+        // let content =
+        //     self.render_wrap(END_CONDITIONAL_TAG.to_string() + &content + START_CONDITIONAL_TAG);
+        // let content = if self.has_background() {
+        //     self.render_with_background(content)
+        // } else {
+        //     content
+        // };
+        // Ok(table.render(tbody.render(tr.render(td.render(content)))))
+
+        table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+        //
+        if self.has_background() {
+            self.render_with_background(buf, |buf: &mut String| {
+                self.render_wrap(buf, |buf: &mut String| {
+                    buf.push_str(END_CONDITIONAL_TAG);
+                    self.render_section(opts, buf)?;
+                    buf.push_str(START_CONDITIONAL_TAG);
+                    Ok(())
+                })
+            })?;
         } else {
-            content
-        };
-        Ok(table.render(tbody.render(tr.render(td.render(content)))))
+            self.render_wrap(buf, |buf: &mut String| {
+                buf.push_str(END_CONDITIONAL_TAG);
+                self.render_section(opts, buf)?;
+                buf.push_str(START_CONDITIONAL_TAG);
+                Ok(())
+            })?;
+        }
+        //
+        td.render_close(buf);
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        table.render_close(buf);
+
+        Ok(())
     }
 
-    fn render_simple(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let section = self.render_section(opts)?;
-
-        let section = if self.has_background() {
-            self.render_with_background(section)
-        } else {
-            END_CONDITIONAL_TAG.to_string() + &section + START_CONDITIONAL_TAG
-        };
-        Ok(self.render_wrap(section))
+    fn render_simple(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        self.render_wrap(buf, |buf: &mut String| {
+            if self.has_background() {
+                self.render_with_background(buf, |buf: &mut String| {
+                    self.render_section(opts, buf)
+                })?;
+            } else {
+                buf.push_str(END_CONDITIONAL_TAG);
+                self.render_section(opts, buf)?;
+                buf.push_str(START_CONDITIONAL_TAG);
+            }
+            Ok(())
+        })
     }
 }
 
@@ -477,11 +550,11 @@ impl<'e, 'h> Render<'e, 'h> for MjSectionRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         if self.is_full_width() {
-            self.render_full_width(opts)
+            self.render_full_width(opts, buf)
         } else {
-            self.render_simple(opts)
+            self.render_simple(opts, buf)
         }
     }
 }

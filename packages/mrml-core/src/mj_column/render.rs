@@ -4,7 +4,7 @@ use std::rc::Rc;
 use super::{MjColumn, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjColumnRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -177,12 +177,23 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn render_gutter(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_gutter(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = Tag::table_presentation().add_attribute("width", "100%");
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_gutter_td(Tag::td());
-        Ok(table.render(tbody.render(tr.render(td.render(self.render_column(opts)?)))))
+
+        table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+        self.render_column(opts, buf)?;
+        td.render_close(buf);
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        table.render_close(buf);
+
+        Ok(())
     }
 
     fn set_style_table(&self, tag: Tag) -> Tag {
@@ -193,7 +204,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render_column(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_column(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = self
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
@@ -201,39 +212,48 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
         let current_width = self.current_width();
-        let content = self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_siblings(siblings);
-                renderer.set_container_width(current_width.clone());
-                let result = if child.is_raw() {
-                    renderer.render(opts)?
-                } else {
-                    let tr = Tag::tr();
-                    let td = Tag::td()
-                        .maybe_add_style(
-                            "background",
-                            renderer.attribute("container-background-color"),
-                        )
-                        .add_style("font-size", "0px")
-                        .maybe_add_style("padding", renderer.attribute("padding"))
-                        .maybe_add_style("padding-top", renderer.attribute("padding-top"))
-                        .maybe_add_style("padding-right", renderer.attribute("padding-right"))
-                        .maybe_add_style("padding-bottom", renderer.attribute("padding-bottom"))
-                        .maybe_add_style("padding-left", renderer.attribute("padding-left"))
-                        .add_style("word-break", "break-word")
-                        .maybe_add_attribute("align", renderer.attribute("align"))
-                        .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
-                        .maybe_add_class(renderer.attribute("css-class"));
-                    tr.render(td.render(renderer.render(opts)?))
-                };
-                Ok(res + &result)
-            },
-        )?;
-        Ok(table.render(tbody.render(content)))
+
+        table.render_open(buf);
+        tbody.render_open(buf);
+
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_index(index);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_siblings(siblings);
+            renderer.set_container_width(current_width.clone());
+            if child.is_raw() {
+                renderer.render(opts, buf)?;
+            } else {
+                let tr = Tag::tr();
+                let td = Tag::td()
+                    .maybe_add_style(
+                        "background",
+                        renderer.attribute("container-background-color"),
+                    )
+                    .add_style("font-size", "0px")
+                    .maybe_add_style("padding", renderer.attribute("padding"))
+                    .maybe_add_style("padding-top", renderer.attribute("padding-top"))
+                    .maybe_add_style("padding-right", renderer.attribute("padding-right"))
+                    .maybe_add_style("padding-bottom", renderer.attribute("padding-bottom"))
+                    .maybe_add_style("padding-left", renderer.attribute("padding-left"))
+                    .add_style("word-break", "break-word")
+                    .maybe_add_attribute("align", renderer.attribute("align"))
+                    .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
+                    .maybe_add_class(renderer.attribute("css-class"));
+
+                tr.render_open(buf);
+                td.render_open(buf);
+                renderer.render(opts, buf)?;
+                td.render_close(buf);
+                tr.render_close(buf);
+            }
+        }
+
+        tbody.render_close(buf);
+        table.render_close(buf);
+
+        Ok(())
     }
 }
 
@@ -289,7 +309,7 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
         self.header
             .borrow_mut()
@@ -299,12 +319,15 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
             .add_class("mj-outlook-group-fix")
             .add_class(classname)
             .maybe_add_class(self.attribute("css-class"));
-        let content = if self.has_gutter() {
-            self.render_gutter(opts)?
+
+        div.render_open(buf);
+        if self.has_gutter() {
+            self.render_gutter(opts, buf)?;
         } else {
-            self.render_column(opts)?
-        };
-        Ok(div.render(content))
+            self.render_column(opts, buf)?;
+        }
+        div.render_close(buf);
+        Ok(())
     }
 }
 

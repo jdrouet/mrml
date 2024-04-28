@@ -5,7 +5,7 @@ use super::network::SocialNetwork;
 use super::{MjSocialElement, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
@@ -105,7 +105,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
             .unwrap_or_default()
     }
 
-    fn render_icon(&self, href: &Option<String>, opts: &RenderOptions) -> String {
+    fn render_icon(&self, href: &Option<String>, opts: &RenderOptions, buf: &mut RenderBuffer) {
         let table = self.set_style_table(Tag::table_presentation());
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -130,14 +130,29 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
                 self.get_icon_size().map(|size| size.value().to_string()),
             );
 
-        table.render(tbody.render(tr.render(td.render(if href.is_some() {
-            a.render(img.closed())
+        table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+        if href.is_some() {
+            a.render_open(buf);
+            img.render_closed(buf);
+            a.render_close(buf);
         } else {
-            img.closed()
-        }))))
+            img.render_closed(buf);
+        }
+        td.render_close(buf);
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        table.render_close(buf);
     }
 
-    fn render_text(&self, href: &Option<String>, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_text(
+        &self,
+        href: &Option<String>,
+        opts: &RenderOptions,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let td = self.set_style_td_text(Tag::td());
         let wrapper = if href.is_some() {
             Tag::new("a")
@@ -148,15 +163,16 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
             Tag::new("span")
         };
         let wrapper = self.set_style_text(wrapper);
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        Ok(td.render(wrapper.render(content)))
+
+        td.render_open(buf);
+        wrapper.render_open(buf);
+        for child in self.element.children.iter() {
+            let renderer = child.renderer(Rc::clone(&self.header));
+            renderer.render(opts, buf)?;
+        }
+        wrapper.render_close(buf);
+        td.render_close(buf);
+        Ok(())
     }
 }
 
@@ -202,16 +218,20 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let href = self.get_href();
         let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
         let td = self.set_style_td(Tag::td());
 
-        let mut res = td.render(self.render_icon(&href, opts));
+        tr.render_open(buf);
+        td.render_open(buf);
+        self.render_icon(&href, opts, buf);
+        td.render_close(buf);
         if !self.element.children.is_empty() {
-            res.push_str(&self.render_text(&href, opts)?);
+            self.render_text(&href, opts, buf)?;
         }
-        Ok(tr.render(res))
+        tr.render_close(buf);
+        Ok(())
     }
 }
 

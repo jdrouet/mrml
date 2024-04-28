@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::{MjImage, NAME};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjImageRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -89,7 +89,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
             .add_style("border-spacing", "0px")
     }
 
-    fn render_image(&self) -> String {
+    fn render_image(&self, buf: &mut RenderBuffer) {
         let img = Tag::new("img")
             .maybe_add_attribute("alt", self.attribute("alt"))
             .add_attribute(
@@ -107,16 +107,17 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
                     .map(|size| size.value().to_string()),
             )
             .maybe_add_attribute("usemap", self.attribute("usemap"));
-        self.set_style_img(img).closed()
+        let img = self.set_style_img(img);
+        img.render_closed(buf);
     }
 
-    fn render_link(&self) -> String {
+    fn render_link(&self, buf: &mut RenderBuffer) {
         Tag::new("a")
             .maybe_add_attribute("href", self.attribute("href"))
             .maybe_add_attribute("name", self.attribute("name"))
             .maybe_add_attribute("rel", self.attribute("rel"))
             .maybe_add_attribute("target", self.attribute("target"))
-            .render(self.render_image())
+            .render_with(buf, |b| self.render_image(b))
     }
 
     fn render_style(&self) -> String {
@@ -160,9 +161,10 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let style = self.render_style();
         self.header.borrow_mut().add_style(style);
+        //
         let class = if self.is_fluid_on_mobile() {
             Some("mj-full-width-mobile")
         } else {
@@ -174,12 +176,24 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_td(Tag::td()).maybe_add_class(class);
-        let content = if self.attribute_exists("href") {
-            self.render_link()
+
+        table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+
+        if self.attribute_exists("href") {
+            self.render_link(buf);
         } else {
-            self.render_image()
-        };
-        Ok(table.render(tbody.render(tr.render(td.render(content)))))
+            self.render_image(buf);
+        }
+
+        td.render_close(buf);
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        table.render_close(buf);
+
+        Ok(())
     }
 }
 

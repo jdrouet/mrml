@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::Node;
 use crate::prelude::is_void_element;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
 
 struct NodeRender<'e, 'h, T> {
     header: Rc<RefCell<Header<'h>>>,
@@ -22,8 +22,8 @@ where
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut buf = String::from("<");
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        buf.push('<');
         buf.push_str(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
             buf.push(' ');
@@ -46,13 +46,13 @@ where
                 // TODO children
                 let mut renderer = child.renderer(Rc::clone(&self.header));
                 renderer.set_index(index);
-                buf.push_str(&renderer.render(opts)?);
+                renderer.render(opts, buf)?;
             }
             buf.push_str("</");
             buf.push_str(&self.element.tag);
             buf.push('>');
         }
-        Ok(buf)
+        Ok(())
     }
 }
 

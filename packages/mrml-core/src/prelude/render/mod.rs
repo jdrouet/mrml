@@ -197,14 +197,19 @@ pub trait Render<'element, 'header> {
         }
     }
 
-    fn render_fragment(&self, name: &str, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_fragment(
+        &self,
+        name: &str,
+        opts: &RenderOptions,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         match name {
-            "main" => self.render(opts),
+            "main" => self.render(opts, buf),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error>;
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error>;
 }
 
 pub trait Renderable<'render, 'element: 'render, 'header: 'render> {

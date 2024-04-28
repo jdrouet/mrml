@@ -2,9 +2,9 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjDivider, NAME};
-use crate::helper::condition::conditional_tag;
+use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Pixel, Size};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjDividerRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -53,7 +53,7 @@ impl<'e, 'h> MjDividerRender<'e, 'h> {
         }
     }
 
-    fn render_after(&self) -> String {
+    fn render_after(&self, buf: &mut RenderBuffer) {
         let table = self
             .set_style_outlook(Tag::table_presentation())
             .add_attribute("align", "center")
@@ -62,7 +62,14 @@ impl<'e, 'h> MjDividerRender<'e, 'h> {
         let td = Tag::td()
             .add_style("height", "0")
             .add_style("line-height", "0");
-        conditional_tag(table.render(tr.render(td.render("&nbsp;"))))
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        table.render_open(buf);
+        tr.render_open(buf);
+        td.render_text(buf, "&nbsp;");
+        tr.render_close(buf);
+        table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
     }
 }
 
@@ -95,8 +102,12 @@ impl<'e, 'h> Render<'e, 'h> for MjDividerRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
-        Ok(self.set_style_p(Tag::new("p")).render("") + &self.render_after())
+    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        let p = self.set_style_p(Tag::new("p"));
+        p.render_text(buf, "");
+
+        self.render_after(buf);
+        Ok(())
     }
 }
 

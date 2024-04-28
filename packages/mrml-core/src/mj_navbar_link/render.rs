@@ -2,10 +2,10 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjNavbarLink, NAME};
-use crate::helper::condition::conditional_tag;
+use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjNavbarLinkRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -49,7 +49,7 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
         })
     }
 
-    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_content(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let link = self
             .set_style_a(Tag::new("a"))
             .add_class("mj-link")
@@ -58,15 +58,15 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
             .maybe_add_attribute("rel", self.attribute("rel"))
             .maybe_add_attribute("target", self.attribute("target"))
             .maybe_add_attribute("name", self.attribute("name"));
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        Ok(link.render(content))
+
+        link.render_open(buf);
+        for child in self.element.children.iter() {
+            let renderer = child.renderer(Rc::clone(&self.header));
+            renderer.render(opts, buf)?;
+        }
+        link.render_close(buf);
+
+        Ok(())
     }
 }
 
@@ -110,7 +110,7 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
         self.header
             .borrow_mut()
@@ -118,7 +118,16 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
         let td = self
             .set_style_td(Tag::td())
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
-        Ok(conditional_tag(td.open()) + &self.render_content(opts)? + &conditional_tag(td.close()))
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        td.render_open(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        self.render_content(opts, buf)?;
+        buf.push_str(START_CONDITIONAL_TAG);
+        td.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+
+        Ok(())
     }
 }
 

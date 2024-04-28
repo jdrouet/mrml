@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::{MjRaw, MjRawChild, NAME};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRawChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
@@ -34,19 +34,17 @@ impl<'e, 'h> Render<'e, 'h> for MjRawRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let siblings = self.element.children.len();
-        self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                renderer.set_siblings(siblings);
-                renderer.set_raw_siblings(siblings);
-                renderer.set_container_width(self.container_width.clone());
-                Ok(res + &renderer.render(opts)?)
-            },
-        )
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_index(index);
+            renderer.set_siblings(siblings);
+            renderer.set_raw_siblings(siblings);
+            renderer.set_container_width(self.container_width.clone());
+            renderer.render(opts, buf)?;
+        }
+        Ok(())
     }
 }
 

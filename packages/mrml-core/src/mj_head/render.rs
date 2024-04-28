@@ -5,7 +5,7 @@ use super::MjHead;
 use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
 
 const STYLE_BASE: &str = r#"
 <style type="text/css">
@@ -157,11 +157,11 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         })
     }
 
-    fn render_font_families(&self, opts: &RenderOptions) -> String {
+    fn render_font_families(&self, opts: &RenderOptions, buf: &mut RenderBuffer) {
         let header = self.header.borrow();
         let used_font_families = header.used_font_families();
         if used_font_families.is_empty() {
-            return String::default();
+            return;
         }
 
         let mut links = String::default();
@@ -179,9 +179,9 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         }
 
         if links.is_empty() && imports.is_empty() {
-            String::default()
+            return;
         } else {
-            let mut buf = String::from(START_MSO_NEGATION_CONDITIONAL_TAG);
+            buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
             buf.push_str(&links);
             if !imports.is_empty() {
                 buf.push_str("<style type=\"text/css\">");
@@ -189,19 +189,18 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
                 buf.push_str("</style>");
             }
             buf.push_str(END_NEGATION_CONDITIONAL_TAG);
-            buf
         }
     }
 
-    fn render_media_queries(&self) -> String {
+    fn render_media_queries(&self, buf: &mut RenderBuffer) {
         let header = self.header.borrow();
         if header.media_queries().is_empty() {
-            return String::default();
+            return;
         }
         let mut classnames = header.media_queries().iter().collect::<Vec<_>>();
         classnames.sort_by(sort_by_key);
         let breakpoint = header.breakpoint().to_string();
-        let mut buf = String::from("<style type=\"text/css\">");
+        buf.push_str("<style type=\"text/css\">");
         buf.push_str("@media only screen and (min-width:");
         buf.push_str(breakpoint.as_str());
         buf.push_str(") { ");
@@ -231,55 +230,49 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
             buf.push_str("; } ");
         });
         buf.push_str("</style>");
-        buf
     }
 
-    fn render_styles(&self) -> String {
+    fn render_styles(&self, buf: &mut RenderBuffer) {
         let header = self.header.borrow();
-        let header_styles = {
-            if header.styles().is_empty() {
-                String::default()
-            } else {
-                let mut buf = "<style type=\"text/css\">".to_string();
-                header.styles().iter().for_each(|style| {
-                    buf.push_str(style);
-                });
-                buf.push_str("</style>");
-                buf
-            }
-        };
-        let head_styles = {
-            let buffer = itertools::join(self.mj_style_iter(), "\n");
-            if buffer.is_empty() {
-                buffer
-            } else {
-                format!("<style type=\"text/css\">{buffer}</style>")
-            }
-        };
-        format!("{header_styles}\n{head_styles}").trim().to_string()
+        if !header.styles().is_empty() {
+            buf.push_str("<style type=\"text/css\">");
+            header.styles().iter().for_each(|style| {
+                buf.push_str(style);
+            });
+            buf.push_str("</style>");
+        }
+
+        // TODO this should be optional
+        buf.push_str("<style type=\"text/css\">");
+        for item in self.mj_style_iter() {
+            buf.push_str(item);
+        }
+        buf.push_str("</style>");
     }
 
-    fn render_raw(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut buffer: Vec<String> = Vec::new();
+    fn render_raw(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        let mut index: usize = 0;
         let siblings = self.element.children.len();
         for child in self.element.children.iter() {
             if let Some(mj_raw) = child.as_mj_raw() {
                 let mut renderer = mj_raw.renderer(Rc::clone(&self.header));
-                renderer.set_index(buffer.len());
+                renderer.set_index(index);
                 renderer.set_siblings(siblings);
-                buffer.push(renderer.render(opts)?);
+                renderer.render(opts, buf)?;
+                index += 1;
             } else if let Some(mj_include) = child.as_mj_include() {
                 for include_child in mj_include.children.iter() {
                     if let Some(mj_raw) = include_child.as_mj_raw() {
                         let mut renderer = mj_raw.renderer(Rc::clone(&self.header));
-                        renderer.set_index(buffer.len());
+                        renderer.set_index(index);
                         renderer.set_siblings(siblings);
-                        buffer.push(renderer.render(opts)?);
+                        renderer.render(opts, buf)?;
+                        index += 1;
                     }
                 }
             }
         }
-        Ok(buffer.join(""))
+        Ok(())
     }
 }
 
@@ -288,16 +281,13 @@ impl<'e, 'h> Render<'e, 'h> for MjHeadRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut buf = String::from("<head>");
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        buf.push_str("<head>");
         // we write the title even though there is no content
         buf.push_str("<title>");
-        buf.push_str(
-            self.element
-                .title()
-                .map(|item| item.content())
-                .unwrap_or_default(),
-        );
+        if let Some(title) = self.element.title().map(|item| item.content()) {
+            buf.push_str(title);
+        }
         buf.push_str("</title>");
         buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
         buf.push_str("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
@@ -305,12 +295,12 @@ impl<'e, 'h> Render<'e, 'h> for MjHeadRender<'e, 'h> {
         buf.push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
         buf.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
         buf.push_str(STYLE_BASE);
-        buf.push_str(&self.render_font_families(opts));
-        buf.push_str(&self.render_media_queries());
-        buf.push_str(&self.render_styles());
-        buf.push_str(&self.render_raw(opts)?);
+        self.render_font_families(opts, buf);
+        self.render_media_queries(buf);
+        self.render_styles(buf);
+        self.render_raw(opts, buf)?;
         buf.push_str("</head>");
-        Ok(buf)
+        Ok(())
     }
 }
 

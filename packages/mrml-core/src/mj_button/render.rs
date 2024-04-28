@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::{MjButton, NAME};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjButtonRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -35,14 +35,12 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
         }
     }
 
-    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
-        self.element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render(opts)?)
-            })
+    fn render_children(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        for child in self.element.children.iter() {
+            let renderer = child.renderer(Rc::clone(&self.header));
+            renderer.render(opts, buf)?;
+        }
+        Ok(())
     }
 
     fn set_style_table(&self, tag: Tag) -> Tag {
@@ -120,12 +118,13 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
         self.header
             .borrow_mut()
             .maybe_add_font_families(font_family);
         let table = self.set_style_table(Tag::table_presentation());
+        let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self
             .set_style_td(Tag::td())
@@ -144,9 +143,19 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
             );
         let link = self.set_style_content(link);
 
-        Ok(table.render(
-            Tag::tbody().render(tr.render(td.render(link.render(self.render_children(opts)?)))),
-        ))
+        table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+        link.render_open(buf);
+        self.render_children(opts, buf)?;
+        link.render_close(buf);
+        td.render_close(buf);
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        table.render_close(buf);
+
+        Ok(())
     }
 }
 

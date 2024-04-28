@@ -1,7 +1,7 @@
 use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
 
 pub(crate) struct RootRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -13,20 +13,18 @@ impl<'e, 'h> Render<'e, 'h> for RootRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut result = String::new();
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         for element in self.element.as_ref().iter() {
-            let content = match element {
+            match element {
                 super::RootChild::Comment(inner) => {
-                    inner.renderer(self.header.clone()).render(opts)?
+                    inner.renderer(self.header.clone()).render(opts, buf)?
                 }
                 super::RootChild::Mjml(inner) => {
-                    inner.renderer(self.header.clone()).render(opts)?
+                    inner.renderer(self.header.clone()).render(opts, buf)?
                 }
             };
-            result.push_str(&content);
         }
-        Ok(result)
+        Ok(())
     }
 }
 

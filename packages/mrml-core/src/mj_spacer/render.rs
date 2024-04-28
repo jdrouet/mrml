@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::{MjSpacer, NAME};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjSpacerRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -35,11 +35,12 @@ impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
-        Ok(Tag::div()
+    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        Tag::div()
             .maybe_add_style("height", self.attribute("height"))
             .maybe_add_style("line-height", self.attribute("height"))
-            .render("&#8202;"))
+            .render_text(buf, "&#8202;");
+        Ok(())
     }
 }
 

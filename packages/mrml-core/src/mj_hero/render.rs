@@ -2,9 +2,9 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjHero, NAME};
-use crate::helper::condition::conditional_tag;
+use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjHeroRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -121,46 +121,49 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_children(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|c| c.is_raw()).count();
-        self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                renderer.set_siblings(siblings);
-                renderer.set_raw_siblings(raw_siblings);
-                let result = if child.is_raw() {
-                    renderer.render(opts)?
-                } else {
-                    let tr = Tag::tr();
-                    let td = Tag::td()
-                        .maybe_add_style(
-                            "background",
-                            renderer.attribute("container-background-color"),
-                        )
-                        .add_style("font-size", "0px")
-                        .maybe_add_style("padding", renderer.attribute("padding"))
-                        .maybe_add_style("padding-top", renderer.attribute("padding-top"))
-                        .maybe_add_style("padding-right", renderer.attribute("padding-right"))
-                        .maybe_add_style("padding-bottom", renderer.attribute("padding-bottom"))
-                        .maybe_add_style("padding-left", renderer.attribute("padding-left"))
-                        .add_style("word-break", "break-word")
-                        .maybe_add_attribute("align", renderer.attribute("align"))
-                        .maybe_add_attribute(
-                            "background",
-                            renderer.attribute("container-background-color"),
-                        )
-                        .maybe_add_attribute("class", renderer.attribute("css-class"));
-                    tr.render(td.render(renderer.render(opts)?))
-                };
-                Ok(res + &result)
-            },
-        )
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_index(index);
+            renderer.set_siblings(siblings);
+            renderer.set_raw_siblings(raw_siblings);
+            if child.is_raw() {
+                renderer.render(opts, buf)?;
+            } else {
+                let tr = Tag::tr();
+                let td = Tag::td()
+                    .maybe_add_style(
+                        "background",
+                        renderer.attribute("container-background-color"),
+                    )
+                    .add_style("font-size", "0px")
+                    .maybe_add_style("padding", renderer.attribute("padding"))
+                    .maybe_add_style("padding-top", renderer.attribute("padding-top"))
+                    .maybe_add_style("padding-right", renderer.attribute("padding-right"))
+                    .maybe_add_style("padding-bottom", renderer.attribute("padding-bottom"))
+                    .maybe_add_style("padding-left", renderer.attribute("padding-left"))
+                    .add_style("word-break", "break-word")
+                    .maybe_add_attribute("align", renderer.attribute("align"))
+                    .maybe_add_attribute(
+                        "background",
+                        renderer.attribute("container-background-color"),
+                    )
+                    .maybe_add_attribute("class", renderer.attribute("css-class"));
+
+                tr.render_open(buf);
+                td.render_open(buf);
+                renderer.render(opts, buf)?;
+                td.render_close(buf);
+                tr.render_close(buf);
+            };
+        }
+
+        Ok(())
     }
 
-    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_content(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = self
             .set_style_outlook_inner_table(Tag::table_borderless())
             .maybe_add_attribute("align", self.attribute("align"))
@@ -168,30 +171,63 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
                 "width",
                 self.container_width.as_ref().map(|w| w.value().to_string()),
             );
+        let tbody = Tag::tbody();
         let tr = Tag::tr();
+        let td = Tag::td();
         let outlook_inner_td = self.set_style_outlook_inner_td(Tag::td());
         let outlook_inner_div = self
             .set_style_inner_div(Tag::div())
             .maybe_add_attribute("width", self.attribute("align"))
             .add_class("mj-hero-content");
         let inner_table = self.set_style_inner_table(Tag::table_presentation());
-        let content = outlook_inner_div.render(inner_table.render(Tag::tbody().render(tr.render(
-            Tag::td().render(inner_table.render(Tag::tbody().render(self.render_children(opts)?))),
-        ))));
-        let before = conditional_tag(table.open() + &tr.open() + &outlook_inner_td.open());
-        let after = conditional_tag(outlook_inner_td.close() + &tr.close() + &table.close());
-        Ok(before + &content + &after)
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        table.render_open(buf);
+        tr.render_open(buf);
+        outlook_inner_td.render_open(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+
+        outlook_inner_div.render_open(buf);
+        inner_table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+        td.render_open(buf);
+        inner_table.render_open(buf);
+        tbody.render_open(buf);
+        self.render_children(opts, buf)?;
+        tbody.render_close(buf);
+        inner_table.render_close(buf);
+        td.render_close(buf);
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        inner_table.render_close(buf);
+        outlook_inner_div.render_close(buf);
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        outlook_inner_td.render_close(buf);
+        tr.render_close(buf);
+        table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+
+        Ok(())
     }
 
-    fn render_mode_fluid(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_mode_fluid(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let td_fluid = self.set_style_td_fluid(Tag::td());
         let td = self
             .set_style_hero(Tag::td())
             .maybe_add_attribute("background", self.attribute("background-url"));
-        Ok(td_fluid.closed() + &td.render(self.render_content(opts)?) + &td_fluid.closed())
+
+        td_fluid.render_closed(buf);
+        td.render_open(buf);
+        self.render_content(opts, buf)?;
+        td.render_close(buf);
+        td_fluid.render_closed(buf);
+
+        Ok(())
     }
 
-    fn render_mode_fixed(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_mode_fixed(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         // has a default value
         let height = self.attribute_as_pixel("height").unwrap().value();
         let padding = self.get_padding_vertical().value();
@@ -201,16 +237,19 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .add_style("height", format!("{height}px"))
             .maybe_add_attribute("background", self.attribute("background-url"))
             .add_attribute("height", height.to_string());
-        Ok(td.render(self.render_content(opts)?))
+
+        td.render_open(buf);
+        self.render_content(opts, buf)?;
+        td.render_close(buf);
+
+        Ok(())
     }
 
-    fn render_mode(&self, opts: &RenderOptions) -> Result<String, Error> {
-        if let Some(ref mode) = self.attribute("mode") {
-            if mode == "fluid" {
-                return self.render_mode_fluid(opts);
-            }
+    fn render_mode(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        match self.attribute("mode") {
+            Some(inner) if inner.eq("fluid") => self.render_mode_fluid(opts, buf),
+            _ => self.render_mode_fixed(opts, buf),
         }
-        self.render_mode_fixed(opts)
     }
 }
 
@@ -251,7 +290,7 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let outlook_table = self
             .set_style_outlook_table(Tag::table_presentation())
             .add_attribute("align", "center")
@@ -270,15 +309,35 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
             .maybe_add_attribute("align", self.attribute("align"))
             .maybe_add_class(self.attribute("css-class"));
         let table = self.set_style_table(Tag::table_presentation());
+        let tbody = Tag::tbody();
         let tr = self.set_style_tr(Tag::tr());
-        let content = self.render_mode(opts)?;
-        let content = div.render(table.render(Tag::tbody().render(tr.render(content))));
-        let before = conditional_tag(
-            outlook_table.open() + &outlook_tr.open() + &outlook_td.open() + &v_image.closed(),
-        );
-        let after =
-            conditional_tag(outlook_td.close() + &outlook_tr.close() + &outlook_table.close());
-        Ok(before + &content + &after)
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        outlook_table.render_open(buf);
+        outlook_tr.render_open(buf);
+        outlook_td.render_open(buf);
+        v_image.render_closed(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+
+        div.render_open(buf);
+        table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+
+        self.render_mode(opts, buf)?;
+
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        table.render_close(buf);
+        div.render_close(buf);
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        outlook_td.render_close(buf);
+        outlook_tr.render_close(buf);
+        outlook_table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+
+        Ok(())
     }
 }
 

@@ -2,7 +2,7 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::Text;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
 
 struct TextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -14,8 +14,9 @@ impl<'e, 'h> Render<'e, 'h> for TextRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
-        Ok(self.element.0.clone())
+    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        buf.push_str(self.element.inner_str());
+        Ok(())
     }
 }
 

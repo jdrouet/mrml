@@ -2,9 +2,9 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjSocial, MjSocialChild, NAME};
-use crate::helper::condition::conditional_tag;
+use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Pixel, Size};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialChild {
     fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
@@ -75,7 +75,7 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             .collect::<Vec<_>>()
     }
 
-    fn render_horizontal(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_horizontal(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
         let td = Tag::td();
@@ -84,41 +84,58 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             .add_style("float", "none")
             .add_style("display", "inline-table");
         let inner_tbody = Tag::tbody();
-        let before = conditional_tag(table.open() + &tr.open());
-        let after = conditional_tag(tr.close() + &table.close());
         let child_attributes = self.build_child_attributes();
-        let content = self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                child_attributes.iter().for_each(|(key, value)| {
-                    renderer.add_extra_attribute(key, value);
-                });
-                Ok(res
-                    + &conditional_tag(td.open())
-                    + &inner_table.render(inner_tbody.render(renderer.render(opts)?))
-                    + &conditional_tag(td.close()))
-            },
-        )?;
-        Ok(before + &content + &after)
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        table.render_open(buf);
+        tr.render_open(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+
+        for (index, child) in self.element.children.iter().enumerate() {
+            buf.push_str(START_CONDITIONAL_TAG);
+            td.render_open(buf);
+            buf.push_str(END_CONDITIONAL_TAG);
+            inner_table.render_open(buf);
+            inner_tbody.render_open(buf);
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_index(index);
+            child_attributes.iter().for_each(|(key, value)| {
+                renderer.add_extra_attribute(key, value);
+            });
+            renderer.render(opts, buf)?;
+            inner_tbody.render_close(buf);
+            inner_table.render_close(buf);
+            buf.push_str(START_CONDITIONAL_TAG);
+            td.render_close(buf);
+            buf.push_str(END_CONDITIONAL_TAG);
+        }
+
+        buf.push_str(START_CONDITIONAL_TAG);
+        tr.render_close(buf);
+        table.render_close(buf);
+        buf.push_str(END_CONDITIONAL_TAG);
+        Ok(())
     }
 
-    fn render_vertical(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_vertical(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = self.set_style_table_vertical(Tag::table_presentation());
+        let tbody = Tag::tbody();
         let child_attributes = self.build_child_attributes();
-        let content = self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                child_attributes.iter().for_each(|(key, value)| {
-                    renderer.add_extra_attribute(key, value);
-                });
-                Ok(res + &renderer.render(opts)?)
-            },
-        )?;
-        Ok(table.render(Tag::tbody().render(content)))
+
+        table.render_open(buf);
+        tbody.render_open(buf);
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_index(index);
+            child_attributes.iter().for_each(|(key, value)| {
+                renderer.add_extra_attribute(key, value);
+            });
+            renderer.render(opts, buf)?;
+        }
+        tbody.render_close(buf);
+        table.render_close(buf);
+
+        Ok(())
     }
 }
 
@@ -169,13 +186,13 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_families = self.attribute("font-family").unwrap_or_default(); // never happens
         self.header.borrow_mut().add_font_families(font_families);
         if self.is_horizontal() {
-            self.render_horizontal(opts)
+            self.render_horizontal(opts, buf)
         } else {
-            self.render_vertical(opts)
+            self.render_vertical(opts, buf)
         }
     }
 }

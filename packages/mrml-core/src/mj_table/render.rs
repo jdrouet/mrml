@@ -4,7 +4,7 @@ use std::rc::Rc;
 use super::{MjTable, NAME};
 use crate::helper::size::Pixel;
 use crate::mj_section::WithMjSectionBackground;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjTableRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -60,26 +60,26 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
         self.header
             .borrow_mut()
             .maybe_add_font_families(font_family);
-        let children = self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                Ok(res + &renderer.render(opts)?)
-            },
-        )?;
+
         let table = self
             .set_style_table(Tag::table())
             .add_attribute("border", "0")
             .maybe_add_attribute("cellpadding", self.attribute("cellpadding"))
             .maybe_add_attribute("cellspacing", self.attribute("cellspacing"))
             .maybe_add_attribute("width", self.attribute("width"));
-        Ok(table.render(children))
+        table.render_open(buf);
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            renderer.set_index(index);
+            renderer.render(opts, buf)?;
+        }
+        table.render_close(buf);
+        Ok(())
     }
 }
 

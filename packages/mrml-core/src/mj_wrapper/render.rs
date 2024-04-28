@@ -5,7 +5,7 @@ use super::{MjWrapper, NAME};
 use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjWrapperRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -38,36 +38,39 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
         &self.container_width
     }
 
-    fn render_wrapped_children(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_wrapped_children(
+        &self,
+        opts: &RenderOptions,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let tr = Tag::tr();
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
         let current_width = self.current_width();
         let container_width = self.container_width.as_ref().map(|v| v.to_string());
-        let mut result = String::default();
         for child in self.children().iter() {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_container_width(current_width.clone());
             if child.is_raw() {
-                result.push_str(&renderer.render(opts)?);
+                renderer.render(opts, buf)?;
             } else {
                 let td = renderer
                     .set_style("td-outlook", Tag::td())
                     .maybe_add_attribute("align", renderer.attribute("align"))
                     .maybe_add_attribute("width", container_width.as_ref().cloned())
                     .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                result.push_str(&tr.open());
-                result.push_str(&td.open());
-                result.push_str(END_CONDITIONAL_TAG);
-                result.push_str(&renderer.render(opts)?);
-                result.push_str(START_CONDITIONAL_TAG);
-                result.push_str(&td.close());
-                result.push_str(&tr.close());
+                tr.render_open(buf);
+                td.render_open(buf);
+                buf.push_str(END_CONDITIONAL_TAG);
+                renderer.render(opts, buf)?;
+                buf.push_str(START_CONDITIONAL_TAG);
+                td.render_close(buf);
+                tr.render_close(buf);
             }
         }
-        Ok(result)
+        Ok(())
     }
 }
 
@@ -101,11 +104,11 @@ impl<'r, 'e: 'r, 'h: 'r> Render<'e, 'h> for MjWrapperRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         if self.is_full_width() {
-            self.render_full_width(opts)
+            self.render_full_width(opts, buf)
         } else {
-            self.render_simple(opts)
+            self.render_simple(opts, buf)
         }
     }
 }

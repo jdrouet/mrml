@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::{MjAccordionText, NAME};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjAccordionTextRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -12,16 +12,8 @@ struct MjAccordionTextRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
-    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        Ok(Tag::td()
+    fn render_children(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        let td = Tag::td()
             .maybe_add_class(self.attribute("css-class"))
             .maybe_add_style("background", self.attribute("background-color"))
             .maybe_add_style("font-size", self.attribute("font-size"))
@@ -32,8 +24,16 @@ impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
             .maybe_add_style("padding-right", self.attribute("padding-right"))
             .maybe_add_style("padding-bottom", self.attribute("padding-bottom"))
             .maybe_add_style("padding-left", self.attribute("padding-left"))
-            .maybe_add_style("padding", self.attribute("padding"))
-            .render(content))
+            .maybe_add_style("padding", self.attribute("padding"));
+
+        td.render_open(buf);
+        for child in self.element.children.iter() {
+            let renderer = child.renderer(Rc::clone(&self.header));
+            renderer.render(opts, buf)?;
+        }
+        td.render_close(buf);
+
+        Ok(())
     }
 }
 
@@ -67,21 +67,32 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
         self.header
             .borrow_mut()
             .maybe_add_font_families(font_families);
-        let tr = Tag::tr().render(self.render_children(opts)?);
-        let tbody = Tag::tbody().render(tr);
+
+        let tr = Tag::tr();
+        let tbody = Tag::tbody();
         let table = Tag::table()
             .add_attribute("cellspacing", "0")
             .add_attribute("cellpadding", "0")
             .add_style("width", "100%")
-            .maybe_add_style("border-bottom", self.attribute("border"))
-            .render(tbody);
-        let div = Tag::div().add_class("mj-accordion-content").render(table);
-        Ok(div)
+            .maybe_add_style("border-bottom", self.attribute("border"));
+        let div = Tag::div().add_class("mj-accordion-content");
+
+        div.render_open(buf);
+        table.render_open(buf);
+        tbody.render_open(buf);
+        tr.render_open(buf);
+        self.render_children(opts, buf)?;
+        tr.render_close(buf);
+        tbody.render_close(buf);
+        table.render_close(buf);
+        div.render_close(buf);
+
+        Ok(())
     }
 }
 

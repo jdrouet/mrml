@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use super::{MjAccordion, MjAccordionChild, NAME};
 use crate::helper::size::{Pixel, Size};
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
@@ -100,21 +100,11 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         self.update_header();
-        let children = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                CHILDREN_ATTRIBUTES.iter().for_each(|key| {
-                    renderer.maybe_add_extra_attribute(key, self.attribute(key));
-                });
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        let tbody = Tag::tbody().render(children);
-        Ok(Tag::table()
+
+        let tbody = Tag::tbody();
+        let table = Tag::table()
             .add_style("width", "100%")
             .add_style("border-collapse", "collapse")
             .maybe_add_style("border", self.attribute("border"))
@@ -122,8 +112,20 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
             .maybe_add_style("font-family", self.attribute("font-family"))
             .add_attribute("cellspacing", "0")
             .add_attribute("cellpadding", "0")
-            .add_class("mj-accordion")
-            .render(tbody))
+            .add_class("mj-accordion");
+
+        table.render_open(buf);
+        tbody.render_open(buf);
+        for child in self.element.children.iter() {
+            let mut renderer = child.renderer(Rc::clone(&self.header));
+            CHILDREN_ATTRIBUTES.iter().for_each(|key| {
+                renderer.maybe_add_extra_attribute(key, self.attribute(key));
+            });
+            renderer.render(opts, buf)?;
+        }
+        tbody.render_close(buf);
+        table.render_close(buf);
+        Ok(())
     }
 }
 

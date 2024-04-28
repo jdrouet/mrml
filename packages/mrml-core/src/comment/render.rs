@@ -2,7 +2,7 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::Comment;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
 
 struct CommentRender<'e, 'h> {
     header: Rc<RefCell<Header<'h>>>,
@@ -14,12 +14,13 @@ impl<'e, 'h> Render<'e, 'h> for CommentRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        if opts.disable_comments {
-            Ok(String::default())
-        } else {
-            Ok(String::from("<!--") + &self.element.children + "-->")
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        if !opts.disable_comments {
+            buf.push_str("<!--");
+            buf.push_str(self.element.children.as_str());
+            buf.push_str("-->");
         }
+        Ok(())
     }
 }
 

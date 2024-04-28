@@ -2,11 +2,11 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjAccordionElement, NAME};
-use crate::helper::condition::negation_conditional_tag;
+use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_NEGATION_CONDITIONAL_TAG};
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable, Tag};
+use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
@@ -27,42 +27,45 @@ struct MjAccordionElementRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjAccordionElementRender<'e, 'h> {
-    fn render_title(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_title(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render(opts)
+            renderer.render(opts, buf)
         } else {
             let child = MjAccordionTitle::default();
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render(opts)
+            renderer.render(opts, buf)
         }
     }
 
-    fn render_text(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_text(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
         if let Some(ref child) = self.element.children.text {
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render(opts)
+            renderer.render(opts, buf)
         } else {
             let child = MjAccordionText::default();
             let mut renderer = child.renderer(Rc::clone(&self.header));
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render(opts)
+            renderer.render(opts, buf)
         }
     }
 
-    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
-        Ok(self.render_title(opts)? + &self.render_text(opts)?)
+    fn render_children(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        self.render_title(opts, buf)?;
+        self.render_text(opts, buf)?;
+
+        Ok(())
     }
 }
 
@@ -87,28 +90,35 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionElementRender<'e, 'h> {
         self.header.borrow()
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let input = negation_conditional_tag(
-            Tag::new("input")
-                .add_attribute("type", "checkbox")
-                .add_class("mj-accordion-checkbox")
-                .add_style("display", "none")
-                .closed(),
-        );
-        let div = Tag::div().render(self.render_children(opts)?);
+    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+        let input = Tag::new("input")
+            .add_attribute("type", "checkbox")
+            .add_class("mj-accordion-checkbox")
+            .add_style("display", "none");
+        let div = Tag::div();
         let label = Tag::new("label")
             .add_class("mj-accordion-element")
             .add_style("font-size", "13px")
-            .maybe_add_style("font-family", self.attribute("font-family"))
-            .render(input + &div);
+            .maybe_add_style("font-family", self.attribute("font-family"));
         let td = Tag::td()
             .add_style("padding", "0px")
-            .maybe_add_style("background-color", self.attribute("background-color"))
-            .render(label);
-        let tr = Tag::tr()
-            .maybe_add_class(self.attribute("css-class"))
-            .render(td);
-        Ok(tr)
+            .maybe_add_style("background-color", self.attribute("background-color"));
+        let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
+
+        tr.render_open(buf);
+        td.render_open(buf);
+        label.render_open(buf);
+        buf.push_str(START_NEGATION_CONDITIONAL_TAG);
+        input.render_closed(buf);
+        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
+        div.render_open(buf);
+        self.render_children(opts, buf)?;
+        div.render_close(buf);
+        label.render_close(buf);
+        td.render_close(buf);
+        tr.render_close(buf);
+
+        Ok(())
     }
 }
 
@@ -151,6 +161,7 @@ mod tests {
             },
         };
         let renderer = element.renderer(head);
-        let _rendered = renderer.render(&opts).unwrap();
+        let mut buf = String::default();
+        renderer.render(&opts, &mut buf).unwrap();
     }
 }
