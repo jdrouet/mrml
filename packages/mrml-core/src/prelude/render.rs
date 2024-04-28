@@ -68,7 +68,7 @@ pub struct Header<'h> {
     font_families: Map<&'h str, &'h str>,
     used_font_families: Set<String>,
     media_queries: Map<String, Size>,
-    styles: Set<String>,
+    styles: Set<Cow<'static, str>>,
     lang: Option<String>,
     generator: AtomicU16,
 }
@@ -169,15 +169,15 @@ impl<'h> Header<'h> {
         self.media_queries.insert(classname, size);
     }
 
-    pub fn styles(&self) -> &Set<String> {
+    pub fn styles(&self) -> &Set<Cow<'static, str>> {
         &self.styles
     }
 
-    pub fn add_style(&mut self, value: String) {
-        self.styles.insert(value);
+    pub fn add_style<V: Into<Cow<'static, str>>>(&mut self, value: V) {
+        self.styles.insert(value.into());
     }
 
-    pub fn maybe_add_style(&mut self, value: Option<String>) {
+    pub fn maybe_add_style<V: Into<Cow<'static, str>>>(&mut self, value: Option<V>) {
         if let Some(value) = value {
             self.add_style(value);
         }

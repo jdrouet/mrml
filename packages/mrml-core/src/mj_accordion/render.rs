@@ -27,37 +27,30 @@ struct MjAccordionRender<'e, 'h> {
     raw_siblings: usize,
 }
 
+const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important; }
+@media yahoo, only screen and (min-width:0) {
+  .mj-accordion-element { display:block; }
+  input.mj-accordion-checkbox, .mj-accordion-less { display: none !important; }
+  input.mj-accordion-checkbox+* .mj-accordion-title { cursor: pointer; touch-action: manipulation; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+  input.mj-accordion-checkbox+* .mj-accordion-content { overflow: hidden; display: none; }
+  input.mj-accordion-checkbox+* .mj-accordion-more { display: block !important; }
+  input.mj-accordion-checkbox:checked+* .mj-accordion-content { display: block; }
+  input.mj-accordion-checkbox:checked+* .mj-accordion-more { display: none !important; }
+  input.mj-accordion-checkbox:checked+* .mj-accordion-less { display: block !important; }
+}
+.moz-text-html input.mj-accordion-checkbox+* .mj-accordion-title { cursor: auto; touch-action: auto; -webkit-user-select: auto; -moz-user-select: auto; user-select: auto; }
+.moz-text-html input.mj-accordion-checkbox+* .mj-accordion-content { overflow: hidden; display: block; }
+.moz-text-html input.mj-accordion-checkbox+* .mj-accordion-ico { display: none; }
+@goodbye { @gmail }
+"#;
+
 impl<'e, 'h> MjAccordionRender<'e, 'h> {
-    fn render_style(&self) -> String {
-        r#"
-        noinput.mj-accordion-checkbox { display: block! important; }
-
-        @media yahoo, only screen and (min-width:0) {
-          .mj-accordion-element { display:block; }
-          input.mj-accordion-checkbox, .mj-accordion-less { display: none !important; }
-          input.mj-accordion-checkbox+* .mj-accordion-title { cursor: pointer; touch-action: manipulation; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
-          input.mj-accordion-checkbox+* .mj-accordion-content { overflow: hidden; display: none; }
-          input.mj-accordion-checkbox+* .mj-accordion-more { display: block !important; }
-          input.mj-accordion-checkbox:checked+* .mj-accordion-content { display: block; }
-          input.mj-accordion-checkbox:checked+* .mj-accordion-more { display: none !important; }
-          input.mj-accordion-checkbox:checked+* .mj-accordion-less { display: block !important; }
-        }
-
-        .moz-text-html input.mj-accordion-checkbox+* .mj-accordion-title { cursor: auto; touch-action: auto; -webkit-user-select: auto; -moz-user-select: auto; user-select: auto; }
-        .moz-text-html input.mj-accordion-checkbox+* .mj-accordion-content { overflow: hidden; display: block; }
-        .moz-text-html input.mj-accordion-checkbox+* .mj-accordion-ico { display: none; }
-
-        @goodbye { @gmail }
-        "#.to_string()
-    }
-
     fn update_header(&self) {
-        let style = self.render_style();
         let font_families = self.attribute("font-family");
         self.header
             .borrow_mut()
             .maybe_add_font_families(font_families);
-        self.header.borrow_mut().add_style(style);
+        self.header.borrow_mut().add_style(STYLE);
     }
 }
 
