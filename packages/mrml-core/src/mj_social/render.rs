@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjSocial, MjSocialChild, NAME};
-use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
@@ -86,15 +85,15 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
         let inner_tbody = Tag::tbody();
         let child_attributes = self.build_child_attributes();
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         table.render_open(buf);
         tr.render_open(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
 
         for (index, child) in self.element.children.iter().enumerate() {
-            buf.push_str(START_CONDITIONAL_TAG);
+            buf.start_conditional_tag();
             td.render_open(buf);
-            buf.push_str(END_CONDITIONAL_TAG);
+            buf.end_conditional_tag();
             inner_table.render_open(buf);
             inner_tbody.render_open(buf);
             let mut renderer = child.renderer(Rc::clone(&self.header));
@@ -105,15 +104,15 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             renderer.render(opts, buf)?;
             inner_tbody.render_close(buf);
             inner_table.render_close(buf);
-            buf.push_str(START_CONDITIONAL_TAG);
+            buf.start_conditional_tag();
             td.render_close(buf);
-            buf.push_str(END_CONDITIONAL_TAG);
+            buf.end_conditional_tag();
         }
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         tr.render_close(buf);
         table.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         Ok(())
     }
 

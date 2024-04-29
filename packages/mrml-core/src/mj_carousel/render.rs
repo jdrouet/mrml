@@ -2,10 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjCarousel, MjCarouselChild, NAME};
-use crate::helper::condition::{
-    END_CONDITIONAL_TAG, END_NEGATION_CONDITIONAL_TAG, START_MSO_CONDITIONAL_TAG,
-    START_MSO_NEGATION_CONDITIONAL_TAG,
-};
 use crate::helper::size::{Pixel, Size};
 use crate::helper::style::Style;
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
@@ -228,9 +224,9 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
                 .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_container_width(self.container_width.clone());
 
-            buf.push_str(START_MSO_CONDITIONAL_TAG);
+            buf.start_mso_conditional_tag();
             renderer.render(opts, buf)?;
-            buf.push_str(END_CONDITIONAL_TAG);
+            buf.end_conditional_tag();
         }
         Ok(())
     }
@@ -446,7 +442,7 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselRender<'e, 'h> {
             .add_class(format!("mj-carousel-{}-content", self.id));
         let div = Tag::div().add_class("mj-carousel");
 
-        buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
+        buf.start_mso_negation_conditional_tag();
         div.render_open(buf);
         self.render_radios(opts, buf)?;
         inner_div.render_open(buf);
@@ -454,7 +450,7 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselRender<'e, 'h> {
         self.render_carousel(opts, buf)?;
         inner_div.render_close(buf);
         div.render_close(buf);
-        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
+        buf.end_negation_conditional_tag();
         self.render_fallback(opts, buf)?;
 
         Ok(())

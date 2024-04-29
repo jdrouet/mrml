@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjAccordionTitle, NAME};
-use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_NEGATION_CONDITIONAL_TAG};
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
@@ -60,12 +59,12 @@ impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("icon-align"))
             .add_class("mj-accordion-ico");
 
-        buf.push_str(START_NEGATION_CONDITIONAL_TAG);
+        buf.start_negation_conditional_tag();
         td.render_open(buf);
         img_more.render_closed(buf);
         img_less.render_closed(buf);
         td.render_close(buf);
-        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
+        buf.end_negation_conditional_tag();
     }
 }
 

@@ -2,10 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjNavbar, MjNavbarChild, NAME};
-use crate::helper::condition::{
-    END_CONDITIONAL_TAG, END_NEGATION_CONDITIONAL_TAG, START_CONDITIONAL_TAG,
-    START_MSO_NEGATION_CONDITIONAL_TAG,
-};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
@@ -103,9 +99,9 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .set_style_ico_close(Tag::new("span"))
             .add_class("mj-menu-icon-close");
 
-        buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
+        buf.start_mso_negation_conditional_tag();
         input.render_closed(buf);
-        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
+        buf.end_negation_conditional_tag();
 
         div.render_open(buf);
         label.render_open(buf);
@@ -204,10 +200,10 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         }
 
         div.render_open(buf);
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         table.render_open(buf);
         tr.render_open(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
 
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(Rc::clone(&self.header));
@@ -215,10 +211,10 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
             renderer.render(opts, buf)?;
         }
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         tr.render_close(buf);
         table.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         div.render_close(buf);
 
         Ok(())

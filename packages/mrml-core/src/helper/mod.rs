@@ -1,6 +1,4 @@
 #[cfg(feature = "render")]
-pub mod condition;
-#[cfg(feature = "render")]
 pub mod size;
 #[cfg(any(feature = "render", feature = "print"))]
 pub mod sort;

@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjNavbarLink, NAME};
-use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
@@ -119,13 +118,13 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
             .set_style_td(Tag::td())
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         td.render_open(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         self.render_content(opts, buf)?;
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         td.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
 
         Ok(())
     }

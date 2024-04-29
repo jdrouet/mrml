@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjText, NAME};
-use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
 struct MjTextRender<'e, 'h> {
@@ -49,17 +48,17 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
             .add_style("vertical-align", "top")
             .add_style("height", height.to_owned());
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         table.render_open(buf);
         tr.render_open(buf);
         td.render_open(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         self.render_content(opts, buf)?;
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         td.render_close(buf);
         tr.render_close(buf);
         table.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         Ok(())
     }
 }

@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::MjHead;
-use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
 use crate::prelude::hash::Map;
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
@@ -181,14 +180,14 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         if links.is_empty() && imports.is_empty() {
             return;
         } else {
-            buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
+            buf.start_mso_negation_conditional_tag();
             buf.push_str(&links);
             if !imports.is_empty() {
                 buf.push_str("<style type=\"text/css\">");
                 buf.push_str(&imports);
                 buf.push_str("</style>");
             }
-            buf.push_str(END_NEGATION_CONDITIONAL_TAG);
+            buf.end_negation_conditional_tag();
         }
     }
 
@@ -289,9 +288,9 @@ impl<'e, 'h> Render<'e, 'h> for MjHeadRender<'e, 'h> {
             buf.push_str(title);
         }
         buf.push_str("</title>");
-        buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
+        buf.start_mso_negation_conditional_tag();
         buf.push_str("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
-        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
+        buf.end_negation_conditional_tag();
         buf.push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
         buf.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
         buf.push_str(STYLE_BASE);

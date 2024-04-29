@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjGroup, NAME};
-use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
@@ -107,13 +106,13 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
                             .or_else(|| renderer.attribute("width")),
                     );
 
-                buf.push_str(START_CONDITIONAL_TAG);
+                buf.start_conditional_tag();
                 td.render_open(buf);
-                buf.push_str(END_CONDITIONAL_TAG);
+                buf.end_conditional_tag();
                 renderer.render(opts, buf)?;
-                buf.push_str(START_CONDITIONAL_TAG);
+                buf.start_conditional_tag();
                 td.render_close(buf);
-                buf.push_str(END_CONDITIONAL_TAG);
+                buf.end_conditional_tag();
             }
         }
         Ok(())
@@ -186,15 +185,15 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         let tr = Tag::tr();
 
         div.render_open(buf);
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         table.render_open(buf);
         tr.render_open(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         self.render_children(opts, buf)?;
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         tr.render_close(buf);
         table.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         div.render_close(buf);
 
         Ok(())

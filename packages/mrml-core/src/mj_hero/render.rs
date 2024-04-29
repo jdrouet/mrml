@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjHero, NAME};
-use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
@@ -181,11 +180,11 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .add_class("mj-hero-content");
         let inner_table = self.set_style_inner_table(Tag::table_presentation());
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         table.render_open(buf);
         tr.render_open(buf);
         outlook_inner_td.render_open(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
 
         outlook_inner_div.render_open(buf);
         inner_table.render_open(buf);
@@ -203,11 +202,11 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
         inner_table.render_close(buf);
         outlook_inner_div.render_close(buf);
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         outlook_inner_td.render_close(buf);
         tr.render_close(buf);
         table.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
 
         Ok(())
     }
@@ -312,12 +311,12 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         let tbody = Tag::tbody();
         let tr = self.set_style_tr(Tag::tr());
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         outlook_table.render_open(buf);
         outlook_tr.render_open(buf);
         outlook_td.render_open(buf);
         v_image.render_closed(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
 
         div.render_open(buf);
         table.render_open(buf);
@@ -331,11 +330,11 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         table.render_close(buf);
         div.render_close(buf);
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         outlook_td.render_close(buf);
         outlook_tr.render_close(buf);
         outlook_table.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
 
         Ok(())
     }

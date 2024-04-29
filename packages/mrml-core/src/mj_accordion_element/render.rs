@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjAccordionElement, NAME};
-use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_NEGATION_CONDITIONAL_TAG};
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;
 use crate::prelude::hash::Map;
@@ -108,9 +107,9 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionElementRender<'e, 'h> {
         tr.render_open(buf);
         td.render_open(buf);
         label.render_open(buf);
-        buf.push_str(START_NEGATION_CONDITIONAL_TAG);
+        buf.start_negation_conditional_tag();
         input.render_closed(buf);
-        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
+        buf.end_negation_conditional_tag();
         div.render_open(buf);
         self.render_children(opts, buf)?;
         div.render_close(buf);

@@ -2,7 +2,6 @@ use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{MjWrapper, NAME};
-use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::Pixel;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
@@ -63,9 +62,9 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
                     .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
                 tr.render_open(buf);
                 td.render_open(buf);
-                buf.push_str(END_CONDITIONAL_TAG);
+                buf.end_conditional_tag();
                 renderer.render(opts, buf)?;
-                buf.push_str(START_CONDITIONAL_TAG);
+                buf.start_conditional_tag();
                 td.render_close(buf);
                 tr.render_close(buf);
             }

@@ -3,7 +3,6 @@ use std::convert::TryFrom;
 use std::rc::Rc;
 
 use super::{MjSection, NAME};
-use crate::helper::condition::{END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Percent, Pixel};
 use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
 
@@ -232,9 +231,9 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         vrect.render_open(buf);
         vfill.render_closed(buf);
         vtextbox.render_open(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         content(buf)?;
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         vtextbox.render_close(buf);
         vrect.render_close(buf);
 
@@ -279,7 +278,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             .add_style("font-size", "0px")
             .add_style("mso-line-height-rule", "exactly");
 
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         table.render_open(buf);
         tr.render_open(buf);
         td.render_open(buf);
@@ -287,7 +286,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         td.render_close(buf);
         tr.render_close(buf);
         table.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
 
         Ok(())
     }
@@ -316,18 +315,18 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_container_width(self.container_width().clone());
             if child.is_raw() {
-                buf.push_str(END_CONDITIONAL_TAG);
+                buf.end_conditional_tag();
                 renderer.render(opts, buf)?;
-                buf.push_str(START_CONDITIONAL_TAG);
+                buf.start_conditional_tag();
             } else {
                 let td = renderer
                     .set_style("td-outlook", Tag::td())
                     .maybe_add_attribute("align", renderer.attribute("align"))
                     .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
                 td.render_open(buf);
-                buf.push_str(END_CONDITIONAL_TAG);
+                buf.end_conditional_tag();
                 renderer.render(opts, buf)?;
-                buf.push_str(START_CONDITIONAL_TAG);
+                buf.start_conditional_tag();
                 td.render_close(buf);
             }
         }
@@ -402,11 +401,11 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         tbody.render_open(buf);
         tr.render_open(buf);
         td.render_open(buf);
-        buf.push_str(START_CONDITIONAL_TAG);
+        buf.start_conditional_tag();
         inner_table.render_open(buf);
         self.render_wrapped_children(opts, buf)?;
         inner_table.render_close(buf);
-        buf.push_str(END_CONDITIONAL_TAG);
+        buf.end_conditional_tag();
         td.render_close(buf);
         tr.render_close(buf);
         tbody.render_close(buf);
@@ -460,17 +459,17 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         if self.has_background() {
             self.render_with_background(buf, |buf| {
                 self.render_wrap(buf, |buf| {
-                    buf.push_str(END_CONDITIONAL_TAG);
+                    buf.end_conditional_tag();
                     self.render_section(opts, buf)?;
-                    buf.push_str(START_CONDITIONAL_TAG);
+                    buf.start_conditional_tag();
                     Ok(())
                 })
             })?;
         } else {
             self.render_wrap(buf, |buf| {
-                buf.push_str(END_CONDITIONAL_TAG);
+                buf.end_conditional_tag();
                 self.render_section(opts, buf)?;
-                buf.push_str(START_CONDITIONAL_TAG);
+                buf.start_conditional_tag();
                 Ok(())
             })?;
         }
@@ -488,9 +487,9 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             if self.has_background() {
                 self.render_with_background(buf, |buf| self.render_section(opts, buf))?;
             } else {
-                buf.push_str(END_CONDITIONAL_TAG);
+                buf.end_conditional_tag();
                 self.render_section(opts, buf)?;
-                buf.push_str(START_CONDITIONAL_TAG);
+                buf.start_conditional_tag();
             }
             Ok(())
         })
