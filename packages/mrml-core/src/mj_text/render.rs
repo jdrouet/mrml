@@ -10,7 +10,7 @@ struct MjTextRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjTextRender<'e, 'h> {
-    fn set_style_text(&self, tag: Tag) -> Tag {
+    fn set_style_text<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("font-style", self.attribute("font-style"))

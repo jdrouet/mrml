@@ -181,7 +181,7 @@ pub trait Render<'element, 'header> {
             .and_then(|value| Pixel::try_from(value.as_str()).ok())
     }
 
-    fn set_style(&self, _name: &str, tag: Tag) -> Tag {
+    fn set_style<'a>(&self, _name: &str, tag: Tag<'a>) -> Tag<'a> {
         tag
     }
 

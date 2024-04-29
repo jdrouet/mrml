@@ -49,7 +49,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
         }
     }
 
-    fn set_style_carousel_div(&self, tag: Tag) -> Tag {
+    fn set_style_carousel_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "table")
             .add_style("width", "100%")
             .add_style("table-layout", "fixed")
@@ -57,29 +57,29 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
             .add_style("font-size", "0px")
     }
 
-    fn set_style_carousel_table(&self, tag: Tag) -> Tag {
+    fn set_style_carousel_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("caption-side", "top")
             .add_style("display", "table-caption")
             .add_style("table-layout", "fixed")
             .add_style("width", "100%")
     }
 
-    fn set_style_images_td(&self, tag: Tag) -> Tag {
+    fn set_style_images_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("padding", "0px")
     }
 
-    fn set_style_controls_div(&self, tag: Tag) -> Tag {
+    fn set_style_controls_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none")
             .add_style("mso-hide", "all")
     }
 
-    fn set_style_controls_img(&self, tag: Tag) -> Tag {
+    fn set_style_controls_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "block")
             .maybe_add_style("width", self.attribute("icon-width"))
             .add_style("height", "auto")
     }
 
-    fn set_style_controls_td(&self, tag: Tag) -> Tag {
+    fn set_style_controls_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("font-size", "0px")
             .add_style("display", "none")
             .add_style("mso-hide", "all")

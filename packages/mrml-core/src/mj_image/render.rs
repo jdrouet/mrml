@@ -46,7 +46,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
             .or_else(|| self.get_box_width())
     }
 
-    fn set_style_img(&self, tag: Tag) -> Tag {
+    fn set_style_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         let tag = tag
             .maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-left", self.attribute("left"))
@@ -69,7 +69,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
         tag.maybe_add_style("font-size", self.attribute("font-size"))
     }
 
-    fn set_style_td(&self, tag: Tag) -> Tag {
+    fn set_style_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         if self.is_full_width() {
             tag
         } else {
@@ -77,7 +77,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
         }
     }
 
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         let tag = if self.is_full_width() {
             tag.add_style("min-width", "100%")
                 .add_style("max-width", "100%")

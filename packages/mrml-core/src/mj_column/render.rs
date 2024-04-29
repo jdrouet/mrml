@@ -105,12 +105,12 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         }
     }
 
-    fn set_style_td_outlook(&self, tag: Tag) -> Tag {
+    fn set_style_td_outlook<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
             .add_style("width", self.get_width_as_pixel())
     }
 
-    fn set_style_root_div(&self, tag: Tag) -> Tag {
+    fn set_style_root_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("font-size", "0px")
             .add_style("text-align", "left")
             .maybe_add_style("direction", self.attribute("direction"))
@@ -119,7 +119,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("width", self.get_mobile_width().map(|v| v.to_string()))
     }
 
-    fn set_style_table_gutter(&self, tag: Tag) -> Tag {
+    fn set_style_table_gutter<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style(
             "background-color",
             self.attribute("inner-background-color")
@@ -157,7 +157,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         )
     }
 
-    fn set_style_table_simple(&self, tag: Tag) -> Tag {
+    fn set_style_table_simple<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
             .maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
@@ -168,7 +168,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn set_style_gutter_td(&self, tag: Tag) -> Tag {
+    fn set_style_gutter_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         self.set_style_table_simple(tag)
             .maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
@@ -196,7 +196,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         Ok(())
     }
 
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         if self.has_gutter() {
             self.set_style_table_gutter(tag)
         } else {
@@ -302,7 +302,7 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn set_style(&self, name: &str, tag: Tag) -> Tag {
+    fn set_style<'a>(&self, name: &str, tag: Tag<'a>) -> Tag<'a> {
         match name {
             "td-outlook" => self.set_style_td_outlook(tag),
             _ => tag,

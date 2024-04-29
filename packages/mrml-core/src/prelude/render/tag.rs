@@ -3,15 +3,15 @@ use std::borrow::Cow;
 use super::RenderBuffer;
 use crate::prelude::hash::{Map, Set};
 
-pub struct Tag {
-    name: Cow<'static, str>,
-    attributes: Map<Cow<'static, str>, Cow<'static, str>>,
-    classes: Set<Cow<'static, str>>,
+pub struct Tag<'a> {
+    name: Cow<'a, str>,
+    attributes: Map<Cow<'a, str>, Cow<'a, str>>,
+    classes: Set<Cow<'a, str>>,
     // in order to keep the style in the same order the've been added
-    styles: Vec<(Cow<'static, str>, Cow<'static, str>)>,
+    styles: Vec<(Cow<'a, str>, Cow<'a, str>)>,
 }
 
-impl Tag {
+impl<'a> Tag<'a> {
     pub fn table() -> Self {
         Self::new("table")
     }
@@ -37,7 +37,7 @@ impl Tag {
         Self::new("div")
     }
 
-    pub fn new<N: Into<Cow<'static, str>>>(name: N) -> Self {
+    pub fn new<N: Into<Cow<'a, str>>>(name: N) -> Self {
         Self {
             name: name.into(),
             attributes: Map::new(),
@@ -46,7 +46,7 @@ impl Tag {
         }
     }
 
-    pub fn add_class<C: Into<Cow<'static, str>>>(mut self, value: C) -> Self {
+    pub fn add_class<C: Into<Cow<'a, str>>>(mut self, value: C) -> Self {
         self.classes.insert(value.into());
         self
     }
@@ -63,7 +63,7 @@ impl Tag {
         }
     }
 
-    pub fn maybe_add_class<C: Into<Cow<'static, str>>>(self, value: Option<C>) -> Self {
+    pub fn maybe_add_class<C: Into<Cow<'a, str>>>(self, value: Option<C>) -> Self {
         if let Some(value) = value {
             self.add_class(value)
         } else {
@@ -71,7 +71,7 @@ impl Tag {
         }
     }
 
-    pub fn add_attribute<K: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+    pub fn add_attribute<K: Into<Cow<'a, str>>, V: Into<Cow<'a, str>>>(
         mut self,
         name: K,
         value: V,
@@ -80,7 +80,7 @@ impl Tag {
         self
     }
 
-    pub fn maybe_add_attribute<K: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+    pub fn maybe_add_attribute<K: Into<Cow<'a, str>>, V: Into<Cow<'a, str>>>(
         self,
         name: K,
         value: Option<V>,
@@ -92,7 +92,7 @@ impl Tag {
         }
     }
 
-    pub fn add_style<N: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+    pub fn add_style<N: Into<Cow<'a, str>>, V: Into<Cow<'a, str>>>(
         mut self,
         name: N,
         value: V,
@@ -101,7 +101,7 @@ impl Tag {
         self
     }
 
-    pub fn maybe_add_style<N: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+    pub fn maybe_add_style<N: Into<Cow<'a, str>>, V: Into<Cow<'a, str>>>(
         self,
         name: N,
         value: Option<V>,
@@ -114,7 +114,7 @@ impl Tag {
     }
 }
 
-impl Tag {
+impl<'a> Tag<'a> {
     fn render_opening(&self, b: &mut RenderBuffer) {
         b.push('<');
         b.push_str(&self.name);

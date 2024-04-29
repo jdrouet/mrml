@@ -24,13 +24,13 @@ struct MjNavbarRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjNavbarRender<'e, 'h> {
-    fn set_style_input(&self, tag: Tag) -> Tag {
+    fn set_style_input<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none !important")
             .add_style("max-height", "0")
             .add_style("visibility", "hidden")
     }
 
-    fn set_style_label(&self, tag: Tag) -> Tag {
+    fn set_style_label<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "block")
             .add_style("cursor", "pointer")
             .add_style("mso-hide", "all")
@@ -49,7 +49,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .maybe_add_style("padding", self.attribute("ico-padding"))
     }
 
-    fn set_style_trigger(&self, tag: Tag) -> Tag {
+    fn set_style_trigger<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none")
             .add_style("max-height", "0px")
             .add_style("max-width", "0px")
@@ -57,12 +57,12 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .add_style("overflow", "hidden")
     }
 
-    fn set_style_ico_close(&self, tag: Tag) -> Tag {
+    fn set_style_ico_close<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none")
             .add_style("mso-hide", "all")
     }
 
-    fn set_style_ico_open(&self, tag: Tag) -> Tag {
+    fn set_style_ico_open<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("mso-hide", "all")
     }
 

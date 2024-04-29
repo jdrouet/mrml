@@ -79,7 +79,7 @@ pub trait WithMjSectionBackground<'e, 'h>: Render<'e, 'h> {
         }
     }
 
-    fn set_background_style(&self, tag: Tag) -> Tag {
+    fn set_background_style<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         if self.has_background() {
             tag.maybe_add_style("background", self.get_background())
                 .add_style("background-position", self.get_background_position_str())
@@ -240,7 +240,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         Ok(())
     }
 
-    fn set_style_section_div(&self, tag: Tag) -> Tag {
+    fn set_style_section_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         let base = if self.is_full_width() {
             tag
         } else {
@@ -334,12 +334,12 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         Ok(())
     }
 
-    fn set_style_section_inner_div(&self, tag: Tag) -> Tag {
+    fn set_style_section_inner_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("line-height", "0")
             .add_style("font-size", "0")
     }
 
-    fn set_style_section_table(&self, tag: Tag) -> Tag {
+    fn set_style_section_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         let base = if self.is_full_width() {
             tag
         } else {
@@ -349,7 +349,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             .maybe_add_style("border-radius", self.attribute("border-radius"))
     }
 
-    fn set_style_section_td(&self, tag: Tag) -> Tag {
+    fn set_style_section_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
             .maybe_add_style("border-left", self.attribute("border-left"))
@@ -418,7 +418,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         Ok(())
     }
 
-    fn set_style_table_full_width(&self, tag: Tag) -> Tag {
+    fn set_style_table_full_width<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         let base = if self.is_full_width() {
             self.set_background_style(tag)
         } else {

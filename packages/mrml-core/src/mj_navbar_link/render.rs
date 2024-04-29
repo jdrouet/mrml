@@ -14,7 +14,7 @@ struct MjNavbarLinkRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
-    fn set_style_a(&self, tag: Tag) -> Tag {
+    fn set_style_a<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "inline-block")
             .maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
@@ -32,7 +32,7 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn set_style_td(&self, tag: Tag) -> Tag {
+    fn set_style_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
             .maybe_add_style("padding-right", self.attribute("padding-right"))

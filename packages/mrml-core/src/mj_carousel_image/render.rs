@@ -15,7 +15,7 @@ struct MjCarouselImageRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
-    fn set_style_images_img(&self, tag: Tag) -> Tag {
+    fn set_style_images_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
             .maybe_add_style(
@@ -26,12 +26,12 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
             .add_style("height", "auto")
     }
 
-    fn set_style_radio_input(&self, tag: Tag) -> Tag {
+    fn set_style_radio_input<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none")
             .add_style("mso-hide", "all")
     }
 
-    fn set_style_thumbnails_a(&self, tag: Tag) -> Tag {
+    fn set_style_thumbnails_a<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("border", self.attribute("tb-border"))
             .maybe_add_style("border-radius", self.attribute("tb-border-radius"))
             .add_style("display", "inline-block")
@@ -39,7 +39,7 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
             .maybe_add_style("width", self.attribute("tb-width"))
     }
 
-    fn set_style_thumbnails_img(&self, tag: Tag) -> Tag {
+    fn set_style_thumbnails_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "block")
             .add_style("width", "100%")
             .add_style("height", "auto")

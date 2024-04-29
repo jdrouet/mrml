@@ -15,7 +15,7 @@ struct MjTableRender<'e, 'h> {
 impl<'e, 'h> WithMjSectionBackground<'e, 'h> for MjTableRender<'e, 'h> {}
 
 impl<'e, 'h> MjTableRender<'e, 'h> {
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))

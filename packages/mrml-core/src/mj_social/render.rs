@@ -54,7 +54,7 @@ struct MjSocialRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjSocialRender<'e, 'h> {
-    fn set_style_table_vertical(&self, tag: Tag) -> Tag {
+    fn set_style_table_vertical<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0px")
     }
 

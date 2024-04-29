@@ -59,7 +59,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
         (classname.replace('.', "-"), parsed_width)
     }
 
-    fn set_style_root_div(&self, tag: Tag) -> Tag {
+    fn set_style_root_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("font-size", "0")
             .add_style("line-height", "0")
             .add_style("text-align", "left")
@@ -70,7 +70,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn set_style_td_outlook(&self, tag: Tag) -> Tag {
+    fn set_style_td_outlook<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
             .add_style("width", self.current_width().to_string())
     }
@@ -155,7 +155,7 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn set_style(&self, name: &str, tag: Tag) -> Tag {
+    fn set_style<'a>(&self, name: &str, tag: Tag<'a>) -> Tag<'a> {
         match name {
             "td-outlook" => self.set_style_td_outlook(tag),
             _ => tag,

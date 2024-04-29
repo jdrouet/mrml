@@ -43,13 +43,13 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
         Ok(())
     }
 
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("border-collapse", "separate")
             .maybe_add_style("width", self.attribute("width"))
             .add_style("line-height", "100%")
     }
 
-    fn set_style_td(&self, tag: Tag) -> Tag {
+    fn set_style_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
             .maybe_add_style("border-left", self.attribute("border-left"))
@@ -64,7 +64,7 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
             .maybe_add_style("background", self.attribute("background-color"))
     }
 
-    fn set_style_content(&self, tag: Tag) -> Tag {
+    fn set_style_content<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "inline-block")
             .maybe_add_style("width", self.content_width())
             .maybe_add_style("background", self.attribute("background-color"))

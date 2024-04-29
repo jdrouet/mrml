@@ -14,22 +14,22 @@ struct MjHeroRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjHeroRender<'e, 'h> {
-    fn set_style_div(&self, tag: Tag) -> Tag {
+    fn set_style_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0 auto").maybe_add_style(
             "max-width",
             self.container_width.as_ref().map(|w| w.to_string()),
         )
     }
 
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("width", "100%")
     }
 
-    fn set_style_tr(&self, tag: Tag) -> Tag {
+    fn set_style_tr<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("vertical-align", "top")
     }
 
-    fn set_style_td_fluid(&self, tag: Tag) -> Tag {
+    fn set_style_td_fluid<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         // TODO check size type compatibility
         let bg_ratio = self
             .attribute_as_size("background-height")
@@ -42,18 +42,18 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .add_style("width", "0.01%")
     }
 
-    fn set_style_outlook_table(&self, tag: Tag) -> Tag {
+    fn set_style_outlook_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style(
             "width",
             self.container_width.as_ref().map(|w| w.to_string()),
         )
     }
 
-    fn set_style_outlook_inner_table(&self, tag: Tag) -> Tag {
+    fn set_style_outlook_inner_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         self.set_style_outlook_table(tag)
     }
 
-    fn set_style_outlook_inner_td(&self, tag: Tag) -> Tag {
+    fn set_style_outlook_inner_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("background-color", self.attribute("inner-background-color"))
             .maybe_add_style("padding", self.attribute("inner-padding"))
             .maybe_add_style("padding-top", self.attribute("inner-padding-top"))
@@ -62,18 +62,18 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("inner-padding-left"))
     }
 
-    fn set_style_inner_div(&self, tag: Tag) -> Tag {
+    fn set_style_inner_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("background-color", self.attribute("inner-background-color"))
             .maybe_add_style("float", self.attribute("align"))
             .add_style("margin", "0px auto")
             .maybe_add_style("width", self.attribute("width"))
     }
 
-    fn set_style_inner_table(&self, tag: Tag) -> Tag {
+    fn set_style_inner_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("width", "100%").add_style("margin", "0px")
     }
 
-    fn set_style_outlook_image(&self, tag: Tag) -> Tag {
+    fn set_style_outlook_image<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("border", "0")
             .maybe_add_style("height", self.attribute("background-height"))
             .add_style("mso-position-horizontal", "center")
@@ -87,7 +87,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .add_style("z-index", "-3")
     }
 
-    fn set_style_outlook_td(&self, tag: Tag) -> Tag {
+    fn set_style_outlook_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("line-height", "0")
             .add_style("font-size", "0")
             .add_style("mso-line-height-rule", "exactly")
@@ -108,7 +108,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .or_else(|| self.attribute("background-color"))
     }
 
-    fn set_style_hero(&self, tag: Tag) -> Tag {
+    fn set_style_hero<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("background", self.get_background())
             .maybe_add_style("background-position", self.attribute("background-position"))
             .add_style("background-repeat", "no-repeat")

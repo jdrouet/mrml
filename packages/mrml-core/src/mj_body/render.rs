@@ -27,7 +27,7 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
             .maybe_add_attribute("lang", self.header().lang().map(ToString::to_string))
     }
 
-    fn set_body_style(&self, tag: Tag) -> Tag {
+    fn set_body_style<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
     }
 

@@ -46,12 +46,12 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         })
     }
 
-    fn set_style_img(&self, tag: Tag) -> Tag {
+    fn set_style_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
     }
 
-    fn set_style_icon(&self, tag: Tag) -> Tag {
+    fn set_style_icon<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("padding", self.attribute("icon-padding"))
             .add_style("font-size", "0")
             .maybe_add_style(
@@ -64,13 +64,13 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
             .maybe_add_style("width", self.get_icon_size().map(|item| item.to_string()))
     }
 
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("background", self.get_background_color())
             .maybe_add_style("border-radius", self.attribute("border-radius"))
             .maybe_add_style("width", self.get_icon_size().map(|size| size.to_string()))
     }
 
-    fn set_style_td(&self, tag: Tag) -> Tag {
+    fn set_style_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
             .maybe_add_style("padding-right", self.attribute("padding-right"))
@@ -79,12 +79,12 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn set_style_td_text(&self, tag: Tag) -> Tag {
+    fn set_style_td_text<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("vertical-align", "middle")
             .maybe_add_style("padding", self.attribute("text-padding"))
     }
 
-    fn set_style_text(&self, tag: Tag) -> Tag {
+    fn set_style_text<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("font-weight", self.attribute("font-weight"))

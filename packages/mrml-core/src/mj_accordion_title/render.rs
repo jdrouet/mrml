@@ -12,7 +12,7 @@ struct MjAccordionTitleRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
-    fn set_style_img(&self, tag: Tag) -> Tag {
+    fn set_style_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none")
             .maybe_add_style("width", self.attribute("icon-width"))
             .maybe_add_style("height", self.attribute("icon-height"))
