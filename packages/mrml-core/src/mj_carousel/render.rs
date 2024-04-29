@@ -238,30 +238,30 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
         let length = self.element.children.len();
         let mut style = vec![
             Style::default()
-                .add_str_selector(".mj-carousel")
-                .add_str_content("-webkit-user-select: none;")
-                .add_str_content("-moz-user-select: none;")
-                .add_str_content("user-select: none;")
+                .add_selector(".mj-carousel")
+                .add_content("-webkit-user-select: none;")
+                .add_content("-moz-user-select: none;")
+                .add_content("user-select: none;")
                 .to_string(),
             Style::default()
                 .add_selector(format!(".mj-carousel-{}-icons-cell", self.id))
-                .add_str_content("display: table-cell !important;")
+                .add_content("display: table-cell !important;")
                 .add_content(format!(
                     "width: {} !important;",
                     self.attribute("icon-width").unwrap()
                 ))
                 .to_string(),
             Style::default()
-                .add_str_selector(".mj-carousel-radio")
-                .add_str_selector(".mj-carousel-next")
-                .add_str_selector(".mj-carousel-previous")
-                .add_str_content("display: none !important;")
+                .add_selector(".mj-carousel-radio")
+                .add_selector(".mj-carousel-next")
+                .add_selector(".mj-carousel-previous")
+                .add_content("display: none !important;")
                 .to_string(),
             Style::default()
-                .add_str_selector(".mj-carousel-thumbnail")
-                .add_str_selector(".mj-carousel-next")
-                .add_str_selector(".mj-carousel-previous")
-                .add_str_content("touch-action: manipulation;")
+                .add_selector(".mj-carousel-thumbnail")
+                .add_selector(".mj-carousel-next")
+                .add_selector(".mj-carousel-previous")
+                .add_content("touch-action: manipulation;")
                 .to_string(),
         ];
         style.push(
@@ -273,7 +273,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
                         self.id, ext
                     ))
                 })
-                .add_str_content("display: none !important;")
+                .add_content("display: none !important;")
                 .to_string(),
         );
         style.push(
@@ -285,11 +285,11 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
                         self.id, idx + 1, ext, idx + 1
                     ))
                 })
-                .add_str_content("display: block !important;").to_string(),
+                .add_content("display: block !important;").to_string(),
         );
         let base = Style::default()
-            .add_str_selector(".mj-carousel-previous-icons")
-            .add_str_selector(".mj-carousel-next-icons");
+            .add_selector(".mj-carousel-previous-icons")
+            .add_selector(".mj-carousel-next-icons");
         let base = (0..length).fold(base, |res, idx| {
             let ext = repeat(length - idx - 1, "+ * ");
             let index = (idx + 1) % length + 1;
@@ -309,10 +309,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
                 self.id, idx + 1, ext, index
             ))
         });
-        style.push(
-            base.add_str_content("display: block !important;")
-                .to_string(),
-        );
+        style.push(base.add_content("display: block !important;").to_string());
         let base = (0..length).fold(Style::default(), |res, idx| {
             let ext = repeat(length - idx - 1, "+ * ");
             res.add_selector(format!(".mj-carousel-{}-radio-{}:checked {}+ .mj-carousel-content .mj-carousel-{}-thumbnail-{}", self.id, idx + 1, ext, self.id, idx + 1))
@@ -326,9 +323,9 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
         );
         style.push(
             Style::default()
-                .add_str_selector(".mj-carousel-image img + div")
-                .add_str_selector(".mj-carousel-thumbnail img + div")
-                .add_str_content("display: none !important;")
+                .add_selector(".mj-carousel-image img + div")
+                .add_selector(".mj-carousel-thumbnail img + div")
+                .add_content("display: none !important;")
                 .to_string(),
         );
         style.push(
@@ -340,12 +337,12 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
                         self.id, ext
                     ))
                 })
-                .add_str_content("display: none !important;")
+                .add_content("display: none !important;")
                 .to_string(),
         );
         style.push(
             Style::default()
-                .add_str_selector(".mj-carousel-thumbnail:hover")
+                .add_selector(".mj-carousel-thumbnail:hover")
                 .add_content(format!(
                     "border-color: {} !important;",
                     self.attribute("tb-hover-border-color").unwrap()
@@ -355,7 +352,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
         style.push((0..length).fold(Style::default(), |res, idx| {
             let ext = repeat(length - idx - 1, "+ * ");
             res.add_selector(format!(".mj-carousel-{}-thumbnail-{}:hover {}+ .mj-carousel-main .mj-carousel-image-{}", self.id, idx + 1, ext, idx + 1))
-        }).add_str_content("display: block !important;").to_string());
+        }).add_content("display: block !important;").to_string());
         style.push(".mj-carousel noinput { display:block !important; }".into());
         style.push(
             ".mj-carousel noinput .mj-carousel-image-1 { display: block !important;  }".into(),

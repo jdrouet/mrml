@@ -1,26 +1,20 @@
+use std::borrow::Cow;
+
 #[derive(Default)]
 pub struct Style {
-    selectors: Vec<String>,
-    content: Vec<String>,
+    selectors: Vec<Cow<'static, str>>,
+    content: Vec<Cow<'static, str>>,
 }
 
 impl Style {
-    pub fn add_content(mut self, value: String) -> Self {
-        self.content.push(value);
+    pub fn add_content<V: Into<Cow<'static, str>>>(mut self, value: V) -> Self {
+        self.content.push(value.into());
         self
     }
 
-    pub fn add_str_content(self, value: &str) -> Self {
-        self.add_content(value.to_string())
-    }
-
-    pub fn add_selector(mut self, name: String) -> Self {
-        self.selectors.push(name);
+    pub fn add_selector<V: Into<Cow<'static, str>>>(mut self, name: V) -> Self {
+        self.selectors.push(name.into());
         self
-    }
-
-    pub fn add_str_selector(self, name: &str) -> Self {
-        self.add_selector(name.to_string())
     }
 }
 
@@ -39,10 +33,10 @@ mod tests {
     #[test]
     fn basic() {
         let result = Style::default()
-            .add_selector("body".into())
-            .add_str_selector("main")
-            .add_content("background: red;".into())
-            .add_str_content("color: blue;")
+            .add_selector("body".to_string())
+            .add_selector("main")
+            .add_content("background: red;".to_string())
+            .add_content("color: blue;")
             .to_string();
         let expected = "body,\nmain { background: red;\ncolor: blue; }";
         assert_eq!(result, expected);
