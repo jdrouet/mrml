@@ -114,9 +114,9 @@ impl Tag {
     }
 
     fn opening(&self) -> String {
-        let mut res = String::new();
+        let mut res = super::RenderBuffer::default();
         self.render_opening(&mut res);
-        res
+        res.into()
     }
 
     fn render_opening(&self, b: &mut RenderBuffer) {
@@ -152,9 +152,9 @@ impl Tag {
     }
 
     pub fn open(&self) -> String {
-        let mut buffer = String::new();
-        self.render_open(&mut buffer);
-        buffer
+        let mut res = super::RenderBuffer::default();
+        self.render_open(&mut res);
+        res.into()
     }
 
     pub fn render_open(&self, b: &mut RenderBuffer) {
@@ -197,10 +197,10 @@ impl Tag {
     }
 
     pub fn render<T: AsRef<str>>(&self, input: T) -> String {
-        let mut buf = String::default();
+        let mut buf = super::RenderBuffer::default();
         self.render_open(&mut buf);
         buf.push_str(input.as_ref());
         self.render_close(&mut buf);
-        buf
+        buf.into()
     }
 }

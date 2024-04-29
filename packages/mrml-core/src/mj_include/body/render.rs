@@ -89,31 +89,31 @@ mod tests {
     use crate::mj_raw::{MjRaw, MjRawChild};
     use crate::mj_text::MjText;
     use crate::node::Node;
-    use crate::prelude::render::{Header, RenderOptions, Renderable};
+    use crate::prelude::render::{Header, RenderBuffer, RenderOptions, Renderable};
     use crate::text::Text;
 
     #[test]
     fn basic_mjml_kind() {
         let opts = RenderOptions::default();
         let mj_head = Some(MjHead::default());
-        let expected = {
+        let expected: String = {
             let header = Rc::new(RefCell::new(Header::new(&mj_head)));
             let elt = MjText::default();
             let renderer = elt.renderer(header);
-            let mut buf = String::default();
+            let mut buf = RenderBuffer::default();
             renderer.render(&opts, &mut buf).unwrap();
-            buf
+            buf.into()
         };
-        let result = {
+        let result: String = {
             let header = Rc::new(RefCell::new(Header::new(&mj_head)));
             let mut elt = MjIncludeBody::default();
             elt.attributes.path = "memory:foo.mjml".to_string();
             elt.children
                 .push(MjIncludeBodyChild::MjText(MjText::default()));
             let renderer = elt.renderer(header);
-            let mut buf = String::default();
+            let mut buf = RenderBuffer::default();
             renderer.render(&opts, &mut buf).unwrap();
-            buf
+            buf.into()
         };
         assert_eq!(expected, result);
     }
@@ -123,7 +123,7 @@ mod tests {
         let opts = RenderOptions::default();
         let mj_head = Some(MjHead::default());
 
-        let expected = {
+        let expected: String = {
             let header = Rc::new(RefCell::new(Header::new(&mj_head)));
 
             let mut node = Node::new("span".to_string());
@@ -133,11 +133,11 @@ mod tests {
             let mut root = MjRaw::default();
             root.children.push(MjRawChild::Node(node));
             let renderer = root.renderer(header);
-            let mut buf = String::default();
+            let mut buf = RenderBuffer::default();
             renderer.render(&opts, &mut buf).unwrap();
-            buf
+            buf.into()
         };
-        let result = {
+        let result: String = {
             let header = Rc::new(RefCell::new(Header::new(&mj_head)));
 
             let mut node = Node::new("span".to_string());
@@ -150,9 +150,9 @@ mod tests {
             elt.children.push(MjIncludeBodyChild::Node(node));
 
             let renderer = elt.renderer(header);
-            let mut buf = String::default();
+            let mut buf = RenderBuffer::default();
             renderer.render(&opts, &mut buf).unwrap();
-            buf
+            buf.into()
         };
         assert_eq!(expected, result);
     }

@@ -458,8 +458,8 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         td.render_open(buf);
         //
         if self.has_background() {
-            self.render_with_background(buf, |buf: &mut String| {
-                self.render_wrap(buf, |buf: &mut String| {
+            self.render_with_background(buf, |buf| {
+                self.render_wrap(buf, |buf| {
                     buf.push_str(END_CONDITIONAL_TAG);
                     self.render_section(opts, buf)?;
                     buf.push_str(START_CONDITIONAL_TAG);
@@ -467,7 +467,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
                 })
             })?;
         } else {
-            self.render_wrap(buf, |buf: &mut String| {
+            self.render_wrap(buf, |buf| {
                 buf.push_str(END_CONDITIONAL_TAG);
                 self.render_section(opts, buf)?;
                 buf.push_str(START_CONDITIONAL_TAG);
@@ -484,11 +484,9 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
     }
 
     fn render_simple(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
-        self.render_wrap(buf, |buf: &mut String| {
+        self.render_wrap(buf, |buf| {
             if self.has_background() {
-                self.render_with_background(buf, |buf: &mut String| {
-                    self.render_section(opts, buf)
-                })?;
+                self.render_with_background(buf, |buf| self.render_section(opts, buf))?;
             } else {
                 buf.push_str(END_CONDITIONAL_TAG);
                 self.render_section(opts, buf)?;

@@ -5,10 +5,12 @@ use std::rc::Rc;
 use crate::helper::size::{Pixel, Size};
 use crate::helper::spacing::Spacing;
 
+mod buffer;
 mod header;
 mod options;
 mod tag;
 
+pub use buffer::*;
 pub use header::*;
 pub use options::*;
 pub use tag::*;
@@ -18,8 +20,6 @@ pub enum Error {
     #[error("unknown fragment {0}")]
     UnknownFragment(String),
 }
-
-pub type RenderBuffer = String;
 
 #[deprecated = "use mrml::prelude::render::RenderOptions instead"]
 pub type Options = RenderOptions;

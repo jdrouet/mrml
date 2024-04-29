@@ -161,7 +161,7 @@ mod tests {
             },
         };
         let renderer = element.renderer(head);
-        let mut buf = String::default();
+        let mut buf = RenderBuffer::default();
         renderer.render(&opts, &mut buf).unwrap();
     }
 }

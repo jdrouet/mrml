@@ -38,7 +38,7 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
                 .renderer(Rc::clone(&self.header))
                 .render(opts, buf)?;
         }
-        buf.push_str(body_buf.as_str());
+        buf.push_str(body_buf.as_ref());
         buf.push_str("</html>");
         Ok(())
     }
@@ -60,7 +60,7 @@ impl Mjml {
         let header = Rc::new(RefCell::new(header));
         let mut buf = RenderBuffer::default();
         self.renderer(header).render(opts, &mut buf)?;
-        Ok(buf)
+        Ok(buf.into())
     }
 
     pub fn get_title(&self) -> Option<String> {
