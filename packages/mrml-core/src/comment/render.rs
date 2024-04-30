@@ -11,11 +11,11 @@ impl<'e, 'h> Render<'e, 'h> for CommentRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if !self.context.options.disable_comments {
-            buf.push_str("<!--");
-            buf.push_str(self.element.children.as_str());
-            buf.push_str("-->");
+            cursor.buffer.push_str("<!--");
+            cursor.buffer.push_str(self.element.children.as_str());
+            cursor.buffer.push_str("-->");
         }
         Ok(())
     }

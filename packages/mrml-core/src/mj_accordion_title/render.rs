@@ -15,11 +15,7 @@ impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
             .maybe_add_style("height", self.attribute("icon-height"))
     }
 
-    fn render_title(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_title(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let td = Tag::td()
             .add_style("width", "100%")
             .maybe_add_style("background-color", self.attribute("background-color"))
@@ -33,12 +29,12 @@ impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
             .maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_class(self.attribute("css-class"));
 
-        td.render_open(buf);
+        td.render_open(&mut cursor.buffer);
         for child in self.element.children.iter() {
             let renderer = child.renderer(self.context());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
-        td.render_close(buf);
+        td.render_close(&mut cursor.buffer);
 
         Ok(())
     }
@@ -98,9 +94,9 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
-        header.maybe_add_font_families(font_families);
+        cursor.header.maybe_add_font_families(font_families);
 
         let tr = Tag::tr();
         let tbody = Tag::tbody();
@@ -111,23 +107,23 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
             .maybe_add_style("border-bottom", self.attribute("border"));
         let div = Tag::div().add_class("mj-accordion-title");
 
-        div.render_open(buf);
-        table.render_open(buf);
-        tbody.render_open(buf);
-        tr.render_open(buf);
+        div.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
 
         if self.attribute_equals("icon-position", "right") {
-            self.render_title(header, buf)?;
-            self.render_icons(buf);
+            self.render_title(cursor)?;
+            self.render_icons(&mut cursor.buffer);
         } else {
-            self.render_icons(buf);
-            self.render_title(header, buf)?;
+            self.render_icons(&mut cursor.buffer);
+            self.render_title(cursor)?;
         }
 
-        tr.render_close(buf);
-        tbody.render_close(buf);
-        table.render_close(buf);
-        div.render_close(buf);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        div.render_close(&mut cursor.buffer);
 
         Ok(())
     }

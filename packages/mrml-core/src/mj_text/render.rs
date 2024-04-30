@@ -21,26 +21,17 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
             .maybe_add_style("height", self.attribute("height"))
     }
 
-    fn render_content(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let root = self.set_style_text(Tag::div());
-        root.render_open(buf);
+        root.render_open(&mut cursor.buffer);
         for child in self.element.children.iter() {
-            child.renderer(self.context()).render(header, buf)?;
+            child.renderer(self.context()).render(cursor)?;
         }
-        root.render_close(buf);
+        root.render_close(&mut cursor.buffer);
         Ok(())
     }
 
-    fn render_with_height(
-        &self,
-        height: &str,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_with_height(&self, height: &str, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
@@ -48,17 +39,17 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
             .add_style("vertical-align", "top")
             .add_style("height", height.to_owned());
 
-        buf.start_conditional_tag();
-        table.render_open(buf);
-        tr.render_open(buf);
-        td.render_open(buf);
-        buf.end_conditional_tag();
-        self.render_content(header, buf)?;
-        buf.start_conditional_tag();
-        td.render_close(buf);
-        tr.render_close(buf);
-        table.render_close(buf);
-        buf.end_conditional_tag();
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        self.render_content(cursor)?;
+        cursor.buffer.start_conditional_tag();
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
         Ok(())
     }
 }
@@ -85,17 +76,17 @@ impl<'e, 'h> Render<'e, 'h> for MjTextRender<'e, 'h> {
     }
 
     fn context(&self) -> &'h RenderContext<'h> {
-        &self.context
+        self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
-        header.maybe_add_font_families(font_family);
+        cursor.header.maybe_add_font_families(font_family);
 
         if let Some(ref height) = self.attribute("height") {
-            self.render_with_height(height, header, buf)
+            self.render_with_height(height, cursor)
         } else {
-            self.render_content(header, buf)
+            self.render_content(cursor)
         }
     }
 }

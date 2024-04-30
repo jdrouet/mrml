@@ -50,16 +50,16 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
     }
 
     fn context(&self) -> &'h RenderContext<'h> {
-        &self.context
+        self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
         self.container_width = width;
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
-        header.maybe_add_font_families(font_family);
+        cursor.header.maybe_add_font_families(font_family);
 
         let table = self
             .set_style_table(Tag::table())
@@ -67,13 +67,13 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
             .maybe_add_attribute("cellpadding", self.attribute("cellpadding"))
             .maybe_add_attribute("cellspacing", self.attribute("cellspacing"))
             .maybe_add_attribute("width", self.attribute("width"));
-        table.render_open(buf);
+        table.render_open(&mut cursor.buffer);
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
-        table.render_close(buf);
+        table.render_close(&mut cursor.buffer);
         Ok(())
     }
 }

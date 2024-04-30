@@ -167,24 +167,19 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
         self.context
     }
 
-    fn render_fragment(
-        &self,
-        name: &str,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_fragment(&self, name: &str, cursor: &mut RenderCursor) -> Result<(), Error> {
         match name {
-            "main" => self.render(header, buf),
+            "main" => self.render(cursor),
             "radio" => {
-                self.render_radio(buf);
+                self.render_radio(&mut cursor.buffer);
                 Ok(())
             }
-            "thumbnail" => self.render_thumbnail(buf),
+            "thumbnail" => self.render_thumbnail(&mut cursor.buffer),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let img = self
             .set_style_images_img(Tag::new("img"))
             .add_attribute("border", "0")
@@ -209,19 +204,19 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
             .add_class(format!("mj-carousel-image-{}", self.index + 1))
             .maybe_add_class(self.attribute("css-class"));
 
-        div.render_open(buf);
+        div.render_open(&mut cursor.buffer);
         if let Some(href) = self.attribute("href") {
             let link = Tag::new("a")
                 .add_attribute("href", href)
                 .maybe_add_attribute("rel", self.attribute("rel"))
                 .add_attribute("target", "_blank");
-            link.render_open(buf);
-            img.render_closed(buf);
-            link.render_close(buf);
+            link.render_open(&mut cursor.buffer);
+            img.render_closed(&mut cursor.buffer);
+            link.render_close(&mut cursor.buffer);
         } else {
-            img.render_closed(buf);
+            img.render_closed(&mut cursor.buffer);
         }
-        div.render_close(buf);
+        div.render_close(&mut cursor.buffer);
 
         Ok(())
     }

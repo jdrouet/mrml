@@ -10,15 +10,11 @@ impl<'e, 'h> Render<'e, 'h> for RootRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         for element in self.element.as_ref().iter() {
             match element {
-                super::RootChild::Comment(inner) => {
-                    inner.renderer(self.context).render(header, buf)?
-                }
-                super::RootChild::Mjml(inner) => {
-                    inner.renderer(self.context).render(header, buf)?
-                }
+                super::RootChild::Comment(inner) => inner.renderer(self.context).render(cursor)?,
+                super::RootChild::Mjml(inner) => inner.renderer(self.context).render(cursor)?,
             };
         }
         Ok(())

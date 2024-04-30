@@ -45,11 +45,7 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
         })
     }
 
-    fn render_content(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let link = self
             .set_style_a(Tag::new("a"))
             .add_class("mj-link")
@@ -59,12 +55,12 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
             .maybe_add_attribute("target", self.attribute("target"))
             .maybe_add_attribute("name", self.attribute("name"));
 
-        link.render_open(buf);
+        link.render_open(&mut cursor.buffer);
         for child in self.element.children.iter() {
             let renderer = child.renderer(self.context());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
-        link.render_close(buf);
+        link.render_close(&mut cursor.buffer);
 
         Ok(())
     }
@@ -110,21 +106,21 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
-        header.maybe_add_font_families(font_families);
+        cursor.header.maybe_add_font_families(font_families);
 
         let td = self
             .set_style_td(Tag::td())
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
 
-        buf.start_conditional_tag();
-        td.render_open(buf);
-        buf.end_conditional_tag();
-        self.render_content(header, buf)?;
-        buf.start_conditional_tag();
-        td.render_close(buf);
-        buf.end_conditional_tag();
+        cursor.buffer.start_conditional_tag();
+        td.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        self.render_content(cursor)?;
+        cursor.buffer.start_conditional_tag();
+        td.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
 
         Ok(())
     }

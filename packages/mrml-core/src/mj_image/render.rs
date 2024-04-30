@@ -158,8 +158,8 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
-        header.add_style(self.render_style());
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.header.add_style(self.render_style());
         //
         let class = if self.is_fluid_on_mobile() {
             Some("mj-full-width-mobile")
@@ -173,21 +173,21 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
         let tr = Tag::tr();
         let td = self.set_style_td(Tag::td()).maybe_add_class(class);
 
-        table.render_open(buf);
-        tbody.render_open(buf);
-        tr.render_open(buf);
-        td.render_open(buf);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
 
         if self.attribute_exists("href") {
-            self.render_link(buf);
+            self.render_link(&mut cursor.buffer);
         } else {
-            self.render_image(buf);
+            self.render_image(&mut cursor.buffer);
         }
 
-        td.render_close(buf);
-        tr.render_close(buf);
-        tbody.render_close(buf);
-        table.render_close(buf);
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
 
         Ok(())
     }

@@ -95,8 +95,8 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
-        self.update_header(header);
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        self.update_header(&mut cursor.header);
 
         let tbody = Tag::tbody();
         let table = Tag::table()
@@ -109,17 +109,17 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
             .add_attribute("cellpadding", "0")
             .add_class("mj-accordion");
 
-        table.render_open(buf);
-        tbody.render_open(buf);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|key| {
                 renderer.maybe_add_extra_attribute(key, self.attribute(key));
             });
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
-        tbody.render_close(buf);
-        table.render_close(buf);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
         Ok(())
     }
 }

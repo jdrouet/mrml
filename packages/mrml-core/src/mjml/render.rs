@@ -12,30 +12,29 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
-        let mut body_buf = RenderBuffer::default();
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if let Some(body) = self.element.body() {
-            body.renderer(self.context).render(header, &mut body_buf)?;
+            body.renderer(self.context).render(cursor)?;
         } else {
-            body_buf.push_str("<body></body>");
+            cursor.buffer.push_str("<body></body>");
         }
-        buf.push_str("<!doctype html>");
-        buf.push_str("<html ");
+        let mut body = RenderBuffer::default();
+        std::mem::swap(&mut body, &mut cursor.buffer);
+        cursor.buffer.push_str("<!doctype html>");
+        cursor.buffer.push_str("<html ");
         if let Some(ref lang) = self.element.attributes.lang {
-            buf.push_str("lang=\"");
-            buf.push_str(lang);
-            buf.push_str("\" ");
+            cursor.buffer.push_str("lang=\"");
+            cursor.buffer.push_str(lang);
+            cursor.buffer.push_str("\" ");
         }
-        buf.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
+        cursor.buffer.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
         if let Some(head) = self.element.head() {
-            head.renderer(self.context).render(header, buf)?;
+            head.renderer(self.context).render(cursor)?;
         } else {
-            MjHead::default()
-                .renderer(self.context)
-                .render(header, buf)?;
+            MjHead::default().renderer(self.context).render(cursor)?;
         }
-        buf.push_str(body_buf.as_ref());
-        buf.push_str("</html>");
+        cursor.buffer.push_str(body.as_ref());
+        cursor.buffer.push_str("</html>");
         Ok(())
     }
 }
@@ -53,10 +52,9 @@ impl Mjml {
     pub fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let header = Header::new(self.children.head.as_ref(), self.attributes.lang.as_deref());
         let context = RenderContext::new(opts, header);
-        let mut vheader = VariableHeader::default();
-        let mut buf = RenderBuffer::default();
-        self.renderer(&context).render(&mut vheader, &mut buf)?;
-        Ok(buf.into())
+        let mut cursor = RenderCursor::default();
+        self.renderer(&context).render(&mut cursor)?;
+        Ok(cursor.buffer.into())
     }
 
     pub fn get_title(&self) -> Option<String> {

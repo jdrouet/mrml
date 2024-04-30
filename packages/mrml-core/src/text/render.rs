@@ -11,8 +11,8 @@ impl<'e, 'h> Render<'e, 'h> for TextRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
-        buf.push_str(self.element.inner_str());
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.buffer.push_str(self.element.inner_str());
         Ok(())
     }
 }

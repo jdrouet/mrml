@@ -31,7 +31,7 @@ impl<'e, 'h> Render<'e, 'h> for MjRawRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let siblings = self.element.children.len();
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
@@ -39,7 +39,7 @@ impl<'e, 'h> Render<'e, 'h> for MjRawRender<'e, 'h> {
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(siblings);
             renderer.set_container_width(self.container_width.clone());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
         Ok(())
     }

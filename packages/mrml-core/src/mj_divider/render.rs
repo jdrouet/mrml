@@ -98,11 +98,11 @@ impl<'e, 'h> Render<'e, 'h> for MjDividerRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let p = self.set_style_p(Tag::new("p"));
-        p.render_text(buf, "");
+        p.render_text(&mut cursor.buffer, "");
 
-        self.render_after(buf);
+        self.render_after(&mut cursor.buffer);
         Ok(())
     }
 }

@@ -174,25 +174,21 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn render_gutter(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_gutter(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = Tag::table_presentation().add_attribute("width", "100%");
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_gutter_td(Tag::td());
 
-        table.render_open(buf);
-        tbody.render_open(buf);
-        tr.render_open(buf);
-        td.render_open(buf);
-        self.render_column(header, buf)?;
-        td.render_close(buf);
-        tr.render_close(buf);
-        tbody.render_close(buf);
-        table.render_close(buf);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        self.render_column(cursor)?;
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
 
         Ok(())
     }
@@ -205,11 +201,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render_column(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_column(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = self
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
@@ -218,8 +210,8 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
         let current_width = self.current_width();
 
-        table.render_open(buf);
-        tbody.render_open(buf);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
 
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
@@ -228,7 +220,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             renderer.set_siblings(siblings);
             renderer.set_container_width(current_width.clone());
             if child.is_raw() {
-                renderer.render(header, buf)?;
+                renderer.render(cursor)?;
             } else {
                 let tr = Tag::tr();
                 let td = Tag::td()
@@ -247,16 +239,16 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
                     .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
                     .maybe_add_class(renderer.attribute("css-class"));
 
-                tr.render_open(buf);
-                td.render_open(buf);
-                renderer.render(header, buf)?;
-                td.render_close(buf);
-                tr.render_close(buf);
+                tr.render_open(&mut cursor.buffer);
+                td.render_open(&mut cursor.buffer);
+                renderer.render(cursor)?;
+                td.render_close(&mut cursor.buffer);
+                tr.render_close(&mut cursor.buffer);
             }
         }
 
-        tbody.render_close(buf);
-        table.render_close(buf);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
 
         Ok(())
     }
@@ -314,9 +306,9 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
-        header.add_media_query(classname.clone(), size);
+        cursor.header.add_media_query(classname.clone(), size);
 
         let div = self
             .set_style_root_div(Tag::div())
@@ -324,13 +316,13 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
             .add_class(classname)
             .maybe_add_class(self.attribute("css-class"));
 
-        div.render_open(buf);
+        div.render_open(&mut cursor.buffer);
         if self.has_gutter() {
-            self.render_gutter(header, buf)?;
+            self.render_gutter(cursor)?;
         } else {
-            self.render_column(header, buf)?;
+            self.render_column(cursor)?;
         }
-        div.render_close(buf);
+        div.render_close(&mut cursor.buffer);
         Ok(())
     }
 }

@@ -30,11 +30,7 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
         &self.container_width
     }
 
-    fn render_wrapped_children(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_wrapped_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let tr = Tag::tr();
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
@@ -46,20 +42,20 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_container_width(current_width.clone());
             if child.is_raw() {
-                renderer.render(header, buf)?;
+                renderer.render(cursor)?;
             } else {
                 let td = renderer
                     .set_style("td-outlook", Tag::td())
                     .maybe_add_attribute("align", renderer.attribute("align"))
                     .maybe_add_attribute("width", container_width.as_ref().cloned())
                     .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                tr.render_open(buf);
-                td.render_open(buf);
-                buf.end_conditional_tag();
-                renderer.render(header, buf)?;
-                buf.start_conditional_tag();
-                td.render_close(buf);
-                tr.render_close(buf);
+                tr.render_open(&mut cursor.buffer);
+                td.render_open(&mut cursor.buffer);
+                cursor.buffer.end_conditional_tag();
+                renderer.render(cursor)?;
+                cursor.buffer.start_conditional_tag();
+                td.render_close(&mut cursor.buffer);
+                tr.render_close(&mut cursor.buffer);
             }
         }
         Ok(())
@@ -96,11 +92,11 @@ impl<'r, 'e: 'r, 'h: 'r> Render<'e, 'h> for MjWrapperRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if self.is_full_width() {
-            self.render_full_width(header, buf)
+            self.render_full_width(cursor)
         } else {
-            self.render_simple(header, buf)
+            self.render_simple(cursor)
         }
     }
 }

@@ -23,55 +23,43 @@ struct MjAccordionElementRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjAccordionElementRender<'e, 'h> {
-    fn render_title(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_title(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render(header, buf)
+            renderer.render(cursor)
         } else {
             let child = MjAccordionTitle::default();
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render(header, buf)
+            renderer.render(cursor)
         }
     }
 
-    fn render_text(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_text(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if let Some(ref child) = self.element.children.text {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render(header, buf)
+            renderer.render(cursor)
         } else {
             let child = MjAccordionText::default();
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
                 renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
-            renderer.render(header, buf)
+            renderer.render(cursor)
         }
     }
 
-    fn render_children(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
-        self.render_title(header, buf)?;
-        self.render_text(header, buf)?;
+    fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        self.render_title(cursor)?;
+        self.render_text(cursor)?;
 
         Ok(())
     }
@@ -98,7 +86,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionElementRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let input = Tag::new("input")
             .add_attribute("type", "checkbox")
             .add_class("mj-accordion-checkbox")
@@ -113,18 +101,18 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionElementRender<'e, 'h> {
             .maybe_add_style("background-color", self.attribute("background-color"));
         let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
 
-        tr.render_open(buf);
-        td.render_open(buf);
-        label.render_open(buf);
-        buf.start_negation_conditional_tag();
-        input.render_closed(buf);
-        buf.end_negation_conditional_tag();
-        div.render_open(buf);
-        self.render_children(header, buf)?;
-        div.render_close(buf);
-        label.render_close(buf);
-        td.render_close(buf);
-        tr.render_close(buf);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        label.render_open(&mut cursor.buffer);
+        cursor.buffer.start_negation_conditional_tag();
+        input.render_closed(&mut cursor.buffer);
+        cursor.buffer.end_negation_conditional_tag();
+        div.render_open(&mut cursor.buffer);
+        self.render_children(cursor)?;
+        div.render_close(&mut cursor.buffer);
+        label.render_close(&mut cursor.buffer);
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
 
         Ok(())
     }
@@ -153,7 +141,6 @@ mod tests {
         let opts = RenderOptions::default();
         let head = Header::new(None, None);
         let ctx = RenderContext::new(&opts, head);
-        let mut vheader = VariableHeader::default();
 
         let element = MjAccordionElement {
             attributes: Default::default(),
@@ -169,7 +156,7 @@ mod tests {
             },
         };
         let renderer = element.renderer(&ctx);
-        let mut buf = RenderBuffer::default();
-        renderer.render(&mut vheader, &mut buf).unwrap();
+        let mut cursor = RenderCursor::default();
+        renderer.render(&mut cursor).unwrap();
     }
 }

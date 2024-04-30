@@ -117,11 +117,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn render_children(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|c| c.is_raw()).count();
         for (index, child) in self.element.children.iter().enumerate() {
@@ -130,7 +126,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
             if child.is_raw() {
-                renderer.render(header, buf)?;
+                renderer.render(cursor)?;
             } else {
                 let tr = Tag::tr();
                 let td = Tag::td()
@@ -152,22 +148,18 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
                     )
                     .maybe_add_attribute("class", renderer.attribute("css-class"));
 
-                tr.render_open(buf);
-                td.render_open(buf);
-                renderer.render(header, buf)?;
-                td.render_close(buf);
-                tr.render_close(buf);
+                tr.render_open(&mut cursor.buffer);
+                td.render_open(&mut cursor.buffer);
+                renderer.render(cursor)?;
+                td.render_close(&mut cursor.buffer);
+                tr.render_close(&mut cursor.buffer);
             };
         }
 
         Ok(())
     }
 
-    fn render_content(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = self
             .set_style_outlook_inner_table(Tag::table_borderless())
             .maybe_add_attribute("align", self.attribute("align"))
@@ -185,61 +177,53 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .add_class("mj-hero-content");
         let inner_table = self.set_style_inner_table(Tag::table_presentation());
 
-        buf.start_conditional_tag();
-        table.render_open(buf);
-        tr.render_open(buf);
-        outlook_inner_td.render_open(buf);
-        buf.end_conditional_tag();
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        outlook_inner_td.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
 
-        outlook_inner_div.render_open(buf);
-        inner_table.render_open(buf);
-        tbody.render_open(buf);
-        tr.render_open(buf);
-        td.render_open(buf);
-        inner_table.render_open(buf);
-        tbody.render_open(buf);
-        self.render_children(header, buf)?;
-        tbody.render_close(buf);
-        inner_table.render_close(buf);
-        td.render_close(buf);
-        tr.render_close(buf);
-        tbody.render_close(buf);
-        inner_table.render_close(buf);
-        outlook_inner_div.render_close(buf);
+        outlook_inner_div.render_open(&mut cursor.buffer);
+        inner_table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        inner_table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        self.render_children(cursor)?;
+        tbody.render_close(&mut cursor.buffer);
+        inner_table.render_close(&mut cursor.buffer);
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        inner_table.render_close(&mut cursor.buffer);
+        outlook_inner_div.render_close(&mut cursor.buffer);
 
-        buf.start_conditional_tag();
-        outlook_inner_td.render_close(buf);
-        tr.render_close(buf);
-        table.render_close(buf);
-        buf.end_conditional_tag();
+        cursor.buffer.start_conditional_tag();
+        outlook_inner_td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
 
         Ok(())
     }
 
-    fn render_mode_fluid(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_mode_fluid(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let td_fluid = self.set_style_td_fluid(Tag::td());
         let td = self
             .set_style_hero(Tag::td())
             .maybe_add_attribute("background", self.attribute("background-url"));
 
-        td_fluid.render_closed(buf);
-        td.render_open(buf);
-        self.render_content(header, buf)?;
-        td.render_close(buf);
-        td_fluid.render_closed(buf);
+        td_fluid.render_closed(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        self.render_content(cursor)?;
+        td.render_close(&mut cursor.buffer);
+        td_fluid.render_closed(&mut cursor.buffer);
 
         Ok(())
     }
 
-    fn render_mode_fixed(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_mode_fixed(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         // has a default value
         let height = self.attribute_as_pixel("height").unwrap().value();
         let padding = self.get_padding_vertical().value();
@@ -250,21 +234,17 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .maybe_add_attribute("background", self.attribute("background-url"))
             .add_attribute("height", height.to_string());
 
-        td.render_open(buf);
-        self.render_content(header, buf)?;
-        td.render_close(buf);
+        td.render_open(&mut cursor.buffer);
+        self.render_content(cursor)?;
+        td.render_close(&mut cursor.buffer);
 
         Ok(())
     }
 
-    fn render_mode(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_mode(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         match self.attribute("mode") {
-            Some(inner) if inner.eq("fluid") => self.render_mode_fluid(header, buf),
-            _ => self.render_mode_fixed(header, buf),
+            Some(inner) if inner.eq("fluid") => self.render_mode_fluid(cursor),
+            _ => self.render_mode_fixed(cursor),
         }
     }
 }
@@ -306,7 +286,7 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let outlook_table = self
             .set_style_outlook_table(Tag::table_presentation())
             .add_attribute("align", "center")
@@ -328,30 +308,30 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         let tbody = Tag::tbody();
         let tr = self.set_style_tr(Tag::tr());
 
-        buf.start_conditional_tag();
-        outlook_table.render_open(buf);
-        outlook_tr.render_open(buf);
-        outlook_td.render_open(buf);
-        v_image.render_closed(buf);
-        buf.end_conditional_tag();
+        cursor.buffer.start_conditional_tag();
+        outlook_table.render_open(&mut cursor.buffer);
+        outlook_tr.render_open(&mut cursor.buffer);
+        outlook_td.render_open(&mut cursor.buffer);
+        v_image.render_closed(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
 
-        div.render_open(buf);
-        table.render_open(buf);
-        tbody.render_open(buf);
-        tr.render_open(buf);
+        div.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
 
-        self.render_mode(header, buf)?;
+        self.render_mode(cursor)?;
 
-        tr.render_close(buf);
-        tbody.render_close(buf);
-        table.render_close(buf);
-        div.render_close(buf);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        div.render_close(&mut cursor.buffer);
 
-        buf.start_conditional_tag();
-        outlook_td.render_close(buf);
-        outlook_tr.render_close(buf);
-        outlook_table.render_close(buf);
-        buf.end_conditional_tag();
+        cursor.buffer.start_conditional_tag();
+        outlook_td.render_close(&mut cursor.buffer);
+        outlook_tr.render_close(&mut cursor.buffer);
+        outlook_table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
 
         Ok(())
     }

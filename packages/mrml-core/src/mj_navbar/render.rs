@@ -184,8 +184,8 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
-        header.add_style(self.render_style());
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.header.add_style(self.render_style());
 
         let div = Tag::div().add_class("mj-inline-links");
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
@@ -193,26 +193,26 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         let base_url = self.attribute("base-url");
 
         if self.has_hamburger() {
-            self.render_hamburger(buf);
+            self.render_hamburger(&mut cursor.buffer);
         }
 
-        div.render_open(buf);
-        buf.start_conditional_tag();
-        table.render_open(buf);
-        tr.render_open(buf);
-        buf.end_conditional_tag();
+        div.render_open(&mut cursor.buffer);
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
 
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(self.context());
             renderer.maybe_add_extra_attribute("navbar-base-url", base_url.clone());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
 
-        buf.start_conditional_tag();
-        tr.render_close(buf);
-        table.render_close(buf);
-        buf.end_conditional_tag();
-        div.render_close(buf);
+        cursor.buffer.start_conditional_tag();
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        div.render_close(&mut cursor.buffer);
 
         Ok(())
     }

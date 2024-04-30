@@ -153,15 +153,15 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         })
     }
 
-    fn render_font_families(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) {
-        let used_font_families = header.used_font_families();
+    fn render_font_families(&self, cursor: &mut RenderCursor) {
+        let used_font_families = cursor.header.used_font_families();
         if used_font_families.is_empty() {
             return;
         }
 
         let mut links = String::default();
         let mut imports = String::default();
-        for name in header.used_font_families().iter() {
+        for name in cursor.header.used_font_families().iter() {
             if let Some(href) = self.context.header.font_families().get(name.as_str()) {
                 render_font_link(&mut links, href);
                 render_font_import(&mut imports, href);
@@ -175,74 +175,76 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
 
         if links.is_empty() && imports.is_empty() {
         } else {
-            buf.start_mso_negation_conditional_tag();
-            buf.push_str(&links);
+            cursor.buffer.start_mso_negation_conditional_tag();
+            cursor.buffer.push_str(&links);
             if !imports.is_empty() {
-                buf.push_str("<style type=\"text/css\">");
-                buf.push_str(&imports);
-                buf.push_str("</style>");
+                cursor.buffer.push_str("<style type=\"text/css\">");
+                cursor.buffer.push_str(&imports);
+                cursor.buffer.push_str("</style>");
             }
-            buf.end_negation_conditional_tag();
+            cursor.buffer.end_negation_conditional_tag();
         }
     }
 
-    fn render_media_queries(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) {
-        if header.media_queries().is_empty() {
+    fn render_media_queries(&self, cursor: &mut RenderCursor) {
+        if cursor.header.media_queries().is_empty() {
             return;
         }
-        let mut classnames = header.media_queries().iter().collect::<Vec<_>>();
+        let mut classnames = cursor.header.media_queries().iter().collect::<Vec<_>>();
         classnames.sort_by(sort_by_key);
         let breakpoint = self.context.header.breakpoint().to_string();
-        buf.push_str("<style type=\"text/css\">");
-        buf.push_str("@media only screen and (min-width:");
-        buf.push_str(breakpoint.as_str());
-        buf.push_str(") { ");
-        classnames.iter().for_each(|(classname, size)| {
+        cursor.buffer.push_str("<style type=\"text/css\">");
+        cursor.buffer.push_str("@media only screen and (min-width:");
+        cursor.buffer.push_str(breakpoint.as_str());
+        cursor.buffer.push_str(") { ");
+        for (classname, size) in classnames.iter() {
             let size = size.to_string();
-            buf.push('.');
-            buf.push_str(classname);
-            buf.push_str(" { width:");
-            buf.push_str(size.as_str());
-            buf.push_str(" !important; max-width:");
-            buf.push_str(size.as_str());
-            buf.push_str("; } ");
-        });
-        buf.push_str(" }");
-        buf.push_str("</style>");
-        buf.push_str("<style media=\"screen and (min-width:");
-        buf.push_str(breakpoint.as_str());
-        buf.push_str(")\">");
-        classnames.iter().for_each(|(classname, size)| {
+            cursor.buffer.push('.');
+            cursor.buffer.push_str(classname);
+            cursor.buffer.push_str(" { width:");
+            cursor.buffer.push_str(size.as_str());
+            cursor.buffer.push_str(" !important; max-width:");
+            cursor.buffer.push_str(size.as_str());
+            cursor.buffer.push_str("; } ");
+        }
+        cursor.buffer.push_str(" }");
+        cursor.buffer.push_str("</style>");
+        cursor
+            .buffer
+            .push_str("<style media=\"screen and (min-width:");
+        cursor.buffer.push_str(breakpoint.as_str());
+        cursor.buffer.push_str(")\">");
+        for (classname, size) in classnames.iter() {
             let size = size.to_string();
-            buf.push_str(".moz-text-html .");
-            buf.push_str(classname);
-            buf.push_str(" { width:");
-            buf.push_str(size.as_str());
-            buf.push_str(" !important; max-width:");
-            buf.push_str(size.as_str());
-            buf.push_str("; } ");
-        });
-        buf.push_str("</style>");
+            cursor.buffer.push_str(".moz-text-html .");
+            cursor.buffer.push_str(classname);
+            cursor.buffer.push_str(" { width:");
+            cursor.buffer.push_str(size.as_str());
+            cursor.buffer.push_str(" !important; max-width:");
+            cursor.buffer.push_str(size.as_str());
+            cursor.buffer.push_str("; } ");
+        }
+        cursor.buffer.push_str("</style>");
     }
 
-    fn render_styles(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) {
-        if !header.styles().is_empty() {
-            buf.push_str("<style type=\"text/css\">");
-            header.styles().iter().for_each(|style| {
-                buf.push_str(style);
-            });
-            buf.push_str("</style>");
+    fn render_styles(&self, cursor: &mut RenderCursor) {
+        if !cursor.header.styles().is_empty() {
+            cursor.buffer.push_str("<style type=\"text/css\">");
+            for style in cursor.header.styles().iter() {
+                cursor.buffer.push_str(style);
+            }
+            cursor.buffer.push_str("</style>");
         }
 
         // TODO this should be optional
-        buf.push_str("<style type=\"text/css\">");
+        cursor.buffer.push_str("<style type=\"text/css\">");
         for item in self.mj_style_iter() {
-            buf.push_str(item);
+            cursor.buffer.push_str(item);
         }
-        buf.push_str("</style>");
+        cursor.buffer.push_str("</style>");
     }
 
-    fn render_raw(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_raw(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let mut index: usize = 0;
         let siblings = self.element.children.len();
         for child in self.element.children.iter() {
@@ -250,7 +252,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
                 let mut renderer = mj_raw.renderer(self.context());
                 renderer.set_index(index);
                 renderer.set_siblings(siblings);
-                renderer.render(header, buf)?;
+                renderer.render(cursor)?;
                 index += 1;
             } else if let Some(mj_include) = child.as_mj_include() {
                 for include_child in mj_include.children.iter() {
@@ -258,7 +260,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
                         let mut renderer = mj_raw.renderer(self.context());
                         renderer.set_index(index);
                         renderer.set_siblings(siblings);
-                        renderer.render(header, buf)?;
+                        renderer.render(cursor)?;
                         index += 1;
                     }
                 }
@@ -273,25 +275,31 @@ impl<'e, 'h> Render<'e, 'h> for MjHeadRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
-        buf.push_str("<head>");
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.buffer.push_str("<head>");
         // we write the title even though there is no content
-        buf.push_str("<title>");
+        cursor.buffer.push_str("<title>");
         if let Some(title) = self.element.title().map(|item| item.content()) {
-            buf.push_str(title);
+            cursor.buffer.push_str(title);
         }
-        buf.push_str("</title>");
-        buf.start_mso_negation_conditional_tag();
-        buf.push_str("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
-        buf.end_negation_conditional_tag();
-        buf.push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-        buf.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-        buf.push_str(STYLE_BASE);
-        self.render_font_families(header, buf);
-        self.render_media_queries(header, buf);
-        self.render_styles(header, buf);
-        self.render_raw(header, buf)?;
-        buf.push_str("</head>");
+        cursor.buffer.push_str("</title>");
+        cursor.buffer.start_mso_negation_conditional_tag();
+        cursor
+            .buffer
+            .push_str("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
+        cursor.buffer.end_negation_conditional_tag();
+        cursor
+            .buffer
+            .push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+        cursor
+            .buffer
+            .push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+        cursor.buffer.push_str(STYLE_BASE);
+        self.render_font_families(cursor);
+        self.render_media_queries(cursor);
+        self.render_styles(cursor);
+        self.render_raw(cursor)?;
+        cursor.buffer.push_str("</head>");
         Ok(())
     }
 }

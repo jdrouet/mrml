@@ -49,6 +49,12 @@ impl<'h> RenderContext<'h> {
     }
 }
 
+#[derive(Debug, Default)]
+pub struct RenderCursor {
+    pub buffer: RenderBuffer,
+    pub header: VariableHeader,
+}
+
 pub trait Render<'element, 'header> {
     fn context(&self) -> &'header RenderContext<'header>;
 
@@ -223,19 +229,14 @@ pub trait Render<'element, 'header> {
         }
     }
 
-    fn render_fragment(
-        &self,
-        name: &str,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_fragment(&self, name: &str, cursor: &mut RenderCursor) -> Result<(), Error> {
         match name {
-            "main" => self.render(header, buf),
+            "main" => self.render(cursor),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error>;
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error>;
 }
 
 pub trait Renderable<'render, 'element: 'render, 'header: 'render> {

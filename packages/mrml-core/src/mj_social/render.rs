@@ -71,11 +71,7 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             .collect::<Vec<_>>()
     }
 
-    fn render_horizontal(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_horizontal(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
         let td = Tag::td();
@@ -86,58 +82,54 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
         let inner_tbody = Tag::tbody();
         let child_attributes = self.build_child_attributes();
 
-        buf.start_conditional_tag();
-        table.render_open(buf);
-        tr.render_open(buf);
-        buf.end_conditional_tag();
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
 
         for (index, child) in self.element.children.iter().enumerate() {
-            buf.start_conditional_tag();
-            td.render_open(buf);
-            buf.end_conditional_tag();
-            inner_table.render_open(buf);
-            inner_tbody.render_open(buf);
+            cursor.buffer.start_conditional_tag();
+            td.render_open(&mut cursor.buffer);
+            cursor.buffer.end_conditional_tag();
+            inner_table.render_open(&mut cursor.buffer);
+            inner_tbody.render_open(&mut cursor.buffer);
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             child_attributes.iter().for_each(|(key, value)| {
                 renderer.add_extra_attribute(key, value);
             });
-            renderer.render(header, buf)?;
-            inner_tbody.render_close(buf);
-            inner_table.render_close(buf);
-            buf.start_conditional_tag();
-            td.render_close(buf);
-            buf.end_conditional_tag();
+            renderer.render(cursor)?;
+            inner_tbody.render_close(&mut cursor.buffer);
+            inner_table.render_close(&mut cursor.buffer);
+            cursor.buffer.start_conditional_tag();
+            td.render_close(&mut cursor.buffer);
+            cursor.buffer.end_conditional_tag();
         }
 
-        buf.start_conditional_tag();
-        tr.render_close(buf);
-        table.render_close(buf);
-        buf.end_conditional_tag();
+        cursor.buffer.start_conditional_tag();
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
         Ok(())
     }
 
-    fn render_vertical(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_vertical(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = self.set_style_table_vertical(Tag::table_presentation());
         let tbody = Tag::tbody();
         let child_attributes = self.build_child_attributes();
 
-        table.render_open(buf);
-        tbody.render_open(buf);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             child_attributes.iter().for_each(|(key, value)| {
                 renderer.add_extra_attribute(key, value);
             });
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
-        tbody.render_close(buf);
-        table.render_close(buf);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
 
         Ok(())
     }
@@ -190,14 +182,14 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_families = self.attribute("font-family").unwrap_or_default(); // never happens
-        header.add_font_families(font_families);
+        cursor.header.add_font_families(font_families);
 
         if self.is_horizontal() {
-            self.render_horizontal(header, buf)
+            self.render_horizontal(cursor)
         } else {
-            self.render_vertical(header, buf)
+            self.render_vertical(cursor)
         }
     }
 }

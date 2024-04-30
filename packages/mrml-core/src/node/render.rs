@@ -19,35 +19,35 @@ where
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
-        buf.push('<');
-        buf.push_str(&self.element.tag);
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.buffer.push('<');
+        cursor.buffer.push_str(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
-            buf.push(' ');
-            buf.push_str(key);
-            buf.push_str("=\"");
-            buf.push_str(value);
-            buf.push('"');
+            cursor.buffer.push(' ');
+            cursor.buffer.push_str(key);
+            cursor.buffer.push_str("=\"");
+            cursor.buffer.push_str(value);
+            cursor.buffer.push('"');
         }
         if self.element.children.is_empty() {
             if is_void_element(self.element.tag.as_str()) {
-                buf.push_str(" />");
+                cursor.buffer.push_str(" />");
             } else {
-                buf.push_str("></");
-                buf.push_str(&self.element.tag);
-                buf.push('>');
+                cursor.buffer.push_str("></");
+                cursor.buffer.push_str(&self.element.tag);
+                cursor.buffer.push('>');
             }
         } else {
-            buf.push('>');
+            cursor.buffer.push('>');
             for (index, child) in self.element.children.iter().enumerate() {
                 // TODO children
                 let mut renderer = child.renderer(self.context);
                 renderer.set_index(index);
-                renderer.render(header, buf)?;
+                renderer.render(cursor)?;
             }
-            buf.push_str("</");
-            buf.push_str(&self.element.tag);
-            buf.push('>');
+            cursor.buffer.push_str("</");
+            cursor.buffer.push_str(&self.element.tag);
+            cursor.buffer.push('>');
         }
         Ok(())
     }

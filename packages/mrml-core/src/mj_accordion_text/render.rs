@@ -9,11 +9,7 @@ struct MjAccordionTextRender<'e, 'h> {
 }
 
 impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
-    fn render_children(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let td = Tag::td()
             .maybe_add_class(self.attribute("css-class"))
             .maybe_add_style("background", self.attribute("background-color"))
@@ -27,12 +23,12 @@ impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
             .maybe_add_style("padding", self.attribute("padding"));
 
-        td.render_open(buf);
+        td.render_open(&mut cursor.buffer);
         for child in self.element.children.iter() {
             let renderer = child.renderer(self.context());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
-        td.render_close(buf);
+        td.render_close(&mut cursor.buffer);
 
         Ok(())
     }
@@ -68,9 +64,9 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
-        header.maybe_add_font_families(font_families);
+        cursor.header.maybe_add_font_families(font_families);
 
         let tr = Tag::tr();
         let tbody = Tag::tbody();
@@ -81,15 +77,15 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
             .maybe_add_style("border-bottom", self.attribute("border"));
         let div = Tag::div().add_class("mj-accordion-content");
 
-        div.render_open(buf);
-        table.render_open(buf);
-        tbody.render_open(buf);
-        tr.render_open(buf);
-        self.render_children(header, buf)?;
-        tr.render_close(buf);
-        tbody.render_close(buf);
-        table.render_close(buf);
-        div.render_close(buf);
+        div.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        self.render_children(cursor)?;
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        div.render_close(&mut cursor.buffer);
 
         Ok(())
     }

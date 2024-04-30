@@ -37,15 +37,11 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
         }
     }
 
-    fn render_content(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
 
-        div.render_open(buf);
+        div.render_open(&mut cursor.buffer);
         let raw_siblings = self
             .element
             .children
@@ -58,9 +54,9 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(self.element.children.len());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
-        div.render_close(buf);
+        div.render_close(&mut cursor.buffer);
         Ok(())
     }
 }
@@ -81,12 +77,12 @@ impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let body = self.get_body_tag();
-        body.render_open(buf);
-        self.render_preview(buf);
-        self.render_content(header, buf)?;
-        body.render_close(buf);
+        body.render_open(&mut cursor.buffer);
+        self.render_preview(&mut cursor.buffer);
+        self.render_content(cursor)?;
+        body.render_close(&mut cursor.buffer);
         Ok(())
     }
 }

@@ -55,12 +55,12 @@ impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(self.element.children.len());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
         Ok(())
     }
@@ -83,9 +83,7 @@ mod tests {
     use crate::mj_raw::{MjRaw, MjRawChild};
     use crate::mj_text::MjText;
     use crate::node::Node;
-    use crate::prelude::render::{
-        Header, RenderBuffer, RenderContext, RenderOptions, Renderable, VariableHeader,
-    };
+    use crate::prelude::render::{Header, RenderContext, RenderCursor, RenderOptions, Renderable};
     use crate::text::Text;
 
     #[test]
@@ -95,25 +93,23 @@ mod tests {
         let expected: String = {
             let header = Header::new(mj_head.as_ref(), None);
             let context = RenderContext::new(&opts, header);
-            let mut vheader = VariableHeader::default();
+            let mut cursor = RenderCursor::default();
             let elt = MjText::default();
             let renderer = elt.renderer(&context);
-            let mut buf = RenderBuffer::default();
-            renderer.render(&mut vheader, &mut buf).unwrap();
-            buf.into()
+            renderer.render(&mut cursor).unwrap();
+            cursor.buffer.into()
         };
         let result: String = {
             let header = Header::new(mj_head.as_ref(), None);
             let context = RenderContext::new(&opts, header);
-            let mut vheader = VariableHeader::default();
+            let mut cursor = RenderCursor::default();
             let mut elt = MjIncludeBody::default();
             elt.attributes.path = "memory:foo.mjml".to_string();
             elt.children
                 .push(MjIncludeBodyChild::MjText(MjText::default()));
             let renderer = elt.renderer(&context);
-            let mut buf = RenderBuffer::default();
-            renderer.render(&mut vheader, &mut buf).unwrap();
-            buf.into()
+            renderer.render(&mut cursor).unwrap();
+            cursor.buffer.into()
         };
         assert_eq!(expected, result);
     }
@@ -126,7 +122,7 @@ mod tests {
         let expected: String = {
             let header = Header::new(mj_head.as_ref(), None);
             let context = RenderContext::new(&opts, header);
-            let mut vheader = VariableHeader::default();
+            let mut cursor = RenderCursor::default();
 
             let mut node = Node::new("span".to_string());
             node.children
@@ -135,14 +131,13 @@ mod tests {
             let mut root = MjRaw::default();
             root.children.push(MjRawChild::Node(node));
             let renderer = root.renderer(&context);
-            let mut buf = RenderBuffer::default();
-            renderer.render(&mut vheader, &mut buf).unwrap();
-            buf.into()
+            renderer.render(&mut cursor).unwrap();
+            cursor.buffer.into()
         };
         let result: String = {
             let header = Header::new(mj_head.as_ref(), None);
             let context = RenderContext::new(&opts, header);
-            let mut vheader = VariableHeader::default();
+            let mut cursor = RenderCursor::default();
 
             let mut node = Node::new("span".to_string());
             node.children
@@ -154,9 +149,8 @@ mod tests {
             elt.children.push(MjIncludeBodyChild::Node(node));
 
             let renderer = elt.renderer(&context);
-            let mut buf = RenderBuffer::default();
-            renderer.render(&mut vheader, &mut buf).unwrap();
-            buf.into()
+            renderer.render(&mut cursor).unwrap();
+            cursor.buffer.into()
         };
         assert_eq!(expected, result);
     }

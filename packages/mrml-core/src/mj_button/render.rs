@@ -32,14 +32,10 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
         }
     }
 
-    fn render_children(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         for child in self.element.children.iter() {
             let renderer = child.renderer(self.context());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
         Ok(())
     }
@@ -119,9 +115,9 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
-        header.maybe_add_font_families(font_family);
+        cursor.header.maybe_add_font_families(font_family);
 
         let table = self.set_style_table(Tag::table_presentation());
         let tbody = Tag::tbody();
@@ -143,17 +139,17 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
             );
         let link = self.set_style_content(link);
 
-        table.render_open(buf);
-        tbody.render_open(buf);
-        tr.render_open(buf);
-        td.render_open(buf);
-        link.render_open(buf);
-        self.render_children(header, buf)?;
-        link.render_close(buf);
-        td.render_close(buf);
-        tr.render_close(buf);
-        tbody.render_close(buf);
-        table.render_close(buf);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        link.render_open(&mut cursor.buffer);
+        self.render_children(cursor)?;
+        link.render_close(&mut cursor.buffer);
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
 
         Ok(())
     }

@@ -72,11 +72,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             .add_style("width", self.current_width().to_string())
     }
 
-    fn render_children(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let current_width = self.current_width();
         let siblings = self.element.children.len();
         let raw_siblings = self
@@ -94,7 +90,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             renderer.set_container_width(Some(current_width.clone()));
             renderer.add_extra_attribute("mobile-width", "mobile-width");
             if child.is_raw() {
-                renderer.render(header, buf)?;
+                renderer.render(cursor)?;
             } else {
                 let td = Tag::td()
                     .maybe_add_style("align", renderer.attribute("align"))
@@ -107,13 +103,13 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
                             .or_else(|| renderer.attribute("width")),
                     );
 
-                buf.start_conditional_tag();
-                td.render_open(buf);
-                buf.end_conditional_tag();
-                renderer.render(header, buf)?;
-                buf.start_conditional_tag();
-                td.render_close(buf);
-                buf.end_conditional_tag();
+                cursor.buffer.start_conditional_tag();
+                td.render_open(&mut cursor.buffer);
+                cursor.buffer.end_conditional_tag();
+                renderer.render(cursor)?;
+                cursor.buffer.start_conditional_tag();
+                td.render_close(&mut cursor.buffer);
+                cursor.buffer.end_conditional_tag();
             }
         }
         Ok(())
@@ -163,9 +159,9 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         }
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
-        header.add_media_query(classname.clone(), size);
+        cursor.header.add_media_query(classname.clone(), size);
 
         let div = self
             .set_style_root_div(Tag::div())
@@ -184,17 +180,17 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         );
         let tr = Tag::tr();
 
-        div.render_open(buf);
-        buf.start_conditional_tag();
-        table.render_open(buf);
-        tr.render_open(buf);
-        buf.end_conditional_tag();
-        self.render_children(header, buf)?;
-        buf.start_conditional_tag();
-        tr.render_close(buf);
-        table.render_close(buf);
-        buf.end_conditional_tag();
-        div.render_close(buf);
+        div.render_open(&mut cursor.buffer);
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        self.render_children(cursor)?;
+        cursor.buffer.start_conditional_tag();
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        div.render_close(&mut cursor.buffer);
 
         Ok(())
     }

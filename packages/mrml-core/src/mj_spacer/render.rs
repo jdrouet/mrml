@@ -32,11 +32,11 @@ impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
         self.context
     }
 
-    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         Tag::div()
             .maybe_add_style("height", self.attribute("height"))
             .maybe_add_style("line-height", self.attribute("height"))
-            .render_text(buf, "&#8202;");
+            .render_text(&mut cursor.buffer, "&#8202;");
         Ok(())
     }
 }

@@ -83,11 +83,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
             .add_style("padding", "0px")
     }
 
-    fn render_radios(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_radios(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.id);
@@ -96,16 +92,12 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
             renderer
                 .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_index(index);
-            renderer.render_fragment("radio", header, buf)?;
+            renderer.render_fragment("radio", cursor)?;
         }
         Ok(())
     }
 
-    fn render_thumbnails(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_thumbnails(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if self.attribute_equals("thumbnails", "visible") {
             let width = self.get_thumbnails_width();
 
@@ -121,7 +113,7 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
                 );
                 renderer.set_index(index);
                 renderer.set_container_width(Some(width.clone()));
-                renderer.render_fragment("thumbnail", header, buf)?;
+                renderer.render_fragment("thumbnail", cursor)?;
             }
         }
 
@@ -162,16 +154,12 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
         td.render_close(buf);
     }
 
-    fn render_images(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_images(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let div = Tag::div().add_class("mj-carousel-images");
         let td = self.set_style_images_td(Tag::td());
 
-        td.render_open(buf);
-        div.render_open(buf);
+        td.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer);
 
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
@@ -182,20 +170,16 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
                 .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_index(index);
             renderer.set_container_width(self.container_width.clone());
-            renderer.render(header, buf)?;
+            renderer.render(cursor)?;
         }
 
-        div.render_close(buf);
-        td.render_close(buf);
+        div.render_close(&mut cursor.buffer);
+        td.render_close(&mut cursor.buffer);
 
         Ok(())
     }
 
-    fn render_carousel(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_carousel(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let tr = Tag::tr();
         let tbody = Tag::tbody();
         let table = self
@@ -203,30 +187,30 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
             .add_attribute("width", "100%")
             .add_class("mj-carousel-main");
 
-        table.render_open(buf);
-        tbody.render_open(buf);
-        tr.render_open(buf);
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
 
         self.render_controls(
             "previous",
             self.attribute("left-icon").unwrap().as_str(),
-            buf,
+            &mut cursor.buffer,
         );
-        self.render_images(header, buf)?;
-        self.render_controls("next", self.attribute("right-icon").unwrap().as_str(), buf);
+        self.render_images(cursor)?;
+        self.render_controls(
+            "next",
+            self.attribute("right-icon").unwrap().as_str(),
+            &mut cursor.buffer,
+        );
 
-        tr.render_close(buf);
-        tbody.render_close(buf);
-        table.render_close(buf);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
 
         Ok(())
     }
 
-    fn render_fallback(
-        &self,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_fallback(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if let Some(child) = self
             .element
             .children
@@ -241,9 +225,9 @@ impl<'e, 'h> MjCarouselRender<'e, 'h> {
                 .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_container_width(self.container_width.clone());
 
-            buf.start_mso_conditional_tag();
-            renderer.render(header, buf)?;
-            buf.end_conditional_tag();
+            cursor.buffer.start_mso_conditional_tag();
+            renderer.render(cursor)?;
+            cursor.buffer.end_conditional_tag();
         }
         Ok(())
     }
@@ -447,8 +431,8 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
-        header.maybe_add_style(self.render_style());
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.header.maybe_add_style(self.render_style());
 
         let inner_div = self
             .set_style_carousel_div(Tag::div())
@@ -456,16 +440,16 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselRender<'e, 'h> {
             .add_class(format!("mj-carousel-{}-content", self.id));
         let div = Tag::div().add_class("mj-carousel");
 
-        buf.start_mso_negation_conditional_tag();
-        div.render_open(buf);
-        self.render_radios(header, buf)?;
-        inner_div.render_open(buf);
-        self.render_thumbnails(header, buf)?;
-        self.render_carousel(header, buf)?;
-        inner_div.render_close(buf);
-        div.render_close(buf);
-        buf.end_negation_conditional_tag();
-        self.render_fallback(header, buf)?;
+        cursor.buffer.start_mso_negation_conditional_tag();
+        div.render_open(&mut cursor.buffer);
+        self.render_radios(cursor)?;
+        inner_div.render_open(&mut cursor.buffer);
+        self.render_thumbnails(cursor)?;
+        self.render_carousel(cursor)?;
+        inner_div.render_close(&mut cursor.buffer);
+        div.render_close(&mut cursor.buffer);
+        cursor.buffer.end_negation_conditional_tag();
+        self.render_fallback(cursor)?;
 
         Ok(())
     }

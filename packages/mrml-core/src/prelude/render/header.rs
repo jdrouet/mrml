@@ -6,6 +6,7 @@ use crate::mj_head::MjHead;
 use crate::prelude::hash::Map;
 use crate::prelude::hash::Set;
 
+#[derive(Debug)]
 pub struct VariableHeader {
     used_font_families: Set<String>,
     media_queries: Map<String, Size>,
