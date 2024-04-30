@@ -1,6 +1,4 @@
-use std::cell::{Ref, RefCell};
 use std::convert::TryFrom;
-use std::rc::Rc;
 
 use crate::helper::size::{Pixel, Size};
 use crate::helper::spacing::Spacing;
@@ -25,7 +23,8 @@ pub enum Error {
 pub type Options = RenderOptions;
 
 pub trait Render<'element, 'header> {
-    fn header(&self) -> Ref<Header<'header>>;
+    fn header(&self) -> &'header Header<'header>;
+
     fn tag(&self) -> Option<&str> {
         None
     }
@@ -201,15 +200,21 @@ pub trait Render<'element, 'header> {
         &self,
         name: &str,
         opts: &RenderOptions,
+        header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         match name {
-            "main" => self.render(opts, buf),
+            "main" => self.render(opts, header, buf),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error>;
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error>;
 }
 
 pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
@@ -219,7 +224,7 @@ pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
 
     fn renderer(
         &'element self,
-        header: Rc<RefCell<Header<'header>>>,
+        header: &'header Header<'header>,
     ) -> Box<dyn Render<'element, 'header> + 'render>;
 }
 
@@ -254,15 +259,11 @@ macro_rules! should_render {
 
 #[cfg(test)]
 mod tests {
-    use std::cell::RefCell;
-    use std::rc::Rc;
-
     #[test]
     fn header_should_increase() {
-        let head = None;
-        let header = Rc::new(RefCell::new(super::Header::new(&head)));
-        assert_eq!(header.borrow().next_id(), "00000000");
-        assert_eq!(header.borrow().next_id(), "00000001");
-        assert_eq!(header.borrow().next_id(), "00000002");
+        let header = super::Header::new(None, None);
+        assert_eq!(header.next_id(), "00000000");
+        assert_eq!(header.next_id(), "00000001");
+        assert_eq!(header.next_id(), "00000002");
     }
 }

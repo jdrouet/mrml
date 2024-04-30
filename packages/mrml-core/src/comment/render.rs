@@ -1,20 +1,22 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::Comment;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
 struct CommentRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e Comment,
 }
 
 impl<'e, 'h> Render<'e, 'h> for CommentRender<'e, 'h> {
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        _header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         if !opts.disable_comments {
             buf.push_str("<!--");
             buf.push_str(self.element.children.as_str());
@@ -29,7 +31,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Comment {
         true
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(CommentRender::<'e, 'h> {
             element: self,
             header,

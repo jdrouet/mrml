@@ -1,13 +1,10 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjNavbarLink, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjNavbarLinkRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjNavbarLink,
     extra: Map<String, String>,
     container_width: Option<Pixel>,
@@ -48,7 +45,12 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
         })
     }
 
-    fn render_content(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_content(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let link = self
             .set_style_a(Tag::new("a"))
             .add_class("mj-link")
@@ -60,8 +62,8 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
 
         link.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(Rc::clone(&self.header));
-            renderer.render(opts, buf)?;
+            let renderer = child.renderer(self.header);
+            renderer.render(opts, header, buf)?;
         }
         link.render_close(buf);
 
@@ -105,15 +107,19 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_families);
+        header.maybe_add_font_families(font_families);
+
         let td = self
             .set_style_td(Tag::td())
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
@@ -121,7 +127,7 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
         buf.start_conditional_tag();
         td.render_open(buf);
         buf.end_conditional_tag();
-        self.render_content(opts, buf)?;
+        self.render_content(opts, header, buf)?;
         buf.start_conditional_tag();
         td.render_close(buf);
         buf.end_conditional_tag();
@@ -131,7 +137,7 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarLink {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjNavbarLinkRender::<'e, 'h> {
             element: self,
             header,

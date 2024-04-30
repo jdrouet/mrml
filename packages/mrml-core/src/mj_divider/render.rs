@@ -1,12 +1,9 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjDivider, NAME};
 use crate::helper::size::{Pixel, Size};
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjDividerRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjDivider,
     container_width: Option<Pixel>,
 }
@@ -97,11 +94,16 @@ impl<'e, 'h> Render<'e, 'h> for MjDividerRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        _opts: &RenderOptions,
+        _header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let p = self.set_style_p(Tag::new("p"));
         p.render_text(buf, "");
 
@@ -111,7 +113,7 @@ impl<'e, 'h> Render<'e, 'h> for MjDividerRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjDivider {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjDividerRender::<'e, 'h> {
             element: self,
             header,

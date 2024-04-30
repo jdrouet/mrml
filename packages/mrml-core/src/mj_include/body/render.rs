@@ -1,8 +1,5 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjIncludeBody, MjIncludeBodyChild};
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
 impl MjIncludeBodyChild {
     pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
@@ -35,13 +32,13 @@ impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjIncludeBodyChild {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         self.as_renderable().renderer(header)
     }
 }
 
 struct MjIncludeBodyRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjIncludeBody,
 }
 
@@ -54,23 +51,28 @@ impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
         None
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(Rc::clone(&self.header));
+            let mut renderer = child.renderer(self.header);
             renderer.set_index(index);
             renderer.set_siblings(self.element.children.len());
-            renderer.render(opts, buf)?;
+            renderer.render(opts, header, buf)?;
         }
         Ok(())
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjIncludeBody {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjIncludeBodyRender::<'e, 'h> {
             element: self,
             header,
@@ -80,16 +82,13 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjIncludeBody {
 
 #[cfg(test)]
 mod tests {
-    use std::cell::RefCell;
-    use std::rc::Rc;
-
     use crate::mj_body::MjBodyChild;
     use crate::mj_head::MjHead;
     use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyChild, MjIncludeBodyKind};
     use crate::mj_raw::{MjRaw, MjRawChild};
     use crate::mj_text::MjText;
     use crate::node::Node;
-    use crate::prelude::render::{Header, RenderBuffer, RenderOptions, Renderable};
+    use crate::prelude::render::{Header, RenderBuffer, RenderOptions, Renderable, VariableHeader};
     use crate::text::Text;
 
     #[test]
@@ -97,22 +96,24 @@ mod tests {
         let opts = RenderOptions::default();
         let mj_head = Some(MjHead::default());
         let expected: String = {
-            let header = Rc::new(RefCell::new(Header::new(&mj_head)));
+            let header = Header::new(mj_head.as_ref(), None);
+            let mut vheader = VariableHeader::default();
             let elt = MjText::default();
-            let renderer = elt.renderer(header);
+            let renderer = elt.renderer(&header);
             let mut buf = RenderBuffer::default();
-            renderer.render(&opts, &mut buf).unwrap();
+            renderer.render(&opts, &mut vheader, &mut buf).unwrap();
             buf.into()
         };
         let result: String = {
-            let header = Rc::new(RefCell::new(Header::new(&mj_head)));
+            let header = Header::new(mj_head.as_ref(), None);
+            let mut vheader = VariableHeader::default();
             let mut elt = MjIncludeBody::default();
             elt.attributes.path = "memory:foo.mjml".to_string();
             elt.children
                 .push(MjIncludeBodyChild::MjText(MjText::default()));
-            let renderer = elt.renderer(header);
+            let renderer = elt.renderer(&header);
             let mut buf = RenderBuffer::default();
-            renderer.render(&opts, &mut buf).unwrap();
+            renderer.render(&opts, &mut vheader, &mut buf).unwrap();
             buf.into()
         };
         assert_eq!(expected, result);
@@ -124,7 +125,8 @@ mod tests {
         let mj_head = Some(MjHead::default());
 
         let expected: String = {
-            let header = Rc::new(RefCell::new(Header::new(&mj_head)));
+            let header = Header::new(mj_head.as_ref(), None);
+            let mut vheader = VariableHeader::default();
 
             let mut node = Node::new("span".to_string());
             node.children
@@ -132,13 +134,14 @@ mod tests {
 
             let mut root = MjRaw::default();
             root.children.push(MjRawChild::Node(node));
-            let renderer = root.renderer(header);
+            let renderer = root.renderer(&header);
             let mut buf = RenderBuffer::default();
-            renderer.render(&opts, &mut buf).unwrap();
+            renderer.render(&opts, &mut vheader, &mut buf).unwrap();
             buf.into()
         };
         let result: String = {
-            let header = Rc::new(RefCell::new(Header::new(&mj_head)));
+            let header = Header::new(mj_head.as_ref(), None);
+            let mut vheader = VariableHeader::default();
 
             let mut node = Node::new("span".to_string());
             node.children
@@ -149,9 +152,9 @@ mod tests {
             elt.attributes.path = "memory:foo.html".to_string();
             elt.children.push(MjIncludeBodyChild::Node(node));
 
-            let renderer = elt.renderer(header);
+            let renderer = elt.renderer(&header);
             let mut buf = RenderBuffer::default();
-            renderer.render(&opts, &mut buf).unwrap();
+            renderer.render(&opts, &mut vheader, &mut buf).unwrap();
             buf.into()
         };
         assert_eq!(expected, result);

@@ -1,20 +1,22 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::Text;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
 struct TextRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e Text,
 }
 
 impl<'e, 'h> Render<'e, 'h> for TextRender<'e, 'h> {
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        _opts: &RenderOptions,
+        _header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         buf.push_str(self.element.inner_str());
         Ok(())
     }
@@ -25,7 +27,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Text {
         true
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(TextRender::<'e, 'h> {
             element: self,
             header,

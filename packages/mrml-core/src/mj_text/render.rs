@@ -1,11 +1,8 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjText, NAME};
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjTextRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjText,
 }
 
@@ -24,12 +21,17 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
             .maybe_add_style("height", self.attribute("height"))
     }
 
-    fn render_content(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_content(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let root = self.set_style_text(Tag::div());
         root.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(Rc::clone(&self.header));
-            renderer.render(opts, buf)?;
+            let renderer = child.renderer(self.header);
+            renderer.render(opts, header, buf)?;
         }
         root.render_close(buf);
         Ok(())
@@ -39,6 +41,7 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
         &self,
         height: &str,
         opts: &RenderOptions,
+        header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         let table = Tag::table_presentation();
@@ -53,7 +56,7 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
         tr.render_open(buf);
         td.render_open(buf);
         buf.end_conditional_tag();
-        self.render_content(opts, buf)?;
+        self.render_content(opts, header, buf)?;
         buf.start_conditional_tag();
         td.render_close(buf);
         tr.render_close(buf);
@@ -84,25 +87,29 @@ impl<'e, 'h> Render<'e, 'h> for MjTextRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_family);
+        header.maybe_add_font_families(font_family);
+
         if let Some(ref height) = self.attribute("height") {
-            self.render_with_height(height, opts, buf)
+            self.render_with_height(height, opts, header, buf)
         } else {
-            self.render_content(opts, buf)
+            self.render_content(opts, header, buf)
         }
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjText {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjTextRender::<'e, 'h> {
             element: self,
             header,

@@ -1,13 +1,10 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjTable, NAME};
 use crate::helper::size::Pixel;
 use crate::mj_section::WithMjSectionBackground;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjTableRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjTable,
     container_width: Option<Pixel>,
 }
@@ -52,19 +49,22 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_family);
+        header.maybe_add_font_families(font_family);
 
         let table = self
             .set_style_table(Tag::table())
@@ -74,9 +74,9 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
             .maybe_add_attribute("width", self.attribute("width"));
         table.render_open(buf);
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(Rc::clone(&self.header));
+            let mut renderer = child.renderer(self.header);
             renderer.set_index(index);
-            renderer.render(opts, buf)?;
+            renderer.render(opts, header, buf)?;
         }
         table.render_close(buf);
         Ok(())
@@ -84,7 +84,7 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjTable {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjTableRender::<'e, 'h> {
             element: self,
             header,

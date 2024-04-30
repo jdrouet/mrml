@@ -1,16 +1,13 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::network::SocialNetwork;
 use super::{MjSocialElement, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
 struct MjSocialElementRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjSocialElement,
     extra: Map<String, String>,
     container_width: Option<Pixel>,
@@ -151,6 +148,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         &self,
         href: &Option<String>,
         opts: &RenderOptions,
+        header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         let td = self.set_style_td_text(Tag::td());
@@ -167,8 +165,8 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         td.render_open(buf);
         wrapper.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(Rc::clone(&self.header));
-            renderer.render(opts, buf)?;
+            let renderer = child.renderer(self.header);
+            renderer.render(opts, header, buf)?;
         }
         wrapper.render_close(buf);
         td.render_close(buf);
@@ -214,11 +212,16 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let href = self.get_href();
         let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
         let td = self.set_style_td(Tag::td());
@@ -228,7 +231,7 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
         self.render_icon(&href, opts, buf);
         td.render_close(buf);
         if !self.element.children.is_empty() {
-            self.render_text(&href, opts, buf)?;
+            self.render_text(&href, opts, header, buf)?;
         }
         tr.render_close(buf);
         Ok(())
@@ -236,7 +239,7 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialElement {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjSocialElementRender::<'e, 'h> {
             element: self,
             header,

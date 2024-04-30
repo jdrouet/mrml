@@ -1,12 +1,9 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::Node;
 use crate::prelude::is_void_element;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
 struct NodeRender<'e, 'h, T> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e Node<T>,
 }
 
@@ -18,11 +15,16 @@ where
         Some(self.element.tag.as_str())
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         buf.push('<');
         buf.push_str(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
@@ -44,9 +46,9 @@ where
             buf.push('>');
             for (index, child) in self.element.children.iter().enumerate() {
                 // TODO children
-                let mut renderer = child.renderer(Rc::clone(&self.header));
+                let mut renderer = child.renderer(self.header);
                 renderer.set_index(index);
-                renderer.render(opts, buf)?;
+                renderer.render(opts, header, buf)?;
             }
             buf.push_str("</");
             buf.push_str(&self.element.tag);
@@ -57,7 +59,7 @@ where
 }
 
 impl<'r, 'e: 'r, 'h: 'r, T: Renderable<'r, 'e, 'h>> Renderable<'r, 'e, 'h> for Node<T> {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(NodeRender::<'e, 'h> {
             element: self,
             header,

@@ -1,13 +1,10 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjColumn, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjColumnRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjColumn,
     // TODO change lifetime
     extra: Map<String, String>,
@@ -177,7 +174,12 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn render_gutter(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_gutter(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let table = Tag::table_presentation().add_attribute("width", "100%");
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -187,7 +189,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         tbody.render_open(buf);
         tr.render_open(buf);
         td.render_open(buf);
-        self.render_column(opts, buf)?;
+        self.render_column(opts, header, buf)?;
         td.render_close(buf);
         tr.render_close(buf);
         tbody.render_close(buf);
@@ -204,7 +206,12 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render_column(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_column(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let table = self
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
@@ -217,13 +224,13 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         tbody.render_open(buf);
 
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(Rc::clone(&self.header));
+            let mut renderer = child.renderer(self.header);
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(siblings);
             renderer.set_container_width(current_width.clone());
             if child.is_raw() {
-                renderer.render(opts, buf)?;
+                renderer.render(opts, header, buf)?;
             } else {
                 let tr = Tag::tr();
                 let td = Tag::td()
@@ -244,7 +251,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
 
                 tr.render_open(buf);
                 td.render_open(buf);
-                renderer.render(opts, buf)?;
+                renderer.render(opts, header, buf)?;
                 td.render_close(buf);
                 tr.render_close(buf);
             }
@@ -286,8 +293,8 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
@@ -309,11 +316,15 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
-        self.header
-            .borrow_mut()
-            .add_media_query(classname.clone(), size);
+        header.add_media_query(classname.clone(), size);
+
         let div = self
             .set_style_root_div(Tag::div())
             .add_class("mj-outlook-group-fix")
@@ -322,9 +333,9 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
 
         div.render_open(buf);
         if self.has_gutter() {
-            self.render_gutter(opts, buf)?;
+            self.render_gutter(opts, header, buf)?;
         } else {
-            self.render_column(opts, buf)?;
+            self.render_column(opts, header, buf)?;
         }
         div.render_close(buf);
         Ok(())
@@ -332,7 +343,7 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjColumn {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjColumnRender::<'e, 'h> {
             element: self,
             header,

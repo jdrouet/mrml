@@ -1,12 +1,9 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjImage, NAME};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjImageRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjImage,
     container_width: Option<Pixel>,
 }
@@ -127,7 +124,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
                 td.mj-full-width-mobile {{ width: auto !important; }}
             }}
             "#,
-            self.header.borrow().breakpoint().lower().to_string(),
+            self.header.breakpoint().lower().to_string(),
         )
     }
 }
@@ -157,13 +154,17 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
-        let style = self.render_style();
-        self.header.borrow_mut().add_style(style);
+    fn render(
+        &self,
+        _opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
+        header.add_style(self.render_style());
         //
         let class = if self.is_fluid_on_mobile() {
             Some("mj-full-width-mobile")
@@ -198,7 +199,7 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjImageRender::<'e, 'h> {
             element: self,
             header,

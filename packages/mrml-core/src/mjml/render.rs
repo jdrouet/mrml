@@ -1,25 +1,27 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::Mjml;
 use crate::mj_head::MjHead;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
 pub struct MjmlRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e Mjml,
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let mut body_buf = RenderBuffer::default();
         if let Some(body) = self.element.body() {
-            body.renderer(Rc::clone(&self.header))
-                .render(opts, &mut body_buf)?;
+            body.renderer(self.header)
+                .render(opts, header, &mut body_buf)?;
         } else {
             body_buf.push_str("<body></body>");
         }
@@ -32,11 +34,11 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
         }
         buf.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
         if let Some(head) = self.element.head() {
-            head.renderer(Rc::clone(&self.header)).render(opts, buf)?;
+            head.renderer(self.header).render(opts, header, buf)?;
         } else {
             MjHead::default()
-                .renderer(Rc::clone(&self.header))
-                .render(opts, buf)?;
+                .renderer(self.header)
+                .render(opts, header, buf)?;
         }
         buf.push_str(body_buf.as_ref());
         buf.push_str("</html>");
@@ -45,7 +47,7 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Mjml {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjmlRender::<'e, 'h> {
             element: self,
             header,
@@ -55,11 +57,11 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Mjml {
 
 impl Mjml {
     pub fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut header = Header::new(&self.children.head);
-        header.maybe_set_lang(self.attributes.lang.clone());
-        let header = Rc::new(RefCell::new(header));
+        let header = Header::new(self.children.head.as_ref(), self.attributes.lang.as_deref());
+        let mut vheader = VariableHeader::default();
         let mut buf = RenderBuffer::default();
-        self.renderer(header).render(opts, &mut buf)?;
+        self.renderer(&header)
+            .render(opts, &mut vheader, &mut buf)?;
         Ok(buf.into())
     }
 

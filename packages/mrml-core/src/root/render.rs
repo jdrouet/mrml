@@ -1,26 +1,28 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
 pub(crate) struct RootRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e super::Root,
 }
 
 impl<'e, 'h> Render<'e, 'h> for RootRender<'e, 'h> {
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         for element in self.element.as_ref().iter() {
             match element {
                 super::RootChild::Comment(inner) => {
-                    inner.renderer(self.header.clone()).render(opts, buf)?
+                    inner.renderer(self.header).render(opts, header, buf)?
                 }
                 super::RootChild::Mjml(inner) => {
-                    inner.renderer(self.header.clone()).render(opts, buf)?
+                    inner.renderer(self.header).render(opts, header, buf)?
                 }
             };
         }
@@ -29,7 +31,7 @@ impl<'e, 'h> Render<'e, 'h> for RootRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for super::Root {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(RootRender::<'e, 'h> {
             element: self,
             header,

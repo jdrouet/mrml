@@ -1,18 +1,20 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjAccordionText, NAME};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjAccordionTextRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjAccordionText,
     extra: Map<String, String>,
 }
 
 impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
-    fn render_children(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_children(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let td = Tag::td()
             .maybe_add_class(self.attribute("css-class"))
             .maybe_add_style("background", self.attribute("background-color"))
@@ -28,8 +30,8 @@ impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
 
         td.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(Rc::clone(&self.header));
-            renderer.render(opts, buf)?;
+            let renderer = child.renderer(self.header);
+            renderer.render(opts, header, buf)?;
         }
         td.render_close(buf);
 
@@ -63,15 +65,18 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_families);
+        header.maybe_add_font_families(font_families);
 
         let tr = Tag::tr();
         let tbody = Tag::tbody();
@@ -86,7 +91,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
         table.render_open(buf);
         tbody.render_open(buf);
         tr.render_open(buf);
-        self.render_children(opts, buf)?;
+        self.render_children(opts, header, buf)?;
         tr.render_close(buf);
         tbody.render_close(buf);
         table.render_close(buf);
@@ -97,7 +102,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionText {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjAccordionTextRender::<'e, 'h> {
             element: self,
             header,

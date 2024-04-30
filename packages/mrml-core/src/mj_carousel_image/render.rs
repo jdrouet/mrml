@@ -1,13 +1,10 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjCarouselImage, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjCarouselImageRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjCarouselImage,
     extra: Map<String, String>,
     container_width: Option<Pixel>,
@@ -166,25 +163,34 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
         self.index = index;
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
     fn render_fragment(
         &self,
         name: &str,
         opts: &RenderOptions,
+        header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         match name {
-            "main" => self.render(opts, buf),
-            "radio" => Ok(self.render_radio(buf)),
+            "main" => self.render(opts, header, buf),
+            "radio" => {
+                self.render_radio(buf);
+                Ok(())
+            },
             "thumbnail" => self.render_thumbnail(buf),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(&self, _opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        _opts: &RenderOptions,
+        _header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let img = self
             .set_style_images_img(Tag::new("img"))
             .add_attribute("border", "0")
@@ -228,7 +234,7 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarouselImage {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjCarouselImageRender::<'e, 'h> {
             element: self,
             header,

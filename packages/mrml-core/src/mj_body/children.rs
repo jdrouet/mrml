@@ -1,8 +1,3 @@
-#[cfg(feature = "render")]
-use std::cell::RefCell;
-#[cfg(feature = "render")]
-use std::rc::Rc;
-
 use crate::comment::Comment;
 use crate::mj_accordion::MjAccordion;
 use crate::mj_button::MjButton;
@@ -87,7 +82,7 @@ impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjBodyChild {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         self.as_renderable().renderer(header)
     }
 }

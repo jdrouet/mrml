@@ -1,12 +1,9 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjButton, NAME};
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjButtonRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjButton,
 }
 
@@ -35,10 +32,15 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
         }
     }
 
-    fn render_children(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_children(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         for child in self.element.children.iter() {
-            let renderer = child.renderer(Rc::clone(&self.header));
-            renderer.render(opts, buf)?;
+            let renderer = child.renderer(self.header);
+            renderer.render(opts, header, buf)?;
         }
         Ok(())
     }
@@ -114,15 +116,19 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_family);
+        header.maybe_add_font_families(font_family);
+
         let table = self.set_style_table(Tag::table_presentation());
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -148,7 +154,7 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
         tr.render_open(buf);
         td.render_open(buf);
         link.render_open(buf);
-        self.render_children(opts, buf)?;
+        self.render_children(opts, header, buf)?;
         link.render_close(buf);
         td.render_close(buf);
         tr.render_close(buf);
@@ -160,7 +166,7 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjButton {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjButtonRender::<'e, 'h> {
             element: self,
             header,

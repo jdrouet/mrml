@@ -1,9 +1,6 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjAccordion, MjAccordionChild, NAME};
 use crate::helper::size::{Pixel, Size};
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "border",
@@ -18,7 +15,7 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
 ];
 
 struct MjAccordionRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjAccordion,
     container_width: Option<Pixel>,
     siblings: usize,
@@ -43,12 +40,10 @@ const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important
 "#;
 
 impl<'e, 'h> MjAccordionRender<'e, 'h> {
-    fn update_header(&self) {
+    fn update_header(&self, header: &mut VariableHeader) {
         let font_families = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_families);
-        self.header.borrow_mut().add_style(STYLE);
+        header.maybe_add_font_families(font_families);
+        header.add_style(STYLE);
     }
 }
 
@@ -78,8 +73,8 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -100,8 +95,13 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
-        self.update_header();
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
+        self.update_header(header);
 
         let tbody = Tag::tbody();
         let table = Tag::table()
@@ -117,11 +117,11 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         table.render_open(buf);
         tbody.render_open(buf);
         for child in self.element.children.iter() {
-            let mut renderer = child.renderer(Rc::clone(&self.header));
+            let mut renderer = child.renderer(self.header);
             CHILDREN_ATTRIBUTES.iter().for_each(|key| {
                 renderer.maybe_add_extra_attribute(key, self.attribute(key));
             });
-            renderer.render(opts, buf)?;
+            renderer.render(opts, header, buf)?;
         }
         tbody.render_close(buf);
         table.render_close(buf);
@@ -130,7 +130,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordion {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjAccordionRender::<'e, 'h> {
             element: self,
             header,
@@ -142,7 +142,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordion {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         match self {
             Self::MjAccordionElement(elt) => elt.renderer(header),
             Self::Comment(elt) => elt.renderer(header),

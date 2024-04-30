@@ -7,77 +7,25 @@ use crate::mj_head::MjHead;
 use crate::prelude::hash::Map;
 use crate::prelude::hash::Set;
 
-pub struct Header<'h> {
-    head: &'h Option<MjHead>,
-    attributes_all: Map<&'h str, &'h str>,
-    attributes_class: Map<&'h str, Map<&'h str, &'h str>>,
-    attributes_element: Map<&'h str, Map<&'h str, &'h str>>,
-    breakpoint: Pixel,
-    font_families: Map<&'h str, &'h str>,
+pub struct VariableHeader {
     used_font_families: Set<String>,
     media_queries: Map<String, Size>,
     styles: Set<Cow<'static, str>>,
-    lang: Option<String>,
-    generator: AtomicU16,
 }
 
-impl<'h> Header<'h> {
-    pub fn new(head: &'h Option<MjHead>) -> Self {
+impl Default for VariableHeader {
+    fn default() -> Self {
         Self {
-            head,
-            attributes_all: head
-                .as_ref()
-                .map(|h| h.build_attributes_all())
-                .unwrap_or_default(),
-            attributes_class: head
-                .as_ref()
-                .map(|h| h.build_attributes_class())
-                .unwrap_or_default(),
-            attributes_element: head
-                .as_ref()
-                .map(|h| h.build_attributes_element())
-                .unwrap_or_default(),
-            breakpoint: head
-                .as_ref()
-                .and_then(|h| h.breakpoint())
-                .and_then(|s| Pixel::try_from(s.value()).ok())
-                .unwrap_or_else(|| Pixel::new(480.0)),
-            font_families: head
-                .as_ref()
-                .map(|h| h.build_font_families())
-                .unwrap_or_default(),
-            used_font_families: Set::new(),
+            used_font_families: Default::default(),
             media_queries: Map::new(),
             styles: Set::new(),
-            lang: Default::default(),
-            generator: AtomicU16::new(0),
         }
     }
+}
 
-    pub fn attribute_all(&self, key: &str) -> Option<&str> {
-        self.attributes_all.get(key).copied()
-    }
-
-    pub fn attribute_class(&self, name: &str, key: &str) -> Option<&str> {
-        self.attributes_class
-            .get(name)
-            .and_then(|class_map| class_map.get(key))
-            .copied()
-    }
-
-    pub fn attribute_element(&self, name: &str, key: &str) -> Option<&str> {
-        self.attributes_element
-            .get(name)
-            .and_then(|elt| elt.get(key))
-            .copied()
-    }
-
-    pub fn head(&self) -> &Option<MjHead> {
-        self.head
-    }
-
-    pub fn breakpoint(&self) -> &Pixel {
-        &self.breakpoint
+impl VariableHeader {
+    pub fn used_font_families(&self) -> &Set<String> {
+        &self.used_font_families
     }
 
     pub fn add_used_font_family(&mut self, value: &str) {
@@ -101,14 +49,6 @@ impl<'h> Header<'h> {
         }
     }
 
-    pub fn used_font_families(&self) -> &Set<String> {
-        &self.used_font_families
-    }
-
-    pub fn font_families(&self) -> &Map<&str, &str> {
-        &self.font_families
-    }
-
     pub fn media_queries(&self) -> &Map<String, Size> {
         &self.media_queries
     }
@@ -130,13 +70,87 @@ impl<'h> Header<'h> {
             self.add_style(value);
         }
     }
+}
 
-    pub fn lang(&self) -> Option<&str> {
-        self.lang.as_deref()
+pub struct Header<'h> {
+    attributes_all: Map<&'h str, &'h str>,
+    attributes_class: Map<&'h str, Map<&'h str, &'h str>>,
+    attributes_element: Map<&'h str, Map<&'h str, &'h str>>,
+    breakpoint: Pixel,
+    font_families: Map<&'h str, &'h str>,
+    title: Option<&'h str>,
+    preview: Option<&'h str>,
+    lang: Option<&'h str>,
+    generator: AtomicU16,
+}
+
+impl<'h> Header<'h> {
+    pub fn new(head: Option<&'h MjHead>, lang: Option<&'h str>) -> Self {
+        Self {
+            attributes_all: head
+                .as_ref()
+                .map(|h| h.build_attributes_all())
+                .unwrap_or_default(),
+            attributes_class: head
+                .as_ref()
+                .map(|h| h.build_attributes_class())
+                .unwrap_or_default(),
+            attributes_element: head
+                .as_ref()
+                .map(|h| h.build_attributes_element())
+                .unwrap_or_default(),
+            breakpoint: head
+                .as_ref()
+                .and_then(|h| h.breakpoint())
+                .and_then(|s| Pixel::try_from(s.value()).ok())
+                .unwrap_or_else(|| Pixel::new(480.0)),
+            font_families: head
+                .as_ref()
+                .map(|h| h.build_font_families())
+                .unwrap_or_default(),
+            title: head.and_then(|h| h.title().map(|t| t.content())),
+            preview: head.and_then(|h| h.preview().map(|t| t.content())),
+            lang,
+            generator: AtomicU16::new(0),
+        }
     }
 
-    pub fn maybe_set_lang(&mut self, value: Option<String>) {
-        self.lang = value;
+    pub fn attribute_all(&self, key: &str) -> Option<&str> {
+        self.attributes_all.get(key).copied()
+    }
+
+    pub fn attribute_class(&self, name: &str, key: &str) -> Option<&str> {
+        self.attributes_class
+            .get(name)
+            .and_then(|class_map| class_map.get(key))
+            .copied()
+    }
+
+    pub fn attribute_element(&self, name: &str, key: &str) -> Option<&str> {
+        self.attributes_element
+            .get(name)
+            .and_then(|elt| elt.get(key))
+            .copied()
+    }
+
+    pub fn breakpoint(&self) -> &Pixel {
+        &self.breakpoint
+    }
+
+    pub fn font_families(&self) -> &Map<&str, &str> {
+        &self.font_families
+    }
+
+    pub fn lang(&self) -> Option<&str> {
+        self.lang
+    }
+
+    pub fn title(&self) -> Option<&str> {
+        self.title
+    }
+
+    pub fn preview(&self) -> Option<&str> {
+        self.preview
     }
 
     pub fn next_id(&self) -> String {

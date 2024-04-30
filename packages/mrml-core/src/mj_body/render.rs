@@ -1,13 +1,11 @@
-use std::cell::{Ref, RefCell};
 use std::convert::TryFrom;
-use std::rc::Rc;
 
 use super::MjBody;
 use crate::helper::size::Pixel;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjBodyRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjBody,
 }
 
@@ -32,21 +30,19 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
     }
 
     fn render_preview(&self, buf: &mut RenderBuffer) {
-        if let Some(value) = self
-            .header
-            .borrow()
-            .head()
-            .as_ref()
-            .and_then(|h| h.preview())
-            .map(|p| p.content())
-        {
+        if let Some(value) = self.header.preview() {
             buf.push_str(r#"<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">"#);
             buf.push_str(value);
             buf.push_str("</div>");
         }
     }
 
-    fn render_content(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_content(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
 
@@ -58,12 +54,12 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
             .filter(|item| item.is_raw())
             .count();
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(Rc::clone(&self.header));
+            let mut renderer = child.renderer(self.header);
             renderer.set_container_width(element_width.clone());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(self.element.children.len());
-            renderer.render(opts, buf)?;
+            renderer.render(opts, header, buf)?;
         }
         div.render_close(buf);
         Ok(())
@@ -82,22 +78,27 @@ impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
         }
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let body = self.get_body_tag();
         body.render_open(buf);
         self.render_preview(buf);
-        self.render_content(opts, buf)?;
+        self.render_content(opts, header, buf)?;
         body.render_close(buf);
         Ok(())
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBody {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjBodyRender::<'e, 'h> {
             element: self,
             header,

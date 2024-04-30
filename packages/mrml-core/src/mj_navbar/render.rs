@@ -1,12 +1,9 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjNavbar, MjNavbarChild, NAME};
 use crate::helper::size::{Pixel, Size};
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         match self {
             Self::MjNavbarLink(elt) => elt.renderer(header),
             Self::Comment(elt) => elt.renderer(header),
@@ -15,7 +12,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
 }
 
 struct MjNavbarRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjNavbar,
     container_width: Option<Pixel>,
     siblings: usize,
@@ -121,8 +118,8 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
         div.render_close(buf);
     }
 
-    fn update_header(&self) {
-        let style = format!(
+    fn render_style(&self) -> String {
+        format!(
             r#"
         noinput.mj-menu-checkbox {{ display:block!important; max-height:none!important; visibility:visible!important; }}
         @media only screen and (max-width:{}) {{
@@ -134,9 +131,8 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
         }}
         "#,
-            self.header.borrow().breakpoint().lower().to_string()
-        );
-        self.header.borrow_mut().add_style(style);
+            self.header.breakpoint().lower().to_string()
+        )
     }
 }
 
@@ -166,8 +162,8 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -188,8 +184,14 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
-        self.update_header();
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
+        header.add_style(self.render_style());
+
         let div = Tag::div().add_class("mj-inline-links");
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
@@ -206,9 +208,9 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         buf.end_conditional_tag();
 
         for child in self.element.children.iter() {
-            let mut renderer = child.renderer(Rc::clone(&self.header));
+            let mut renderer = child.renderer(self.header);
             renderer.maybe_add_extra_attribute("navbar-base-url", base_url.clone());
-            renderer.render(opts, buf)?;
+            renderer.render(opts, header, buf)?;
         }
 
         buf.start_conditional_tag();
@@ -222,8 +224,8 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
-        let id = header.borrow().next_id();
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+        let id = header.next_id();
         Box::new(MjNavbarRender::<'e, 'h> {
             element: self,
             header,

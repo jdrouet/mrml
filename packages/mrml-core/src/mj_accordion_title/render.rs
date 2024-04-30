@@ -1,12 +1,9 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjAccordionTitle, NAME};
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag};
+use crate::prelude::render::*;
 
 struct MjAccordionTitleRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
+    header: &'h Header<'h>,
     element: &'e MjAccordionTitle,
     extra: Map<String, String>,
 }
@@ -18,7 +15,12 @@ impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
             .maybe_add_style("height", self.attribute("icon-height"))
     }
 
-    fn render_title(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render_title(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let td = Tag::td()
             .add_style("width", "100%")
             .maybe_add_style("background-color", self.attribute("background-color"))
@@ -34,8 +36,8 @@ impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
 
         td.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(Rc::clone(&self.header));
-            renderer.render(opts, buf)?;
+            let renderer = child.renderer(self.header);
+            renderer.render(opts, header, buf)?;
         }
         td.render_close(buf);
 
@@ -93,15 +95,19 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn header(&self) -> &'h Header<'h> {
+        self.header
     }
 
-    fn render(&self, opts: &RenderOptions, buf: &mut RenderBuffer) -> Result<(), Error> {
+    fn render(
+        &self,
+        opts: &RenderOptions,
+        header: &mut VariableHeader,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_families);
+        header.maybe_add_font_families(font_families);
+
         let tr = Tag::tr();
         let tbody = Tag::tbody();
         let table = Tag::table()
@@ -117,11 +123,11 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
         tr.render_open(buf);
 
         if self.attribute_equals("icon-position", "right") {
-            self.render_title(opts, buf)?;
+            self.render_title(opts, header, buf)?;
             self.render_icons(buf);
         } else {
             self.render_icons(buf);
-            self.render_title(opts, buf)?;
+            self.render_title(opts, header, buf)?;
         }
 
         tr.render_close(buf);
@@ -134,7 +140,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionTitle {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjAccordionTitleRender::<'e, 'h> {
             element: self,
             header,
