@@ -117,7 +117,7 @@ fn render_font_link(target: &mut String, href: &str) {
 }
 
 pub struct MjHeadRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjHead,
 }
 
@@ -153,12 +153,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         })
     }
 
-    fn render_font_families(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) {
+    fn render_font_families(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) {
         let used_font_families = header.used_font_families();
         if used_font_families.is_empty() {
             return;
@@ -167,10 +162,10 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         let mut links = String::default();
         let mut imports = String::default();
         for name in header.used_font_families().iter() {
-            if let Some(href) = self.header.font_families().get(name.as_str()) {
+            if let Some(href) = self.context.header.font_families().get(name.as_str()) {
                 render_font_link(&mut links, href);
                 render_font_import(&mut imports, href);
-            } else if let Some(href) = opts.fonts.get(name) {
+            } else if let Some(href) = self.context.options.fonts.get(name) {
                 render_font_link(&mut links, href);
                 render_font_import(&mut imports, href);
             } else {
@@ -197,7 +192,7 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         }
         let mut classnames = header.media_queries().iter().collect::<Vec<_>>();
         classnames.sort_by(sort_by_key);
-        let breakpoint = self.header.breakpoint().to_string();
+        let breakpoint = self.context.header.breakpoint().to_string();
         buf.push_str("<style type=\"text/css\">");
         buf.push_str("@media only screen and (min-width:");
         buf.push_str(breakpoint.as_str());
@@ -247,28 +242,23 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         buf.push_str("</style>");
     }
 
-    fn render_raw(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render_raw(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let mut index: usize = 0;
         let siblings = self.element.children.len();
         for child in self.element.children.iter() {
             if let Some(mj_raw) = child.as_mj_raw() {
-                let mut renderer = mj_raw.renderer(self.header);
+                let mut renderer = mj_raw.renderer(self.context());
                 renderer.set_index(index);
                 renderer.set_siblings(siblings);
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
                 index += 1;
             } else if let Some(mj_include) = child.as_mj_include() {
                 for include_child in mj_include.children.iter() {
                     if let Some(mj_raw) = include_child.as_mj_raw() {
-                        let mut renderer = mj_raw.renderer(self.header);
+                        let mut renderer = mj_raw.renderer(self.context());
                         renderer.set_index(index);
                         renderer.set_siblings(siblings);
-                        renderer.render(opts, header, buf)?;
+                        renderer.render(header, buf)?;
                         index += 1;
                     }
                 }
@@ -279,16 +269,11 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjHeadRender<'e, 'h> {
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         buf.push_str("<head>");
         // we write the title even though there is no content
         buf.push_str("<title>");
@@ -302,20 +287,20 @@ impl<'e, 'h> Render<'e, 'h> for MjHeadRender<'e, 'h> {
         buf.push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
         buf.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
         buf.push_str(STYLE_BASE);
-        self.render_font_families(opts, header, buf);
+        self.render_font_families(header, buf);
         self.render_media_queries(header, buf);
         self.render_styles(header, buf);
-        self.render_raw(opts, header, buf)?;
+        self.render_raw(header, buf)?;
         buf.push_str("</head>");
         Ok(())
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHead {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjHeadRender::<'e, 'h> {
             element: self,
-            header,
+            context,
         })
     }
 }

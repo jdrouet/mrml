@@ -4,7 +4,7 @@ use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
 struct MjColumnRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjColumn,
     // TODO change lifetime
     extra: Map<String, String>,
@@ -176,7 +176,6 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
 
     fn render_gutter(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -189,7 +188,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         tbody.render_open(buf);
         tr.render_open(buf);
         td.render_open(buf);
-        self.render_column(opts, header, buf)?;
+        self.render_column(header, buf)?;
         td.render_close(buf);
         tr.render_close(buf);
         tbody.render_close(buf);
@@ -208,7 +207,6 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
 
     fn render_column(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -224,13 +222,13 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         tbody.render_open(buf);
 
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(siblings);
             renderer.set_container_width(current_width.clone());
             if child.is_raw() {
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
             } else {
                 let tr = Tag::tr();
                 let td = Tag::td()
@@ -251,7 +249,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
 
                 tr.render_open(buf);
                 td.render_open(buf);
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
                 td.render_close(buf);
                 tr.render_close(buf);
             }
@@ -293,8 +291,8 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
@@ -316,12 +314,7 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
         header.add_media_query(classname.clone(), size);
 
@@ -333,9 +326,9 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
 
         div.render_open(buf);
         if self.has_gutter() {
-            self.render_gutter(opts, header, buf)?;
+            self.render_gutter(header, buf)?;
         } else {
-            self.render_column(opts, header, buf)?;
+            self.render_column(header, buf)?;
         }
         div.render_close(buf);
         Ok(())
@@ -343,10 +336,10 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjColumn {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjColumnRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
             extra: Map::new(),
             siblings: 1,

@@ -3,7 +3,7 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
 struct MjDividerRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjDivider,
     container_width: Option<Pixel>,
 }
@@ -94,16 +94,11 @@ impl<'e, 'h> Render<'e, 'h> for MjDividerRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        _opts: &RenderOptions,
-        _header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let p = self.set_style_p(Tag::new("p"));
         p.render_text(buf, "");
 
@@ -113,10 +108,10 @@ impl<'e, 'h> Render<'e, 'h> for MjDividerRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjDivider {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjDividerRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
         })
     }

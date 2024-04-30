@@ -32,13 +32,13 @@ impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjIncludeBodyChild {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        self.as_renderable().renderer(header)
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+        self.as_renderable().renderer(context)
     }
 }
 
 struct MjIncludeBodyRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjIncludeBody,
 }
 
@@ -51,31 +51,26 @@ impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
         None
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(self.element.children.len());
-            renderer.render(opts, header, buf)?;
+            renderer.render(header, buf)?;
         }
         Ok(())
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjIncludeBody {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjIncludeBodyRender::<'e, 'h> {
             element: self,
-            header,
+            context,
         })
     }
 }
@@ -88,7 +83,9 @@ mod tests {
     use crate::mj_raw::{MjRaw, MjRawChild};
     use crate::mj_text::MjText;
     use crate::node::Node;
-    use crate::prelude::render::{Header, RenderBuffer, RenderOptions, Renderable, VariableHeader};
+    use crate::prelude::render::{
+        Header, RenderBuffer, RenderContext, RenderOptions, Renderable, VariableHeader,
+    };
     use crate::text::Text;
 
     #[test]
@@ -97,23 +94,25 @@ mod tests {
         let mj_head = Some(MjHead::default());
         let expected: String = {
             let header = Header::new(mj_head.as_ref(), None);
+            let context = RenderContext::new(&opts, header);
             let mut vheader = VariableHeader::default();
             let elt = MjText::default();
-            let renderer = elt.renderer(&header);
+            let renderer = elt.renderer(&context);
             let mut buf = RenderBuffer::default();
-            renderer.render(&opts, &mut vheader, &mut buf).unwrap();
+            renderer.render(&mut vheader, &mut buf).unwrap();
             buf.into()
         };
         let result: String = {
             let header = Header::new(mj_head.as_ref(), None);
+            let context = RenderContext::new(&opts, header);
             let mut vheader = VariableHeader::default();
             let mut elt = MjIncludeBody::default();
             elt.attributes.path = "memory:foo.mjml".to_string();
             elt.children
                 .push(MjIncludeBodyChild::MjText(MjText::default()));
-            let renderer = elt.renderer(&header);
+            let renderer = elt.renderer(&context);
             let mut buf = RenderBuffer::default();
-            renderer.render(&opts, &mut vheader, &mut buf).unwrap();
+            renderer.render(&mut vheader, &mut buf).unwrap();
             buf.into()
         };
         assert_eq!(expected, result);
@@ -126,6 +125,7 @@ mod tests {
 
         let expected: String = {
             let header = Header::new(mj_head.as_ref(), None);
+            let context = RenderContext::new(&opts, header);
             let mut vheader = VariableHeader::default();
 
             let mut node = Node::new("span".to_string());
@@ -134,13 +134,14 @@ mod tests {
 
             let mut root = MjRaw::default();
             root.children.push(MjRawChild::Node(node));
-            let renderer = root.renderer(&header);
+            let renderer = root.renderer(&context);
             let mut buf = RenderBuffer::default();
-            renderer.render(&opts, &mut vheader, &mut buf).unwrap();
+            renderer.render(&mut vheader, &mut buf).unwrap();
             buf.into()
         };
         let result: String = {
             let header = Header::new(mj_head.as_ref(), None);
+            let context = RenderContext::new(&opts, header);
             let mut vheader = VariableHeader::default();
 
             let mut node = Node::new("span".to_string());
@@ -152,9 +153,9 @@ mod tests {
             elt.attributes.path = "memory:foo.html".to_string();
             elt.children.push(MjIncludeBodyChild::Node(node));
 
-            let renderer = elt.renderer(&header);
+            let renderer = elt.renderer(&context);
             let mut buf = RenderBuffer::default();
-            renderer.render(&opts, &mut vheader, &mut buf).unwrap();
+            renderer.render(&mut vheader, &mut buf).unwrap();
             buf.into()
         };
         assert_eq!(expected, result);

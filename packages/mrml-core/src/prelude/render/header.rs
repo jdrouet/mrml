@@ -1,6 +1,5 @@
 use std::borrow::Cow;
 use std::convert::TryFrom;
-use std::sync::atomic::{AtomicU16, Ordering};
 
 use crate::helper::size::{Pixel, Size};
 use crate::mj_head::MjHead;
@@ -81,7 +80,6 @@ pub struct Header<'h> {
     title: Option<&'h str>,
     preview: Option<&'h str>,
     lang: Option<&'h str>,
-    generator: AtomicU16,
 }
 
 impl<'h> Header<'h> {
@@ -111,7 +109,6 @@ impl<'h> Header<'h> {
             title: head.and_then(|h| h.title().map(|t| t.content())),
             preview: head.and_then(|h| h.preview().map(|t| t.content())),
             lang,
-            generator: AtomicU16::new(0),
         }
     }
 
@@ -151,10 +148,5 @@ impl<'h> Header<'h> {
 
     pub fn preview(&self) -> Option<&str> {
         self.preview
-    }
-
-    pub fn next_id(&self) -> String {
-        let id = self.generator.fetch_add(1, Ordering::SeqCst);
-        format!("{id:0>8}")
     }
 }

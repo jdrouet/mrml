@@ -18,7 +18,7 @@ use crate::mj_text::MjText;
 use crate::mj_wrapper::MjWrapper;
 use crate::node::Node;
 #[cfg(feature = "render")]
-use crate::prelude::render::{Header, Render, Renderable};
+use crate::prelude::render::{Render, RenderContext, Renderable};
 use crate::text::Text;
 
 #[derive(Debug, mrml_macros::MrmlChildren)]
@@ -82,7 +82,7 @@ impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjBodyChild {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        self.as_renderable().renderer(header)
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+        self.as_renderable().renderer(context)
     }
 }

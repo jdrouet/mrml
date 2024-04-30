@@ -3,7 +3,7 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
 struct MjGroupRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjGroup,
     container_width: Option<Pixel>,
     siblings: usize,
@@ -74,7 +74,6 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
 
     fn render_children(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -88,14 +87,14 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             .count();
 
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_container_width(Some(current_width.clone()));
             renderer.add_extra_attribute("mobile-width", "mobile-width");
             if child.is_raw() {
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
             } else {
                 let td = Tag::td()
                     .maybe_add_style("align", renderer.attribute("align"))
@@ -111,7 +110,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
                 buf.start_conditional_tag();
                 td.render_open(buf);
                 buf.end_conditional_tag();
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
                 buf.start_conditional_tag();
                 td.render_close(buf);
                 buf.end_conditional_tag();
@@ -137,8 +136,8 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -164,12 +163,7 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         }
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
         header.add_media_query(classname.clone(), size);
 
@@ -195,7 +189,7 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         table.render_open(buf);
         tr.render_open(buf);
         buf.end_conditional_tag();
-        self.render_children(opts, header, buf)?;
+        self.render_children(header, buf)?;
         buf.start_conditional_tag();
         tr.render_close(buf);
         table.render_close(buf);
@@ -207,10 +201,10 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjGroup {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjGroupRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
             siblings: 1,
             raw_siblings: 0,

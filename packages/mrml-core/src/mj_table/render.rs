@@ -4,7 +4,7 @@ use crate::mj_section::WithMjSectionBackground;
 use crate::prelude::render::*;
 
 struct MjTableRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjTable,
     container_width: Option<Pixel>,
 }
@@ -49,20 +49,15 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        &self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
         self.container_width = width;
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
         header.maybe_add_font_families(font_family);
 
@@ -74,9 +69,9 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
             .maybe_add_attribute("width", self.attribute("width"));
         table.render_open(buf);
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
-            renderer.render(opts, header, buf)?;
+            renderer.render(header, buf)?;
         }
         table.render_close(buf);
         Ok(())
@@ -84,10 +79,10 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjTable {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjTableRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
         })
     }

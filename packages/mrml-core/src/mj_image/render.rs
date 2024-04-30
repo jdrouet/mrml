@@ -3,7 +3,7 @@ use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 struct MjImageRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjImage,
     container_width: Option<Pixel>,
 }
@@ -124,7 +124,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
                 td.mj-full-width-mobile {{ width: auto !important; }}
             }}
             "#,
-            self.header.breakpoint().lower().to_string(),
+            self.context.header.breakpoint().lower().to_string(),
         )
     }
 }
@@ -154,16 +154,11 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        _opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         header.add_style(self.render_style());
         //
         let class = if self.is_fluid_on_mobile() {
@@ -199,10 +194,10 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjImageRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
         })
     }

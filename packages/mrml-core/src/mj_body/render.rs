@@ -5,7 +5,7 @@ use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 struct MjBodyRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjBody,
 }
 
@@ -22,7 +22,7 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
     fn get_content_div_tag(&self) -> Tag {
         self.set_body_style(Tag::new("div"))
             .maybe_add_attribute("class", self.attribute("css-class"))
-            .maybe_add_attribute("lang", self.header().lang().map(ToString::to_string))
+            .maybe_add_attribute("lang", self.context.header.lang().map(ToString::to_string))
     }
 
     fn set_body_style<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
@@ -30,7 +30,7 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
     }
 
     fn render_preview(&self, buf: &mut RenderBuffer) {
-        if let Some(value) = self.header.preview() {
+        if let Some(value) = self.context.header.preview() {
             buf.push_str(r#"<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">"#);
             buf.push_str(value);
             buf.push_str("</div>");
@@ -39,7 +39,6 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
 
     fn render_content(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -54,12 +53,12 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
             .filter(|item| item.is_raw())
             .count();
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_container_width(element_width.clone());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(self.element.children.len());
-            renderer.render(opts, header, buf)?;
+            renderer.render(header, buf)?;
         }
         div.render_close(buf);
         Ok(())
@@ -78,30 +77,25 @@ impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
         }
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let body = self.get_body_tag();
         body.render_open(buf);
         self.render_preview(buf);
-        self.render_content(opts, header, buf)?;
+        self.render_content(header, buf)?;
         body.render_close(buf);
         Ok(())
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBody {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjBodyRender::<'e, 'h> {
             element: self,
-            header,
+            context,
         })
     }
 }

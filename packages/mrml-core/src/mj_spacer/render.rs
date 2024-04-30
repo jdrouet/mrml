@@ -3,7 +3,7 @@ use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 struct MjSpacerRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjSpacer,
     container_width: Option<Pixel>,
 }
@@ -28,16 +28,11 @@ impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        _opts: &RenderOptions,
-        _header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         Tag::div()
             .maybe_add_style("height", self.attribute("height"))
             .maybe_add_style("line-height", self.attribute("height"))
@@ -47,10 +42,10 @@ impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSpacer {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjSpacerRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
         })
     }

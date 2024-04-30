@@ -3,25 +3,19 @@ use crate::mj_head::MjHead;
 use crate::prelude::render::*;
 
 pub struct MjmlRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e Mjml,
 }
 
 impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let mut body_buf = RenderBuffer::default();
         if let Some(body) = self.element.body() {
-            body.renderer(self.header)
-                .render(opts, header, &mut body_buf)?;
+            body.renderer(self.context).render(header, &mut body_buf)?;
         } else {
             body_buf.push_str("<body></body>");
         }
@@ -34,11 +28,11 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
         }
         buf.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
         if let Some(head) = self.element.head() {
-            head.renderer(self.header).render(opts, header, buf)?;
+            head.renderer(self.context).render(header, buf)?;
         } else {
             MjHead::default()
-                .renderer(self.header)
-                .render(opts, header, buf)?;
+                .renderer(self.context)
+                .render(header, buf)?;
         }
         buf.push_str(body_buf.as_ref());
         buf.push_str("</html>");
@@ -47,10 +41,10 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Mjml {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjmlRender::<'e, 'h> {
             element: self,
-            header,
+            context,
         })
     }
 }
@@ -58,10 +52,10 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Mjml {
 impl Mjml {
     pub fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
         let header = Header::new(self.children.head.as_ref(), self.attributes.lang.as_deref());
+        let context = RenderContext::new(opts, header);
         let mut vheader = VariableHeader::default();
         let mut buf = RenderBuffer::default();
-        self.renderer(&header)
-            .render(opts, &mut vheader, &mut buf)?;
+        self.renderer(&context).render(&mut vheader, &mut buf)?;
         Ok(buf.into())
     }
 

@@ -3,7 +3,7 @@ use crate::prelude::is_void_element;
 use crate::prelude::render::*;
 
 struct NodeRender<'e, 'h, T> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e Node<T>,
 }
 
@@ -15,16 +15,11 @@ where
         Some(self.element.tag.as_str())
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         buf.push('<');
         buf.push_str(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
@@ -46,9 +41,9 @@ where
             buf.push('>');
             for (index, child) in self.element.children.iter().enumerate() {
                 // TODO children
-                let mut renderer = child.renderer(self.header);
+                let mut renderer = child.renderer(self.context);
                 renderer.set_index(index);
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
             }
             buf.push_str("</");
             buf.push_str(&self.element.tag);
@@ -59,10 +54,10 @@ where
 }
 
 impl<'r, 'e: 'r, 'h: 'r, T: Renderable<'r, 'e, 'h>> Renderable<'r, 'e, 'h> for Node<T> {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(NodeRender::<'e, 'h> {
             element: self,
-            header,
+            context,
         })
     }
 }

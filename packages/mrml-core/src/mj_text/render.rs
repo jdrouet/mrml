@@ -2,7 +2,7 @@ use super::{MjText, NAME};
 use crate::prelude::render::*;
 
 struct MjTextRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjText,
 }
 
@@ -23,15 +23,13 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
 
     fn render_content(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         let root = self.set_style_text(Tag::div());
         root.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(self.header);
-            renderer.render(opts, header, buf)?;
+            child.renderer(self.context()).render(header, buf)?;
         }
         root.render_close(buf);
         Ok(())
@@ -40,7 +38,6 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
     fn render_with_height(
         &self,
         height: &str,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -56,7 +53,7 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
         tr.render_open(buf);
         td.render_open(buf);
         buf.end_conditional_tag();
-        self.render_content(opts, header, buf)?;
+        self.render_content(header, buf)?;
         buf.start_conditional_tag();
         td.render_close(buf);
         tr.render_close(buf);
@@ -87,32 +84,27 @@ impl<'e, 'h> Render<'e, 'h> for MjTextRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        &self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
         header.maybe_add_font_families(font_family);
 
         if let Some(ref height) = self.attribute("height") {
-            self.render_with_height(height, opts, header, buf)
+            self.render_with_height(height, header, buf)
         } else {
-            self.render_content(opts, header, buf)
+            self.render_content(header, buf)
         }
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjText {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjTextRender::<'e, 'h> {
             element: self,
-            header,
+            context,
         })
     }
 }

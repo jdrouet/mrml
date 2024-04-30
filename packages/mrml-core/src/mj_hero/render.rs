@@ -3,7 +3,7 @@ use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 struct MjHeroRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjHero,
     container_width: Option<Pixel>,
     siblings: usize,
@@ -119,19 +119,18 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
 
     fn render_children(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|c| c.is_raw()).count();
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
             if child.is_raw() {
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
             } else {
                 let tr = Tag::tr();
                 let td = Tag::td()
@@ -155,7 +154,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
 
                 tr.render_open(buf);
                 td.render_open(buf);
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
                 td.render_close(buf);
                 tr.render_close(buf);
             };
@@ -166,7 +165,6 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
 
     fn render_content(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -200,7 +198,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
         td.render_open(buf);
         inner_table.render_open(buf);
         tbody.render_open(buf);
-        self.render_children(opts, header, buf)?;
+        self.render_children(header, buf)?;
         tbody.render_close(buf);
         inner_table.render_close(buf);
         td.render_close(buf);
@@ -220,7 +218,6 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
 
     fn render_mode_fluid(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -231,7 +228,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
 
         td_fluid.render_closed(buf);
         td.render_open(buf);
-        self.render_content(opts, header, buf)?;
+        self.render_content(header, buf)?;
         td.render_close(buf);
         td_fluid.render_closed(buf);
 
@@ -240,7 +237,6 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
 
     fn render_mode_fixed(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -255,7 +251,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .add_attribute("height", height.to_string());
 
         td.render_open(buf);
-        self.render_content(opts, header, buf)?;
+        self.render_content(header, buf)?;
         td.render_close(buf);
 
         Ok(())
@@ -263,13 +259,12 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
 
     fn render_mode(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         match self.attribute("mode") {
-            Some(inner) if inner.eq("fluid") => self.render_mode_fluid(opts, header, buf),
-            _ => self.render_mode_fixed(opts, header, buf),
+            Some(inner) if inner.eq("fluid") => self.render_mode_fluid(header, buf),
+            _ => self.render_mode_fixed(header, buf),
         }
     }
 }
@@ -295,8 +290,8 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
@@ -311,12 +306,7 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let outlook_table = self
             .set_style_outlook_table(Tag::table_presentation())
             .add_attribute("align", "center")
@@ -350,7 +340,7 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         tbody.render_open(buf);
         tr.render_open(buf);
 
-        self.render_mode(opts, header, buf)?;
+        self.render_mode(header, buf)?;
 
         tr.render_close(buf);
         tbody.render_close(buf);
@@ -368,10 +358,10 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHero {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjHeroRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
             siblings: 1,
             raw_siblings: 0,

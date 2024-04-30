@@ -4,7 +4,7 @@ use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
 struct MjNavbarLinkRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjNavbarLink,
     extra: Map<String, String>,
     container_width: Option<Pixel>,
@@ -47,7 +47,6 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
 
     fn render_content(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -62,8 +61,8 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
 
         link.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(self.header);
-            renderer.render(opts, header, buf)?;
+            let renderer = child.renderer(self.context());
+            renderer.render(header, buf)?;
         }
         link.render_close(buf);
 
@@ -107,16 +106,11 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
         header.maybe_add_font_families(font_families);
 
@@ -127,7 +121,7 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
         buf.start_conditional_tag();
         td.render_open(buf);
         buf.end_conditional_tag();
-        self.render_content(opts, header, buf)?;
+        self.render_content(header, buf)?;
         buf.start_conditional_tag();
         td.render_close(buf);
         buf.end_conditional_tag();
@@ -137,10 +131,10 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarLink {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjNavbarLinkRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             extra: Map::new(),
             container_width: None,
         })

@@ -3,7 +3,7 @@ use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
 struct MjAccordionTextRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjAccordionText,
     extra: Map<String, String>,
 }
@@ -11,7 +11,6 @@ struct MjAccordionTextRender<'e, 'h> {
 impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
     fn render_children(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -30,8 +29,8 @@ impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
 
         td.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(self.header);
-            renderer.render(opts, header, buf)?;
+            let renderer = child.renderer(self.context());
+            renderer.render(header, buf)?;
         }
         td.render_close(buf);
 
@@ -65,16 +64,11 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
         header.maybe_add_font_families(font_families);
 
@@ -91,7 +85,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
         table.render_open(buf);
         tbody.render_open(buf);
         tr.render_open(buf);
-        self.render_children(opts, header, buf)?;
+        self.render_children(header, buf)?;
         tr.render_close(buf);
         tbody.render_close(buf);
         table.render_close(buf);
@@ -102,10 +96,10 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionText {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjAccordionTextRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             extra: Map::default(),
         })
     }

@@ -4,7 +4,7 @@ use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
 use crate::prelude::render::*;
 
 struct MjWrapperRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjWrapper,
     container_width: Option<Pixel>,
 }
@@ -32,7 +32,6 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
 
     fn render_wrapped_children(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -42,12 +41,12 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
         let current_width = self.current_width();
         let container_width = self.container_width.as_ref().map(|v| v.to_string());
         for child in self.children().iter() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_container_width(current_width.clone());
             if child.is_raw() {
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
             } else {
                 let td = renderer
                     .set_style("td-outlook", Tag::td())
@@ -57,7 +56,7 @@ impl<'e, 'h> SectionLikeRender<'e, 'h> for MjWrapperRender<'e, 'h> {
                 tr.render_open(buf);
                 td.render_open(buf);
                 buf.end_conditional_tag();
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
                 buf.start_conditional_tag();
                 td.render_close(buf);
                 tr.render_close(buf);
@@ -89,33 +88,28 @@ impl<'r, 'e: 'r, 'h: 'r> Render<'e, 'h> for MjWrapperRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
         self.container_width = width;
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         if self.is_full_width() {
-            self.render_full_width(opts, header, buf)
+            self.render_full_width(header, buf)
         } else {
-            self.render_simple(opts, header, buf)
+            self.render_simple(header, buf)
         }
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjWrapper {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjWrapperRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
         })
     }

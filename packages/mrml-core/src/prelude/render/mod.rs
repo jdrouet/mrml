@@ -2,6 +2,7 @@ use std::convert::TryFrom;
 
 use crate::helper::size::{Pixel, Size};
 use crate::helper::spacing::Spacing;
+use std::sync::atomic::{AtomicU16, Ordering};
 
 mod buffer;
 mod header;
@@ -19,11 +20,37 @@ pub enum Error {
     UnknownFragment(String),
 }
 
+#[derive(Debug, Default)]
+pub struct Generator(AtomicU16);
+
+impl Generator {
+    pub fn next_id(&self) -> String {
+        let id = self.0.fetch_add(1, Ordering::SeqCst);
+        format!("{id:0>8}")
+    }
+}
+
 #[deprecated = "use mrml::prelude::render::RenderOptions instead"]
 pub type Options = RenderOptions;
 
+pub struct RenderContext<'h> {
+    pub options: &'h RenderOptions,
+    pub header: Header<'h>,
+    pub generator: Generator,
+}
+
+impl<'h> RenderContext<'h> {
+    pub fn new(options: &'h RenderOptions, header: Header<'h>) -> Self {
+        Self {
+            options,
+            header,
+            generator: Generator::default(),
+        }
+    }
+}
+
 pub trait Render<'element, 'header> {
-    fn header(&self) -> &'header Header<'header>;
+    fn context(&self) -> &'header RenderContext<'header>;
 
     fn tag(&self) -> Option<&str> {
         None
@@ -149,7 +176,7 @@ pub trait Render<'element, 'header> {
         if let Some(value) = self.raw_extra_attribute(key) {
             return Some(value.to_string());
         }
-        let header = self.header();
+        let header = &self.context().header;
         if let Some(value) = self.raw_attribute("mj-class").and_then(|mj_classes| {
             mj_classes
                 .split(' ')
@@ -199,22 +226,16 @@ pub trait Render<'element, 'header> {
     fn render_fragment(
         &self,
         name: &str,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         match name {
-            "main" => self.render(opts, header, buf),
+            "main" => self.render(header, buf),
             _ => Err(Error::UnknownFragment(name.to_string())),
         }
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error>;
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error>;
 }
 
 pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
@@ -224,7 +245,7 @@ pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
 
     fn renderer(
         &'element self,
-        header: &'header Header<'header>,
+        context: &'header RenderContext<'header>,
     ) -> Box<dyn Render<'element, 'header> + 'render>;
 }
 
@@ -261,9 +282,9 @@ macro_rules! should_render {
 mod tests {
     #[test]
     fn header_should_increase() {
-        let header = super::Header::new(None, None);
-        assert_eq!(header.next_id(), "00000000");
-        assert_eq!(header.next_id(), "00000001");
-        assert_eq!(header.next_id(), "00000002");
+        let gen = super::Generator::default();
+        assert_eq!(gen.next_id(), "00000000");
+        assert_eq!(gen.next_id(), "00000001");
+        assert_eq!(gen.next_id(), "00000002");
     }
 }

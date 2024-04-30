@@ -15,7 +15,7 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
 ];
 
 struct MjAccordionRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjAccordion,
     container_width: Option<Pixel>,
     siblings: usize,
@@ -73,8 +73,8 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -95,12 +95,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         self.update_header(header);
 
         let tbody = Tag::tbody();
@@ -117,11 +112,11 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         table.render_open(buf);
         tbody.render_open(buf);
         for child in self.element.children.iter() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|key| {
                 renderer.maybe_add_extra_attribute(key, self.attribute(key));
             });
-            renderer.render(opts, header, buf)?;
+            renderer.render(header, buf)?;
         }
         tbody.render_close(buf);
         table.render_close(buf);
@@ -130,10 +125,10 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordion {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjAccordionRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
             siblings: 1,
             raw_siblings: 0,
@@ -142,10 +137,10 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordion {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionChild {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         match self {
-            Self::MjAccordionElement(elt) => elt.renderer(header),
-            Self::Comment(elt) => elt.renderer(header),
+            Self::MjAccordionElement(elt) => elt.renderer(context),
+            Self::Comment(elt) => elt.renderer(context),
         }
     }
 }

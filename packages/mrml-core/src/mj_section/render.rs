@@ -2,9 +2,7 @@ use std::convert::TryFrom;
 
 use super::{MjSection, NAME};
 use crate::helper::size::{Percent, Pixel};
-use crate::prelude::render::{
-    Error, Header, Render, RenderBuffer, RenderOptions, Renderable, Tag, VariableHeader,
-};
+use crate::prelude::render::*;
 
 fn is_horizontal_position(value: &str) -> bool {
     value == "left" || value == "right" || value == "center"
@@ -310,7 +308,6 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
 
     fn render_wrapped_children(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -320,13 +317,13 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
 
         tr.render_open(buf);
         for child in self.children().iter() {
-            let mut renderer = child.renderer(self.header());
+            let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_container_width(self.container_width().clone());
             if child.is_raw() {
                 buf.end_conditional_tag();
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
                 buf.start_conditional_tag();
             } else {
                 let td = renderer
@@ -335,7 +332,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
                     .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
                 td.render_open(buf);
                 buf.end_conditional_tag();
-                renderer.render(opts, header, buf)?;
+                renderer.render(header, buf)?;
                 buf.start_conditional_tag();
                 td.render_close(buf);
             }
@@ -377,7 +374,6 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
 
     fn render_section(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -418,7 +414,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         td.render_open(buf);
         buf.start_conditional_tag();
         inner_table.render_open(buf);
-        self.render_wrapped_children(opts, header, buf)?;
+        self.render_wrapped_children(header, buf)?;
         inner_table.render_close(buf);
         buf.end_conditional_tag();
         td.render_close(buf);
@@ -452,7 +448,6 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
 
     fn render_full_width(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -470,7 +465,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
             self.render_with_background(header, buf, |header, buf| {
                 self.render_wrap(header, buf, |header, buf| {
                     buf.end_conditional_tag();
-                    self.render_section(opts, header, buf)?;
+                    self.render_section(header, buf)?;
                     buf.start_conditional_tag();
                     Ok(())
                 })
@@ -478,7 +473,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
         } else {
             self.render_wrap(header, buf, |header, buf| {
                 buf.end_conditional_tag();
-                self.render_section(opts, header, buf)?;
+                self.render_section(header, buf)?;
                 buf.start_conditional_tag();
                 Ok(())
             })?;
@@ -494,18 +489,17 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
 
     fn render_simple(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
         self.render_wrap(header, buf, |header, buf| {
             if self.has_background() {
                 self.render_with_background(header, buf, |header, buf| {
-                    self.render_section(opts, header, buf)
+                    self.render_section(header, buf)
                 })?;
             } else {
                 buf.end_conditional_tag();
-                self.render_section(opts, header, buf)?;
+                self.render_section(header, buf)?;
                 buf.start_conditional_tag();
             }
             Ok(())
@@ -514,7 +508,7 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
 }
 
 struct MjSectionRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjSection,
     container_width: Option<Pixel>,
 }
@@ -552,33 +546,28 @@ impl<'e, 'h> Render<'e, 'h> for MjSectionRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
         self.container_width = width;
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         if self.is_full_width() {
-            self.render_full_width(opts, header, buf)
+            self.render_full_width(header, buf)
         } else {
-            self.render_simple(opts, header, buf)
+            self.render_simple(header, buf)
         }
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjSectionRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
         })
     }

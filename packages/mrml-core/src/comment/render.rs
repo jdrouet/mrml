@@ -2,22 +2,17 @@ use super::Comment;
 use crate::prelude::render::*;
 
 struct CommentRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e Comment,
 }
 
 impl<'e, 'h> Render<'e, 'h> for CommentRender<'e, 'h> {
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        _header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
-        if !opts.disable_comments {
+    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
+        if !self.context.options.disable_comments {
             buf.push_str("<!--");
             buf.push_str(self.element.children.as_str());
             buf.push_str("-->");
@@ -31,10 +26,10 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Comment {
         true
     }
 
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(CommentRender::<'e, 'h> {
             element: self,
-            header,
+            context,
         })
     }
 }

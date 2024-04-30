@@ -2,21 +2,16 @@ use super::Text;
 use crate::prelude::render::*;
 
 struct TextRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e Text,
 }
 
 impl<'e, 'h> Render<'e, 'h> for TextRender<'e, 'h> {
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        _opts: &RenderOptions,
-        _header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, _header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         buf.push_str(self.element.inner_str());
         Ok(())
     }
@@ -27,10 +22,10 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Text {
         true
     }
 
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(TextRender::<'e, 'h> {
             element: self,
-            header,
+            context,
         })
     }
 }

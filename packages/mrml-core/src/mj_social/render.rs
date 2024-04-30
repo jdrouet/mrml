@@ -3,10 +3,10 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialChild {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         match self {
-            Self::MjSocialElement(elt) => elt.renderer(header),
-            Self::Comment(elt) => elt.renderer(header),
+            Self::MjSocialElement(elt) => elt.renderer(context),
+            Self::Comment(elt) => elt.renderer(context),
         }
     }
 }
@@ -43,7 +43,7 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
 ];
 
 struct MjSocialRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjSocial,
     container_width: Option<Pixel>,
     siblings: usize,
@@ -73,7 +73,6 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
 
     fn render_horizontal(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -98,12 +97,12 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             buf.end_conditional_tag();
             inner_table.render_open(buf);
             inner_tbody.render_open(buf);
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             child_attributes.iter().for_each(|(key, value)| {
                 renderer.add_extra_attribute(key, value);
             });
-            renderer.render(opts, header, buf)?;
+            renderer.render(header, buf)?;
             inner_tbody.render_close(buf);
             inner_table.render_close(buf);
             buf.start_conditional_tag();
@@ -120,7 +119,6 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
 
     fn render_vertical(
         &self,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -131,12 +129,12 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
         table.render_open(buf);
         tbody.render_open(buf);
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             child_attributes.iter().for_each(|(key, value)| {
                 renderer.add_extra_attribute(key, value);
             });
-            renderer.render(opts, header, buf)?;
+            renderer.render(header, buf)?;
         }
         tbody.render_close(buf);
         table.render_close(buf);
@@ -170,8 +168,8 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -192,28 +190,23 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let font_families = self.attribute("font-family").unwrap_or_default(); // never happens
         header.add_font_families(font_families);
 
         if self.is_horizontal() {
-            self.render_horizontal(opts, header, buf)
+            self.render_horizontal(header, buf)
         } else {
-            self.render_vertical(opts, header, buf)
+            self.render_vertical(header, buf)
         }
     }
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocial {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjSocialRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             container_width: None,
             siblings: 1,
             raw_siblings: 0,

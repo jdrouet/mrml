@@ -7,7 +7,7 @@ use crate::prelude::render::*;
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
 struct MjSocialElementRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjSocialElement,
     extra: Map<String, String>,
     container_width: Option<Pixel>,
@@ -31,10 +31,10 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         self.attribute_as_size("icon-height")
     }
 
-    fn get_icon_src(&self, opts: &RenderOptions) -> Option<String> {
+    fn get_icon_src(&self) -> Option<String> {
         self.attribute("src").or_else(|| {
             self.network.as_ref().map(|net| {
-                if let Some(ref origin) = opts.social_icon_origin {
+                if let Some(ref origin) = self.context.options.social_icon_origin {
                     net.icon_src(origin)
                 } else {
                     net.icon_src(DEFAULT_ICON_ORIGIN)
@@ -102,7 +102,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
             .unwrap_or_default()
     }
 
-    fn render_icon(&self, href: &Option<String>, opts: &RenderOptions, buf: &mut RenderBuffer) {
+    fn render_icon(&self, href: &Option<String>, buf: &mut RenderBuffer) {
         let table = self.set_style_table(Tag::table_presentation());
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -121,7 +121,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
                     .or_else(|| self.get_icon_size())
                     .map(|size| size.value().to_string()),
             )
-            .maybe_add_attribute("src", self.get_icon_src(opts))
+            .maybe_add_attribute("src", self.get_icon_src())
             .maybe_add_attribute(
                 "width",
                 self.get_icon_size().map(|size| size.value().to_string()),
@@ -147,7 +147,6 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
     fn render_text(
         &self,
         href: &Option<String>,
-        opts: &RenderOptions,
         header: &mut VariableHeader,
         buf: &mut RenderBuffer,
     ) -> Result<(), Error> {
@@ -165,8 +164,8 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
         td.render_open(buf);
         wrapper.render_open(buf);
         for child in self.element.children.iter() {
-            let renderer = child.renderer(self.header);
-            renderer.render(opts, header, buf)?;
+            let renderer = child.renderer(self.context());
+            renderer.render(header, buf)?;
         }
         wrapper.render_close(buf);
         td.render_close(buf);
@@ -212,26 +211,21 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         let href = self.get_href();
         let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
         let td = self.set_style_td(Tag::td());
 
         tr.render_open(buf);
         td.render_open(buf);
-        self.render_icon(&href, opts, buf);
+        self.render_icon(&href, buf);
         td.render_close(buf);
         if !self.element.children.is_empty() {
-            self.render_text(&href, opts, header, buf)?;
+            self.render_text(&href, header, buf)?;
         }
         tr.render_close(buf);
         Ok(())
@@ -239,10 +233,10 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialElement {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         Box::new(MjSocialElementRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             extra: Map::new(),
             container_width: None,
             network: self

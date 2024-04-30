@@ -3,16 +3,16 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         match self {
-            Self::MjNavbarLink(elt) => elt.renderer(header),
-            Self::Comment(elt) => elt.renderer(header),
+            Self::MjNavbarLink(elt) => elt.renderer(context),
+            Self::Comment(elt) => elt.renderer(context),
         }
     }
 }
 
 struct MjNavbarRender<'e, 'h> {
-    header: &'h Header<'h>,
+    context: &'h RenderContext<'h>,
     element: &'e MjNavbar,
     container_width: Option<Pixel>,
     siblings: usize,
@@ -131,7 +131,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
         }}
         "#,
-            self.header.breakpoint().lower().to_string()
+            self.context.header.breakpoint().lower().to_string()
         )
     }
 }
@@ -162,8 +162,8 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn header(&self) -> &'h Header<'h> {
-        self.header
+    fn context(&self) -> &'h RenderContext<'h> {
+        self.context
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -184,12 +184,7 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(
-        &self,
-        opts: &RenderOptions,
-        header: &mut VariableHeader,
-        buf: &mut RenderBuffer,
-    ) -> Result<(), Error> {
+    fn render(&self, header: &mut VariableHeader, buf: &mut RenderBuffer) -> Result<(), Error> {
         header.add_style(self.render_style());
 
         let div = Tag::div().add_class("mj-inline-links");
@@ -208,9 +203,9 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         buf.end_conditional_tag();
 
         for child in self.element.children.iter() {
-            let mut renderer = child.renderer(self.header);
+            let mut renderer = child.renderer(self.context());
             renderer.maybe_add_extra_attribute("navbar-base-url", base_url.clone());
-            renderer.render(opts, header, buf)?;
+            renderer.render(header, buf)?;
         }
 
         buf.start_conditional_tag();
@@ -224,11 +219,11 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
 }
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
-    fn renderer(&'e self, header: &'h Header<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        let id = header.next_id();
+    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+        let id = context.generator.next_id();
         Box::new(MjNavbarRender::<'e, 'h> {
             element: self,
-            header,
+            context,
             id,
             container_width: None,
             siblings: 1,
