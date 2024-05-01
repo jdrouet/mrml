@@ -59,6 +59,9 @@ pub(crate) struct Renderer<'element, 'header, Element, Extra> {
     pub context: &'header RenderContext<'header>,
     pub element: &'element Element,
     pub container_width: Option<Pixel>,
+    pub siblings: usize,
+    pub raw_siblings: usize,
+    pub index: usize,
     pub extra: Extra,
 }
 
@@ -73,6 +76,9 @@ impl<'element, 'header, Element, Extra> Renderer<'element, 'header, Element, Ext
             context,
             element,
             container_width: None,
+            siblings: 1,
+            raw_siblings: 0,
+            index: 0,
             extra,
         }
     }

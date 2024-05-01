@@ -2,12 +2,7 @@ use super::{MjGroup, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
-struct MjGroupExtra {
-    siblings: usize,
-    raw_siblings: usize,
-}
-
-impl<'element, 'header> Renderer<'element, 'header, MjGroup, MjGroupExtra> {
+impl<'element, 'header> Renderer<'element, 'header, MjGroup, ()> {
     fn current_width(&self) -> Pixel {
         let parent_width = self.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
@@ -35,7 +30,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjGroup, MjGroupExtra> {
     }
 
     fn non_raw_siblings(&self) -> usize {
-        self.extra.siblings - self.extra.raw_siblings
+        self.siblings - self.raw_siblings
     }
 
     fn get_parsed_width(&self) -> Size {
@@ -113,9 +108,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjGroup, MjGroupExtra> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjGroup, MjGroupExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjGroup, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
@@ -144,11 +137,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.extra.siblings = value;
+        self.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.extra.raw_siblings = value;
+        self.raw_siblings = value;
     }
 
     fn set_style<'a>(&self, name: &str, tag: Tag<'a>) -> Tag<'a> {
@@ -200,14 +193,7 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjGrou
         &'element self,
         context: &'header RenderContext<'header>,
     ) -> Box<dyn Render<'element, 'header> + 'r> {
-        Box::new(Renderer::new(
-            context,
-            self,
-            MjGroupExtra {
-                siblings: 1,
-                raw_siblings: 0,
-            },
-        ))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

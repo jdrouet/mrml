@@ -2,21 +2,7 @@ use super::{MjHero, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-struct MjHeroExtra {
-    siblings: usize,
-    raw_siblings: usize,
-}
-
-impl MjHeroExtra {
-    fn new(siblings: usize, raw_siblings: usize) -> Self {
-        Self {
-            siblings,
-            raw_siblings,
-        }
-    }
-}
-
-impl<'element, 'header> Renderer<'element, 'header, MjHero, MjHeroExtra> {
+impl<'element, 'header> Renderer<'element, 'header, MjHero, ()> {
     fn set_style_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0 auto").maybe_add_style(
             "max-width",
@@ -255,9 +241,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjHero, MjHeroExtra> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjHero, MjHeroExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjHero, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-color" => Some("#ffffff"),
@@ -287,11 +271,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.extra.siblings = value;
+        self.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.extra.raw_siblings = value;
+        self.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -347,7 +331,7 @@ impl<'element, 'header> Render<'element, 'header>
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHero {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(Renderer::new(context, self, MjHeroExtra::new(1, 0)))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

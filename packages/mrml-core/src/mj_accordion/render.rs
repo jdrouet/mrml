@@ -14,11 +14,6 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "icon-unwrapped-alt",
 ];
 
-struct MjAccordionExtra {
-    siblings: usize,
-    raw_siblings: usize,
-}
-
 const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important; }
 @media yahoo, only screen and (min-width:0) {
   .mj-accordion-element { display:block; }
@@ -36,7 +31,7 @@ const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important
 @goodbye { @gmail }
 "#;
 
-impl<'element, 'header> Renderer<'element, 'header, MjAccordion, MjAccordionExtra> {
+impl<'element, 'header> Renderer<'element, 'header, MjAccordion, ()> {
     fn update_header(&self, header: &mut VariableHeader) {
         let font_families = self.attribute("font-family");
         header.maybe_add_font_families(font_families);
@@ -44,9 +39,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjAccordion, MjAccordionExtr
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjAccordion, MjAccordionExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjAccordion, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "border" => Some("2px solid black"),
@@ -87,11 +80,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.extra.siblings = value;
+        self.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.extra.raw_siblings = value;
+        self.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -128,14 +121,7 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjAcco
         &'element self,
         context: &'header RenderContext<'header>,
     ) -> Box<dyn Render<'element, 'header> + 'r> {
-        Box::new(Renderer::new(
-            context,
-            self,
-            MjAccordionExtra {
-                siblings: 1,
-                raw_siblings: 0,
-            },
-        ))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

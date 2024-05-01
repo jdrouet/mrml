@@ -6,8 +6,6 @@ use crate::prelude::render::*;
 struct MjColumnExtra {
     // TODO change lifetime
     attributes: Map<String, String>,
-    siblings: usize,
-    raw_siblings: usize,
 }
 
 impl<'element, 'header> Renderer<'element, 'header, MjColumn, MjColumnExtra> {
@@ -40,7 +38,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjColumn, MjColumnExtra> {
     }
 
     fn non_raw_siblings(&self) -> usize {
-        self.extra.siblings - self.extra.raw_siblings
+        self.siblings - self.raw_siblings
     }
 
     fn get_parsed_width(&self) -> Size {
@@ -293,11 +291,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.extra.siblings = value;
+        self.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.extra.raw_siblings = value;
+        self.raw_siblings = value;
     }
 
     fn set_style<'a>(&self, name: &str, tag: Tag<'a>) -> Tag<'a> {
@@ -338,8 +336,6 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjColu
             self,
             MjColumnExtra {
                 attributes: Map::new(),
-                siblings: 1,
-                raw_siblings: 0,
             },
         ))
     }

@@ -42,21 +42,7 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
     "text-decoration",
 ];
 
-struct MjSocialExtra {
-    siblings: usize,
-    raw_siblings: usize,
-}
-
-impl MjSocialExtra {
-    fn new(siblings: usize, raw_siblings: usize) -> Self {
-        Self {
-            siblings,
-            raw_siblings,
-        }
-    }
-}
-
-impl<'element, 'header> Renderer<'element, 'header, MjSocial, MjSocialExtra> {
+impl<'element, 'header> Renderer<'element, 'header, MjSocial, ()> {
     fn set_style_table_vertical<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0px")
     }
@@ -141,9 +127,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjSocial, MjSocialExtra> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjSocial, MjSocialExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjSocial, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
@@ -183,11 +167,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.extra.siblings = value;
+        self.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.extra.raw_siblings = value;
+        self.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -204,7 +188,7 @@ impl<'element, 'header> Render<'element, 'header>
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocial {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(Renderer::new(context, self, MjSocialExtra::new(1, 0)))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

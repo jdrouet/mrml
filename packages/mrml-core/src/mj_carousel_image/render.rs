@@ -5,7 +5,6 @@ use crate::prelude::render::*;
 
 struct MjCarouselImageExtra {
     attributes: Map<String, String>,
-    index: usize,
 }
 
 impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselImageExtra> {
@@ -52,11 +51,11 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselI
                 self.extra
                     .attributes
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.extra.index + 1)),
+                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
             )
             .maybe_add_attribute(
                 "checked",
-                if self.extra.index == 0 {
+                if self.index == 0 {
                     Some("checked")
                 } else {
                     None
@@ -75,7 +74,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselI
                 self.extra
                     .attributes
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.extra.index + 1)),
+                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
             )
             .render_closed(buf);
     }
@@ -100,11 +99,11 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselI
             self.extra
                 .attributes
                 .get("carousel-id")
-                .map(|id| format!("mj-carousel-{}-radio-{}", id, self.extra.index + 1)),
+                .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
         );
         let link = self
             .set_style_thumbnails_a(Tag::new("a"))
-            .add_attribute("href", format!("#{}", self.extra.index + 1))
+            .add_attribute("href", format!("#{}", self.index + 1))
             .maybe_add_attribute("target", self.attribute("target"))
             .add_class("mj-carousel-thumbnail")
             .maybe_add_class(
@@ -117,7 +116,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselI
                 self.extra
                     .attributes
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-thumbnail-{}", id, self.extra.index + 1)),
+                    .map(|id| format!("mj-carousel-{}-thumbnail-{}", id, self.index + 1)),
             )
             .maybe_add_suffixed_class(self.attribute("css-class"), "thumbnail")
             .maybe_add_style(
@@ -168,7 +167,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_index(&mut self, index: usize) {
-        self.extra.index = index;
+        self.index = index;
     }
 
     fn context(&self) -> &'header RenderContext<'header> {
@@ -200,7 +199,7 @@ impl<'element, 'header> Render<'element, 'header>
                     .as_ref()
                     .map(|width| width.value().to_string()),
             );
-        let div = if self.extra.index == 0 {
+        let div = if self.index == 0 {
             Tag::div()
         } else {
             Tag::div()
@@ -209,7 +208,7 @@ impl<'element, 'header> Render<'element, 'header>
         };
         let div = div
             .add_class("mj-carousel-image")
-            .add_class(format!("mj-carousel-image-{}", self.extra.index + 1))
+            .add_class(format!("mj-carousel-image-{}", self.index + 1))
             .maybe_add_class(self.attribute("css-class"));
 
         div.render_open(&mut cursor.buffer);
@@ -240,7 +239,6 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjCaro
             self,
             MjCarouselImageExtra {
                 attributes: Map::new(),
-                index: 0,
             },
         ))
     }

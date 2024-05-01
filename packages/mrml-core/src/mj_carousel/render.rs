@@ -20,8 +20,6 @@ fn repeat(count: usize, value: &str) -> String {
 }
 
 struct MjCarouselExtra {
-    siblings: usize,
-    raw_siblings: usize,
     id: String,
 }
 
@@ -426,11 +424,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.extra.siblings = value;
+        self.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.extra.raw_siblings = value;
+        self.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -463,15 +461,7 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjCaro
         context: &'header RenderContext<'header>,
     ) -> Box<dyn Render<'element, 'header> + 'r> {
         let id = context.generator.next_id();
-        Box::new(Renderer::new(
-            context,
-            self,
-            MjCarouselExtra {
-                siblings: 1,
-                raw_siblings: 0,
-                id,
-            },
-        ))
+        Box::new(Renderer::new(context, self, MjCarouselExtra { id }))
     }
 }
 

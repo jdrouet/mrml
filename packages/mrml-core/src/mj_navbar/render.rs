@@ -12,19 +12,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
 }
 
 struct MjNavbarExtra {
-    siblings: usize,
-    raw_siblings: usize,
     id: String,
-}
-
-impl MjNavbarExtra {
-    fn new(siblings: usize, raw_siblings: usize, id: String) -> Self {
-        Self {
-            siblings,
-            raw_siblings,
-            id,
-        }
-    }
 }
 
 impl<'element, 'header> Renderer<'element, 'header, MjNavbar, MjNavbarExtra> {
@@ -186,11 +174,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.extra.siblings = value;
+        self.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.extra.raw_siblings = value;
+        self.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -230,7 +218,7 @@ impl<'element, 'header> Render<'element, 'header>
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         let id = context.generator.next_id();
-        Box::new(Renderer::new(context, self, MjNavbarExtra::new(1, 0, id)))
+        Box::new(Renderer::new(context, self, MjNavbarExtra { id }))
     }
 }
 
