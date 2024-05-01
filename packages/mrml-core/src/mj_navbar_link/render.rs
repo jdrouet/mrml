@@ -16,7 +16,11 @@ impl Default for MjNavbarLinkExtra {
 }
 
 impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra> {
-    fn set_style_a<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_a<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("display", "inline-block")
             .maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
@@ -34,7 +38,11 @@ impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn set_style_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
             .maybe_add_style("padding-right", self.attribute("padding-right"))

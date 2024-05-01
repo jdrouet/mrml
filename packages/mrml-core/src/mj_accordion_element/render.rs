@@ -25,14 +25,16 @@ impl<'root> Renderer<'root, MjAccordionElement, MjAccordionElementExtra> {
         if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
-                renderer.maybe_add_extra_attribute(name, self.attribute(name));
+                renderer
+                    .maybe_add_extra_attribute(name, self.attribute(name).map(|v| v.to_owned()));
             });
             renderer.render(cursor)
         } else {
             let child = MjAccordionTitle::default();
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
-                renderer.maybe_add_extra_attribute(name, self.attribute(name));
+                renderer
+                    .maybe_add_extra_attribute(name, self.attribute(name).map(|v| v.to_owned()));
             });
             renderer.render(cursor)
         }
@@ -42,14 +44,16 @@ impl<'root> Renderer<'root, MjAccordionElement, MjAccordionElementExtra> {
         if let Some(ref child) = self.element.children.text {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
-                renderer.maybe_add_extra_attribute(name, self.attribute(name));
+                renderer
+                    .maybe_add_extra_attribute(name, self.attribute(name).map(|v| v.to_owned()));
             });
             renderer.render(cursor)
         } else {
             let child = MjAccordionText::default();
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
-                renderer.maybe_add_extra_attribute(name, self.attribute(name));
+                renderer
+                    .maybe_add_extra_attribute(name, self.attribute(name).map(|v| v.to_owned()));
             });
             renderer.render(cursor)
         }

@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use super::network::SocialNetwork;
 use super::{MjSocialElement, NAME};
 use crate::helper::size::{Pixel, Size};
@@ -22,13 +24,14 @@ impl MjSocialElementExtra {
 }
 
 impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
-    fn get_background_color(&self) -> Option<String> {
-        self.attribute("background-color").or_else(|| {
-            self.extra
-                .network
-                .as_ref()
-                .map(|net| net.background_color().to_string())
-        })
+    fn get_background_color(&'root self) -> Option<&'root str> {
+        if let Some(value) = self.attribute("background-color") {
+            Some(value)
+        } else if let Some(net) = self.extra.network.as_ref() {
+            Some(net.background_color())
+        } else {
+            None
+        }
     }
 
     fn get_icon_size(&self) -> Option<Size> {
@@ -39,24 +42,39 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
         self.attribute_as_size("icon-height")
     }
 
-    fn get_icon_src(&self) -> Option<String> {
-        self.attribute("src").or_else(|| {
-            self.extra.network.as_ref().map(|net| {
-                if let Some(ref origin) = self.context.options.social_icon_origin {
-                    net.icon_src(origin)
-                } else {
-                    net.icon_src(DEFAULT_ICON_ORIGIN)
-                }
-            })
+    fn get_icon_src<'a>(&'a self) -> Option<Cow<'a, str>>
+    where
+        'root: 'a,
+    {
+        self.attribute("src").map(Cow::Borrowed).or_else(|| {
+            self.extra
+                .network
+                .as_ref()
+                .map(|net| {
+                    if let Some(ref origin) = self.context.options.social_icon_origin {
+                        net.icon_src(origin)
+                    } else {
+                        net.icon_src(DEFAULT_ICON_ORIGIN)
+                    }
+                })
+                .map(Cow::Owned)
         })
     }
 
-    fn set_style_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_img<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
     }
 
-    fn set_style_icon<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_icon<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("padding", self.attribute("icon-padding"))
             .add_style("font-size", "0")
             .maybe_add_style(
@@ -69,13 +87,21 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
             .maybe_add_style("width", self.get_icon_size().map(|item| item.to_string()))
     }
 
-    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("background", self.get_background_color())
             .maybe_add_style("border-radius", self.attribute("border-radius"))
             .maybe_add_style("width", self.get_icon_size().map(|size| size.to_string()))
     }
 
-    fn set_style_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
             .maybe_add_style("padding-right", self.attribute("padding-right"))
@@ -84,12 +110,20 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn set_style_td_text<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_td_text<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("vertical-align", "middle")
             .maybe_add_style("padding", self.attribute("text-padding"))
     }
 
-    fn set_style_text<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_text<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("font-weight", self.attribute("font-weight"))
@@ -99,19 +133,21 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
             .maybe_add_style("text-decoration", self.attribute("text-decoration"))
     }
 
-    fn get_href(&self) -> Option<String> {
-        self.attribute("href")
-            .map(|href| {
-                self.extra
-                    .network
-                    .as_ref()
-                    .and_then(|net| net.share_url(&href))
-                    .or(Some(href))
-            })
-            .unwrap_or_default()
+    fn get_href<'a>(&'a self) -> Option<Cow<'a, str>>
+    where
+        'root: 'a,
+    {
+        self.attribute("href").and_then(|href| {
+            self.extra
+                .network
+                .as_ref()
+                .and_then(|net| net.share_url(href))
+                .map(Cow::Owned)
+                .or(Some(Cow::Borrowed(href)))
+        })
     }
 
-    fn render_icon(&self, href: &Option<String>, cursor: &mut RenderCursor) {
+    fn render_icon(&self, href: &Option<Cow<'root, str>>, cursor: &mut RenderCursor) {
         let table = self.set_style_table(Tag::table_presentation());
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -153,7 +189,11 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
         table.render_close(&mut cursor.buffer);
     }
 
-    fn render_text(&self, href: &Option<String>, cursor: &mut RenderCursor) -> Result<(), Error> {
+    fn render_text(
+        &self,
+        href: &Option<Cow<'root, str>>,
+        cursor: &mut RenderCursor,
+    ) -> Result<(), Error> {
         let td = self.set_style_td_text(Tag::td());
         let wrapper = if href.is_some() {
             Tag::new("a")

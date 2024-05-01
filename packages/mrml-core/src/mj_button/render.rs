@@ -35,13 +35,21 @@ impl<'root> Renderer<'root, MjButton, ()> {
         Ok(())
     }
 
-    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("border-collapse", "separate")
             .maybe_add_style("width", self.attribute("width"))
             .add_style("line-height", "100%")
     }
 
-    fn set_style_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
             .maybe_add_style("border-left", self.attribute("border-left"))
@@ -56,7 +64,11 @@ impl<'root> Renderer<'root, MjButton, ()> {
             .maybe_add_style("background", self.attribute("background-color"))
     }
 
-    fn set_style_content<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_content<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("display", "inline-block")
             .maybe_add_style("width", self.content_width())
             .maybe_add_style("background", self.attribute("background-color"))

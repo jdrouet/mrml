@@ -101,17 +101,17 @@ pub trait Render<'root> {
 
     fn attribute_as_pixel(&self, name: &str) -> Option<Pixel> {
         self.attribute(name)
-            .and_then(|value| Pixel::try_from(value.as_str()).ok())
+            .and_then(|value| Pixel::try_from(value).ok())
     }
 
     fn attribute_as_size(&self, name: &str) -> Option<Size> {
         self.attribute(name)
-            .and_then(|value| Size::try_from(value.as_str()).ok())
+            .and_then(|value| Size::try_from(value).ok())
     }
 
     fn attribute_as_spacing(&self, name: &str) -> Option<Spacing> {
         self.attribute(name)
-            .and_then(|value| Spacing::try_from(value.as_str()).ok())
+            .and_then(|value| Spacing::try_from(value).ok())
     }
 
     fn attribute_equals(&self, key: &str, value: &str) -> bool {
@@ -123,17 +123,13 @@ pub trait Render<'root> {
     }
 
     fn get_border_left(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("border-left").or_else(|| {
-            self.attribute("border")
-                .and_then(|value| Pixel::from_border(&value))
-        })
+        self.attribute_as_pixel("border-left")
+            .or_else(|| self.attribute("border").and_then(Pixel::from_border))
     }
 
     fn get_border_right(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("border-right").or_else(|| {
-            self.attribute("border")
-                .and_then(|value| Pixel::from_border(&value))
-        })
+        self.attribute_as_pixel("border-right")
+            .or_else(|| self.attribute("border").and_then(Pixel::from_border))
     }
 
     fn get_border_horizontal(&self) -> Pixel {
@@ -204,45 +200,51 @@ pub trait Render<'root> {
         None
     }
 
-    fn attribute(&self, key: &str) -> Option<String> {
+    fn attribute<'a>(&'a self, key: &str) -> Option<&'a str>
+    where
+        'root: 'a,
+    {
         if let Some(value) = self.raw_attribute(key) {
-            return Some(value.to_string());
+            return Some(value);
         }
         if let Some(value) = self.raw_extra_attribute(key) {
-            return Some(value.to_string());
+            return Some(value);
         }
-        let header = &self.context().header;
         if let Some(value) = self.raw_attribute("mj-class").and_then(|mj_classes| {
             mj_classes
                 .split(' ')
                 .map(|mj_class| mj_class.trim())
-                .filter_map(|mj_class| header.attribute_class(mj_class, key))
+                .filter_map(|mj_class| self.context().header.attribute_class(mj_class, key))
                 .next()
         }) {
-            return Some(value.to_string());
+            return Some(value);
         }
         if let Some(tag) = self.tag() {
-            if let Some(value) = header.attribute_element(tag, key) {
-                return Some(value.to_string());
+            if let Some(value) = self.context().header.attribute_element(tag, key) {
+                return Some(value);
             }
         }
-        if let Some(value) = header.attribute_all(key) {
-            return Some(value.to_string());
+        if let Some(value) = self.context().header.attribute_all(key) {
+            return Some(value);
         }
-        self.default_attribute(key).map(|item| item.to_string())
+        self.default_attribute(key)
     }
 
     fn attribute_size(&self, key: &str) -> Option<Size> {
         self.attribute(key)
-            .and_then(|value| Size::try_from(value.as_str()).ok())
+            .and_then(|value| Size::try_from(value).ok())
     }
 
     fn attribute_pixel(&self, key: &str) -> Option<Pixel> {
         self.attribute(key)
-            .and_then(|value| Pixel::try_from(value.as_str()).ok())
+            .and_then(|value| Pixel::try_from(value).ok())
     }
 
-    fn set_style<'a>(&self, _name: &str, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style<'a, 't>(&'a self, _name: &str, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag
     }
 

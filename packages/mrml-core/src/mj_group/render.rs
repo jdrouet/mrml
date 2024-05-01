@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use super::{MjGroup, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
@@ -48,7 +50,11 @@ impl<'root> Renderer<'root, MjGroup, ()> {
         (classname.replace('.', "-"), parsed_width)
     }
 
-    fn set_style_root_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_root_div<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("font-size", "0")
             .add_style("line-height", "0")
             .add_style("text-align", "left")
@@ -59,7 +65,11 @@ impl<'root> Renderer<'root, MjGroup, ()> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn set_style_td_outlook<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_td_outlook<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
             .add_style("width", self.current_width().to_string())
     }
@@ -91,8 +101,8 @@ impl<'root> Renderer<'root, MjGroup, ()> {
                         "width",
                         renderer
                             .get_width()
-                            .map(|w| w.to_string())
-                            .or_else(|| renderer.attribute("width")),
+                            .map(|w| Cow::Owned(w.to_string()))
+                            .or_else(|| renderer.attribute("width").map(Cow::Borrowed)),
                     );
 
                 cursor.buffer.start_conditional_tag();
@@ -144,7 +154,11 @@ impl<'root> Render<'root> for Renderer<'root, MjGroup, ()> {
         self.raw_siblings = value;
     }
 
-    fn set_style<'a>(&self, name: &str, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style<'a, 't>(&'a self, name: &str, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         match name {
             "td-outlook" => self.set_style_td_outlook(tag),
             _ => tag,

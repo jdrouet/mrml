@@ -44,7 +44,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         }
     }
 
-    fn set_style_carousel_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_carousel_div<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "table")
             .add_style("width", "100%")
             .add_style("table-layout", "fixed")
@@ -52,29 +52,33 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             .add_style("font-size", "0px")
     }
 
-    fn set_style_carousel_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_carousel_table<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("caption-side", "top")
             .add_style("display", "table-caption")
             .add_style("table-layout", "fixed")
             .add_style("width", "100%")
     }
 
-    fn set_style_images_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_images_td<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("padding", "0px")
     }
 
-    fn set_style_controls_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_controls_div<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "none")
             .add_style("mso-hide", "all")
     }
 
-    fn set_style_controls_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_controls_img<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("display", "block")
             .maybe_add_style("width", self.attribute("icon-width"))
             .add_style("height", "auto")
     }
 
-    fn set_style_controls_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_controls_td<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("font-size", "0px")
             .add_style("display", "none")
             .add_style("mso-hide", "all")
@@ -85,10 +89,18 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
-            renderer.maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
-            renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
-            renderer
-                .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
+            renderer.maybe_add_extra_attribute(
+                "border-radius",
+                self.attribute("border-radius").map(|v| v.to_owned()),
+            );
+            renderer.maybe_add_extra_attribute(
+                "tb-border",
+                self.attribute("tb-border").map(|v| v.to_owned()),
+            );
+            renderer.maybe_add_extra_attribute(
+                "tb-border-radius",
+                self.attribute("tb-border-radius").map(|v| v.to_owned()),
+            );
             renderer.set_index(index);
             renderer.render_fragment("radio", cursor)?;
         }
@@ -102,12 +114,17 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             for (index, child) in self.element.children.iter().enumerate() {
                 let mut renderer = child.renderer(self.context());
                 renderer.add_extra_attribute("carousel-id", &self.extra.id);
-                renderer
-                    .maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
-                renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
+                renderer.maybe_add_extra_attribute(
+                    "border-radius",
+                    self.attribute("border-radius").map(|v| v.to_owned()),
+                );
+                renderer.maybe_add_extra_attribute(
+                    "tb-border",
+                    self.attribute("tb-border").map(|v| v.to_owned()),
+                );
                 renderer.maybe_add_extra_attribute(
                     "tb-border-radius",
-                    self.attribute("tb-border-radius"),
+                    self.attribute("tb-border-radius").map(|v| v.to_owned()),
                 );
                 renderer.set_index(index);
                 renderer.set_container_width(Some(width.clone()));
@@ -162,10 +179,18 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
-            renderer.maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
-            renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
-            renderer
-                .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
+            renderer.maybe_add_extra_attribute(
+                "border-radius",
+                self.attribute("border-radius").map(|v| v.to_owned()),
+            );
+            renderer.maybe_add_extra_attribute(
+                "tb-border",
+                self.attribute("tb-border").map(|v| v.to_owned()),
+            );
+            renderer.maybe_add_extra_attribute(
+                "tb-border-radius",
+                self.attribute("tb-border-radius").map(|v| v.to_owned()),
+            );
             renderer.set_index(index);
             renderer.set_container_width(self.container_width.clone());
             renderer.render(cursor)?;
@@ -191,13 +216,13 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
 
         self.render_controls(
             "previous",
-            self.attribute("left-icon").unwrap().as_str(),
+            self.attribute("left-icon").unwrap(),
             &mut cursor.buffer,
         );
         self.render_images(cursor)?;
         self.render_controls(
             "next",
-            self.attribute("right-icon").unwrap().as_str(),
+            self.attribute("right-icon").unwrap(),
             &mut cursor.buffer,
         );
 
@@ -217,10 +242,18 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
-            renderer.maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
-            renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
-            renderer
-                .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
+            renderer.maybe_add_extra_attribute(
+                "border-radius",
+                self.attribute("border-radius").map(|v| v.to_owned()),
+            );
+            renderer.maybe_add_extra_attribute(
+                "tb-border",
+                self.attribute("tb-border").map(|v| v.to_owned()),
+            );
+            renderer.maybe_add_extra_attribute(
+                "tb-border-radius",
+                self.attribute("tb-border-radius").map(|v| v.to_owned()),
+            );
             renderer.set_container_width(self.container_width.clone());
 
             cursor.buffer.start_mso_conditional_tag();

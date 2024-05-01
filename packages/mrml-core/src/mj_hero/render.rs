@@ -1,24 +1,26 @@
+use std::borrow::Cow;
+
 use super::{MjHero, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjHero, ()> {
-    fn set_style_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_div<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("margin", "0 auto").maybe_add_style(
             "max-width",
             self.container_width.as_ref().map(|w| w.to_string()),
         )
     }
 
-    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("width", "100%")
     }
 
-    fn set_style_tr<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_tr<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("vertical-align", "top")
     }
 
-    fn set_style_td_fluid<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_td_fluid<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         // TODO check size type compatibility
         let bg_ratio = self
             .attribute_as_size("background-height")
@@ -31,18 +33,22 @@ impl<'root> Renderer<'root, MjHero, ()> {
             .add_style("width", "0.01%")
     }
 
-    fn set_style_outlook_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_outlook_table<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.maybe_add_style(
             "width",
             self.container_width.as_ref().map(|w| w.to_string()),
         )
     }
 
-    fn set_style_outlook_inner_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_outlook_inner_table<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         self.set_style_outlook_table(tag)
     }
 
-    fn set_style_outlook_inner_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_outlook_inner_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("background-color", self.attribute("inner-background-color"))
             .maybe_add_style("padding", self.attribute("inner-padding"))
             .maybe_add_style("padding-top", self.attribute("inner-padding-top"))
@@ -51,18 +57,26 @@ impl<'root> Renderer<'root, MjHero, ()> {
             .maybe_add_style("padding-left", self.attribute("inner-padding-left"))
     }
 
-    fn set_style_inner_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_inner_div<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("background-color", self.attribute("inner-background-color"))
             .maybe_add_style("float", self.attribute("align"))
             .add_style("margin", "0px auto")
             .maybe_add_style("width", self.attribute("width"))
     }
 
-    fn set_style_inner_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_inner_table<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("width", "100%").add_style("margin", "0px")
     }
 
-    fn set_style_outlook_image<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_outlook_image<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("border", "0")
             .maybe_add_style("height", self.attribute("background-height"))
             .add_style("mso-position-horizontal", "center")
@@ -71,33 +85,49 @@ impl<'root> Renderer<'root, MjHero, ()> {
             .maybe_add_style(
                 "width",
                 self.attribute("background-width")
-                    .or_else(|| self.container_width.as_ref().map(|w| w.to_string())),
+                    .map(Cow::Borrowed)
+                    .or_else(|| {
+                        self.container_width
+                            .as_ref()
+                            .map(|w| Cow::Owned(w.to_string()))
+                    }),
             )
             .add_style("z-index", "-3")
     }
 
-    fn set_style_outlook_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_outlook_td<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("line-height", "0")
             .add_style("font-size", "0")
             .add_style("mso-line-height-rule", "exactly")
     }
 
-    fn get_background(&self) -> Option<String> {
-        self.attribute("background-url")
-            .map(|url| {
-                format!(
-                    "{} url('{}') no-repeat {} / cover",
-                    // has default value
-                    self.attribute("background-color").unwrap(),
-                    url,
-                    // has default value
-                    self.attribute("background-position").unwrap()
-                )
-            })
-            .or_else(|| self.attribute("background-color"))
+    fn get_background<'a>(&'a self) -> Option<Cow<'a, str>>
+    where
+        'root: 'a,
+    {
+        if let (Some(url), Some(color), Some(position)) = (
+            self.attribute("background-url"),
+            self.attribute("background-color"),
+            self.attribute("background-position"),
+        ) {
+            Some(Cow::Owned(format!(
+                "{} url('{}') no-repeat {} / cover",
+                // has default value
+                color,
+                url,
+                // has default value
+                position
+            )))
+        } else {
+            self.attribute("background-color").map(Cow::Borrowed)
+        }
     }
 
-    fn set_style_hero<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_hero<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("background", self.get_background())
             .maybe_add_style("background-position", self.attribute("background-position"))
             .add_style("background-repeat", "no-repeat")

@@ -2,7 +2,11 @@ use super::{MjText, NAME};
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjText, ()> {
-    fn set_style_text<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_text<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("font-style", self.attribute("font-style"))
@@ -78,7 +82,7 @@ impl<'root> Render<'root> for Renderer<'root, MjText, ()> {
         let font_family = self.attribute("font-family");
         cursor.header.maybe_add_font_families(font_family);
 
-        if let Some(ref height) = self.attribute("height") {
+        if let Some(height) = self.attribute("height") {
             self.render_with_height(height, cursor)
         } else {
             self.render_content(cursor)

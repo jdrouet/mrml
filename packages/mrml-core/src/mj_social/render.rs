@@ -46,7 +46,7 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
 ];
 
 impl<'root> Renderer<'root, MjSocial, ()> {
-    fn set_style_table_vertical<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table_vertical<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("margin", "0px")
     }
 
@@ -56,7 +56,7 @@ impl<'root> Renderer<'root, MjSocial, ()> {
             .unwrap_or(true)
     }
 
-    fn build_child_attributes(&self) -> Vec<(&str, String)> {
+    fn build_child_attributes(&self) -> Vec<(&str, &str)> {
         EXTRA_CONTAINER_KEY
             .iter()
             .zip(EXTRA_CHILD_KEY.iter())

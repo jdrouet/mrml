@@ -3,7 +3,7 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjDivider, ()> {
-    fn set_style_p_without_width<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_p_without_width<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style(
             "border-top",
             format!(
@@ -16,12 +16,16 @@ impl<'root> Renderer<'root, MjDivider, ()> {
         .add_style("font-size", "1px")
         .add_style("margin", "0px auto")
     }
-    fn set_style_p<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_p<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         self.set_style_p_without_width(tag)
             .maybe_add_style("width", self.attribute("width"))
     }
 
-    fn set_style_outlook<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_outlook<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         self.set_style_p_without_width(tag)
             .add_style("width", self.get_outlook_width().to_string())
     }

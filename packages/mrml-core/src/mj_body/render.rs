@@ -7,7 +7,7 @@ use crate::prelude::render::*;
 impl<'root> Renderer<'root, MjBody, ()> {
     fn get_width(&self) -> Option<Pixel> {
         self.attribute("width")
-            .and_then(|value| Pixel::try_from(value.as_str()).ok())
+            .and_then(|value| Pixel::try_from(value).ok())
     }
 
     fn get_body_tag(&self) -> Tag {
@@ -20,7 +20,11 @@ impl<'root> Renderer<'root, MjBody, ()> {
             .maybe_add_attribute("lang", self.context.header.lang().map(ToString::to_string))
     }
 
-    fn set_body_style<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_body_style<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
     }
 

@@ -8,7 +8,11 @@ struct MjCarouselImageExtra {
 }
 
 impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra> {
-    fn set_style_images_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_images_img<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
             .maybe_add_style(
@@ -19,12 +23,16 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra> {
             .add_style("height", "auto")
     }
 
-    fn set_style_radio_input<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_radio_input<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "none")
             .add_style("mso-hide", "all")
     }
 
-    fn set_style_thumbnails_a<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_thumbnails_a<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("border", self.attribute("tb-border"))
             .maybe_add_style("border-radius", self.attribute("tb-border-radius"))
             .add_style("display", "inline-block")
@@ -32,7 +40,7 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra> {
             .maybe_add_style("width", self.attribute("tb-width"))
     }
 
-    fn set_style_thumbnails_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_thumbnails_img<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "block")
             .add_style("width", "100%")
             .add_style("height", "auto")

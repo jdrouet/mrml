@@ -7,7 +7,11 @@ struct MjAccordionTitleExtra {
 }
 
 impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra> {
-    fn set_style_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_img<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("display", "none")
             .maybe_add_style("width", self.attribute("icon-width"))
             .maybe_add_style("height", self.attribute("icon-height"))

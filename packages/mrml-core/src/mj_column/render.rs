@@ -97,12 +97,20 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra> {
         }
     }
 
-    fn set_style_td_outlook<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_td_outlook<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
             .add_style("width", self.get_width_as_pixel())
     }
 
-    fn set_style_root_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_root_div<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("font-size", "0px")
             .add_style("text-align", "left")
             .maybe_add_style("direction", self.attribute("direction"))
@@ -111,7 +119,11 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra> {
             .maybe_add_style("width", self.get_mobile_width().map(|v| v.to_string()))
     }
 
-    fn set_style_table_gutter<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table_gutter<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style(
             "background-color",
             self.attribute("inner-background-color")
@@ -149,7 +161,11 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra> {
         )
     }
 
-    fn set_style_table_simple<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table_simple<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
             .maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
@@ -160,7 +176,11 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn set_style_gutter_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_gutter_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         self.set_style_table_simple(tag)
             .maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
@@ -188,7 +208,11 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra> {
         Ok(())
     }
 
-    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         if self.has_gutter() {
             self.set_style_table_gutter(tag)
         } else {
@@ -296,7 +320,11 @@ impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra> {
         self.raw_siblings = value;
     }
 
-    fn set_style<'a>(&self, name: &str, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style<'a, 't>(&'a self, name: &str, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         match name {
             "td-outlook" => self.set_style_td_outlook(tag),
             _ => tag,

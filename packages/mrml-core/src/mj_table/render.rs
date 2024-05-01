@@ -6,7 +6,11 @@ use crate::prelude::render::*;
 impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjTable, ()> {}
 
 impl<'root> Renderer<'root, MjTable, ()> {
-    fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))

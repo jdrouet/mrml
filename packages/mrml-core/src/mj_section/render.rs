@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::convert::TryFrom;
 
 use super::{MjSection, NAME};
@@ -17,30 +18,34 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
         self.attribute_exists("background-url")
     }
 
-    fn parse_background_position(&self) -> (String, String) {
+    fn parse_background_position<'a>(&'a self) -> (&'a str, &'a str)
+    where
+        'root: 'a,
+    {
         // can be unwraped because has default value
         let position = self.attribute("background-position").unwrap();
-        let positions = position.split_whitespace().collect::<Vec<_>>();
-        let first = positions.first();
-        let second = positions.get(1);
-        if let Some(first) = first {
-            if let Some(second) = second {
+        let mut positions = position.split_whitespace();
+        if let Some(first) = positions.next() {
+            if let Some(second) = positions.next() {
                 if is_vertical_position(first) && is_horizontal_position(second) {
-                    (second.to_string(), first.to_string())
+                    (second, first)
                 } else {
-                    (first.to_string(), second.to_string())
+                    (first, second)
                 }
             } else if is_vertical_position(first) {
-                ("center".to_string(), first.to_string())
+                ("center", first)
             } else {
-                (first.to_string(), "center".to_string())
+                (first, "center")
             }
         } else {
-            ("center".to_string(), "top".to_string())
+            ("center", "top")
         }
     }
 
-    fn get_background_position(&self) -> (String, String) {
+    fn get_background_position<'a>(&'a self) -> (&'a str, &'a str)
+    where
+        'root: 'a,
+    {
         let (x, y) = self.parse_background_position();
         (
             self.attribute("background-position-x").unwrap_or(x),
@@ -54,20 +59,23 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
     }
 
     fn get_background(&self) -> Option<String> {
-        let mut res = vec![];
+        let mut res: Vec<Cow<'_, str>> = vec![];
         if let Some(color) = self.attribute("background-color") {
-            res.push(color);
+            res.push(color.into());
         }
         if let Some(url) = self.attribute("background-url") {
-            res.push(format!("url('{url}')"));
+            res.push(format!("url('{url}')").into());
             // has default value
-            res.push(format!(
-                "{} / {}",
-                self.get_background_position_str(),
-                self.attribute("background-size").unwrap()
-            ));
+            res.push(
+                format!(
+                    "{} / {}",
+                    self.get_background_position_str(),
+                    self.attribute("background-size").unwrap()
+                )
+                .into(),
+            );
             // has default value
-            res.push(self.attribute("background-repeat").unwrap());
+            res.push(self.attribute("background-repeat").unwrap().into());
         }
 
         if res.is_empty() {
@@ -77,7 +85,11 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
         }
     }
 
-    fn set_background_style<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_background_style<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         if self.has_background() {
             tag.maybe_add_style("background", self.get_background())
                 .add_style("background-position", self.get_background_position_str())
@@ -89,37 +101,37 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
         }
     }
 
-    fn get_vfill_position(&self) -> (String, String) {
+    fn get_vfill_position(&self) -> (Cow<'root, str>, Cow<'root, str>) {
         if self.attribute_equals("background-size", "auto") {
-            return ("0.5, 0".to_string(), "0.5, 0".to_string());
+            return ("0.5, 0".into(), "0.5, 0".into());
         }
         let (bg_position_x, bg_position_y) = self.get_background_position();
         let bg_repeat = self.attribute_equals("background-repeat", "repeat");
-        let bg_position_x = match bg_position_x.as_str() {
-            "left" => "0%".to_string(),
-            "center" => "50%".to_string(),
-            "right" => "100%".to_string(),
+        let bg_position_x = match bg_position_x {
+            "left" => "0%",
+            "center" => "50%",
+            "right" => "100%",
             _ => {
                 if bg_position_x.ends_with('%') {
                     bg_position_x
                 } else {
-                    "50%".to_string()
+                    "50%"
                 }
             }
         };
-        let bg_position_y = match bg_position_y.as_str() {
-            "top" => "0%".to_string(),
-            "center" => "50%".to_string(),
-            "bottom" => "100%".to_string(),
+        let bg_position_y = match bg_position_y {
+            "top" => "0%",
+            "center" => "50%",
+            "bottom" => "100%",
             _ => {
                 if bg_position_y.ends_with('%') {
                     bg_position_y
                 } else {
-                    "0%".to_string()
+                    "0%"
                 }
             }
         };
-        let position_x = if let Ok(position) = Percent::try_from(bg_position_x.as_str()) {
+        let position_x = if let Ok(position) = Percent::try_from(bg_position_x) {
             if bg_repeat {
                 position.value() * 0.01
             } else {
@@ -130,7 +142,7 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
         } else {
             0.0
         };
-        let position_y = if let Ok(position) = Percent::try_from(bg_position_y.as_str()) {
+        let position_y = if let Ok(position) = Percent::try_from(bg_position_y) {
             if bg_repeat {
                 position.value() * 0.01
             } else {
@@ -142,30 +154,33 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
             0.0
         };
         (
-            format!("{position_x}, {position_y}"),
-            format!("{position_x}, {position_y}"),
+            format!("{position_x}, {position_y}").into(),
+            format!("{position_x}, {position_y}").into(),
         )
     }
 
-    fn get_vfill_tag(&self) -> Tag {
+    fn get_vfill_tag<'a>(&'a self) -> Tag<'a>
+    where
+        'root: 'a,
+    {
         let bg_no_repeat = self.attribute_equals("background-repeat", "no-repeat");
         let bg_size = self.attribute("background-size");
         let bg_size_auto = bg_size
             .as_ref()
-            .map(|value| value == "auto")
+            .map(|value| *value == "auto")
             .unwrap_or(false);
         let vml_type = if bg_no_repeat && !bg_size_auto {
             "frame"
         } else {
             "tile"
         };
-        let vsize = match bg_size.as_deref() {
+        let vsize = match bg_size {
             Some("cover") | Some("contain") => Some("1,1".to_string()),
             Some("auto") => None,
             Some(value) => Some(value.replace(' ', ",")),
             None => None,
         };
-        let aspect = match bg_size.as_deref() {
+        let aspect = match bg_size {
             Some("cover") => Some("atleast".to_string()),
             Some("contain") => Some("atmost".to_string()),
             Some("auto") => None,
@@ -237,7 +252,11 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         Ok(())
     }
 
-    fn set_style_section_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_section_div<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         let base = if self.is_full_width() {
             tag
         } else {
@@ -327,12 +346,16 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         Ok(())
     }
 
-    fn set_style_section_inner_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_section_inner_div<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("line-height", "0")
             .add_style("font-size", "0")
     }
 
-    fn set_style_section_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_section_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         let base = if self.is_full_width() {
             tag
         } else {
@@ -342,7 +365,11 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             .maybe_add_style("border-radius", self.attribute("border-radius"))
     }
 
-    fn set_style_section_td<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_section_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
             .maybe_add_style("border-left", self.attribute("border-left"))
@@ -411,7 +438,11 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         Ok(())
     }
 
-    fn set_style_table_full_width<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_table_full_width<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         let base = if self.is_full_width() {
             self.set_background_style(tag)
         } else {
@@ -421,7 +452,10 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             .add_style("width", "100%")
     }
 
-    fn get_full_width_table(&self) -> Tag {
+    fn get_full_width_table<'a>(&'a self) -> Tag<'a>
+    where
+        'root: 'a,
+    {
         self.set_style_table_full_width(Tag::table_presentation())
             .add_attribute("align", "center")
             .maybe_add_class(self.attribute("css-class"))

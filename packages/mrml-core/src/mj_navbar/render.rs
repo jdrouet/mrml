@@ -19,13 +19,17 @@ struct MjNavbarExtra {
 }
 
 impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
-    fn set_style_input<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_input<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "none !important")
             .add_style("max-height", "0")
             .add_style("visibility", "hidden")
     }
 
-    fn set_style_label<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_label<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("display", "block")
             .add_style("cursor", "pointer")
             .add_style("mso-hide", "all")
@@ -44,7 +48,7 @@ impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
             .maybe_add_style("padding", self.attribute("ico-padding"))
     }
 
-    fn set_style_trigger<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_trigger<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "none")
             .add_style("max-height", "0px")
             .add_style("max-width", "0px")
@@ -52,12 +56,12 @@ impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
             .add_style("overflow", "hidden")
     }
 
-    fn set_style_ico_close<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_ico_close<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "none")
             .add_style("mso-hide", "all")
     }
 
-    fn set_style_ico_open<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
+    fn set_style_ico_open<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("mso-hide", "all")
     }
 
@@ -103,12 +107,12 @@ impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
 
         span_open.render_open(buf);
         if let Some(attr) = self.attribute("ico-open") {
-            buf.push_str(&attr);
+            buf.push_str(attr);
         }
         span_open.render_close(buf);
         span_close.render_open(buf);
         if let Some(attr) = self.attribute("ico-close") {
-            buf.push_str(&attr);
+            buf.push_str(attr);
         }
         span_close.render_close(buf);
 
@@ -202,7 +206,7 @@ impl<'root> Render<'root> for Renderer<'root, MjNavbar, MjNavbarExtra> {
 
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(self.context());
-            renderer.maybe_add_extra_attribute("navbar-base-url", base_url.clone());
+            renderer.maybe_add_extra_attribute("navbar-base-url", base_url.map(|v| v.to_owned()));
             renderer.render(cursor)?;
         }
 
