@@ -2,8 +2,11 @@ use super::{MjSocial, MjSocialChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialChild {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialChild {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjSocialElement(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
@@ -42,7 +45,7 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
     "text-decoration",
 ];
 
-impl<'element, 'header> Renderer<'element, 'header, MjSocial, ()> {
+impl<'root> Renderer<'root, MjSocial, ()> {
     fn set_style_table_vertical<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0px")
     }
@@ -127,7 +130,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjSocial, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjSocial, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjSocial, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
@@ -144,7 +147,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -152,7 +155,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -186,8 +189,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocial {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocial {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

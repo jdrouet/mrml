@@ -8,7 +8,7 @@ struct MjColumnExtra {
     attributes: Map<String, String>,
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjColumn, MjColumnExtra> {
+impl<'root> Renderer<'root, MjColumn, MjColumnExtra> {
     fn current_width(&self) -> Option<Pixel> {
         let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
@@ -249,9 +249,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjColumn, MjColumnExtra> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjColumn, MjColumnExtra>
-{
+impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
@@ -264,7 +262,7 @@ impl<'element, 'header> Render<'element, 'header>
         self.current_width().map(Size::Pixel)
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -282,7 +280,7 @@ impl<'element, 'header> Render<'element, 'header>
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -326,11 +324,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjColumn {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjColumn {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(
             context,
             self,

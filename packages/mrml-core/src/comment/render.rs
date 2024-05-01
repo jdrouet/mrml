@@ -1,8 +1,8 @@
 use super::Comment;
 use crate::prelude::render::*;
 
-impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, Comment, ()> {
-    fn context(&self) -> &'h RenderContext<'h> {
+impl<'root> Render<'root> for Renderer<'root, Comment, ()> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -16,12 +16,15 @@ impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, Comment, ()> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Comment {
-    fn is_raw(&'e self) -> bool {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for Comment {
+    fn is_raw(&self) -> bool {
         true
     }
 
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

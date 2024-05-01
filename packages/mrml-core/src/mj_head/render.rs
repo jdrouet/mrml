@@ -116,7 +116,7 @@ fn render_font_link(target: &mut String, href: &str) {
     target.push_str("\" rel=\"stylesheet\" type=\"text/css\">");
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjHead, ()> {
+impl<'root> Renderer<'root, MjHead, ()> {
     fn mj_style_iter(&self) -> impl Iterator<Item = &str> {
         self.element.children.iter().flat_map(|item| {
             item.as_mj_include()
@@ -265,8 +265,8 @@ impl<'element, 'header> Renderer<'element, 'header, MjHead, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjHead, ()> {
-    fn context(&self) -> &'header RenderContext<'header> {
+impl<'root> Render<'root> for Renderer<'root, MjHead, ()> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -299,8 +299,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHead {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjHead {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

@@ -2,7 +2,9 @@ use super::{MjIncludeBody, MjIncludeBodyChild};
 use crate::prelude::render::*;
 
 impl MjIncludeBodyChild {
-    pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
+    pub fn as_renderable<'render, 'root: 'render>(
+        &'root self,
+    ) -> &'root (dyn Renderable<'render, 'root> + 'root) {
         match self {
             Self::Comment(elt) => elt,
             Self::MjAccordion(elt) => elt,
@@ -27,20 +29,21 @@ impl MjIncludeBodyChild {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjIncludeBodyChild {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjIncludeBodyChild {
     fn is_raw(&self) -> bool {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         self.as_renderable().renderer(context)
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjIncludeBody, ()>
-{
-    fn raw_attribute(&self, _: &str) -> Option<&'element str> {
+impl<'root> Render<'root> for Renderer<'root, MjIncludeBody, ()> {
+    fn raw_attribute(&self, _: &str) -> Option<&'root str> {
         None
     }
 
@@ -48,7 +51,7 @@ impl<'element, 'header> Render<'element, 'header>
         None
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -63,8 +66,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjIncludeBody {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjIncludeBody {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

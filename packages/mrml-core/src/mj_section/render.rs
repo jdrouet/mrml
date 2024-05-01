@@ -12,7 +12,7 @@ fn is_vertical_position(value: &str) -> bool {
     value == "top" || value == "bottom" || value == "center"
 }
 
-pub trait WithMjSectionBackground<'element, 'header>: Render<'element, 'header> {
+pub trait WithMjSectionBackground<'root>: Render<'root> {
     fn has_background(&self) -> bool {
         self.attribute_exists("background-url")
     }
@@ -191,7 +191,7 @@ pub trait WithMjSectionBackground<'element, 'header>: Render<'element, 'header> 
     }
 }
 
-pub trait SectionLikeRender<'element, 'header>: WithMjSectionBackground<'element, 'header> {
+pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
     fn container_width(&self) -> &Option<Pixel>;
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild>;
 
@@ -479,13 +479,8 @@ pub trait SectionLikeRender<'element, 'header>: WithMjSectionBackground<'element
     }
 }
 
-impl<'element, 'header> WithMjSectionBackground<'element, 'header>
-    for Renderer<'element, 'header, MjSection, ()>
-{
-}
-impl<'element, 'header> SectionLikeRender<'element, 'header>
-    for Renderer<'element, 'header, MjSection, ()>
-{
+impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjSection, ()> {}
+impl<'root> SectionLikeRender<'root> for Renderer<'root, MjSection, ()> {
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
         &self.element.children
     }
@@ -495,7 +490,7 @@ impl<'element, 'header> SectionLikeRender<'element, 'header>
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjSection, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjSection, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-position" => Some("top center"),
@@ -509,7 +504,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -517,7 +512,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -534,8 +529,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSection {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

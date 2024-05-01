@@ -2,8 +2,11 @@ use super::{MjRaw, MjRawChild, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRawChild {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRawChild {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::Comment(elt) => elt.renderer(context),
             Self::Node(elt) => elt.renderer(context),
@@ -12,12 +15,12 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRawChild {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjRaw, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjRaw, ()> {
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -39,8 +42,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRaw {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRaw {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

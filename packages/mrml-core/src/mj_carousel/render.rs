@@ -3,11 +3,11 @@ use crate::helper::size::{Pixel, Size};
 use crate::helper::style::Style;
 use crate::prelude::render::*;
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjCarouselChild {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjCarouselChild {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjCarouselImage(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
@@ -23,7 +23,7 @@ struct MjCarouselExtra {
     id: String,
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjCarousel, MjCarouselExtra> {
+impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
     fn get_thumbnails_width(&self) -> Pixel {
         let count = self.element.children.len();
         if count == 0 {
@@ -382,9 +382,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarousel, MjCarouselExtra>
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjCarousel, MjCarouselExtra>
-{
+impl<'root> Render<'root> for Renderer<'root, MjCarousel, MjCarouselExtra> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
@@ -401,7 +399,7 @@ impl<'element, 'header> Render<'element, 'header>
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -409,7 +407,7 @@ impl<'element, 'header> Render<'element, 'header>
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -455,11 +453,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjCarousel {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjCarousel {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         let id = context.generator.next_id();
         Box::new(Renderer::new(context, self, MjCarouselExtra { id }))
     }

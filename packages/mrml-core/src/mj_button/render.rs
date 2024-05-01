@@ -2,7 +2,7 @@ use super::{MjButton, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-impl<'element, 'header> Renderer<'element, 'header, MjButton, ()> {
+impl<'root> Renderer<'root, MjButton, ()> {
     fn content_width(&self) -> Option<String> {
         if let Some(width) = self.attribute_as_pixel("width") {
             let pad_left = self
@@ -76,7 +76,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjButton, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjButton, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjButton, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
@@ -98,7 +98,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -106,7 +106,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -150,11 +150,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjButton {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjButton {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

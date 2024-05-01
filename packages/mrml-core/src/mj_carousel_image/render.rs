@@ -7,7 +7,7 @@ struct MjCarouselImageExtra {
     attributes: Map<String, String>,
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselImageExtra> {
+impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra> {
     fn set_style_images_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
@@ -134,9 +134,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselI
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjCarouselImage, MjCarouselImageExtra>
-{
+impl<'root> Render<'root> for Renderer<'root, MjCarouselImage, MjCarouselImageExtra> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "target" => Some("_blank"),
@@ -154,7 +152,7 @@ impl<'element, 'header> Render<'element, 'header>
         self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -170,7 +168,7 @@ impl<'element, 'header> Render<'element, 'header>
         self.index = index;
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -229,11 +227,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjCarouselImage {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjCarouselImage {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(
             context,
             self,

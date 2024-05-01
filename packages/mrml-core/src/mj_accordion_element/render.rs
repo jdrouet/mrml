@@ -20,7 +20,7 @@ struct MjAccordionElementExtra {
     attributes: Map<String, String>,
 }
 
-impl<'e, 'h> Renderer<'e, 'h, MjAccordionElement, MjAccordionElementExtra> {
+impl<'root> Renderer<'root, MjAccordionElement, MjAccordionElementExtra> {
     fn render_title(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(self.context());
@@ -63,7 +63,7 @@ impl<'e, 'h> Renderer<'e, 'h, MjAccordionElement, MjAccordionElementExtra> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionElement, MjAccordionElementExtra> {
+impl<'root> Render<'root> for Renderer<'root, MjAccordionElement, MjAccordionElementExtra> {
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
         self.extra
             .attributes
@@ -74,7 +74,7 @@ impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionElement, MjAccordion
         self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -82,7 +82,7 @@ impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionElement, MjAccordion
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -118,8 +118,11 @@ impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionElement, MjAccordion
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionElement {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionElement {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(
             context,
             self,

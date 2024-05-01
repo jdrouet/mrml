@@ -2,8 +2,11 @@ use super::{MjNavbar, MjNavbarChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjNavbarChild {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjNavbarLink(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
@@ -15,7 +18,7 @@ struct MjNavbarExtra {
     id: String,
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjNavbar, MjNavbarExtra> {
+impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
     fn set_style_input<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none !important")
             .add_style("max-height", "0")
@@ -131,9 +134,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjNavbar, MjNavbarExtra> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjNavbar, MjNavbarExtra>
-{
+impl<'root> Render<'root> for Renderer<'root, MjNavbar, MjNavbarExtra> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
@@ -151,7 +152,7 @@ impl<'element, 'header> Render<'element, 'header>
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -159,7 +160,7 @@ impl<'element, 'header> Render<'element, 'header>
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -215,8 +216,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjNavbar {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         let id = context.generator.next_id();
         Box::new(Renderer::new(context, self, MjNavbarExtra { id }))
     }

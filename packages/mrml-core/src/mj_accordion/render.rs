@@ -31,7 +31,7 @@ const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important
 @goodbye { @gmail }
 "#;
 
-impl<'element, 'header> Renderer<'element, 'header, MjAccordion, ()> {
+impl<'root> Renderer<'root, MjAccordion, ()> {
     fn update_header(&self, header: &mut VariableHeader) {
         let font_families = self.attribute("font-family");
         header.maybe_add_font_families(font_families);
@@ -39,7 +39,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjAccordion, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjAccordion, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "border" => Some("2px solid black"),
@@ -57,7 +57,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -65,7 +65,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -116,20 +116,20 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjAccordion {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordion {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjAccordionChild {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionChild {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjAccordionElement(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),

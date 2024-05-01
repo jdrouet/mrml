@@ -15,7 +15,7 @@ impl Default for MjNavbarLinkExtra {
     }
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjNavbarLink, MjNavbarLinkExtra> {
+impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra> {
     fn set_style_a<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "inline-block")
             .maybe_add_style("color", self.attribute("color"))
@@ -71,9 +71,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjNavbarLink, MjNavbarLinkEx
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjNavbarLink, MjNavbarLinkExtra>
-{
+impl<'root> Render<'root> for Renderer<'root, MjNavbarLink, MjNavbarLinkExtra> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "color" => Some("#000000"),
@@ -99,7 +97,7 @@ impl<'element, 'header> Render<'element, 'header>
         self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -111,7 +109,7 @@ impl<'element, 'header> Render<'element, 'header>
         self.container_width = width;
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -135,8 +133,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarLink {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjNavbarLink {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, MjNavbarLinkExtra::default()))
     }
 }

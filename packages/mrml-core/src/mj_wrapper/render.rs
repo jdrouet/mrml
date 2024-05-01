@@ -3,7 +3,7 @@ use crate::helper::size::Pixel;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
 use crate::prelude::render::*;
 
-impl<'element, 'header> Renderer<'element, 'header, MjWrapper, ()> {
+impl<'root> Renderer<'root, MjWrapper, ()> {
     fn current_width(&self) -> Option<Pixel> {
         self.container_width.as_ref().map(|width| {
             let hborder = self.get_border_horizontal();
@@ -13,14 +13,9 @@ impl<'element, 'header> Renderer<'element, 'header, MjWrapper, ()> {
     }
 }
 
-impl<'element, 'header> WithMjSectionBackground<'element, 'header>
-    for Renderer<'element, 'header, MjWrapper, ()>
-{
-}
+impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjWrapper, ()> {}
 
-impl<'element, 'header> SectionLikeRender<'element, 'header>
-    for Renderer<'element, 'header, MjWrapper, ()>
-{
+impl<'root> SectionLikeRender<'root> for Renderer<'root, MjWrapper, ()> {
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
         &self.element.children
     }
@@ -61,7 +56,7 @@ impl<'element, 'header> SectionLikeRender<'element, 'header>
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjWrapper, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjWrapper, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-position" => Some("top center"),
@@ -75,11 +70,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -100,8 +95,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjWrapper {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjWrapper {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

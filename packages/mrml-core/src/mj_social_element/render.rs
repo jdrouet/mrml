@@ -21,7 +21,7 @@ impl MjSocialElementExtra {
     }
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjSocialElement, MjSocialElementExtra> {
+impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
     fn get_background_color(&self) -> Option<String> {
         self.attribute("background-color").or_else(|| {
             self.extra
@@ -177,9 +177,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjSocialElement, MjSocialEle
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjSocialElement, MjSocialElementExtra>
-{
+impl<'root> Render<'root> for Renderer<'root, MjSocialElement, MjSocialElementExtra> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("left"),
@@ -207,7 +205,7 @@ impl<'element, 'header> Render<'element, 'header>
         self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -219,7 +217,7 @@ impl<'element, 'header> Render<'element, 'header>
         self.container_width = width;
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -240,8 +238,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialElement {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialElement {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         let extra = MjSocialElementExtra::new(
             self.attributes
                 .get("name")

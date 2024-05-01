@@ -55,9 +55,9 @@ pub struct RenderCursor {
     pub header: VariableHeader,
 }
 
-pub(crate) struct Renderer<'element, 'header, Element, Extra> {
-    pub context: &'header RenderContext<'header>,
-    pub element: &'element Element,
+pub(crate) struct Renderer<'root, Element, Extra> {
+    pub context: &'root RenderContext<'root>,
+    pub element: &'root Element,
     pub container_width: Option<Pixel>,
     pub siblings: usize,
     pub raw_siblings: usize,
@@ -65,11 +65,11 @@ pub(crate) struct Renderer<'element, 'header, Element, Extra> {
     pub extra: Extra,
 }
 
-impl<'element, 'header, Element, Extra> Renderer<'element, 'header, Element, Extra> {
+impl<'root, Element, Extra> Renderer<'root, Element, Extra> {
     #[inline]
     pub fn new(
-        context: &'header RenderContext<'header>,
-        element: &'element Element,
+        context: &'root RenderContext<'root>,
+        element: &'root Element,
         extra: Extra,
     ) -> Self {
         Self {
@@ -84,14 +84,14 @@ impl<'element, 'header, Element, Extra> Renderer<'element, 'header, Element, Ext
     }
 }
 
-pub trait Render<'element, 'header> {
-    fn context(&self) -> &'header RenderContext<'header>;
+pub trait Render<'root> {
+    fn context(&self) -> &'root RenderContext<'root>;
 
     fn tag(&self) -> Option<&str> {
         None
     }
 
-    fn raw_attribute(&self, _: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, _: &str) -> Option<&'root str> {
         None
     }
 
@@ -268,15 +268,15 @@ pub trait Render<'element, 'header> {
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error>;
 }
 
-pub trait Renderable<'render, 'element: 'render, 'header: 'render> {
-    fn is_raw(&'element self) -> bool {
+pub trait Renderable<'render, 'root: 'render> {
+    fn is_raw(&'root self) -> bool {
         false
     }
 
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'render>;
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render>;
 }
 
 #[cfg(test)]

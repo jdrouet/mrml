@@ -2,16 +2,15 @@ use super::Node;
 use crate::prelude::is_void_element;
 use crate::prelude::render::*;
 
-impl<'render, 'element: 'render, 'header: 'render, T> Render<'element, 'header>
-    for Renderer<'element, 'header, Node<T>, ()>
+impl<'render, 'root: 'render, T> Render<'root> for Renderer<'root, Node<T>, ()>
 where
-    T: Renderable<'render, 'element, 'header>,
+    T: Renderable<'render, 'root>,
 {
     fn tag(&self) -> Option<&str> {
         Some(self.element.tag.as_str())
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -49,8 +48,13 @@ where
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r, T: Renderable<'r, 'e, 'h>> Renderable<'r, 'e, 'h> for Node<T> {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render, T: Renderable<'render, 'root>> Renderable<'render, 'root>
+    for Node<T>
+{
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

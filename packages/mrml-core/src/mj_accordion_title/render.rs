@@ -6,7 +6,7 @@ struct MjAccordionTitleExtra {
     attributes: Map<String, String>,
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjAccordionTitle, MjAccordionTitleExtra> {
+impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra> {
     fn set_style_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none")
             .maybe_add_style("width", self.attribute("icon-width"))
@@ -63,9 +63,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjAccordionTitle, MjAccordio
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjAccordionTitle, MjAccordionTitleExtra>
-{
+impl<'root> Render<'root> for Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra> {
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
         self.extra
             .attributes
@@ -84,7 +82,7 @@ impl<'element, 'header> Render<'element, 'header>
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -92,7 +90,7 @@ impl<'element, 'header> Render<'element, 'header>
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -131,11 +129,11 @@ impl<'element, 'header> Render<'element, 'header>
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjAccordionTitle {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionTitle {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(
             context,
             self,

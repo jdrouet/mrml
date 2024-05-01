@@ -6,7 +6,7 @@ struct MjAccordionTextExtra {
     attributes: Map<String, String>,
 }
 
-impl<'e, 'h> Renderer<'e, 'h, MjAccordionText, MjAccordionTextExtra> {
+impl<'root> Renderer<'root, MjAccordionText, MjAccordionTextExtra> {
     fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let td = Tag::td()
             .maybe_add_class(self.attribute("css-class"))
@@ -32,7 +32,7 @@ impl<'e, 'h> Renderer<'e, 'h, MjAccordionText, MjAccordionTextExtra> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionText, MjAccordionTextExtra> {
+impl<'root> Render<'root> for Renderer<'root, MjAccordionText, MjAccordionTextExtra> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "line-height" => Some("1"),
@@ -52,7 +52,7 @@ impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionText, MjAccordionTex
         self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -60,7 +60,7 @@ impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionText, MjAccordionTex
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -91,8 +91,11 @@ impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionText, MjAccordionTex
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionText {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionText {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(
             context,
             self,

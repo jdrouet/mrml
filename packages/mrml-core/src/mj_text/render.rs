@@ -1,7 +1,7 @@
 use super::{MjText, NAME};
 use crate::prelude::render::*;
 
-impl<'element, 'header> Renderer<'element, 'header, MjText, ()> {
+impl<'root> Renderer<'root, MjText, ()> {
     fn set_style_text<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))
@@ -49,7 +49,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjText, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjText, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjText, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("left"),
@@ -62,7 +62,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -70,7 +70,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -86,8 +86,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjText {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjText {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

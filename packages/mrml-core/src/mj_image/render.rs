@@ -2,7 +2,7 @@ use super::{MjImage, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-impl<'element, 'header> Renderer<'element, 'header, MjImage, ()> {
+impl<'root> Renderer<'root, MjImage, ()> {
     fn is_fluid_on_mobile(&self) -> bool {
         self.attribute("fluid-on-mobile")
             .and_then(|value| value.parse::<bool>().ok())
@@ -123,7 +123,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjImage, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjImage, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjImage, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
@@ -136,7 +136,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -148,7 +148,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         self.container_width = width;
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -187,8 +187,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjImage {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

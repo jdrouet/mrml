@@ -50,7 +50,9 @@ pub enum MjBodyChild {
 
 impl MjBodyChild {
     #[cfg(feature = "render")]
-    pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
+    pub fn as_renderable<'render, 'root: 'render>(
+        &'root self,
+    ) -> &'root (dyn Renderable<'render, 'root> + 'root) {
         match self {
             Self::Comment(elt) => elt,
             Self::MjAccordion(elt) => elt,
@@ -77,12 +79,15 @@ impl MjBodyChild {
 }
 
 #[cfg(feature = "render")]
-impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjBodyChild {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjBodyChild {
     fn is_raw(&self) -> bool {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         self.as_renderable().renderer(context)
     }
 }

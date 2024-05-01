@@ -3,12 +3,9 @@ use crate::helper::size::Pixel;
 use crate::mj_section::WithMjSectionBackground;
 use crate::prelude::render::*;
 
-impl<'element, 'header> WithMjSectionBackground<'element, 'header>
-    for Renderer<'element, 'header, MjTable, ()>
-{
-}
+impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjTable, ()> {}
 
-impl<'element, 'header> Renderer<'element, 'header, MjTable, ()> {
+impl<'root> Renderer<'root, MjTable, ()> {
     fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
@@ -20,7 +17,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjTable, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjTable, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjTable, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("left"),
@@ -38,7 +35,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -46,7 +43,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -75,11 +72,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjTable {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjTable {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

@@ -2,7 +2,7 @@ use super::{MjDivider, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
-impl<'element, 'header> Renderer<'element, 'header, MjDivider, ()> {
+impl<'root> Renderer<'root, MjDivider, ()> {
     fn set_style_p_without_width<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style(
             "border-top",
@@ -63,7 +63,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjDivider, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjDivider, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjDivider, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
@@ -76,7 +76,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -88,7 +88,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         self.container_width = width;
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -101,11 +101,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjDivider {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjDivider {
     fn renderer(
-        &'element self,
-        context: &'header RenderContext<'header>,
-    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

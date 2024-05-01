@@ -2,7 +2,7 @@ use super::{MjHero, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-impl<'element, 'header> Renderer<'element, 'header, MjHero, ()> {
+impl<'root> Renderer<'root, MjHero, ()> {
     fn set_style_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0 auto").maybe_add_style(
             "max-width",
@@ -241,7 +241,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjHero, ()> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjHero, ()> {
+impl<'root> Render<'root> for Renderer<'root, MjHero, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-color" => Some("#ffffff"),
@@ -254,7 +254,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -262,7 +262,7 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
         Some(NAME)
     }
 
-    fn context(&self) -> &'header RenderContext<'header> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -329,8 +329,11 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHero {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjHero {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }

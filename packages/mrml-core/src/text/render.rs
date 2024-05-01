@@ -1,8 +1,8 @@
 use super::Text;
 use crate::prelude::render::*;
 
-impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, Text, ()> {
-    fn context(&self) -> &'header RenderContext<'header> {
+impl<'root> Render<'root> for Renderer<'root, Text, ()> {
+    fn context(&self) -> &'root RenderContext<'root> {
         self.context
     }
 
@@ -12,12 +12,15 @@ impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Text {
-    fn is_raw(&'e self) -> bool {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for Text {
+    fn is_raw(&'root self) -> bool {
         true
     }
 
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         Box::new(Renderer::new(context, self, ()))
     }
 }
