@@ -1,11 +1,7 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::MjHead;
-use crate::helper::condition::{END_NEGATION_CONDITIONAL_TAG, START_MSO_NEGATION_CONDITIONAL_TAG};
 use crate::helper::sort::sort_by_key;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
 const STYLE_BASE: &str = r#"
 <style type="text/css">
@@ -120,12 +116,7 @@ fn render_font_link(target: &mut String, href: &str) {
     target.push_str("\" rel=\"stylesheet\" type=\"text/css\">");
 }
 
-pub struct MjHeadRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjHead,
-}
-
-impl<'e, 'h> MjHeadRender<'e, 'h> {
+impl<'root> Renderer<'root, MjHead, ()> {
     fn mj_style_iter(&self) -> impl Iterator<Item = &str> {
         self.element.children.iter().flat_map(|item| {
             item.as_mj_include()
@@ -157,20 +148,19 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         })
     }
 
-    fn render_font_families(&self, opts: &RenderOptions) -> String {
-        let header = self.header.borrow();
-        let used_font_families = header.used_font_families();
+    fn render_font_families(&self, cursor: &mut RenderCursor) {
+        let used_font_families = cursor.header.used_font_families();
         if used_font_families.is_empty() {
-            return String::default();
+            return;
         }
 
         let mut links = String::default();
         let mut imports = String::default();
-        for name in header.used_font_families().iter() {
-            if let Some(href) = header.font_families().get(name.as_str()) {
+        for name in cursor.header.used_font_families().iter() {
+            if let Some(href) = self.context.header.font_families().get(name.as_str()) {
                 render_font_link(&mut links, href);
                 render_font_import(&mut imports, href);
-            } else if let Some(href) = opts.fonts.get(name) {
+            } else if let Some(href) = self.context.options.fonts.get(name) {
                 render_font_link(&mut links, href);
                 render_font_import(&mut imports, href);
             } else {
@@ -179,147 +169,142 @@ impl<'e, 'h> MjHeadRender<'e, 'h> {
         }
 
         if links.is_empty() && imports.is_empty() {
-            String::default()
         } else {
-            let mut buf = String::from(START_MSO_NEGATION_CONDITIONAL_TAG);
-            buf.push_str(&links);
+            cursor.buffer.start_mso_negation_conditional_tag();
+            cursor.buffer.push_str(&links);
             if !imports.is_empty() {
-                buf.push_str("<style type=\"text/css\">");
-                buf.push_str(&imports);
-                buf.push_str("</style>");
+                cursor.buffer.push_str("<style type=\"text/css\">");
+                cursor.buffer.push_str(&imports);
+                cursor.buffer.push_str("</style>");
             }
-            buf.push_str(END_NEGATION_CONDITIONAL_TAG);
-            buf
+            cursor.buffer.end_negation_conditional_tag();
         }
     }
 
-    fn render_media_queries(&self) -> String {
-        let header = self.header.borrow();
-        if header.media_queries().is_empty() {
-            return String::default();
+    fn render_media_queries(&self, cursor: &mut RenderCursor) {
+        if cursor.header.media_queries().is_empty() {
+            return;
         }
-        let mut classnames = header.media_queries().iter().collect::<Vec<_>>();
+        let mut classnames = cursor.header.media_queries().iter().collect::<Vec<_>>();
         classnames.sort_by(sort_by_key);
-        let breakpoint = header.breakpoint().to_string();
-        let mut buf = String::from("<style type=\"text/css\">");
-        buf.push_str("@media only screen and (min-width:");
-        buf.push_str(breakpoint.as_str());
-        buf.push_str(") { ");
-        classnames.iter().for_each(|(classname, size)| {
+        let breakpoint = self.context.header.breakpoint().to_string();
+        cursor.buffer.push_str("<style type=\"text/css\">");
+        cursor.buffer.push_str("@media only screen and (min-width:");
+        cursor.buffer.push_str(breakpoint.as_str());
+        cursor.buffer.push_str(") { ");
+        for (classname, size) in classnames.iter() {
             let size = size.to_string();
-            buf.push('.');
-            buf.push_str(classname);
-            buf.push_str(" { width:");
-            buf.push_str(size.as_str());
-            buf.push_str(" !important; max-width:");
-            buf.push_str(size.as_str());
-            buf.push_str("; } ");
-        });
-        buf.push_str(" }");
-        buf.push_str("</style>");
-        buf.push_str("<style media=\"screen and (min-width:");
-        buf.push_str(breakpoint.as_str());
-        buf.push_str(")\">");
-        classnames.iter().for_each(|(classname, size)| {
+            cursor.buffer.push('.');
+            cursor.buffer.push_str(classname);
+            cursor.buffer.push_str(" { width:");
+            cursor.buffer.push_str(size.as_str());
+            cursor.buffer.push_str(" !important; max-width:");
+            cursor.buffer.push_str(size.as_str());
+            cursor.buffer.push_str("; } ");
+        }
+        cursor.buffer.push_str(" }");
+        cursor.buffer.push_str("</style>");
+        cursor
+            .buffer
+            .push_str("<style media=\"screen and (min-width:");
+        cursor.buffer.push_str(breakpoint.as_str());
+        cursor.buffer.push_str(")\">");
+        for (classname, size) in classnames.iter() {
             let size = size.to_string();
-            buf.push_str(".moz-text-html .");
-            buf.push_str(classname);
-            buf.push_str(" { width:");
-            buf.push_str(size.as_str());
-            buf.push_str(" !important; max-width:");
-            buf.push_str(size.as_str());
-            buf.push_str("; } ");
-        });
-        buf.push_str("</style>");
-        buf
+            cursor.buffer.push_str(".moz-text-html .");
+            cursor.buffer.push_str(classname);
+            cursor.buffer.push_str(" { width:");
+            cursor.buffer.push_str(size.as_str());
+            cursor.buffer.push_str(" !important; max-width:");
+            cursor.buffer.push_str(size.as_str());
+            cursor.buffer.push_str("; } ");
+        }
+        cursor.buffer.push_str("</style>");
     }
 
-    fn render_styles(&self) -> String {
-        let header = self.header.borrow();
-        let header_styles = {
-            if header.styles().is_empty() {
-                String::default()
-            } else {
-                let mut buf = "<style type=\"text/css\">".to_string();
-                header.styles().iter().for_each(|style| {
-                    buf.push_str(style);
-                });
-                buf.push_str("</style>");
-                buf
+    fn render_styles(&self, cursor: &mut RenderCursor) {
+        if !cursor.header.styles().is_empty() {
+            cursor.buffer.push_str("<style type=\"text/css\">");
+            for style in cursor.header.styles().iter() {
+                cursor.buffer.push_str(style);
             }
-        };
-        let head_styles = {
-            let buffer = itertools::join(self.mj_style_iter(), "\n");
-            if buffer.is_empty() {
-                buffer
-            } else {
-                format!("<style type=\"text/css\">{buffer}</style>")
-            }
-        };
-        format!("{header_styles}\n{head_styles}").trim().to_string()
+            cursor.buffer.push_str("</style>");
+        }
+
+        // TODO this should be optional
+        cursor.buffer.push_str("<style type=\"text/css\">");
+        for item in self.mj_style_iter() {
+            cursor.buffer.push_str(item);
+        }
+        cursor.buffer.push_str("</style>");
     }
 
-    fn render_raw(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut buffer: Vec<String> = Vec::new();
+    fn render_raw(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        let mut index: usize = 0;
         let siblings = self.element.children.len();
         for child in self.element.children.iter() {
             if let Some(mj_raw) = child.as_mj_raw() {
-                let mut renderer = mj_raw.renderer(Rc::clone(&self.header));
-                renderer.set_index(buffer.len());
+                let mut renderer = mj_raw.renderer(self.context());
+                renderer.set_index(index);
                 renderer.set_siblings(siblings);
-                buffer.push(renderer.render(opts)?);
+                renderer.render(cursor)?;
+                index += 1;
             } else if let Some(mj_include) = child.as_mj_include() {
                 for include_child in mj_include.children.iter() {
                     if let Some(mj_raw) = include_child.as_mj_raw() {
-                        let mut renderer = mj_raw.renderer(Rc::clone(&self.header));
-                        renderer.set_index(buffer.len());
+                        let mut renderer = mj_raw.renderer(self.context());
+                        renderer.set_index(index);
                         renderer.set_siblings(siblings);
-                        buffer.push(renderer.render(opts)?);
+                        renderer.render(cursor)?;
+                        index += 1;
                     }
                 }
             }
         }
-        Ok(buffer.join(""))
+        Ok(())
     }
 }
 
-impl<'e, 'h> Render<'h> for MjHeadRender<'e, 'h> {
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+impl<'root> Render<'root> for Renderer<'root, MjHead, ()> {
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut buf = String::from("<head>");
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.buffer.push_str("<head>");
         // we write the title even though there is no content
-        buf.push_str("<title>");
-        buf.push_str(
-            self.element
-                .title()
-                .map(|item| item.content())
-                .unwrap_or_default(),
-        );
-        buf.push_str("</title>");
-        buf.push_str(START_MSO_NEGATION_CONDITIONAL_TAG);
-        buf.push_str("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
-        buf.push_str(END_NEGATION_CONDITIONAL_TAG);
-        buf.push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-        buf.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-        buf.push_str(STYLE_BASE);
-        buf.push_str(&self.render_font_families(opts));
-        buf.push_str(&self.render_media_queries());
-        buf.push_str(&self.render_styles());
-        buf.push_str(&self.render_raw(opts)?);
-        buf.push_str("</head>");
-        Ok(buf)
+        cursor.buffer.push_str("<title>");
+        if let Some(title) = self.element.title().map(|item| item.content()) {
+            cursor.buffer.push_str(title);
+        }
+        cursor.buffer.push_str("</title>");
+        cursor.buffer.start_mso_negation_conditional_tag();
+        cursor
+            .buffer
+            .push_str("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
+        cursor.buffer.end_negation_conditional_tag();
+        cursor
+            .buffer
+            .push_str("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+        cursor
+            .buffer
+            .push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+        cursor.buffer.push_str(STYLE_BASE);
+        self.render_font_families(cursor);
+        self.render_media_queries(cursor);
+        self.render_styles(cursor);
+        self.render_raw(cursor)?;
+        cursor.buffer.push_str("</head>");
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHead {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjHeadRender::<'e, 'h> {
-            element: self,
-            header,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjHead {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

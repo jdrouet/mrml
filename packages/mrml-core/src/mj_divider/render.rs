@@ -1,21 +1,9 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjDivider, NAME};
-use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct MjDividerRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjDivider,
-    container_width: Option<Pixel>,
-}
-
-impl<'e, 'h> MjDividerRender<'e, 'h> {
-    fn set_style_p_without_width(&self, tag: Tag) -> Tag {
+impl<'root> Renderer<'root, MjDivider, ()> {
+    fn set_style_p_without_width<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style(
             "border-top",
             format!(
@@ -28,12 +16,16 @@ impl<'e, 'h> MjDividerRender<'e, 'h> {
         .add_style("font-size", "1px")
         .add_style("margin", "0px auto")
     }
-    fn set_style_p(&self, tag: Tag) -> Tag {
+    fn set_style_p<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         self.set_style_p_without_width(tag)
             .maybe_add_style("width", self.attribute("width"))
     }
 
-    fn set_style_outlook(&self, tag: Tag) -> Tag {
+    fn set_style_outlook<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         self.set_style_p_without_width(tag)
             .add_style("width", self.get_outlook_width().to_string())
     }
@@ -55,7 +47,7 @@ impl<'e, 'h> MjDividerRender<'e, 'h> {
         }
     }
 
-    fn render_after(&self) -> String {
+    fn render_after(&self, buf: &mut RenderBuffer) {
         let table = self
             .set_style_outlook(Tag::table_presentation())
             .add_attribute("align", "center")
@@ -64,12 +56,19 @@ impl<'e, 'h> MjDividerRender<'e, 'h> {
         let td = Tag::td()
             .add_style("height", "0")
             .add_style("line-height", "0");
-        conditional_tag(table.render(tr.render(td.render("&nbsp;"))))
+
+        buf.start_conditional_tag();
+        table.render_open(buf);
+        tr.render_open(buf);
+        td.render_text(buf, "&nbsp;");
+        tr.render_close(buf);
+        table.render_close(buf);
+        buf.end_conditional_tag();
     }
 }
 
-impl<'e, 'h> Render<'h> for MjDividerRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjDivider, ()> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
             "border-color" => Some("#000000"),
@@ -81,8 +80,8 @@ impl<'e, 'h> Render<'h> for MjDividerRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -93,22 +92,25 @@ impl<'e, 'h> Render<'h> for MjDividerRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
-        Ok(self.set_style_p(Tag::new("p")).render("") + &self.render_after())
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        let p = self.set_style_p(Tag::new("p"));
+        p.render_text(&mut cursor.buffer, "");
+
+        self.render_after(&mut cursor.buffer);
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjDivider {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjDividerRender::<'e, 'h> {
-            element: self,
-            header,
-            container_width: None,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjDivider {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

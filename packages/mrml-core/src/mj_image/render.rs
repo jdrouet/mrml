@@ -1,19 +1,8 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjImage, NAME};
 use crate::helper::size::Pixel;
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct MjImageRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjImage,
-    container_width: Option<Pixel>,
-}
-
-impl<'e, 'h> MjImageRender<'e, 'h> {
+impl<'root> Renderer<'root, MjImage, ()> {
     fn is_fluid_on_mobile(&self) -> bool {
         self.attribute("fluid-on-mobile")
             .and_then(|value| value.parse::<bool>().ok())
@@ -48,7 +37,11 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
             .or_else(|| self.get_box_width())
     }
 
-    fn set_style_img(&self, tag: Tag) -> Tag {
+    fn set_style_img<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         let tag = tag
             .maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-left", self.attribute("left"))
@@ -71,7 +64,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
         tag.maybe_add_style("font-size", self.attribute("font-size"))
     }
 
-    fn set_style_td(&self, tag: Tag) -> Tag {
+    fn set_style_td<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         if self.is_full_width() {
             tag
         } else {
@@ -79,7 +72,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
         }
     }
 
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         let tag = if self.is_full_width() {
             tag.add_style("min-width", "100%")
                 .add_style("max-width", "100%")
@@ -91,7 +84,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
             .add_style("border-spacing", "0px")
     }
 
-    fn render_image(&self) -> String {
+    fn render_image(&self, buf: &mut RenderBuffer) {
         let img = Tag::new("img")
             .maybe_add_attribute("alt", self.attribute("alt"))
             .add_attribute(
@@ -109,16 +102,17 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
                     .map(|size| size.value().to_string()),
             )
             .maybe_add_attribute("usemap", self.attribute("usemap"));
-        self.set_style_img(img).closed()
+        let img = self.set_style_img(img);
+        img.render_closed(buf);
     }
 
-    fn render_link(&self) -> String {
+    fn render_link(&self, buf: &mut RenderBuffer) {
         Tag::new("a")
             .maybe_add_attribute("href", self.attribute("href"))
             .maybe_add_attribute("name", self.attribute("name"))
             .maybe_add_attribute("rel", self.attribute("rel"))
             .maybe_add_attribute("target", self.attribute("target"))
-            .render(self.render_image())
+            .render_with(buf, |b| self.render_image(b))
     }
 
     fn render_style(&self) -> String {
@@ -128,13 +122,13 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
                 td.mj-full-width-mobile {{ width: auto !important; }}
             }}
             "#,
-            self.header.borrow().breakpoint().lower().to_string(),
+            self.context.header.breakpoint().lower().to_string(),
         )
     }
 }
 
-impl<'e, 'h> Render<'h> for MjImageRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjImage, ()> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
             "border" => Some("0"),
@@ -146,8 +140,8 @@ impl<'e, 'h> Render<'h> for MjImageRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -158,13 +152,13 @@ impl<'e, 'h> Render<'h> for MjImageRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
-        let style = self.render_style();
-        self.header.borrow_mut().add_style(style);
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.header.add_style(self.render_style());
+        //
         let class = if self.is_fluid_on_mobile() {
             Some("mj-full-width-mobile")
         } else {
@@ -176,22 +170,33 @@ impl<'e, 'h> Render<'h> for MjImageRender<'e, 'h> {
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_td(Tag::td()).maybe_add_class(class);
-        let content = if self.attribute_exists("href") {
-            self.render_link()
+
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+
+        if self.attribute_exists("href") {
+            self.render_link(&mut cursor.buffer);
         } else {
-            self.render_image()
-        };
-        Ok(table.render(tbody.render(tr.render(td.render(content)))))
+            self.render_image(&mut cursor.buffer);
+        }
+
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjImageRender::<'e, 'h> {
-            element: self,
-            header,
-            container_width: None,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjImage {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

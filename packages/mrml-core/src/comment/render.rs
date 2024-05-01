@@ -1,38 +1,31 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::Comment;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct CommentRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e Comment,
-}
-
-impl<'e, 'h> Render<'h> for CommentRender<'e, 'h> {
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+impl<'root> Render<'root> for Renderer<'root, Comment, ()> {
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        if opts.disable_comments {
-            Ok(String::default())
-        } else {
-            Ok(String::from("<!--") + &self.element.children + "-->")
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        if !self.context.options.disable_comments {
+            cursor.buffer.push_str("<!--");
+            cursor.buffer.push_str(self.element.children.as_str());
+            cursor.buffer.push_str("-->");
         }
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Comment {
-    fn is_raw(&'e self) -> bool {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for Comment {
+    fn is_raw(&self) -> bool {
         true
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(CommentRender::<'e, 'h> {
-            element: self,
-            header,
-        })
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

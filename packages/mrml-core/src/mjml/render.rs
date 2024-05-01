@@ -1,64 +1,55 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::Mjml;
 use crate::mj_head::MjHead;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-pub struct MjmlRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e Mjml,
-}
-
-impl<'e, 'h> Render<'h> for MjmlRender<'e, 'h> {
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+impl<'root> Render<'root> for Renderer<'root, Mjml, ()> {
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let body_content = if let Some(body) = self.element.body() {
-            body.renderer(Rc::clone(&self.header)).render(opts)?
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        if let Some(body) = self.element.body() {
+            body.renderer(self.context).render(cursor)?;
         } else {
-            String::from("<body></body>")
-        };
-        let mut buf = String::from("<!doctype html>");
-        buf.push_str("<html ");
+            cursor.buffer.push_str("<body></body>");
+        }
+        let mut body = RenderBuffer::default();
+        std::mem::swap(&mut body, &mut cursor.buffer);
+        cursor.buffer.push_str("<!doctype html>");
+        cursor.buffer.push_str("<html ");
         if let Some(ref lang) = self.element.attributes.lang {
-            buf.push_str("lang=\"");
-            buf.push_str(lang);
-            buf.push_str("\" ");
+            cursor.buffer.push_str("lang=\"");
+            cursor.buffer.push_str(lang);
+            cursor.buffer.push_str("\" ");
         }
-        buf.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
+        cursor.buffer.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
         if let Some(head) = self.element.head() {
-            buf.push_str(&head.renderer(Rc::clone(&self.header)).render(opts)?);
+            head.renderer(self.context).render(cursor)?;
         } else {
-            buf.push_str(
-                &MjHead::default()
-                    .renderer(Rc::clone(&self.header))
-                    .render(opts)?,
-            );
+            MjHead::default().renderer(self.context).render(cursor)?;
         }
-        buf.push_str(&body_content);
-        buf.push_str("</html>");
-        Ok(buf)
+        cursor.buffer.push_str(body.as_ref());
+        cursor.buffer.push_str("</html>");
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Mjml {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjmlRender::<'e, 'h> {
-            element: self,
-            header,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for Mjml {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 
 impl Mjml {
     pub fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut header = Header::new(&self.children.head);
-        header.maybe_set_lang(self.attributes.lang.clone());
-        let header = Rc::new(RefCell::new(header));
-        self.renderer(header).render(opts)
+        let header = Header::new(self.children.head.as_ref(), self.attributes.lang.as_deref());
+        let context = RenderContext::new(opts, header);
+        let mut cursor = RenderCursor::default();
+        self.renderer(&context).render(&mut cursor)?;
+        Ok(cursor.buffer.into())
     }
 
     pub fn get_title(&self) -> Option<String> {

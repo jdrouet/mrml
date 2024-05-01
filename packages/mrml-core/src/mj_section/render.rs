@@ -1,13 +1,9 @@
-use std::cell::{Ref, RefCell};
+use std::borrow::Cow;
 use std::convert::TryFrom;
-use std::rc::Rc;
 
 use super::{MjSection, NAME};
-use crate::helper::condition::{conditional_tag, END_CONDITIONAL_TAG, START_CONDITIONAL_TAG};
 use crate::helper::size::{Percent, Pixel};
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
 fn is_horizontal_position(value: &str) -> bool {
     value == "left" || value == "right" || value == "center"
@@ -17,35 +13,39 @@ fn is_vertical_position(value: &str) -> bool {
     value == "top" || value == "bottom" || value == "center"
 }
 
-pub trait WithMjSectionBackground<'h>: Render<'h> {
+pub trait WithMjSectionBackground<'root>: Render<'root> {
     fn has_background(&self) -> bool {
         self.attribute_exists("background-url")
     }
 
-    fn parse_background_position(&self) -> (String, String) {
+    fn parse_background_position<'a>(&'a self) -> (&'a str, &'a str)
+    where
+        'root: 'a,
+    {
         // can be unwraped because has default value
         let position = self.attribute("background-position").unwrap();
-        let positions = position.split_whitespace().collect::<Vec<_>>();
-        let first = positions.first();
-        let second = positions.get(1);
-        if let Some(first) = first {
-            if let Some(second) = second {
+        let mut positions = position.split_whitespace();
+        if let Some(first) = positions.next() {
+            if let Some(second) = positions.next() {
                 if is_vertical_position(first) && is_horizontal_position(second) {
-                    (second.to_string(), first.to_string())
+                    (second, first)
                 } else {
-                    (first.to_string(), second.to_string())
+                    (first, second)
                 }
             } else if is_vertical_position(first) {
-                ("center".to_string(), first.to_string())
+                ("center", first)
             } else {
-                (first.to_string(), "center".to_string())
+                (first, "center")
             }
         } else {
-            ("center".to_string(), "top".to_string())
+            ("center", "top")
         }
     }
 
-    fn get_background_position(&self) -> (String, String) {
+    fn get_background_position<'a>(&'a self) -> (&'a str, &'a str)
+    where
+        'root: 'a,
+    {
         let (x, y) = self.parse_background_position();
         (
             self.attribute("background-position-x").unwrap_or(x),
@@ -59,20 +59,23 @@ pub trait WithMjSectionBackground<'h>: Render<'h> {
     }
 
     fn get_background(&self) -> Option<String> {
-        let mut res = vec![];
+        let mut res: Vec<Cow<'_, str>> = vec![];
         if let Some(color) = self.attribute("background-color") {
-            res.push(color);
+            res.push(color.into());
         }
         if let Some(url) = self.attribute("background-url") {
-            res.push(format!("url('{url}')"));
+            res.push(format!("url('{url}')").into());
             // has default value
-            res.push(format!(
-                "{} / {}",
-                self.get_background_position_str(),
-                self.attribute("background-size").unwrap()
-            ));
+            res.push(
+                format!(
+                    "{} / {}",
+                    self.get_background_position_str(),
+                    self.attribute("background-size").unwrap()
+                )
+                .into(),
+            );
             // has default value
-            res.push(self.attribute("background-repeat").unwrap());
+            res.push(self.attribute("background-repeat").unwrap().into());
         }
 
         if res.is_empty() {
@@ -82,7 +85,11 @@ pub trait WithMjSectionBackground<'h>: Render<'h> {
         }
     }
 
-    fn set_background_style(&self, tag: Tag) -> Tag {
+    fn set_background_style<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         if self.has_background() {
             tag.maybe_add_style("background", self.get_background())
                 .add_style("background-position", self.get_background_position_str())
@@ -94,37 +101,37 @@ pub trait WithMjSectionBackground<'h>: Render<'h> {
         }
     }
 
-    fn get_vfill_position(&self) -> (String, String) {
+    fn get_vfill_position(&self) -> (Cow<'root, str>, Cow<'root, str>) {
         if self.attribute_equals("background-size", "auto") {
-            return ("0.5, 0".to_string(), "0.5, 0".to_string());
+            return ("0.5, 0".into(), "0.5, 0".into());
         }
         let (bg_position_x, bg_position_y) = self.get_background_position();
         let bg_repeat = self.attribute_equals("background-repeat", "repeat");
-        let bg_position_x = match bg_position_x.as_str() {
-            "left" => "0%".to_string(),
-            "center" => "50%".to_string(),
-            "right" => "100%".to_string(),
+        let bg_position_x = match bg_position_x {
+            "left" => "0%",
+            "center" => "50%",
+            "right" => "100%",
             _ => {
                 if bg_position_x.ends_with('%') {
                     bg_position_x
                 } else {
-                    "50%".to_string()
+                    "50%"
                 }
             }
         };
-        let bg_position_y = match bg_position_y.as_str() {
-            "top" => "0%".to_string(),
-            "center" => "50%".to_string(),
-            "bottom" => "100%".to_string(),
+        let bg_position_y = match bg_position_y {
+            "top" => "0%",
+            "center" => "50%",
+            "bottom" => "100%",
             _ => {
                 if bg_position_y.ends_with('%') {
                     bg_position_y
                 } else {
-                    "0%".to_string()
+                    "0%"
                 }
             }
         };
-        let position_x = if let Ok(position) = Percent::try_from(bg_position_x.as_str()) {
+        let position_x = if let Ok(position) = Percent::try_from(bg_position_x) {
             if bg_repeat {
                 position.value() * 0.01
             } else {
@@ -135,7 +142,7 @@ pub trait WithMjSectionBackground<'h>: Render<'h> {
         } else {
             0.0
         };
-        let position_y = if let Ok(position) = Percent::try_from(bg_position_y.as_str()) {
+        let position_y = if let Ok(position) = Percent::try_from(bg_position_y) {
             if bg_repeat {
                 position.value() * 0.01
             } else {
@@ -147,30 +154,33 @@ pub trait WithMjSectionBackground<'h>: Render<'h> {
             0.0
         };
         (
-            format!("{position_x}, {position_y}"),
-            format!("{position_x}, {position_y}"),
+            format!("{position_x}, {position_y}").into(),
+            format!("{position_x}, {position_y}").into(),
         )
     }
 
-    fn get_vfill_tag(&self) -> Tag {
+    fn get_vfill_tag<'a>(&'a self) -> Tag<'a>
+    where
+        'root: 'a,
+    {
         let bg_no_repeat = self.attribute_equals("background-repeat", "no-repeat");
         let bg_size = self.attribute("background-size");
         let bg_size_auto = bg_size
             .as_ref()
-            .map(|value| value == "auto")
+            .map(|value| *value == "auto")
             .unwrap_or(false);
         let vml_type = if bg_no_repeat && !bg_size_auto {
             "frame"
         } else {
             "tile"
         };
-        let vsize = match bg_size.as_deref() {
+        let vsize = match bg_size {
             Some("cover") | Some("contain") => Some("1,1".to_string()),
             Some("auto") => None,
             Some(value) => Some(value.replace(' ', ",")),
             None => None,
         };
-        let aspect = match bg_size.as_deref() {
+        let aspect = match bg_size {
             Some("cover") => Some("atleast".to_string()),
             Some("contain") => Some("atmost".to_string()),
             Some("auto") => None,
@@ -196,8 +206,7 @@ pub trait WithMjSectionBackground<'h>: Render<'h> {
     }
 }
 
-pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
-    fn clone_header(&self) -> Rc<RefCell<Header<'h>>>;
+pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
     fn container_width(&self) -> &Option<Pixel>;
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild>;
 
@@ -205,7 +214,10 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         self.attribute_exists("full-width")
     }
 
-    fn render_with_background<T: AsRef<str>>(&self, content: T) -> String {
+    fn render_with_background<F>(&self, cursor: &mut RenderCursor, content: F) -> Result<(), Error>
+    where
+        F: Fn(&mut RenderCursor) -> Result<(), Error>,
+    {
         let full_width = self.is_full_width();
         let vrect = Tag::new("v:rect")
             .maybe_add_attribute(
@@ -227,12 +239,24 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         let vtextbox = Tag::new("v:textbox")
             .add_attribute("inset", "0,0,0,0")
             .add_style("mso-fit-shape-to-text", "true");
-        let before = vrect.open() + &vfill.closed() + &vtextbox.open();
-        let after = vtextbox.close() + &vrect.close();
-        before + END_CONDITIONAL_TAG + content.as_ref() + START_CONDITIONAL_TAG + &after
+
+        vrect.render_open(&mut cursor.buffer);
+        vfill.render_closed(&mut cursor.buffer);
+        vtextbox.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        content(cursor)?;
+        cursor.buffer.start_conditional_tag();
+        vtextbox.render_close(&mut cursor.buffer);
+        vrect.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 
-    fn set_style_section_div(&self, tag: Tag) -> Tag {
+    fn set_style_section_div<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         let base = if self.is_full_width() {
             tag
         } else {
@@ -246,7 +270,10 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
             )
     }
 
-    fn render_wrap<T: AsRef<str>>(&self, content: T) -> String {
+    fn render_wrap<F>(&self, cursor: &mut RenderCursor, content: F) -> Result<(), Error>
+    where
+        F: Fn(&mut RenderCursor) -> Result<(), Error>,
+    {
         let table = Tag::table_presentation()
             .maybe_add_attribute("bgcolor", self.attribute("background-color"))
             .add_attribute("align", "center")
@@ -266,9 +293,18 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
             .add_style("line-height", "0px")
             .add_style("font-size", "0px")
             .add_style("mso-line-height-rule", "exactly");
-        let before = table.open() + &tr.open() + &td.open();
-        let after = td.close() + &tr.close() + &table.close();
-        conditional_tag(before + content.as_ref() + &after)
+
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        content(cursor)?;
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+
+        Ok(())
     }
 
     fn get_siblings(&self) -> usize {
@@ -279,45 +315,47 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         self.children().iter().filter(|elt| elt.is_raw()).count()
     }
 
-    fn render_wrapped_children(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_wrapped_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
         let tr = Tag::tr();
-        let mut result = tr.open();
-        let children = self.children();
-        if !children.is_empty() {
-            for child in self.children().iter() {
-                let mut renderer = child.renderer(self.clone_header());
-                renderer.set_siblings(siblings);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_container_width(self.container_width().clone());
-                if child.is_raw() {
-                    result.push_str(END_CONDITIONAL_TAG);
-                    result.push_str(&renderer.render(opts)?);
-                    result.push_str(START_CONDITIONAL_TAG);
-                } else {
-                    let td = renderer
-                        .set_style("td-outlook", Tag::td())
-                        .maybe_add_attribute("align", renderer.attribute("align"))
-                        .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                    result.push_str(&td.open());
-                    result.push_str(END_CONDITIONAL_TAG);
-                    result.push_str(&renderer.render(opts)?);
-                    result.push_str(START_CONDITIONAL_TAG);
-                    result.push_str(&td.close());
-                }
+
+        tr.render_open(&mut cursor.buffer);
+        for child in self.children().iter() {
+            let mut renderer = child.renderer(self.context());
+            renderer.set_siblings(siblings);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_container_width(self.container_width().clone());
+            if child.is_raw() {
+                cursor.buffer.end_conditional_tag();
+                renderer.render(cursor)?;
+                cursor.buffer.start_conditional_tag();
+            } else {
+                let td = renderer
+                    .set_style("td-outlook", Tag::td())
+                    .maybe_add_attribute("align", renderer.attribute("align"))
+                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
+                td.render_open(&mut cursor.buffer);
+                cursor.buffer.end_conditional_tag();
+                renderer.render(cursor)?;
+                cursor.buffer.start_conditional_tag();
+                td.render_close(&mut cursor.buffer);
             }
         }
-        result.push_str(&tr.close());
-        Ok(result)
+        tr.render_close(&mut cursor.buffer);
+        Ok(())
     }
 
-    fn set_style_section_inner_div(&self, tag: Tag) -> Tag {
+    fn set_style_section_inner_div<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("line-height", "0")
             .add_style("font-size", "0")
     }
 
-    fn set_style_section_table(&self, tag: Tag) -> Tag {
+    fn set_style_section_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         let base = if self.is_full_width() {
             tag
         } else {
@@ -327,7 +365,11 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
             .maybe_add_style("border-radius", self.attribute("border-radius"))
     }
 
-    fn set_style_section_td(&self, tag: Tag) -> Tag {
+    fn set_style_section_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
             .maybe_add_style("border-left", self.attribute("border-left"))
@@ -343,7 +385,7 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
             .maybe_add_style("text-align", self.attribute("text-align"))
     }
 
-    fn render_section(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_section(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let is_full_width = self.is_full_width();
         let div = self
             .set_style_section_div(Tag::div())
@@ -370,20 +412,37 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
         let td = self.set_style_section_td(Tag::td());
         let inner_table = Tag::table_presentation();
 
-        let content = self.render_wrapped_children(opts)?;
-        let content = conditional_tag(inner_table.open() + &content + &inner_table.close());
-        let content = td.render(content);
-        let content = tr.render(content);
-        let content = tbody.render(content);
-        let content = table.render(content);
-        Ok(div.render(if self.has_background() {
-            inner_div.render(content)
-        } else {
-            content
-        }))
+        let has_bg = self.has_background();
+        div.render_open(&mut cursor.buffer);
+        if has_bg {
+            inner_div.render_open(&mut cursor.buffer);
+        }
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        cursor.buffer.start_conditional_tag();
+        inner_table.render_open(&mut cursor.buffer);
+        self.render_wrapped_children(cursor)?;
+        inner_table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        if has_bg {
+            inner_div.render_close(&mut cursor.buffer);
+        }
+        div.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 
-    fn set_style_table_full_width(&self, tag: Tag) -> Tag {
+    fn set_style_table_full_width<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         let base = if self.is_full_width() {
             self.set_background_style(tag)
         } else {
@@ -393,53 +452,69 @@ pub trait SectionLikeRender<'h>: WithMjSectionBackground<'h> {
             .add_style("width", "100%")
     }
 
-    fn get_full_width_table(&self) -> Tag {
+    fn get_full_width_table<'a>(&'a self) -> Tag<'a>
+    where
+        'root: 'a,
+    {
         self.set_style_table_full_width(Tag::table_presentation())
             .add_attribute("align", "center")
             .maybe_add_class(self.attribute("css-class"))
             .maybe_add_attribute("background", self.attribute("background-url"))
     }
 
-    fn render_full_width(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_full_width(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = self.get_full_width_table();
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = Tag::td();
-        let content = self.render_section(opts)?;
-        let content =
-            self.render_wrap(END_CONDITIONAL_TAG.to_string() + &content + START_CONDITIONAL_TAG);
-        let content = if self.has_background() {
-            self.render_with_background(content)
+
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        //
+        if self.has_background() {
+            self.render_with_background(cursor, |cursor| {
+                self.render_wrap(cursor, |cursor| {
+                    cursor.buffer.end_conditional_tag();
+                    self.render_section(cursor)?;
+                    cursor.buffer.start_conditional_tag();
+                    Ok(())
+                })
+            })?;
         } else {
-            content
-        };
-        Ok(table.render(tbody.render(tr.render(td.render(content)))))
+            self.render_wrap(cursor, |cursor| {
+                cursor.buffer.end_conditional_tag();
+                self.render_section(cursor)?;
+                cursor.buffer.start_conditional_tag();
+                Ok(())
+            })?;
+        }
+        //
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 
-    fn render_simple(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let section = self.render_section(opts)?;
-
-        let section = if self.has_background() {
-            self.render_with_background(section)
-        } else {
-            END_CONDITIONAL_TAG.to_string() + &section + START_CONDITIONAL_TAG
-        };
-        Ok(self.render_wrap(section))
+    fn render_simple(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        self.render_wrap(cursor, |cursor| {
+            if self.has_background() {
+                self.render_with_background(cursor, |cursor| self.render_section(cursor))?;
+            } else {
+                cursor.buffer.end_conditional_tag();
+                self.render_section(cursor)?;
+                cursor.buffer.start_conditional_tag();
+            }
+            Ok(())
+        })
     }
 }
 
-struct MjSectionRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjSection,
-    container_width: Option<Pixel>,
-}
-
-impl<'e, 'h> WithMjSectionBackground<'h> for MjSectionRender<'e, 'h> {}
-impl<'e, 'h> SectionLikeRender<'h> for MjSectionRender<'e, 'h> {
-    fn clone_header(&self) -> Rc<RefCell<Header<'h>>> {
-        Rc::clone(&self.header)
-    }
-
+impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjSection, ()> {}
+impl<'root> SectionLikeRender<'root> for Renderer<'root, MjSection, ()> {
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
         &self.element.children
     }
@@ -449,8 +524,8 @@ impl<'e, 'h> SectionLikeRender<'h> for MjSectionRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjSectionRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjSection, ()> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-position" => Some("top center"),
             "background-repeat" => Some("repeat"),
@@ -463,38 +538,37 @@ impl<'e, 'h> Render<'h> for MjSectionRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
         self.container_width = width;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if self.is_full_width() {
-            self.render_full_width(opts)
+            self.render_full_width(cursor)
         } else {
-            self.render_simple(opts)
+            self.render_simple(cursor)
         }
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjSectionRender::<'e, 'h> {
-            element: self,
-            header,
-            container_width: None,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSection {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

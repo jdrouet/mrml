@@ -1,18 +1,8 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjButton, NAME};
 use crate::helper::size::Pixel;
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct MjButtonRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjButton,
-}
-
-impl<'e, 'h> MjButtonRender<'e, 'h> {
+impl<'root> Renderer<'root, MjButton, ()> {
     fn content_width(&self) -> Option<String> {
         if let Some(width) = self.attribute_as_pixel("width") {
             let pad_left = self
@@ -37,23 +27,29 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
         }
     }
 
-    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
-        self.element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render(opts)?)
-            })
+    fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        for child in self.element.children.iter() {
+            let renderer = child.renderer(self.context());
+            renderer.render(cursor)?;
+        }
+        Ok(())
     }
 
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("border-collapse", "separate")
             .maybe_add_style("width", self.attribute("width"))
             .add_style("line-height", "100%")
     }
 
-    fn set_style_td(&self, tag: Tag) -> Tag {
+    fn set_style_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
             .maybe_add_style("border-left", self.attribute("border-left"))
@@ -68,7 +64,11 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
             .maybe_add_style("background", self.attribute("background-color"))
     }
 
-    fn set_style_content(&self, tag: Tag) -> Tag {
+    fn set_style_content<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("display", "inline-block")
             .maybe_add_style("width", self.content_width())
             .maybe_add_style("background", self.attribute("background-color"))
@@ -88,8 +88,8 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'h> for MjButtonRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjButton, ()> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
             "background-color" => Some("#414141"),
@@ -110,24 +110,24 @@ impl<'e, 'h> Render<'h> for MjButtonRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_family);
+        cursor.header.maybe_add_font_families(font_family);
+
         let table = self.set_style_table(Tag::table_presentation());
+        let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self
             .set_style_td(Tag::td())
@@ -146,18 +146,28 @@ impl<'e, 'h> Render<'h> for MjButtonRender<'e, 'h> {
             );
         let link = self.set_style_content(link);
 
-        Ok(table.render(
-            Tag::tbody().render(tr.render(td.render(link.render(self.render_children(opts)?)))),
-        ))
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        link.render_open(&mut cursor.buffer);
+        self.render_children(cursor)?;
+        link.render_close(&mut cursor.buffer);
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjButton {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjButtonRender::<'e, 'h> {
-            element: self,
-            header,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjButton {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

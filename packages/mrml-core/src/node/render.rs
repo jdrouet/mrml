@@ -1,67 +1,61 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::Node;
 use crate::prelude::is_void_element;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct NodeRender<'e, 'h, T> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e Node<T>,
-}
-
-impl<'r, 'e: 'r, 'h: 'r, T> Render<'h> for NodeRender<'e, 'h, T>
+impl<'render, 'root: 'render, T> Render<'root> for Renderer<'root, Node<T>, ()>
 where
-    T: Renderable<'r, 'e, 'h>,
+    T: Renderable<'render, 'root>,
 {
     fn tag(&self) -> Option<&str> {
         Some(self.element.tag.as_str())
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let mut buf = String::from("<");
-        buf.push_str(&self.element.tag);
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.buffer.push('<');
+        cursor.buffer.push_str(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
-            buf.push(' ');
-            buf.push_str(key);
-            buf.push_str("=\"");
-            buf.push_str(value);
-            buf.push('"');
+            cursor.buffer.push(' ');
+            cursor.buffer.push_str(key);
+            cursor.buffer.push_str("=\"");
+            cursor.buffer.push_str(value);
+            cursor.buffer.push('"');
         }
         if self.element.children.is_empty() {
             if is_void_element(self.element.tag.as_str()) {
-                buf.push_str(" />");
+                cursor.buffer.push_str(" />");
             } else {
-                buf.push_str("></");
-                buf.push_str(&self.element.tag);
-                buf.push('>');
+                cursor.buffer.push_str("></");
+                cursor.buffer.push_str(&self.element.tag);
+                cursor.buffer.push('>');
             }
         } else {
-            buf.push('>');
+            cursor.buffer.push('>');
             for (index, child) in self.element.children.iter().enumerate() {
                 // TODO children
-                let mut renderer = child.renderer(Rc::clone(&self.header));
+                let mut renderer = child.renderer(self.context);
                 renderer.set_index(index);
-                buf.push_str(&renderer.render(opts)?);
+                renderer.render(cursor)?;
             }
-            buf.push_str("</");
-            buf.push_str(&self.element.tag);
-            buf.push('>');
+            cursor.buffer.push_str("</");
+            cursor.buffer.push_str(&self.element.tag);
+            cursor.buffer.push('>');
         }
-        Ok(buf)
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r, T: Renderable<'r, 'e, 'h>> Renderable<'r, 'e, 'h> for Node<T> {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(NodeRender::<'e, 'h> {
-            element: self,
-            header,
-        })
+impl<'render, 'root: 'render, T: Renderable<'render, 'root>> Renderable<'render, 'root>
+    for Node<T>
+{
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

@@ -1,22 +1,13 @@
-use std::cell::{Ref, RefCell};
 use std::convert::TryFrom;
-use std::rc::Rc;
 
 use super::MjBody;
 use crate::helper::size::Pixel;
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct MjBodyRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjBody,
-}
-
-impl<'e, 'h> MjBodyRender<'e, 'h> {
+impl<'root> Renderer<'root, MjBody, ()> {
     fn get_width(&self) -> Option<Pixel> {
         self.attribute("width")
-            .and_then(|value| Pixel::try_from(value.as_str()).ok())
+            .and_then(|value| Pixel::try_from(value).ok())
     }
 
     fn get_body_tag(&self) -> Tag {
@@ -26,35 +17,30 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
     fn get_content_div_tag(&self) -> Tag {
         self.set_body_style(Tag::new("div"))
             .maybe_add_attribute("class", self.attribute("css-class"))
-            .maybe_add_attribute("lang", self.header().lang().map(ToString::to_string))
+            .maybe_add_attribute("lang", self.context.header.lang().map(ToString::to_string))
     }
 
-    fn set_body_style(&self, tag: Tag) -> Tag {
+    fn set_body_style<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
     }
 
-    fn render_preview(&self) -> String {
-        if let Some(value) = self
-            .header
-            .borrow()
-            .head()
-            .as_ref()
-            .and_then(|h| h.preview())
-            .map(|p| p.content())
-        {
-            String::from(
-                r#"<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">"#,
-            ) + value
-                + "</div>"
-        } else {
-            String::default()
+    fn render_preview(&self, buf: &mut RenderBuffer) {
+        if let Some(value) = self.context.header.preview() {
+            buf.push_str(r#"<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">"#);
+            buf.push_str(value);
+            buf.push_str("</div>");
         }
     }
 
-    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
-        let mut children = String::default();
+
+        div.render_open(&mut cursor.buffer);
         let raw_siblings = self
             .element
             .children
@@ -62,46 +48,50 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
             .filter(|item| item.is_raw())
             .count();
         for (index, child) in self.element.children.iter().enumerate() {
-            let mut renderer = child.renderer(Rc::clone(&self.header));
+            let mut renderer = child.renderer(self.context());
             renderer.set_container_width(element_width.clone());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(self.element.children.len());
-            children.push_str(&renderer.render(opts)?);
+            renderer.render(cursor)?;
         }
-        Ok(div.render(children))
+        div.render_close(&mut cursor.buffer);
+        Ok(())
     }
 }
 
-impl<'e, 'h> Render<'h> for MjBodyRender<'e, 'h> {
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+impl<'root> Render<'root> for Renderer<'root, MjBody, ()> {
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "width" => Some("600px"),
             _ => None,
         }
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let body = self.get_body_tag();
-        let result = body.render(self.render_preview() + &self.render_content(opts)?);
-        Ok(result)
+        body.render_open(&mut cursor.buffer);
+        self.render_preview(&mut cursor.buffer);
+        self.render_content(cursor)?;
+        body.render_close(&mut cursor.buffer);
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBody {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjBodyRender::<'e, 'h> {
-            element: self,
-            header,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjBody {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

@@ -1,12 +1,12 @@
 pub struct SocialNetwork {
-    background_color: String,
-    share_url: Option<String>,
-    icon: String,
+    background_color: &'static str,
+    share_url: Option<&'static str>,
+    icon: &'static str,
 }
 
 impl SocialNetwork {
     pub fn background_color(&self) -> &str {
-        &self.background_color
+        self.background_color
     }
 
     pub fn share_url(&self, url: &str) -> Option<String> {
@@ -53,160 +53,157 @@ impl SocialNetwork {
 
     fn dribbble() -> Self {
         Self {
-            background_color: "#D95988".to_string(),
+            background_color: "#D95988",
             share_url: None,
-            icon: "dribbble.png".to_string(),
+            icon: "dribbble.png",
         }
     }
 
     fn facebook(noshare: bool) -> Self {
         Self {
-            background_color: "#3b5998".to_string(),
+            background_color: "#3b5998",
             share_url: if noshare {
                 None
             } else {
-                Some("https://www.facebook.com/sharer/sharer.php?u=[[URL]]".to_string())
+                Some("https://www.facebook.com/sharer/sharer.php?u=[[URL]]")
             },
-            icon: "facebook.png".to_string(),
+            icon: "facebook.png",
         }
     }
 
     fn github() -> Self {
         Self {
-            background_color: "#000000".to_string(),
+            background_color: "#000000",
             share_url: None,
-            icon: "github.png".to_string(),
+            icon: "github.png",
         }
     }
 
     fn google(noshare: bool) -> Self {
         Self {
-            background_color: "#dc4e41".to_string(),
+            background_color: "#dc4e41",
             share_url: if noshare {
                 None
             } else {
-                Some("https://plus.google.com/share?url=[[URL]]".to_string())
+                Some("https://plus.google.com/share?url=[[URL]]")
             },
-            icon: "google-plus.png".to_string(),
+            icon: "google-plus.png",
         }
     }
 
     fn instagram() -> Self {
         Self {
-            background_color: "#3f729b".to_string(),
+            background_color: "#3f729b",
             share_url: None,
-            icon: "instagram.png".to_string(),
+            icon: "instagram.png",
         }
     }
 
     fn linkedin(noshare: bool) -> Self {
         Self {
-            background_color: "#0077b5".to_string(),
+            background_color: "#0077b5",
             share_url: if noshare {
                 None
             } else {
-                Some("https://www.linkedin.com/shareArticle?mini=true&url=[[URL]]&title=&summary=&source=".to_string())
+                Some("https://www.linkedin.com/shareArticle?mini=true&url=[[URL]]&title=&summary=&source=")
             },
-            icon: "linkedin.png".to_string(),
+            icon: "linkedin.png",
         }
     }
 
     fn medium() -> Self {
         Self {
-            background_color: "#000000".to_string(),
+            background_color: "#000000",
             share_url: None,
-            icon: "medium.png".to_string(),
+            icon: "medium.png",
         }
     }
 
     fn pinterest(noshare: bool) -> Self {
         Self {
-            background_color: "#bd081c".to_string(),
+            background_color: "#bd081c",
             share_url: if noshare {
                 None
             } else {
-                Some(
-                    "https://pinterest.com/pin/create/button/?url=[[URL]]&media=&description="
-                        .to_string(),
-                )
+                Some("https://pinterest.com/pin/create/button/?url=[[URL]]&media=&description=")
             },
-            icon: "pinterest.png".to_string(),
+            icon: "pinterest.png",
         }
     }
 
     fn snapchat() -> Self {
         Self {
-            background_color: "#FFFA54".to_string(),
+            background_color: "#FFFA54",
             share_url: None,
-            icon: "snapchat.png".to_string(),
+            icon: "snapchat.png",
         }
     }
 
     fn soundcloud() -> Self {
         Self {
-            background_color: "#EF7F31".to_string(),
+            background_color: "#EF7F31",
             share_url: None,
-            icon: "soundcloud.png".to_string(),
+            icon: "soundcloud.png",
         }
     }
 
     fn tumblr(noshare: bool) -> Self {
         Self {
-            background_color: "#344356".to_string(),
+            background_color: "#344356",
             share_url: if noshare {
                 None
             } else {
-                Some("https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]".to_string())
+                Some("https://www.tumblr.com/widgets/share/tool?canonicalUrl=[[URL]]")
             },
-            icon: "tumblr.png".to_string(),
+            icon: "tumblr.png",
         }
     }
 
     fn twitter(noshare: bool) -> Self {
         Self {
-            background_color: "#55acee".to_string(),
+            background_color: "#55acee",
             share_url: if noshare {
                 None
             } else {
-                Some("https://twitter.com/home?status=[[URL]]".to_string())
+                Some("https://twitter.com/home?status=[[URL]]")
             },
-            icon: "twitter.png".to_string(),
+            icon: "twitter.png",
         }
     }
 
     fn vimeo() -> Self {
         Self {
-            background_color: "#53B4E7".to_string(),
+            background_color: "#53B4E7",
             share_url: None,
-            icon: "vimeo.png".to_string(),
+            icon: "vimeo.png",
         }
     }
 
     fn web() -> Self {
         Self {
-            background_color: "#4BADE9".to_string(),
+            background_color: "#4BADE9",
             share_url: None,
-            icon: "web.png".to_string(),
+            icon: "web.png",
         }
     }
 
     fn xing(noshare: bool) -> Self {
         Self {
-            background_color: "#296366".to_string(),
+            background_color: "#296366",
             share_url: if noshare {
                 None
             } else {
-                Some("https://www.xing.com/app/user?op=share&url=[[URL]]".to_string())
+                Some("https://www.xing.com/app/user?op=share&url=[[URL]]")
             },
-            icon: "xing.png".to_string(),
+            icon: "xing.png",
         }
     }
 
     fn youtube() -> Self {
         Self {
-            background_color: "#EB3323".to_string(),
+            background_color: "#EB3323",
             share_url: None,
-            icon: "youtube.png".to_string(),
+            icon: "youtube.png",
         }
     }
 }

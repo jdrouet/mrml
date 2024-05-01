@@ -1,19 +1,12 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjText, NAME};
-use crate::helper::condition::conditional_tag;
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct MjTextRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjText,
-}
-
-impl<'e, 'h> MjTextRender<'e, 'h> {
-    fn set_style_text(&self, tag: Tag) -> Tag {
+impl<'root> Renderer<'root, MjText, ()> {
+    fn set_style_text<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("font-style", self.attribute("font-style"))
@@ -27,33 +20,41 @@ impl<'e, 'h> MjTextRender<'e, 'h> {
             .maybe_add_style("height", self.attribute("height"))
     }
 
-    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let res = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        Ok(self.set_style_text(Tag::div()).render(res))
+    fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        let root = self.set_style_text(Tag::div());
+        root.render_open(&mut cursor.buffer);
+        for child in self.element.children.iter() {
+            child.renderer(self.context()).render(cursor)?;
+        }
+        root.render_close(&mut cursor.buffer);
+        Ok(())
     }
 
-    fn render_with_height(&self, height: &str, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_with_height(&self, height: &str, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
             .add_attribute("height", height.to_owned())
             .add_style("vertical-align", "top")
             .add_style("height", height.to_owned());
-        Ok(conditional_tag(table.open() + &tr.open() + &td.open())
-            + &self.render_content(opts)?
-            + &conditional_tag(td.close() + &tr.close() + &table.close()))
+
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        self.render_content(cursor)?;
+        cursor.buffer.start_conditional_tag();
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        Ok(())
     }
 }
 
-impl<'e, 'h> Render<'h> for MjTextRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjText, ()> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("left"),
             "color" => Some("#000000"),
@@ -65,37 +66,36 @@ impl<'e, 'h> Render<'h> for MjTextRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_family = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_family);
-        if let Some(ref height) = self.attribute("height") {
-            self.render_with_height(height, opts)
+        cursor.header.maybe_add_font_families(font_family);
+
+        if let Some(height) = self.attribute("height") {
+            self.render_with_height(height, cursor)
         } else {
-            self.render_content(opts)
+            self.render_content(cursor)
         }
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjText {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjTextRender::<'e, 'h> {
-            element: self,
-            header,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjText {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

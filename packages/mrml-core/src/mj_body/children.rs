@@ -1,8 +1,3 @@
-#[cfg(feature = "render")]
-use std::cell::RefCell;
-#[cfg(feature = "render")]
-use std::rc::Rc;
-
 use crate::comment::Comment;
 use crate::mj_accordion::MjAccordion;
 use crate::mj_button::MjButton;
@@ -23,7 +18,7 @@ use crate::mj_text::MjText;
 use crate::mj_wrapper::MjWrapper;
 use crate::node::Node;
 #[cfg(feature = "render")]
-use crate::prelude::render::{Header, Render, Renderable};
+use crate::prelude::render::{Render, RenderContext, Renderable};
 use crate::text::Text;
 
 #[derive(Debug, mrml_macros::MrmlChildren)]
@@ -55,7 +50,9 @@ pub enum MjBodyChild {
 
 impl MjBodyChild {
     #[cfg(feature = "render")]
-    pub fn as_renderable<'r, 'e: 'r, 'h: 'r>(&'e self) -> &'e (dyn Renderable<'r, 'e, 'h> + 'e) {
+    pub fn as_renderable<'render, 'root: 'render>(
+        &'root self,
+    ) -> &'root (dyn Renderable<'render, 'root> + 'root) {
         match self {
             Self::Comment(elt) => elt,
             Self::MjAccordion(elt) => elt,
@@ -82,12 +79,15 @@ impl MjBodyChild {
 }
 
 #[cfg(feature = "render")]
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBodyChild {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjBodyChild {
     fn is_raw(&self) -> bool {
         self.as_renderable().is_raw()
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        self.as_renderable().renderer(header)
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        self.as_renderable().renderer(context)
     }
 }

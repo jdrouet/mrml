@@ -1,18 +1,15 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjSocial, MjSocialChild, NAME};
-use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialChild {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         match self {
-            Self::MjSocialElement(elt) => elt.renderer(header),
-            Self::Comment(elt) => elt.renderer(header),
+            Self::MjSocialElement(elt) => elt.renderer(context),
+            Self::Comment(elt) => elt.renderer(context),
         }
     }
 }
@@ -48,16 +45,8 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
     "text-decoration",
 ];
 
-struct MjSocialRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjSocial,
-    container_width: Option<Pixel>,
-    siblings: usize,
-    raw_siblings: usize,
-}
-
-impl<'e, 'h> MjSocialRender<'e, 'h> {
-    fn set_style_table_vertical(&self, tag: Tag) -> Tag {
+impl<'root> Renderer<'root, MjSocial, ()> {
+    fn set_style_table_vertical<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("margin", "0px")
     }
 
@@ -67,7 +56,7 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             .unwrap_or(true)
     }
 
-    fn build_child_attributes(&self) -> Vec<(&str, String)> {
+    fn build_child_attributes(&self) -> Vec<(&str, &str)> {
         EXTRA_CONTAINER_KEY
             .iter()
             .zip(EXTRA_CHILD_KEY.iter())
@@ -77,7 +66,7 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             .collect::<Vec<_>>()
     }
 
-    fn render_horizontal(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_horizontal(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
         let td = Tag::td();
@@ -86,46 +75,63 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
             .add_style("float", "none")
             .add_style("display", "inline-table");
         let inner_tbody = Tag::tbody();
-        let before = conditional_tag(table.open() + &tr.open());
-        let after = conditional_tag(tr.close() + &table.close());
         let child_attributes = self.build_child_attributes();
-        let content = self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                child_attributes.iter().for_each(|(key, value)| {
-                    renderer.add_extra_attribute(key, value);
-                });
-                Ok(res
-                    + &conditional_tag(td.open())
-                    + &inner_table.render(inner_tbody.render(renderer.render(opts)?))
-                    + &conditional_tag(td.close()))
-            },
-        )?;
-        Ok(before + &content + &after)
+
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+
+        for (index, child) in self.element.children.iter().enumerate() {
+            cursor.buffer.start_conditional_tag();
+            td.render_open(&mut cursor.buffer);
+            cursor.buffer.end_conditional_tag();
+            inner_table.render_open(&mut cursor.buffer);
+            inner_tbody.render_open(&mut cursor.buffer);
+            let mut renderer = child.renderer(self.context());
+            renderer.set_index(index);
+            child_attributes.iter().for_each(|(key, value)| {
+                renderer.add_extra_attribute(key, value);
+            });
+            renderer.render(cursor)?;
+            inner_tbody.render_close(&mut cursor.buffer);
+            inner_table.render_close(&mut cursor.buffer);
+            cursor.buffer.start_conditional_tag();
+            td.render_close(&mut cursor.buffer);
+            cursor.buffer.end_conditional_tag();
+        }
+
+        cursor.buffer.start_conditional_tag();
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        Ok(())
     }
 
-    fn render_vertical(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_vertical(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = self.set_style_table_vertical(Tag::table_presentation());
+        let tbody = Tag::tbody();
         let child_attributes = self.build_child_attributes();
-        let content = self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                child_attributes.iter().for_each(|(key, value)| {
-                    renderer.add_extra_attribute(key, value);
-                });
-                Ok(res + &renderer.render(opts)?)
-            },
-        )?;
-        Ok(table.render(Tag::tbody().render(content)))
+
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(self.context());
+            renderer.set_index(index);
+            child_attributes.iter().for_each(|(key, value)| {
+                renderer.add_extra_attribute(key, value);
+            });
+            renderer.render(cursor)?;
+        }
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 }
 
-impl<'e, 'h> Render<'h> for MjSocialRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjSocial, ()> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
             "border-radius" => Some("3px"),
@@ -141,16 +147,16 @@ impl<'e, 'h> Render<'h> for MjSocialRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -171,26 +177,24 @@ impl<'e, 'h> Render<'h> for MjSocialRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_families = self.attribute("font-family").unwrap_or_default(); // never happens
-        self.header.borrow_mut().add_font_families(font_families);
+        cursor.header.add_font_families(font_families);
+
         if self.is_horizontal() {
-            self.render_horizontal(opts)
+            self.render_horizontal(cursor)
         } else {
-            self.render_vertical(opts)
+            self.render_vertical(cursor)
         }
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocial {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjSocialRender::<'e, 'h> {
-            element: self,
-            header,
-            container_width: None,
-            siblings: 1,
-            raw_siblings: 0,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocial {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

@@ -1,16 +1,17 @@
 use std::borrow::Cow;
 
+use super::RenderBuffer;
 use crate::prelude::hash::{Map, Set};
 
-pub struct Tag {
-    name: Cow<'static, str>,
-    attributes: Map<Cow<'static, str>, Cow<'static, str>>,
-    classes: Set<Cow<'static, str>>,
+pub struct Tag<'a> {
+    name: Cow<'a, str>,
+    attributes: Map<Cow<'a, str>, Cow<'a, str>>,
+    classes: Set<Cow<'a, str>>,
     // in order to keep the style in the same order the've been added
-    styles: Vec<(Cow<'static, str>, Cow<'static, str>)>,
+    styles: Vec<(Cow<'a, str>, Cow<'a, str>)>,
 }
 
-impl Tag {
+impl<'a> Tag<'a> {
     pub fn table() -> Self {
         Self::new("table")
     }
@@ -36,7 +37,7 @@ impl Tag {
         Self::new("div")
     }
 
-    pub fn new<N: Into<Cow<'static, str>>>(name: N) -> Self {
+    pub fn new<N: Into<Cow<'a, str>>>(name: N) -> Self {
         Self {
             name: name.into(),
             attributes: Map::new(),
@@ -45,13 +46,13 @@ impl Tag {
         }
     }
 
-    pub fn add_class<C: Into<Cow<'static, str>>>(mut self, value: C) -> Self {
+    pub fn add_class<C: Into<Cow<'a, str>>>(mut self, value: C) -> Self {
         self.classes.insert(value.into());
         self
     }
 
     pub fn add_suffixed_class<T: AsRef<str>>(self, value: T, suffix: &str) -> Self {
-        self.add_class(format!("{}-{}", value.as_ref(), suffix))
+        self.add_class(format!("{}-{suffix}", value.as_ref()))
     }
 
     pub fn maybe_add_suffixed_class<T: AsRef<str>>(self, value: Option<T>, suffix: &str) -> Self {
@@ -62,7 +63,7 @@ impl Tag {
         }
     }
 
-    pub fn maybe_add_class<C: Into<Cow<'static, str>>>(self, value: Option<C>) -> Self {
+    pub fn maybe_add_class<C: Into<Cow<'a, str>>>(self, value: Option<C>) -> Self {
         if let Some(value) = value {
             self.add_class(value)
         } else {
@@ -70,7 +71,7 @@ impl Tag {
         }
     }
 
-    pub fn add_attribute<K: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+    pub fn add_attribute<K: Into<Cow<'a, str>>, V: Into<Cow<'a, str>>>(
         mut self,
         name: K,
         value: V,
@@ -79,7 +80,7 @@ impl Tag {
         self
     }
 
-    pub fn maybe_add_attribute<K: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+    pub fn maybe_add_attribute<K: Into<Cow<'a, str>>, V: Into<Cow<'a, str>>>(
         self,
         name: K,
         value: Option<V>,
@@ -91,7 +92,7 @@ impl Tag {
         }
     }
 
-    pub fn add_style<N: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+    pub fn add_style<N: Into<Cow<'a, str>>, V: Into<Cow<'a, str>>>(
         mut self,
         name: N,
         value: V,
@@ -100,7 +101,7 @@ impl Tag {
         self
     }
 
-    pub fn maybe_add_style<N: Into<Cow<'static, str>>, V: Into<Cow<'static, str>>>(
+    pub fn maybe_add_style<N: Into<Cow<'a, str>>, V: Into<Cow<'a, str>>>(
         self,
         name: N,
         value: Option<V>,
@@ -111,53 +112,69 @@ impl Tag {
             self
         }
     }
+}
 
-    fn opening(&self) -> String {
-        let mut res = String::from("<");
-        res.push_str(&self.name);
+impl<'a> Tag<'a> {
+    fn render_opening(&self, b: &mut RenderBuffer) {
+        b.push('<');
+        b.push_str(&self.name);
         for (key, value) in self.attributes.iter() {
-            res.push(' ');
-            res.push_str(key);
-            res.push_str("=\"");
-            res.push_str(value);
-            res.push('"');
+            b.push(' ');
+            b.push_str(key);
+            b.push_str("=\"");
+            b.push_str(value);
+            b.push('"');
         }
         if !self.classes.is_empty() {
-            res.push_str(" class=\"");
+            b.push_str(" class=\"");
             for (index, classname) in self.classes.iter().enumerate() {
                 if index > 0 {
-                    res.push(' ');
+                    b.push(' ');
                 }
-                res.push_str(classname);
+                b.push_str(classname);
             }
-            res.push('"');
+            b.push('"');
         }
         if !self.styles.is_empty() {
-            res.push_str(" style=\"");
+            b.push_str(" style=\"");
             for (key, value) in self.styles.iter() {
-                res.push_str(key);
-                res.push(':');
-                res.push_str(value);
-                res.push(';');
+                b.push_str(key);
+                b.push(':');
+                b.push_str(value);
+                b.push(';');
             }
-            res.push('"');
+            b.push('"');
         }
-        res
     }
 
-    pub fn open(&self) -> String {
-        self.opening() + ">"
+    pub fn render_open(&self, b: &mut RenderBuffer) {
+        self.render_opening(b);
+        b.push('>');
     }
 
-    pub fn close(&self) -> String {
-        format!("</{}>", self.name)
+    pub fn render_close(&self, b: &mut RenderBuffer) {
+        b.push_str("</");
+        b.push_str(self.name.as_ref());
+        b.push('>');
     }
 
-    pub fn closed(&self) -> String {
-        self.opening() + " />"
+    pub fn render_closed(&self, b: &mut RenderBuffer) {
+        self.render_opening(b);
+        b.push_str(" />");
     }
 
-    pub fn render<T: AsRef<str>>(&self, input: T) -> String {
-        self.open() + input.as_ref() + &self.close()
+    pub fn render_with<F>(&self, buf: &mut RenderBuffer, cb: F)
+    where
+        F: FnOnce(&mut RenderBuffer),
+    {
+        self.render_open(buf);
+        cb(buf);
+        self.render_close(buf);
+    }
+
+    pub fn render_text(&self, buf: &mut RenderBuffer, value: &str) {
+        self.render_open(buf);
+        buf.push_str(value);
+        self.render_close(buf);
     }
 }

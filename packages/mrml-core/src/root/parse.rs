@@ -61,26 +61,6 @@ impl crate::prelude::parser::AsyncParseChildren<Vec<RootChild>>
 impl super::Root {
     /// Function to parse a raw mjml template with some parsing
     /// [options](crate::prelude::parser::ParserOptions).
-    ///
-    /// You can specify the kind of loader mrml needs to use for loading the
-    /// content of [`mj-include`](crate::mj_include) elements.
-    ///
-    /// You can take a look at the available loaders
-    /// [here](crate::prelude::parser).
-    ///
-    /// ```rust
-    /// use mrml::root::Root;
-    /// use mrml::prelude::parser::ParserOptions;
-    /// use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
-    ///
-    /// let options = ParserOptions {
-    ///     include_loader: Box::new(MemoryIncludeLoader::default()),
-    /// };
-    /// match Root::parse_with_options("<mjml><mj-head /><mj-body /></mjml>", &options) {
-    ///     Ok(_) => println!("Success!"),
-    ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
-    /// }
-    /// ```
     pub(crate) fn parse_with_options<T: AsRef<str>>(
         value: T,
         opts: &ParserOptions,

@@ -1,22 +1,10 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
+use std::borrow::Cow;
 
 use super::{MjGroup, NAME};
-use crate::helper::condition::conditional_tag;
 use crate::helper::size::{Pixel, Size};
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct MjGroupRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjGroup,
-    container_width: Option<Pixel>,
-    siblings: usize,
-    raw_siblings: usize,
-}
-
-impl<'e, 'h> MjGroupRender<'e, 'h> {
+impl<'root> Renderer<'root, MjGroup, ()> {
     fn current_width(&self) -> Pixel {
         let parent_width = self.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
@@ -62,7 +50,11 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
         (classname.replace('.', "-"), parsed_width)
     }
 
-    fn set_style_root_div(&self, tag: Tag) -> Tag {
+    fn set_style_root_div<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("font-size", "0")
             .add_style("line-height", "0")
             .add_style("text-align", "left")
@@ -73,12 +65,16 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn set_style_td_outlook(&self, tag: Tag) -> Tag {
+    fn set_style_td_outlook<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
             .add_style("width", self.current_width().to_string())
     }
 
-    fn render_children(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let current_width = self.current_width();
         let siblings = self.element.children.len();
         let raw_siblings = self
@@ -87,56 +83,59 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
             .iter()
             .filter(|item| item.is_raw())
             .count();
-        self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                renderer.set_siblings(siblings);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_container_width(Some(current_width.clone()));
-                renderer.add_extra_attribute("mobile-width", "mobile-width");
-                let result = if child.is_raw() {
-                    renderer.render(opts)?
-                } else {
-                    let td = Tag::td()
-                        .maybe_add_style("align", renderer.attribute("align"))
-                        .maybe_add_style("vertical-align", renderer.attribute("vertical-align"))
-                        .maybe_add_style(
-                            "width",
-                            renderer
-                                .get_width()
-                                .map(|w| w.to_string())
-                                .or_else(|| renderer.attribute("width")),
-                        );
-                    conditional_tag(td.open())
-                        + &renderer.render(opts)?
-                        + &conditional_tag(td.close())
-                };
-                Ok(res + &result)
-            },
-        )
+
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(self.context());
+            renderer.set_index(index);
+            renderer.set_siblings(siblings);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_container_width(Some(current_width.clone()));
+            renderer.add_extra_attribute("mobile-width", "mobile-width");
+            if child.is_raw() {
+                renderer.render(cursor)?;
+            } else {
+                let td = Tag::td()
+                    .maybe_add_style("align", renderer.attribute("align"))
+                    .maybe_add_style("vertical-align", renderer.attribute("vertical-align"))
+                    .maybe_add_style(
+                        "width",
+                        renderer
+                            .get_width()
+                            .map(|w| Cow::Owned(w.to_string()))
+                            .or_else(|| renderer.attribute("width").map(Cow::Borrowed)),
+                    );
+
+                cursor.buffer.start_conditional_tag();
+                td.render_open(&mut cursor.buffer);
+                cursor.buffer.end_conditional_tag();
+                renderer.render(cursor)?;
+                cursor.buffer.start_conditional_tag();
+                td.render_close(&mut cursor.buffer);
+                cursor.buffer.end_conditional_tag();
+            }
+        }
+        Ok(())
     }
 }
 
-impl<'e, 'h> Render<'h> for MjGroupRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjGroup, ()> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
             _ => None,
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -155,18 +154,21 @@ impl<'e, 'h> Render<'h> for MjGroupRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn set_style(&self, name: &str, tag: Tag) -> Tag {
+    fn set_style<'a, 't>(&'a self, name: &str, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         match name {
             "td-outlook" => self.set_style_td_outlook(tag),
             _ => tag,
         }
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
-        self.header
-            .borrow_mut()
-            .add_media_query(classname.clone(), size);
+        cursor.header.add_media_query(classname.clone(), size);
+
         let div = self
             .set_style_root_div(Tag::div())
             .add_class(classname)
@@ -183,22 +185,29 @@ impl<'e, 'h> Render<'h> for MjGroupRender<'e, 'h> {
             }),
         );
         let tr = Tag::tr();
-        let content = conditional_tag(table.open() + &tr.open())
-            + &self.render_children(opts)?
-            + &conditional_tag(tr.close() + &table.close());
-        Ok(div.render(content))
+
+        div.render_open(&mut cursor.buffer);
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        self.render_children(cursor)?;
+        cursor.buffer.start_conditional_tag();
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        div.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjGroup {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjGroupRender::<'e, 'h> {
-            element: self,
-            header,
-            container_width: None,
-            siblings: 1,
-            raw_siblings: 0,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjGroup {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

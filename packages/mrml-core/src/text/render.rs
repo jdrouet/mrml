@@ -1,33 +1,26 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::Text;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct TextRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e Text,
-}
-
-impl<'e, 'h> Render<'h> for TextRender<'e, 'h> {
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+impl<'root> Render<'root> for Renderer<'root, Text, ()> {
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, _opts: &RenderOptions) -> Result<String, Error> {
-        Ok(self.element.0.clone())
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.buffer.push_str(self.element.inner_str());
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Text {
-    fn is_raw(&'e self) -> bool {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for Text {
+    fn is_raw(&'root self) -> bool {
         true
     }
 
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(TextRender::<'e, 'h> {
-            element: self,
-            header,
-        })
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }

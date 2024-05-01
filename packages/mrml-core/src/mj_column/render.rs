@@ -1,23 +1,13 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjColumn, NAME};
 use crate::helper::size::{Pixel, Size};
-use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct MjColumnRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjColumn,
-    // TODO change lifetime
-    extra: Map<String, String>,
-    container_width: Option<Pixel>,
-    siblings: usize,
-    raw_siblings: usize,
+struct MjColumnExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
 }
 
-impl<'e, 'h> MjColumnRender<'e, 'h> {
+impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
     fn current_width(&self) -> Option<Pixel> {
         let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
@@ -106,12 +96,20 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         }
     }
 
-    fn set_style_td_outlook(&self, tag: Tag) -> Tag {
+    fn set_style_td_outlook<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
             .add_style("width", self.get_width_as_pixel())
     }
 
-    fn set_style_root_div(&self, tag: Tag) -> Tag {
+    fn set_style_root_div<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("font-size", "0px")
             .add_style("text-align", "left")
             .maybe_add_style("direction", self.attribute("direction"))
@@ -120,7 +118,11 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("width", self.get_mobile_width().map(|v| v.to_string()))
     }
 
-    fn set_style_table_gutter(&self, tag: Tag) -> Tag {
+    fn set_style_table_gutter<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style(
             "background-color",
             self.attribute("inner-background-color")
@@ -158,7 +160,11 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         )
     }
 
-    fn set_style_table_simple(&self, tag: Tag) -> Tag {
+    fn set_style_table_simple<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
             .maybe_add_style("border", self.attribute("border"))
             .maybe_add_style("border-bottom", self.attribute("border-bottom"))
@@ -169,7 +175,11 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
     }
 
-    fn set_style_gutter_td(&self, tag: Tag) -> Tag {
+    fn set_style_gutter_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         self.set_style_table_simple(tag)
             .maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
@@ -178,15 +188,30 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn render_gutter(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_gutter(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = Tag::table_presentation().add_attribute("width", "100%");
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_gutter_td(Tag::td());
-        Ok(table.render(tbody.render(tr.render(td.render(self.render_column(opts)?)))))
+
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer);
+        self.render_column(cursor)?;
+        td.render_close(&mut cursor.buffer);
+        tr.render_close(&mut cursor.buffer);
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 
-    fn set_style_table(&self, tag: Tag) -> Tag {
+    fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         if self.has_gutter() {
             self.set_style_table_gutter(tag)
         } else {
@@ -194,7 +219,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         }
     }
 
-    fn render_column(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_column(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let table = self
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
@@ -202,44 +227,53 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
         let current_width = self.current_width();
-        let content = self.element.children.iter().enumerate().try_fold(
-            String::default(),
-            |res, (index, child)| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.set_index(index);
-                renderer.set_raw_siblings(raw_siblings);
-                renderer.set_siblings(siblings);
-                renderer.set_container_width(current_width.clone());
-                let result = if child.is_raw() {
-                    renderer.render(opts)?
-                } else {
-                    let tr = Tag::tr();
-                    let td = Tag::td()
-                        .maybe_add_style(
-                            "background",
-                            renderer.attribute("container-background-color"),
-                        )
-                        .add_style("font-size", "0px")
-                        .maybe_add_style("padding", renderer.attribute("padding"))
-                        .maybe_add_style("padding-top", renderer.attribute("padding-top"))
-                        .maybe_add_style("padding-right", renderer.attribute("padding-right"))
-                        .maybe_add_style("padding-bottom", renderer.attribute("padding-bottom"))
-                        .maybe_add_style("padding-left", renderer.attribute("padding-left"))
-                        .add_style("word-break", "break-word")
-                        .maybe_add_attribute("align", renderer.attribute("align"))
-                        .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
-                        .maybe_add_class(renderer.attribute("css-class"));
-                    tr.render(td.render(renderer.render(opts)?))
-                };
-                Ok(res + &result)
-            },
-        )?;
-        Ok(table.render(tbody.render(content)))
+
+        table.render_open(&mut cursor.buffer);
+        tbody.render_open(&mut cursor.buffer);
+
+        for (index, child) in self.element.children.iter().enumerate() {
+            let mut renderer = child.renderer(self.context());
+            renderer.set_index(index);
+            renderer.set_raw_siblings(raw_siblings);
+            renderer.set_siblings(siblings);
+            renderer.set_container_width(current_width.clone());
+            if child.is_raw() {
+                renderer.render(cursor)?;
+            } else {
+                let tr = Tag::tr();
+                let td = Tag::td()
+                    .maybe_add_style(
+                        "background",
+                        renderer.attribute("container-background-color"),
+                    )
+                    .add_style("font-size", "0px")
+                    .maybe_add_style("padding", renderer.attribute("padding"))
+                    .maybe_add_style("padding-top", renderer.attribute("padding-top"))
+                    .maybe_add_style("padding-right", renderer.attribute("padding-right"))
+                    .maybe_add_style("padding-bottom", renderer.attribute("padding-bottom"))
+                    .maybe_add_style("padding-left", renderer.attribute("padding-left"))
+                    .add_style("word-break", "break-word")
+                    .maybe_add_attribute("align", renderer.attribute("align"))
+                    .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
+                    .maybe_add_class(renderer.attribute("css-class"));
+
+                tr.render_open(&mut cursor.buffer);
+                td.render_open(&mut cursor.buffer);
+                renderer.render(cursor)?;
+                td.render_close(&mut cursor.buffer);
+                tr.render_close(&mut cursor.buffer);
+            }
+        }
+
+        tbody.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 }
 
-impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra<'root>> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
             "vertical-align" => Some("top"),
@@ -251,24 +285,24 @@ impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
         self.current_width().map(Size::Pixel)
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn extra_attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.extra)
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
@@ -283,42 +317,50 @@ impl<'e, 'h> Render<'h> for MjColumnRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn set_style(&self, name: &str, tag: Tag) -> Tag {
+    fn set_style<'a, 't>(&'a self, name: &str, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         match name {
             "td-outlook" => self.set_style_td_outlook(tag),
             _ => tag,
         }
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let (classname, size) = self.get_column_class();
-        self.header
-            .borrow_mut()
-            .add_media_query(classname.clone(), size);
+        cursor.header.add_media_query(classname.clone(), size);
+
         let div = self
             .set_style_root_div(Tag::div())
             .add_class("mj-outlook-group-fix")
             .add_class(classname)
             .maybe_add_class(self.attribute("css-class"));
-        let content = if self.has_gutter() {
-            self.render_gutter(opts)?
+
+        div.render_open(&mut cursor.buffer);
+        if self.has_gutter() {
+            self.render_gutter(cursor)?;
         } else {
-            self.render_column(opts)?
-        };
-        Ok(div.render(content))
+            self.render_column(cursor)?;
+        }
+        div.render_close(&mut cursor.buffer);
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjColumn {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjColumnRender::<'e, 'h> {
-            element: self,
-            header,
-            container_width: None,
-            extra: Map::new(),
-            siblings: 1,
-            raw_siblings: 0,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjColumn {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(
+            context,
+            self,
+            MjColumnExtra {
+                attributes: Map::new(),
+            },
+        ))
     }
 }
 

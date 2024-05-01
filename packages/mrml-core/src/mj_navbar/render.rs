@@ -1,39 +1,35 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjNavbar, MjNavbarChild, NAME};
-use crate::helper::condition::{conditional_tag, mso_negation_conditional_tag};
 use crate::helper::size::{Pixel, Size};
-use crate::helper::tag::Tag;
-use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjNavbarChild {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
         match self {
-            Self::MjNavbarLink(elt) => elt.renderer(header),
-            Self::Comment(elt) => elt.renderer(header),
+            Self::MjNavbarLink(elt) => elt.renderer(context),
+            Self::Comment(elt) => elt.renderer(context),
         }
     }
 }
 
-struct MjNavbarRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjNavbar,
-    container_width: Option<Pixel>,
-    siblings: usize,
-    raw_siblings: usize,
+struct MjNavbarExtra {
     id: String,
 }
 
-impl<'e, 'h> MjNavbarRender<'e, 'h> {
-    fn set_style_input(&self, tag: Tag) -> Tag {
+impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
+    fn set_style_input<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "none !important")
             .add_style("max-height", "0")
             .add_style("visibility", "hidden")
     }
 
-    fn set_style_label(&self, tag: Tag) -> Tag {
+    fn set_style_label<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("display", "block")
             .add_style("cursor", "pointer")
             .add_style("mso-hide", "all")
@@ -52,7 +48,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .maybe_add_style("padding", self.attribute("ico-padding"))
     }
 
-    fn set_style_trigger(&self, tag: Tag) -> Tag {
+    fn set_style_trigger<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "none")
             .add_style("max-height", "0px")
             .add_style("max-width", "0px")
@@ -60,12 +56,12 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .add_style("overflow", "hidden")
     }
 
-    fn set_style_ico_close(&self, tag: Tag) -> Tag {
+    fn set_style_ico_close<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("display", "none")
             .add_style("mso-hide", "all")
     }
 
-    fn set_style_ico_open(&self, tag: Tag) -> Tag {
+    fn set_style_ico_open<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("mso-hide", "all")
     }
 
@@ -81,11 +77,11 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .is_some()
     }
 
-    fn render_hamburger(&self) -> String {
+    fn render_hamburger(&self, buf: &mut RenderBuffer) {
         let input = self
             .set_style_input(Tag::new("input"))
             .add_class("mj-menu-checkbox")
-            .add_attribute("id", self.id.clone())
+            .add_attribute("id", self.extra.id.clone())
             .add_attribute("type", "checkbox");
         let div = self
             .set_style_trigger(Tag::div())
@@ -94,21 +90,38 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .set_style_label(Tag::new("label"))
             .maybe_add_attribute("align", self.attribute("ico-align"))
             .add_class("mj-menu-label")
-            .add_attribute("for", self.id.clone());
+            .add_attribute("for", self.extra.id.clone());
         let span_open = self
             .set_style_ico_open(Tag::new("span"))
             .add_class("mj-menu-icon-open");
         let span_close = self
             .set_style_ico_close(Tag::new("span"))
             .add_class("mj-menu-icon-close");
-        let content = span_open.render(self.attribute("ico-open").unwrap_or_default())
-            + &span_close.render(self.attribute("ico-close").unwrap_or_default());
-        let content = div.render(label.render(content));
-        mso_negation_conditional_tag(input.closed()) + &content
+
+        buf.start_mso_negation_conditional_tag();
+        input.render_closed(buf);
+        buf.end_negation_conditional_tag();
+
+        div.render_open(buf);
+        label.render_open(buf);
+
+        span_open.render_open(buf);
+        if let Some(attr) = self.attribute("ico-open") {
+            buf.push_str(attr);
+        }
+        span_open.render_close(buf);
+        span_close.render_open(buf);
+        if let Some(attr) = self.attribute("ico-close") {
+            buf.push_str(attr);
+        }
+        span_close.render_close(buf);
+
+        label.render_close(buf);
+        div.render_close(buf);
     }
 
-    fn update_header(&self) {
-        let style = format!(
+    fn render_style(&self) -> String {
+        format!(
             r#"
         noinput.mj-menu-checkbox {{ display:block!important; max-height:none!important; visibility:visible!important; }}
         @media only screen and (max-width:{}) {{
@@ -120,14 +133,13 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
         }}
         "#,
-            self.header.borrow().breakpoint().lower().to_string()
-        );
-        self.header.borrow_mut().add_style(style);
+            self.context.header.breakpoint().lower().to_string()
+        )
     }
 }
 
-impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
-    fn default_attribute(&self, name: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjNavbar, MjNavbarExtra> {
+    fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
             "ico-align" => Some("center"),
@@ -144,16 +156,16 @@ impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
         }
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
     fn get_width(&self) -> Option<Size> {
@@ -174,43 +186,47 @@ impl<'e, 'h> Render<'h> for MjNavbarRender<'e, 'h> {
         self.raw_siblings = value;
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        self.update_header();
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        cursor.header.add_style(self.render_style());
+
         let div = Tag::div().add_class("mj-inline-links");
         let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
         let tr = Tag::tr();
         let base_url = self.attribute("base-url");
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let mut renderer = child.renderer(Rc::clone(&self.header));
-                renderer.maybe_add_extra_attribute("navbar-base-url", base_url.clone());
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        let before = conditional_tag(table.open() + &tr.open());
-        let after = conditional_tag(tr.close() + &table.close());
-        let content = div.render(before + &content + &after);
+
         if self.has_hamburger() {
-            Ok(self.render_hamburger() + &content)
-        } else {
-            Ok(content)
+            self.render_hamburger(&mut cursor.buffer);
         }
+
+        div.render_open(&mut cursor.buffer);
+        cursor.buffer.start_conditional_tag();
+        table.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+
+        for child in self.element.children.iter() {
+            let mut renderer = child.renderer(self.context());
+            renderer.maybe_add_extra_attribute("navbar-base-url", base_url);
+            renderer.render(cursor)?;
+        }
+
+        cursor.buffer.start_conditional_tag();
+        tr.render_close(&mut cursor.buffer);
+        table.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        div.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        let id = header.borrow().next_id();
-        Box::new(MjNavbarRender::<'e, 'h> {
-            element: self,
-            header,
-            id,
-            container_width: None,
-            siblings: 1,
-            raw_siblings: 0,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjNavbar {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        let id = context.generator.next_id();
+        Box::new(Renderer::new(context, self, MjNavbarExtra { id }))
     }
 }
 

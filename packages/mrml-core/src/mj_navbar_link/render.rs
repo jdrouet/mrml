@@ -1,22 +1,26 @@
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
-
 use super::{MjNavbarLink, NAME};
-use crate::helper::condition::conditional_tag;
 use crate::helper::size::Pixel;
-use crate::helper::tag::Tag;
 use crate::prelude::hash::Map;
-use crate::prelude::render::{Error, Header, Render, RenderOptions, Renderable};
+use crate::prelude::render::*;
 
-struct MjNavbarLinkRender<'e, 'h> {
-    header: Rc<RefCell<Header<'h>>>,
-    element: &'e MjNavbarLink,
-    extra: Map<String, String>,
-    container_width: Option<Pixel>,
+struct MjNavbarLinkExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
 }
 
-impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
-    fn set_style_a(&self, tag: Tag) -> Tag {
+impl<'a> Default for MjNavbarLinkExtra<'a> {
+    fn default() -> Self {
+        Self {
+            attributes: Map::new(),
+        }
+    }
+}
+
+impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'root>> {
+    fn set_style_a<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.add_style("display", "inline-block")
             .maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
@@ -34,7 +38,11 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
     }
 
-    fn set_style_td(&self, tag: Tag) -> Tag {
+    fn set_style_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    where
+        'root: 'a,
+        'a: 't,
+    {
         tag.maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
             .maybe_add_style("padding-right", self.attribute("padding-right"))
@@ -50,7 +58,7 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
         })
     }
 
-    fn render_content(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let link = self
             .set_style_a(Tag::new("a"))
             .add_class("mj-link")
@@ -59,20 +67,20 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
             .maybe_add_attribute("rel", self.attribute("rel"))
             .maybe_add_attribute("target", self.attribute("target"))
             .maybe_add_attribute("name", self.attribute("name"));
-        let content = self
-            .element
-            .children
-            .iter()
-            .try_fold(String::default(), |res, child| {
-                let renderer = child.renderer(Rc::clone(&self.header));
-                Ok(res + &renderer.render(opts)?)
-            })?;
-        Ok(link.render(content))
+
+        link.render_open(&mut cursor.buffer);
+        for child in self.element.children.iter() {
+            let renderer = child.renderer(self.context());
+            renderer.render(cursor)?;
+        }
+        link.render_close(&mut cursor.buffer);
+
+        Ok(())
     }
 }
 
-impl<'e, 'h> Render<'h> for MjNavbarLinkRender<'e, 'h> {
-    fn default_attribute(&self, key: &str) -> Option<&str> {
+impl<'root> Render<'root> for Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'root>> {
+    fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "color" => Some("#000000"),
             "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif"),
@@ -87,16 +95,16 @@ impl<'e, 'h> Render<'h> for MjNavbarLinkRender<'e, 'h> {
         }
     }
 
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
-    fn extra_attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.extra)
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
-    fn attributes(&self) -> Option<&Map<String, String>> {
-        Some(&self.element.attributes)
+    fn raw_attribute(&self, key: &str) -> Option<&'root str> {
+        self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn tag(&self) -> Option<&str> {
@@ -107,29 +115,35 @@ impl<'e, 'h> Render<'h> for MjNavbarLinkRender<'e, 'h> {
         self.container_width = width;
     }
 
-    fn header(&self) -> Ref<Header<'h>> {
-        self.header.borrow()
+    fn context(&self) -> &'root RenderContext<'root> {
+        self.context
     }
 
-    fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
+    fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let font_families = self.attribute("font-family");
-        self.header
-            .borrow_mut()
-            .maybe_add_font_families(font_families);
+        cursor.header.maybe_add_font_families(font_families);
+
         let td = self
             .set_style_td(Tag::td())
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
-        Ok(conditional_tag(td.open()) + &self.render_content(opts)? + &conditional_tag(td.close()))
+
+        cursor.buffer.start_conditional_tag();
+        td.render_open(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+        self.render_content(cursor)?;
+        cursor.buffer.start_conditional_tag();
+        td.render_close(&mut cursor.buffer);
+        cursor.buffer.end_conditional_tag();
+
+        Ok(())
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarLink {
-    fn renderer(&'e self, header: Rc<RefCell<Header<'h>>>) -> Box<dyn Render<'h> + 'r> {
-        Box::new(MjNavbarLinkRender::<'e, 'h> {
-            element: self,
-            header,
-            extra: Map::new(),
-            container_width: None,
-        })
+impl<'render, 'root: 'render> Renderable<'render, 'root> for MjNavbarLink {
+    fn renderer(
+        &'root self,
+        context: &'root RenderContext<'root>,
+    ) -> Box<dyn Render<'root> + 'render> {
+        Box::new(Renderer::new(context, self, MjNavbarLinkExtra::default()))
     }
 }
