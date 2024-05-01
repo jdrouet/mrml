@@ -3,58 +3,96 @@ use std::convert::TryFrom;
 use crate::helper::size::Pixel;
 
 /// representation of spacing
-pub struct Spacing {
-    top: Pixel,
-    right: Option<Pixel>,
-    bottom: Option<Pixel>,
-    left: Option<Pixel>,
+pub enum Spacing {
+    Single(Pixel),
+    Two(Pixel, Pixel),
+    Three(Pixel, Pixel, Pixel),
+    Four(Pixel, Pixel, Pixel, Pixel),
 }
 
 impl Spacing {
     pub fn top(&self) -> &Pixel {
-        &self.top
+        match self {
+            Self::Single(top) => top,
+            Self::Two(vertical, _horizontal) => vertical,
+            Self::Three(top, _horizontal, _bottom) => top,
+            Self::Four(top, _right, _bottom, _left) => top,
+        }
     }
 
     pub fn into_top(self) -> Pixel {
-        self.top
+        match self {
+            Self::Single(top) => top,
+            Self::Two(vertical, _horizontal) => vertical,
+            Self::Three(top, _horizontal, _bottom) => top,
+            Self::Four(top, _right, _bottom, _left) => top,
+        }
     }
 
     pub fn right(&self) -> &Pixel {
-        self.right.as_ref().unwrap_or_else(|| self.top())
+        match self {
+            Self::Single(top) => top,
+            Self::Two(_vertical, horizontal) => horizontal,
+            Self::Three(_top, horizontal, _bottom) => horizontal,
+            Self::Four(_top, right, _bottom, _left) => right,
+        }
     }
 
     pub fn into_right(self) -> Pixel {
-        if let Some(v) = self.right {
-            v
-        } else {
-            self.into_top()
+        match self {
+            Self::Single(top) => top,
+            Self::Two(_vertical, horizontal) => horizontal,
+            Self::Three(_top, horizontal, _bottom) => horizontal,
+            Self::Four(_top, right, _bottom, _left) => right,
         }
     }
 
     pub fn bottom(&self) -> &Pixel {
-        self.bottom.as_ref().unwrap_or_else(|| self.top())
+        match self {
+            Self::Single(top) => top,
+            Self::Two(vertical, _horizontal) => vertical,
+            Self::Three(_top, _horizontal, bottom) => bottom,
+            Self::Four(_top, _right, bottom, _left) => bottom,
+        }
     }
 
     pub fn into_bottom(self) -> Pixel {
-        if let Some(v) = self.bottom {
-            v
-        } else {
-            self.into_top()
+        match self {
+            Self::Single(top) => top,
+            Self::Two(vertical, _horizontal) => vertical,
+            Self::Three(_top, _horizontal, bottom) => bottom,
+            Self::Four(_top, _right, bottom, _left) => bottom,
         }
     }
 
     pub fn left(&self) -> &Pixel {
-        self.left
-            .as_ref()
-            .or_else(|| Some(self.right()))
-            .unwrap_or_else(|| self.top())
+        match self {
+            Self::Single(top) => top,
+            Self::Two(_vertical, horizontal) => horizontal,
+            Self::Three(_top, horizontal, _bottom) => horizontal,
+            Self::Four(_top, _right, _bottom, left) => left,
+        }
     }
 
     pub fn into_left(self) -> Pixel {
-        if let Some(v) = self.left {
-            v
-        } else {
-            self.into_right()
+        match self {
+            Self::Single(top) => top,
+            Self::Two(_vertical, horizontal) => horizontal,
+            Self::Three(_top, horizontal, _bottom) => horizontal,
+            Self::Four(_top, _right, _bottom, left) => left,
+        }
+    }
+}
+
+impl std::fmt::Display for Spacing {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Single(first) => write!(f, "{first}"),
+            Self::Two(first, second) => write!(f, "{first} {second}"),
+            Self::Three(first, second, third) => write!(f, "{first} {second} {third}"),
+            Self::Four(first, second, third, fourth) => {
+                write!(f, "{first} {second} {third} {fourth}")
+            }
         }
     }
 }
@@ -64,28 +102,29 @@ impl TryFrom<&str> for Spacing {
 
     fn try_from(input: &str) -> Result<Self, Self::Error> {
         let mut sections = input.split(' ');
-        let top = match sections.next() {
-            Some(value) => Pixel::try_from(value)?,
-            None => return Err(String::from("no value provided")),
-        };
-        let right = match sections.next() {
-            Some(value) => Some(Pixel::try_from(value)?),
-            None => None,
-        };
-        let bottom = match sections.next() {
-            Some(value) => Some(Pixel::try_from(value)?),
-            None => None,
-        };
-        let left = match sections.next() {
-            Some(value) => Some(Pixel::try_from(value)?),
-            None => None,
-        };
-        Ok(Spacing {
-            top,
-            right,
-            bottom,
-            left,
-        })
+        match (
+            sections.next(),
+            sections.next(),
+            sections.next(),
+            sections.next(),
+        ) {
+            (Some(first), None, None, None) => Ok(Self::Single(Pixel::try_from(first)?)),
+            (Some(first), Some(second), None, None) => {
+                Ok(Self::Two(Pixel::try_from(first)?, Pixel::try_from(second)?))
+            }
+            (Some(first), Some(second), Some(third), None) => Ok(Self::Three(
+                Pixel::try_from(first)?,
+                Pixel::try_from(second)?,
+                Pixel::try_from(third)?,
+            )),
+            (Some(first), Some(second), Some(third), Some(four)) => Ok(Self::Four(
+                Pixel::try_from(first)?,
+                Pixel::try_from(second)?,
+                Pixel::try_from(third)?,
+                Pixel::try_from(four)?,
+            )),
+            _ => Err(String::from("no value provided")),
+        }
     }
 }
 

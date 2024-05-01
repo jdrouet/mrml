@@ -133,7 +133,7 @@ impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
           .mj-menu-checkbox[type="checkbox"]:checked ~ .mj-menu-trigger .mj-menu-icon-open {{ display:none!important; }}
         }}
         "#,
-            self.context.header.breakpoint().lower().to_string()
+            self.context.header.breakpoint().lower()
         )
     }
 }

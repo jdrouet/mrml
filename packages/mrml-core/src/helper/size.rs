@@ -80,6 +80,46 @@ impl ToString for Size {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+pub struct Percent(f32);
+
+impl Percent {
+    pub fn new(value: f32) -> Self {
+        Self(value)
+    }
+
+    pub fn value(&self) -> f32 {
+        self.0
+    }
+}
+
+impl TryFrom<&str> for Percent {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if let Some(value) = value.strip_suffix('%') {
+            value
+                .parse::<f32>()
+                .map(Percent::new)
+                .map_err(|err| err.to_string())
+        } else {
+            Err(String::from("percent value should end with %"))
+        }
+    }
+}
+
+impl Default for Percent {
+    fn default() -> Self {
+        Self(0.0)
+    }
+}
+
+impl ToString for Percent {
+    fn to_string(&self) -> String {
+        format!("{}%", self.0)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct Pixel(f32);
 
 impl Pixel {
@@ -128,48 +168,8 @@ impl Default for Pixel {
     }
 }
 
-impl ToString for Pixel {
-    fn to_string(&self) -> String {
-        format!("{}px", self.0)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct Percent(f32);
-
-impl Percent {
-    pub fn new(value: f32) -> Self {
-        Self(value)
-    }
-
-    pub fn value(&self) -> f32 {
-        self.0
-    }
-}
-
-impl TryFrom<&str> for Percent {
-    type Error = String;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        if let Some(value) = value.strip_suffix('%') {
-            value
-                .parse::<f32>()
-                .map(Percent::new)
-                .map_err(|err| err.to_string())
-        } else {
-            Err(String::from("percent value should end with %"))
-        }
-    }
-}
-
-impl Default for Percent {
-    fn default() -> Self {
-        Self(0.0)
-    }
-}
-
-impl ToString for Percent {
-    fn to_string(&self) -> String {
-        format!("{}%", self.0)
+impl std::fmt::Display for Pixel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}px", self.0)
     }
 }

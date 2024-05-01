@@ -122,7 +122,7 @@ impl<'root> Renderer<'root, MjImage, ()> {
                 td.mj-full-width-mobile {{ width: auto !important; }}
             }}
             "#,
-            self.context.header.breakpoint().lower().to_string(),
+            self.context.header.breakpoint().lower(),
         )
     }
 }
