@@ -2,13 +2,12 @@ use super::{MjImage, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-struct MjImageRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjImage,
+#[derive(Default)]
+struct MjImageExtra {
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> MjImageRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjImage, MjImageExtra> {
     fn is_fluid_on_mobile(&self) -> bool {
         self.attribute("fluid-on-mobile")
             .and_then(|value| value.parse::<bool>().ok())
@@ -20,7 +19,7 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
     }
 
     fn get_box_width(&self) -> Option<Pixel> {
-        self.container_width.as_ref().map(|width| {
+        self.extra.container_width.as_ref().map(|width| {
             let hborder = self.get_border_horizontal();
             let hpadding = self.get_padding_horizontal();
             Pixel::new(width.value() - hborder.value() - hpadding.value())
@@ -129,7 +128,9 @@ impl<'e, 'h> MjImageRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjImage, MjImageExtra>
+{
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
@@ -142,7 +143,7 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -151,10 +152,10 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -195,11 +196,7 @@ impl<'e, 'h> Render<'e, 'h> for MjImageRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjImageRender::<'e, 'h> {
-            element: self,
-            context,
-            container_width: None,
-        })
+        Box::new(Renderer::new(context, self, MjImageExtra::default()))
     }
 }
 

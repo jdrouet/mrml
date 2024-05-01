@@ -4,12 +4,7 @@ use super::MjBody;
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-struct MjBodyRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjBody,
-}
-
-impl<'e, 'h> MjBodyRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjBody, ()> {
     fn get_width(&self) -> Option<Pixel> {
         self.attribute("width")
             .and_then(|value| Pixel::try_from(value.as_str()).ok())
@@ -61,8 +56,8 @@ impl<'e, 'h> MjBodyRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjBody, ()> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -73,7 +68,7 @@ impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
         }
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -87,12 +82,12 @@ impl<'e, 'h> Render<'e, 'h> for MjBodyRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjBody {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjBodyRender::<'e, 'h> {
-            element: self,
-            context,
-        })
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjBody {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

@@ -11,16 +11,25 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarChild {
     }
 }
 
-struct MjNavbarRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjNavbar,
+struct MjNavbarExtra {
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
     id: String,
 }
 
-impl<'e, 'h> MjNavbarRender<'e, 'h> {
+impl MjNavbarExtra {
+    fn new(siblings: usize, raw_siblings: usize, id: String) -> Self {
+        Self {
+            container_width: None,
+            siblings,
+            raw_siblings,
+            id,
+        }
+    }
+}
+
+impl<'element, 'header> Renderer<'element, 'header, MjNavbar, MjNavbarExtra> {
     fn set_style_input<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none !important")
             .add_style("max-height", "0")
@@ -79,7 +88,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
         let input = self
             .set_style_input(Tag::new("input"))
             .add_class("mj-menu-checkbox")
-            .add_attribute("id", self.id.clone())
+            .add_attribute("id", self.extra.id.clone())
             .add_attribute("type", "checkbox");
         let div = self
             .set_style_trigger(Tag::div())
@@ -88,7 +97,7 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
             .set_style_label(Tag::new("label"))
             .maybe_add_attribute("align", self.attribute("ico-align"))
             .add_class("mj-menu-label")
-            .add_attribute("for", self.id.clone());
+            .add_attribute("for", self.extra.id.clone());
         let span_open = self
             .set_style_ico_open(Tag::new("span"))
             .add_class("mj-menu-icon-open");
@@ -136,7 +145,9 @@ impl<'e, 'h> MjNavbarRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjNavbar, MjNavbarExtra>
+{
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
@@ -154,7 +165,7 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -162,26 +173,27 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.container_width
+        self.extra
+            .container_width
             .as_ref()
             .map(|w| Size::Pixel(w.clone()))
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.siblings = value;
+        self.extra.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.raw_siblings = value;
+        self.extra.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -221,14 +233,7 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarRender<'e, 'h> {
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbar {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
         let id = context.generator.next_id();
-        Box::new(MjNavbarRender::<'e, 'h> {
-            element: self,
-            context,
-            id,
-            container_width: None,
-            siblings: 1,
-            raw_siblings: 0,
-        })
+        Box::new(Renderer::new(context, self, MjNavbarExtra::new(1, 0, id)))
     }
 }
 

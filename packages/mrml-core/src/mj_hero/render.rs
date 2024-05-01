@@ -2,19 +2,27 @@ use super::{MjHero, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-struct MjHeroRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjHero,
+struct MjHeroExtra {
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MjHeroRender<'e, 'h> {
+impl MjHeroExtra {
+    fn new(siblings: usize, raw_siblings: usize) -> Self {
+        Self {
+            container_width: None,
+            siblings,
+            raw_siblings,
+        }
+    }
+}
+
+impl<'element, 'header> Renderer<'element, 'header, MjHero, MjHeroExtra> {
     fn set_style_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0 auto").maybe_add_style(
             "max-width",
-            self.container_width.as_ref().map(|w| w.to_string()),
+            self.extra.container_width.as_ref().map(|w| w.to_string()),
         )
     }
 
@@ -42,7 +50,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
     fn set_style_outlook_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style(
             "width",
-            self.container_width.as_ref().map(|w| w.to_string()),
+            self.extra.container_width.as_ref().map(|w| w.to_string()),
         )
     }
 
@@ -79,7 +87,7 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .maybe_add_style(
                 "width",
                 self.attribute("background-width")
-                    .or_else(|| self.container_width.as_ref().map(|w| w.to_string())),
+                    .or_else(|| self.extra.container_width.as_ref().map(|w| w.to_string())),
             )
             .add_style("z-index", "-3")
     }
@@ -165,7 +173,10 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
             .maybe_add_attribute("align", self.attribute("align"))
             .maybe_add_attribute(
                 "width",
-                self.container_width.as_ref().map(|w| w.value().to_string()),
+                self.extra
+                    .container_width
+                    .as_ref()
+                    .map(|w| w.value().to_string()),
             );
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -249,7 +260,9 @@ impl<'e, 'h> MjHeroRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjHero, MjHeroExtra>
+{
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-color" => Some("#ffffff"),
@@ -262,7 +275,7 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -270,20 +283,20 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.siblings = value;
+        self.extra.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.raw_siblings = value;
+        self.extra.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -292,7 +305,10 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
             .add_attribute("align", "center")
             .maybe_add_attribute(
                 "width",
-                self.container_width.as_ref().map(|v| v.value().to_string()),
+                self.extra
+                    .container_width
+                    .as_ref()
+                    .map(|v| v.value().to_string()),
             );
         let outlook_tr = Tag::tr();
         let outlook_td = self.set_style_outlook_td(Tag::td());
@@ -339,13 +355,7 @@ impl<'e, 'h> Render<'e, 'h> for MjHeroRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjHero {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjHeroRender::<'e, 'h> {
-            element: self,
-            context,
-            container_width: None,
-            siblings: 1,
-            raw_siblings: 0,
-        })
+        Box::new(Renderer::new(context, self, MjHeroExtra::new(1, 0)))
     }
 }
 

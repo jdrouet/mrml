@@ -3,15 +3,17 @@ use crate::helper::size::Pixel;
 use crate::mj_section::WithMjSectionBackground;
 use crate::prelude::render::*;
 
-struct MjTableRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjTable,
+#[derive(Default)]
+struct MjTableExtra {
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> WithMjSectionBackground<'e, 'h> for MjTableRender<'e, 'h> {}
+impl<'element, 'header> WithMjSectionBackground<'element, 'header>
+    for Renderer<'element, 'header, MjTable, MjTableExtra>
+{
+}
 
-impl<'e, 'h> MjTableRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjTable, MjTableExtra> {
     fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
@@ -23,7 +25,9 @@ impl<'e, 'h> MjTableRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjTable, MjTableExtra>
+{
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("left"),
@@ -41,7 +45,7 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -49,12 +53,12 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -78,13 +82,12 @@ impl<'e, 'h> Render<'e, 'h> for MjTableRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjTable {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjTableRender::<'e, 'h> {
-            element: self,
-            context,
-            container_width: None,
-        })
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjTable {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        Box::new(Renderer::new(context, self, MjTableExtra::default()))
     }
 }
 

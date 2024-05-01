@@ -1,12 +1,7 @@
 use crate::prelude::render::*;
 
-pub(crate) struct RootRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e super::Root,
-}
-
-impl<'e, 'h> Render<'e, 'h> for RootRender<'e, 'h> {
-    fn context(&self) -> &'h RenderContext<'h> {
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, super::Root, ()> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -23,9 +18,6 @@ impl<'e, 'h> Render<'e, 'h> for RootRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for super::Root {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(RootRender::<'e, 'h> {
-            element: self,
-            context,
-        })
+        Box::new(Renderer::new(context, self, ()))
     }
 }

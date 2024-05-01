@@ -2,13 +2,8 @@ use super::Mjml;
 use crate::mj_head::MjHead;
 use crate::prelude::render::*;
 
-pub struct MjmlRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e Mjml,
-}
-
-impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
-    fn context(&self) -> &'h RenderContext<'h> {
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, Mjml, ()> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -41,10 +36,7 @@ impl<'e, 'h> Render<'e, 'h> for MjmlRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Mjml {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjmlRender::<'e, 'h> {
-            element: self,
-            context,
-        })
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

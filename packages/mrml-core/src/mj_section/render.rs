@@ -12,7 +12,7 @@ fn is_vertical_position(value: &str) -> bool {
     value == "top" || value == "bottom" || value == "center"
 }
 
-pub trait WithMjSectionBackground<'e, 'h>: Render<'e, 'h> {
+pub trait WithMjSectionBackground<'element, 'header>: Render<'element, 'header> {
     fn has_background(&self) -> bool {
         self.attribute_exists("background-url")
     }
@@ -191,7 +191,7 @@ pub trait WithMjSectionBackground<'e, 'h>: Render<'e, 'h> {
     }
 }
 
-pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
+pub trait SectionLikeRender<'element, 'header>: WithMjSectionBackground<'element, 'header> {
     fn container_width(&self) -> &Option<Pixel>;
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild>;
 
@@ -479,24 +479,30 @@ pub trait SectionLikeRender<'e, 'h>: WithMjSectionBackground<'e, 'h> {
     }
 }
 
-struct MjSectionRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjSection,
+#[derive(Default)]
+struct MjSectionExtra {
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> WithMjSectionBackground<'e, 'h> for MjSectionRender<'e, 'h> {}
-impl<'e, 'h> SectionLikeRender<'e, 'h> for MjSectionRender<'e, 'h> {
+impl<'element, 'header> WithMjSectionBackground<'element, 'header>
+    for Renderer<'element, 'header, MjSection, MjSectionExtra>
+{
+}
+impl<'element, 'header> SectionLikeRender<'element, 'header>
+    for Renderer<'element, 'header, MjSection, MjSectionExtra>
+{
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
         &self.element.children
     }
 
     fn container_width(&self) -> &Option<Pixel> {
-        &self.container_width
+        &self.extra.container_width
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjSectionRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjSection, MjSectionExtra>
+{
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-position" => Some("top center"),
@@ -510,7 +516,7 @@ impl<'e, 'h> Render<'e, 'h> for MjSectionRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -518,12 +524,12 @@ impl<'e, 'h> Render<'e, 'h> for MjSectionRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -537,11 +543,7 @@ impl<'e, 'h> Render<'e, 'h> for MjSectionRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjSectionRender::<'e, 'h> {
-            element: self,
-            context,
-            container_width: None,
-        })
+        Box::new(Renderer::new(context, self, MjSectionExtra::default()))
     }
 }
 

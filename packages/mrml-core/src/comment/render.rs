@@ -1,12 +1,7 @@
 use super::Comment;
 use crate::prelude::render::*;
 
-struct CommentRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e Comment,
-}
-
-impl<'e, 'h> Render<'e, 'h> for CommentRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, Comment, ()> {
     fn context(&self) -> &'h RenderContext<'h> {
         self.context
     }
@@ -27,10 +22,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Comment {
     }
 
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(CommentRender::<'e, 'h> {
-            element: self,
-            context,
-        })
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

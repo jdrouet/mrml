@@ -2,13 +2,14 @@ use super::{MjSpacer, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-struct MjSpacerRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjSpacer,
+#[derive(Default)]
+struct MjSpacerExtra {
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjSpacer, MjSpacerExtra>
+{
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "height" => Some("20px"),
@@ -16,7 +17,7 @@ impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -25,10 +26,10 @@ impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -43,11 +44,7 @@ impl<'e, 'h> Render<'e, 'h> for MjSpacerRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSpacer {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjSpacerRender::<'e, 'h> {
-            element: self,
-            context,
-            container_width: None,
-        })
+        Box::new(Renderer::new(context, self, MjSpacerExtra::default()))
     }
 }
 

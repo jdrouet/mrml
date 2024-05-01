@@ -16,13 +16,11 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "icon-unwrapped-alt",
 ];
 
-struct MjAccordionElementRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjAccordionElement,
-    extra: Map<String, String>,
+struct MjAccordionElementExtra {
+    attributes: Map<String, String>,
 }
 
-impl<'e, 'h> MjAccordionElementRender<'e, 'h> {
+impl<'e, 'h> Renderer<'e, 'h, MjAccordionElement, MjAccordionElementExtra> {
     fn render_title(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(self.context());
@@ -65,13 +63,15 @@ impl<'e, 'h> MjAccordionElementRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjAccordionElementRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionElement, MjAccordionElementExtra> {
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+        self.extra
+            .attributes
+            .insert(key.to_string(), value.to_string());
     }
 
     fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.get(key).map(|v| v.as_str())
+        self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'e str> {
@@ -120,11 +120,13 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionElementRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionElement {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjAccordionElementRender::<'e, 'h> {
-            element: self,
+        Box::new(Renderer::new(
             context,
-            extra: Map::new(),
-        })
+            self,
+            MjAccordionElementExtra {
+                attributes: Map::new(),
+            },
+        ))
     }
 }
 

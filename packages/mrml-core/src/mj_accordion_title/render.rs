@@ -2,13 +2,11 @@ use super::{MjAccordionTitle, NAME};
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjAccordionTitleRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjAccordionTitle,
-    extra: Map<String, String>,
+struct MjAccordionTitleExtra {
+    attributes: Map<String, String>,
 }
 
-impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjAccordionTitle, MjAccordionTitleExtra> {
     fn set_style_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "none")
             .maybe_add_style("width", self.attribute("icon-width"))
@@ -65,13 +63,17 @@ impl<'e, 'h> MjAccordionTitleRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjAccordionTitle, MjAccordionTitleExtra>
+{
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+        self.extra
+            .attributes
+            .insert(key.to_string(), value.to_string());
     }
 
     fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.get(key).map(|v| v.as_str())
+        self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
@@ -82,7 +84,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -90,7 +92,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -129,12 +131,17 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTitleRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionTitle {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjAccordionTitleRender::<'e, 'h> {
-            element: self,
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjAccordionTitle {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        Box::new(Renderer::new(
             context,
-            extra: Map::new(),
-        })
+            self,
+            MjAccordionTitleExtra {
+                attributes: Map::new(),
+            },
+        ))
     }
 }

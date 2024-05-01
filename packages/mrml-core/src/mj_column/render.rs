@@ -3,19 +3,17 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjColumnRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjColumn,
+struct MjColumnExtra {
     // TODO change lifetime
-    extra: Map<String, String>,
+    attributes: Map<String, String>,
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MjColumnRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjColumn, MjColumnExtra> {
     fn current_width(&self) -> Option<Pixel> {
-        let parent_width = self.container_width.as_ref()?;
+        let parent_width = self.extra.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
         let borders = self.get_border_horizontal();
         let paddings = self.get_padding_horizontal();
@@ -43,7 +41,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
     }
 
     fn non_raw_siblings(&self) -> usize {
-        self.siblings - self.raw_siblings
+        self.extra.siblings - self.extra.raw_siblings
     }
 
     fn get_parsed_width(&self) -> Size {
@@ -69,7 +67,8 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
             if width.is_percent() {
                 Some(width)
             } else if width.is_pixel() {
-                self.container_width
+                self.extra
+                    .container_width
                     .as_ref()
                     .map(|w| Size::percent(width.value() / w.value()))
             } else {
@@ -89,7 +88,7 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
     }
 
     fn get_width_as_pixel(&self) -> String {
-        if let Some(ref container_width) = self.container_width {
+        if let Some(ref container_width) = self.extra.container_width {
             let parsed_width = self.get_parsed_width();
             match parsed_width {
                 Size::Percent(value) => {
@@ -254,7 +253,9 @@ impl<'e, 'h> MjColumnRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjColumn, MjColumnExtra>
+{
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
@@ -267,36 +268,38 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
         self.current_width().map(Size::Pixel)
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
     fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.get(key).map(|v| v.as_str())
+        self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+        self.extra
+            .attributes
+            .insert(key.to_string(), value.to_string());
     }
 
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.siblings = value;
+        self.extra.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.raw_siblings = value;
+        self.extra.raw_siblings = value;
     }
 
     fn set_style<'a>(&self, name: &str, tag: Tag<'a>) -> Tag<'a> {
@@ -327,16 +330,21 @@ impl<'e, 'h> Render<'e, 'h> for MjColumnRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjColumn {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjColumnRender::<'e, 'h> {
-            element: self,
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjColumn {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        Box::new(Renderer::new(
             context,
-            container_width: None,
-            extra: Map::new(),
-            siblings: 1,
-            raw_siblings: 0,
-        })
+            self,
+            MjColumnExtra {
+                attributes: Map::new(),
+                container_width: None,
+                siblings: 1,
+                raw_siblings: 0,
+            },
+        ))
     }
 }
 

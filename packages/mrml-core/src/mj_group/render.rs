@@ -2,17 +2,15 @@ use super::{MjGroup, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
-struct MjGroupRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjGroup,
+struct MjGroupExtra {
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MjGroupRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjGroup, MjGroupExtra> {
     fn current_width(&self) -> Pixel {
-        let parent_width = self.container_width.as_ref().unwrap();
+        let parent_width = self.extra.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
         let borders = self.get_border_horizontal();
         let paddings = self.get_padding_horizontal();
@@ -38,7 +36,7 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
     }
 
     fn non_raw_siblings(&self) -> usize {
-        self.siblings - self.raw_siblings
+        self.extra.siblings - self.extra.raw_siblings
     }
 
     fn get_parsed_width(&self) -> Size {
@@ -116,7 +114,9 @@ impl<'e, 'h> MjGroupRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjGroup, MjGroupExtra>
+{
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
@@ -124,7 +124,7 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -132,7 +132,7 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -141,15 +141,15 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.siblings = value;
+        self.extra.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.raw_siblings = value;
+        self.extra.raw_siblings = value;
     }
 
     fn set_style<'a>(&self, name: &str, tag: Tag<'a>) -> Tag<'a> {
@@ -196,15 +196,20 @@ impl<'e, 'h> Render<'e, 'h> for MjGroupRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjGroup {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjGroupRender::<'e, 'h> {
-            element: self,
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjGroup {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        Box::new(Renderer::new(
             context,
-            container_width: None,
-            siblings: 1,
-            raw_siblings: 0,
-        })
+            self,
+            MjGroupExtra {
+                container_width: None,
+                siblings: 1,
+                raw_siblings: 0,
+            },
+        ))
     }
 }
 

@@ -14,9 +14,7 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "icon-unwrapped-alt",
 ];
 
-struct MjAccordionRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjAccordion,
+struct MjAccordionExtra {
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
@@ -39,7 +37,7 @@ const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important
 @goodbye { @gmail }
 "#;
 
-impl<'e, 'h> MjAccordionRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjAccordion, MjAccordionExtra> {
     fn update_header(&self, header: &mut VariableHeader) {
         let font_families = self.attribute("font-family");
         header.maybe_add_font_families(font_families);
@@ -47,7 +45,9 @@ impl<'e, 'h> MjAccordionRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjAccordion, MjAccordionExtra>
+{
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "border" => Some("2px solid black"),
@@ -65,7 +65,7 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -73,26 +73,27 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.container_width
+        self.extra
+            .container_width
             .as_ref()
             .map(|w| Size::Pixel(w.clone()))
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.siblings = value;
+        self.extra.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.raw_siblings = value;
+        self.extra.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -124,20 +125,28 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordion {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjAccordionRender::<'e, 'h> {
-            element: self,
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjAccordion {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        Box::new(Renderer::new(
             context,
-            container_width: None,
-            siblings: 1,
-            raw_siblings: 0,
-        })
+            self,
+            MjAccordionExtra {
+                container_width: None,
+                siblings: 1,
+                raw_siblings: 0,
+            },
+        ))
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionChild {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjAccordionChild {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
         match self {
             Self::MjAccordionElement(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),

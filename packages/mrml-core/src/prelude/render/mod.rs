@@ -55,6 +55,27 @@ pub struct RenderCursor {
     pub header: VariableHeader,
 }
 
+pub(crate) struct Renderer<'element, 'header, Element, Extra> {
+    pub context: &'header RenderContext<'header>,
+    pub element: &'element Element,
+    pub extra: Extra,
+}
+
+impl<'element, 'header, Element, Extra> Renderer<'element, 'header, Element, Extra> {
+    #[inline]
+    pub fn new(
+        context: &'header RenderContext<'header>,
+        element: &'element Element,
+        extra: Extra,
+    ) -> Self {
+        Self {
+            context,
+            element,
+            extra,
+        }
+    }
+}
+
 pub trait Render<'element, 'header> {
     fn context(&self) -> &'header RenderContext<'header>;
 

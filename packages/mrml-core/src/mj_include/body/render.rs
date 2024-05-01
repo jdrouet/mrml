@@ -37,13 +37,10 @@ impl<'r, 'e: 'r, 'h: 'r + 'e> Renderable<'r, 'e, 'h> for MjIncludeBodyChild {
     }
 }
 
-struct MjIncludeBodyRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjIncludeBody,
-}
-
-impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
-    fn raw_attribute(&self, _: &str) -> Option<&'e str> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjIncludeBody, ()>
+{
+    fn raw_attribute(&self, _: &str) -> Option<&'element str> {
         None
     }
 
@@ -51,7 +48,7 @@ impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
         None
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -68,10 +65,7 @@ impl<'e, 'h> Render<'e, 'h> for MjIncludeBodyRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjIncludeBody {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjIncludeBodyRender::<'e, 'h> {
-            element: self,
-            context,
-        })
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

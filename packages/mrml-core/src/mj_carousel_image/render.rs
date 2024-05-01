@@ -3,21 +3,22 @@ use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjCarouselImageRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjCarouselImage,
-    extra: Map<String, String>,
+struct MjCarouselImageExtra {
+    attributes: Map<String, String>,
     container_width: Option<Pixel>,
     index: usize,
 }
 
-impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselImageExtra> {
     fn set_style_images_img<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
             .maybe_add_style(
                 "width",
-                self.container_width.as_ref().map(|value| value.to_string()),
+                self.extra
+                    .container_width
+                    .as_ref()
+                    .map(|value| value.to_string()),
             )
             .add_style("max-width", "100%")
             .add_style("height", "auto")
@@ -47,17 +48,19 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
             .add_class("mj-carousel-radio")
             .maybe_add_class(
                 self.extra
+                    .attributes
                     .get("carousel-id")
                     .map(|id| format!("mj-carousel-{id}-radio")),
             )
             .maybe_add_class(
                 self.extra
+                    .attributes
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
+                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.extra.index + 1)),
             )
             .maybe_add_attribute(
                 "checked",
-                if self.index == 0 {
+                if self.extra.index == 0 {
                     Some("checked")
                 } else {
                     None
@@ -67,14 +70,16 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
             .maybe_add_attribute(
                 "name",
                 self.extra
+                    .attributes
                     .get("carousel-id")
                     .map(|id| format!("mj-carousel-radio-{id}")),
             )
             .maybe_add_attribute(
                 "id",
                 self.extra
+                    .attributes
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
+                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.extra.index + 1)),
             )
             .render_closed(buf);
     }
@@ -90,35 +95,42 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
             .maybe_add_attribute("alt", self.attribute("alt"))
             .maybe_add_attribute(
                 "width",
-                self.container_width
+                self.extra
+                    .container_width
                     .as_ref()
                     .map(|item| item.value().to_string()),
             );
         let label = Tag::new("label").maybe_add_attribute(
             "for",
             self.extra
+                .attributes
                 .get("carousel-id")
-                .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
+                .map(|id| format!("mj-carousel-{}-radio-{}", id, self.extra.index + 1)),
         );
         let link = self
             .set_style_thumbnails_a(Tag::new("a"))
-            .add_attribute("href", format!("#{}", self.index + 1))
+            .add_attribute("href", format!("#{}", self.extra.index + 1))
             .maybe_add_attribute("target", self.attribute("target"))
             .add_class("mj-carousel-thumbnail")
             .maybe_add_class(
                 self.extra
+                    .attributes
                     .get("carousel-id")
                     .map(|id| format!("mj-carousel-{id}-thumbnail")),
             )
             .maybe_add_class(
                 self.extra
+                    .attributes
                     .get("carousel-id")
-                    .map(|id| format!("mj-carousel-{}-thumbnail-{}", id, self.index + 1)),
+                    .map(|id| format!("mj-carousel-{}-thumbnail-{}", id, self.extra.index + 1)),
             )
             .maybe_add_suffixed_class(self.attribute("css-class"), "thumbnail")
             .maybe_add_style(
                 "width",
-                self.container_width.as_ref().map(|item| item.to_string()),
+                self.extra
+                    .container_width
+                    .as_ref()
+                    .map(|item| item.to_string()),
             );
 
         link.render_open(buf);
@@ -131,7 +143,9 @@ impl<'e, 'h> MjCarouselImageRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjCarouselImage, MjCarouselImageExtra>
+{
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "target" => Some("_blank"),
@@ -140,14 +154,16 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
     }
 
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+        self.extra
+            .attributes
+            .insert(key.to_string(), value.to_string());
     }
 
     fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.get(key).map(|v| v.as_str())
+        self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -156,14 +172,14 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn set_index(&mut self, index: usize) {
-        self.index = index;
+        self.extra.index = index;
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -188,11 +204,12 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
             .maybe_add_attribute("title", self.attribute("title"))
             .maybe_add_attribute(
                 "width",
-                self.container_width
+                self.extra
+                    .container_width
                     .as_ref()
                     .map(|width| width.value().to_string()),
             );
-        let div = if self.index == 0 {
+        let div = if self.extra.index == 0 {
             Tag::div()
         } else {
             Tag::div()
@@ -201,7 +218,7 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
         };
         let div = div
             .add_class("mj-carousel-image")
-            .add_class(format!("mj-carousel-image-{}", self.index + 1))
+            .add_class(format!("mj-carousel-image-{}", self.extra.index + 1))
             .maybe_add_class(self.attribute("css-class"));
 
         div.render_open(&mut cursor.buffer);
@@ -222,14 +239,19 @@ impl<'e, 'h> Render<'e, 'h> for MjCarouselImageRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjCarouselImage {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjCarouselImageRender::<'e, 'h> {
-            element: self,
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjCarouselImage {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        Box::new(Renderer::new(
             context,
-            extra: Map::new(),
-            container_width: None,
-            index: 0,
-        })
+            self,
+            MjCarouselImageExtra {
+                attributes: Map::new(),
+                container_width: None,
+                index: 0,
+            },
+        ))
     }
 }

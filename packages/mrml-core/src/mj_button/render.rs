@@ -2,12 +2,7 @@ use super::{MjButton, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-struct MjButtonRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjButton,
-}
-
-impl<'e, 'h> MjButtonRender<'e, 'h> {
+impl<'element, 'header> Renderer<'element, 'header, MjButton, ()> {
     fn content_width(&self) -> Option<String> {
         if let Some(width) = self.attribute_as_pixel("width") {
             let pad_left = self
@@ -81,7 +76,7 @@ impl<'e, 'h> MjButtonRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjButton, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
@@ -103,7 +98,7 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -111,7 +106,7 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -155,12 +150,12 @@ impl<'e, 'h> Render<'e, 'h> for MjButtonRender<'e, 'h> {
     }
 }
 
-impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjButton {
-    fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjButtonRender::<'e, 'h> {
-            element: self,
-            context,
-        })
+impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjButton {
+    fn renderer(
+        &'element self,
+        context: &'header RenderContext<'header>,
+    ) -> Box<dyn Render<'element, 'header> + 'r> {
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

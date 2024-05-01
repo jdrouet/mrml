@@ -42,15 +42,23 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
     "text-decoration",
 ];
 
-struct MjSocialRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjSocial,
+struct MjSocialExtra {
     container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
-impl<'e, 'h> MjSocialRender<'e, 'h> {
+impl MjSocialExtra {
+    fn new(siblings: usize, raw_siblings: usize) -> Self {
+        Self {
+            container_width: None,
+            siblings,
+            raw_siblings,
+        }
+    }
+}
+
+impl<'element, 'header> Renderer<'element, 'header, MjSocial, MjSocialExtra> {
     fn set_style_table_vertical<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0px")
     }
@@ -135,7 +143,9 @@ impl<'e, 'h> MjSocialRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjSocial, MjSocialExtra>
+{
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
@@ -152,7 +162,7 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
         }
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -160,26 +170,27 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
         Some(NAME)
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.container_width
+        self.extra
+            .container_width
             .as_ref()
             .map(|w| Size::Pixel(w.clone()))
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
-        self.siblings = value;
+        self.extra.siblings = value;
     }
 
     fn set_raw_siblings(&mut self, value: usize) {
-        self.raw_siblings = value;
+        self.extra.raw_siblings = value;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -196,13 +207,7 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocial {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjSocialRender::<'e, 'h> {
-            element: self,
-            context,
-            container_width: None,
-            siblings: 1,
-            raw_siblings: 0,
-        })
+        Box::new(Renderer::new(context, self, MjSocialExtra::new(1, 0)))
     }
 }
 

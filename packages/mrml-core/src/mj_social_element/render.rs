@@ -6,18 +6,28 @@ use crate::prelude::render::*;
 
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
-struct MjSocialElementRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjSocialElement,
-    extra: Map<String, String>,
+#[derive(Default)]
+struct MjSocialElementExtra {
+    attributes: Map<String, String>,
     container_width: Option<Pixel>,
     network: Option<SocialNetwork>,
 }
 
-impl<'e, 'h> MjSocialElementRender<'e, 'h> {
+impl MjSocialElementExtra {
+    pub fn new(network: Option<SocialNetwork>) -> Self {
+        Self {
+            attributes: Map::new(),
+            container_width: None,
+            network,
+        }
+    }
+}
+
+impl<'element, 'header> Renderer<'element, 'header, MjSocialElement, MjSocialElementExtra> {
     fn get_background_color(&self) -> Option<String> {
         self.attribute("background-color").or_else(|| {
-            self.network
+            self.extra
+                .network
                 .as_ref()
                 .map(|net| net.background_color().to_string())
         })
@@ -33,7 +43,7 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
 
     fn get_icon_src(&self) -> Option<String> {
         self.attribute("src").or_else(|| {
-            self.network.as_ref().map(|net| {
+            self.extra.network.as_ref().map(|net| {
                 if let Some(ref origin) = self.context.options.social_icon_origin {
                     net.icon_src(origin)
                 } else {
@@ -94,7 +104,8 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
     fn get_href(&self) -> Option<String> {
         self.attribute("href")
             .map(|href| {
-                self.network
+                self.extra
+                    .network
                     .as_ref()
                     .and_then(|net| net.share_url(&href))
                     .or(Some(href))
@@ -168,7 +179,9 @@ impl<'e, 'h> MjSocialElementRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjSocialElement, MjSocialElementExtra>
+{
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("left"),
@@ -187,14 +200,16 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
     }
 
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+        self.extra
+            .attributes
+            .insert(key.to_string(), value.to_string());
     }
 
     fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.get(key).map(|v| v.as_str())
+        self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -203,10 +218,10 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -229,16 +244,12 @@ impl<'e, 'h> Render<'e, 'h> for MjSocialElementRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSocialElement {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjSocialElementRender::<'e, 'h> {
-            element: self,
-            context,
-            extra: Map::new(),
-            container_width: None,
-            network: self
-                .attributes
+        let extra = MjSocialElementExtra::new(
+            self.attributes
                 .get("name")
                 .and_then(|name| SocialNetwork::find(name)),
-        })
+        );
+        Box::new(Renderer::new(context, self, extra))
     }
 }
 

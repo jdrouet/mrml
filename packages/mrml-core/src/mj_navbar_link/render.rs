@@ -3,14 +3,21 @@ use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjNavbarLinkRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjNavbarLink,
-    extra: Map<String, String>,
+struct MjNavbarLinkExtra {
+    attributes: Map<String, String>,
     container_width: Option<Pixel>,
 }
 
-impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
+impl Default for MjNavbarLinkExtra {
+    fn default() -> Self {
+        Self {
+            attributes: Map::new(),
+            container_width: None,
+        }
+    }
+}
+
+impl<'element, 'header> Renderer<'element, 'header, MjNavbarLink, MjNavbarLinkExtra> {
     fn set_style_a<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("display", "inline-block")
             .maybe_add_style("color", self.attribute("color"))
@@ -66,7 +73,9 @@ impl<'e, 'h> MjNavbarLinkRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
+impl<'element, 'header> Render<'element, 'header>
+    for Renderer<'element, 'header, MjNavbarLink, MjNavbarLinkExtra>
+{
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "color" => Some("#000000"),
@@ -83,14 +92,16 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
     }
 
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+        self.extra
+            .attributes
+            .insert(key.to_string(), value.to_string());
     }
 
     fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.get(key).map(|v| v.as_str())
+        self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_attribute(&self, key: &str) -> Option<&'e str> {
+    fn raw_attribute(&self, key: &str) -> Option<&'element str> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
@@ -99,10 +110,10 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.container_width = width;
+        self.extra.container_width = width;
     }
 
-    fn context(&self) -> &'h RenderContext<'h> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -128,11 +139,6 @@ impl<'e, 'h> Render<'e, 'h> for MjNavbarLinkRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjNavbarLink {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjNavbarLinkRender::<'e, 'h> {
-            element: self,
-            context,
-            extra: Map::new(),
-            container_width: None,
-        })
+        Box::new(Renderer::new(context, self, MjNavbarLinkExtra::default()))
     }
 }

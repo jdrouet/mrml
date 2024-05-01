@@ -1,13 +1,8 @@
 use super::Text;
 use crate::prelude::render::*;
 
-struct TextRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e Text,
-}
-
-impl<'e, 'h> Render<'e, 'h> for TextRender<'e, 'h> {
-    fn context(&self) -> &'h RenderContext<'h> {
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, Text, ()> {
+    fn context(&self) -> &'header RenderContext<'header> {
         self.context
     }
 
@@ -23,9 +18,6 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for Text {
     }
 
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(TextRender::<'e, 'h> {
-            element: self,
-            context,
-        })
+        Box::new(Renderer::new(context, self, ()))
     }
 }

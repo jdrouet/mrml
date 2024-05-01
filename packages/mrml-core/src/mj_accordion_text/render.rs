@@ -2,13 +2,11 @@ use super::{MjAccordionText, NAME};
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjAccordionTextRender<'e, 'h> {
-    context: &'h RenderContext<'h>,
-    element: &'e MjAccordionText,
-    extra: Map<String, String>,
+struct MjAccordionTextExtra {
+    attributes: Map<String, String>,
 }
 
-impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
+impl<'e, 'h> Renderer<'e, 'h, MjAccordionText, MjAccordionTextExtra> {
     fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let td = Tag::td()
             .maybe_add_class(self.attribute("css-class"))
@@ -34,7 +32,7 @@ impl<'e, 'h> MjAccordionTextRender<'e, 'h> {
     }
 }
 
-impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
+impl<'e, 'h> Render<'e, 'h> for Renderer<'e, 'h, MjAccordionText, MjAccordionTextExtra> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "line-height" => Some("1"),
@@ -45,11 +43,13 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
     }
 
     fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra.insert(key.to_string(), value.to_string());
+        self.extra
+            .attributes
+            .insert(key.to_string(), value.to_string());
     }
 
     fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.get(key).map(|v| v.as_str())
+        self.extra.attributes.get(key).map(|v| v.as_str())
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'e str> {
@@ -93,10 +93,12 @@ impl<'e, 'h> Render<'e, 'h> for MjAccordionTextRender<'e, 'h> {
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjAccordionText {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(MjAccordionTextRender::<'e, 'h> {
-            element: self,
+        Box::new(Renderer::new(
             context,
-            extra: Map::default(),
-        })
+            self,
+            MjAccordionTextExtra {
+                attributes: Map::new(),
+            },
+        ))
     }
 }
