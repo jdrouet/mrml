@@ -141,43 +141,37 @@ pub trait Render<'root> {
     fn get_inner_border_left(&self) -> Option<Pixel> {
         self.attribute_as_pixel("inner-border-left").or_else(|| {
             self.attribute_as_spacing("inner-border")
-                .and_then(|s| s.left().as_pixel().cloned())
+                .map(|s| s.into_left())
         })
     }
 
     fn get_inner_border_right(&self) -> Option<Pixel> {
         self.attribute_as_pixel("inner-border-right").or_else(|| {
             self.attribute_as_spacing("inner-border")
-                .and_then(|s| s.right().as_pixel().cloned())
+                .map(|s| s.into_right())
         })
     }
 
     fn get_padding_top(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("padding-top").or_else(|| {
-            self.attribute_as_spacing("padding")
-                .and_then(|s| s.top().as_pixel().cloned())
-        })
+        self.attribute_as_pixel("padding-top")
+            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.into_top()))
     }
 
     fn get_padding_bottom(&self) -> Option<Pixel> {
         self.attribute_as_pixel("padding-bottom").or_else(|| {
             self.attribute_as_spacing("padding")
-                .and_then(|s| s.bottom().as_pixel().cloned())
+                .map(|s| s.into_bottom())
         })
     }
 
     fn get_padding_left(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("padding-left").or_else(|| {
-            self.attribute_as_spacing("padding")
-                .and_then(|s| s.left().as_pixel().cloned())
-        })
+        self.attribute_as_pixel("padding-left")
+            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.into_left()))
     }
 
     fn get_padding_right(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("padding-right").or_else(|| {
-            self.attribute_as_spacing("padding")
-                .and_then(|s| s.right().as_pixel().cloned())
-        })
+        self.attribute_as_pixel("padding-right")
+            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.into_right()))
     }
 
     fn get_padding_horizontal(&self) -> Pixel {
