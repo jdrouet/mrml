@@ -9,7 +9,6 @@ const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons
 #[derive(Default)]
 struct MjSocialElementExtra {
     attributes: Map<String, String>,
-    container_width: Option<Pixel>,
     network: Option<SocialNetwork>,
 }
 
@@ -17,7 +16,6 @@ impl MjSocialElementExtra {
     pub fn new(network: Option<SocialNetwork>) -> Self {
         Self {
             attributes: Map::new(),
-            container_width: None,
             network,
         }
     }
@@ -218,7 +216,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn context(&self) -> &'header RenderContext<'header> {

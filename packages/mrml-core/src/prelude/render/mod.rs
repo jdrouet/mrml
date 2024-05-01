@@ -58,6 +58,7 @@ pub struct RenderCursor {
 pub(crate) struct Renderer<'element, 'header, Element, Extra> {
     pub context: &'header RenderContext<'header>,
     pub element: &'element Element,
+    pub container_width: Option<Pixel>,
     pub extra: Extra,
 }
 
@@ -71,6 +72,7 @@ impl<'element, 'header, Element, Extra> Renderer<'element, 'header, Element, Ext
         Self {
             context,
             element,
+            container_width: None,
             extra,
         }
     }

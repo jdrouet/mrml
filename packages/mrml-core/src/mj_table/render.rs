@@ -3,17 +3,12 @@ use crate::helper::size::Pixel;
 use crate::mj_section::WithMjSectionBackground;
 use crate::prelude::render::*;
 
-#[derive(Default)]
-struct MjTableExtra {
-    container_width: Option<Pixel>,
-}
-
 impl<'element, 'header> WithMjSectionBackground<'element, 'header>
-    for Renderer<'element, 'header, MjTable, MjTableExtra>
+    for Renderer<'element, 'header, MjTable, ()>
 {
 }
 
-impl<'element, 'header> Renderer<'element, 'header, MjTable, MjTableExtra> {
+impl<'element, 'header> Renderer<'element, 'header, MjTable, ()> {
     fn set_style_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("font-family", self.attribute("font-family"))
@@ -25,9 +20,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjTable, MjTableExtra> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjTable, MjTableExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjTable, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("left"),
@@ -58,7 +51,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -87,7 +80,7 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjTabl
         &'element self,
         context: &'header RenderContext<'header>,
     ) -> Box<dyn Render<'element, 'header> + 'r> {
-        Box::new(Renderer::new(context, self, MjTableExtra::default()))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

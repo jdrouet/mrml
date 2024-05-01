@@ -3,7 +3,6 @@ use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 struct MjHeroExtra {
-    container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
@@ -11,7 +10,6 @@ struct MjHeroExtra {
 impl MjHeroExtra {
     fn new(siblings: usize, raw_siblings: usize) -> Self {
         Self {
-            container_width: None,
             siblings,
             raw_siblings,
         }
@@ -22,7 +20,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjHero, MjHeroExtra> {
     fn set_style_div<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style("margin", "0 auto").maybe_add_style(
             "max-width",
-            self.extra.container_width.as_ref().map(|w| w.to_string()),
+            self.container_width.as_ref().map(|w| w.to_string()),
         )
     }
 
@@ -50,7 +48,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjHero, MjHeroExtra> {
     fn set_style_outlook_table<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.maybe_add_style(
             "width",
-            self.extra.container_width.as_ref().map(|w| w.to_string()),
+            self.container_width.as_ref().map(|w| w.to_string()),
         )
     }
 
@@ -87,7 +85,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjHero, MjHeroExtra> {
             .maybe_add_style(
                 "width",
                 self.attribute("background-width")
-                    .or_else(|| self.extra.container_width.as_ref().map(|w| w.to_string())),
+                    .or_else(|| self.container_width.as_ref().map(|w| w.to_string())),
             )
             .add_style("z-index", "-3")
     }
@@ -173,10 +171,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjHero, MjHeroExtra> {
             .maybe_add_attribute("align", self.attribute("align"))
             .maybe_add_attribute(
                 "width",
-                self.extra
-                    .container_width
-                    .as_ref()
-                    .map(|w| w.value().to_string()),
+                self.container_width.as_ref().map(|w| w.value().to_string()),
             );
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -288,7 +283,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
@@ -305,10 +300,7 @@ impl<'element, 'header> Render<'element, 'header>
             .add_attribute("align", "center")
             .maybe_add_attribute(
                 "width",
-                self.extra
-                    .container_width
-                    .as_ref()
-                    .map(|v| v.value().to_string()),
+                self.container_width.as_ref().map(|v| v.value().to_string()),
             );
         let outlook_tr = Tag::tr();
         let outlook_td = self.set_style_outlook_td(Tag::td());

@@ -12,14 +12,7 @@ impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRawChild {
     }
 }
 
-#[derive(Default)]
-struct MjRawExtra {
-    container_width: Option<Pixel>,
-}
-
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjRaw, MjRawExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjRaw, ()> {
     fn tag(&self) -> Option<&str> {
         Some(NAME)
     }
@@ -29,7 +22,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -39,7 +32,7 @@ impl<'element, 'header> Render<'element, 'header>
             renderer.set_index(index);
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(siblings);
-            renderer.set_container_width(self.extra.container_width.clone());
+            renderer.set_container_width(self.container_width.clone());
             renderer.render(cursor)?;
         }
         Ok(())
@@ -48,7 +41,7 @@ impl<'element, 'header> Render<'element, 'header>
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjRaw {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(Renderer::new(context, self, MjRawExtra::default()))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

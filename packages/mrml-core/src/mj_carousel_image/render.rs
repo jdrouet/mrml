@@ -5,7 +5,6 @@ use crate::prelude::render::*;
 
 struct MjCarouselImageExtra {
     attributes: Map<String, String>,
-    container_width: Option<Pixel>,
     index: usize,
 }
 
@@ -15,10 +14,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselI
             .add_style("display", "block")
             .maybe_add_style(
                 "width",
-                self.extra
-                    .container_width
-                    .as_ref()
-                    .map(|value| value.to_string()),
+                self.container_width.as_ref().map(|value| value.to_string()),
             )
             .add_style("max-width", "100%")
             .add_style("height", "auto")
@@ -95,8 +91,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselI
             .maybe_add_attribute("alt", self.attribute("alt"))
             .maybe_add_attribute(
                 "width",
-                self.extra
-                    .container_width
+                self.container_width
                     .as_ref()
                     .map(|item| item.value().to_string()),
             );
@@ -127,10 +122,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarouselImage, MjCarouselI
             .maybe_add_suffixed_class(self.attribute("css-class"), "thumbnail")
             .maybe_add_style(
                 "width",
-                self.extra
-                    .container_width
-                    .as_ref()
-                    .map(|item| item.to_string()),
+                self.container_width.as_ref().map(|item| item.to_string()),
             );
 
         link.render_open(buf);
@@ -172,7 +164,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn set_index(&mut self, index: usize) {
@@ -204,8 +196,7 @@ impl<'element, 'header> Render<'element, 'header>
             .maybe_add_attribute("title", self.attribute("title"))
             .maybe_add_attribute(
                 "width",
-                self.extra
-                    .container_width
+                self.container_width
                     .as_ref()
                     .map(|width| width.value().to_string()),
             );
@@ -249,7 +240,6 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjCaro
             self,
             MjCarouselImageExtra {
                 attributes: Map::new(),
-                container_width: None,
                 index: 0,
             },
         ))

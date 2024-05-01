@@ -2,11 +2,7 @@ use super::{MjDivider, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
-struct MjDividerExtra {
-    container_width: Option<Pixel>,
-}
-
-impl<'element, 'header> Renderer<'element, 'header, MjDivider, MjDividerExtra> {
+impl<'element, 'header> Renderer<'element, 'header, MjDivider, ()> {
     fn set_style_p_without_width<'a>(&self, tag: Tag<'a>) -> Tag<'a> {
         tag.add_style(
             "border-top",
@@ -31,7 +27,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjDivider, MjDividerExtra> {
     }
 
     fn get_outlook_width(&self) -> Pixel {
-        let container_width = self.extra.container_width.as_ref().unwrap();
+        let container_width = self.container_width.as_ref().unwrap();
         let padding_horizontal = self.get_padding_horizontal();
         let width = self
             .attribute_as_size("width")
@@ -67,9 +63,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjDivider, MjDividerExtra> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjDivider, MjDividerExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjDivider, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
@@ -91,7 +85,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn context(&self) -> &'header RenderContext<'header> {
@@ -112,13 +106,7 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjDivi
         &'element self,
         context: &'header RenderContext<'header>,
     ) -> Box<dyn Render<'element, 'header> + 'r> {
-        Box::new(Renderer::new(
-            context,
-            self,
-            MjDividerExtra {
-                container_width: None,
-            },
-        ))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

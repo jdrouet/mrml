@@ -6,14 +6,13 @@ use crate::prelude::render::*;
 struct MjColumnExtra {
     // TODO change lifetime
     attributes: Map<String, String>,
-    container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
 impl<'element, 'header> Renderer<'element, 'header, MjColumn, MjColumnExtra> {
     fn current_width(&self) -> Option<Pixel> {
-        let parent_width = self.extra.container_width.as_ref()?;
+        let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
         let borders = self.get_border_horizontal();
         let paddings = self.get_padding_horizontal();
@@ -67,8 +66,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjColumn, MjColumnExtra> {
             if width.is_percent() {
                 Some(width)
             } else if width.is_pixel() {
-                self.extra
-                    .container_width
+                self.container_width
                     .as_ref()
                     .map(|w| Size::percent(width.value() / w.value()))
             } else {
@@ -88,7 +86,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjColumn, MjColumnExtra> {
     }
 
     fn get_width_as_pixel(&self) -> String {
-        if let Some(ref container_width) = self.extra.container_width {
+        if let Some(ref container_width) = self.container_width {
             let parsed_width = self.get_parsed_width();
             match parsed_width {
                 Size::Percent(value) => {
@@ -291,7 +289,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
@@ -340,7 +338,6 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjColu
             self,
             MjColumnExtra {
                 attributes: Map::new(),
-                container_width: None,
                 siblings: 1,
                 raw_siblings: 0,
             },

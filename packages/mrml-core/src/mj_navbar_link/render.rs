@@ -5,14 +5,12 @@ use crate::prelude::render::*;
 
 struct MjNavbarLinkExtra {
     attributes: Map<String, String>,
-    container_width: Option<Pixel>,
 }
 
 impl Default for MjNavbarLinkExtra {
     fn default() -> Self {
         Self {
             attributes: Map::new(),
-            container_width: None,
         }
     }
 }
@@ -110,7 +108,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn context(&self) -> &'header RenderContext<'header> {

@@ -2,12 +2,7 @@ use super::{MjImage, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-#[derive(Default)]
-struct MjImageExtra {
-    container_width: Option<Pixel>,
-}
-
-impl<'element, 'header> Renderer<'element, 'header, MjImage, MjImageExtra> {
+impl<'element, 'header> Renderer<'element, 'header, MjImage, ()> {
     fn is_fluid_on_mobile(&self) -> bool {
         self.attribute("fluid-on-mobile")
             .and_then(|value| value.parse::<bool>().ok())
@@ -19,7 +14,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjImage, MjImageExtra> {
     }
 
     fn get_box_width(&self) -> Option<Pixel> {
-        self.extra.container_width.as_ref().map(|width| {
+        self.container_width.as_ref().map(|width| {
             let hborder = self.get_border_horizontal();
             let hpadding = self.get_padding_horizontal();
             Pixel::new(width.value() - hborder.value() - hpadding.value())
@@ -128,9 +123,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjImage, MjImageExtra> {
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjImage, MjImageExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjImage, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
@@ -152,7 +145,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn context(&self) -> &'header RenderContext<'header> {
@@ -196,7 +189,7 @@ impl<'element, 'header> Render<'element, 'header>
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjImage {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(Renderer::new(context, self, MjImageExtra::default()))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

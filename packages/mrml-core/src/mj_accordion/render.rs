@@ -15,7 +15,6 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
 ];
 
 struct MjAccordionExtra {
-    container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
@@ -78,14 +77,13 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.extra
-            .container_width
+        self.container_width
             .as_ref()
             .map(|w| Size::Pixel(w.clone()))
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
@@ -134,7 +132,6 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjAcco
             context,
             self,
             MjAccordionExtra {
-                container_width: None,
                 siblings: 1,
                 raw_siblings: 0,
             },

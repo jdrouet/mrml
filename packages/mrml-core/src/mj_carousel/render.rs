@@ -20,7 +20,6 @@ fn repeat(count: usize, value: &str) -> String {
 }
 
 struct MjCarouselExtra {
-    container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
     id: String,
@@ -34,7 +33,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarousel, MjCarouselExtra>
         } else {
             self.attribute_as_pixel("tb-width")
                 .or_else(|| {
-                    self.extra.container_width.as_ref().map(|width| {
+                    self.container_width.as_ref().map(|width| {
                         let value = width.value() / (count as f32);
                         if value < 110.0 {
                             Pixel::new(value)
@@ -170,7 +169,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarousel, MjCarouselExtra>
             renderer
                 .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_index(index);
-            renderer.set_container_width(self.extra.container_width.clone());
+            renderer.set_container_width(self.container_width.clone());
             renderer.render(cursor)?;
         }
 
@@ -224,7 +223,7 @@ impl<'element, 'header> Renderer<'element, 'header, MjCarousel, MjCarouselExtra>
             renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
             renderer
                 .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
-            renderer.set_container_width(self.extra.container_width.clone());
+            renderer.set_container_width(self.container_width.clone());
 
             cursor.buffer.start_mso_conditional_tag();
             renderer.render(cursor)?;
@@ -417,14 +416,13 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.extra
-            .container_width
+        self.container_width
             .as_ref()
             .map(|w| Size::Pixel(w.clone()))
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
@@ -469,7 +467,6 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjCaro
             context,
             self,
             MjCarouselExtra {
-                container_width: None,
                 siblings: 1,
                 raw_siblings: 0,
                 id,

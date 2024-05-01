@@ -479,30 +479,23 @@ pub trait SectionLikeRender<'element, 'header>: WithMjSectionBackground<'element
     }
 }
 
-#[derive(Default)]
-struct MjSectionExtra {
-    container_width: Option<Pixel>,
-}
-
 impl<'element, 'header> WithMjSectionBackground<'element, 'header>
-    for Renderer<'element, 'header, MjSection, MjSectionExtra>
+    for Renderer<'element, 'header, MjSection, ()>
 {
 }
 impl<'element, 'header> SectionLikeRender<'element, 'header>
-    for Renderer<'element, 'header, MjSection, MjSectionExtra>
+    for Renderer<'element, 'header, MjSection, ()>
 {
     fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
         &self.element.children
     }
 
     fn container_width(&self) -> &Option<Pixel> {
-        &self.extra.container_width
+        &self.container_width
     }
 }
 
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjSection, MjSectionExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjSection, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "background-position" => Some("top center"),
@@ -529,7 +522,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -543,7 +536,7 @@ impl<'element, 'header> Render<'element, 'header>
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSection {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(Renderer::new(context, self, MjSectionExtra::default()))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 

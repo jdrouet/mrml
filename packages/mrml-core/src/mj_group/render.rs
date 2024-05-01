@@ -3,14 +3,13 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
 struct MjGroupExtra {
-    container_width: Option<Pixel>,
     siblings: usize,
     raw_siblings: usize,
 }
 
 impl<'element, 'header> Renderer<'element, 'header, MjGroup, MjGroupExtra> {
     fn current_width(&self) -> Pixel {
-        let parent_width = self.extra.container_width.as_ref().unwrap();
+        let parent_width = self.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
         let borders = self.get_border_horizontal();
         let paddings = self.get_padding_horizontal();
@@ -141,7 +140,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn set_siblings(&mut self, value: usize) {
@@ -205,7 +204,6 @@ impl<'r, 'element: 'r, 'header: 'r> Renderable<'r, 'element, 'header> for MjGrou
             context,
             self,
             MjGroupExtra {
-                container_width: None,
                 siblings: 1,
                 raw_siblings: 0,
             },

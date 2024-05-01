@@ -2,14 +2,7 @@ use super::{MjSpacer, NAME};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
-#[derive(Default)]
-struct MjSpacerExtra {
-    container_width: Option<Pixel>,
-}
-
-impl<'element, 'header> Render<'element, 'header>
-    for Renderer<'element, 'header, MjSpacer, MjSpacerExtra>
-{
+impl<'element, 'header> Render<'element, 'header> for Renderer<'element, 'header, MjSpacer, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "height" => Some("20px"),
@@ -26,7 +19,7 @@ impl<'element, 'header> Render<'element, 'header>
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
-        self.extra.container_width = width;
+        self.container_width = width;
     }
 
     fn context(&self) -> &'header RenderContext<'header> {
@@ -44,7 +37,7 @@ impl<'element, 'header> Render<'element, 'header>
 
 impl<'r, 'e: 'r, 'h: 'r> Renderable<'r, 'e, 'h> for MjSpacer {
     fn renderer(&'e self, context: &'h RenderContext<'h>) -> Box<dyn Render<'e, 'h> + 'r> {
-        Box::new(Renderer::new(context, self, MjSpacerExtra::default()))
+        Box::new(Renderer::new(context, self, ()))
     }
 }
 
