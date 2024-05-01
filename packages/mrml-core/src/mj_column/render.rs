@@ -3,12 +3,11 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjColumnExtra {
-    // TODO change lifetime
-    attributes: Map<String, String>,
+struct MjColumnExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
 }
 
-impl<'root> Renderer<'root, MjColumn, MjColumnExtra> {
+impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
     fn current_width(&self) -> Option<Pixel> {
         let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
@@ -273,7 +272,7 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra> {
     }
 }
 
-impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra> {
+impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra<'root>> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "direction" => Some("ltr"),
@@ -290,14 +289,12 @@ impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra> {
         self.element.attributes.get(key).map(|v| v.as_str())
     }
 
-    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.attributes.get(key).map(|v| v.as_str())
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra
-            .attributes
-            .insert(key.to_string(), value.to_string());
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
     fn tag(&self) -> Option<&str> {

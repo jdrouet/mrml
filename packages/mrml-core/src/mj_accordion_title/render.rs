@@ -2,11 +2,11 @@ use super::{MjAccordionTitle, NAME};
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjAccordionTitleExtra {
-    attributes: Map<String, String>,
+struct MjAccordionTitleExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
 }
 
-impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra> {
+impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra<'root>> {
     fn set_style_img<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
     where
         'root: 'a,
@@ -67,15 +67,13 @@ impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra> {
     }
 }
 
-impl<'root> Render<'root> for Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra> {
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra
-            .attributes
-            .insert(key.to_string(), value.to_string());
+impl<'root> Render<'root> for Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra<'root>> {
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
-    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.attributes.get(key).map(|v| v.as_str())
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
     fn default_attribute(&self, name: &str) -> Option<&'static str> {

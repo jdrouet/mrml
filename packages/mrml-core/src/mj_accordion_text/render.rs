@@ -2,11 +2,11 @@ use super::{MjAccordionText, NAME};
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjAccordionTextExtra {
-    attributes: Map<String, String>,
+struct MjAccordionTextExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
 }
 
-impl<'root> Renderer<'root, MjAccordionText, MjAccordionTextExtra> {
+impl<'root> Renderer<'root, MjAccordionText, MjAccordionTextExtra<'root>> {
     fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let td = Tag::td()
             .maybe_add_class(self.attribute("css-class"))
@@ -32,7 +32,7 @@ impl<'root> Renderer<'root, MjAccordionText, MjAccordionTextExtra> {
     }
 }
 
-impl<'root> Render<'root> for Renderer<'root, MjAccordionText, MjAccordionTextExtra> {
+impl<'root> Render<'root> for Renderer<'root, MjAccordionText, MjAccordionTextExtra<'root>> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "line-height" => Some("1"),
@@ -42,14 +42,12 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordionText, MjAccordionTextEx
         }
     }
 
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra
-            .attributes
-            .insert(key.to_string(), value.to_string());
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
-    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.attributes.get(key).map(|v| v.as_str())
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'root str> {

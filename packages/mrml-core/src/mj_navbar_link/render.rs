@@ -3,11 +3,11 @@ use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjNavbarLinkExtra {
-    attributes: Map<String, String>,
+struct MjNavbarLinkExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
 }
 
-impl Default for MjNavbarLinkExtra {
+impl<'a> Default for MjNavbarLinkExtra<'a> {
     fn default() -> Self {
         Self {
             attributes: Map::new(),
@@ -15,7 +15,7 @@ impl Default for MjNavbarLinkExtra {
     }
 }
 
-impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra> {
+impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'root>> {
     fn set_style_a<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
     where
         'root: 'a,
@@ -79,7 +79,7 @@ impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra> {
     }
 }
 
-impl<'root> Render<'root> for Renderer<'root, MjNavbarLink, MjNavbarLinkExtra> {
+impl<'root> Render<'root> for Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'root>> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "color" => Some("#000000"),
@@ -95,14 +95,12 @@ impl<'root> Render<'root> for Renderer<'root, MjNavbarLink, MjNavbarLinkExtra> {
         }
     }
 
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra
-            .attributes
-            .insert(key.to_string(), value.to_string());
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
-    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.attributes.get(key).map(|v| v.as_str())
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'root str> {

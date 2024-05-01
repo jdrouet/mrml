@@ -89,18 +89,10 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
-            renderer.maybe_add_extra_attribute(
-                "border-radius",
-                self.attribute("border-radius").map(|v| v.to_owned()),
-            );
-            renderer.maybe_add_extra_attribute(
-                "tb-border",
-                self.attribute("tb-border").map(|v| v.to_owned()),
-            );
-            renderer.maybe_add_extra_attribute(
-                "tb-border-radius",
-                self.attribute("tb-border-radius").map(|v| v.to_owned()),
-            );
+            renderer.maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
+            renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
+            renderer
+                .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_index(index);
             renderer.render_fragment("radio", cursor)?;
         }
@@ -114,17 +106,12 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             for (index, child) in self.element.children.iter().enumerate() {
                 let mut renderer = child.renderer(self.context());
                 renderer.add_extra_attribute("carousel-id", &self.extra.id);
-                renderer.maybe_add_extra_attribute(
-                    "border-radius",
-                    self.attribute("border-radius").map(|v| v.to_owned()),
-                );
-                renderer.maybe_add_extra_attribute(
-                    "tb-border",
-                    self.attribute("tb-border").map(|v| v.to_owned()),
-                );
+                renderer
+                    .maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
+                renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
                 renderer.maybe_add_extra_attribute(
                     "tb-border-radius",
-                    self.attribute("tb-border-radius").map(|v| v.to_owned()),
+                    self.attribute("tb-border-radius"),
                 );
                 renderer.set_index(index);
                 renderer.set_container_width(Some(width.clone()));
@@ -179,18 +166,10 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
-            renderer.maybe_add_extra_attribute(
-                "border-radius",
-                self.attribute("border-radius").map(|v| v.to_owned()),
-            );
-            renderer.maybe_add_extra_attribute(
-                "tb-border",
-                self.attribute("tb-border").map(|v| v.to_owned()),
-            );
-            renderer.maybe_add_extra_attribute(
-                "tb-border-radius",
-                self.attribute("tb-border-radius").map(|v| v.to_owned()),
-            );
+            renderer.maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
+            renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
+            renderer
+                .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_index(index);
             renderer.set_container_width(self.container_width.clone());
             renderer.render(cursor)?;
@@ -242,18 +221,10 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
-            renderer.maybe_add_extra_attribute(
-                "border-radius",
-                self.attribute("border-radius").map(|v| v.to_owned()),
-            );
-            renderer.maybe_add_extra_attribute(
-                "tb-border",
-                self.attribute("tb-border").map(|v| v.to_owned()),
-            );
-            renderer.maybe_add_extra_attribute(
-                "tb-border-radius",
-                self.attribute("tb-border-radius").map(|v| v.to_owned()),
-            );
+            renderer.maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
+            renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
+            renderer
+                .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_container_width(self.container_width.clone());
 
             cursor.buffer.start_mso_conditional_tag();

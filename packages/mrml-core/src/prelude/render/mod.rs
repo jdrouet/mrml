@@ -95,7 +95,7 @@ pub trait Render<'root> {
         None
     }
 
-    fn raw_extra_attribute(&self, _: &str) -> Option<&str> {
+    fn raw_extra_attribute(&self, _: &str) -> Option<&'root str> {
         None
     }
 
@@ -253,9 +253,9 @@ pub trait Render<'root> {
     fn set_siblings(&mut self, _count: usize) {}
     fn set_raw_siblings(&mut self, _count: usize) {}
 
-    fn add_extra_attribute(&mut self, _key: &str, _value: &str) {}
-    fn maybe_add_extra_attribute(&mut self, key: &str, value: Option<String>) {
-        if let Some(ref value) = value {
+    fn add_extra_attribute(&mut self, _key: &'root str, _value: &'root str) {}
+    fn maybe_add_extra_attribute(&mut self, key: &'root str, value: Option<&'root str>) {
+        if let Some(value) = value {
             self.add_extra_attribute(key, value);
         }
     }

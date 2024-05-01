@@ -3,11 +3,11 @@ use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-struct MjCarouselImageExtra {
-    attributes: Map<String, String>,
+struct MjCarouselImageExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
 }
 
-impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra> {
+impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra<'root>> {
     fn set_style_images_img<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
     where
         'root: 'a,
@@ -142,7 +142,7 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra> {
     }
 }
 
-impl<'root> Render<'root> for Renderer<'root, MjCarouselImage, MjCarouselImageExtra> {
+impl<'root> Render<'root> for Renderer<'root, MjCarouselImage, MjCarouselImageExtra<'root>> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "target" => Some("_blank"),
@@ -150,14 +150,12 @@ impl<'root> Render<'root> for Renderer<'root, MjCarouselImage, MjCarouselImageEx
         }
     }
 
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra
-            .attributes
-            .insert(key.to_string(), value.to_string());
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
-    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.attributes.get(key).map(|v| v.as_str())
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'root str> {

@@ -206,7 +206,7 @@ impl<'root> Render<'root> for Renderer<'root, MjNavbar, MjNavbarExtra> {
 
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(self.context());
-            renderer.maybe_add_extra_attribute("navbar-base-url", base_url.map(|v| v.to_owned()));
+            renderer.maybe_add_extra_attribute("navbar-base-url", base_url);
             renderer.render(cursor)?;
         }
 

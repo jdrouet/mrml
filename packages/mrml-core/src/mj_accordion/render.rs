@@ -106,7 +106,7 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|key| {
-                renderer.maybe_add_extra_attribute(key, self.attribute(key).map(|v| v.to_owned()));
+                renderer.maybe_add_extra_attribute(key, self.attribute(key));
             });
             renderer.render(cursor)?;
         }

@@ -9,12 +9,12 @@ use crate::prelude::render::*;
 const DEFAULT_ICON_ORIGIN: &str = "https://www.mailjet.com/images/theme/v1/icons/ico-social/";
 
 #[derive(Default)]
-struct MjSocialElementExtra {
-    attributes: Map<String, String>,
+struct MjSocialElementExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
     network: Option<SocialNetwork>,
 }
 
-impl MjSocialElementExtra {
+impl<'a> MjSocialElementExtra<'a> {
     pub fn new(network: Option<SocialNetwork>) -> Self {
         Self {
             attributes: Map::new(),
@@ -23,7 +23,7 @@ impl MjSocialElementExtra {
     }
 }
 
-impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
+impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
     fn get_background_color(&'root self) -> Option<&'root str> {
         if let Some(value) = self.attribute("background-color") {
             Some(value)
@@ -217,7 +217,7 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra> {
     }
 }
 
-impl<'root> Render<'root> for Renderer<'root, MjSocialElement, MjSocialElementExtra> {
+impl<'root> Render<'root> for Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("left"),
@@ -235,14 +235,12 @@ impl<'root> Render<'root> for Renderer<'root, MjSocialElement, MjSocialElementEx
         }
     }
 
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra
-            .attributes
-            .insert(key.to_string(), value.to_string());
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
-    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.attributes.get(key).map(|v| v.as_str())
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'root str> {

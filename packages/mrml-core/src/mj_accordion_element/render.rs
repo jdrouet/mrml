@@ -16,25 +16,23 @@ const CHILDREN_ATTRIBUTES: [&str; 9] = [
     "icon-unwrapped-alt",
 ];
 
-struct MjAccordionElementExtra {
-    attributes: Map<String, String>,
+struct MjAccordionElementExtra<'a> {
+    attributes: Map<&'a str, &'a str>,
 }
 
-impl<'root> Renderer<'root, MjAccordionElement, MjAccordionElementExtra> {
+impl<'root> Renderer<'root, MjAccordionElement, MjAccordionElementExtra<'root>> {
     fn render_title(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         if let Some(ref child) = self.element.children.title {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
-                renderer
-                    .maybe_add_extra_attribute(name, self.attribute(name).map(|v| v.to_owned()));
+                renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
             renderer.render(cursor)
         } else {
             let child = MjAccordionTitle::default();
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
-                renderer
-                    .maybe_add_extra_attribute(name, self.attribute(name).map(|v| v.to_owned()));
+                renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
             renderer.render(cursor)
         }
@@ -44,16 +42,14 @@ impl<'root> Renderer<'root, MjAccordionElement, MjAccordionElementExtra> {
         if let Some(ref child) = self.element.children.text {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
-                renderer
-                    .maybe_add_extra_attribute(name, self.attribute(name).map(|v| v.to_owned()));
+                renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
             renderer.render(cursor)
         } else {
             let child = MjAccordionText::default();
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|name| {
-                renderer
-                    .maybe_add_extra_attribute(name, self.attribute(name).map(|v| v.to_owned()));
+                renderer.maybe_add_extra_attribute(name, self.attribute(name));
             });
             renderer.render(cursor)
         }
@@ -67,15 +63,13 @@ impl<'root> Renderer<'root, MjAccordionElement, MjAccordionElementExtra> {
     }
 }
 
-impl<'root> Render<'root> for Renderer<'root, MjAccordionElement, MjAccordionElementExtra> {
-    fn add_extra_attribute(&mut self, key: &str, value: &str) {
-        self.extra
-            .attributes
-            .insert(key.to_string(), value.to_string());
+impl<'root> Render<'root> for Renderer<'root, MjAccordionElement, MjAccordionElementExtra<'root>> {
+    fn add_extra_attribute(&mut self, key: &'root str, value: &'root str) {
+        self.extra.attributes.insert(key, value);
     }
 
-    fn raw_extra_attribute(&self, key: &str) -> Option<&str> {
-        self.extra.attributes.get(key).map(|v| v.as_str())
+    fn raw_extra_attribute(&self, key: &str) -> Option<&'root str> {
+        self.extra.attributes.get(key).copied()
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'root str> {
