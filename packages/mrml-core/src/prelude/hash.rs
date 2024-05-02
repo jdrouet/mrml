@@ -2,21 +2,15 @@ use std::hash::Hash;
 use std::iter::FromIterator;
 use std::ops::{Deref, DerefMut};
 
-#[cfg(feature = "orderedmap")]
 use indexmap::{IndexMap, IndexSet};
-#[cfg(feature = "orderedmap")]
 use rustc_hash::FxHasher;
+
 #[cfg(feature = "json")]
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "orderedmap")]
 type HashImpl = std::hash::BuildHasherDefault<FxHasher>;
 
-#[cfg(feature = "orderedmap")]
 pub type MapImpl<K, V> = IndexMap<K, V, HashImpl>;
-
-#[cfg(not(feature = "orderedmap"))]
-pub type MapImpl<K, V> = std::collections::HashMap<K, V>;
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "json", derive(Serialize, Deserialize))]
@@ -29,17 +23,10 @@ impl<K, V> Map<K, V>
 where
     K: Hash + Eq,
 {
-    #[cfg(feature = "orderedmap")]
     pub fn new() -> Self {
         Map(MapImpl::with_hasher(HashImpl::default()))
     }
 
-    #[cfg(not(feature = "orderedmap"))]
-    pub fn new() -> Self {
-        Map(MapImpl::new())
-    }
-
-    #[cfg(feature = "orderedmap")]
     #[inline]
     pub fn remove<Q: ?Sized>(&mut self, key: &Q) -> Option<V>
     where
@@ -78,11 +65,7 @@ where
     }
 }
 
-#[cfg(feature = "orderedmap")]
 pub type SetImpl<V> = IndexSet<V, HashImpl>;
-
-#[cfg(not(feature = "orderedmap"))]
-pub type SetImpl<V> = std::collections::HashSet<V>;
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "json", derive(Serialize, Deserialize))]
@@ -95,14 +78,8 @@ impl<V> Set<V>
 where
     V: Hash + Eq,
 {
-    #[cfg(feature = "orderedmap")]
     pub fn new() -> Self {
         Set(SetImpl::with_hasher(HashImpl::default()))
-    }
-
-    #[cfg(not(feature = "orderedmap"))]
-    pub fn new() -> Self {
-        Set(SetImpl::new())
     }
 }
 
