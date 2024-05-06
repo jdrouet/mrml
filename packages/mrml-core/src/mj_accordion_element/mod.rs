@@ -1,4 +1,3 @@
-mod children;
 #[cfg(feature = "json")]
 mod json;
 #[cfg(feature = "parse")]
@@ -7,8 +6,6 @@ mod parse;
 mod print;
 #[cfg(feature = "render")]
 mod render;
-
-pub use children::MjAccordionElementChild;
 
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;

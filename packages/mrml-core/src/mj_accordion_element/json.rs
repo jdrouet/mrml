@@ -4,7 +4,19 @@ use serde::de::{SeqAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use super::{MjAccordionElementChild, MjAccordionElementChildren};
+use crate::comment::Comment;
+use crate::mj_accordion_text::MjAccordionText;
+use crate::mj_accordion_title::MjAccordionTitle;
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+enum MjAccordionElementChild {
+    Comment(Comment),
+    MjAccordionText(MjAccordionText),
+    MjAccordionTitle(MjAccordionTitle),
+}
+
+use super::MjAccordionElementChildren;
 
 impl MjAccordionElementChildren {
     pub fn is_empty(&self) -> bool {
