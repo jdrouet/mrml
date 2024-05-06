@@ -48,46 +48,58 @@ pub enum MjBodyChild {
     Text(Text),
 }
 
-impl MjBodyChild {
-    #[cfg(feature = "render")]
-    pub fn as_renderable<'render, 'root: 'render>(
-        &'root self,
-    ) -> &'root (dyn Renderable<'render, 'root> + 'root) {
-        match self {
-            Self::Comment(elt) => elt,
-            Self::MjAccordion(elt) => elt,
-            Self::MjButton(elt) => elt,
-            Self::MjCarousel(elt) => elt,
-            Self::MjColumn(elt) => elt,
-            Self::MjDivider(elt) => elt,
-            Self::MjGroup(elt) => elt,
-            Self::MjHero(elt) => elt,
-            Self::MjInclude(elt) => elt,
-            Self::MjImage(elt) => elt,
-            Self::MjNavbar(elt) => elt,
-            Self::MjRaw(elt) => elt,
-            Self::MjSection(elt) => elt,
-            Self::MjSocial(elt) => elt,
-            Self::MjSpacer(elt) => elt,
-            Self::MjTable(elt) => elt,
-            Self::MjText(elt) => elt,
-            Self::MjWrapper(elt) => elt,
-            Self::Node(elt) => elt,
-            Self::Text(elt) => elt,
-        }
-    }
-}
-
 #[cfg(feature = "render")]
 impl<'render, 'root: 'render> Renderable<'render, 'root> for MjBodyChild {
     fn is_raw(&self) -> bool {
-        self.as_renderable().is_raw()
+        match self {
+            Self::Comment(elt) => elt.is_raw(),
+            Self::MjAccordion(elt) => elt.is_raw(),
+            Self::MjButton(elt) => elt.is_raw(),
+            Self::MjCarousel(elt) => elt.is_raw(),
+            Self::MjColumn(elt) => elt.is_raw(),
+            Self::MjDivider(elt) => elt.is_raw(),
+            Self::MjGroup(elt) => elt.is_raw(),
+            Self::MjHero(elt) => elt.is_raw(),
+            Self::MjInclude(elt) => elt.is_raw(),
+            Self::MjImage(elt) => elt.is_raw(),
+            Self::MjNavbar(elt) => elt.is_raw(),
+            Self::MjRaw(elt) => elt.is_raw(),
+            Self::MjSection(elt) => elt.is_raw(),
+            Self::MjSocial(elt) => elt.is_raw(),
+            Self::MjSpacer(elt) => elt.is_raw(),
+            Self::MjTable(elt) => elt.is_raw(),
+            Self::MjText(elt) => elt.is_raw(),
+            Self::MjWrapper(elt) => elt.is_raw(),
+            Self::Node(elt) => elt.is_raw(),
+            Self::Text(elt) => elt.is_raw(),
+        }
     }
 
     fn renderer(
         &'root self,
         context: &'root RenderContext<'root>,
     ) -> Box<dyn Render<'root> + 'render> {
-        self.as_renderable().renderer(context)
+        match self {
+            Self::Comment(elt) => elt.renderer(context),
+            Self::MjAccordion(elt) => elt.renderer(context),
+            Self::MjButton(elt) => elt.renderer(context),
+            Self::MjCarousel(elt) => elt.renderer(context),
+            Self::MjColumn(elt) => elt.renderer(context),
+            Self::MjDivider(elt) => elt.renderer(context),
+            Self::MjGroup(elt) => elt.renderer(context),
+            Self::MjHero(elt) => elt.renderer(context),
+            Self::MjInclude(elt) => elt.renderer(context),
+            Self::MjImage(elt) => elt.renderer(context),
+            Self::MjNavbar(elt) => elt.renderer(context),
+            Self::MjRaw(elt) => elt.renderer(context),
+            Self::MjSection(elt) => elt.renderer(context),
+            Self::MjSocial(elt) => elt.renderer(context),
+            Self::MjSpacer(elt) => elt.renderer(context),
+            Self::MjTable(elt) => elt.renderer(context),
+            Self::MjText(elt) => elt.renderer(context),
+            Self::MjWrapper(elt) => elt.renderer(context),
+            Self::Node(elt) => elt.renderer(context),
+            Self::Text(elt) => elt.renderer(context),
+        }
     }
 }
