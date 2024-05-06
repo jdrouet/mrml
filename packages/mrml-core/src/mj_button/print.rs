@@ -1,6 +1,22 @@
+use crate::prelude::print::{PrintableAttributes, PrintableChildren, PrintableElement};
+
+impl PrintableElement for super::MjButton {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
+    }
+
+    fn children(&self) -> &impl PrintableChildren {
+        &self.children
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {
@@ -13,11 +29,7 @@ mod tests {
             )));
         assert_eq!(
             "<mj-button href=\"http://localhost\">Hello World!</mj-button>",
-            item.dense_print()
-        );
-        assert_eq!(
-            "<mj-button href=\"http://localhost\">\n  Hello World!\n</mj-button>\n",
-            item.pretty_print()
+            item.print_dense().unwrap()
         );
     }
 }

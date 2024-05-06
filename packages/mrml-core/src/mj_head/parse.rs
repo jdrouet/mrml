@@ -1,7 +1,6 @@
 use xmlparser::StrSpan;
 
 use super::{MjHead, MjHeadChild};
-use crate::mj_attributes::NAME as MJ_ATTRIBUTES;
 use crate::mj_breakpoint::NAME as MJ_BREAKPOINT;
 use crate::mj_font::NAME as MJ_FONT;
 use crate::mj_include::NAME as MJ_INCLUDE;
@@ -14,6 +13,7 @@ use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElem
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
+use crate::{comment::Comment, mj_attributes::NAME as MJ_ATTRIBUTES};
 
 impl<'opts> ParseChildren<Vec<MjHeadChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjHeadChild>, Error> {
@@ -21,9 +21,7 @@ impl<'opts> ParseChildren<Vec<MjHeadChild>> for MrmlParser<'opts> {
         loop {
             match cursor.assert_next()? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjHeadChild::Comment(crate::comment::Comment::from(
-                        inner.text.as_str(),
-                    )));
+                    result.push(MjHeadChild::Comment(Comment::from(inner.text.as_str())));
                 }
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.parse(cursor, inner.local)?);
@@ -54,9 +52,7 @@ impl AsyncParseChildren<Vec<MjHeadChild>> for AsyncMrmlParser {
         loop {
             match cursor.assert_next()? {
                 MrmlToken::Comment(inner) => {
-                    result.push(MjHeadChild::Comment(crate::comment::Comment::from(
-                        inner.text.as_str(),
-                    )));
+                    result.push(MjHeadChild::Comment(Comment::from(inner.text.as_str())));
                 }
                 MrmlToken::ElementStart(inner) => {
                     result.push(self.async_parse(cursor, inner.local).await?);

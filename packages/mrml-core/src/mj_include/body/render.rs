@@ -124,7 +124,7 @@ mod tests {
             let context = RenderContext::new(&opts, header);
             let mut cursor = RenderCursor::default();
 
-            let mut node = Node::new("span".to_string());
+            let mut node = Node::from("span");
             node.children
                 .push(MjRawChild::Text(Text::from("Hello World!")));
 
@@ -139,7 +139,7 @@ mod tests {
             let context = RenderContext::new(&opts, header);
             let mut cursor = RenderCursor::default();
 
-            let mut node = Node::new("span".to_string());
+            let mut node = Node::from("span");
             node.children
                 .push(MjBodyChild::Text(Text::from("Hello World!")));
 

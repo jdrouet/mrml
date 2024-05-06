@@ -1,29 +1,22 @@
-use super::MjAttributesElement;
-use crate::prelude::print::{self, Print};
-use crate::print_display;
+use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
-impl Print for MjAttributesElement {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        print::open(
-            &self.name,
-            Some(&self.attributes),
-            true,
-            pretty,
-            level,
-            indent_size,
-        )
+impl PrintableElement for super::MjAttributesElement {
+    fn tag(&self) -> &str {
+        self.name.as_str()
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
     }
 }
 
-print_display!(MjAttributesElement);
-
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {
         let item = crate::mj_attributes_element::MjAttributesElement::new("span".to_string());
-        assert_eq!("<span />", item.dense_print());
+        assert_eq!("<span />", item.print_dense().unwrap());
     }
 }

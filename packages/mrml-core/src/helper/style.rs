@@ -18,11 +18,14 @@ impl Style {
     }
 }
 
-impl ToString for Style {
-    fn to_string(&self) -> String {
-        let selectors = self.selectors.join(",\n");
-        let content = self.content.join("\n");
-        format!("{selectors} {{ {content} }}")
+impl std::fmt::Display for Style {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} {{ {} }}",
+            self.selectors.join(",\n"),
+            self.content.join("\n")
+        )
     }
 }
 

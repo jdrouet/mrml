@@ -1,14 +1,22 @@
-use super::MjIncludeBodyKind;
-use crate::prelude::hash::Map;
+use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
-impl super::MjIncludeBodyAttributes {
-    pub fn as_map(&self) -> Map<String, String> {
-        let mut res = Map::new();
-        res.insert("path".to_string(), self.path.clone());
-        if self.kind != MjIncludeBodyKind::default() {
-            res.insert("type".into(), self.kind.to_string());
+impl PrintableAttributes for super::MjIncludeBodyAttributes {
+    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.push_attribute("path", self.path.as_str())?;
+        if !self.kind.is_default() {
+            printer.push_attribute("type", self.kind.as_ref())?;
         }
-        res
+        Ok(())
+    }
+}
+
+impl PrintableElement for super::MjIncludeBody {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
     }
 }
 
@@ -16,12 +24,12 @@ impl super::MjIncludeBodyAttributes {
 mod tests {
     use crate::mj_button::MjButton;
     use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyChild, MjIncludeBodyKind};
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn kind_string() {
-        assert_eq!(MjIncludeBodyKind::Html.to_string(), "html");
-        assert_eq!(MjIncludeBodyKind::Mjml.to_string(), "mjml");
+        assert_eq!(MjIncludeBodyKind::Html.as_ref(), "html");
+        assert_eq!(MjIncludeBodyKind::Mjml.as_ref(), "mjml");
     }
 
     #[test]
@@ -30,7 +38,7 @@ mod tests {
         elt.attributes.path = "memory:include.mjml".to_string();
         elt.children = vec![MjIncludeBodyChild::MjButton(MjButton::default())];
         assert_eq!(
-            elt.dense_print(),
+            elt.print_dense().unwrap(),
             "<mj-include path=\"memory:include.mjml\" />"
         );
     }
@@ -42,7 +50,7 @@ mod tests {
         elt.attributes.path = "memory:include.html".to_string();
         elt.children = vec![MjIncludeBodyChild::MjButton(MjButton::default())];
         assert_eq!(
-            elt.dense_print(),
+            elt.print_dense().unwrap(),
             "<mj-include path=\"memory:include.html\" type=\"html\" />"
         );
     }

@@ -1,24 +1,24 @@
-use super::MjAttributesClass;
-use crate::prelude::print::{self, Print};
-use crate::print_display;
+use crate::prelude::print::{Printable, PrintableAttributes};
 
-impl Print for MjAttributesClass {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        let mut attrs = self.attributes.clone();
-        attrs.insert("name".to_string(), self.name.clone());
-        print::open(super::NAME, Some(&attrs), true, pretty, level, indent_size)
+impl Printable for super::MjAttributesClass {
+    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.push_indent();
+        printer.open_tag(super::NAME)?;
+        printer.push_attribute("name", self.name.as_str())?;
+        self.attributes.print(printer)?;
+        printer.closed_tag();
+        printer.push_new_line();
+        Ok(())
     }
 }
 
-print_display!(MjAttributesClass);
-
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {
         let item = crate::mj_attributes_all::MjAttributesAll::default();
-        assert_eq!("<mj-all />", item.dense_print());
+        assert_eq!("<mj-all />", item.print_dense().unwrap());
     }
 }

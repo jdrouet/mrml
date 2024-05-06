@@ -10,10 +10,10 @@ mod render;
 #[cfg(any(feature = "print", feature = "json"))]
 use super::NAME;
 
-#[derive(Debug, mrml_macros::MrmlChildren)]
+#[derive(Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
+#[cfg_attr(feature = "render", derive(enum_as_inner::EnumAsInner))]
 pub enum MjIncludeHeadChild {
     Comment(crate::comment::Comment),
     MjAttributes(crate::mj_attributes::MjAttributes),
@@ -35,12 +35,12 @@ pub enum MjIncludeHeadKind {
     Css { inline: bool },
 }
 
-impl ToString for MjIncludeHeadKind {
-    fn to_string(&self) -> String {
+impl AsRef<str> for MjIncludeHeadKind {
+    fn as_ref(&self) -> &str {
         match self {
-            Self::Html => "html".to_string(),
-            Self::Mjml => "mjml".to_string(),
-            Self::Css { inline: _ } => "css".to_string(),
+            Self::Html => "html",
+            Self::Mjml => "mjml",
+            Self::Css { inline: _ } => "css",
         }
     }
 }
@@ -80,8 +80,6 @@ impl MjIncludeHeadAttributes {
 }
 
 #[derive(Debug, Default)]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
-#[cfg_attr(feature = "print", mrml_print(tag = "NAME", children = false))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjIncludeHead {

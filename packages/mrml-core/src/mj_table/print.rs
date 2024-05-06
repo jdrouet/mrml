@@ -1,10 +1,26 @@
+use crate::prelude::print::{PrintableAttributes, PrintableChildren, PrintableElement};
+
+impl PrintableElement for super::MjTable {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
+    }
+
+    fn children(&self) -> &impl PrintableChildren {
+        &self.children
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {
         let item = crate::mj_table::MjTable::default();
-        assert_eq!("<mj-table />", item.dense_print());
+        assert_eq!("<mj-table />", item.print_dense().unwrap());
     }
 }

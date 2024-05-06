@@ -1,11 +1,27 @@
+use crate::prelude::print::{PrintableAttributes, PrintableChildren, PrintableElement};
+
+impl PrintableElement for super::MjBody {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
+    }
+
+    fn children(&self) -> &impl PrintableChildren {
+        &self.children
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {
         let item = crate::mj_body::MjBody::default();
-        assert_eq!("<mj-body />", item.dense_print());
+        assert_eq!("<mj-body />", item.print_dense().unwrap());
     }
 
     #[test]
@@ -19,7 +35,7 @@ mod tests {
             )));
         assert_eq!(
             "<mj-body background-color=\"red\"><span></span></mj-body>",
-            item.dense_print()
+            item.print_dense().unwrap()
         );
     }
 }

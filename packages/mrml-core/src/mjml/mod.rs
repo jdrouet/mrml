@@ -16,7 +16,6 @@ pub const NAME: &str = "mjml";
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintAttributes))]
 pub struct MjmlAttributes {
     #[cfg_attr(feature = "json", serde(skip_serializing_if = "Option::is_none"))]
     pub owa: Option<String>,
@@ -27,15 +26,12 @@ pub struct MjmlAttributes {
 }
 
 #[derive(Debug, Default)]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 pub struct MjmlChildren {
     pub head: Option<MjHead>,
     pub body: Option<MjBody>,
 }
 
 #[derive(Debug, Default)]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
-#[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 /// Representation of the `mjml` and its attributes and children defined

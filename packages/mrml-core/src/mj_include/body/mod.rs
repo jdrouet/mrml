@@ -13,7 +13,6 @@ use super::NAME;
 #[derive(Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
 pub enum MjIncludeBodyChild {
     Comment(crate::comment::Comment),
     MjAccordion(crate::mj_accordion::MjAccordion),
@@ -44,16 +43,16 @@ pub enum MjIncludeBodyKind {
     Html,
 }
 
-impl ToString for MjIncludeBodyKind {
-    fn to_string(&self) -> String {
+impl AsRef<str> for MjIncludeBodyKind {
+    fn as_ref(&self) -> &str {
         match self {
-            Self::Html => "html".to_string(),
-            Self::Mjml => "mjml".to_string(),
+            Self::Html => "html",
+            Self::Mjml => "mjml",
         }
     }
 }
 
-#[cfg(feature = "json")]
+#[cfg(any(feature = "json", feature = "print"))]
 impl MjIncludeBodyKind {
     fn is_default(&self) -> bool {
         matches!(self, Self::Mjml)
@@ -88,8 +87,6 @@ impl MjIncludeBodyAttributes {
 }
 
 #[derive(Debug, Default)]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
-#[cfg_attr(feature = "print", mrml_print(tag = "NAME", children = false))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjIncludeBody {

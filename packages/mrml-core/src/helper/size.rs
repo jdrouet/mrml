@@ -69,12 +69,12 @@ impl TryFrom<&str> for Size {
     }
 }
 
-impl ToString for Size {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for Size {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Pixel(px) => px.to_string(),
-            Self::Percent(prc) => prc.to_string(),
-            Self::Raw(value) => value.to_string(),
+            Self::Pixel(inner) => inner.fmt(f),
+            Self::Percent(inner) => inner.fmt(f),
+            Self::Raw(inner) => write!(f, "{inner}"),
         }
     }
 }
@@ -113,9 +113,9 @@ impl Default for Percent {
     }
 }
 
-impl ToString for Percent {
-    fn to_string(&self) -> String {
-        format!("{}%", self.0)
+impl std::fmt::Display for Percent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}%", self.0)
     }
 }
 

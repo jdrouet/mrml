@@ -50,6 +50,7 @@ pub struct ElementEnd<'a> {
     pub span: StrSpan<'a>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ElementOpen<'a> {
     pub start: ElementStart<'a>,
@@ -57,6 +58,7 @@ pub struct ElementOpen<'a> {
     pub end: ElementEnd<'a>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ElementClose<'a> {
     pub span: StrSpan<'a>,

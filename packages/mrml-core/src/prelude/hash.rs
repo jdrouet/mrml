@@ -28,9 +28,9 @@ where
     }
 
     #[inline]
-    pub fn remove<Q: ?Sized>(&mut self, key: &Q) -> Option<V>
+    pub fn remove<Q>(&mut self, key: &Q) -> Option<V>
     where
-        Q: Hash + indexmap::Equivalent<K>,
+        Q: Hash + indexmap::Equivalent<K> + ?Sized,
     {
         self.shift_remove(key)
     }

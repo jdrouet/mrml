@@ -1,6 +1,18 @@
+use crate::prelude::print::{PrintableAttributes, PrintableElement};
+
+impl PrintableElement for super::MjDivider {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {
@@ -9,7 +21,7 @@ mod tests {
             .insert("src".to_string(), "http://localhost".into());
         assert_eq!(
             "<mj-divider src=\"http://localhost\" />",
-            item.dense_print()
+            item.print_dense().unwrap()
         );
     }
 }
