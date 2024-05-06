@@ -8,7 +8,6 @@ impl Printable for super::MjStyle {
         printer.end_tag(super::NAME)
     }
 }
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Printable;

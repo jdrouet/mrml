@@ -1,4 +1,4 @@
-use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren};
+use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren, PrintableElement};
 
 impl PrintableChildren for super::MjAccordionElementChildren {
     fn has_children(&self) -> bool {
@@ -16,18 +16,17 @@ impl PrintableChildren for super::MjAccordionElementChildren {
     }
 }
 
-impl Printable for super::MjAccordionElement {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(super::NAME)?;
-        self.attributes.print(printer)?;
-        if self.children.has_children() {
-            printer.close_tag();
-            self.children.print(printer)?;
-            printer.end_tag(super::NAME)?;
-        } else {
-            printer.closed_tag();
-        }
-        Ok(())
+impl PrintableElement for super::MjAccordionElement {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
+    }
+
+    fn children(&self) -> &impl PrintableChildren {
+        &self.children
     }
 }
 

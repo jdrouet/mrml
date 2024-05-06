@@ -1,4 +1,4 @@
-use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren};
+use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren, PrintableElement};
 
 impl PrintableAttributes for super::MjmlAttributes {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
@@ -31,18 +31,17 @@ impl PrintableChildren for super::MjmlChildren {
     }
 }
 
-impl Printable for super::Mjml {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(super::NAME)?;
-        self.attributes.print(printer)?;
-        if self.children.has_children() {
-            printer.close_tag();
-            self.children.print(printer)?;
-            printer.end_tag(super::NAME)?;
-        } else {
-            printer.closed_tag();
-        }
-        Ok(())
+impl PrintableElement for super::Mjml {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
+    }
+
+    fn children(&self) -> &impl PrintableChildren {
+        &self.children
     }
 }
 

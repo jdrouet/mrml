@@ -3,8 +3,14 @@ use std::fmt::{Debug, Display, Write};
 // use crate::helper::sort::sort_by_key;
 use crate::prelude::hash::Map;
 
-pub(crate) trait PrintableAttributes {
+pub trait PrintableAttributes {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result;
+}
+
+impl PrintableAttributes for () {
+    fn print<P: Printer>(&self, _: &mut P) -> std::fmt::Result {
+        Ok(())
+    }
 }
 
 impl PrintableAttributes for Map<String, String> {
@@ -16,9 +22,19 @@ impl PrintableAttributes for Map<String, String> {
     }
 }
 
-pub(crate) trait PrintableChildren {
+pub trait PrintableChildren {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result;
     fn has_children(&self) -> bool;
+}
+
+impl PrintableChildren for () {
+    fn has_children(&self) -> bool {
+        false
+    }
+
+    fn print<P: Printer>(&self, _: &mut P) -> std::fmt::Result {
+        Ok(())
+    }
 }
 
 impl<C: Printable> PrintableChildren for Vec<C> {
@@ -95,6 +111,35 @@ pub trait Printable {
         let mut p = DensePrinter::default();
         self.print(&mut p)?;
         Ok(p.inner())
+    }
+}
+
+pub trait PrintableElement {
+    fn tag(&self) -> &str;
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &()
+    }
+    fn children(&self) -> &impl PrintableChildren {
+        &()
+    }
+}
+
+impl<E: PrintableElement> Printable for E {
+    fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        let tag = self.tag();
+        let attrs = self.attributes();
+        let children = self.children();
+
+        printer.open_tag(tag)?;
+        attrs.print(printer)?;
+        if children.has_children() {
+            printer.close_tag();
+            children.print(printer)?;
+            printer.end_tag(tag)?;
+        } else {
+            printer.closed_tag();
+        }
+        Ok(())
     }
 }
 

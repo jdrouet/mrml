@@ -1,12 +1,16 @@
-use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren};
+use crate::prelude::print::{PrintableAttributes, PrintableChildren, PrintableElement};
 
-impl Printable for super::MjText {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(super::NAME)?;
-        self.attributes.print(printer)?;
-        printer.close_tag();
-        self.children.print(printer)?;
-        printer.end_tag(super::NAME)
+impl PrintableElement for super::MjText {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
+    }
+
+    fn children(&self) -> &impl PrintableChildren {
+        &self.children
     }
 }
 
