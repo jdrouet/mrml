@@ -2,9 +2,11 @@ use crate::prelude::print::Printable;
 
 impl Printable for super::Comment {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.push_indent();
         printer.push_str("<!--");
         printer.push_str(self.children.as_str());
         printer.push_str("-->");
+        printer.push_new_line();
         Ok(())
     }
 }

@@ -1,11 +1,12 @@
-use crate::prelude::print::{Printable, PrintableAttributes};
+use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
-impl Printable for super::MjImage {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(super::NAME)?;
-        self.attributes.print(printer)?;
-        printer.closed_tag();
-        Ok(())
+impl PrintableElement for super::MjImage {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
     }
 }
 
@@ -21,6 +22,10 @@ mod tests {
         assert_eq!(
             "<mj-image src=\"http://localhost\" />",
             item.print_dense().unwrap()
+        );
+        assert_eq!(
+            "<mj-image src=\"http://localhost\" />\n",
+            item.print_pretty().unwrap()
         );
     }
 }

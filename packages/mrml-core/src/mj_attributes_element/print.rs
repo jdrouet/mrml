@@ -1,11 +1,12 @@
-use crate::prelude::print::{Printable, PrintableAttributes};
+use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
-impl Printable for super::MjAttributesElement {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(self.name.as_str())?;
-        self.attributes.print(printer)?;
-        printer.closed_tag();
-        Ok(())
+impl PrintableElement for super::MjAttributesElement {
+    fn tag(&self) -> &str {
+        self.name.as_str()
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
     }
 }
 

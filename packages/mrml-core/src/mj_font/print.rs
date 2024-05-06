@@ -1,4 +1,4 @@
-use crate::prelude::print::{Printable, PrintableAttributes};
+use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
 impl PrintableAttributes for super::MjFontAttributes {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
@@ -7,12 +7,13 @@ impl PrintableAttributes for super::MjFontAttributes {
     }
 }
 
-impl Printable for super::MjFont {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(super::NAME)?;
-        self.attributes.print(printer)?;
-        printer.closed_tag();
-        Ok(())
+impl PrintableElement for super::MjFont {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
     }
 }
 

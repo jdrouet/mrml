@@ -16,7 +16,9 @@ impl PrintableElement for super::MjCarousel {
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Printable;
+    use crate::{
+        mj_carousel::MjCarousel, mj_carousel_image::MjCarouselImage, prelude::print::Printable,
+    };
 
     #[test]
     fn empty() {
@@ -24,18 +26,21 @@ mod tests {
         assert_eq!("<mj-carousel />", item.print_dense().unwrap());
     }
 
-    //     #[cfg(feature = "parse")]
-    //     #[test]
-    //     fn with_images() {
-    //         let json = r#"<mjml>
-    //   <mj-body>
-    //     <mj-carousel>
-    //       <mj-carousel-image />
-    //     </mj-carousel>
-    //   </mj-body>
-    // </mjml>
-    // "#;
-    //         let root = crate::mjml::Mjml::parse(json).unwrap();
-    //         assert_eq!(json, root.pretty_print());
-    //     }
+    #[test]
+    fn with_images() {
+        let item = MjCarousel {
+            attributes: Default::default(),
+            children: vec![MjCarouselImage {
+                attributes: Default::default(),
+            }
+            .into()],
+        };
+        assert_eq!(
+            r#"<mj-carousel>
+  <mj-carousel-image />
+</mj-carousel>
+"#,
+            item.print_pretty().unwrap()
+        );
+    }
 }

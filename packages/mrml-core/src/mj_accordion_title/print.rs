@@ -1,16 +1,12 @@
-use crate::prelude::print::{Printable, PrintableChildren};
+use crate::prelude::print::{PrintableChildren, PrintableElement};
 
-impl Printable for super::MjAccordionTitle {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(super::NAME)?;
-        if self.children.is_empty() {
-            printer.closed_tag();
-        } else {
-            printer.close_tag();
-            self.children.print(printer)?;
-            printer.end_tag(super::NAME)?;
-        }
-        Ok(())
+impl PrintableElement for super::MjAccordionTitle {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn children(&self) -> &impl PrintableChildren {
+        &self.children
     }
 }
 

@@ -112,6 +112,12 @@ pub trait Printable {
         self.print(&mut p)?;
         Ok(p.inner())
     }
+
+    fn print_pretty(&self) -> Result<String, std::fmt::Error> {
+        let mut p = PrettyPrinter::default();
+        self.print(&mut p)?;
+        Ok(p.inner())
+    }
 }
 
 pub trait PrintableElement {
@@ -130,32 +136,48 @@ impl<E: PrintableElement> Printable for E {
         let attrs = self.attributes();
         let children = self.children();
 
+        printer.push_indent();
         printer.open_tag(tag)?;
         attrs.print(printer)?;
         if children.has_children() {
             printer.close_tag();
+            printer.push_new_line();
+            printer.increase_indent();
             children.print(printer)?;
+            printer.decrease_indent();
+            printer.push_indent();
             printer.end_tag(tag)?;
         } else {
             printer.closed_tag();
         }
+        printer.push_new_line();
         Ok(())
     }
 }
 
 pub trait Printer {
+    fn push_new_line(&mut self);
+    fn push_indent(&mut self);
+    fn increase_indent(&mut self);
+    fn decrease_indent(&mut self);
+
+    fn push(&mut self, value: char);
     fn push_str(&mut self, value: &str);
+
     fn open_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result;
+    fn close_tag(&mut self) {
+        self.push('>');
+    }
+    fn closed_tag(&mut self) {
+        self.push_str(" />");
+    }
+    fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result;
+
     fn push_attribute<N: Display + ?Sized, V: Debug + ?Sized>(
         &mut self,
         name: &N,
         value: &V,
     ) -> std::fmt::Result;
-    fn close_tag(&mut self);
-    fn closed_tag(&mut self) {
-        self.push_str(" />");
-    }
-    fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result;
 
     fn inner(self) -> String;
 }
@@ -167,14 +189,30 @@ pub struct DensePrinter {
 
 impl Printer for DensePrinter {
     #[inline]
+    fn push_new_line(&mut self) {}
+    #[inline]
+    fn push_indent(&mut self) {}
+    #[inline]
+    fn increase_indent(&mut self) {}
+    #[inline]
+    fn decrease_indent(&mut self) {}
+
+    #[inline]
+    fn push(&mut self, value: char) {
+        self.buffer.push(value);
+    }
+
+    #[inline]
     fn push_str(&mut self, value: &str) {
         self.buffer.push_str(value);
     }
 
+    #[inline]
     fn open_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
         write!(&mut self.buffer, "<{name}")
     }
 
+    #[inline]
     fn push_attribute<N: Display + ?Sized, V: Debug + ?Sized>(
         &mut self,
         name: &N,
@@ -183,125 +221,87 @@ impl Printer for DensePrinter {
         write!(&mut self.buffer, " {name}={value:?}")
     }
 
-    fn close_tag(&mut self) {
-        self.buffer.push('>');
-    }
-
+    #[inline]
     fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
         write!(&mut self.buffer, "</{name}>")
     }
 
+    #[inline]
     fn inner(self) -> String {
         self.buffer
     }
 }
 
-// #[derive(Debug)]
-// pub struct PrettyPrinter {
-//     indent_size: usize,
-//     level: usize,
-//     buffer: String,
-// }
+#[derive(Debug)]
+pub struct PrettyPrinter {
+    indent_size: usize,
+    level: usize,
+    buffer: String,
+}
 
-// impl Default for PrettyPrinter {
-//     fn default() -> Self {
-//         Self {
-//             indent_size: 2,
-//             level: 0,
-//             buffer: String::default(),
-//         }
-//     }
-// }
+impl Default for PrettyPrinter {
+    fn default() -> Self {
+        Self {
+            indent_size: 2,
+            level: 0,
+            buffer: String::default(),
+        }
+    }
+}
 
-// impl Printer for PrettyPrinter {
-//     #[inline]
-//     fn push_str(&mut self, value: &str) {
-//         self.buffer.push_str(value);
-//     }
+impl Printer for PrettyPrinter {
+    #[inline]
+    fn push_new_line(&mut self) {
+        self.buffer.push('\n');
+    }
 
-//     fn open_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
-//         write!(&mut self.buffer, "<{name}")
-//     }
+    #[inline]
+    fn push_indent(&mut self) {
+        self.buffer
+            .extend(std::iter::repeat(' ').take(self.level * self.indent_size));
+    }
 
-//     fn push_attribute<N: Display + ?Sized, V: Debug + ?Sized>(
-//         &mut self,
-//         name: &N,
-//         value: &V,
-//     ) -> std::fmt::Result {
-//         write!(&mut self.buffer, " {name}={value:?}")
-//     }
+    #[inline]
+    fn increase_indent(&mut self) {
+        self.level += 1;
+    }
 
-//     fn close_tag(&mut self) {
-//         self.buffer.push('>');
-//     }
+    #[inline]
+    fn decrease_indent(&mut self) {
+        self.level -= 1;
+    }
 
-//     fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
-//         write!(&mut self.buffer, "</{name}>")
-//     }
+    #[inline]
+    fn push(&mut self, value: char) {
+        self.buffer.push(value);
+    }
 
-//     fn inner(self) -> String {
-//         self.buffer
-//     }
-// }
+    #[inline]
+    fn push_str(&mut self, value: &str) {
+        self.buffer.push_str(value);
+    }
 
-// pub trait Print {
-//     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String;
+    #[inline]
+    fn open_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
+        write!(&mut self.buffer, "<{name}")
+    }
 
-//     fn dense_print(&self) -> String {
-//         self.print(false, 0, 2)
-//     }
+    #[inline]
+    fn push_attribute<N: Display + ?Sized, V: Debug + ?Sized>(
+        &mut self,
+        name: &N,
+        value: &V,
+    ) -> std::fmt::Result {
+        write!(&mut self.buffer, " {name}={value:?}")
+    }
 
-//     fn pretty_print(&self) -> String {
-//         self.print(true, 0, 2)
-//     }
-// }
+    #[inline]
+    fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
+        write!(&mut self.buffer, "</{name}>")
+    }
 
-// pub fn indent(level: usize, indent_size: usize, value: String) -> String {
-//     let spaces = level * indent_size;
-//     let spaces = (0..spaces).map(|_| ' ').collect::<String>();
-//     format!("{spaces}{value}\n")
-// }
-
-// pub fn attributes(attrs: Option<&Map<String, String>>) -> String {
-//     attrs
-//         .map(|attrs| {
-//             let mut entries: Vec<(&String, &String)> = attrs.iter().collect();
-//             entries.sort_by(sort_by_key);
-//             entries
-//                 .iter()
-//                 .fold(String::default(), |mut res, (key, value)| {
-//                     let _ = write!(res, " {key}=\"{value}\"");
-//                     res
-//                 })
-//         })
-//         .unwrap_or_default()
-// }
-
-// pub fn open(
-//     tag: &str,
-//     attrs: Option<&Map<String, String>>,
-//     closed: bool,
-//     pretty: bool,
-//     level: usize,
-//     indent_size: usize,
-// ) -> String {
-//     if pretty {
-//         indent(
-//             level,
-//             indent_size,
-//             open(tag, attrs, closed, false, level, indent_size),
-//         )
-//     } else if closed {
-//         format!("<{}{} />", tag, attributes(attrs))
-//     } else {
-//         format!("<{}{}>", tag, attributes(attrs))
-//     }
-// }
-
-// pub fn close(tag: &str, pretty: bool, level: usize, indent_size: usize) -> String {
-//     if pretty {
-//         indent(level, indent_size, close(tag, false, level, indent_size))
-//     } else {
-//         format!("</{tag}>")
-//     }
-// }
+    #[inline]
+    fn inner(self) -> String {
+        self.buffer
+    }
+}

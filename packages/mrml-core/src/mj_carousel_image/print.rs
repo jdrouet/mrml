@@ -1,11 +1,12 @@
-use crate::prelude::print::{Printable, PrintableAttributes};
+use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
-impl Printable for super::MjCarouselImage {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(super::NAME)?;
-        self.attributes.print(printer)?;
-        printer.closed_tag();
-        Ok(())
+impl PrintableElement for super::MjCarouselImage {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
     }
 }
 

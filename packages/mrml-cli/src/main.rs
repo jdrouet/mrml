@@ -215,11 +215,11 @@ impl SubCommand {
             Self::FormatMjml(opts) => {
                 log::debug!("format to mjml");
                 let output = if opts.pretty {
-                    // TODO introduce pretty printing back
-                    root.print_dense().expect("couldn't format mjml")
+                    root.print_pretty()
                 } else {
-                    root.print_dense().expect("couldn't format mjml")
-                };
+                    root.print_dense()
+                }
+                .expect("couldn't format mjml");
                 println!("{}", output);
             }
             Self::Render(render) => {

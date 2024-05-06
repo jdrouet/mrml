@@ -6,15 +6,22 @@ use crate::prelude::{
 
 impl<T: Printable> Printable for Node<T> {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.push_indent();
         let tag = self.tag.as_str();
         printer.open_tag(tag)?;
         self.attributes.print(printer)?;
         if self.children.is_empty() && (tag.starts_with("mj") || is_void_element(tag)) {
             printer.closed_tag();
+            printer.push_new_line();
         } else {
             printer.close_tag();
+            printer.push_new_line();
+            printer.increase_indent();
             self.children.print(printer)?;
+            printer.decrease_indent();
+            printer.push_indent();
             printer.end_tag(tag)?;
+            printer.push_new_line();
         }
         Ok(())
     }

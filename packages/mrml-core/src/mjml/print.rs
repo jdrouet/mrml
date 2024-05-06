@@ -47,6 +47,11 @@ impl PrintableElement for super::Mjml {
 
 #[cfg(test)]
 mod tests {
+    use crate::comment::Comment;
+    use crate::mj_body::MjBody;
+    use crate::mj_column::MjColumn;
+    use crate::mj_section::MjSection;
+    use crate::mj_text::MjText;
     use crate::mjml::{Mjml, MjmlChildren};
     use crate::prelude::print::Printable;
 
@@ -69,9 +74,44 @@ mod tests {
             attributes: Default::default(),
             children: MjmlChildren {
                 head: None,
-                body: Some(crate::mj_body::MjBody::default()),
+                body: Some(MjBody {
+                    attributes: Default::default(),
+                    children: vec![
+                        MjSection {
+                            attributes: Default::default(),
+                            children: vec![MjColumn {
+                                attributes: Default::default(),
+                                children: vec![MjText {
+                                    attributes: Default::default(),
+                                    children: vec![],
+                                }
+                                .into()],
+                            }
+                            .into()],
+                        }
+                        .into(),
+                        Comment {
+                            children: "Hello World!".into(),
+                        }
+                        .into(),
+                    ],
+                }),
             },
         };
-        assert_eq!("<mjml><mj-body /></mjml>", item.print_dense().unwrap());
+        assert_eq!("<mjml><mj-body><mj-section><mj-column><mj-text /></mj-column></mj-section><!--Hello World!--></mj-body></mjml>", item.print_dense().unwrap());
+        assert_eq!(
+            r#"<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text />
+      </mj-column>
+    </mj-section>
+    <!--Hello World!-->
+  </mj-body>
+</mjml>
+"#,
+            item.print_pretty().unwrap()
+        );
     }
 }

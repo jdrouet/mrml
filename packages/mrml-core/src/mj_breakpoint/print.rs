@@ -1,4 +1,4 @@
-use crate::prelude::print::{Printable, PrintableAttributes};
+use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
 impl PrintableAttributes for super::MjBreakpointAttributes {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
@@ -6,12 +6,13 @@ impl PrintableAttributes for super::MjBreakpointAttributes {
     }
 }
 
-impl Printable for super::MjBreakpoint {
-    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.open_tag(super::NAME)?;
-        self.attributes.print(printer)?;
-        printer.closed_tag();
-        Ok(())
+impl PrintableElement for super::MjBreakpoint {
+    fn tag(&self) -> &str {
+        super::NAME
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
     }
 }
 
@@ -27,6 +28,9 @@ mod tests {
                 width: String::from("10px"),
             },
         };
-        assert_eq!("<mj-breakpoint width=\"10px\" />", item.print_dense().unwrap());
+        assert_eq!(
+            "<mj-breakpoint width=\"10px\" />",
+            item.print_dense().unwrap()
+        );
     }
 }
