@@ -8,10 +8,11 @@ use crate::mj_raw::MjRaw;
 use crate::mj_style::MjStyle;
 use crate::mj_title::MjTitle;
 
-#[derive(Debug, mrml_macros::MrmlChildren)]
+#[derive(Debug)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintChildren))]
+#[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]
+#[cfg_attr(feature = "render", derive(enum_as_inner::EnumAsInner))]
 pub enum MjHeadChild {
     Comment(Comment),
     MjAttributes(MjAttributes),

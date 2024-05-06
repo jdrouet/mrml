@@ -1,26 +1,21 @@
-use super::Comment;
-use crate::prelude::print::{self, Print};
-use crate::print_display;
+use crate::prelude::print::Printable;
 
-impl Print for Comment {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        if pretty {
-            print::indent(level, indent_size, self.print(false, level, indent_size))
-        } else {
-            format!("<!--{}-->", self.children)
-        }
+impl Printable for super::Comment {
+    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.push_str("<!--");
+        printer.push_str(self.children.as_str());
+        printer.push_str("-->");
+        Ok(())
     }
 }
 
-print_display!(Comment);
-
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {
         let item = crate::comment::Comment::from("Hello World");
-        assert_eq!("<!--Hello World-->", item.dense_print());
+        assert_eq!("<!--Hello World-->", item.print_dense().unwrap());
     }
 }

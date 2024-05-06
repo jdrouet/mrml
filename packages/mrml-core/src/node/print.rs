@@ -1,29 +1,22 @@
-use std::fmt;
-
 use super::Node;
-use crate::prelude::print::{self, Print};
+use crate::prelude::{
+    is_void_element,
+    print::{Printable, PrintableAttributes, PrintableChildren, Printer},
+};
 
-impl<T: Print> Print for Node<T> {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        print::open(
-            &self.tag,
-            Some(&self.attributes),
-            false,
-            pretty,
-            level,
-            indent_size,
-        ) + &self
-            .children
-            .iter()
-            .map(|child| child.print(pretty, level + 1, indent_size))
-            .collect::<String>()
-            + &print::close(&self.tag, pretty, level, indent_size)
-    }
-}
-
-impl<T: Print> fmt::Display for Node<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.dense_print().as_str())
+impl<T: Printable> Printable for Node<T> {
+    fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        let tag = self.tag.as_str();
+        printer.open_tag(tag)?;
+        self.attributes.print(printer)?;
+        if self.children.is_empty() && (tag.starts_with("mj") || is_void_element(tag)) {
+            printer.closed_tag();
+        } else {
+            printer.close_tag();
+            self.children.print(printer)?;
+            printer.end_tag(tag)?;
+        }
+        Ok(())
     }
 }
 
@@ -31,14 +24,14 @@ impl<T: Print> fmt::Display for Node<T> {
 mod tests {
     use crate::mj_body::MjBodyChild;
     use crate::mj_raw::MjRawChild;
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn normal() {
         let item = crate::node::Node::<MjBodyChild>::from("span");
-        assert_eq!("<span></span>", item.dense_print());
+        assert_eq!("<span></span>", item.print_dense().unwrap());
         let item = crate::node::Node::<MjRawChild>::from("span");
-        assert_eq!("<span></span>", item.dense_print());
+        assert_eq!("<span></span>", item.print_dense().unwrap());
     }
 
     #[test]
@@ -48,6 +41,9 @@ mod tests {
             .insert("color".to_string(), "red".to_string());
         item.children
             .push(crate::node::Node::from("b".to_string()).into());
-        assert_eq!("<span color=\"red\"><b></b></span>", item.dense_print());
+        assert_eq!(
+            "<span color=\"red\"><b></b></span>",
+            item.print_dense().unwrap()
+        );
     }
 }

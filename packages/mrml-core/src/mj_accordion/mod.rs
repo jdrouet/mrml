@@ -27,8 +27,6 @@ use crate::prelude::hash::Map;
 pub const NAME: &str = "mj-accordion";
 
 #[derive(Debug, Default)]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintComponent))]
-#[cfg_attr(feature = "print", mrml_print(tag = "NAME"))]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjAccordion {
@@ -45,7 +43,7 @@ mod tests {
         use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
         use crate::mj_accordion_title::MjAccordionTitle;
         use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions};
-        use crate::prelude::print::Print;
+        use crate::prelude::print::Printable;
         use crate::text::Text;
 
         let element = MjAccordion {
@@ -62,13 +60,13 @@ mod tests {
             }
             .into()],
         };
-        let initial = element.print(false, 0, 2);
+        let initial = element.print_dense().unwrap();
         let raw ="<mj-accordion><mj-accordion-element><mj-accordion-title>Hello World!</mj-accordion-title></mj-accordion-element></mj-accordion>";
         let opts = ParserOptions::default();
         let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(raw);
         let elt: MjAccordion = parser.parse_root(&mut cursor).unwrap();
-        let result = elt.print(false, 0, 2);
+        let result = elt.print_dense().unwrap();
         assert_eq!(initial, result);
     }
 

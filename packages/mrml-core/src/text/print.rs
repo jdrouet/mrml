@@ -1,26 +1,20 @@
 use super::Text;
-use crate::prelude::print::{self, Print};
-use crate::print_display;
+use crate::prelude::print::{Printable, Printer};
 
-impl Print for Text {
-    fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String {
-        if pretty {
-            print::indent(level, indent_size, self.0.clone())
-        } else {
-            self.0.clone()
-        }
+impl Printable for Text {
+    fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.push_str(self.0.as_str());
+        Ok(())
     }
 }
 
-print_display!(Text);
-
 #[cfg(test)]
 mod tests {
-    use crate::prelude::print::Print;
+    use crate::{prelude::print::Printable, text::Text};
 
     #[test]
     fn empty() {
-        let item = crate::text::Text::from("Hello World");
-        assert_eq!("Hello World", item.dense_print());
+        let item = Text::from("Hello World");
+        assert_eq!("Hello World", item.print_dense().unwrap());
     }
 }

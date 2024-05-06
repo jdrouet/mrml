@@ -15,14 +15,10 @@ pub struct Comment {
     pub children: String,
 }
 
-impl From<String> for Comment {
-    fn from(children: String) -> Self {
-        Self { children }
-    }
-}
-
-impl From<&str> for Comment {
-    fn from(value: &str) -> Self {
-        Self::from(value.to_string())
+impl<V: Into<String>> From<V> for Comment {
+    fn from(value: V) -> Self {
+        Self {
+            children: value.into(),
+        }
     }
 }

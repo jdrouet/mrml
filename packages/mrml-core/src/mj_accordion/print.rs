@@ -1,3 +1,20 @@
+use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren};
+
+impl Printable for super::MjAccordion {
+    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.open_tag(super::NAME)?;
+        self.attributes.print(printer)?;
+        if self.children.is_empty() {
+            printer.closed_tag();
+        } else {
+            printer.close_tag();
+            self.children.print(printer)?;
+            printer.end_tag(super::NAME)?;
+        }
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::comment::Comment;
@@ -5,13 +22,13 @@ mod tests {
     use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
     use crate::mj_accordion_text::MjAccordionText;
     use crate::mj_accordion_title::MjAccordionTitle;
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
     use crate::text::Text;
 
     #[test]
     fn empty() {
         let item = MjAccordion::default();
-        assert_eq!("<mj-accordion />", item.dense_print());
+        assert_eq!("<mj-accordion />", item.print_dense().unwrap());
     }
 
     #[test]
@@ -37,6 +54,6 @@ mod tests {
                 }),
             ],
         };
-        assert_eq!("<mj-accordion><!--Hello World!--><mj-accordion-element><mj-accordion-title>Foo</mj-accordion-title><mj-accordion-text>Bar</mj-accordion-text></mj-accordion-element></mj-accordion>", item.dense_print());
+        assert_eq!("<mj-accordion><!--Hello World!--><mj-accordion-element><mj-accordion-title>Foo</mj-accordion-title><mj-accordion-text>Bar</mj-accordion-text></mj-accordion-element></mj-accordion>", item.print_dense().unwrap());
     }
 }

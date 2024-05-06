@@ -14,14 +14,14 @@ impl Text {
     }
 }
 
-impl From<String> for Text {
-    fn from(value: String) -> Self {
-        Self(value)
+impl AsRef<str> for Text {
+    fn as_ref(&self) -> &str {
+        self.0.as_str()
     }
 }
 
-impl From<&str> for Text {
-    fn from(value: &str) -> Self {
-        Self::from(value.to_string())
+impl<V: Into<String>> From<V> for Text {
+    fn from(value: V) -> Self {
+        Self(value.into())
     }
 }

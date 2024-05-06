@@ -13,7 +13,7 @@ use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 use mrml::prelude::parser::{Error as ParserError, ParserOptions};
-use mrml::prelude::print::Print;
+use mrml::prelude::print::Printable;
 use mrml::prelude::render::RenderOptions;
 
 fn format_parser_error(error: ParserError) -> String {
@@ -215,9 +215,10 @@ impl SubCommand {
             Self::FormatMjml(opts) => {
                 log::debug!("format to mjml");
                 let output = if opts.pretty {
-                    root.pretty_print()
+                    // TODO introduce pretty printing back
+                    root.print_dense().expect("couldn't format mjml")
                 } else {
-                    root.dense_print()
+                    root.print_dense().expect("couldn't format mjml")
                 };
                 println!("{}", output);
             }

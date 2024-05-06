@@ -8,7 +8,7 @@ pub mod render;
 pub mod hash;
 
 // see https://developer.mozilla.org/en-US/docs/Glossary/Void_element
-#[cfg(any(feature = "parser", feature = "render"))]
+#[cfg(any(feature = "parser", feature = "print", feature = "render"))]
 pub(crate) fn is_void_element(tag: &str) -> bool {
     matches!(
         tag,

@@ -1,23 +1,32 @@
 use super::MjIncludeHeadKind;
-use crate::prelude::hash::Map;
 
-impl super::MjIncludeHeadAttributes {
-    pub fn as_map(&self) -> Map<String, String> {
-        let mut res = Map::new();
-        res.insert("path".to_string(), self.path.clone());
+use crate::prelude::print::{Printable, PrintableAttributes};
+
+impl Printable for super::MjIncludeHead {
+    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.open_tag(super::NAME)?;
+        self.attributes.print(printer)?;
+        printer.closed_tag();
+        Ok(())
+    }
+}
+
+impl PrintableAttributes for super::MjIncludeHeadAttributes {
+    fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
+        printer.push_attribute("path", self.path.as_str())?;
         match self.kind {
             MjIncludeHeadKind::Html => {
-                res.insert("type".into(), "html".into());
+                printer.push_attribute("type", "html")?;
             }
             MjIncludeHeadKind::Css { inline } => {
-                res.insert("type".into(), "css".into());
+                printer.push_attribute("type", "css")?;
                 if inline {
-                    res.insert("css-inline".into(), "inline".into());
+                    printer.push_attribute("css-inline", "inline")?;
                 }
             }
             _ => {}
         }
-        res
+        Ok(())
     }
 }
 
@@ -25,7 +34,7 @@ impl super::MjIncludeHeadAttributes {
 mod tests {
     use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadChild, MjIncludeHeadKind};
     use crate::mj_title::MjTitle;
-    use crate::prelude::print::Print;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn simple() {
@@ -35,7 +44,7 @@ mod tests {
             "Hello World!".to_owned(),
         ))];
         assert_eq!(
-            elt.dense_print(),
+            elt.print_dense().unwrap(),
             "<mj-include path=\"memory:include.mjml\" />"
         );
     }
@@ -49,7 +58,7 @@ mod tests {
             "Hello World!".to_owned(),
         ))];
         assert_eq!(
-            elt.dense_print(),
+            elt.print_dense().unwrap(),
             "<mj-include path=\"memory:include.html\" type=\"html\" />"
         );
     }

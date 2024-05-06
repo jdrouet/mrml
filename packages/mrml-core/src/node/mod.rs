@@ -26,24 +26,12 @@ impl<T> Default for Node<T> {
     }
 }
 
-impl<T> Node<T> {
-    pub fn new(tag: String) -> Self {
-        Self::from(tag)
-    }
-}
-
-impl<T> From<String> for Node<T> {
-    fn from(tag: String) -> Self {
+impl<N: Into<String>, T> From<N> for Node<T> {
+    fn from(tag: N) -> Self {
         Self {
-            tag,
+            tag: tag.into(),
             attributes: Map::new(),
             children: Vec::new(),
         }
-    }
-}
-
-impl<T> From<&str> for Node<T> {
-    fn from(tag: &str) -> Self {
-        Self::from(tag.to_string())
     }
 }
