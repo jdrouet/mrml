@@ -176,7 +176,9 @@ mod tests {
             mj_include.attributes.kind = MjIncludeHeadKind::Css { inline: false };
             mj_include
                 .children
-                .push(Text::from("* { background-color: red; }".to_string()).into());
+                .push(MjIncludeHeadChild::Text(Text::from(
+                    "* { background-color: red; }".to_string(),
+                )));
             let mut mj_head = MjHead::default();
             mj_head
                 .children

@@ -9,7 +9,6 @@ pub const NAME: &str = "mj-breakpoint";
 
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "print", derive(mrml_print_macros::MrmlPrintAttributes))]
 pub struct MjBreakpointAttributes {
     #[cfg_attr(feature = "json", serde(skip_serializing_if = "String::is_empty"))]
     pub width: String,

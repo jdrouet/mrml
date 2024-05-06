@@ -10,9 +10,10 @@ mod render;
 #[cfg(any(feature = "print", feature = "json"))]
 use super::NAME;
 
-#[derive(Debug, mrml_macros::MrmlChildren)]
+#[derive(Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
+#[cfg_attr(feature = "render", derive(enum_as_inner::EnumAsInner))]
 pub enum MjIncludeHeadChild {
     Comment(crate::comment::Comment),
     MjAttributes(crate::mj_attributes::MjAttributes),
