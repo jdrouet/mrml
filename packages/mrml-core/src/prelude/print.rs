@@ -18,9 +18,14 @@ impl PrintableAttributes for Map<String, String> {
 
 pub(crate) trait PrintableChildren {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result;
+    fn has_children(&self) -> bool;
 }
 
 impl<C: Printable> PrintableChildren for Vec<C> {
+    fn has_children(&self) -> bool {
+        !self.is_empty()
+    }
+
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result {
         for item in self.iter() {
             item.print(printer)?;
@@ -106,6 +111,7 @@ pub trait Printer {
         self.push_str(" />");
     }
     fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result;
+
     fn inner(self) -> String;
 }
 
@@ -144,6 +150,54 @@ impl Printer for DensePrinter {
         self.buffer
     }
 }
+
+// #[derive(Debug)]
+// pub struct PrettyPrinter {
+//     indent_size: usize,
+//     level: usize,
+//     buffer: String,
+// }
+
+// impl Default for PrettyPrinter {
+//     fn default() -> Self {
+//         Self {
+//             indent_size: 2,
+//             level: 0,
+//             buffer: String::default(),
+//         }
+//     }
+// }
+
+// impl Printer for PrettyPrinter {
+//     #[inline]
+//     fn push_str(&mut self, value: &str) {
+//         self.buffer.push_str(value);
+//     }
+
+//     fn open_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
+//         write!(&mut self.buffer, "<{name}")
+//     }
+
+//     fn push_attribute<N: Display + ?Sized, V: Debug + ?Sized>(
+//         &mut self,
+//         name: &N,
+//         value: &V,
+//     ) -> std::fmt::Result {
+//         write!(&mut self.buffer, " {name}={value:?}")
+//     }
+
+//     fn close_tag(&mut self) {
+//         self.buffer.push('>');
+//     }
+
+//     fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
+//         write!(&mut self.buffer, "</{name}>")
+//     }
+
+//     fn inner(self) -> String {
+//         self.buffer
+//     }
+// }
 
 // pub trait Print {
 //     fn print(&self, pretty: bool, level: usize, indent_size: usize) -> String;

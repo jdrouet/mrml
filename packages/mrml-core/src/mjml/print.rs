@@ -16,6 +16,10 @@ impl PrintableAttributes for super::MjmlAttributes {
 }
 
 impl PrintableChildren for super::MjmlChildren {
+    fn has_children(&self) -> bool {
+        self.body.is_some() || self.head.is_some()
+    }
+
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
         if let Some(ref item) = self.head {
             item.print(printer)?;
@@ -31,12 +35,12 @@ impl Printable for super::Mjml {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
         printer.open_tag(super::NAME)?;
         self.attributes.print(printer)?;
-        if self.children.body.is_none() && self.children.head.is_none() {
-            printer.closed_tag();
-        } else {
+        if self.children.has_children() {
             printer.close_tag();
             self.children.print(printer)?;
             printer.end_tag(super::NAME)?;
+        } else {
+            printer.closed_tag();
         }
         Ok(())
     }
