@@ -166,7 +166,6 @@ pub mod text;
 mod root;
 
 mod helper;
-mod macros;
 
 #[cfg(feature = "parse")]
 /// Function to parse a raw mjml template with some parsing
