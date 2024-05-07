@@ -86,16 +86,20 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
     }
 
     fn render_radios(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+        let border_radius = self.attribute("border-radius");
+        let tb_border = self.attribute("tb-border");
+        let tb_border_radius = self.attribute("tb-border-radius");
+
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
-            renderer.maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
-            renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
-            renderer
-                .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
+            renderer.maybe_add_extra_attribute("border-radius", border_radius);
+            renderer.maybe_add_extra_attribute("tb-border", tb_border);
+            renderer.maybe_add_extra_attribute("tb-border-radius", tb_border_radius);
             renderer.set_index(index);
             renderer.render_fragment("radio", cursor)?;
         }
+
         Ok(())
     }
 
@@ -103,16 +107,16 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         if self.attribute_equals("thumbnails", "visible") {
             let width = self.get_thumbnails_width();
 
+            let border_radius = self.attribute("border-radius");
+            let tb_border = self.attribute("tb-border");
+            let tb_border_radius = self.attribute("tb-border-radius");
+
             for (index, child) in self.element.children.iter().enumerate() {
                 let mut renderer = child.renderer(self.context());
                 renderer.add_extra_attribute("carousel-id", &self.extra.id);
-                renderer
-                    .maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
-                renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
-                renderer.maybe_add_extra_attribute(
-                    "tb-border-radius",
-                    self.attribute("tb-border-radius"),
-                );
+                renderer.maybe_add_extra_attribute("border-radius", border_radius);
+                renderer.maybe_add_extra_attribute("tb-border", tb_border);
+                renderer.maybe_add_extra_attribute("tb-border-radius", tb_border_radius);
                 renderer.set_index(index);
                 renderer.set_container_width(Some(width.clone()));
                 renderer.render_fragment("thumbnail", cursor)?;

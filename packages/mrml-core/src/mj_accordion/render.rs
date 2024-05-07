@@ -103,10 +103,17 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
+
+        let children_attrs = CHILDREN_ATTRIBUTES
+            .iter()
+            .copied()
+            .filter_map(|key| self.attribute(key).map(|found| (key, found)))
+            .collect::<Vec<_>>();
+
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(self.context());
-            CHILDREN_ATTRIBUTES.iter().for_each(|key| {
-                renderer.maybe_add_extra_attribute(key, self.attribute(key));
+            children_attrs.iter().copied().for_each(|(key, value)| {
+                renderer.add_extra_attribute(key, value);
             });
             renderer.render(cursor)?;
         }
