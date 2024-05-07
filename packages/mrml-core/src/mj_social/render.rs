@@ -78,16 +78,16 @@ impl<'root> Renderer<'root, MjSocial, ()> {
         let child_attributes = self.build_child_attributes();
 
         cursor.buffer.start_conditional_tag();
-        table.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
 
         for (index, child) in self.element.children.iter().enumerate() {
             cursor.buffer.start_conditional_tag();
-            td.render_open(&mut cursor.buffer);
+            td.render_open(&mut cursor.buffer)?;
             cursor.buffer.end_conditional_tag();
-            inner_table.render_open(&mut cursor.buffer);
-            inner_tbody.render_open(&mut cursor.buffer);
+            inner_table.render_open(&mut cursor.buffer)?;
+            inner_tbody.render_open(&mut cursor.buffer)?;
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             child_attributes.iter().for_each(|(key, value)| {
@@ -113,8 +113,8 @@ impl<'root> Renderer<'root, MjSocial, ()> {
         let tbody = Tag::tbody();
         let child_attributes = self.build_child_attributes();
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);

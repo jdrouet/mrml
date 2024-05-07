@@ -31,7 +31,7 @@ impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra<'root>> {
             .maybe_add_style("padding", self.attribute("padding"))
             .maybe_add_class(self.attribute("css-class"));
 
-        td.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
             let renderer = child.renderer(self.context());
             renderer.render(cursor)?;
@@ -41,7 +41,7 @@ impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra<'root>> {
         Ok(())
     }
 
-    fn render_icons(&self, buf: &mut RenderBuffer) {
+    fn render_icons(&self, buf: &mut RenderBuffer) -> Result<(), Error> {
         let img_more = self
             .set_style_img(Tag::new("img"))
             .maybe_add_attribute("src", self.attribute("icon-wrapped-url"))
@@ -59,11 +59,13 @@ impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra<'root>> {
             .add_class("mj-accordion-ico");
 
         buf.start_negation_conditional_tag();
-        td.render_open(buf);
-        img_more.render_closed(buf);
-        img_less.render_closed(buf);
+        td.render_open(buf)?;
+        img_more.render_closed(buf)?;
+        img_less.render_closed(buf)?;
         td.render_close(buf);
         buf.end_negation_conditional_tag();
+
+        Ok(())
     }
 }
 
@@ -109,16 +111,16 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordionTitle, MjAccordionTitle
             .maybe_add_style("border-bottom", self.attribute("border"));
         let div = Tag::div().add_class("mj-accordion-title");
 
-        div.render_open(&mut cursor.buffer);
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
 
         if self.attribute_equals("icon-position", "right") {
             self.render_title(cursor)?;
-            self.render_icons(&mut cursor.buffer);
+            self.render_icons(&mut cursor.buffer)?;
         } else {
-            self.render_icons(&mut cursor.buffer);
+            self.render_icons(&mut cursor.buffer)?;
             self.render_title(cursor)?;
         }
 

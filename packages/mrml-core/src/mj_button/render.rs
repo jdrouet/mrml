@@ -146,11 +146,11 @@ impl<'root> Render<'root> for Renderer<'root, MjButton, ()> {
             );
         let link = self.set_style_content(link);
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
-        link.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
+        link.render_open(&mut cursor.buffer)?;
         self.render_children(cursor)?;
         link.render_close(&mut cursor.buffer);
         td.render_close(&mut cursor.buffer);

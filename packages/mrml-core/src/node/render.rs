@@ -15,34 +15,26 @@ where
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        cursor.buffer.push('<');
-        cursor.buffer.push_str(&self.element.tag);
+        cursor.buffer.open_tag(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
-            cursor.buffer.push(' ');
-            cursor.buffer.push_str(key);
-            cursor.buffer.push_str("=\"");
-            cursor.buffer.push_str(value);
-            cursor.buffer.push('"');
+            cursor.buffer.push_attribute(key, value)?;
         }
         if self.element.children.is_empty() {
             if is_void_element(self.element.tag.as_str()) {
-                cursor.buffer.push_str(" />");
+                cursor.buffer.closed_tag();
             } else {
-                cursor.buffer.push_str("></");
-                cursor.buffer.push_str(&self.element.tag);
-                cursor.buffer.push('>');
+                cursor.buffer.close_tag();
+                cursor.buffer.end_tag(&self.element.tag);
             }
         } else {
-            cursor.buffer.push('>');
+            cursor.buffer.close_tag();
             for (index, child) in self.element.children.iter().enumerate() {
                 // TODO children
                 let mut renderer = child.renderer(self.context);
                 renderer.set_index(index);
                 renderer.render(cursor)?;
             }
-            cursor.buffer.push_str("</");
-            cursor.buffer.push_str(&self.element.tag);
-            cursor.buffer.push('>');
+            cursor.buffer.end_tag(&self.element.tag);
         }
         Ok(())
     }

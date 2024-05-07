@@ -65,7 +65,7 @@ impl<'root> Render<'root> for Renderer<'root, MjTable, ()> {
             .maybe_add_attribute("cellpadding", self.attribute("cellpadding"))
             .maybe_add_attribute("cellspacing", self.attribute("cellspacing"))
             .maybe_add_attribute("width", self.attribute("width"));
-        table.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);

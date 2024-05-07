@@ -122,7 +122,12 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         Ok(())
     }
 
-    fn render_controls(&self, direction: &str, icon: &str, buf: &mut RenderBuffer) {
+    fn render_controls(
+        &self,
+        direction: &str,
+        icon: &str,
+        buf: &mut RenderBuffer,
+    ) -> Result<(), Error> {
         let icon_width = self
             .attribute_as_size("icon-width")
             .map(|value| value.value());
@@ -133,8 +138,8 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             .set_style_controls_td(Tag::td())
             .add_class(format!("mj-carousel-{}-icons-cell", self.extra.id));
 
-        td.render_open(buf);
-        div.render_open(buf);
+        td.render_open(buf)?;
+        div.render_open(buf)?;
         for (index, _) in self.element.children.iter().enumerate() {
             let img = self
                 .set_style_controls_img(Tag::new("img"))
@@ -148,20 +153,22 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
                 )
                 .add_class(format!("mj-carousel-{direction}"))
                 .add_class(format!("mj-carousel-{}-{}", direction, index + 1));
-            label.render_open(buf);
-            img.render_closed(buf);
+            label.render_open(buf)?;
+            img.render_closed(buf)?;
             label.render_close(buf);
         }
         div.render_close(buf);
         td.render_close(buf);
+
+        Ok(())
     }
 
     fn render_images(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let div = Tag::div().add_class("mj-carousel-images");
         let td = self.set_style_images_td(Tag::td());
 
-        td.render_open(&mut cursor.buffer);
-        div.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer)?;
+        div.render_open(&mut cursor.buffer)?;
 
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
@@ -189,21 +196,21 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             .add_attribute("width", "100%")
             .add_class("mj-carousel-main");
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
 
         self.render_controls(
             "previous",
             self.attribute("left-icon").unwrap(),
             &mut cursor.buffer,
-        );
+        )?;
         self.render_images(cursor)?;
         self.render_controls(
             "next",
             self.attribute("right-icon").unwrap(),
             &mut cursor.buffer,
-        );
+        )?;
 
         tr.render_close(&mut cursor.buffer);
         tbody.render_close(&mut cursor.buffer);
@@ -443,9 +450,9 @@ impl<'root> Render<'root> for Renderer<'root, MjCarousel, MjCarouselExtra> {
         let div = Tag::div().add_class("mj-carousel");
 
         cursor.buffer.start_mso_negation_conditional_tag();
-        div.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
         self.render_radios(cursor)?;
-        inner_div.render_open(&mut cursor.buffer);
+        inner_div.render_open(&mut cursor.buffer)?;
         self.render_thumbnails(cursor)?;
         self.render_carousel(cursor)?;
         inner_div.render_close(&mut cursor.buffer);

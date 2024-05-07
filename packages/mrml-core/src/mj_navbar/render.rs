@@ -77,7 +77,7 @@ impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
             .is_some()
     }
 
-    fn render_hamburger(&self, buf: &mut RenderBuffer) {
+    fn render_hamburger(&self, buf: &mut RenderBuffer) -> Result<(), Error> {
         let input = self
             .set_style_input(Tag::new("input"))
             .add_class("mj-menu-checkbox")
@@ -99,18 +99,18 @@ impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
             .add_class("mj-menu-icon-close");
 
         buf.start_mso_negation_conditional_tag();
-        input.render_closed(buf);
+        input.render_closed(buf)?;
         buf.end_negation_conditional_tag();
 
-        div.render_open(buf);
-        label.render_open(buf);
+        div.render_open(buf)?;
+        label.render_open(buf)?;
 
-        span_open.render_open(buf);
+        span_open.render_open(buf)?;
         if let Some(attr) = self.attribute("ico-open") {
             buf.push_str(attr);
         }
         span_open.render_close(buf);
-        span_close.render_open(buf);
+        span_close.render_open(buf)?;
         if let Some(attr) = self.attribute("ico-close") {
             buf.push_str(attr);
         }
@@ -118,6 +118,8 @@ impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
 
         label.render_close(buf);
         div.render_close(buf);
+
+        Ok(())
     }
 
     fn render_style(&self) -> String {
@@ -195,13 +197,13 @@ impl<'root> Render<'root> for Renderer<'root, MjNavbar, MjNavbarExtra> {
         let base_url = self.attribute("base-url");
 
         if self.has_hamburger() {
-            self.render_hamburger(&mut cursor.buffer);
+            self.render_hamburger(&mut cursor.buffer)?;
         }
 
-        div.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
         cursor.buffer.start_conditional_tag();
-        table.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
 
         for child in self.element.children.iter() {

@@ -18,6 +18,8 @@ pub use tag::*;
 pub enum Error {
     #[error("unknown fragment {0}")]
     UnknownFragment(String),
+    #[error("unable to format {0}")]
+    Format(#[from] std::fmt::Error),
 }
 
 #[derive(Debug, Default)]

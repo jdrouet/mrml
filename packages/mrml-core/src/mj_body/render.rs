@@ -40,7 +40,7 @@ impl<'root> Renderer<'root, MjBody, ()> {
         let div = self.get_content_div_tag();
         let element_width = self.get_width();
 
-        div.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
         let raw_siblings = self
             .element
             .children
@@ -78,7 +78,7 @@ impl<'root> Render<'root> for Renderer<'root, MjBody, ()> {
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let body = self.get_body_tag();
-        body.render_open(&mut cursor.buffer);
+        body.render_open(&mut cursor.buffer)?;
         self.render_preview(&mut cursor.buffer);
         self.render_content(cursor)?;
         body.render_close(&mut cursor.buffer);

@@ -170,8 +170,8 @@ impl<'root> Renderer<'root, MjHero, ()> {
                     )
                     .maybe_add_attribute("class", renderer.attribute("css-class"));
 
-                tr.render_open(&mut cursor.buffer);
-                td.render_open(&mut cursor.buffer);
+                tr.render_open(&mut cursor.buffer)?;
+                td.render_open(&mut cursor.buffer)?;
                 renderer.render(cursor)?;
                 td.render_close(&mut cursor.buffer);
                 tr.render_close(&mut cursor.buffer);
@@ -200,18 +200,18 @@ impl<'root> Renderer<'root, MjHero, ()> {
         let inner_table = self.set_style_inner_table(Tag::table_presentation());
 
         cursor.buffer.start_conditional_tag();
-        table.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        outlook_inner_td.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        outlook_inner_td.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
 
-        outlook_inner_div.render_open(&mut cursor.buffer);
-        inner_table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
-        inner_table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
+        outlook_inner_div.render_open(&mut cursor.buffer)?;
+        inner_table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
+        inner_table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
         self.render_children(cursor)?;
         tbody.render_close(&mut cursor.buffer);
         inner_table.render_close(&mut cursor.buffer);
@@ -236,11 +236,11 @@ impl<'root> Renderer<'root, MjHero, ()> {
             .set_style_hero(Tag::td())
             .maybe_add_attribute("background", self.attribute("background-url"));
 
-        td_fluid.render_closed(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
+        td_fluid.render_closed(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
         self.render_content(cursor)?;
         td.render_close(&mut cursor.buffer);
-        td_fluid.render_closed(&mut cursor.buffer);
+        td_fluid.render_closed(&mut cursor.buffer)?;
 
         Ok(())
     }
@@ -256,7 +256,7 @@ impl<'root> Renderer<'root, MjHero, ()> {
             .maybe_add_attribute("background", self.attribute("background-url"))
             .add_attribute("height", height.to_string());
 
-        td.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer)?;
         self.render_content(cursor)?;
         td.render_close(&mut cursor.buffer);
 
@@ -331,16 +331,16 @@ impl<'root> Render<'root> for Renderer<'root, MjHero, ()> {
         let tr = self.set_style_tr(Tag::tr());
 
         cursor.buffer.start_conditional_tag();
-        outlook_table.render_open(&mut cursor.buffer);
-        outlook_tr.render_open(&mut cursor.buffer);
-        outlook_td.render_open(&mut cursor.buffer);
-        v_image.render_closed(&mut cursor.buffer);
+        outlook_table.render_open(&mut cursor.buffer)?;
+        outlook_tr.render_open(&mut cursor.buffer)?;
+        outlook_td.render_open(&mut cursor.buffer)?;
+        v_image.render_closed(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
 
-        div.render_open(&mut cursor.buffer);
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
 
         self.render_mode(cursor)?;
 

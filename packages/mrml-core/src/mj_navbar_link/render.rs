@@ -68,7 +68,7 @@ impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'root>> {
             .maybe_add_attribute("target", self.attribute("target"))
             .maybe_add_attribute("name", self.attribute("name"));
 
-        link.render_open(&mut cursor.buffer);
+        link.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
             let renderer = child.renderer(self.context());
             renderer.render(cursor)?;
@@ -128,7 +128,7 @@ impl<'root> Render<'root> for Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'r
             .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
 
         cursor.buffer.start_conditional_tag();
-        td.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
         self.render_content(cursor)?;
         cursor.buffer.start_conditional_tag();

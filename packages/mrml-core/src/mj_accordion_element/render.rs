@@ -99,13 +99,13 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordionElement, MjAccordionEle
             .maybe_add_style("background-color", self.attribute("background-color"));
         let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
 
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
-        label.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
+        label.render_open(&mut cursor.buffer)?;
         cursor.buffer.start_negation_conditional_tag();
-        input.render_closed(&mut cursor.buffer);
+        input.render_closed(&mut cursor.buffer)?;
         cursor.buffer.end_negation_conditional_tag();
-        div.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
         self.render_children(cursor)?;
         div.render_close(&mut cursor.buffer);
         label.render_close(&mut cursor.buffer);

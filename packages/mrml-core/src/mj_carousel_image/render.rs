@@ -46,7 +46,7 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra<'root>> {
             .add_style("height", "auto")
     }
 
-    fn render_radio(&self, buf: &mut RenderBuffer) {
+    fn render_radio(&self, buf: &mut RenderBuffer) -> Result<(), Error> {
         self.set_style_radio_input(Tag::new("input"))
             .add_class("mj-carousel-radio")
             .maybe_add_class(
@@ -84,7 +84,8 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra<'root>> {
                     .get("carousel-id")
                     .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
             )
-            .render_closed(buf);
+            .render_closed(buf)
+            .map_err(Error::from)
     }
 
     pub fn render_thumbnail(&self, buf: &mut RenderBuffer) -> Result<(), Error> {
@@ -132,9 +133,9 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra<'root>> {
                 self.container_width.as_ref().map(|item| item.to_string()),
             );
 
-        link.render_open(buf);
-        label.render_open(buf);
-        img.render_closed(buf);
+        link.render_open(buf)?;
+        label.render_open(buf)?;
+        img.render_closed(buf)?;
         label.render_close(buf);
         link.render_close(buf);
 
@@ -182,7 +183,7 @@ impl<'root> Render<'root> for Renderer<'root, MjCarouselImage, MjCarouselImageEx
         match name {
             "main" => self.render(cursor),
             "radio" => {
-                self.render_radio(&mut cursor.buffer);
+                self.render_radio(&mut cursor.buffer)?;
                 Ok(())
             }
             "thumbnail" => self.render_thumbnail(&mut cursor.buffer),
@@ -215,17 +216,17 @@ impl<'root> Render<'root> for Renderer<'root, MjCarouselImage, MjCarouselImageEx
             .add_class(format!("mj-carousel-image-{}", self.index + 1))
             .maybe_add_class(self.attribute("css-class"));
 
-        div.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
         if let Some(href) = self.attribute("href") {
             let link = Tag::new("a")
                 .add_attribute("href", href)
                 .maybe_add_attribute("rel", self.attribute("rel"))
                 .add_attribute("target", "_blank");
-            link.render_open(&mut cursor.buffer);
-            img.render_closed(&mut cursor.buffer);
+            link.render_open(&mut cursor.buffer)?;
+            img.render_closed(&mut cursor.buffer)?;
             link.render_close(&mut cursor.buffer);
         } else {
-            img.render_closed(&mut cursor.buffer);
+            img.render_closed(&mut cursor.buffer)?;
         }
         div.render_close(&mut cursor.buffer);
 

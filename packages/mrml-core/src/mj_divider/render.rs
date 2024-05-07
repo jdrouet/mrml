@@ -47,7 +47,7 @@ impl<'root> Renderer<'root, MjDivider, ()> {
         }
     }
 
-    fn render_after(&self, buf: &mut RenderBuffer) {
+    fn render_after(&self, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = self
             .set_style_outlook(Tag::table_presentation())
             .add_attribute("align", "center")
@@ -58,12 +58,14 @@ impl<'root> Renderer<'root, MjDivider, ()> {
             .add_style("line-height", "0");
 
         buf.start_conditional_tag();
-        table.render_open(buf);
-        tr.render_open(buf);
-        td.render_text(buf, "&nbsp;");
+        table.render_open(buf)?;
+        tr.render_open(buf)?;
+        td.render_text(buf, "&nbsp;")?;
         tr.render_close(buf);
         table.render_close(buf);
         buf.end_conditional_tag();
+
+        Ok(())
     }
 }
 
@@ -98,9 +100,9 @@ impl<'root> Render<'root> for Renderer<'root, MjDivider, ()> {
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let p = self.set_style_p(Tag::new("p"));
-        p.render_text(&mut cursor.buffer, "");
+        p.render_text(&mut cursor.buffer, "")?;
 
-        self.render_after(&mut cursor.buffer);
+        self.render_after(&mut cursor.buffer)?;
         Ok(())
     }
 }

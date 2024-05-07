@@ -240,9 +240,9 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             .add_attribute("inset", "0,0,0,0")
             .add_style("mso-fit-shape-to-text", "true");
 
-        vrect.render_open(&mut cursor.buffer);
-        vfill.render_closed(&mut cursor.buffer);
-        vtextbox.render_open(&mut cursor.buffer);
+        vrect.render_open(&mut cursor.buffer)?;
+        vfill.render_closed(&mut cursor.buffer)?;
+        vtextbox.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
         content(cursor)?;
         cursor.buffer.start_conditional_tag();
@@ -295,9 +295,9 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             .add_style("mso-line-height-rule", "exactly");
 
         cursor.buffer.start_conditional_tag();
-        table.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
         content(cursor)?;
         td.render_close(&mut cursor.buffer);
         tr.render_close(&mut cursor.buffer);
@@ -320,7 +320,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         let raw_siblings = self.get_raw_siblings();
         let tr = Tag::tr();
 
-        tr.render_open(&mut cursor.buffer);
+        tr.render_open(&mut cursor.buffer)?;
         for child in self.children().iter() {
             let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
@@ -335,7 +335,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
                     .set_style("td-outlook", Tag::td())
                     .maybe_add_attribute("align", renderer.attribute("align"))
                     .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                td.render_open(&mut cursor.buffer);
+                td.render_open(&mut cursor.buffer)?;
                 cursor.buffer.end_conditional_tag();
                 renderer.render(cursor)?;
                 cursor.buffer.start_conditional_tag();
@@ -413,16 +413,16 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         let inner_table = Tag::table_presentation();
 
         let has_bg = self.has_background();
-        div.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
         if has_bg {
-            inner_div.render_open(&mut cursor.buffer);
+            inner_div.render_open(&mut cursor.buffer)?;
         }
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
         cursor.buffer.start_conditional_tag();
-        inner_table.render_open(&mut cursor.buffer);
+        inner_table.render_open(&mut cursor.buffer)?;
         self.render_wrapped_children(cursor)?;
         inner_table.render_close(&mut cursor.buffer);
         cursor.buffer.end_conditional_tag();
@@ -468,10 +468,10 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         let tr = Tag::tr();
         let td = Tag::td();
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
         //
         if self.has_background() {
             self.render_with_background(cursor, |cursor| {

@@ -101,8 +101,8 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
             .add_attribute("cellpadding", "0")
             .add_class("mj-accordion");
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(self.context());
             CHILDREN_ATTRIBUTES.iter().for_each(|key| {

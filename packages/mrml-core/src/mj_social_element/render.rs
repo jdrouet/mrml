@@ -147,7 +147,11 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
         })
     }
 
-    fn render_icon(&self, href: &Option<Cow<'root, str>>, cursor: &mut RenderCursor) {
+    fn render_icon(
+        &self,
+        href: &Option<Cow<'root, str>>,
+        cursor: &mut RenderCursor,
+    ) -> Result<(), Error> {
         let table = self.set_style_table(Tag::table_presentation());
         let tbody = Tag::tbody();
         let tr = Tag::tr();
@@ -172,21 +176,22 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
                 self.get_icon_size().map(|size| size.value().to_string()),
             );
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
         if href.is_some() {
-            a.render_open(&mut cursor.buffer);
-            img.render_closed(&mut cursor.buffer);
+            a.render_open(&mut cursor.buffer)?;
+            img.render_closed(&mut cursor.buffer)?;
             a.render_close(&mut cursor.buffer);
         } else {
-            img.render_closed(&mut cursor.buffer);
+            img.render_closed(&mut cursor.buffer)?;
         }
         td.render_close(&mut cursor.buffer);
         tr.render_close(&mut cursor.buffer);
         tbody.render_close(&mut cursor.buffer);
         table.render_close(&mut cursor.buffer);
+        Ok(())
     }
 
     fn render_text(
@@ -205,8 +210,8 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
         };
         let wrapper = self.set_style_text(wrapper);
 
-        td.render_open(&mut cursor.buffer);
-        wrapper.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer)?;
+        wrapper.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
             let renderer = child.renderer(self.context());
             renderer.render(cursor)?;
@@ -264,9 +269,9 @@ impl<'root> Render<'root> for Renderer<'root, MjSocialElement, MjSocialElementEx
         let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
         let td = self.set_style_td(Tag::td());
 
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
-        self.render_icon(&href, cursor);
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
+        self.render_icon(&href, cursor)?;
         td.render_close(&mut cursor.buffer);
         if !self.element.children.is_empty() {
             self.render_text(&href, cursor)?;

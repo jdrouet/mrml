@@ -16,20 +16,27 @@ impl<'root> Render<'root> for Renderer<'root, Mjml, ()> {
         let mut body = RenderBuffer::default();
         std::mem::swap(&mut body, &mut cursor.buffer);
         cursor.buffer.push_str("<!doctype html>");
-        cursor.buffer.push_str("<html ");
+        cursor.buffer.open_tag("html");
         if let Some(ref lang) = self.element.attributes.lang {
-            cursor.buffer.push_str("lang=\"");
-            cursor.buffer.push_str(lang);
-            cursor.buffer.push_str("\" ");
+            cursor.buffer.push_attribute("lang", lang.as_str())?;
         }
-        cursor.buffer.push_str("xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">");
+        cursor
+            .buffer
+            .push_attribute("xmlns", "http://www.w3.org/1999/xhtml")?;
+        cursor
+            .buffer
+            .push_attribute("xmlns:v", "urn:schemas-microsoft-com:vml")?;
+        cursor
+            .buffer
+            .push_attribute("xmlns:o", "urn:schemas-microsoft-com:office:office")?;
+        cursor.buffer.close_tag();
         if let Some(head) = self.element.head() {
             head.renderer(self.context).render(cursor)?;
         } else {
             MjHead::default().renderer(self.context).render(cursor)?;
         }
         cursor.buffer.push_str(body.as_ref());
-        cursor.buffer.push_str("</html>");
+        cursor.buffer.end_tag("html");
         Ok(())
     }
 }

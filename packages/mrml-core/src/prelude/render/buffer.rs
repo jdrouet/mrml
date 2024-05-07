@@ -1,6 +1,25 @@
+use std::fmt::{Debug, Display, Write};
+
 #[derive(Debug, Default)]
 pub struct RenderBuffer {
     inner: String,
+}
+
+impl std::fmt::Write for RenderBuffer {
+    #[inline]
+    fn write_fmt(&mut self, args: std::fmt::Arguments<'_>) -> std::fmt::Result {
+        self.inner.write_fmt(args)
+    }
+
+    #[inline]
+    fn write_str(&mut self, s: &str) -> std::fmt::Result {
+        self.inner.write_str(s)
+    }
+
+    #[inline]
+    fn write_char(&mut self, c: char) -> std::fmt::Result {
+        self.inner.write_char(c)
+    }
 }
 
 impl RenderBuffer {
@@ -12,6 +31,38 @@ impl RenderBuffer {
     #[inline]
     pub fn push(&mut self, value: char) {
         self.inner.push(value);
+    }
+
+    #[inline]
+    pub fn push_attribute<K: Display + ?Sized, V: Debug + ?Sized>(
+        &mut self,
+        key: &K,
+        value: &V,
+    ) -> std::fmt::Result {
+        write!(&mut self.inner, " {key}={value:?}")
+    }
+
+    #[inline]
+    pub fn open_tag(&mut self, tag: &str) {
+        self.inner.push('<');
+        self.inner.push_str(tag);
+    }
+
+    #[inline]
+    pub fn closed_tag(&mut self) {
+        self.inner.push_str(" />");
+    }
+
+    #[inline]
+    pub fn close_tag(&mut self) {
+        self.inner.push('>');
+    }
+
+    #[inline]
+    pub fn end_tag(&mut self, tag: &str) {
+        self.inner.push_str("</");
+        self.inner.push_str(tag);
+        self.inner.push('>');
     }
 }
 

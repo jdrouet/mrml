@@ -21,7 +21,7 @@ impl<'root> Renderer<'root, MjAccordionText, MjAccordionTextExtra<'root>> {
             .maybe_add_style("padding-left", self.attribute("padding-left"))
             .maybe_add_style("padding", self.attribute("padding"));
 
-        td.render_open(&mut cursor.buffer);
+        td.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
             let renderer = child.renderer(self.context());
             renderer.render(cursor)?;
@@ -75,10 +75,10 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordionText, MjAccordionTextEx
             .maybe_add_style("border-bottom", self.attribute("border"));
         let div = Tag::div().add_class("mj-accordion-content");
 
-        div.render_open(&mut cursor.buffer);
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
         self.render_children(cursor)?;
         tr.render_close(&mut cursor.buffer);
         tbody.render_close(&mut cursor.buffer);

@@ -30,8 +30,8 @@ impl<'root> Render<'root> for Renderer<'root, MjSpacer, ()> {
         Tag::div()
             .maybe_add_style("height", self.attribute("height"))
             .maybe_add_style("line-height", self.attribute("height"))
-            .render_text(&mut cursor.buffer, "&#8202;");
-        Ok(())
+            .render_text(&mut cursor.buffer, "&#8202;")
+            .map_err(Error::from)
     }
 }
 

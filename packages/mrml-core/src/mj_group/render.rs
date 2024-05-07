@@ -106,7 +106,7 @@ impl<'root> Renderer<'root, MjGroup, ()> {
                     );
 
                 cursor.buffer.start_conditional_tag();
-                td.render_open(&mut cursor.buffer);
+                td.render_open(&mut cursor.buffer)?;
                 cursor.buffer.end_conditional_tag();
                 renderer.render(cursor)?;
                 cursor.buffer.start_conditional_tag();
@@ -186,10 +186,10 @@ impl<'root> Render<'root> for Renderer<'root, MjGroup, ()> {
         );
         let tr = Tag::tr();
 
-        div.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
         cursor.buffer.start_conditional_tag();
-        table.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
         self.render_children(cursor)?;
         cursor.buffer.start_conditional_tag();

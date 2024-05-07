@@ -22,7 +22,7 @@ impl<'root> Renderer<'root, MjText, ()> {
 
     fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let root = self.set_style_text(Tag::div());
-        root.render_open(&mut cursor.buffer);
+        root.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
             child.renderer(self.context()).render(cursor)?;
         }
@@ -39,9 +39,9 @@ impl<'root> Renderer<'root, MjText, ()> {
             .add_style("height", height.to_owned());
 
         cursor.buffer.start_conditional_tag();
-        table.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
         self.render_content(cursor)?;
         cursor.buffer.start_conditional_tag();

@@ -43,8 +43,8 @@ impl<'root> SectionLikeRender<'root> for Renderer<'root, MjWrapper, ()> {
                     .maybe_add_attribute("align", renderer.attribute("align"))
                     .maybe_add_attribute("width", container_width.as_ref().cloned())
                     .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
-                tr.render_open(&mut cursor.buffer);
-                td.render_open(&mut cursor.buffer);
+                tr.render_open(&mut cursor.buffer)?;
+                td.render_open(&mut cursor.buffer)?;
                 cursor.buffer.end_conditional_tag();
                 renderer.render(cursor)?;
                 cursor.buffer.start_conditional_tag();

@@ -84,7 +84,7 @@ impl<'root> Renderer<'root, MjImage, ()> {
             .add_style("border-spacing", "0px")
     }
 
-    fn render_image(&self, buf: &mut RenderBuffer) {
+    fn render_image(&self, buf: &mut RenderBuffer) -> std::fmt::Result {
         let img = Tag::new("img")
             .maybe_add_attribute("alt", self.attribute("alt"))
             .add_attribute(
@@ -103,10 +103,10 @@ impl<'root> Renderer<'root, MjImage, ()> {
             )
             .maybe_add_attribute("usemap", self.attribute("usemap"));
         let img = self.set_style_img(img);
-        img.render_closed(buf);
+        img.render_closed(buf)
     }
 
-    fn render_link(&self, buf: &mut RenderBuffer) {
+    fn render_link(&self, buf: &mut RenderBuffer) -> std::fmt::Result {
         Tag::new("a")
             .maybe_add_attribute("href", self.attribute("href"))
             .maybe_add_attribute("name", self.attribute("name"))
@@ -171,15 +171,15 @@ impl<'root> Render<'root> for Renderer<'root, MjImage, ()> {
         let tr = Tag::tr();
         let td = self.set_style_td(Tag::td()).maybe_add_class(class);
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
 
         if self.attribute_exists("href") {
-            self.render_link(&mut cursor.buffer);
+            self.render_link(&mut cursor.buffer)?;
         } else {
-            self.render_image(&mut cursor.buffer);
+            self.render_image(&mut cursor.buffer)?;
         }
 
         td.render_close(&mut cursor.buffer);

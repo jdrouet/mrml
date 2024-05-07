@@ -1,14 +1,43 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Write};
 
 use super::RenderBuffer;
 use crate::prelude::hash::{Map, Set};
 
+#[derive(Default)]
+struct Styles<'a>(Vec<(Cow<'a, str>, Cow<'a, str>)>);
+
+impl<'a> std::fmt::Debug for Styles<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_char('"')?;
+        for (key, value) in self.0.iter() {
+            write!(f, "{key}:{value};")?;
+        }
+        f.write_char('"')
+    }
+}
+
+#[derive(Default)]
+struct Classes<'a>(Set<Cow<'a, str>>);
+
+impl<'a> std::fmt::Debug for Classes<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_char('"')?;
+        for (i, c) in self.0.iter().enumerate() {
+            if i > 0 {
+                f.write_char(' ')?;
+            }
+            f.write_str(c)?;
+        }
+        f.write_char('"')
+    }
+}
+
 pub struct Tag<'a> {
     name: Cow<'a, str>,
     attributes: Map<Cow<'a, str>, Cow<'a, str>>,
-    classes: Set<Cow<'a, str>>,
+    classes: Classes<'a>,
     // in order to keep the style in the same order the've been added
-    styles: Vec<(Cow<'a, str>, Cow<'a, str>)>,
+    styles: Styles<'a>,
 }
 
 impl<'a> Tag<'a> {
@@ -41,13 +70,13 @@ impl<'a> Tag<'a> {
         Self {
             name: name.into(),
             attributes: Map::new(),
-            classes: Set::new(),
-            styles: Vec::new(),
+            classes: Default::default(),
+            styles: Default::default(),
         }
     }
 
     pub fn add_class<C: Into<Cow<'a, str>>>(mut self, value: C) -> Self {
-        self.classes.insert(value.into());
+        self.classes.0.insert(value.into());
         self
     }
 
@@ -97,7 +126,7 @@ impl<'a> Tag<'a> {
         name: N,
         value: V,
     ) -> Self {
-        self.styles.push((name.into(), value.into()));
+        self.styles.0.push((name.into(), value.into()));
         self
     }
 
@@ -115,41 +144,25 @@ impl<'a> Tag<'a> {
 }
 
 impl<'a> Tag<'a> {
-    fn render_opening(&self, b: &mut RenderBuffer) {
+    fn render_opening(&self, b: &mut RenderBuffer) -> std::fmt::Result {
         b.push('<');
         b.push_str(&self.name);
         for (key, value) in self.attributes.iter() {
-            b.push(' ');
-            b.push_str(key);
-            b.push_str("=\"");
-            b.push_str(value);
-            b.push('"');
+            b.push_attribute(key, value)?;
         }
-        if !self.classes.is_empty() {
-            b.push_str(" class=\"");
-            for (index, classname) in self.classes.iter().enumerate() {
-                if index > 0 {
-                    b.push(' ');
-                }
-                b.push_str(classname);
-            }
-            b.push('"');
+        if !self.classes.0.is_empty() {
+            b.push_attribute("class", &self.classes)?;
         }
-        if !self.styles.is_empty() {
-            b.push_str(" style=\"");
-            for (key, value) in self.styles.iter() {
-                b.push_str(key);
-                b.push(':');
-                b.push_str(value);
-                b.push(';');
-            }
-            b.push('"');
+        if !self.styles.0.is_empty() {
+            b.push_attribute("style", &self.styles)?;
         }
+        Ok(())
     }
 
-    pub fn render_open(&self, b: &mut RenderBuffer) {
-        self.render_opening(b);
+    pub fn render_open(&self, b: &mut RenderBuffer) -> std::fmt::Result {
+        self.render_opening(b)?;
         b.push('>');
+        Ok(())
     }
 
     pub fn render_close(&self, b: &mut RenderBuffer) {
@@ -158,23 +171,26 @@ impl<'a> Tag<'a> {
         b.push('>');
     }
 
-    pub fn render_closed(&self, b: &mut RenderBuffer) {
-        self.render_opening(b);
+    pub fn render_closed(&self, b: &mut RenderBuffer) -> std::fmt::Result {
+        self.render_opening(b)?;
         b.push_str(" />");
+        Ok(())
     }
 
-    pub fn render_with<F>(&self, buf: &mut RenderBuffer, cb: F)
+    pub fn render_with<F>(&self, buf: &mut RenderBuffer, cb: F) -> std::fmt::Result
     where
-        F: FnOnce(&mut RenderBuffer),
+        F: FnOnce(&mut RenderBuffer) -> std::fmt::Result,
     {
-        self.render_open(buf);
-        cb(buf);
+        self.render_open(buf)?;
+        cb(buf)?;
         self.render_close(buf);
+        Ok(())
     }
 
-    pub fn render_text(&self, buf: &mut RenderBuffer, value: &str) {
-        self.render_open(buf);
+    pub fn render_text(&self, buf: &mut RenderBuffer, value: &str) -> std::fmt::Result {
+        self.render_open(buf)?;
         buf.push_str(value);
         self.render_close(buf);
+        Ok(())
     }
 }

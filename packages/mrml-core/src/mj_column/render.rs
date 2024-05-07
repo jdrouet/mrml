@@ -194,10 +194,10 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
         let tr = Tag::tr();
         let td = self.set_style_gutter_td(Tag::td());
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
-        tr.render_open(&mut cursor.buffer);
-        td.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
+        tr.render_open(&mut cursor.buffer)?;
+        td.render_open(&mut cursor.buffer)?;
         self.render_column(cursor)?;
         td.render_close(&mut cursor.buffer);
         tr.render_close(&mut cursor.buffer);
@@ -228,8 +228,8 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
         let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
         let current_width = self.current_width();
 
-        table.render_open(&mut cursor.buffer);
-        tbody.render_open(&mut cursor.buffer);
+        table.render_open(&mut cursor.buffer)?;
+        tbody.render_open(&mut cursor.buffer)?;
 
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
@@ -257,8 +257,8 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
                     .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
                     .maybe_add_class(renderer.attribute("css-class"));
 
-                tr.render_open(&mut cursor.buffer);
-                td.render_open(&mut cursor.buffer);
+                tr.render_open(&mut cursor.buffer)?;
+                td.render_open(&mut cursor.buffer)?;
                 renderer.render(cursor)?;
                 td.render_close(&mut cursor.buffer);
                 tr.render_close(&mut cursor.buffer);
@@ -338,7 +338,7 @@ impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             .add_class(classname)
             .maybe_add_class(self.attribute("css-class"));
 
-        div.render_open(&mut cursor.buffer);
+        div.render_open(&mut cursor.buffer)?;
         if self.has_gutter() {
             self.render_gutter(cursor)?;
         } else {
