@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "benchmarks/mrml-stress",
   "examples/axum",
   "packages/mrml-cli",
   "packages/mrml-core/lib/common-macros",
