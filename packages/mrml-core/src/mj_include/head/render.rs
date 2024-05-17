@@ -101,7 +101,7 @@ mod tests {
             let mj_title = MjTitle::from("Hello Old World!".to_string());
             let mj_include_title = MjTitle::from("Hello New World!".to_string());
             let mut mj_include = MjIncludeHead::default();
-            mj_include.attributes.path = "partial.mjml".to_owned();
+            mj_include.attributes.path = "partial.mjml".to_string();
             mj_include
                 .children
                 .push(MjIncludeHeadChild::MjTitle(mj_include_title));
