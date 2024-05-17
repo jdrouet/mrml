@@ -1356,19 +1356,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "mrml-common-macros"
-version = "0.1.4"
-dependencies = [
- "syn 2.0.48",
-]
-
-[[package]]
 name = "mrml-json-macros"
 version = "0.1.3"
 dependencies = [
  "Inflector",
  "darling",
- "mrml-common-macros",
  "proc-macro2",
  "quote",
  "syn 2.0.48",

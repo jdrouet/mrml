@@ -1,13 +1,12 @@
 [workspace]
 members = [
-  "examples/axum",
-  "packages/mrml-cli",
-  "packages/mrml-core/lib/common-macros",
-  "packages/mrml-core/lib/css-compare",
-  "packages/mrml-core/lib/html-compare",
-  "packages/mrml-core/lib/mrml-json-macros",
-  "packages/mrml-core",
-  "packages/mrml-python",
-  "packages/mrml-wasm",
+    "examples/axum",
+    "packages/mrml-cli",
+    "packages/mrml-core/lib/css-compare",
+    "packages/mrml-core/lib/html-compare",
+    "packages/mrml-core/lib/mrml-json-macros",
+    "packages/mrml-core",
+    "packages/mrml-python",
+    "packages/mrml-wasm",
 ]
 resolver = "2"
