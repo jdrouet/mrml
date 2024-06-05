@@ -27,8 +27,6 @@ env:
 jobs:
   testing:
     runs-on: ubuntu-latest
-    container: rust:1-bullseye
-
     concurrency:
       group: ${{ github.ref }}-mrml-cli-testing
       cancel-in-progress: true
@@ -56,8 +54,6 @@ jobs:
 
   building:
     runs-on: ubuntu-latest
-    container: rust:1-bullseye
-
     concurrency:
       group: ${{ github.ref }}-mrml-cli-building
       cancel-in-progress: true
