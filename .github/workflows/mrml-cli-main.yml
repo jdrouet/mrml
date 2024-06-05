@@ -82,6 +82,8 @@ jobs:
 
       - name: getting binary size and pushing
         run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
           git-metrics --backend command pull
           git-metrics add binary-size \
             --tag "name: mrml-cli" \
