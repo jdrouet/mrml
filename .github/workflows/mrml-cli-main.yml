@@ -79,3 +79,13 @@ jobs:
 
       - name: building the cli binary
         run: cargo build --package mrml-cli --release
+
+      - name: getting binary size and pushing
+        run: |
+          git-metrics --backend command pull
+          git-metrics add binary-size \
+            --tag "name: mrml-cli" \
+            --tag "platform.os: linux" \
+            --tag "platform.arch: x86_64" \
+            $(stat --printf="%s" ./target/release/mrml)
+          git-metrics --backend command push
