@@ -2,9 +2,11 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
+        description: "Release tag to use"
         type: string
         required: true
       publish:
+        description: "Should publish to npm registry"
         type: boolean
         required: false
         default: false

@@ -20,7 +20,67 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run release-plz
+        id: release-plz
         uses: MarcoIeni/release-plz-action@v0.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    outputs:
+      releases: ${{ steps.release-plz.outputs.releases }}
+
+  release-tags:
+    runs-on: ubuntu-latest
+    needs:
+      - release-plz
+    if: ${{ needs.release-plz.outputs.releases != '[]' }}
+    steps:
+      - name: parsing release-plz-output
+        id: values
+        run: |
+          json_output=${{ needs.release-plz.oututs.releases }}
+          mrml_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml")] | map(.tag) | first')
+          mrml_cli_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-cli")] | map(.tag) | first')
+          mrml_python_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-python")] | map(.tag) | first')
+          mrml_wasm_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-wasm")] | map(.tag) | first')
+          echo "mrml_tag=$mrml_tag" >> "$GITHUB_OUTPUT"
+          echo "mrml_cli_tag=$mrml_cli_tag" >> "$GITHUB_OUTPUT"
+          echo "mrml_python_tag=$mrml_python_tag" >> "$GITHUB_OUTPUT"
+          echo "mrml_wasm_tag=$mrml_wasm_tag" >> "$GITHUB_OUTPUT"
+    outputs:
+      mrml_tag: ${{ steps.values.outputs.mrml_tag }}
+      mrml_cli_tag: ${{ steps.values.outputs.mrml_cli_tag }}
+      mrml_python_tag: ${{ steps.values.outputs.mrml_python_tag }}
+      mrml_wasm_tag: ${{ steps.values.outputs.mrml_wasm_tag }}
+
+  trigger-mrml-cli-release:
+    needs:
+      - release-tags
+    if: ${{ needs.release-tags.outputs.mrml_cli_tag != 'null' }}
+    uses: ./.github/workflows/mrml-cli-release.yml
+    with:
+      release_tag: ${{ needs.release-tags.outputs.mrml_cli_tag }}
+
+  trigger-mrml-core-release:
+    needs:
+      - release-tags
+    if: ${{ needs.release-tags.outputs.mrml_tag != 'null' }}
+    uses: ./.github/workflows/mrml-core-release.yml
+    with:
+      release_tag: ${{ needs.release-tags.outputs.mrml_tag }}
+
+  trigger-mrml-python-release:
+    needs:
+      - release-tags
+    if: ${{ needs.release-tags.outputs.mrml_python_tag != 'null' }}
+    uses: ./.github/workflows/mrml-python-release.yml
+    with:
+      release_tag: ${{ needs.release-tags.outputs.mrml_python_tag }}
+
+  trigger-mrml-wasm-release:
+    needs:
+      - release-tags
+    if: ${{ needs.release-tags.outputs.mrml_wasm_tag != 'null' }}
+    uses: ./.github/workflows/mrml-wasm-release.yml
+    with:
+      release_tag: ${{ needs.release-tags.outputs.mrml_wasm_tag }}
+      publish: true
