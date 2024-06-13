@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.11](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.10...mrml-wasm-v1.4.11) - 2024-06-13
+
+### Other
+- *(deps)* Update itertools requirement from 0.12.1 to 0.13.0 in /packages/mrml-core ([#425](https://github.com/jdrouet/mrml/pull/425))
+
 ## [1.4.10](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.9...mrml-wasm-v1.4.10) - 2024-04-13
 
 ### Other
