@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/jdrouet/mrml/compare/mrml-json-macros-v0.1.3...mrml-json-macros-v0.1.4) - 2024-06-13
+
+### Other
+- *(mrml-core)* remove common macro
+
 ## [0.1.3](https://github.com/jdrouet/mrml/compare/mrml-json-macros-v0.1.2...mrml-json-macros-v0.1.3) - 2024-03-21
 
 ### Other

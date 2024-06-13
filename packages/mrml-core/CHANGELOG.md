@@ -6,6 +6,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0](https://github.com/jdrouet/mrml/compare/mrml-v3.1.5...mrml-v4.0.0) - 2024-06-13
+
+### Added
+- *(mrml-core)* allow to have comments at root level ([#414](https://github.com/jdrouet/mrml/pull/414))
+
+### Fixed
+- *(mrml-core)* remove unreachable code from doc
+
+### Other
+- *(mrml-core)* make MjAttributes children public ([#429](https://github.com/jdrouet/mrml/pull/429))
+- *(mrml-core)* remove common macro
+- *(deps)* Update itertools requirement from 0.12.1 to 0.13.0 in /packages/mrml-core ([#425](https://github.com/jdrouet/mrml/pull/425))
+- *(mrml-core)* remove useless ToString
+- *(mrml-core)* avoid calling self.attributes in loops
+- *(mrml-core)* use fmt::Write in render buffer
+- *(mrml-core)* move MjAccordionElementChild
+- *(mrml-core)* remove unused code
+- *(mrml-core)* avoid using dyn dispatch
+- *(mrml-core)* reimplement print with a printer ([#423](https://github.com/jdrouet/mrml/pull/423))
+- *(mrml-core)* only use indexmap
+- *(mrml-core)* update spacing implementation
+- *(mrml-core)* spacing should only handle pixels ([#422](https://github.com/jdrouet/mrml/pull/422))
+- *(mrml-core)* make SocialNetwork use static str
+- *(mrml-core)* make extra use &str
+- *(mrml-core)* avoid closing when calling attribute
+- *(mrml-core)* simplify lifetimes
+- *(mrml-core)* move siblings and index to renderer
+- *(mrml-core)* move container_width to renderer
+- *(mrml-core)* use common renderer
+- *(mrml-core)* move buffer and header in cursor
+- *(mrml-core)* wrap render options and header in context
+- *(mrml-core)* split header to avoir using Cell
+- *(mrml-core)* add lifetime to tag
+- *(mrml-core)* style are now built with Cow<'static, str>
+- *(mrml-core)* remove unused code
+- *(mrml-core)* remove extra panic info
+- *(mrml-core)* move conditional to buffer
+- *(mrml-core)* make RenderBuffer a struct
+- *(mrml-core)* render with buffer
+- *(mrml-core)* move tag to render prelude
+- *(mrml-core)* make default_attribute return static str
+- *(mrml-core)* return args as &str
+- *(mrml-core)* styles are stored in Set<Cow<'static, str>> ([#420](https://github.com/jdrouet/mrml/pull/420))
+- *(deps)* Bump rustls from 1.0.0-alpha.46 to 1.0.0-alpha.55
+
 ## [3.1.5](https://github.com/jdrouet/mrml/compare/mrml-v3.1.4...mrml-v3.1.5) - 2024-04-13
 
 ### Fixed

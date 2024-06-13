@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.5.8...mrml-cli-v1.6.0) - 2024-06-13
+
+### Added
+- *(mrml-cli)* improve error message ([#418](https://github.com/jdrouet/mrml/pull/418))
+
+### Other
+- *(mrml-core)* reimplement print with a printer ([#423](https://github.com/jdrouet/mrml/pull/423))
+
 ## [1.5.8](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.5.7...mrml-cli-v1.5.8) - 2024-04-20
 
 ### Other

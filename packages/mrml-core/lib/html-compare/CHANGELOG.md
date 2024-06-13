@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.2...html-compare-v0.1.3) - 2024-06-13
+
+### Other
+- *(mrml-core)* reimplement print with a printer ([#423](https://github.com/jdrouet/mrml/pull/423))
+
 ## [0.1.2](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.1...html-compare-v0.1.2) - 2024-04-13
 
 ### Fixed
