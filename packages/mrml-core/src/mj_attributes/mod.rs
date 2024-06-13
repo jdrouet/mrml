@@ -14,7 +14,7 @@ pub const NAME: &str = "mj-attributes";
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjAttributes {
-    pub(crate) children: Vec<MjAttributesChild>,
+    pub children: Vec<MjAttributesChild>,
 }
 
 #[cfg(feature = "render")]
