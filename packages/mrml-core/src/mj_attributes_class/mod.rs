@@ -11,8 +11,8 @@ pub const NAME: &str = "mj-class";
 
 #[derive(Debug, Default)]
 pub struct MjAttributesClass {
-    pub(crate) name: String,
-    pub(crate) attributes: Map<String, String>,
+    pub name: String,
+    pub attributes: Map<String, String>,
 }
 
 impl MjAttributesClass {
