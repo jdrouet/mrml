@@ -88,4 +88,4 @@ jobs:
             --tag "platform.os: linux" \
             --tag "platform.arch: x86_64" \
             $(stat --printf="%s" ./target/release/mrml)
-          git-metrics --backend command push
+          git-metrics -vvvvv --backend command push
