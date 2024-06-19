@@ -18,6 +18,7 @@ impl<'opts> ParseElement<MjAttributesChild> for MrmlParser<'opts> {
         Ok(match tag.as_str() {
             MJ_ALL => MjAttributesChild::MjAttributesAll(self.parse(cursor, tag)?),
             MJ_CLASS => MjAttributesChild::MjAttributesClass(self.parse(cursor, tag)?),
+            // _ if tag.is_empty() => Ok(MjAttributesChild::Fragment(self.parse(cursor, tag)?)),
             _ => MjAttributesChild::MjAttributesElement(self.parse(cursor, tag)?),
         })
     }
@@ -35,6 +36,8 @@ impl AsyncParseElement<MjAttributesChild> for AsyncMrmlParser {
         Ok(match tag.as_str() {
             MJ_ALL => MjAttributesChild::MjAttributesAll(self.async_parse(cursor, tag).await?),
             MJ_CLASS => MjAttributesChild::MjAttributesClass(self.async_parse(cursor, tag).await?),
+            // _ if tag.is_empty() => Ok(MjAttributesChild::Fragment(self.async_parse(cursor,
+            // tag)?)),
             _ => MjAttributesChild::MjAttributesElement(self.async_parse(cursor, tag).await?),
         })
     }

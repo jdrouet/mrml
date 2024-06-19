@@ -36,6 +36,7 @@ impl<'opts> ParseElement<MjIncludeHeadChild> for MrmlParser<'opts> {
             MJ_RAW => self.parse(cursor, tag).map(MjIncludeHeadChild::MjRaw),
             MJ_STYLE => self.parse(cursor, tag).map(MjIncludeHeadChild::MjStyle),
             MJ_TITLE => self.parse(cursor, tag).map(MjIncludeHeadChild::MjTitle),
+            _ if tag.is_empty() => Ok(MjIncludeHeadChild::Fragment(self.parse(cursor, tag)?)),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }
     }
@@ -79,6 +80,10 @@ impl AsyncParseElement<MjIncludeHeadChild> for AsyncMrmlParser {
                 .async_parse(cursor, tag)
                 .await
                 .map(MjIncludeHeadChild::MjTitle),
+
+            _ if tag.is_empty() => Ok(MjIncludeHeadChild::Fragment(
+                self.async_parse(cursor, tag).await?,
+            )),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }
     }

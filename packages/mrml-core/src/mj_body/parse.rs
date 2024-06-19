@@ -2,6 +2,7 @@ use xmlparser::StrSpan;
 
 use super::{MjBody, MjBodyChild};
 use crate::comment::Comment;
+
 use crate::mj_accordion::NAME as MJ_ACCORDION;
 use crate::mj_button::NAME as MJ_BUTTON;
 use crate::mj_carousel::NAME as MJ_CAROUSEL;
@@ -111,6 +112,7 @@ impl<'opts> ParseElement<MjBodyChild> for MrmlParser<'opts> {
             MJ_TABLE => Ok(MjBodyChild::MjTable(self.parse(cursor, tag)?)),
             MJ_TEXT => Ok(MjBodyChild::MjText(self.parse(cursor, tag)?)),
             MJ_WRAPPER => Ok(MjBodyChild::MjWrapper(self.parse(cursor, tag)?)),
+            _ if tag.is_empty() => Ok(MjBodyChild::Fragment(self.parse(cursor, tag)?)),
             _ => Ok(MjBodyChild::Node(self.parse(cursor, tag)?)),
         }
     }
@@ -147,6 +149,7 @@ impl AsyncParseElement<MjBodyChild> for AsyncMrmlParser {
             MJ_TABLE => Ok(MjBodyChild::MjTable(self.async_parse(cursor, tag).await?)),
             MJ_TEXT => Ok(MjBodyChild::MjText(self.async_parse(cursor, tag).await?)),
             MJ_WRAPPER => Ok(MjBodyChild::MjWrapper(self.async_parse(cursor, tag).await?)),
+            _ if tag.is_empty() => Ok(MjBodyChild::Fragment(self.async_parse(cursor, tag).await?)),
             _ => Ok(MjBodyChild::Node(self.async_parse(cursor, tag).await?)),
         }
     }

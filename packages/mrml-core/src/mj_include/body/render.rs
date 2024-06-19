@@ -7,6 +7,7 @@ impl MjIncludeBodyChild {
     ) -> &'root (dyn Renderable<'render, 'root> + 'root) {
         match self {
             Self::Comment(elt) => elt,
+            Self::Fragment(elt) => elt,
             Self::MjAccordion(elt) => elt,
             Self::MjButton(elt) => elt,
             Self::MjCarousel(elt) => elt,
@@ -41,6 +42,23 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjIncludeBodyChild 
         self.as_renderable().renderer(context)
     }
 }
+impl<'root> Renderer<'root, MjIncludeBody, ()> {
+    fn get_children(&self) -> Vec<&MjIncludeBodyChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjIncludeBodyChild>,
+            c: &'root MjIncludeBodyChild,
+        ) -> Vec<&'root MjIncludeBodyChild> {
+            match c {
+                MjIncludeBodyChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
+    }
+}
 
 impl<'root> Render<'root> for Renderer<'root, MjIncludeBody, ()> {
     fn raw_attribute(&self, _: &str) -> Option<&'root str> {
@@ -56,7 +74,8 @@ impl<'root> Render<'root> for Renderer<'root, MjIncludeBody, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        for (index, child) in self.element.children.iter().enumerate() {
+        let children = self.get_children();
+        for (index, child) in children.into_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(self.element.children.len());

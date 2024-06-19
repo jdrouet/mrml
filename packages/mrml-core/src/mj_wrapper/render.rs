@@ -1,5 +1,6 @@
 use super::{MjWrapper, NAME};
 use crate::helper::size::Pixel;
+use crate::mj_body::MjBodyChild;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
 use crate::prelude::render::*;
 
@@ -16,21 +17,33 @@ impl<'root> Renderer<'root, MjWrapper, ()> {
 impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjWrapper, ()> {}
 
 impl<'root> SectionLikeRender<'root> for Renderer<'root, MjWrapper, ()> {
-    fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
-        &self.element.children
+    fn children(&self) -> Vec<&MjBodyChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjBodyChild>,
+            c: &'root MjBodyChild,
+        ) -> Vec<&'root MjBodyChild> {
+            match c {
+                MjBodyChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
     }
-
     fn container_width(&self) -> &Option<Pixel> {
         &self.container_width
     }
 
     fn render_wrapped_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let tr = Tag::tr();
-        let siblings = self.get_siblings();
-        let raw_siblings = self.get_raw_siblings();
+        let children = self.children();
+        let siblings = children.len();
+        let raw_siblings = children.iter().filter(|elt| elt.is_raw()).count();
         let current_width = self.current_width();
         let container_width = self.container_width.as_ref().map(|v| v.to_string());
-        for child in self.children().iter() {
+        for child in children.into_iter() {
             let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);

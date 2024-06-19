@@ -2,9 +2,26 @@ use std::borrow::Cow;
 
 use super::{MjGroup, NAME};
 use crate::helper::size::{Pixel, Size};
+use crate::mj_body::MjBodyChild;
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjGroup, ()> {
+    fn get_children(&self) -> Vec<&MjBodyChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjBodyChild>,
+            c: &'root MjBodyChild,
+        ) -> Vec<&'root MjBodyChild> {
+            match c {
+                MjBodyChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
+    }
+
     fn current_width(&self) -> Pixel {
         let parent_width = self.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
@@ -76,15 +93,11 @@ impl<'root> Renderer<'root, MjGroup, ()> {
 
     fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let current_width = self.current_width();
-        let siblings = self.element.children.len();
-        let raw_siblings = self
-            .element
-            .children
-            .iter()
-            .filter(|item| item.is_raw())
-            .count();
+        let children = self.get_children();
+        let siblings = children.len();
+        let raw_siblings = children.iter().filter(|item| item.is_raw()).count();
 
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(siblings);

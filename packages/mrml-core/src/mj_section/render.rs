@@ -3,6 +3,7 @@ use std::convert::TryFrom;
 
 use super::{MjSection, NAME};
 use crate::helper::size::{Percent, Pixel};
+use crate::mj_body::MjBodyChild;
 use crate::prelude::render::*;
 
 fn is_horizontal_position(value: &str) -> bool {
@@ -208,7 +209,8 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
 
 pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
     fn container_width(&self) -> &Option<Pixel>;
-    fn children(&self) -> &Vec<crate::mj_body::MjBodyChild>;
+
+    fn children(&self) -> Vec<&MjBodyChild>;
 
     fn is_full_width(&self) -> bool {
         self.attribute_exists("full-width")
@@ -307,21 +309,14 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         Ok(())
     }
 
-    fn get_siblings(&self) -> usize {
-        self.children().len()
-    }
-
-    fn get_raw_siblings(&self) -> usize {
-        self.children().iter().filter(|elt| elt.is_raw()).count()
-    }
-
     fn render_wrapped_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let siblings = self.get_siblings();
-        let raw_siblings = self.get_raw_siblings();
+        let children = self.children();
+        let siblings = children.len();
+        let raw_siblings = children.iter().filter(|elt| elt.is_raw()).count();
         let tr = Tag::tr();
 
         tr.render_open(&mut cursor.buffer)?;
-        for child in self.children().iter() {
+        for child in children.into_iter() {
             let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
@@ -515,8 +510,20 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
 
 impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjSection, ()> {}
 impl<'root> SectionLikeRender<'root> for Renderer<'root, MjSection, ()> {
-    fn children(&self) -> &Vec<crate::mj_body::MjBodyChild> {
-        &self.element.children
+    fn children(&self) -> Vec<&crate::mj_body::MjBodyChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjBodyChild>,
+            c: &'root MjBodyChild,
+        ) -> Vec<&'root MjBodyChild> {
+            match c {
+                MjBodyChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
     }
 
     fn container_width(&self) -> &Option<Pixel> {

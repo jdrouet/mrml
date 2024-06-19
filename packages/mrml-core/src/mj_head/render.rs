@@ -39,7 +39,7 @@ fn combine_attribute_map<'a>(
 
 impl MjHead {
     pub fn build_attributes_all(&self) -> Map<&str, &str> {
-        self.children
+        self.children()
             .iter()
             .flat_map(|item| {
                 item.as_mj_attributes()
@@ -56,7 +56,7 @@ impl MjHead {
     }
 
     pub fn build_attributes_class(&self) -> Map<&str, Map<&str, &str>> {
-        self.children
+        self.children()
             .iter()
             .flat_map(|item| {
                 item.as_mj_attributes()
@@ -73,7 +73,7 @@ impl MjHead {
     }
 
     pub fn build_attributes_element(&self) -> Map<&str, Map<&str, &str>> {
-        self.children
+        self.children()
             .iter()
             .flat_map(|item| {
                 item.as_mj_attributes()
@@ -90,7 +90,7 @@ impl MjHead {
     }
 
     pub fn build_font_families(&self) -> Map<&str, &str> {
-        self.children
+        self.children()
             .iter()
             .flat_map(|item| {
                 item.as_mj_font().into_iter().chain(
@@ -118,7 +118,7 @@ fn render_font_link(target: &mut String, href: &str) {
 
 impl<'root> Renderer<'root, MjHead, ()> {
     fn mj_style_iter(&self) -> impl Iterator<Item = &str> {
-        self.element.children.iter().flat_map(|item| {
+        self.element.children().into_iter().flat_map(|item| {
             item.as_mj_include()
                 .into_iter()
                 .flat_map(|inner| {
@@ -241,8 +241,11 @@ impl<'root> Renderer<'root, MjHead, ()> {
 
     fn render_raw(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let mut index: usize = 0;
-        let siblings = self.element.children.len();
-        for child in self.element.children.iter() {
+
+        let children = self.element.children();
+        let siblings = children.len();
+
+        for child in children.into_iter() {
             if let Some(mj_raw) = child.as_mj_raw() {
                 let mut renderer = mj_raw.renderer(self.context());
                 renderer.set_index(index);

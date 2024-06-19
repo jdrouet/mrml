@@ -9,6 +9,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjSocialElement(elt) => elt.renderer(context),
+            Self::Fragment(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
         }
     }
@@ -46,6 +47,22 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
 ];
 
 impl<'root> Renderer<'root, MjSocial, ()> {
+    fn get_children(&self) -> Vec<&MjSocialChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjSocialChild>,
+            c: &'root MjSocialChild,
+        ) -> Vec<&'root MjSocialChild> {
+            match c {
+                MjSocialChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
+    }
+
     fn set_style_table_vertical<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("margin", "0px")
     }
@@ -82,7 +99,7 @@ impl<'root> Renderer<'root, MjSocial, ()> {
         tr.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
 
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in self.get_children().into_iter().enumerate() {
             cursor.buffer.start_conditional_tag();
             td.render_open(&mut cursor.buffer)?;
             cursor.buffer.end_conditional_tag();
@@ -115,7 +132,7 @@ impl<'root> Renderer<'root, MjSocial, ()> {
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in self.get_children().into_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             child_attributes.iter().for_each(|(key, value)| {

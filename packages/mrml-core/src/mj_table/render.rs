@@ -1,11 +1,28 @@
 use super::{MjTable, NAME};
 use crate::helper::size::Pixel;
+use crate::mj_body::MjBodyChild;
 use crate::mj_section::WithMjSectionBackground;
 use crate::prelude::render::*;
 
 impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjTable, ()> {}
 
 impl<'root> Renderer<'root, MjTable, ()> {
+    fn get_children(&self) -> Vec<&MjBodyChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjBodyChild>,
+            c: &'root MjBodyChild,
+        ) -> Vec<&'root MjBodyChild> {
+            match c {
+                MjBodyChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
+    }
+
     fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
     where
         'root: 'a,
@@ -66,7 +83,7 @@ impl<'root> Render<'root> for Renderer<'root, MjTable, ()> {
             .maybe_add_attribute("cellspacing", self.attribute("cellspacing"))
             .maybe_add_attribute("width", self.attribute("width"));
         table.render_open(&mut cursor.buffer)?;
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in self.get_children().into_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.render(cursor)?;

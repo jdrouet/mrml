@@ -32,6 +32,22 @@ const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important
 "#;
 
 impl<'root> Renderer<'root, MjAccordion, ()> {
+    fn get_children(&self) -> Vec<&MjAccordionChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjAccordionChild>,
+            c: &'root MjAccordionChild,
+        ) -> Vec<&'root MjAccordionChild> {
+            match c {
+                MjAccordionChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
+    }
+
     fn update_header(&self, header: &mut VariableHeader) {
         let font_families = self.attribute("font-family");
         header.maybe_add_font_families(font_families);
@@ -110,7 +126,7 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
             .filter_map(|key| self.attribute(key).map(|found| (key, found)))
             .collect::<Vec<_>>();
 
-        for child in self.element.children.iter() {
+        for child in self.get_children().into_iter() {
             let mut renderer = child.renderer(self.context());
             children_attrs.iter().copied().for_each(|(key, value)| {
                 renderer.add_extra_attribute(key, value);
@@ -139,6 +155,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjAccordionElement(elt) => elt.renderer(context),
+            Self::Fragment(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
         }
     }

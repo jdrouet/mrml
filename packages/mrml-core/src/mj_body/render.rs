@@ -1,10 +1,26 @@
 use std::convert::TryFrom;
 
-use super::MjBody;
+use super::{MjBody, MjBodyChild};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjBody, ()> {
+    fn get_children(&self) -> Vec<&MjBodyChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjBodyChild>,
+            c: &'root MjBodyChild,
+        ) -> Vec<&'root MjBodyChild> {
+            match c {
+                MjBodyChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
+    }
+
     fn get_width(&self) -> Option<Pixel> {
         self.attribute("width")
             .and_then(|value| Pixel::try_from(value).ok())
@@ -41,18 +57,15 @@ impl<'root> Renderer<'root, MjBody, ()> {
         let element_width = self.get_width();
 
         div.render_open(&mut cursor.buffer)?;
-        let raw_siblings = self
-            .element
-            .children
-            .iter()
-            .filter(|item| item.is_raw())
-            .count();
-        for (index, child) in self.element.children.iter().enumerate() {
+        let children = self.get_children();
+        let raw_siblings = children.iter().filter(|i| i.is_raw()).count();
+
+        for (index, child) in children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_container_width(element_width.clone());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
-            renderer.set_siblings(self.element.children.len());
+            renderer.set_siblings(children.len());
             renderer.render(cursor)?;
         }
         div.render_close(&mut cursor.buffer);

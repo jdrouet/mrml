@@ -1,4 +1,5 @@
 use crate::comment::Comment;
+use crate::fragment::Fragment;
 use crate::mj_accordion_element::MjAccordionElement;
 
 #[derive(Debug)]
@@ -7,5 +8,6 @@ use crate::mj_accordion_element::MjAccordionElement;
 #[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]
 pub enum MjAccordionChild {
     Comment(Comment),
+    Fragment(Fragment<Self>),
     MjAccordionElement(MjAccordionElement),
 }

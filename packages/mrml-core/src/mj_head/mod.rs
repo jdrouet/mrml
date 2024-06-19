@@ -22,7 +22,7 @@ pub struct MjHead {
 #[cfg(feature = "render")]
 impl MjHead {
     pub fn breakpoint(&self) -> Option<&crate::mj_breakpoint::MjBreakpoint> {
-        self.children
+        self.children()
             .iter()
             .flat_map(|item| {
                 item.as_mj_breakpoint().into_iter().chain(
@@ -41,7 +41,7 @@ impl MjHead {
     }
 
     pub fn preview(&self) -> Option<&crate::mj_preview::MjPreview> {
-        self.children
+        self.children()
             .iter()
             .flat_map(|item| {
                 item.as_mj_preview().into_iter().chain(
@@ -60,7 +60,7 @@ impl MjHead {
     }
 
     pub fn title(&self) -> Option<&crate::mj_title::MjTitle> {
-        self.children
+        self.children()
             .iter()
             .flat_map(|item| {
                 item.as_mj_title().into_iter().chain(
@@ -78,7 +78,19 @@ impl MjHead {
             .last()
     }
 
-    pub fn children(&self) -> &Vec<MjHeadChild> {
-        &self.children
+    pub fn children(&self) -> Vec<&MjHeadChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjHeadChild>,
+            c: &'root MjHeadChild,
+        ) -> Vec<&'root MjHeadChild> {
+            match c {
+                MjHeadChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.children.iter().fold(Vec::new(), folder)
     }
 }

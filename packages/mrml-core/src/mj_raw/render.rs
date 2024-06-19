@@ -9,9 +9,27 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRawChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::Comment(elt) => elt.renderer(context),
+            Self::Fragment(elt) => elt.renderer(context),
             Self::Node(elt) => elt.renderer(context),
             Self::Text(elt) => elt.renderer(context),
         }
+    }
+}
+impl<'root> Renderer<'root, MjRaw, ()> {
+    fn get_children(&self) -> Vec<&MjRawChild> {
+        fn folder<'root>(
+            mut acc: Vec<&'root MjRawChild>,
+            c: &'root MjRawChild,
+        ) -> Vec<&'root MjRawChild> {
+            match c {
+                MjRawChild::Fragment(f) => {
+                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
+                }
+                _ => acc.push(c),
+            }
+            acc
+        }
+        self.element.children.iter().fold(Vec::new(), folder)
     }
 }
 
@@ -29,8 +47,9 @@ impl<'root> Render<'root> for Renderer<'root, MjRaw, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let siblings = self.element.children.len();
-        for (index, child) in self.element.children.iter().enumerate() {
+        let children = self.get_children();
+        let siblings = children.len();
+        for (index, child) in children.into_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(siblings);
