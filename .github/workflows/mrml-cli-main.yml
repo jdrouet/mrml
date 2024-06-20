@@ -61,6 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: jdrouet/action-install-git-metrics@main
+      - uses: jdrouet/action-git-identity@main
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -80,12 +81,14 @@ jobs:
       - name: building the cli binary
         run: cargo build --package mrml-cli --release
 
-      - name: getting binary size and pushing
-        run: |
-          git-metrics --backend command pull
-          git-metrics add binary-size \
-            --tag "name: mrml-cli" \
-            --tag "platform.os: linux" \
-            --tag "platform.arch: x86_64" \
-            $(stat --printf="%s" ./target/release/mrml)
-          git-metrics --backend command push
+      - name: getting binary size
+        id: binary-size
+        run: echo value=$(stat --printf="%s" ./target/release/mrml) >> $GITHUB_OUTPUT
+
+      - name: exporting git metrics
+        uses: jdrouet/action-execute-git-metrics@main
+        with:
+          script: |
+            pull
+            add binary-size --tag "name: mrml-cli" --tag "platform.os: linux" --tag "platform.arch: x86_64" ${{ steps.binary-size.outputs.value }}
+            push
