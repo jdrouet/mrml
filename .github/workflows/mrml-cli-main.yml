@@ -88,7 +88,6 @@ jobs:
       - name: exporting git metrics
         uses: jdrouet/action-execute-git-metrics@main
         with:
+          sync: true
           script: |
-            pull
             add binary-size --tag "name: mrml-cli" --tag "platform.os: linux" --tag "platform.arch: x86_64" ${{ steps.binary-size.outputs.value }}
-            push
