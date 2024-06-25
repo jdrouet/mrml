@@ -87,6 +87,7 @@ jobs:
 
       - name: exporting git metrics
         uses: jdrouet/action-execute-git-metrics@main
+        continue-on-error: true
         with:
           sync: true
           script: |
