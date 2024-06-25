@@ -3,7 +3,7 @@ pub mod head;
 
 pub const NAME: &str = "mj-include";
 
-#[cfg(all(test, feature = "parser", feature = "render"))]
+#[cfg(all(test, feature = "parse", feature = "render"))]
 mod tests {
     use crate::{
         mjml::Mjml,
