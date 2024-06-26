@@ -18,9 +18,6 @@ where
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         for child in self.element.children.iter() {
             let mut renderer = child.renderer(self.context);
-            // renderer.set_index(index);
-            // renderer.set_raw_siblings(self.raw_siblings);
-            // renderer.set_siblings(self.siblings);
             renderer.set_container_width(self.container_width.clone());
             self.extra.iter().for_each(|(key, value)| {
                 renderer.add_extra_attribute(key, value);

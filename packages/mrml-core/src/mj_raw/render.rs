@@ -16,20 +16,14 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRawChild {
     }
 }
 impl<'root> Renderer<'root, MjRaw, ()> {
-    fn get_children(&self) -> Vec<&MjRawChild> {
-        fn folder<'root>(
-            mut acc: Vec<&'root MjRawChild>,
-            c: &'root MjRawChild,
-        ) -> Vec<&'root MjRawChild> {
+    fn children_iter(&self) -> impl Iterator<Item = &MjRawChild> {
+        fn folder<'root>(c: &'root MjRawChild) -> Box<dyn Iterator<Item = &MjRawChild> + 'root> {
             match c {
-                MjRawChild::Fragment(f) => {
-                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
-                }
-                _ => acc.push(c),
+                MjRawChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
             }
-            acc
         }
-        self.element.children.iter().fold(Vec::new(), folder)
+        self.element.children.iter().flat_map(folder)
     }
 }
 
@@ -47,9 +41,8 @@ impl<'root> Render<'root> for Renderer<'root, MjRaw, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let children = self.get_children();
-        let siblings = children.len();
-        for (index, child) in children.into_iter().enumerate() {
+        let siblings = self.children_iter().count();
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(siblings);

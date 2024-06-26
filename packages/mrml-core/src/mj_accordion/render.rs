@@ -32,20 +32,16 @@ const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important
 "#;
 
 impl<'root> Renderer<'root, MjAccordion, ()> {
-    fn get_children(&self) -> Vec<&MjAccordionChild> {
+    fn children_iter(&self) -> impl Iterator<Item = &MjAccordionChild> {
         fn folder<'root>(
-            mut acc: Vec<&'root MjAccordionChild>,
             c: &'root MjAccordionChild,
-        ) -> Vec<&'root MjAccordionChild> {
+        ) -> Box<dyn Iterator<Item = &MjAccordionChild> + 'root> {
             match c {
-                MjAccordionChild::Fragment(f) => {
-                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
-                }
-                _ => acc.push(c),
+                MjAccordionChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
             }
-            acc
         }
-        self.element.children.iter().fold(Vec::new(), folder)
+        self.element.children.iter().flat_map(folder)
     }
 
     fn update_header(&self, header: &mut VariableHeader) {
@@ -126,7 +122,7 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
             .filter_map(|key| self.attribute(key).map(|found| (key, found)))
             .collect::<Vec<_>>();
 
-        for child in self.get_children().into_iter() {
+        for child in self.children_iter() {
             let mut renderer = child.renderer(self.context());
             children_attrs.iter().copied().for_each(|(key, value)| {
                 renderer.add_extra_attribute(key, value);

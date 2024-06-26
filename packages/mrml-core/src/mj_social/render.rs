@@ -47,20 +47,16 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
 ];
 
 impl<'root> Renderer<'root, MjSocial, ()> {
-    fn get_children(&self) -> Vec<&MjSocialChild> {
+    fn children_iter(&self) -> impl Iterator<Item = &MjSocialChild> {
         fn folder<'root>(
-            mut acc: Vec<&'root MjSocialChild>,
             c: &'root MjSocialChild,
-        ) -> Vec<&'root MjSocialChild> {
+        ) -> Box<dyn Iterator<Item = &MjSocialChild> + 'root> {
             match c {
-                MjSocialChild::Fragment(f) => {
-                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
-                }
-                _ => acc.push(c),
+                MjSocialChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
             }
-            acc
         }
-        self.element.children.iter().fold(Vec::new(), folder)
+        self.element.children.iter().flat_map(folder)
     }
 
     fn set_style_table_vertical<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
@@ -99,7 +95,7 @@ impl<'root> Renderer<'root, MjSocial, ()> {
         tr.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
 
-        for (index, child) in self.get_children().into_iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             cursor.buffer.start_conditional_tag();
             td.render_open(&mut cursor.buffer)?;
             cursor.buffer.end_conditional_tag();
@@ -132,7 +128,7 @@ impl<'root> Renderer<'root, MjSocial, ()> {
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
-        for (index, child) in self.get_children().into_iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             child_attributes.iter().for_each(|(key, value)| {

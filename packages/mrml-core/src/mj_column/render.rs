@@ -9,22 +9,15 @@ struct MjColumnExtra<'a> {
 }
 
 impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
-    fn get_children(&self) -> Vec<&MjBodyChild> {
-        fn folder<'root>(
-            mut acc: Vec<&'root MjBodyChild>,
-            c: &'root MjBodyChild,
-        ) -> Vec<&'root MjBodyChild> {
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
             match c {
-                MjBodyChild::Fragment(f) => {
-                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
-                }
-                _ => acc.push(c),
+                MjBodyChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
             }
-            acc
         }
-        self.element.children.iter().fold(Vec::new(), folder)
+        self.element.children.iter().flat_map(folder)
     }
-
     fn current_width(&self) -> Option<Pixel> {
         let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
@@ -241,15 +234,16 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
         let tbody = Tag::tbody();
-        let children = self.get_children();
-        let siblings = children.len();
-        let raw_siblings = children.iter().filter(|i| i.is_raw()).count();
+
+        let siblings = self.children_iter().count();
+        let raw_siblings = self.children_iter().filter(|i| i.is_raw()).count();
+
         let current_width = self.current_width();
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
 
-        for (index, child) in children.iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);

@@ -25,24 +25,20 @@ struct MjCarouselExtra {
 }
 
 impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
-    fn get_children(&self) -> Vec<&MjCarouselChild> {
+    fn children_iter(&self) -> impl Iterator<Item = &MjCarouselChild> {
         fn folder<'root>(
-            mut acc: Vec<&'root MjCarouselChild>,
             c: &'root MjCarouselChild,
-        ) -> Vec<&'root MjCarouselChild> {
+        ) -> Box<dyn Iterator<Item = &MjCarouselChild> + 'root> {
             match c {
-                MjCarouselChild::Fragment(f) => {
-                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
-                }
-                _ => acc.push(c),
+                MjCarouselChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
             }
-            acc
         }
-        self.element.children.iter().fold(Vec::new(), folder)
+        self.element.children.iter().flat_map(folder)
     }
 
     fn get_thumbnails_width(&self) -> Pixel {
-        let count = self.get_children().len();
+        let count = self.children_iter().count();
         if count == 0 {
             Pixel::new(0.0)
         } else {
@@ -107,7 +103,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         let tb_border = self.attribute("tb-border");
         let tb_border_radius = self.attribute("tb-border-radius");
 
-        for (index, child) in self.get_children().into_iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
             renderer.maybe_add_extra_attribute("border-radius", border_radius);
@@ -128,7 +124,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             let tb_border = self.attribute("tb-border");
             let tb_border_radius = self.attribute("tb-border-radius");
 
-            for (index, child) in self.get_children().into_iter().enumerate() {
+            for (index, child) in self.children_iter().enumerate() {
                 let mut renderer = child.renderer(self.context());
                 renderer.add_extra_attribute("carousel-id", &self.extra.id);
                 renderer.maybe_add_extra_attribute("border-radius", border_radius);
@@ -161,7 +157,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
 
         td.render_open(buf)?;
         div.render_open(buf)?;
-        for (index, _) in self.get_children().into_iter().enumerate() {
+        for (index, _) in self.children_iter().enumerate() {
             let img = self
                 .set_style_controls_img(Tag::new("img"))
                 .add_attribute("src", icon.to_string())
@@ -191,7 +187,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         td.render_open(&mut cursor.buffer)?;
         div.render_open(&mut cursor.buffer)?;
 
-        for (index, child) in self.get_children().into_iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.add_extra_attribute("carousel-id", &self.extra.id);
             renderer.maybe_add_extra_attribute("border-radius", self.attribute("border-radius"));
@@ -263,10 +259,10 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
     }
 
     fn render_style(&self) -> Option<String> {
-        if self.get_children().is_empty() {
+        let length = self.children_iter().count();
+        if length == 0 {
             return None;
         }
-        let length = self.get_children().len();
         let mut style = vec![
             Style::default()
                 .add_selector(".mj-carousel")

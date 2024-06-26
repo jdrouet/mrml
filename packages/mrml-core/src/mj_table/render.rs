@@ -7,20 +7,14 @@ use crate::prelude::render::*;
 impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjTable, ()> {}
 
 impl<'root> Renderer<'root, MjTable, ()> {
-    fn get_children(&self) -> Vec<&MjBodyChild> {
-        fn folder<'root>(
-            mut acc: Vec<&'root MjBodyChild>,
-            c: &'root MjBodyChild,
-        ) -> Vec<&'root MjBodyChild> {
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
             match c {
-                MjBodyChild::Fragment(f) => {
-                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
-                }
-                _ => acc.push(c),
+                MjBodyChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
             }
-            acc
         }
-        self.element.children.iter().fold(Vec::new(), folder)
+        self.element.children.iter().flat_map(folder)
     }
 
     fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -83,7 +77,7 @@ impl<'root> Render<'root> for Renderer<'root, MjTable, ()> {
             .maybe_add_attribute("cellspacing", self.attribute("cellspacing"))
             .maybe_add_attribute("width", self.attribute("width"));
         table.render_open(&mut cursor.buffer)?;
-        for (index, child) in self.get_children().into_iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.render(cursor)?;

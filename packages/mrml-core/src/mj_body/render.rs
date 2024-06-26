@@ -5,20 +5,14 @@ use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjBody, ()> {
-    fn get_children(&self) -> Vec<&MjBodyChild> {
-        fn folder<'root>(
-            mut acc: Vec<&'root MjBodyChild>,
-            c: &'root MjBodyChild,
-        ) -> Vec<&'root MjBodyChild> {
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
             match c {
-                MjBodyChild::Fragment(f) => {
-                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
-                }
-                _ => acc.push(c),
+                MjBodyChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
             }
-            acc
         }
-        self.element.children.iter().fold(Vec::new(), folder)
+        self.element.children.iter().flat_map(folder)
     }
 
     fn get_width(&self) -> Option<Pixel> {
@@ -57,15 +51,15 @@ impl<'root> Renderer<'root, MjBody, ()> {
         let element_width = self.get_width();
 
         div.render_open(&mut cursor.buffer)?;
-        let children = self.get_children();
-        let raw_siblings = children.iter().filter(|i| i.is_raw()).count();
+        let siblings = self.children_iter().count();
+        let raw_siblings = self.children_iter().filter(|i| i.is_raw()).count();
 
-        for (index, child) in children.iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_container_width(element_width.clone());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
-            renderer.set_siblings(children.len());
+            renderer.set_siblings(siblings);
             renderer.render(cursor)?;
         }
         div.render_close(&mut cursor.buffer);

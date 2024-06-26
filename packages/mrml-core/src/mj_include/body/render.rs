@@ -43,20 +43,16 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjIncludeBodyChild 
     }
 }
 impl<'root> Renderer<'root, MjIncludeBody, ()> {
-    fn get_children(&self) -> Vec<&MjIncludeBodyChild> {
+    fn children_iter(&self) -> impl Iterator<Item = &MjIncludeBodyChild> {
         fn folder<'root>(
-            mut acc: Vec<&'root MjIncludeBodyChild>,
             c: &'root MjIncludeBodyChild,
-        ) -> Vec<&'root MjIncludeBodyChild> {
+        ) -> Box<dyn Iterator<Item = &MjIncludeBodyChild> + 'root> {
             match c {
-                MjIncludeBodyChild::Fragment(f) => {
-                    acc.append(&mut f.children.iter().fold(Vec::new(), folder))
-                }
-                _ => acc.push(c),
+                MjIncludeBodyChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
             }
-            acc
         }
-        self.element.children.iter().fold(Vec::new(), folder)
+        self.element.children.iter().flat_map(folder)
     }
 }
 
@@ -74,7 +70,7 @@ impl<'root> Render<'root> for Renderer<'root, MjIncludeBody, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let children = self.get_children();
+        let children = self.children_iter();
         for (index, child) in children.into_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
