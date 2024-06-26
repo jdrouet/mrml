@@ -287,7 +287,9 @@ impl<'a> MrmlCursor<'a> {
             .next()
             .map(|res| res.map_err(Error::from).and_then(MrmlToken::try_from))
             .and_then(|token| match token {
-                Ok(MrmlToken::Text(inner)) if inner.text.trim().is_empty() => {
+                Ok(MrmlToken::Text(inner))
+                    if inner.text.starts_with('\n') && inner.text.trim().is_empty() =>
+                {
                     self.read_next_token()
                 }
                 other => Some(other),
@@ -343,6 +345,9 @@ impl<'a> MrmlCursor<'a> {
     pub(crate) fn assert_element_close(&mut self) -> Result<ElementClose<'a>, Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementClose(inner))) => Ok(inner),
+            Some(Ok(MrmlToken::Text(inner))) if inner.text.trim().is_empty() => {
+                self.assert_element_close()
+            }
             Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
             Some(Err(inner)) => Err(inner),
             None => Err(Error::EndOfStream),
