@@ -9,6 +9,7 @@ struct MjColumnExtra<'a> {
 }
 
 impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
+    #[cfg(feature = "fragment")]
     fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
         fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
             match c {
@@ -18,6 +19,12 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
         }
         self.element.children.iter().flat_map(folder)
     }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        self.element.children.iter()
+    }
+
     fn current_width(&self) -> Option<Pixel> {
         let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();

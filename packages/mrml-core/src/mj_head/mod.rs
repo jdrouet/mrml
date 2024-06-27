@@ -78,6 +78,7 @@ impl MjHead {
             .last()
     }
 
+    #[cfg(feature = "fragment")]
     pub fn children(&self) -> Vec<&MjHeadChild> {
         fn folder<'root>(
             mut acc: Vec<&'root MjHeadChild>,
@@ -92,5 +93,10 @@ impl MjHead {
             acc
         }
         self.children.iter().fold(Vec::new(), folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    pub fn children(&self) -> Vec<&MjHeadChild> {
+        self.children.iter().collect()
     }
 }

@@ -32,6 +32,7 @@ const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important
 "#;
 
 impl<'root> Renderer<'root, MjAccordion, ()> {
+    #[cfg(feature = "fragment")]
     fn children_iter(&self) -> impl Iterator<Item = &MjAccordionChild> {
         fn folder<'root>(
             c: &'root MjAccordionChild,
@@ -42,6 +43,11 @@ impl<'root> Renderer<'root, MjAccordion, ()> {
             }
         }
         self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjAccordionChild> {
+        self.element.children.iter()
     }
 
     fn update_header(&self, header: &mut VariableHeader) {
@@ -151,6 +157,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjAccordionElement(elt) => elt.renderer(context),
+            #[cfg(feature = "fragment")]
             Self::Fragment(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
         }

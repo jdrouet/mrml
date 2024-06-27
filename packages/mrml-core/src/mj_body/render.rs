@@ -5,6 +5,7 @@ use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjBody, ()> {
+    #[cfg(feature = "fragment")]
     fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
         fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
             match c {
@@ -13,6 +14,11 @@ impl<'root> Renderer<'root, MjBody, ()> {
             }
         }
         self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        self.element.children.iter()
     }
 
     fn get_width(&self) -> Option<Pixel> {

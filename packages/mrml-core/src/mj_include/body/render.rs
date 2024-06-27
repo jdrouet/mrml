@@ -7,6 +7,7 @@ impl MjIncludeBodyChild {
     ) -> &'root (dyn Renderable<'render, 'root> + 'root) {
         match self {
             Self::Comment(elt) => elt,
+            #[cfg(feature = "fragment")]
             Self::Fragment(elt) => elt,
             Self::MjAccordion(elt) => elt,
             Self::MjButton(elt) => elt,
@@ -43,6 +44,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjIncludeBodyChild 
     }
 }
 impl<'root> Renderer<'root, MjIncludeBody, ()> {
+    #[cfg(feature = "fragment")]
     fn children_iter(&self) -> impl Iterator<Item = &MjIncludeBodyChild> {
         fn folder<'root>(
             c: &'root MjIncludeBodyChild,
@@ -53,6 +55,11 @@ impl<'root> Renderer<'root, MjIncludeBody, ()> {
             }
         }
         self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjIncludeBodyChild> {
+        self.element.children.iter()
     }
 }
 

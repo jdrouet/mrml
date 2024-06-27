@@ -17,12 +17,14 @@ impl<'root> Renderer<'root, MjWrapper, ()> {
 impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjWrapper, ()> {}
 
 impl<'root> SectionLikeRender<'root> for Renderer<'root, MjWrapper, ()> {
+    #[cfg(feature = "fragment")]
     fn children(&self) -> Vec<&MjBodyChild> {
         fn folder<'root>(
             mut acc: Vec<&'root MjBodyChild>,
             c: &'root MjBodyChild,
         ) -> Vec<&'root MjBodyChild> {
             match c {
+                #[cfg(feature = "fragment")]
                 MjBodyChild::Fragment(f) => {
                     acc.append(&mut f.children.iter().fold(Vec::new(), folder))
                 }
@@ -32,6 +34,12 @@ impl<'root> SectionLikeRender<'root> for Renderer<'root, MjWrapper, ()> {
         }
         self.element.children.iter().fold(Vec::new(), folder)
     }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children(&self) -> Vec<&MjBodyChild> {
+        self.element.children.iter().collect()
+    }
+
     fn container_width(&self) -> &Option<Pixel> {
         &self.container_width
     }

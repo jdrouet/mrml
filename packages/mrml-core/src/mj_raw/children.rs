@@ -1,4 +1,5 @@
 use crate::comment::Comment;
+#[cfg(feature = "fragment")]
 use crate::fragment::Fragment;
 use crate::node::Node;
 use crate::text::Text;
@@ -9,6 +10,7 @@ use crate::text::Text;
 #[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]
 pub enum MjRawChild {
     Comment(Comment),
+    #[cfg(feature = "fragment")]
     Fragment(Fragment<Self>),
     Node(Node<MjRawChild>),
     Text(Text),

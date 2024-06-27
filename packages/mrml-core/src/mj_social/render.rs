@@ -9,6 +9,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjSocialElement(elt) => elt.renderer(context),
+            #[cfg(feature = "fragment")]
             Self::Fragment(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
         }
@@ -47,6 +48,7 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
 ];
 
 impl<'root> Renderer<'root, MjSocial, ()> {
+    #[cfg(feature = "fragment")]
     fn children_iter(&self) -> impl Iterator<Item = &MjSocialChild> {
         fn folder<'root>(
             c: &'root MjSocialChild,
@@ -57,6 +59,11 @@ impl<'root> Renderer<'root, MjSocial, ()> {
             }
         }
         self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjSocialChild> {
+        self.element.children.iter()
     }
 
     fn set_style_table_vertical<'t>(&self, tag: Tag<'t>) -> Tag<'t> {

@@ -10,6 +10,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjCarouselChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjCarouselImage(elt) => elt.renderer(context),
+            #[cfg(feature = "fragment")]
             Self::Fragment(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
         }
@@ -25,6 +26,8 @@ struct MjCarouselExtra {
 }
 
 impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
+    #[cfg(feature = "fragment")]
+
     fn children_iter(&self) -> impl Iterator<Item = &MjCarouselChild> {
         fn folder<'root>(
             c: &'root MjCarouselChild,
@@ -37,6 +40,10 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         self.element.children.iter().flat_map(folder)
     }
 
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjCarouselChild> {
+        self.element.children.iter()
+    }
     fn get_thumbnails_width(&self) -> Pixel {
         let count = self.children_iter().count();
         if count == 0 {

@@ -1,6 +1,7 @@
 use std::fmt::{Debug, Display, Write};
 
 // use crate::helper::sort::sort_by_key;
+#[cfg(feature = "fragment")]
 use crate::fragment::Fragment;
 use crate::prelude::hash::Map;
 

@@ -9,6 +9,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRawChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::Comment(elt) => elt.renderer(context),
+            #[cfg(feature = "fragment")]
             Self::Fragment(elt) => elt.renderer(context),
             Self::Node(elt) => elt.renderer(context),
             Self::Text(elt) => elt.renderer(context),
@@ -16,6 +17,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRawChild {
     }
 }
 impl<'root> Renderer<'root, MjRaw, ()> {
+    #[cfg(feature = "fragment")]
     fn children_iter(&self) -> impl Iterator<Item = &MjRawChild> {
         fn folder<'root>(c: &'root MjRawChild) -> Box<dyn Iterator<Item = &MjRawChild> + 'root> {
             match c {
@@ -24,6 +26,11 @@ impl<'root> Renderer<'root, MjRaw, ()> {
             }
         }
         self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjRawChild> {
+        self.element.children.iter()
     }
 }
 

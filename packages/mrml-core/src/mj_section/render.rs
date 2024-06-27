@@ -510,6 +510,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
 
 impl<'root> WithMjSectionBackground<'root> for Renderer<'root, MjSection, ()> {}
 impl<'root> SectionLikeRender<'root> for Renderer<'root, MjSection, ()> {
+    #[cfg(feature = "fragment")]
     fn children(&self) -> Vec<&crate::mj_body::MjBodyChild> {
         fn folder<'root>(
             mut acc: Vec<&'root MjBodyChild>,
@@ -524,6 +525,11 @@ impl<'root> SectionLikeRender<'root> for Renderer<'root, MjSection, ()> {
             acc
         }
         self.element.children.iter().fold(Vec::new(), folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children(&self) -> Vec<&MjBodyChild> {
+        self.element.children.iter().collect()
     }
 
     fn container_width(&self) -> &Option<Pixel> {

@@ -18,6 +18,7 @@ travis-ci = { repository = "jdrouet/mrml", branch = "main" }
 [features]
 default = ["json", "parse", "print", "render"]
 json = ["dep:mrml-json-macros", "dep:serde", "dep:serde_json", "indexmap/serde"]
+fragment = []
 parse = ["dep:xmlparser", "dep:thiserror"]
 print = ["dep:enum_dispatch"]
 render = ["dep:enum-as-inner", "dep:thiserror"]

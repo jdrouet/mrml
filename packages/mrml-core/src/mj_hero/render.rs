@@ -6,6 +6,7 @@ use crate::mj_body::MjBodyChild;
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjHero, ()> {
+    #[cfg(feature = "fragment")]
     fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
         fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
             match c {
@@ -14,6 +15,11 @@ impl<'root> Renderer<'root, MjHero, ()> {
             }
         }
         self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        self.element.children.iter()
     }
 
     fn set_style_div<'t>(&self, tag: Tag<'t>) -> Tag<'t> {

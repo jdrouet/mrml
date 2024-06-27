@@ -118,6 +118,7 @@ impl<'opts> ParseElement<MjHeadChild> for MrmlParser<'opts> {
             MJ_RAW => self.parse(cursor, tag).map(MjHeadChild::MjRaw),
             MJ_STYLE => self.parse(cursor, tag).map(MjHeadChild::MjStyle),
             MJ_TITLE => self.parse(cursor, tag).map(MjHeadChild::MjTitle),
+            #[cfg(feature = "fragment")]
             _ if tag.is_empty() => Ok(MjHeadChild::Fragment(self.parse(cursor, tag)?)),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }
@@ -161,6 +162,7 @@ impl AsyncParseElement<MjHeadChild> for AsyncMrmlParser {
                 .await
                 .map(MjHeadChild::MjTitle),
 
+            #[cfg(feature = "fragment")]
             _ if tag.is_empty() => Ok(MjHeadChild::Fragment(self.async_parse(cursor, tag).await?)),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }

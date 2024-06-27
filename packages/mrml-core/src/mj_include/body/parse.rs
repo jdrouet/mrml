@@ -51,6 +51,7 @@ impl<'opts> ParseElement<MjIncludeBodyChild> for MrmlParser<'opts> {
             MJ_TABLE => Ok(MjIncludeBodyChild::MjTable(self.parse(cursor, tag)?)),
             MJ_TEXT => Ok(MjIncludeBodyChild::MjText(self.parse(cursor, tag)?)),
             MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(self.parse(cursor, tag)?)),
+            #[cfg(feature = "fragment")]
             _ if tag.is_empty() => Ok(MjIncludeBodyChild::Fragment(self.parse(cursor, tag)?)),
             _ => Err(Error::UnexpectedElement(tag.into())),
         }
@@ -115,6 +116,7 @@ impl AsyncParseElement<MjIncludeBodyChild> for AsyncMrmlParser {
             MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(
                 self.async_parse(cursor, tag).await?,
             )),
+            #[cfg(feature = "fragment")]
             _ if tag.is_empty() => Ok(MjIncludeBodyChild::Fragment(
                 self.async_parse(cursor, tag).await?,
             )),
