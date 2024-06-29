@@ -60,6 +60,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: jdrouet/action-install-git-metrics@main
       - uses: jdrouet/action-git-identity@main
 
