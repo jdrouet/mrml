@@ -96,5 +96,3 @@ jobs:
 
       - uses: jdrouet/action-report-git-metrics@main
         if: ${{ github.event_name == 'pull_request' }}
-        with:
-          base_ref: $GITHUB_BASE_REF
