@@ -1318,7 +1318,7 @@ dependencies = [
 
 [[package]]
 name = "mrml"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "async-trait",
  "concat-idents",
@@ -1345,7 +1345,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-cli"
-version = "1.6.0"
+version = "1.6.1"
 dependencies = [
  "clap",
  "env_logger",
@@ -1368,7 +1368,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-python"
-version = "0.1.14"
+version = "0.1.15"
 dependencies = [
  "mrml",
  "pyo3",
@@ -1376,7 +1376,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-wasm"
-version = "1.4.11"
+version = "1.4.12"
 dependencies = [
  "console_error_panic_hook",
  "mrml",
@@ -1907,9 +1907,9 @@ checksum = "d626bb9dae77e28219937af045c257c28bfd3f69333c512553507f5f9798cb76"
 
 [[package]]
 name = "rustc-hash"
-version = "1.1.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
+checksum = "583034fd73374156e66797ed8e5b0d5690409c9226b22d87cb7f19821c05d152"
 
 [[package]]
 name = "rustls"

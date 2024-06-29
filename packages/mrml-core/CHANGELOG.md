@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.1](https://github.com/jdrouet/mrml/compare/mrml-v4.0.0...mrml-v4.0.1) - 2024-06-29
+
+### Fixed
+- keep whitespaces when need ([#442](https://github.com/jdrouet/mrml/pull/442))
+- *(mrml-core)* Fix typo in cfg-features ([#440](https://github.com/jdrouet/mrml/pull/440))
+
+### Other
+- *(deps)* Update rustc-hash requirement in /packages/mrml-core ([#436](https://github.com/jdrouet/mrml/pull/436))
+- *(mrml-core)* make MjFontAttributes fields public ([#433](https://github.com/jdrouet/mrml/pull/433))
+
 ## [4.0.0](https://github.com/jdrouet/mrml/compare/mrml-v3.1.5...mrml-v4.0.0) - 2024-06-13
 
 ### Added

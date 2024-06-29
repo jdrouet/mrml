@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.12](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.11...mrml-wasm-v1.4.12) - 2024-06-29
+
+### Other
+- updated the following local packages: mrml
+
 ## [1.4.11](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.10...mrml-wasm-v1.4.11) - 2024-06-13
 
 ### Other

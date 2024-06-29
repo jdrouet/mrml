@@ -2,7 +2,7 @@
 name = "mrml-wasm"
 description = "Wasm wrapping on MRML"
 keywords = ["email", "mjml"]
-version = "1.4.11"
+version = "1.4.12"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -25,7 +25,7 @@ reqwest-include-loader = ["async", "mrml/http-loader-async-reqwest"]
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
-mrml = { version = "4.0.0", path = "../mrml-core", default-features = false, features = [
+mrml = { version = "4.0.1", path = "../mrml-core", default-features = false, features = [
   "parse",
   "render",
 ] }
