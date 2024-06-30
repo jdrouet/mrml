@@ -1,0 +1,8 @@
+[[metrics]]
+name = "binary-size"
+value = 6708216.0
+
+[metrics.tags]
+name = "mrml-cli"
+"platform.os" = "linux"
+"platform.arch" = "x86_64"
