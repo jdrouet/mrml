@@ -60,6 +60,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: jdrouet/action-install-git-metrics@main
       - uses: jdrouet/action-git-identity@main
 
@@ -89,6 +91,10 @@ jobs:
         uses: jdrouet/action-execute-git-metrics@main
         continue-on-error: true
         with:
-          sync: true
+          pull: true
+          push: ${{ github.event_name == 'push' }}
           script: |
             add binary-size --tag "name: mrml-cli" --tag "platform.os: linux" --tag "platform.arch: x86_64" ${{ steps.binary-size.outputs.value }}
+
+      - uses: jdrouet/action-report-git-metrics@main
+        if: ${{ github.event_name == 'pull_request' }}
