@@ -1,5 +1,6 @@
 use super::{MjColumn, NAME};
 use crate::helper::size::{Pixel, Size};
+use crate::mj_body::MjBodyChild;
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
@@ -8,6 +9,32 @@ struct MjColumnExtra<'a> {
 }
 
 impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
+    #[cfg(feature = "fragment")]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
+            match c {
+                MjBodyChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
+            }
+        }
+        self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        self.element.children.iter()
+    }
+
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
+    }
+
     fn current_width(&self) -> Option<Pixel> {
         let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
@@ -224,14 +251,16 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             .set_style_table(Tag::table_presentation())
             .add_attribute("width", "100%");
         let tbody = Tag::tbody();
-        let siblings = self.element.children.len();
-        let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
+
+        let siblings = self.children_count();
+        let raw_siblings = self.children_iter().filter(|i| i.is_raw()).count();
+
         let current_width = self.current_width();
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
 
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);

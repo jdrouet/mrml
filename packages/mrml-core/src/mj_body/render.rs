@@ -1,10 +1,36 @@
 use std::convert::TryFrom;
 
-use super::MjBody;
+use super::{MjBody, MjBodyChild};
 use crate::helper::size::Pixel;
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjBody, ()> {
+    #[cfg(feature = "fragment")]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
+            match c {
+                MjBodyChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
+            }
+        }
+        self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        self.element.children.iter()
+    }
+
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
+    }
+
     fn get_width(&self) -> Option<Pixel> {
         self.attribute("width")
             .and_then(|value| Pixel::try_from(value).ok())
@@ -41,18 +67,15 @@ impl<'root> Renderer<'root, MjBody, ()> {
         let element_width = self.get_width();
 
         div.render_open(&mut cursor.buffer)?;
-        let raw_siblings = self
-            .element
-            .children
-            .iter()
-            .filter(|item| item.is_raw())
-            .count();
-        for (index, child) in self.element.children.iter().enumerate() {
+        let siblings = self.children_count();
+        let raw_siblings = self.children_iter().filter(|i| i.is_raw()).count();
+
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_container_width(element_width.clone());
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
-            renderer.set_siblings(self.element.children.len());
+            renderer.set_siblings(siblings);
             renderer.render(cursor)?;
         }
         div.render_close(&mut cursor.buffer);

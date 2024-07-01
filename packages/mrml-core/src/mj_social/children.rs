@@ -1,4 +1,6 @@
 use crate::comment::Comment;
+#[cfg(feature = "fragment")]
+use crate::fragment::Fragment;
 use crate::mj_social_element::MjSocialElement;
 
 #[derive(Debug)]
@@ -7,5 +9,7 @@ use crate::mj_social_element::MjSocialElement;
 #[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]
 pub enum MjSocialChild {
     Comment(Comment),
+    #[cfg(feature = "fragment")]
+    Fragment(Fragment<Self>),
     MjSocialElement(MjSocialElement),
 }

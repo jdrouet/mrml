@@ -16,6 +16,8 @@ use super::NAME;
 #[cfg_attr(feature = "render", derive(enum_as_inner::EnumAsInner))]
 pub enum MjIncludeHeadChild {
     Comment(crate::comment::Comment),
+    #[cfg(feature = "fragment")]
+    Fragment(crate::fragment::Fragment<Self>),
     MjAttributes(crate::mj_attributes::MjAttributes),
     MjBreakpoint(crate::mj_breakpoint::MjBreakpoint),
     MjFont(crate::mj_font::MjFont),

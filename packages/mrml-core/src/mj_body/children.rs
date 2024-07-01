@@ -1,4 +1,6 @@
 use crate::comment::Comment;
+#[cfg(feature = "fragment")]
+use crate::fragment::Fragment;
 use crate::mj_accordion::MjAccordion;
 use crate::mj_button::MjButton;
 use crate::mj_carousel::MjCarousel;
@@ -27,6 +29,8 @@ use crate::text::Text;
 #[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]
 pub enum MjBodyChild {
     Comment(Comment),
+    #[cfg(feature = "fragment")]
+    Fragment(Fragment<Self>),
     MjAccordion(MjAccordion),
     MjButton(MjButton),
     MjCarousel(MjCarousel),
@@ -53,6 +57,8 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjBodyChild {
     fn is_raw(&self) -> bool {
         match self {
             Self::Comment(elt) => elt.is_raw(),
+            #[cfg(feature = "fragment")]
+            Self::Fragment(elt) => elt.is_raw(),
             Self::MjAccordion(elt) => elt.is_raw(),
             Self::MjButton(elt) => elt.is_raw(),
             Self::MjCarousel(elt) => elt.is_raw(),
@@ -81,6 +87,8 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjBodyChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::Comment(elt) => elt.renderer(context),
+            #[cfg(feature = "fragment")]
+            Self::Fragment(elt) => elt.renderer(context),
             Self::MjAccordion(elt) => elt.renderer(context),
             Self::MjButton(elt) => elt.renderer(context),
             Self::MjCarousel(elt) => elt.renderer(context),

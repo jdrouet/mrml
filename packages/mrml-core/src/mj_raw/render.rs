@@ -9,9 +9,38 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRawChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::Comment(elt) => elt.renderer(context),
+            #[cfg(feature = "fragment")]
+            Self::Fragment(elt) => elt.renderer(context),
             Self::Node(elt) => elt.renderer(context),
             Self::Text(elt) => elt.renderer(context),
         }
+    }
+}
+impl<'root> Renderer<'root, MjRaw, ()> {
+    #[cfg(feature = "fragment")]
+    fn children_iter(&self) -> impl Iterator<Item = &MjRawChild> {
+        fn folder<'root>(c: &'root MjRawChild) -> Box<dyn Iterator<Item = &MjRawChild> + 'root> {
+            match c {
+                MjRawChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
+            }
+        }
+        self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjRawChild> {
+        self.element.children.iter()
+    }
+
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
     }
 }
 
@@ -29,8 +58,8 @@ impl<'root> Render<'root> for Renderer<'root, MjRaw, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let siblings = self.element.children.len();
-        for (index, child) in self.element.children.iter().enumerate() {
+        let siblings = self.children_count();
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(siblings);

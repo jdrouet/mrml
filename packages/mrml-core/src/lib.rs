@@ -165,6 +165,8 @@ pub mod text;
 // Only used to ignore the comments at the root level
 mod root;
 
+#[cfg(feature = "fragment")]
+pub mod fragment;
 mod helper;
 
 #[cfg(feature = "parse")]

@@ -2,6 +2,7 @@ use xmlparser::StrSpan;
 
 use super::{MjRaw, MjRawChild};
 use crate::comment::Comment;
+
 use crate::node::Node;
 use crate::prelude::is_void_element;
 #[cfg(feature = "async")]
