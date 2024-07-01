@@ -22,6 +22,16 @@ impl<'root> Renderer<'root, MjGroup, ()> {
         self.element.children.iter()
     }
 
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
+    }
+
     fn current_width(&self) -> Pixel {
         let parent_width = self.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
@@ -93,7 +103,7 @@ impl<'root> Renderer<'root, MjGroup, ()> {
 
     fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let current_width = self.current_width();
-        let siblings = self.children_iter().count();
+        let siblings = self.children_count();
         let raw_siblings = self.children_iter().filter(|item| item.is_raw()).count();
 
         for (index, child) in self.children_iter().enumerate() {

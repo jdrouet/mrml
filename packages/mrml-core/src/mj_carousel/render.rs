@@ -44,8 +44,19 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
     fn children_iter(&self) -> impl Iterator<Item = &MjCarouselChild> {
         self.element.children.iter()
     }
+
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
+    }
+
     fn get_thumbnails_width(&self) -> Pixel {
-        let count = self.children_iter().count();
+        let count = self.children_count();
         if count == 0 {
             Pixel::new(0.0)
         } else {
@@ -266,7 +277,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
     }
 
     fn render_style(&self) -> Option<String> {
-        let length = self.children_iter().count();
+        let length = self.children_count();
         if length == 0 {
             return None;
         }

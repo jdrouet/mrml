@@ -22,6 +22,16 @@ impl<'root> Renderer<'root, MjHero, ()> {
         self.element.children.iter()
     }
 
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
+    }
+
     fn set_style_div<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("margin", "0 auto").maybe_add_style(
             "max-width",
@@ -157,7 +167,7 @@ impl<'root> Renderer<'root, MjHero, ()> {
     }
 
     fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let siblings = self.children_iter().count();
+        let siblings = self.children_count();
         let raw_siblings = self.children_iter().filter(|c| c.is_raw()).count();
         for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());

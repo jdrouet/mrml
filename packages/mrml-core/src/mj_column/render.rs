@@ -25,6 +25,16 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
         self.element.children.iter()
     }
 
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
+    }
+
     fn current_width(&self) -> Option<Pixel> {
         let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
@@ -242,7 +252,7 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             .add_attribute("width", "100%");
         let tbody = Tag::tbody();
 
-        let siblings = self.children_iter().count();
+        let siblings = self.children_count();
         let raw_siblings = self.children_iter().filter(|i| i.is_raw()).count();
 
         let current_width = self.current_width();

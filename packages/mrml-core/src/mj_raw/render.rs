@@ -32,6 +32,16 @@ impl<'root> Renderer<'root, MjRaw, ()> {
     fn children_iter(&self) -> impl Iterator<Item = &MjRawChild> {
         self.element.children.iter()
     }
+
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
+    }
 }
 
 impl<'root> Render<'root> for Renderer<'root, MjRaw, ()> {
@@ -48,7 +58,7 @@ impl<'root> Render<'root> for Renderer<'root, MjRaw, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let siblings = self.children_iter().count();
+        let siblings = self.children_count();
         for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
