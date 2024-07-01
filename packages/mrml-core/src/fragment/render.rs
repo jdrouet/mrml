@@ -69,7 +69,7 @@ mod tests {
     use crate::text::Text;
 
     #[test]
-    fn empty_script_should_have_closing_element() {
+    fn fragment_children_should_render() {
         use crate::mjml::Mjml;
         use crate::prelude::render::RenderOptions;
 
@@ -87,5 +87,47 @@ mod tests {
         let result = root.render(&opts).unwrap();
         assert!(result.contains("Hello World!"));
         assert!(result.contains("Second child!"));
+    }
+
+    #[test]
+    fn fragment_should_render_col_correctly() {
+        use crate::mj_column::MjColumn;
+        use crate::mj_text::MjText;
+        use crate::mjml::Mjml;
+        use crate::prelude::render::RenderOptions;
+
+        let opts = RenderOptions::default();
+        let mut root = Mjml::default();
+        let body = crate::mj_body::MjBody {
+            children: vec![MjColumn {
+                children: vec![Fragment::from(vec![
+                    MjText {
+                        children: vec![
+                            Text::from("Hello World!").into(),
+                            Text::from("Same child").into(),
+                        ],
+                        ..Default::default()
+                    }
+                    .into(),
+                    MjText {
+                        children: vec![Text::from("Second child!").into()],
+                        ..Default::default()
+                    }
+                    .into(),
+                ])
+                .into()],
+                ..Default::default()
+            }
+            .into()],
+            ..Default::default()
+        };
+        root.children.body = Some(body);
+        let result = root.render(&opts).unwrap();
+        let expected = include_str!(concat!(
+            "../../resources/compare/success/",
+            "fragment-column",
+            ".html"
+        ));
+        assert_eq!(result.as_str(), expected)
     }
 }
