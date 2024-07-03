@@ -2,7 +2,7 @@
 name = "mrml-python"
 description = "Python wrapping on MRML"
 keywords = ["email", "mjml"]
-version = "0.1.14"
+version = "0.1.15"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2021"
 license = "MIT"
@@ -16,7 +16,7 @@ name = "mrml"
 crate-type = ["cdylib"]
 
 [dependencies]
-mrml = { version = "4.0.0", path = "../mrml-core", features = [
+mrml = { version = "4.0.1", path = "../mrml-core", features = [
   "http-loader-ureq",
   "local-loader",
 ] }
