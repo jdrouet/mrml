@@ -35,7 +35,7 @@ impl<'root> Render<'root> for Renderer<'root, MjRaw, ()> {
             renderer.set_index(index);
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(siblings);
-            renderer.set_container_width(self.container_width.clone());
+            renderer.set_container_width(self.container_width);
             renderer.render(cursor)?;
         }
         Ok(())

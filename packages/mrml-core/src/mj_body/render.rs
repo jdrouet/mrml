@@ -49,7 +49,7 @@ impl<'root> Renderer<'root, MjBody, ()> {
             .count();
         for (index, child) in self.element.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
-            renderer.set_container_width(element_width.clone());
+            renderer.set_container_width(element_width);
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(self.element.children.len());
