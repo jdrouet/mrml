@@ -7,6 +7,8 @@ impl MjIncludeBodyChild {
     ) -> &'root (dyn Renderable<'render, 'root> + 'root) {
         match self {
             Self::Comment(elt) => elt,
+            #[cfg(feature = "fragment")]
+            Self::Fragment(elt) => elt,
             Self::MjAccordion(elt) => elt,
             Self::MjButton(elt) => elt,
             Self::MjCarousel(elt) => elt,
@@ -41,6 +43,25 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjIncludeBodyChild 
         self.as_renderable().renderer(context)
     }
 }
+impl<'root> Renderer<'root, MjIncludeBody, ()> {
+    #[cfg(feature = "fragment")]
+    fn children_iter(&self) -> impl Iterator<Item = &MjIncludeBodyChild> {
+        fn folder<'root>(
+            c: &'root MjIncludeBodyChild,
+        ) -> Box<dyn Iterator<Item = &MjIncludeBodyChild> + 'root> {
+            match c {
+                MjIncludeBodyChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
+            }
+        }
+        self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjIncludeBodyChild> {
+        self.element.children.iter()
+    }
+}
 
 impl<'root> Render<'root> for Renderer<'root, MjIncludeBody, ()> {
     fn raw_attribute(&self, _: &str) -> Option<&'root str> {
@@ -56,7 +77,8 @@ impl<'root> Render<'root> for Renderer<'root, MjIncludeBody, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        for (index, child) in self.element.children.iter().enumerate() {
+        let children = self.children_iter();
+        for (index, child) in children.into_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(self.element.children.len());

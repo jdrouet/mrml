@@ -1,4 +1,6 @@
 use crate::comment::Comment;
+#[cfg(feature = "fragment")]
+use crate::fragment::Fragment;
 use crate::mj_carousel_image::MjCarouselImage;
 
 #[derive(Debug)]
@@ -7,6 +9,8 @@ use crate::mj_carousel_image::MjCarouselImage;
 #[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]
 pub enum MjCarouselChild {
     Comment(Comment),
+    #[cfg(feature = "fragment")]
+    Fragment(Fragment<Self>),
     MjCarouselImage(MjCarouselImage),
 }
 

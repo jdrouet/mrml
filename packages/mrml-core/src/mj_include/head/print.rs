@@ -1,5 +1,4 @@
 use super::MjIncludeHeadKind;
-
 use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
 impl PrintableElement for super::MjIncludeHead {

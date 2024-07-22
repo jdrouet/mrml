@@ -15,6 +15,8 @@ use super::NAME;
 #[cfg_attr(feature = "json", serde(untagged))]
 pub enum MjIncludeBodyChild {
     Comment(crate::comment::Comment),
+    #[cfg(feature = "fragment")]
+    Fragment(crate::fragment::Fragment<Self>),
     MjAccordion(crate::mj_accordion::MjAccordion),
     MjButton(crate::mj_button::MjButton),
     MjCarousel(crate::mj_carousel::MjCarousel),

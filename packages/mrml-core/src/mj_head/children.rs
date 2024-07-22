@@ -1,4 +1,6 @@
 use crate::comment::Comment;
+#[cfg(feature = "fragment")]
+use crate::fragment::Fragment;
 use crate::mj_attributes::MjAttributes;
 use crate::mj_breakpoint::MjBreakpoint;
 use crate::mj_font::MjFont;
@@ -15,6 +17,8 @@ use crate::mj_title::MjTitle;
 #[cfg_attr(feature = "render", derive(enum_as_inner::EnumAsInner))]
 pub enum MjHeadChild {
     Comment(Comment),
+    #[cfg(feature = "fragment")]
+    Fragment(Fragment<Self>),
     MjAttributes(MjAttributes),
     MjBreakpoint(MjBreakpoint),
     MjFont(MjFont),

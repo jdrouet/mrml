@@ -2,9 +2,36 @@ use std::borrow::Cow;
 
 use super::{MjGroup, NAME};
 use crate::helper::size::{Pixel, Size};
+use crate::mj_body::MjBodyChild;
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjGroup, ()> {
+    #[cfg(feature = "fragment")]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        fn folder<'root>(c: &'root MjBodyChild) -> Box<dyn Iterator<Item = &MjBodyChild> + 'root> {
+            match c {
+                MjBodyChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
+            }
+        }
+        self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjBodyChild> {
+        self.element.children.iter()
+    }
+
+    #[cfg(feature = "fragment")]
+    fn children_count(&self) -> usize {
+        self.children_iter().count()
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_count(&self) -> usize {
+        self.element.children.len()
+    }
+
     fn current_width(&self) -> Pixel {
         let parent_width = self.container_width.as_ref().unwrap();
         let non_raw_siblings = self.non_raw_siblings();
@@ -76,15 +103,10 @@ impl<'root> Renderer<'root, MjGroup, ()> {
 
     fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let current_width = self.current_width();
-        let siblings = self.element.children.len();
-        let raw_siblings = self
-            .element
-            .children
-            .iter()
-            .filter(|item| item.is_raw())
-            .count();
+        let siblings = self.children_count();
+        let raw_siblings = self.children_iter().filter(|item| item.is_raw()).count();
 
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             renderer.set_siblings(siblings);

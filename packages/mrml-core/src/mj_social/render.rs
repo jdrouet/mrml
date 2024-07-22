@@ -9,6 +9,8 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialChild {
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
             Self::MjSocialElement(elt) => elt.renderer(context),
+            #[cfg(feature = "fragment")]
+            Self::Fragment(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
         }
     }
@@ -46,6 +48,24 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
 ];
 
 impl<'root> Renderer<'root, MjSocial, ()> {
+    #[cfg(feature = "fragment")]
+    fn children_iter(&self) -> impl Iterator<Item = &MjSocialChild> {
+        fn folder<'root>(
+            c: &'root MjSocialChild,
+        ) -> Box<dyn Iterator<Item = &MjSocialChild> + 'root> {
+            match c {
+                MjSocialChild::Fragment(f) => Box::new(f.children.iter().flat_map(folder)),
+                _ => Box::new(std::iter::once(c)),
+            }
+        }
+        self.element.children.iter().flat_map(folder)
+    }
+
+    #[cfg(not(feature = "fragment"))]
+    fn children_iter(&self) -> impl Iterator<Item = &MjSocialChild> {
+        self.element.children.iter()
+    }
+
     fn set_style_table_vertical<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("margin", "0px")
     }
@@ -82,7 +102,7 @@ impl<'root> Renderer<'root, MjSocial, ()> {
         tr.render_open(&mut cursor.buffer)?;
         cursor.buffer.end_conditional_tag();
 
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             cursor.buffer.start_conditional_tag();
             td.render_open(&mut cursor.buffer)?;
             cursor.buffer.end_conditional_tag();
@@ -115,7 +135,7 @@ impl<'root> Renderer<'root, MjSocial, ()> {
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in self.children_iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
             child_attributes.iter().for_each(|(key, value)| {
