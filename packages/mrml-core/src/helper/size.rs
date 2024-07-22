@@ -1,4 +1,17 @@
 use std::convert::TryFrom;
+use std::num::ParseFloatError;
+
+#[derive(Clone, Debug, thiserror::Error)]
+pub enum SizeParserError {
+    #[error("value should end with ${0}")]
+    MissingSuffix(&'static str),
+    #[error("invalid float: ${0}")]
+    InvalidFloat(
+        #[from]
+        #[source]
+        ParseFloatError,
+    ),
+}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Size {
@@ -54,7 +67,7 @@ impl Size {
 }
 
 impl TryFrom<&str> for Size {
-    type Error = String;
+    type Error = SizeParserError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         if value.ends_with("px") {
@@ -62,9 +75,7 @@ impl TryFrom<&str> for Size {
         } else if value.ends_with('%') {
             Ok(Self::Percent(Percent::try_from(value)?))
         } else {
-            Ok(Self::Raw(
-                value.parse::<f32>().map_err(|err| err.to_string())?,
-            ))
+            Ok(Self::Raw(value.parse::<f32>()?))
         }
     }
 }
@@ -93,16 +104,16 @@ impl Percent {
 }
 
 impl TryFrom<&str> for Percent {
-    type Error = String;
+    type Error = SizeParserError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         if let Some(value) = value.strip_suffix('%') {
             value
                 .parse::<f32>()
                 .map(Percent::new)
-                .map_err(|err| err.to_string())
+                .map_err(SizeParserError::InvalidFloat)
         } else {
-            Err(String::from("percent value should end with %"))
+            Err(SizeParserError::MissingSuffix("%"))
         }
     }
 }
@@ -148,16 +159,16 @@ impl Pixel {
 }
 
 impl TryFrom<&str> for Pixel {
-    type Error = String;
+    type Error = SizeParserError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         if let Some(value) = value.strip_suffix("px") {
             value
                 .parse::<f32>()
                 .map(Pixel::new)
-                .map_err(|err| err.to_string())
+                .map_err(SizeParserError::InvalidFloat)
         } else {
-            Err(String::from("pixel value should end with px"))
+            Err(SizeParserError::MissingSuffix("px"))
         }
     }
 }
