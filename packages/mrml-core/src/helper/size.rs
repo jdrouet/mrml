@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Size {
     Pixel(Pixel),
     Percent(Percent),
@@ -79,7 +79,7 @@ impl std::fmt::Display for Size {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Percent(f32);
 
 impl Percent {
@@ -119,7 +119,7 @@ impl std::fmt::Display for Percent {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Pixel(f32);
 
 impl Pixel {

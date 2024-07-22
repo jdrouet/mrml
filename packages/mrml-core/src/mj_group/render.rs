@@ -89,7 +89,7 @@ impl<'root> Renderer<'root, MjGroup, ()> {
             renderer.set_index(index);
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
-            renderer.set_container_width(Some(current_width.clone()));
+            renderer.set_container_width(Some(current_width));
             renderer.add_extra_attribute("mobile-width", "mobile-width");
             if child.is_raw() {
                 renderer.render(cursor)?;

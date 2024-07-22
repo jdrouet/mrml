@@ -325,7 +325,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
-            renderer.set_container_width(self.container_width().clone());
+            renderer.set_container_width(*self.container_width());
             if child.is_raw() {
                 cursor.buffer.end_conditional_tag();
                 renderer.render(cursor)?;

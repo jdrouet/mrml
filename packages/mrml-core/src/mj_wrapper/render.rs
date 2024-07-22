@@ -34,7 +34,7 @@ impl<'root> SectionLikeRender<'root> for Renderer<'root, MjWrapper, ()> {
             let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
-            renderer.set_container_width(current_width.clone());
+            renderer.set_container_width(current_width);
             if child.is_raw() {
                 renderer.render(cursor)?;
             } else {

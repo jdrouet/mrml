@@ -118,7 +118,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
                 renderer.maybe_add_extra_attribute("tb-border", tb_border);
                 renderer.maybe_add_extra_attribute("tb-border-radius", tb_border_radius);
                 renderer.set_index(index);
-                renderer.set_container_width(Some(width.clone()));
+                renderer.set_container_width(Some(width));
                 renderer.render_fragment("thumbnail", cursor)?;
             }
         }
@@ -182,7 +182,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             renderer
                 .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
             renderer.set_index(index);
-            renderer.set_container_width(self.container_width.clone());
+            renderer.set_container_width(self.container_width);
             renderer.render(cursor)?;
         }
 
@@ -236,7 +236,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             renderer.maybe_add_extra_attribute("tb-border", self.attribute("tb-border"));
             renderer
                 .maybe_add_extra_attribute("tb-border-radius", self.attribute("tb-border-radius"));
-            renderer.set_container_width(self.container_width.clone());
+            renderer.set_container_width(self.container_width);
 
             cursor.buffer.start_mso_conditional_tag();
             renderer.render(cursor)?;
@@ -427,9 +427,7 @@ impl<'root> Render<'root> for Renderer<'root, MjCarousel, MjCarouselExtra> {
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.container_width
-            .as_ref()
-            .map(|w| Size::Pixel(w.clone()))
+        self.container_width.as_ref().copied().map(Size::Pixel)
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {

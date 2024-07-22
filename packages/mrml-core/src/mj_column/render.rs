@@ -236,7 +236,7 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             renderer.set_index(index);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_siblings(siblings);
-            renderer.set_container_width(current_width.clone());
+            renderer.set_container_width(current_width);
             if child.is_raw() {
                 renderer.render(cursor)?;
             } else {

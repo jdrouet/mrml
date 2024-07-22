@@ -70,9 +70,7 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
     }
 
     fn get_width(&self) -> Option<Size> {
-        self.container_width
-            .as_ref()
-            .map(|w| Size::Pixel(w.clone()))
+        self.container_width.as_ref().copied().map(Size::Pixel)
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {
