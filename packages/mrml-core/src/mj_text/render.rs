@@ -34,9 +34,9 @@ impl<'root> Renderer<'root, MjText, ()> {
         let table = Tag::table_presentation();
         let tr = Tag::tr();
         let td = Tag::td()
-            .add_attribute("height", height.to_owned())
+            .add_attribute("height", height)
             .add_style("vertical-align", "top")
-            .add_style("height", height.to_owned());
+            .add_style("height", height);
 
         cursor.buffer.start_conditional_tag();
         table.render_open(&mut cursor.buffer)?;
