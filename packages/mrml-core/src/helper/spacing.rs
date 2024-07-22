@@ -1,6 +1,18 @@
 use std::convert::TryFrom;
 
-use crate::helper::size::Pixel;
+use crate::helper::size::{Pixel, SizeParserError};
+
+#[derive(Debug, thiserror::Error)]
+pub enum SpacingParserError {
+    #[error("{0}")]
+    InvalidSize(
+        #[from]
+        #[source]
+        SizeParserError,
+    ),
+    #[error("no value provided")]
+    Empty,
+}
 
 /// representation of spacing
 pub enum Spacing {
@@ -98,7 +110,7 @@ impl std::fmt::Display for Spacing {
 }
 
 impl TryFrom<&str> for Spacing {
-    type Error = String;
+    type Error = SpacingParserError;
 
     fn try_from(input: &str) -> Result<Self, Self::Error> {
         let mut sections = input.split(' ');
@@ -123,7 +135,7 @@ impl TryFrom<&str> for Spacing {
                 Pixel::try_from(third)?,
                 Pixel::try_from(four)?,
             )),
-            _ => Err(String::from("no value provided")),
+            _ => Err(SpacingParserError::Empty),
         }
     }
 }
