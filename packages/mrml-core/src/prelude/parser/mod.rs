@@ -513,7 +513,7 @@ pub(crate) fn parse_attributes_map(
 }
 
 pub(crate) fn parse_attributes_empty(cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
-    while let Some(attr) = cursor.next_attribute()? {
+    if let Some(attr) = cursor.next_attribute()? {
         return Err(Error::UnexpectedAttribute(Span::from(attr.span)));
     }
     Ok(())
