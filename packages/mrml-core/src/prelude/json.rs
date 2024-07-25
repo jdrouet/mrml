@@ -2,9 +2,52 @@ use serde::{
     de::{MapAccess, Unexpected},
     ser::SerializeMap,
 };
-use std::marker::PhantomData;
+use std::{hash::Hash, marker::PhantomData};
 
 use super::{hash::Map, Component, StaticTag};
+
+trait ComponentAttributes {
+    fn has_attributes(&self) -> bool;
+}
+
+impl ComponentAttributes for () {
+    #[inline]
+    fn has_attributes(&self) -> bool {
+        false
+    }
+}
+
+impl<K: Hash + Eq, V> ComponentAttributes for Map<K, V> {
+    #[inline]
+    fn has_attributes(&self) -> bool {
+        !self.is_empty()
+    }
+}
+
+trait ComponentChildren {
+    fn has_children(&self) -> bool;
+}
+
+impl ComponentChildren for () {
+    #[inline]
+    fn has_children(&self) -> bool {
+        false
+    }
+}
+
+impl<V> ComponentChildren for Vec<V> {
+    #[inline]
+    fn has_children(&self) -> bool {
+        !self.is_empty()
+    }
+}
+
+impl ComponentChildren for String {
+    #[inline]
+    fn has_children(&self) -> bool {
+        !self.is_empty()
+    }
+}
 
 struct DeserializableTag<T>(pub T);
 
@@ -54,8 +97,11 @@ impl<Child: serde::Serialize> serde::Serialize
     }
 }
 
-impl<Tag: StaticTag, Child: serde::Serialize> serde::Serialize
-    for super::Component<PhantomData<Tag>, Map<String, String>, Vec<Child>>
+impl<
+        Tag: StaticTag,
+        Attributes: ComponentAttributes + serde::Serialize,
+        Children: ComponentChildren + serde::Serialize,
+    > serde::Serialize for super::Component<PhantomData<Tag>, Attributes, Children>
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -63,10 +109,10 @@ impl<Tag: StaticTag, Child: serde::Serialize> serde::Serialize
     {
         let mut map = serializer.serialize_map(Some(3))?;
         map.serialize_entry("type", Tag::static_tag())?;
-        if !self.attributes.is_empty() {
+        if self.attributes.has_attributes() {
             map.serialize_entry("attributes", &self.attributes)?;
         }
-        if !self.children.is_empty() {
+        if self.children.has_children() {
             map.serialize_entry("children", &self.children)?;
         }
         map.end()

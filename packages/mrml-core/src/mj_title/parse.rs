@@ -16,9 +16,7 @@ fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjTitle, Error> {
 
     cursor.assert_element_close()?;
 
-    Ok(MjTitle {
-        children: text.unwrap_or_default(),
-    })
+    Ok(MjTitle::new((), text.unwrap_or_default()))
 }
 
 impl<'opts> ParseElement<MjTitle> for MrmlParser<'opts> {

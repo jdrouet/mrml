@@ -1,3 +1,7 @@
+use std::marker::PhantomData;
+
+use crate::prelude::{Component, StaticTag};
+
 #[cfg(feature = "json")]
 mod json;
 #[cfg(feature = "parse")]
@@ -7,12 +11,15 @@ mod print;
 
 pub const NAME: &str = "mj-title";
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjTitle {
-    pub children: String,
+pub struct MjTitleTag;
+
+impl StaticTag for MjTitleTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjTitle = Component<PhantomData<MjTitleTag>, (), String>;
 
 impl MjTitle {
     pub fn content(&self) -> &str {
@@ -22,7 +29,7 @@ impl MjTitle {
 
 impl From<String> for MjTitle {
     fn from(children: String) -> Self {
-        Self { children }
+        Self::new((), children)
     }
 }
 

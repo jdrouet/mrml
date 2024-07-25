@@ -28,6 +28,11 @@ where
     }
 
     #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    #[inline]
     pub fn remove<Q>(&mut self, key: &Q) -> Option<V>
     where
         Q: Hash + indexmap::Equivalent<K> + ?Sized,
