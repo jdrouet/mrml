@@ -1,6 +1,6 @@
 use xmlparser::StrSpan;
 
-use super::{MjAttributes, MjAttributesChild};
+use super::MjAttributesChild;
 use crate::mj_attributes_all::NAME as MJ_ALL;
 use crate::mj_attributes_class::NAME as MJ_CLASS;
 #[cfg(feature = "async")]

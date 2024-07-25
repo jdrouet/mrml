@@ -331,33 +331,36 @@ mod tests {
         let element = MjHead::new(
             (),
             vec![
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
                         Map::from_iter([(String::from("font-size"), String::from("42px"))]),
                         (),
                     ))],
-                }),
+                )),
                 MjHeadChild::MjInclude(MjIncludeHead {
                     attributes: MjIncludeHeadAttributes {
                         path: String::from("foo"),
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
-                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
-                        children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes::new(
+                        (),
+                        vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
                             Map::from_iter([
                                 (String::from("font-size"), String::from("21px")),
                                 (String::from("text-align"), String::from("center")),
                             ]),
                             (),
                         ))],
-                    })],
+                    ))],
                 }),
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
                         Map::from_iter([(String::from("text-align"), String::from("right"))]),
                         (),
                     ))],
-                }),
+                )),
             ],
         );
         assert_eq!(
@@ -375,22 +378,24 @@ mod tests {
         let element = MjHead::new(
             (),
             vec![
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
                         name: String::from("foo"),
                         attributes: Map::from_iter([(
                             String::from("font-size"),
                             String::from("42px"),
                         )]),
                     })],
-                }),
+                )),
                 MjHeadChild::MjInclude(MjIncludeHead {
                     attributes: MjIncludeHeadAttributes {
                         path: String::from("foo"),
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
-                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
-                        children: vec![
+                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes::new(
+                        (),
+                        vec![
                             MjAttributesChild::MjAttributesClass(MjAttributesClass {
                                 name: String::from("foo"),
                                 attributes: Map::from_iter([(
@@ -406,17 +411,18 @@ mod tests {
                                 )]),
                             }),
                         ],
-                    })],
+                    ))],
                 }),
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
                         name: String::from("bar"),
                         attributes: Map::from_iter([(
                             String::from("text-align"),
                             String::from("left"),
                         )]),
                     })],
-                }),
+                )),
             ],
         );
         let attributes = element.build_attributes_class();
@@ -435,8 +441,9 @@ mod tests {
         let element = MjHead::new(
             (),
             vec![
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesElement(
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesElement(
                         MjAttributesElement {
                             name: String::from("mj-text"),
                             attributes: Map::from_iter([(
@@ -445,14 +452,15 @@ mod tests {
                             )]),
                         },
                     )],
-                }),
+                )),
                 MjHeadChild::MjInclude(MjIncludeHead {
                     attributes: MjIncludeHeadAttributes {
                         path: String::from("foo"),
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
-                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
-                        children: vec![MjAttributesChild::MjAttributesElement(
+                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes::new(
+                        (),
+                        vec![MjAttributesChild::MjAttributesElement(
                             MjAttributesElement {
                                 name: String::from("mj-text"),
                                 attributes: Map::from_iter([
@@ -461,10 +469,11 @@ mod tests {
                                 ]),
                             },
                         )],
-                    })],
+                    ))],
                 }),
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesElement(
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesElement(
                         MjAttributesElement {
                             name: String::from("mj-text"),
                             attributes: Map::from_iter([(
@@ -473,7 +482,7 @@ mod tests {
                             )]),
                         },
                     )],
-                }),
+                )),
             ],
         );
         let attributes = element.build_attributes_element();

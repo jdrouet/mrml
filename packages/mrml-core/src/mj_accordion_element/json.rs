@@ -86,10 +86,10 @@ mod tests {
         let mut elt = MjAccordionElement::default();
         elt.attributes
             .insert("margin".to_string(), "12px".to_string());
-        elt.children.title = Some(MjAccordionTitle {
-            attributes: Default::default(),
-            children: vec![Text::from("Hello".to_string())],
-        });
+        elt.children.title = Some(MjAccordionTitle::new(
+            Default::default(),
+            vec![Text::from("Hello".to_string())],
+        ));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"},"children":[{"type":"mj-accordion-title","children":["Hello"]}]}"#

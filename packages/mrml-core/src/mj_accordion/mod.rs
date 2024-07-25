@@ -51,10 +51,10 @@ mod tests {
             children: vec![MjAccordionElement {
                 attributes: Default::default(),
                 children: MjAccordionElementChildren {
-                    title: Some(MjAccordionTitle {
-                        attributes: Default::default(),
-                        children: vec![Text::from("Hello World!".to_string())],
-                    }),
+                    title: Some(MjAccordionTitle::new(
+                        Default::default(),
+                        vec![Text::from("Hello World!".to_string())],
+                    )),
                     text: None,
                 },
             }
@@ -83,10 +83,10 @@ mod tests {
             children: vec![MjAccordionElement {
                 attributes: Default::default(),
                 children: MjAccordionElementChildren {
-                    title: Some(MjAccordionTitle {
-                        attributes: Default::default(),
-                        children: vec![Text::from("Hello World!".to_string())],
-                    }),
+                    title: Some(MjAccordionTitle::new(
+                        Default::default(),
+                        vec![Text::from("Hello World!".to_string())],
+                    )),
                     text: None,
                 },
             }

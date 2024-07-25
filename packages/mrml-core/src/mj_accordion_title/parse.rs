@@ -1,9 +1,6 @@
-use xmlparser::StrSpan;
-
-use super::MjAccordionTitle;
 #[cfg(feature = "async")]
-use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
-use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseChildren, ParseElement};
+use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseChildren};
 use crate::text::Text;
 
 #[inline]
@@ -37,42 +34,9 @@ impl AsyncParseChildren<Vec<Text>> for AsyncMrmlParser {
     }
 }
 
-impl<'opts> ParseElement<MjAccordionTitle> for MrmlParser<'opts> {
-    fn parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
-    ) -> Result<MjAccordionTitle, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
-
-        Ok(MjAccordionTitle {
-            attributes,
-            children,
-        })
-    }
-}
-
-#[cfg(feature = "async")]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseElement<MjAccordionTitle> for AsyncMrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
-    ) -> Result<MjAccordionTitle, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
-
-        Ok(MjAccordionTitle {
-            attributes,
-            children,
-        })
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::MjAccordionTitle;
+    use crate::mj_accordion_title::MjAccordionTitle;
 
     crate::should_sync_parse!(
         should_work_with_child_text,
