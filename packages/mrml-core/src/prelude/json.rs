@@ -1,7 +1,39 @@
-use serde::{de::MapAccess, ser::SerializeMap};
+use serde::{
+    de::{MapAccess, Unexpected},
+    ser::SerializeMap,
+};
 use std::marker::PhantomData;
 
-use super::{hash::Map, Component};
+use super::{hash::Map, Component, StaticTag};
+
+struct DeserializableTag<T>(pub T);
+
+impl<'de> serde::de::Deserialize<'de> for DeserializableTag<String> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        Ok(Self(String::deserialize(deserializer)?))
+    }
+}
+
+impl<'de, T: StaticTag> serde::de::Deserialize<'de> for DeserializableTag<PhantomData<T>> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        let expected = T::static_tag();
+        if value != expected {
+            Err(serde::de::Error::invalid_value(
+                Unexpected::Str(&value),
+                &expected,
+            ))
+        } else {
+            Ok(Self(PhantomData::<T>))
+        }
+    }
+}
 
 impl<Child: serde::Serialize> serde::Serialize
     for super::Component<String, Map<String, String>, Vec<Child>>
@@ -22,14 +54,35 @@ impl<Child: serde::Serialize> serde::Serialize
     }
 }
 
-struct ComponentAsMapVisitor<Attributes, Children> {
+impl<Tag: StaticTag, Child: serde::Serialize> serde::Serialize
+    for super::Component<PhantomData<Tag>, Map<String, String>, Vec<Child>>
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut map = serializer.serialize_map(Some(3))?;
+        map.serialize_entry("type", Tag::static_tag())?;
+        if !self.attributes.is_empty() {
+            map.serialize_entry("attributes", &self.attributes)?;
+        }
+        if !self.children.is_empty() {
+            map.serialize_entry("children", &self.children)?;
+        }
+        map.end()
+    }
+}
+
+struct ComponentAsMapVisitor<Tag, Attributes, Children> {
+    tag: PhantomData<Tag>,
     attributes: PhantomData<Attributes>,
     children: PhantomData<Children>,
 }
 
-impl<Attributes, Children> Default for ComponentAsMapVisitor<Attributes, Children> {
+impl<Tag, Attributes, Children> Default for ComponentAsMapVisitor<Tag, Attributes, Children> {
     fn default() -> Self {
         Self {
+            tag: PhantomData::<Tag>,
             attributes: PhantomData::<Attributes>,
             children: PhantomData::<Children>,
         }
@@ -38,15 +91,18 @@ impl<Attributes, Children> Default for ComponentAsMapVisitor<Attributes, Childre
 
 impl<
         'de,
+        Tag,
         Attributes: Default + serde::de::Deserialize<'de>,
         Children: Default + serde::de::Deserialize<'de>,
-    > serde::de::Deserialize<'de> for super::Component<String, Attributes, Children>
+    > serde::de::Deserialize<'de> for super::Component<Tag, Attributes, Children>
+where
+    DeserializableTag<Tag>: serde::de::Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        deserializer.deserialize_map(ComponentAsMapVisitor::<Attributes, Children>::default())
+        deserializer.deserialize_map(ComponentAsMapVisitor::<Tag, Attributes, Children>::default())
     }
 }
 
@@ -60,11 +116,14 @@ enum ComponentField {
 
 impl<
         'de,
+        Tag,
         Attributes: Default + serde::de::Deserialize<'de>,
         Children: Default + serde::de::Deserialize<'de>,
-    > serde::de::Visitor<'de> for ComponentAsMapVisitor<Attributes, Children>
+    > serde::de::Visitor<'de> for ComponentAsMapVisitor<Tag, Attributes, Children>
+where
+    DeserializableTag<Tag>: serde::de::Deserialize<'de>,
 {
-    type Value = super::Component<String, Attributes, Children>;
+    type Value = super::Component<Tag, Attributes, Children>;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
         formatter.write_str("struct Component")
@@ -74,7 +133,7 @@ impl<
     where
         V: MapAccess<'de>,
     {
-        let mut rtype: Option<String> = None;
+        let mut rtype: Option<Tag> = None;
         let mut attributes: Option<Attributes> = None;
         let mut children: Option<Children> = None;
         while let Some(key) = map.next_key()? {
@@ -83,7 +142,8 @@ impl<
                     if rtype.is_some() {
                         return Err(serde::de::Error::duplicate_field("type"));
                     }
-                    rtype = Some(map.next_value()?);
+                    let DeserializableTag(tag) = map.next_value()?;
+                    rtype = Some(tag);
                 }
                 ComponentField::Attributes => {
                     if attributes.is_some() {

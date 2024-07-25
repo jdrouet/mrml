@@ -9,10 +9,7 @@ impl<'opts> ParseElement<MjText> for MrmlParser<'opts> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjText, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
-        Ok(MjText {
-            attributes,
-            children,
-        })
+        Ok(MjText::new(attributes, children))
     }
 }
 

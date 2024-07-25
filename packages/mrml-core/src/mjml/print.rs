@@ -81,11 +81,7 @@ mod tests {
                             attributes: Default::default(),
                             children: vec![MjColumn {
                                 attributes: Default::default(),
-                                children: vec![MjText {
-                                    attributes: Default::default(),
-                                    children: vec![],
-                                }
-                                .into()],
+                                children: vec![MjText::default().into()],
                             }
                             .into()],
                         }

@@ -21,7 +21,7 @@ use crate::node::Node;
 use crate::prelude::render::{Render, RenderContext, Renderable};
 use crate::text::Text;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
 #[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]

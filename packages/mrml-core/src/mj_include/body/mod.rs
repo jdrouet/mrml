@@ -10,7 +10,7 @@ mod render;
 #[cfg(any(feature = "print", feature = "json"))]
 use super::NAME;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
 pub enum MjIncludeBodyChild {
@@ -65,7 +65,7 @@ impl Default for MjIncludeBodyKind {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 pub struct MjIncludeBodyAttributes {
     pub path: String,
@@ -86,7 +86,7 @@ impl MjIncludeBodyAttributes {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjIncludeBody {
