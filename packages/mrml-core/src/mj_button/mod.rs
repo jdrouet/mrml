@@ -1,5 +1,8 @@
+use std::marker::PhantomData;
+
 use crate::mj_body::MjBodyChild;
 use crate::prelude::hash::Map;
+use crate::prelude::{Component, StaticTag};
 
 #[cfg(feature = "json")]
 mod json;
@@ -12,10 +15,12 @@ mod render;
 
 pub const NAME: &str = "mj-button";
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjButton {
-    pub attributes: Map<String, String>,
-    pub children: Vec<MjBodyChild>,
+pub struct MjButtonTag;
+
+impl StaticTag for MjButtonTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjButton = Component<PhantomData<MjButtonTag>, Map<String, String>, Vec<MjBodyChild>>;
