@@ -263,10 +263,10 @@ impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
                 MjIncludeBodyKind::Html => {
                     let mut sub = cursor.new_child(child.as_str());
                     let children: Vec<MjBodyChild> = self.parse_children(&mut sub)?;
-                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper {
-                        attributes: Default::default(),
+                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
+                        Default::default(),
                         children,
-                    })]
+                    ))]
                 }
                 MjIncludeBodyKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());

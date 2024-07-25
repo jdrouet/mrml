@@ -13,10 +13,7 @@ impl<'opts> ParseElement<MjWrapper> for MrmlParser<'opts> {
     ) -> Result<MjWrapper, Error> {
         let (attributes, children) = self.parse_attributes_and_children(cursor)?;
 
-        Ok(MjWrapper {
-            attributes,
-            children,
-        })
+        Ok(MjWrapper::new(attributes, children))
     }
 }
 
