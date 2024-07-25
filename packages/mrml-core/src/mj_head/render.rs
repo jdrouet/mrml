@@ -332,12 +332,10 @@ mod tests {
             (),
             vec![
                 MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
-                        attributes: Map::from_iter([(
-                            String::from("font-size"),
-                            String::from("42px"),
-                        )]),
-                    })],
+                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                        Map::from_iter([(String::from("font-size"), String::from("42px"))]),
+                        (),
+                    ))],
                 }),
                 MjHeadChild::MjInclude(MjIncludeHead {
                     attributes: MjIncludeHeadAttributes {
@@ -345,21 +343,20 @@ mod tests {
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
                     children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
-                        children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
-                            attributes: Map::from_iter([
+                        children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                            Map::from_iter([
                                 (String::from("font-size"), String::from("21px")),
                                 (String::from("text-align"), String::from("center")),
                             ]),
-                        })],
+                            (),
+                        ))],
                     })],
                 }),
                 MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
-                        attributes: Map::from_iter([(
-                            String::from("text-align"),
-                            String::from("right"),
-                        )]),
-                    })],
+                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                        Map::from_iter([(String::from("text-align"), String::from("right"))]),
+                        (),
+                    ))],
                 }),
             ],
         );
