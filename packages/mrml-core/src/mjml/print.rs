@@ -74,9 +74,9 @@ mod tests {
             attributes: Default::default(),
             children: MjmlChildren {
                 head: None,
-                body: Some(MjBody {
-                    attributes: Default::default(),
-                    children: vec![
+                body: Some(MjBody::new(
+                    Default::default(),
+                    vec![
                         MjSection::new(
                             Default::default(),
                             vec![
@@ -90,7 +90,7 @@ mod tests {
                         }
                         .into(),
                     ],
-                }),
+                )),
             },
         };
         assert_eq!("<mjml><mj-body><mj-section><mj-column><mj-text /></mj-column></mj-section><!--Hello World!--></mj-body></mjml>", item.print_dense().unwrap());

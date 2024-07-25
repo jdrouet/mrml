@@ -8,16 +8,20 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 pub use children::MjBodyChild;
 
-use crate::prelude::hash::Map;
+use crate::prelude::{hash::Map, Component, StaticTag};
 
 pub const NAME: &str = "mj-body";
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjBody {
-    pub attributes: Map<String, String>,
-    pub children: Vec<MjBodyChild>,
+pub struct MjBodyTag;
+
+impl StaticTag for MjBodyTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjBody = Component<PhantomData<MjBodyTag>, Map<String, String>, Vec<MjBodyChild>>;
