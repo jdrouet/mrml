@@ -28,13 +28,7 @@ mod tests {
 
     #[test]
     fn with_images() {
-        let item = MjCarousel {
-            attributes: Default::default(),
-            children: vec![MjCarouselImage {
-                attributes: Default::default(),
-            }
-            .into()],
-        };
+        let item = MjCarousel::new(Default::default(), vec![MjCarouselImage::default().into()]);
         assert_eq!(
             r#"<mj-carousel>
   <mj-carousel-image />

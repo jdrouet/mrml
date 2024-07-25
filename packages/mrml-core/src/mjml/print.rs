@@ -79,11 +79,10 @@ mod tests {
                     children: vec![
                         MjSection::new(
                             Default::default(),
-                            vec![MjColumn {
-                                attributes: Default::default(),
-                                children: vec![MjText::default().into()],
-                            }
-                            .into()],
+                            vec![
+                                MjColumn::new(Default::default(), vec![MjText::default().into()])
+                                    .into(),
+                            ],
                         )
                         .into(),
                         Comment {
