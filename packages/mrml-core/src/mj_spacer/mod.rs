@@ -1,4 +1,6 @@
-use crate::prelude::hash::Map;
+use std::marker::PhantomData;
+
+use crate::prelude::{hash::Map, Component, StaticTag};
 
 #[cfg(feature = "json")]
 mod json;
@@ -11,9 +13,12 @@ mod render;
 
 pub const NAME: &str = "mj-spacer";
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjSpacer {
-    pub attributes: Map<String, String>,
+pub struct MjSpacerTag;
+
+impl StaticTag for MjSpacerTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjSpacer = Component<PhantomData<MjSpacerTag>, Map<String, String>, ()>;

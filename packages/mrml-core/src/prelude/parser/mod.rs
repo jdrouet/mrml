@@ -499,6 +499,30 @@ where
     }
 }
 
+impl<'opts, Tag: super::StaticTag, A> ParseElement<super::Component<PhantomData<Tag>, A, ()>>
+    for MrmlParser<'opts>
+where
+    MrmlParser<'opts>: ParseAttributes<A>,
+{
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<super::Component<PhantomData<Tag>, A, ()>, Error> {
+        let attributes = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
+        if !ending.empty {
+            cursor.assert_element_close()?;
+        }
+
+        Ok(super::Component {
+            tag: PhantomData::<Tag>,
+            attributes,
+            children: (),
+        })
+    }
+}
+
 #[cfg(feature = "async")]
 #[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
@@ -520,6 +544,34 @@ where
             tag: PhantomData::<Tag>,
             attributes,
             children,
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+impl<Tag: super::StaticTag, A> AsyncParseElement<super::Component<PhantomData<Tag>, A, ()>>
+    for AsyncMrmlParser
+where
+    AsyncMrmlParser: ParseAttributes<A>,
+    A: std::marker::Send,
+{
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<super::Component<PhantomData<Tag>, A, ()>, Error> {
+        let attributes = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
+        if !ending.empty {
+            cursor.assert_element_close()?;
+        }
+
+        Ok(super::Component {
+            tag: PhantomData::<Tag>,
+            attributes,
+            children: (),
         })
     }
 }
