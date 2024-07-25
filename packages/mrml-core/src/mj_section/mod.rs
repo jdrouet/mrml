@@ -1,5 +1,8 @@
-use crate::mj_body::MjBodyChild;
+use std::marker::PhantomData;
+
 use crate::prelude::hash::Map;
+use crate::prelude::StaticTag;
+use crate::{mj_body::MjBodyChild, prelude::Component};
 
 #[cfg(feature = "json")]
 mod json;
@@ -15,10 +18,12 @@ pub use render::{SectionLikeRender, WithMjSectionBackground};
 
 pub const NAME: &str = "mj-section";
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjSection {
-    pub attributes: Map<String, String>,
-    pub children: Vec<MjBodyChild>,
+pub struct MjSectionTag;
+
+impl StaticTag for MjSectionTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjSection = Component<PhantomData<MjSectionTag>, Map<String, String>, Vec<MjBodyChild>>;

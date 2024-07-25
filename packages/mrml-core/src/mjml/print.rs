@@ -77,14 +77,14 @@ mod tests {
                 body: Some(MjBody {
                     attributes: Default::default(),
                     children: vec![
-                        MjSection {
-                            attributes: Default::default(),
-                            children: vec![MjColumn {
+                        MjSection::new(
+                            Default::default(),
+                            vec![MjColumn {
                                 attributes: Default::default(),
                                 children: vec![MjText::default().into()],
                             }
                             .into()],
-                        }
+                        )
                         .into(),
                         Comment {
                             children: "Hello World!".into(),
