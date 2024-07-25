@@ -1,4 +1,4 @@
-use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren, PrintableElement};
+use crate::prelude::print::{Printable, PrintableChildren};
 
 impl PrintableChildren for super::MjAccordionElementChildren {
     fn has_children(&self) -> bool {
@@ -13,20 +13,6 @@ impl PrintableChildren for super::MjAccordionElementChildren {
             elt.print(printer)?;
         }
         Ok(())
-    }
-}
-
-impl PrintableElement for super::MjAccordionElement {
-    fn tag(&self) -> &str {
-        super::NAME
-    }
-
-    fn attributes(&self) -> &impl PrintableAttributes {
-        &self.attributes
-    }
-
-    fn children(&self) -> &impl PrintableChildren {
-        &self.children
     }
 }
 

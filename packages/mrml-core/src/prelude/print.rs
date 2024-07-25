@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display, Write};
+use std::marker::PhantomData;
 
-// use crate::helper::sort::sort_by_key;
 use crate::prelude::hash::Map;
 
 pub trait PrintableAttributes {
@@ -50,6 +50,22 @@ impl<C: Printable> PrintableChildren for Vec<C> {
     }
 }
 
+impl<T: StaticTag, A: PrintableAttributes, C: PrintableChildren> PrintableElement
+    for super::Component<PhantomData<T>, A, C>
+{
+    fn tag(&self) -> &str {
+        T::static_tag()
+    }
+
+    fn attributes(&self) -> &impl PrintableAttributes {
+        &self.attributes
+    }
+
+    fn children(&self) -> &impl PrintableChildren {
+        &self.children
+    }
+}
+
 use crate::mj_accordion::MjAccordionChild;
 use crate::mj_attributes::MjAttributesChild;
 use crate::mj_body::MjBodyChild;
@@ -93,6 +109,8 @@ use crate::mj_title::MjTitle;
 use crate::mj_wrapper::MjWrapper;
 use crate::node::Node;
 use crate::text::Text;
+
+use super::StaticTag;
 
 #[enum_dispatch::enum_dispatch(
     MjAccordionChild,

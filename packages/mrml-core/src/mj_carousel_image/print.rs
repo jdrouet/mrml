@@ -1,15 +1,3 @@
-use crate::prelude::print::{PrintableAttributes, PrintableElement};
-
-impl PrintableElement for super::MjCarouselImage {
-    fn tag(&self) -> &str {
-        super::NAME
-    }
-
-    fn attributes(&self) -> &impl PrintableAttributes {
-        &self.attributes
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Printable;
