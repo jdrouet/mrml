@@ -7,7 +7,7 @@ mod tests {
     fn serialize() {
         let mut attrs = Map::new();
         attrs.insert("href".to_string(), "https://jolimail.io".to_string());
-        let elt = MjImage { attributes: attrs };
+        let elt = MjImage::new(attrs, ());
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-image","attributes":{"href":"https://jolimail.io"}}"#
