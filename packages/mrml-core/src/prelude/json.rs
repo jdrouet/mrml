@@ -24,7 +24,7 @@ impl<K: Hash + Eq, V> ComponentAttributes for Map<K, V> {
     }
 }
 
-trait ComponentChildren {
+pub(crate) trait ComponentChildren {
     fn has_children(&self) -> bool;
 }
 

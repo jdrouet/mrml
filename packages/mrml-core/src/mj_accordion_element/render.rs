@@ -145,9 +145,9 @@ mod tests {
         let head = Header::new(None, None);
         let ctx = RenderContext::new(&opts, head);
 
-        let element = MjAccordionElement {
-            attributes: Default::default(),
-            children: MjAccordionElementChildren {
+        let element = MjAccordionElement::new(
+            Default::default(),
+            MjAccordionElementChildren {
                 title: Some(MjAccordionTitle::new(
                     Default::default(),
                     vec![Text::from("Hello World!".to_string())],
@@ -157,7 +157,7 @@ mod tests {
                     vec![Text::from("Lorem Ipsum".to_string()).into()],
                 )),
             },
-        };
+        );
         let renderer = element.renderer(&ctx);
         let mut cursor = RenderCursor::default();
         renderer.render(&mut cursor).unwrap();

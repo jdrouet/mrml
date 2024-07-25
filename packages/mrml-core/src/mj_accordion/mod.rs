@@ -48,16 +48,16 @@ mod tests {
 
         let element = MjAccordion {
             attributes: Default::default(),
-            children: vec![MjAccordionElement {
-                attributes: Default::default(),
-                children: MjAccordionElementChildren {
+            children: vec![MjAccordionElement::new(
+                Default::default(),
+                MjAccordionElementChildren {
                     title: Some(MjAccordionTitle::new(
                         Default::default(),
                         vec![Text::from("Hello World!".to_string())],
                     )),
                     text: None,
                 },
-            }
+            )
             .into()],
         };
         let initial = element.print_dense().unwrap();
@@ -80,16 +80,16 @@ mod tests {
 
         let element = MjAccordion {
             attributes: Default::default(),
-            children: vec![MjAccordionElement {
-                attributes: Default::default(),
-                children: MjAccordionElementChildren {
+            children: vec![MjAccordionElement::new(
+                Default::default(),
+                MjAccordionElementChildren {
                     title: Some(MjAccordionTitle::new(
                         Default::default(),
                         vec![Text::from("Hello World!".to_string())],
                     )),
                     text: None,
                 },
-            }
+            )
             .into()],
         };
         let initial_json = serde_json::to_string(&element).unwrap();

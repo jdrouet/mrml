@@ -38,9 +38,9 @@ mod tests {
                 MjAccordionChild::Comment(Comment {
                     children: "Hello World!".into(),
                 }),
-                MjAccordionChild::MjAccordionElement(MjAccordionElement {
-                    attributes: Default::default(),
-                    children: MjAccordionElementChildren {
+                MjAccordionChild::MjAccordionElement(MjAccordionElement::new(
+                    Default::default(),
+                    MjAccordionElementChildren {
                         title: Some(MjAccordionTitle::new(
                             Default::default(),
                             vec![Text::from("Foo".to_string())],
@@ -50,7 +50,7 @@ mod tests {
                             vec![Text::from("Bar".to_string()).into()],
                         )),
                     },
-                }),
+                )),
             ],
         };
         assert_eq!("<mj-accordion><!--Hello World!--><mj-accordion-element><mj-accordion-title>Foo</mj-accordion-title><mj-accordion-text>Bar</mj-accordion-text></mj-accordion-element></mj-accordion>", item.print_dense().unwrap());
