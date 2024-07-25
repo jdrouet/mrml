@@ -313,10 +313,10 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
                 MjIncludeBodyKind::Html => {
                     let mut sub = cursor.new_child(child.as_str());
                     let children: Vec<MjBodyChild> = self.async_parse_children(&mut sub).await?;
-                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper {
-                        attributes: Default::default(),
+                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
+                        Default::default(),
                         children,
-                    })]
+                    ))]
                 }
                 MjIncludeBodyKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());

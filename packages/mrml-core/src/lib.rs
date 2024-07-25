@@ -53,7 +53,7 @@
 //! If you want to use the async version to fetch the includes, you've to enable the `async` feature and the required loaders (`http-loader-async-reqwest` in this example).
 //!
 //! ```rust
-//! # #[cfg(all(feature = "parse", feature = "render", feature = "async"))]
+//! # #[cfg(all(feature = "parse", feature = "render", feature = "async", feature = "local-loader", feature = "http-loader", feature = "http-loader-async-reqwest"))]
 //! # tokio_test::block_on(async {
 //! use mrml::prelude::parser::http_loader::{AsyncReqwestFetcher, HttpIncludeLoader};
 //! use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
