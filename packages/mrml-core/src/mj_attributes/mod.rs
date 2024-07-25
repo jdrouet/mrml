@@ -6,16 +6,23 @@ mod parse;
 #[cfg(feature = "print")]
 mod print;
 
+use std::marker::PhantomData;
+
 pub use children::MjAttributesChild;
+
+use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-attributes";
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjAttributes {
-    pub children: Vec<MjAttributesChild>,
+pub struct MjAttributesTag;
+
+impl StaticTag for MjAttributesTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjAttributes = Component<PhantomData<MjAttributesTag>, (), Vec<MjAttributesChild>>;
 
 #[cfg(feature = "render")]
 impl MjAttributes {
