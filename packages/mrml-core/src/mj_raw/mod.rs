@@ -8,13 +8,20 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 pub use children::MjRawChild;
+
+use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-raw";
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjRaw {
-    pub children: Vec<MjRawChild>,
+pub struct MjRawTag;
+
+impl StaticTag for MjRawTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjRaw = Component<PhantomData<MjRawTag>, (), Vec<MjRawChild>>;

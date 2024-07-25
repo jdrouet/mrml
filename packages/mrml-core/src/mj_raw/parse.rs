@@ -1,6 +1,6 @@
 use xmlparser::StrSpan;
 
-use super::{MjRaw, MjRawChild};
+use super::MjRawChild;
 use crate::comment::Comment;
 use crate::node::Node;
 use crate::prelude::is_void_element;
@@ -121,42 +121,5 @@ impl AsyncParseChildren<Vec<MjRawChild>> for AsyncMrmlParser {
                 other => return Err(Error::UnexpectedToken(other.span())),
             }
         }
-    }
-}
-
-impl<'opts> ParseElement<MjRaw> for MrmlParser<'opts> {
-    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _: StrSpan<'a>) -> Result<MjRaw, Error> {
-        let ending = cursor.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjRaw {
-                children: Default::default(),
-            });
-        }
-        let children = self.parse_children(cursor)?;
-        cursor.assert_element_close()?;
-
-        Ok(MjRaw { children })
-    }
-}
-
-#[cfg(feature = "async")]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseElement<MjRaw> for AsyncMrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _: StrSpan<'a>,
-    ) -> Result<MjRaw, Error> {
-        let ending = cursor.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjRaw {
-                children: Default::default(),
-            });
-        }
-        let children = self.async_parse_children(cursor).await?;
-        cursor.assert_element_close()?;
-
-        Ok(MjRaw { children })
     }
 }

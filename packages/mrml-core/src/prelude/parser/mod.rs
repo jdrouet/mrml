@@ -415,6 +415,12 @@ impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
     }
 }
 
+impl<'opts> ParseAttributes<()> for MrmlParser<'opts> {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+        parse_attributes_empty(cursor)
+    }
+}
+
 #[cfg(feature = "async")]
 #[derive(Default)]
 pub struct AsyncMrmlParser {
@@ -468,6 +474,13 @@ impl ParseAttributes<Map<String, String>> for AsyncMrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
+impl ParseAttributes<()> for AsyncMrmlParser {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+        parse_attributes_empty(cursor)
+    }
+}
+
 pub(crate) fn parse_attributes_map(
     cursor: &mut MrmlCursor<'_>,
 ) -> Result<Map<String, String>, Error> {
@@ -476,6 +489,13 @@ pub(crate) fn parse_attributes_map(
         result.insert(attr.local.to_string(), attr.value.to_string());
     }
     Ok(result)
+}
+
+pub(crate) fn parse_attributes_empty(cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+    while let Some(attr) = cursor.next_attribute()? {
+        return Err(Error::UnexpectedAttribute(Span::from(attr.span)));
+    }
+    Ok(())
 }
 
 impl<'opts, Tag: super::StaticTag, A, C> ParseElement<super::Component<PhantomData<Tag>, A, C>>
