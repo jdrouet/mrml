@@ -1,3 +1,7 @@
+use std::marker::PhantomData;
+
+use crate::prelude::{Component, StaticTag};
+
 #[cfg(feature = "json")]
 mod json;
 #[cfg(feature = "parse")]
@@ -7,12 +11,15 @@ mod print;
 
 pub const NAME: &str = "mj-preview";
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjPreview {
-    pub children: String,
+pub struct MjPreviewTag;
+
+impl StaticTag for MjPreviewTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjPreview = Component<PhantomData<MjPreviewTag>, (), String>;
 
 impl MjPreview {
     pub fn content(&self) -> &str {
@@ -22,7 +29,7 @@ impl MjPreview {
 
 impl From<String> for MjPreview {
     fn from(children: String) -> Self {
-        Self { children }
+        Self::new((), children)
     }
 }
 

@@ -421,6 +421,15 @@ impl<'opts> ParseAttributes<()> for MrmlParser<'opts> {
     }
 }
 
+impl<'opts> ParseChildren<String> for MrmlParser<'opts> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<String, Error> {
+        Ok(cursor
+            .next_text()?
+            .map(|inner| inner.text.to_string())
+            .unwrap_or_default())
+    }
+}
+
 #[cfg(feature = "async")]
 #[derive(Default)]
 pub struct AsyncMrmlParser {
@@ -478,6 +487,18 @@ impl ParseAttributes<Map<String, String>> for AsyncMrmlParser {
 impl ParseAttributes<()> for AsyncMrmlParser {
     fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
         parse_attributes_empty(cursor)
+    }
+}
+
+#[cfg(feature = "async")]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+impl AsyncParseChildren<String> for AsyncMrmlParser {
+    async fn async_parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<String, Error> {
+        Ok(cursor
+            .next_text()?
+            .map(|inner| inner.text.to_string())
+            .unwrap_or_default())
     }
 }
 
