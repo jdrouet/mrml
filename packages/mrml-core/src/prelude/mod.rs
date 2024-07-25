@@ -1,3 +1,5 @@
+#[cfg(feature = "json")]
+pub mod json;
 #[cfg(feature = "parse")]
 pub mod parser;
 #[cfg(feature = "print")]
@@ -6,6 +8,13 @@ pub mod print;
 pub mod render;
 
 pub mod hash;
+
+#[derive(Clone, Debug)]
+pub struct Component<Tag, Attributes, Children> {
+    pub tag: Tag,
+    pub attributes: Attributes,
+    pub children: Children,
+}
 
 // see https://developer.mozilla.org/en-US/docs/Glossary/Void_element
 #[cfg(any(feature = "parse", feature = "print", feature = "render"))]
