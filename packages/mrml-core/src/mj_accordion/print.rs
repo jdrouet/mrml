@@ -45,10 +45,10 @@ mod tests {
                             Default::default(),
                             vec![Text::from("Foo".to_string())],
                         )),
-                        text: Some(MjAccordionText {
-                            attributes: Default::default(),
-                            children: vec![Text::from("Bar".to_string()).into()],
-                        }),
+                        text: Some(MjAccordionText::new(
+                            Default::default(),
+                            vec![Text::from("Bar".to_string()).into()],
+                        )),
                     },
                 }),
             ],

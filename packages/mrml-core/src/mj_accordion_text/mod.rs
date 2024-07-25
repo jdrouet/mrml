@@ -7,15 +7,21 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 use crate::mj_raw::MjRawChild;
 use crate::prelude::hash::Map;
+use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-accordion-text";
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjAccordionText {
-    pub attributes: Map<String, String>,
-    pub children: Vec<MjRawChild>,
+pub struct MjAccordionTextTag;
+
+impl StaticTag for MjAccordionTextTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjAccordionText =
+    Component<PhantomData<MjAccordionTextTag>, Map<String, String>, Vec<MjRawChild>>;

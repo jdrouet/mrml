@@ -152,10 +152,10 @@ mod tests {
                     Default::default(),
                     vec![Text::from("Hello World!".to_string())],
                 )),
-                text: Some(MjAccordionText {
-                    attributes: Default::default(),
-                    children: vec![Text::from("Lorem Ipsum".to_string()).into()],
-                }),
+                text: Some(MjAccordionText::new(
+                    Default::default(),
+                    vec![Text::from("Lorem Ipsum".to_string()).into()],
+                )),
             },
         };
         let renderer = element.renderer(&ctx);
