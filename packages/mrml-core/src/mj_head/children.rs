@@ -8,7 +8,7 @@ use crate::mj_raw::MjRaw;
 use crate::mj_style::MjStyle;
 use crate::mj_title::MjTitle;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
 #[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]

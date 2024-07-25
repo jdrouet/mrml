@@ -328,8 +328,9 @@ mod tests {
 
     #[test]
     fn should_keep_order_with_mj_include_attributes_all() {
-        let element = MjHead {
-            children: vec![
+        let element = MjHead::new(
+            (),
+            vec![
                 MjHeadChild::MjAttributes(MjAttributes {
                     children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
                         attributes: Map::from_iter([(
@@ -361,7 +362,7 @@ mod tests {
                     })],
                 }),
             ],
-        };
+        );
         assert_eq!(
             element.build_attributes_all().get("font-size"),
             Some("21px").as_ref()
@@ -374,8 +375,9 @@ mod tests {
 
     #[test]
     fn should_keep_order_with_mj_include_attributes_class() {
-        let element = MjHead {
-            children: vec![
+        let element = MjHead::new(
+            (),
+            vec![
                 MjHeadChild::MjAttributes(MjAttributes {
                     children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
                         name: String::from("foo"),
@@ -419,7 +421,7 @@ mod tests {
                     })],
                 }),
             ],
-        };
+        );
         let attributes = element.build_attributes_class();
         assert_eq!(
             attributes.get("foo").unwrap().get("font-size"),
@@ -433,8 +435,9 @@ mod tests {
 
     #[test]
     fn should_keep_order_with_mj_include_attributes_element() {
-        let element = MjHead {
-            children: vec![
+        let element = MjHead::new(
+            (),
+            vec![
                 MjHeadChild::MjAttributes(MjAttributes {
                     children: vec![MjAttributesChild::MjAttributesElement(
                         MjAttributesElement {
@@ -475,7 +478,7 @@ mod tests {
                     )],
                 }),
             ],
-        };
+        );
         let attributes = element.build_attributes_element();
         assert_eq!(
             attributes.get("mj-text").unwrap().get("font-size"),
@@ -489,8 +492,9 @@ mod tests {
 
     #[test]
     fn should_keep_order_with_mj_font() {
-        let element = MjHead {
-            children: vec![
+        let element = MjHead::new(
+            (),
+            vec![
                 MjHeadChild::MjFont(MjFont::new("foo", "http://foo/root")),
                 MjHeadChild::MjInclude(MjIncludeHead {
                     attributes: MjIncludeHeadAttributes {
@@ -504,7 +508,7 @@ mod tests {
                 }),
                 MjHeadChild::MjFont(MjFont::new("bar", "http://bar/root")),
             ],
-        };
+        );
         let fonts = element.build_font_families();
         assert_eq!(fonts.get("foo"), Some("http://foo/include").as_ref());
         assert_eq!(fonts.get("bar"), Some("http://bar/root").as_ref());

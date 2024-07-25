@@ -1,6 +1,6 @@
 use xmlparser::StrSpan;
 
-use super::{MjHead, MjHeadChild};
+use super::MjHeadChild;
 use crate::mj_breakpoint::NAME as MJ_BREAKPOINT;
 use crate::mj_font::NAME as MJ_FONT;
 use crate::mj_include::NAME as MJ_INCLUDE;
@@ -66,39 +66,6 @@ impl AsyncParseChildren<Vec<MjHeadChild>> for AsyncMrmlParser {
                 }
             }
         }
-    }
-}
-
-impl<'opts> ParseElement<MjHead> for MrmlParser<'opts> {
-    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjHead, Error> {
-        let ending = cursor.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjHead::default());
-        }
-        let children = self.parse_children(cursor)?;
-        cursor.assert_element_close()?;
-
-        Ok(MjHead { children })
-    }
-}
-
-#[cfg(feature = "async")]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseElement<MjHead> for AsyncMrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
-    ) -> Result<MjHead, Error> {
-        let ending = cursor.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjHead::default());
-        }
-        let children = self.async_parse_children(cursor).await?;
-        cursor.assert_element_close()?;
-
-        Ok(MjHead { children })
     }
 }
 

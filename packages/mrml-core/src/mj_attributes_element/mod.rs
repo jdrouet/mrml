@@ -7,7 +7,7 @@ mod parse;
 #[cfg(feature = "print")]
 mod print;
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct MjAttributesElement {
     pub name: String,
     pub attributes: Map<String, String>,

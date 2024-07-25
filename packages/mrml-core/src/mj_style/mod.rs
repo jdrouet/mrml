@@ -7,14 +7,14 @@ mod print;
 
 pub const NAME: &str = "mj-style";
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 pub struct MjStyleAttributes {
     #[cfg_attr(feature = "json", serde(skip_serializing_if = "Option::is_none"))]
     pub inline: Option<String>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
 #[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
 pub struct MjStyle {

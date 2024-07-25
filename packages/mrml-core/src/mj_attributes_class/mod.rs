@@ -9,7 +9,7 @@ mod print;
 
 pub const NAME: &str = "mj-class";
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct MjAttributesClass {
     pub name: String,
     pub attributes: Map<String, String>,

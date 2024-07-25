@@ -184,12 +184,13 @@ mod tests {
                     "* { background-color: red; }".to_string(),
                 ))],
             };
-            let mj_head = MjHead {
-                children: vec![
+            let mj_head = MjHead::new(
+                (),
+                vec![
                     MjTitle::from("Hello World!".to_string()).into(),
                     mj_include.into(),
                 ],
-            };
+            );
             let root = Mjml {
                 attributes: Default::default(),
                 children: MjmlChildren {
