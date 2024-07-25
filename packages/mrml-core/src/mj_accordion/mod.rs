@@ -20,19 +20,24 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 pub use children::MjAccordionChild;
 
-use crate::prelude::hash::Map;
+use crate::prelude::{hash::Map, Component, StaticTag};
 
 pub const NAME: &str = "mj-accordion";
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjAccordion {
-    pub attributes: Map<String, String>,
-    pub children: Vec<MjAccordionChild>,
+pub struct MjAccordionTag;
+
+impl StaticTag for MjAccordionTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjAccordion =
+    Component<PhantomData<MjAccordionTag>, Map<String, String>, Vec<MjAccordionChild>>;
 
 #[cfg(all(test, feature = "parse", feature = "render"))]
 mod tests {
@@ -46,9 +51,9 @@ mod tests {
         use crate::prelude::print::Printable;
         use crate::text::Text;
 
-        let element = MjAccordion {
-            attributes: Default::default(),
-            children: vec![MjAccordionElement::new(
+        let element = MjAccordion::new(
+            Default::default(),
+            vec![MjAccordionElement::new(
                 Default::default(),
                 MjAccordionElementChildren {
                     title: Some(MjAccordionTitle::new(
@@ -59,7 +64,7 @@ mod tests {
                 },
             )
             .into()],
-        };
+        );
         let initial = element.print_dense().unwrap();
         let raw ="<mj-accordion><mj-accordion-element><mj-accordion-title>Hello World!</mj-accordion-title></mj-accordion-element></mj-accordion>";
         let opts = ParserOptions::default();
@@ -78,9 +83,9 @@ mod tests {
         use crate::mj_accordion_title::MjAccordionTitle;
         use crate::text::Text;
 
-        let element = MjAccordion {
-            attributes: Default::default(),
-            children: vec![MjAccordionElement::new(
+        let element = MjAccordion::new(
+            Default::default(),
+            vec![MjAccordionElement::new(
                 Default::default(),
                 MjAccordionElementChildren {
                     title: Some(MjAccordionTitle::new(
@@ -91,7 +96,7 @@ mod tests {
                 },
             )
             .into()],
-        };
+        );
         let initial_json = serde_json::to_string(&element).unwrap();
         let result: MjAccordion = serde_json::from_str(initial_json.as_str()).unwrap();
 

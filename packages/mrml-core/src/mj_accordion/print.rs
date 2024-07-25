@@ -32,9 +32,9 @@ mod tests {
 
     #[test]
     fn with_children() {
-        let item = MjAccordion {
-            attributes: Default::default(),
-            children: vec![
+        let item = MjAccordion::new(
+            Default::default(),
+            vec![
                 MjAccordionChild::Comment(Comment {
                     children: "Hello World!".into(),
                 }),
@@ -52,7 +52,7 @@ mod tests {
                     },
                 )),
             ],
-        };
+        );
         assert_eq!("<mj-accordion><!--Hello World!--><mj-accordion-element><mj-accordion-title>Foo</mj-accordion-title><mj-accordion-text>Bar</mj-accordion-text></mj-accordion-element></mj-accordion>", item.print_dense().unwrap());
     }
 }
