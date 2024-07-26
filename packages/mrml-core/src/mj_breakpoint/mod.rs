@@ -1,3 +1,7 @@
+use std::marker::PhantomData;
+
+use crate::prelude::{Component, StaticTag};
+
 #[cfg(feature = "json")]
 mod json;
 #[cfg(feature = "parse")]
@@ -14,12 +18,15 @@ pub struct MjBreakpointAttributes {
     pub width: String,
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjBreakpoint {
-    pub attributes: MjBreakpointAttributes,
+pub struct MjBreakpointTag;
+
+impl StaticTag for MjBreakpointTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjBreakpoint = Component<PhantomData<MjBreakpointTag>, MjBreakpointAttributes, ()>;
 
 impl MjBreakpoint {
     pub fn value(&self) -> &str {
