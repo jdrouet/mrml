@@ -1,3 +1,7 @@
+use std::marker::PhantomData;
+
+use crate::prelude::{Component, StaticTag};
+
 #[cfg(feature = "json")]
 mod json;
 #[cfg(feature = "parse")]
@@ -14,13 +18,15 @@ pub struct MjStyleAttributes {
     pub inline: Option<String>,
 }
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjStyle {
-    pub attributes: MjStyleAttributes,
-    pub children: String,
+pub struct MjStyleTag;
+
+impl StaticTag for MjStyleTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjStyle = Component<PhantomData<MjStyleTag>, MjStyleAttributes, String>;
 
 impl MjStyle {
     pub fn is_inline(&self) -> bool {
@@ -34,10 +40,7 @@ impl MjStyle {
 
 impl From<String> for MjStyle {
     fn from(children: String) -> Self {
-        Self {
-            attributes: MjStyleAttributes::default(),
-            children,
-        }
+        Self::new(MjStyleAttributes::default(), children)
     }
 }
 

@@ -1,8 +1,17 @@
+use crate::prelude::json::ComponentAttributes;
+
 use super::MjStyleAttributes;
 
-impl MjStyleAttributes {
-    pub fn is_empty(&self) -> bool {
-        self.inline.is_none()
+impl ComponentAttributes for MjStyleAttributes {
+    fn has_attributes(&self) -> bool {
+        self.inline.is_some()
+    }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
     }
 }
 
