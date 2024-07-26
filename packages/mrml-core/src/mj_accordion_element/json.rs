@@ -23,6 +23,13 @@ impl ComponentChildren for MjAccordionElementChildren {
     fn has_children(&self) -> bool {
         self.title.is_some() || self.text.is_some()
     }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
+    }
 }
 
 impl Serialize for MjAccordionElementChildren {

@@ -315,7 +315,7 @@ mod tests {
     use crate::{
         mj_attributes::{MjAttributes, MjAttributesChild},
         mj_attributes_all::MjAttributesAll,
-        mj_attributes_class::MjAttributesClass,
+        mj_attributes_class::{MjAttributesClass, MjAttributesClassAttributes},
         mj_attributes_element::MjAttributesElement,
         mj_font::MjFont,
         mj_head::{MjHead, MjHeadChild},
@@ -380,13 +380,18 @@ mod tests {
             vec![
                 MjHeadChild::MjAttributes(MjAttributes::new(
                     (),
-                    vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
-                        name: String::from("foo"),
-                        attributes: Map::from_iter([(
-                            String::from("font-size"),
-                            String::from("42px"),
-                        )]),
-                    })],
+                    vec![MjAttributesChild::MjAttributesClass(
+                        MjAttributesClass::new(
+                            MjAttributesClassAttributes {
+                                name: String::from("foo"),
+                                others: Map::from_iter([(
+                                    String::from("font-size"),
+                                    String::from("42px"),
+                                )]),
+                            },
+                            (),
+                        ),
+                    )],
                 )),
                 MjHeadChild::MjInclude(MjIncludeHead {
                     attributes: MjIncludeHeadAttributes {
@@ -396,32 +401,43 @@ mod tests {
                     children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes::new(
                         (),
                         vec![
-                            MjAttributesChild::MjAttributesClass(MjAttributesClass {
-                                name: String::from("foo"),
-                                attributes: Map::from_iter([(
-                                    String::from("font-size"),
-                                    String::from("21px"),
-                                )]),
-                            }),
-                            MjAttributesChild::MjAttributesClass(MjAttributesClass {
-                                name: String::from("bar"),
-                                attributes: Map::from_iter([(
-                                    String::from("text-align"),
-                                    String::from("center"),
-                                )]),
-                            }),
+                            MjAttributesChild::MjAttributesClass(MjAttributesClass::new(
+                                MjAttributesClassAttributes {
+                                    name: String::from("foo"),
+                                    others: Map::from_iter([(
+                                        String::from("font-size"),
+                                        String::from("21px"),
+                                    )]),
+                                },
+                                (),
+                            )),
+                            MjAttributesChild::MjAttributesClass(MjAttributesClass::new(
+                                MjAttributesClassAttributes {
+                                    name: String::from("bar"),
+                                    others: Map::from_iter([(
+                                        String::from("text-align"),
+                                        String::from("center"),
+                                    )]),
+                                },
+                                (),
+                            )),
                         ],
                     ))],
                 }),
                 MjHeadChild::MjAttributes(MjAttributes::new(
                     (),
-                    vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
-                        name: String::from("bar"),
-                        attributes: Map::from_iter([(
-                            String::from("text-align"),
-                            String::from("left"),
-                        )]),
-                    })],
+                    vec![MjAttributesChild::MjAttributesClass(
+                        MjAttributesClass::new(
+                            MjAttributesClassAttributes {
+                                name: String::from("bar"),
+                                others: Map::from_iter([(
+                                    String::from("text-align"),
+                                    String::from("left"),
+                                )]),
+                            },
+                            (),
+                        ),
+                    )],
                 )),
             ],
         );

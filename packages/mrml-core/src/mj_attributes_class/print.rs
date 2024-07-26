@@ -1,14 +1,9 @@
-use crate::prelude::print::{Printable, PrintableAttributes};
+use crate::prelude::print::PrintableAttributes;
 
-impl Printable for super::MjAttributesClass {
+impl PrintableAttributes for super::MjAttributesClassAttributes {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
-        printer.push_indent();
-        printer.open_tag(super::NAME)?;
         printer.push_attribute("name", self.name.as_str())?;
-        self.attributes.print(printer)?;
-        printer.closed_tag();
-        printer.push_new_line();
-        Ok(())
+        self.others.print(printer)
     }
 }
 

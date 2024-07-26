@@ -45,8 +45,9 @@ impl MjAttributes {
             .flat_map(|child| {
                 child
                     .attributes
+                    .others
                     .iter()
-                    .map(move |(k, v)| (child.name.as_str(), k.as_str(), v.as_str()))
+                    .map(move |(k, v)| (child.attributes.name.as_str(), k.as_str(), v.as_str()))
             })
     }
 

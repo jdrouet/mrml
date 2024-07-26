@@ -1,4 +1,6 @@
-use crate::prelude::hash::Map;
+use std::marker::PhantomData;
+
+use crate::prelude::{hash::Map, Component, StaticTag};
 
 #[cfg(feature = "json")]
 mod json;
@@ -9,28 +11,31 @@ mod print;
 
 pub const NAME: &str = "mj-class";
 
-#[derive(Clone, Debug, Default)]
-pub struct MjAttributesClass {
+pub struct MjAttributesClassTag;
+
+impl StaticTag for MjAttributesClassTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
+}
+
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct MjAttributesClassAttributes {
     pub name: String,
-    pub attributes: Map<String, String>,
+    #[serde(flatten)]
+    pub others: Map<String, String>,
 }
 
-impl MjAttributesClass {
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn attributes(&self) -> &Map<String, String> {
-        &self.attributes
-    }
-}
+pub type MjAttributesClass =
+    Component<PhantomData<MjAttributesClassTag>, MjAttributesClassAttributes, ()>;
 
 #[cfg(test)]
-impl MjAttributesClass {
-    pub fn new(name: String) -> Self {
+impl MjAttributesClassAttributes {
+    #[inline]
+    fn new(name: String) -> Self {
         Self {
             name,
-            attributes: Map::default(),
+            others: Map::default(),
         }
     }
 }

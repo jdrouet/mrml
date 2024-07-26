@@ -1,92 +1,43 @@
-use std::fmt;
+use crate::prelude::json::ComponentAttributes;
 
-use serde::de::{Error, MapAccess, Visitor};
-use serde::ser::SerializeMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-use super::{MjAttributesClass, NAME};
-
-const FIELDS: [&str; 3] = ["type", "name", "attributes"];
-
-impl Serialize for MjAttributesClass {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(3))?;
-        map.serialize_entry("type", NAME)?;
-        map.serialize_entry("name", self.name())?;
-        if !self.attributes.is_empty() {
-            map.serialize_entry("attributes", &self.attributes)?;
-        }
-        map.end()
-    }
-}
-
-#[derive(Default)]
-struct MjAttributesClassVisitor;
-
-impl<'de> Visitor<'de> for MjAttributesClassVisitor {
-    type Value = MjAttributesClass;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("an map with properties type, name and attributes")
+impl ComponentAttributes for super::MjAttributesClassAttributes {
+    fn has_attributes(&self) -> bool {
+        true
     }
 
-    fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
     where
-        M: MapAccess<'de>,
+        Self: Sized,
     {
-        let mut result = MjAttributesClass::default();
-        while let Some(key) = access.next_key::<String>()? {
-            if key == "type" {
-                if access.next_value::<String>()? != NAME {
-                    return Err(M::Error::custom(format!("expected type to equal {NAME}")));
-                }
-            } else if key == "name" {
-                result.name = access.next_value()?;
-            } else if key == "attributes" {
-                result.attributes = access.next_value()?;
-            } else {
-                return Err(M::Error::unknown_field(&key, &FIELDS));
-            }
-        }
-        Ok(result)
-    }
-}
-
-impl<'de> Deserialize<'de> for MjAttributesClass {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_map(MjAttributesClassVisitor)
+        this.ok_or_else(|| serde::de::Error::missing_field("attributes"))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::mj_attributes_class::MjAttributesClass;
+    use crate::mj_attributes_class::{MjAttributesClass, MjAttributesClassAttributes};
 
     #[test]
     fn serialize() {
-        let mut elt = MjAttributesClass {
-            name: "classname".into(),
-            ..Default::default()
-        };
-        elt.attributes.insert("margin-bottom".into(), "20px".into());
+        let mut elt = MjAttributesClass::new(
+            MjAttributesClassAttributes {
+                name: "classname".into(),
+                others: Default::default(),
+            },
+            (),
+        );
+        elt.attributes
+            .others
+            .insert("margin-bottom".into(), "20px".into());
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-class","name":"classname","attributes":{"margin-bottom":"20px"}}"#
+            r#"{"type":"mj-class","attributes":{"name":"classname","margin-bottom":"20px"}}"#
         );
     }
 
     #[test]
     fn deserialize() {
-        let elt = MjAttributesClass {
-            name: "classname".into(),
-            ..Default::default()
-        };
+        let elt = MjAttributesClass::new(MjAttributesClassAttributes::new("classname".into()), ());
         let json = serde_json::to_string(&elt).unwrap();
         let _res: MjAttributesClass = serde_json::from_str(&json).unwrap();
     }

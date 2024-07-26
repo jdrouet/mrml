@@ -6,8 +6,11 @@ use std::{hash::Hash, marker::PhantomData};
 
 use super::{hash::Map, Component, StaticTag};
 
-trait ComponentAttributes {
+pub trait ComponentAttributes: serde::Serialize {
     fn has_attributes(&self) -> bool;
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized;
 }
 
 impl ComponentAttributes for () {
@@ -15,17 +18,37 @@ impl ComponentAttributes for () {
     fn has_attributes(&self) -> bool {
         false
     }
+
+    fn try_from_serde<Err: serde::de::Error>(_: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(())
+    }
 }
 
-impl<K: Hash + Eq, V> ComponentAttributes for Map<K, V> {
+impl<K: Hash + Eq + Default + serde::Serialize, V: Default + serde::Serialize> ComponentAttributes
+    for Map<K, V>
+{
     #[inline]
     fn has_attributes(&self) -> bool {
         !self.is_empty()
     }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
+    }
 }
 
-pub(crate) trait ComponentChildren {
+pub trait ComponentChildren: serde::Serialize {
     fn has_children(&self) -> bool;
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized;
 }
 
 impl ComponentChildren for () {
@@ -33,12 +56,26 @@ impl ComponentChildren for () {
     fn has_children(&self) -> bool {
         false
     }
+
+    fn try_from_serde<Err: serde::de::Error>(_: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(())
+    }
 }
 
-impl<V> ComponentChildren for Vec<V> {
+impl<V: serde::Serialize> ComponentChildren for Vec<V> {
     #[inline]
     fn has_children(&self) -> bool {
         !self.is_empty()
+    }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
     }
 }
 
@@ -47,9 +84,16 @@ impl ComponentChildren for String {
     fn has_children(&self) -> bool {
         !self.is_empty()
     }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
+    }
 }
 
-struct DeserializableTag<T>(pub T);
+pub(crate) struct DeserializableTag<T>(pub T);
 
 impl<'de> serde::de::Deserialize<'de> for DeserializableTag<String> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -97,11 +141,8 @@ impl<Child: serde::Serialize> serde::Serialize
     }
 }
 
-impl<
-        Tag: StaticTag,
-        Attributes: ComponentAttributes + serde::Serialize,
-        Children: ComponentChildren + serde::Serialize,
-    > serde::Serialize for super::Component<PhantomData<Tag>, Attributes, Children>
+impl<Tag: StaticTag, Attributes: ComponentAttributes, Children: ComponentChildren> serde::Serialize
+    for super::Component<PhantomData<Tag>, Attributes, Children>
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -135,14 +176,12 @@ impl<Tag, Attributes, Children> Default for ComponentAsMapVisitor<Tag, Attribute
     }
 }
 
-impl<
-        'de,
-        Tag,
-        Attributes: Default + serde::de::Deserialize<'de>,
-        Children: Default + serde::de::Deserialize<'de>,
-    > serde::de::Deserialize<'de> for super::Component<Tag, Attributes, Children>
+impl<'de, Tag, Attributes, Children> serde::de::Deserialize<'de>
+    for super::Component<Tag, Attributes, Children>
 where
     DeserializableTag<Tag>: serde::de::Deserialize<'de>,
+    Attributes: ComponentAttributes + serde::de::Deserialize<'de>,
+    Children: ComponentChildren + serde::de::Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -160,14 +199,12 @@ enum ComponentField {
     Children,
 }
 
-impl<
-        'de,
-        Tag,
-        Attributes: Default + serde::de::Deserialize<'de>,
-        Children: Default + serde::de::Deserialize<'de>,
-    > serde::de::Visitor<'de> for ComponentAsMapVisitor<Tag, Attributes, Children>
+impl<'de, Tag, Attributes, Children> serde::de::Visitor<'de>
+    for ComponentAsMapVisitor<Tag, Attributes, Children>
 where
     DeserializableTag<Tag>: serde::de::Deserialize<'de>,
+    Attributes: ComponentAttributes + serde::de::Deserialize<'de>,
+    Children: ComponentChildren + serde::de::Deserialize<'de>,
 {
     type Value = super::Component<Tag, Attributes, Children>;
 
@@ -182,34 +219,36 @@ where
         let mut rtype: Option<Tag> = None;
         let mut attributes: Option<Attributes> = None;
         let mut children: Option<Children> = None;
+
         while let Some(key) = map.next_key()? {
             match key {
+                ComponentField::Type if rtype.is_some() => {
+                    return Err(serde::de::Error::duplicate_field("type"));
+                }
                 ComponentField::Type => {
-                    if rtype.is_some() {
-                        return Err(serde::de::Error::duplicate_field("type"));
-                    }
                     let DeserializableTag(tag) = map.next_value()?;
                     rtype = Some(tag);
                 }
+                ComponentField::Attributes if attributes.is_some() => {
+                    return Err(serde::de::Error::duplicate_field("attributes"));
+                }
                 ComponentField::Attributes => {
-                    if attributes.is_some() {
-                        return Err(serde::de::Error::duplicate_field("attributes"));
-                    }
                     attributes = Some(map.next_value()?);
                 }
+                ComponentField::Children if children.is_some() => {
+                    return Err(serde::de::Error::duplicate_field("children"));
+                }
                 ComponentField::Children => {
-                    if children.is_some() {
-                        return Err(serde::de::Error::duplicate_field("children"));
-                    }
                     children = Some(map.next_value()?);
                 }
             }
         }
+
         let rtype = rtype.ok_or_else(|| serde::de::Error::missing_field("type"))?;
         Ok(Component {
             tag: rtype,
-            attributes: attributes.unwrap_or_default(),
-            children: children.unwrap_or_default(),
+            attributes: Attributes::try_from_serde(attributes)?,
+            children: Children::try_from_serde(children)?,
         })
     }
 }
