@@ -1,4 +1,4 @@
-use crate::prelude::print::{PrintableAttributes, PrintableElement};
+use crate::prelude::print::PrintableAttributes;
 
 impl PrintableAttributes for super::MjFontAttributes {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
@@ -7,29 +7,14 @@ impl PrintableAttributes for super::MjFontAttributes {
     }
 }
 
-impl PrintableElement for super::MjFont {
-    fn tag(&self) -> &str {
-        super::NAME
-    }
-
-    fn attributes(&self) -> &impl PrintableAttributes {
-        &self.attributes
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::mj_font::{MjFont, MjFontAttributes};
+    use crate::mj_font::MjFont;
     use crate::prelude::print::Printable;
 
     #[test]
     fn normal() {
-        let item = MjFont {
-            attributes: MjFontAttributes {
-                name: String::from("Comic sans MS"),
-                href: String::from("http://localhost"),
-            },
-        };
+        let item = MjFont::build("Comic sans MS", "http://localhost");
         assert_eq!(
             "<mj-font name=\"Comic sans MS\" href=\"http://localhost\" />",
             item.print_dense().unwrap()

@@ -517,18 +517,18 @@ mod tests {
         let element = MjHead::new(
             (),
             vec![
-                MjHeadChild::MjFont(MjFont::new("foo", "http://foo/root")),
+                MjHeadChild::MjFont(MjFont::build("foo", "http://foo/root")),
                 MjHeadChild::MjInclude(MjIncludeHead {
                     attributes: MjIncludeHeadAttributes {
                         path: String::from("foo"),
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
                     children: vec![
-                        MjIncludeHeadChild::MjFont(MjFont::new("foo", "http://foo/include")),
-                        MjIncludeHeadChild::MjFont(MjFont::new("bar", "http://bar/include")),
+                        MjIncludeHeadChild::MjFont(MjFont::build("foo", "http://foo/include")),
+                        MjIncludeHeadChild::MjFont(MjFont::build("bar", "http://bar/include")),
                     ],
                 }),
-                MjHeadChild::MjFont(MjFont::new("bar", "http://bar/root")),
+                MjHeadChild::MjFont(MjFont::build("bar", "http://bar/root")),
             ],
         );
         let fonts = element.build_font_families();

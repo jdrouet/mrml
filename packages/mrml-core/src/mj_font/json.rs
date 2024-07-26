@@ -1,8 +1,23 @@
+use crate::prelude::json::ComponentAttributes;
+
 use super::MjFontAttributes;
 
 impl MjFontAttributes {
     pub fn is_empty(&self) -> bool {
         self.name.is_empty() && self.href.is_empty()
+    }
+}
+
+impl ComponentAttributes for MjFontAttributes {
+    fn has_attributes(&self) -> bool {
+        !self.name.is_empty() || !self.href.is_empty()
+    }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        this.ok_or_else(|| serde::de::Error::missing_field("attributes"))
     }
 }
 
@@ -12,12 +27,13 @@ mod tests {
 
     #[test]
     fn serialize() {
-        let elt = MjFont {
-            attributes: MjFontAttributes {
+        let elt = MjFont::new(
+            MjFontAttributes {
                 name: "Comic".to_string(),
                 href: "somewhere".to_string(),
             },
-        };
+            (),
+        );
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-font","attributes":{"name":"Comic","href":"somewhere"}}"#
@@ -26,12 +42,13 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MjFont {
-            attributes: MjFontAttributes {
+        let elt = MjFont::new(
+            MjFontAttributes {
                 name: "Comic".to_string(),
                 href: "somewhere".to_string(),
             },
-        };
+            (),
+        );
         let json = serde_json::to_string(&elt).unwrap();
         let res: MjFont = serde_json::from_str(&json).unwrap();
         assert_eq!(res.name(), elt.name());
