@@ -192,13 +192,13 @@ mod tests {
                     mj_include.into(),
                 ],
             );
-            let root = Mjml {
-                attributes: Default::default(),
-                children: MjmlChildren {
+            let root = Mjml::new(
+                Default::default(),
+                MjmlChildren {
                     head: Some(mj_head),
                     body: Some(MjBody::default()),
                 },
-            };
+            );
             root.render(&opts).unwrap()
         };
         similar_asserts::assert_eq!(expected, result);

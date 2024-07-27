@@ -1,4 +1,4 @@
-use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren, PrintableElement};
+use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren};
 
 impl PrintableAttributes for super::MjmlAttributes {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
@@ -30,21 +30,6 @@ impl PrintableChildren for super::MjmlChildren {
         Ok(())
     }
 }
-
-impl PrintableElement for super::Mjml {
-    fn tag(&self) -> &str {
-        super::NAME
-    }
-
-    fn attributes(&self) -> &impl PrintableAttributes {
-        &self.attributes
-    }
-
-    fn children(&self) -> &impl PrintableChildren {
-        &self.children
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::comment::Comment;
@@ -70,9 +55,9 @@ mod tests {
 
     #[test]
     fn with_body() {
-        let item = Mjml {
-            attributes: Default::default(),
-            children: MjmlChildren {
+        let item = Mjml::new(
+            Default::default(),
+            MjmlChildren {
                 head: None,
                 body: Some(MjBody::new(
                     Default::default(),
@@ -92,7 +77,7 @@ mod tests {
                     ],
                 )),
             },
-        };
+        );
         assert_eq!("<mjml><mj-body><mj-section><mj-column><mj-text /></mj-column></mj-section><!--Hello World!--></mj-body></mjml>", item.print_dense().unwrap());
         assert_eq!(
             r#"<mjml>
