@@ -19,10 +19,11 @@ impl StaticTag for MjAttributesClassTag {
     }
 }
 
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 pub struct MjAttributesClassAttributes {
     pub name: String,
-    #[serde(flatten)]
+    #[cfg_attr(feature = "json", serde(flatten))]
     pub others: Map<String, String>,
 }
 
