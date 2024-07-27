@@ -17,6 +17,7 @@ crate-type = ["cdylib", "rlib"]
 default = ["console_error_panic_hook", "async", "reqwest-include-loader"]
 async = ["dep:wasm-bindgen-futures", "mrml/async"]
 reqwest-include-loader = ["async", "mrml/http-loader-async-reqwest"]
+wee-alloc = ["dep:wee_alloc"]
 
 [dependencies]
 # The `console_error_panic_hook` crate provides better debugging of panics by
@@ -26,8 +27,8 @@ reqwest-include-loader = ["async", "mrml/http-loader-async-reqwest"]
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
 mrml = { version = "4.0.1", path = "../mrml-core", default-features = false, features = [
-  "parse",
-  "render",
+    "parse",
+    "render",
 ] }
 
 serde = { version = "1.0", features = ["derive"] }
@@ -38,6 +39,8 @@ tsify = { version = "0.4" }
 
 wasm-bindgen = { version = "0.2" }
 wasm-bindgen-futures = { version = "0.4", optional = true }
+
+wee_alloc = { version = "0.4", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
