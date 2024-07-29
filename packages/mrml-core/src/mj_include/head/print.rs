@@ -2,12 +2,19 @@ use super::MjIncludeHeadKind;
 use crate::prelude::print::{PrintableAttributes, PrintableElement};
 
 impl PrintableElement for super::MjIncludeHead {
+    type Attrs = super::MjIncludeHeadAttributes;
+    type Children = ();
+
     fn tag(&self) -> &str {
         super::NAME
     }
 
-    fn attributes(&self) -> &impl PrintableAttributes {
+    fn attributes(&self) -> &Self::Attrs {
         &self.0.attributes
+    }
+
+    fn children(&self) -> &Self::Children {
+        &()
     }
 }
 

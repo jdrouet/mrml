@@ -53,15 +53,18 @@ impl<C: Printable> PrintableChildren for Vec<C> {
 impl<T: StaticTag, A: PrintableAttributes, C: PrintableChildren> PrintableElement
     for super::Component<PhantomData<T>, A, C>
 {
+    type Attrs = A;
+    type Children = C;
+
     fn tag(&self) -> &str {
         T::static_tag()
     }
 
-    fn attributes(&self) -> &impl PrintableAttributes {
+    fn attributes(&self) -> &Self::Attrs {
         &self.attributes
     }
 
-    fn children(&self) -> &impl PrintableChildren {
+    fn children(&self) -> &Self::Children {
         &self.children
     }
 }
@@ -131,13 +134,12 @@ pub trait Printable {
 }
 
 pub trait PrintableElement {
+    type Attrs: PrintableAttributes;
+    type Children: PrintableChildren;
+
     fn tag(&self) -> &str;
-    fn attributes(&self) -> &impl PrintableAttributes {
-        &()
-    }
-    fn children(&self) -> &impl PrintableChildren {
-        &()
-    }
+    fn attributes(&self) -> &Self::Attrs;
+    fn children(&self) -> &Self::Children;
 }
 
 impl<E: PrintableElement> Printable for E {
