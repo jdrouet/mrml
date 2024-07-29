@@ -1,6 +1,6 @@
 use xmlparser::StrSpan;
 
-use super::MjAttributesClass;
+use super::{MjAttributesClass, MjAttributesClassAttributes};
 use crate::prelude::hash::Map;
 use crate::prelude::parser::{parse_attributes_map, Error, MrmlCursor, MrmlParser, ParseElement};
 #[cfg(feature = "async")]
@@ -8,16 +8,18 @@ use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 
 #[inline]
 fn parse<'a>(cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<MjAttributesClass, Error> {
-    let mut attributes: Map<String, String> = parse_attributes_map(cursor)?;
-    let name: String = attributes
+    let mut others: Map<String, String> = parse_attributes_map(cursor)?;
+    let name: String = others
         .remove("name")
         .ok_or_else(|| Error::MissingAttribute("name", tag.into()))?;
+    let attributes = MjAttributesClassAttributes { name, others };
+
     let ending = cursor.assert_element_end()?;
     if !ending.empty {
         cursor.assert_element_close()?;
     }
 
-    Ok(MjAttributesClass { name, attributes })
+    Ok(MjAttributesClass::new(attributes, ()))
 }
 
 impl<'opts> ParseElement<MjAttributesClass> for MrmlParser<'opts> {

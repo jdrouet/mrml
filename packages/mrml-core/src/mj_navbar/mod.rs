@@ -8,16 +8,21 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 pub use children::MjNavbarChild;
 
 use crate::prelude::hash::Map;
+use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-navbar";
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjNavbar {
-    pub attributes: Map<String, String>,
-    pub children: Vec<MjNavbarChild>,
+pub struct MjNavbarTag;
+
+impl StaticTag for MjNavbarTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjNavbar = Component<PhantomData<MjNavbarTag>, Map<String, String>, Vec<MjNavbarChild>>;

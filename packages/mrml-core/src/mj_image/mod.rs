@@ -1,4 +1,7 @@
+use std::marker::PhantomData;
+
 use crate::prelude::hash::Map;
+use crate::prelude::{Component, StaticTag};
 
 #[cfg(feature = "json")]
 mod json;
@@ -11,9 +14,12 @@ mod render;
 
 pub const NAME: &str = "mj-image";
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjImage {
-    pub attributes: Map<String, String>,
+pub struct MjImageTag;
+
+impl StaticTag for MjImageTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjImage = Component<PhantomData<MjImageTag>, Map<String, String>, ()>;

@@ -1,8 +1,16 @@
 use super::MjBreakpointAttributes;
+use crate::prelude::json::ComponentAttributes;
 
-impl MjBreakpointAttributes {
-    pub fn is_empty(&self) -> bool {
-        self.width.is_empty()
+impl ComponentAttributes for MjBreakpointAttributes {
+    fn has_attributes(&self) -> bool {
+        !self.width.is_empty()
+    }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
     }
 }
 
@@ -12,11 +20,12 @@ mod tests {
 
     #[test]
     fn serialize() {
-        let elt = MjBreakpoint {
-            attributes: MjBreakpointAttributes {
+        let elt = MjBreakpoint::new(
+            MjBreakpointAttributes {
                 width: "12px".to_string(),
             },
-        };
+            (),
+        );
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-breakpoint","attributes":{"width":"12px"}}"#
@@ -25,11 +34,12 @@ mod tests {
 
     #[test]
     fn deserialize() {
-        let elt = MjBreakpoint {
-            attributes: MjBreakpointAttributes {
+        let elt = MjBreakpoint::new(
+            MjBreakpointAttributes {
                 width: "12px".to_string(),
             },
-        };
+            (),
+        );
         let json = serde_json::to_string(&elt).unwrap();
         let res: MjBreakpoint = serde_json::from_str(&json).unwrap();
         assert_eq!(res.value(), elt.value());

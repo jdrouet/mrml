@@ -1,9 +1,8 @@
-use crate::{
-    comment::Comment,
-    prelude::parser::{Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParserOptions},
-};
-
 use super::RootChild;
+use crate::comment::Comment;
+use crate::prelude::parser::{
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParserOptions,
+};
 
 impl<'opts> crate::prelude::parser::ParseChildren<Vec<RootChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<RootChild>, Error> {
@@ -75,8 +74,7 @@ impl super::Root {
         value: T,
         opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
     ) -> Result<Self, Error> {
-        use crate::prelude::parser::AsyncMrmlParser;
-        use crate::prelude::parser::AsyncParseChildren;
+        use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren};
 
         let parser = AsyncMrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());

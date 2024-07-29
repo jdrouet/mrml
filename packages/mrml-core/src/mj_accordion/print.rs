@@ -1,19 +1,3 @@
-use crate::prelude::print::{PrintableAttributes, PrintableChildren, PrintableElement};
-
-impl PrintableElement for super::MjAccordion {
-    fn tag(&self) -> &str {
-        super::NAME
-    }
-
-    fn attributes(&self) -> &impl PrintableAttributes {
-        &self.attributes
-    }
-
-    fn children(&self) -> &impl PrintableChildren {
-        &self.children
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::comment::Comment;
@@ -32,27 +16,25 @@ mod tests {
 
     #[test]
     fn with_children() {
-        let item = MjAccordion {
-            attributes: Default::default(),
-            children: vec![
-                MjAccordionChild::Comment(Comment {
-                    children: "Hello World!".into(),
-                }),
-                MjAccordionChild::MjAccordionElement(MjAccordionElement {
-                    attributes: Default::default(),
-                    children: MjAccordionElementChildren {
-                        title: Some(MjAccordionTitle {
-                            attributes: Default::default(),
-                            children: vec![Text::from("Foo".to_string())],
-                        }),
-                        text: Some(MjAccordionText {
-                            attributes: Default::default(),
-                            children: vec![Text::from("Bar".to_string()).into()],
-                        }),
+        let item = MjAccordion::new(
+            Default::default(),
+            vec![
+                MjAccordionChild::Comment(Comment::new((), "Hello World!".into())),
+                MjAccordionChild::MjAccordionElement(MjAccordionElement::new(
+                    Default::default(),
+                    MjAccordionElementChildren {
+                        title: Some(MjAccordionTitle::new(
+                            Default::default(),
+                            vec![Text::from("Foo".to_string())],
+                        )),
+                        text: Some(MjAccordionText::new(
+                            Default::default(),
+                            vec![Text::from("Bar".to_string()).into()],
+                        )),
                     },
-                }),
+                )),
             ],
-        };
+        );
         assert_eq!("<mj-accordion><!--Hello World!--><mj-accordion-element><mj-accordion-title>Foo</mj-accordion-title><mj-accordion-text>Bar</mj-accordion-text></mj-accordion-element></mj-accordion>", item.print_dense().unwrap());
     }
 }

@@ -8,16 +8,22 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 pub use children::MjCarouselChild;
 
 use crate::prelude::hash::Map;
+use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-carousel";
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjCarousel {
-    pub attributes: Map<String, String>,
-    pub children: Vec<MjCarouselChild>,
+pub struct MjCarouselTag;
+
+impl StaticTag for MjCarouselTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjCarousel =
+    Component<PhantomData<MjCarouselTag>, Map<String, String>, Vec<MjCarouselChild>>;

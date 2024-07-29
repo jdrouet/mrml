@@ -1,24 +1,8 @@
-use crate::prelude::print::{PrintableAttributes, PrintableChildren, PrintableElement};
-
-impl PrintableElement for super::MjCarousel {
-    fn tag(&self) -> &str {
-        super::NAME
-    }
-
-    fn attributes(&self) -> &impl PrintableAttributes {
-        &self.attributes
-    }
-
-    fn children(&self) -> &impl PrintableChildren {
-        &self.children
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{
-        mj_carousel::MjCarousel, mj_carousel_image::MjCarouselImage, prelude::print::Printable,
-    };
+    use crate::mj_carousel::MjCarousel;
+    use crate::mj_carousel_image::MjCarouselImage;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {
@@ -28,13 +12,7 @@ mod tests {
 
     #[test]
     fn with_images() {
-        let item = MjCarousel {
-            attributes: Default::default(),
-            children: vec![MjCarouselImage {
-                attributes: Default::default(),
-            }
-            .into()],
-        };
+        let item = MjCarousel::new(Default::default(), vec![MjCarouselImage::default().into()]);
         assert_eq!(
             r#"<mj-carousel>
   <mj-carousel-image />

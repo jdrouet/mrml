@@ -1,9 +1,7 @@
-use xmlparser::StrSpan;
-
-use super::{MjFont, MjFontAttributes};
+use super::MjFontAttributes;
 #[cfg(feature = "async")]
-use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
-use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, ParseElement};
+use crate::prelude::parser::AsyncMrmlParser;
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes};
 
 #[inline]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
@@ -30,36 +28,6 @@ impl<'opts> ParseAttributes<MjFontAttributes> for MrmlParser<'opts> {
 impl ParseAttributes<MjFontAttributes> for AsyncMrmlParser {
     fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
         parse_attributes(cursor)
-    }
-}
-
-#[inline]
-fn parse(cursor: &mut MrmlCursor<'_>) -> Result<MjFont, Error> {
-    let attributes = parse_attributes(cursor)?;
-    let ending = cursor.assert_element_end()?;
-    if !ending.empty {
-        cursor.assert_element_close()?;
-    }
-
-    Ok(MjFont { attributes })
-}
-
-impl<'opts> ParseElement<MjFont> for MrmlParser<'opts> {
-    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _: StrSpan<'a>) -> Result<MjFont, Error> {
-        parse(cursor)
-    }
-}
-
-#[cfg(feature = "async")]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseElement<MjFont> for AsyncMrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _: StrSpan<'a>,
-    ) -> Result<MjFont, Error> {
-        parse(cursor)
     }
 }
 

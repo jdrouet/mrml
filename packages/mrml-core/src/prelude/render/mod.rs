@@ -1,8 +1,8 @@
 use std::convert::TryFrom;
+use std::sync::atomic::{AtomicU16, Ordering};
 
 use crate::helper::size::{Pixel, Size};
 use crate::helper::spacing::Spacing;
-use std::sync::atomic::{AtomicU16, Ordering};
 
 mod buffer;
 mod header;

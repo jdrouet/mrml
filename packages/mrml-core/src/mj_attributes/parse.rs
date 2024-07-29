@@ -1,6 +1,6 @@
 use xmlparser::StrSpan;
 
-use super::{MjAttributes, MjAttributesChild};
+use super::MjAttributesChild;
 use crate::mj_attributes_all::NAME as MJ_ALL;
 use crate::mj_attributes_class::NAME as MJ_CLASS;
 #[cfg(feature = "async")]
@@ -81,49 +81,6 @@ impl AsyncParseChildren<Vec<MjAttributesChild>> for AsyncMrmlParser {
                 other => return Err(Error::UnexpectedToken(other.span())),
             }
         }
-    }
-}
-
-impl<'opts> ParseElement<MjAttributes> for MrmlParser<'opts> {
-    fn parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
-    ) -> Result<MjAttributes, Error> {
-        let ending = cursor.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjAttributes {
-                children: Default::default(),
-            });
-        }
-
-        let children = self.parse_children(cursor)?;
-        cursor.assert_element_close()?;
-
-        Ok(MjAttributes { children })
-    }
-}
-
-#[cfg(feature = "async")]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseElement<MjAttributes> for AsyncMrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
-    ) -> Result<MjAttributes, Error> {
-        let ending = cursor.assert_element_end()?;
-        if ending.empty {
-            return Ok(MjAttributes {
-                children: Default::default(),
-            });
-        }
-
-        let children = self.async_parse_children(cursor).await?;
-        cursor.assert_element_close()?;
-
-        Ok(MjAttributes { children })
     }
 }
 

@@ -4,13 +4,21 @@ use serde::de::{SeqAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use super::{MjmlAttributes, MjmlChildren};
+use super::MjmlChildren;
 use crate::mj_body::MjBody;
 use crate::mj_head::MjHead;
+use crate::prelude::json::{ComponentAttributes, ComponentChildren};
 
-impl MjmlAttributes {
-    pub fn is_empty(&self) -> bool {
-        self.owa.is_none() && self.lang.is_none() && self.dir.is_none()
+impl ComponentAttributes for super::MjmlAttributes {
+    fn has_attributes(&self) -> bool {
+        self.owa.is_some() || self.lang.is_some() || self.dir.is_some()
+    }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
     }
 }
 
@@ -19,6 +27,19 @@ impl MjmlAttributes {
 pub enum MjmlChild {
     MjHead(MjHead),
     MjBody(MjBody),
+}
+
+impl ComponentChildren for MjmlChildren {
+    fn has_children(&self) -> bool {
+        self.head.is_some() || self.body.is_some()
+    }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
+    }
 }
 
 impl MjmlChildren {

@@ -4,7 +4,6 @@ use std::ops::{Deref, DerefMut};
 
 use indexmap::{IndexMap, IndexSet};
 use rustc_hash::FxHasher;
-
 #[cfg(feature = "json")]
 use serde::{Deserialize, Serialize};
 
@@ -25,6 +24,11 @@ where
 {
     pub fn new() -> Self {
         Map(MapImpl::with_hasher(HashImpl::default()))
+    }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 
     #[inline]

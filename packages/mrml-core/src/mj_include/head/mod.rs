@@ -7,10 +7,13 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 #[cfg(any(feature = "print", feature = "json"))]
 use super::NAME;
+use crate::prelude::{Component, StaticTag};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
 #[cfg_attr(feature = "render", derive(enum_as_inner::EnumAsInner))]
@@ -58,7 +61,7 @@ impl Default for MjIncludeHeadKind {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 pub struct MjIncludeHeadAttributes {
     pub path: String,
@@ -73,16 +76,40 @@ pub struct MjIncludeHeadAttributes {
     pub kind: MjIncludeHeadKind,
 }
 
+#[cfg(test)]
 impl MjIncludeHeadAttributes {
-    pub fn is_empty(&self) -> bool {
-        false
+    pub fn new<P: Into<String>>(path: P) -> Self {
+        Self {
+            path: path.into(),
+            kind: MjIncludeHeadKind::default(),
+        }
+    }
+
+    pub fn with_kind(mut self, kind: MjIncludeHeadKind) -> Self {
+        self.kind = kind;
+        self
     }
 }
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjIncludeHead {
-    pub attributes: MjIncludeHeadAttributes,
-    pub children: Vec<MjIncludeHeadChild>,
+pub struct MjIncludeHeadTag;
+
+impl StaticTag for MjIncludeHeadTag {
+    fn static_tag() -> &'static str {
+        super::NAME
+    }
+}
+
+pub type MjIncludeHeadInner =
+    Component<PhantomData<MjIncludeHeadTag>, MjIncludeHeadAttributes, Vec<MjIncludeHeadChild>>;
+
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "json", serde(transparent))]
+pub struct MjIncludeHead(pub MjIncludeHeadInner);
+
+impl MjIncludeHead {
+    #[inline]
+    pub fn new(attributes: MjIncludeHeadAttributes, children: Vec<MjIncludeHeadChild>) -> Self {
+        Self(MjIncludeHeadInner::new(attributes, children))
+    }
 }

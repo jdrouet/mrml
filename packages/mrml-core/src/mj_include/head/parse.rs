@@ -230,10 +230,7 @@ impl<'opts> ParseElement<MjIncludeHead> for MrmlParser<'opts> {
             children
         };
 
-        Ok(MjIncludeHead {
-            attributes,
-            children,
-        })
+        Ok(MjIncludeHead::new(attributes, children))
     }
 }
 
@@ -278,10 +275,7 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
             children
         };
 
-        Ok(MjIncludeHead {
-            attributes,
-            children,
-        })
+        Ok(MjIncludeHead::new(attributes, children))
     }
 }
 
@@ -379,8 +373,8 @@ mod tests {
         let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
-        assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
-        let _content = include.children.first().unwrap();
+        assert_eq!(include.0.attributes.kind, MjIncludeHeadKind::Mjml);
+        let _content = include.0.children.first().unwrap();
     }
 
     #[cfg(feature = "async")]
@@ -397,8 +391,8 @@ mod tests {
         let parser = AsyncMrmlParser::new(opts.into());
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).await.unwrap();
-        assert_eq!(include.attributes.kind, MjIncludeHeadKind::Mjml);
-        let _content = include.children.first().unwrap();
+        assert_eq!(include.0.attributes.kind, MjIncludeHeadKind::Mjml);
+        let _content = include.0.children.first().unwrap();
     }
 
     #[test]
@@ -413,10 +407,10 @@ mod tests {
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).unwrap();
         assert_eq!(
-            include.attributes.kind,
+            include.0.attributes.kind,
             MjIncludeHeadKind::Css { inline: false }
         );
-        let _content = include.children.first().unwrap();
+        let _content = include.0.children.first().unwrap();
     }
 
     #[cfg(feature = "async")]
@@ -434,9 +428,9 @@ mod tests {
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeHead = parser.parse_root(&mut cursor).await.unwrap();
         assert_eq!(
-            include.attributes.kind,
+            include.0.attributes.kind,
             MjIncludeHeadKind::Css { inline: false }
         );
-        let _content = include.children.first().unwrap();
+        let _content = include.0.children.first().unwrap();
     }
 }

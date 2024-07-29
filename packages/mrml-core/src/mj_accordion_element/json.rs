@@ -7,6 +7,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use crate::comment::Comment;
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;
+use crate::prelude::json::ComponentChildren;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
@@ -18,9 +19,16 @@ enum MjAccordionElementChild {
 
 use super::MjAccordionElementChildren;
 
-impl MjAccordionElementChildren {
-    pub fn is_empty(&self) -> bool {
-        self.title.is_none() && self.text.is_none()
+impl ComponentChildren for MjAccordionElementChildren {
+    fn has_children(&self) -> bool {
+        self.title.is_some() || self.text.is_some()
+    }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        Ok(this.unwrap_or_default())
     }
 }
 
@@ -86,10 +94,10 @@ mod tests {
         let mut elt = MjAccordionElement::default();
         elt.attributes
             .insert("margin".to_string(), "12px".to_string());
-        elt.children.title = Some(MjAccordionTitle {
-            attributes: Default::default(),
-            children: vec![Text::from("Hello".to_string())],
-        });
+        elt.children.title = Some(MjAccordionTitle::new(
+            Default::default(),
+            vec![Text::from("Hello".to_string())],
+        ));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-accordion-element","attributes":{"margin":"12px"},"children":[{"type":"mj-accordion-title","children":["Hello"]}]}"#

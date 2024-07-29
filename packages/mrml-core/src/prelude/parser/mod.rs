@@ -1,5 +1,6 @@
 use std::convert::TryFrom;
 use std::fmt::Display;
+use std::marker::PhantomData;
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 
@@ -415,6 +416,21 @@ impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
     }
 }
 
+impl<'opts> ParseAttributes<()> for MrmlParser<'opts> {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+        parse_attributes_empty(cursor)
+    }
+}
+
+impl<'opts> ParseChildren<String> for MrmlParser<'opts> {
+    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<String, Error> {
+        Ok(cursor
+            .next_text()?
+            .map(|inner| inner.text.to_string())
+            .unwrap_or_default())
+    }
+}
+
 #[cfg(feature = "async")]
 #[derive(Default)]
 pub struct AsyncMrmlParser {
@@ -468,6 +484,25 @@ impl ParseAttributes<Map<String, String>> for AsyncMrmlParser {
     }
 }
 
+#[cfg(feature = "async")]
+impl ParseAttributes<()> for AsyncMrmlParser {
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+        parse_attributes_empty(cursor)
+    }
+}
+
+#[cfg(feature = "async")]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+impl AsyncParseChildren<String> for AsyncMrmlParser {
+    async fn async_parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<String, Error> {
+        Ok(cursor
+            .next_text()?
+            .map(|inner| inner.text.to_string())
+            .unwrap_or_default())
+    }
+}
+
 pub(crate) fn parse_attributes_map(
     cursor: &mut MrmlCursor<'_>,
 ) -> Result<Map<String, String>, Error> {
@@ -476,6 +511,111 @@ pub(crate) fn parse_attributes_map(
         result.insert(attr.local.to_string(), attr.value.to_string());
     }
     Ok(result)
+}
+
+pub(crate) fn parse_attributes_empty(cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+    if let Some(attr) = cursor.next_attribute()? {
+        return Err(Error::UnexpectedAttribute(Span::from(attr.span)));
+    }
+    Ok(())
+}
+
+impl<'opts, Tag: super::StaticTag, A, C> ParseElement<super::Component<PhantomData<Tag>, A, C>>
+    for MrmlParser<'opts>
+where
+    MrmlParser<'opts>: ParseAttributes<A> + ParseChildren<C>,
+    C: Default,
+{
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<super::Component<PhantomData<Tag>, A, C>, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
+
+        Ok(super::Component {
+            tag: PhantomData::<Tag>,
+            attributes,
+            children,
+        })
+    }
+}
+
+impl<'opts, Tag: super::StaticTag, A> ParseElement<super::Component<PhantomData<Tag>, A, ()>>
+    for MrmlParser<'opts>
+where
+    MrmlParser<'opts>: ParseAttributes<A>,
+{
+    fn parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<super::Component<PhantomData<Tag>, A, ()>, Error> {
+        let attributes = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
+        if !ending.empty {
+            cursor.assert_element_close()?;
+        }
+
+        Ok(super::Component {
+            tag: PhantomData::<Tag>,
+            attributes,
+            children: (),
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+impl<Tag: super::StaticTag, A, C> AsyncParseElement<super::Component<PhantomData<Tag>, A, C>>
+    for AsyncMrmlParser
+where
+    AsyncMrmlParser: ParseAttributes<A> + AsyncParseChildren<C>,
+    A: std::marker::Send,
+    C: Default,
+{
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<super::Component<PhantomData<Tag>, A, C>, Error> {
+        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
+
+        Ok(super::Component {
+            tag: PhantomData::<Tag>,
+            attributes,
+            children,
+        })
+    }
+}
+
+#[cfg(feature = "async")]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+impl<Tag: super::StaticTag, A> AsyncParseElement<super::Component<PhantomData<Tag>, A, ()>>
+    for AsyncMrmlParser
+where
+    AsyncMrmlParser: ParseAttributes<A>,
+    A: std::marker::Send,
+{
+    async fn async_parse<'a>(
+        &self,
+        cursor: &mut MrmlCursor<'a>,
+        _tag: StrSpan<'a>,
+    ) -> Result<super::Component<PhantomData<Tag>, A, ()>, Error> {
+        let attributes = self.parse_attributes(cursor)?;
+        let ending = cursor.assert_element_end()?;
+        if !ending.empty {
+            cursor.assert_element_close()?;
+        }
+
+        Ok(super::Component {
+            tag: PhantomData::<Tag>,
+            attributes,
+            children: (),
+        })
+    }
 }
 
 #[cfg(test)]

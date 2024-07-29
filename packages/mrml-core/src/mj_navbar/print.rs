@@ -1,19 +1,3 @@
-use crate::prelude::print::{PrintableAttributes, PrintableChildren, PrintableElement};
-
-impl PrintableElement for super::MjNavbar {
-    fn tag(&self) -> &str {
-        super::NAME
-    }
-
-    fn attributes(&self) -> &impl PrintableAttributes {
-        &self.attributes
-    }
-
-    fn children(&self) -> &impl PrintableChildren {
-        &self.children
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::print::Printable;

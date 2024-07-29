@@ -1,6 +1,4 @@
-use xmlparser::StrSpan;
-
-use super::{MjNavbar, MjNavbarChild};
+use super::MjNavbarChild;
 use crate::comment::Comment;
 use crate::mj_navbar_link::NAME as MJ_NAVBAR_LINK;
 #[cfg(feature = "async")]
@@ -34,17 +32,6 @@ impl<'opts> ParseChildren<Vec<MjNavbarChild>> for MrmlParser<'opts> {
                 other => return Err(Error::UnexpectedToken(other.span())),
             }
         }
-    }
-}
-
-impl<'opts> ParseElement<MjNavbar> for MrmlParser<'opts> {
-    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjNavbar, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
-
-        Ok(MjNavbar {
-            attributes,
-            children,
-        })
     }
 }
 
@@ -82,27 +69,9 @@ impl AsyncParseChildren<Vec<MjNavbarChild>> for AsyncMrmlParser {
     }
 }
 
-#[cfg(feature = "async")]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseElement<MjNavbar> for AsyncMrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
-    ) -> Result<MjNavbar, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
-
-        Ok(MjNavbar {
-            attributes,
-            children,
-        })
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::MjNavbar;
+    use crate::mj_navbar::MjNavbar;
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {

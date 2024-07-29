@@ -3,8 +3,7 @@ use std::convert::TryFrom;
 
 use crate::helper::size::{Pixel, Size};
 use crate::mj_head::MjHead;
-use crate::prelude::hash::Map;
-use crate::prelude::hash::Set;
+use crate::prelude::hash::{Map, Set};
 
 #[derive(Debug)]
 pub struct VariableHeader {

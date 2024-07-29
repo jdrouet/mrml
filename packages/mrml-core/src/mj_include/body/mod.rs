@@ -7,10 +7,13 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 #[cfg(any(feature = "print", feature = "json"))]
 use super::NAME;
+use crate::prelude::{Component, StaticTag};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(untagged))]
 pub enum MjIncludeBodyChild {
@@ -65,7 +68,7 @@ impl Default for MjIncludeBodyKind {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 pub struct MjIncludeBodyAttributes {
     pub path: String,
@@ -80,18 +83,42 @@ pub struct MjIncludeBodyAttributes {
     pub kind: MjIncludeBodyKind,
 }
 
+#[cfg(test)]
 impl MjIncludeBodyAttributes {
-    pub fn is_empty(&self) -> bool {
-        false
+    pub fn new<P: Into<String>>(path: P) -> Self {
+        Self {
+            path: path.into(),
+            kind: Default::default(),
+        }
+    }
+
+    pub fn with_kind(mut self, kind: MjIncludeBodyKind) -> Self {
+        self.kind = kind;
+        self
     }
 }
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjIncludeBody {
-    pub attributes: MjIncludeBodyAttributes,
-    pub children: Vec<MjIncludeBodyChild>,
+pub struct MjIncludeBodyTag;
+
+impl StaticTag for MjIncludeBodyTag {
+    fn static_tag() -> &'static str {
+        super::NAME
+    }
+}
+
+pub type MjIncludeBodyInner =
+    Component<PhantomData<MjIncludeBodyTag>, MjIncludeBodyAttributes, Vec<MjIncludeBodyChild>>;
+
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "json", serde(transparent))]
+pub struct MjIncludeBody(pub MjIncludeBodyInner);
+
+impl MjIncludeBody {
+    #[inline]
+    pub fn new(attributes: MjIncludeBodyAttributes, children: Vec<MjIncludeBodyChild>) -> Self {
+        Self(MjIncludeBodyInner::new(attributes, children))
+    }
 }
 
 #[cfg(test)]
@@ -100,13 +127,10 @@ mod tests {
 
     #[test]
     fn should_debug() {
-        let element = MjIncludeBody {
-            attributes: MjIncludeBodyAttributes {
-                path: "partial.mjml".to_string(),
-                kind: MjIncludeBodyKind::Mjml,
-            },
-            children: Vec::new(),
-        };
+        let element = MjIncludeBody::new(
+            MjIncludeBodyAttributes::new("partial.mjml").with_kind(MjIncludeBodyKind::Mjml),
+            Default::default(),
+        );
         let _ = format!("{element:?}");
     }
 }

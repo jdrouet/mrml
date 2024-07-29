@@ -8,16 +8,23 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
+use std::marker::PhantomData;
+
 pub use children::MjHeadChild;
+
+use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-head";
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjHead {
-    pub children: Vec<MjHeadChild>,
+pub struct MjHeadTag;
+
+impl StaticTag for MjHeadTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjHead = Component<PhantomData<MjHeadTag>, (), Vec<MjHeadChild>>;
 
 #[cfg(feature = "render")]
 impl MjHead {
@@ -28,9 +35,10 @@ impl MjHead {
                 item.as_mj_breakpoint().into_iter().chain(
                     item.as_mj_include()
                         .into_iter()
-                        .filter(|item| item.attributes.kind.is_mjml())
+                        .filter(|item| item.0.attributes.kind.is_mjml())
                         .flat_map(|inner| {
                             inner
+                                .0
                                 .children
                                 .iter()
                                 .filter_map(|child| child.as_mj_breakpoint())
@@ -47,9 +55,10 @@ impl MjHead {
                 item.as_mj_preview().into_iter().chain(
                     item.as_mj_include()
                         .into_iter()
-                        .filter(|item| item.attributes.kind.is_mjml())
+                        .filter(|item| item.0.attributes.kind.is_mjml())
                         .flat_map(|inner| {
                             inner
+                                .0
                                 .children
                                 .iter()
                                 .filter_map(|child| child.as_mj_preview())
@@ -66,9 +75,10 @@ impl MjHead {
                 item.as_mj_title().into_iter().chain(
                     item.as_mj_include()
                         .into_iter()
-                        .filter(|item| item.attributes.kind.is_mjml())
+                        .filter(|item| item.0.attributes.kind.is_mjml())
                         .flat_map(|inner| {
                             inner
+                                .0
                                 .children
                                 .iter()
                                 .filter_map(|child| child.as_mj_title())

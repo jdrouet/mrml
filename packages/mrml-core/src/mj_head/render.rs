@@ -47,7 +47,7 @@ impl MjHead {
                     .flat_map(|inner| inner.mj_attributes_all_iter())
                     .chain(
                         item.as_mj_include()
-                            .filter(|item| item.attributes.kind.is_mjml())
+                            .filter(|item| item.0.attributes.kind.is_mjml())
                             .into_iter()
                             .flat_map(|inner| inner.mj_attributes_all_iter()),
                     )
@@ -64,7 +64,7 @@ impl MjHead {
                     .flat_map(|inner| inner.mj_attributes_class_iter())
                     .chain(
                         item.as_mj_include()
-                            .filter(|item| item.attributes.kind.is_mjml())
+                            .filter(|item| item.0.attributes.kind.is_mjml())
                             .into_iter()
                             .flat_map(|inner| inner.mj_attributes_class_iter()),
                     )
@@ -81,7 +81,7 @@ impl MjHead {
                     .flat_map(|inner| inner.mj_attributes_element_iter())
                     .chain(
                         item.as_mj_include()
-                            .filter(|item| item.attributes.kind.is_mjml())
+                            .filter(|item| item.0.attributes.kind.is_mjml())
                             .into_iter()
                             .flat_map(|inner| inner.mj_attributes_element_iter()),
                     )
@@ -93,11 +93,14 @@ impl MjHead {
         self.children
             .iter()
             .flat_map(|item| {
-                item.as_mj_font().into_iter().chain(
-                    item.as_mj_include().into_iter().flat_map(|incl| {
-                        incl.children.iter().filter_map(|child| child.as_mj_font())
-                    }),
-                )
+                item.as_mj_font()
+                    .into_iter()
+                    .chain(item.as_mj_include().into_iter().flat_map(|incl| {
+                        incl.0
+                            .children
+                            .iter()
+                            .filter_map(|child| child.as_mj_font())
+                    }))
             })
             .map(|font| (font.name(), font.href()))
             .collect()
@@ -123,6 +126,7 @@ impl<'root> Renderer<'root, MjHead, ()> {
                 .into_iter()
                 .flat_map(|inner| {
                     inner
+                        .0
                         .children
                         .iter()
                         .filter_map(|child| child.as_mj_style())
@@ -131,9 +135,10 @@ impl<'root> Renderer<'root, MjHead, ()> {
                 .chain(
                     item.as_mj_include()
                         .into_iter()
-                        .filter(|child| child.attributes.kind.is_css(false))
+                        .filter(|child| child.0.attributes.kind.is_css(false))
                         .flat_map(|child| {
                             child
+                                .0
                                 .children
                                 .iter()
                                 .filter_map(|item| item.as_text())
@@ -250,7 +255,7 @@ impl<'root> Renderer<'root, MjHead, ()> {
                 renderer.render(cursor)?;
                 index += 1;
             } else if let Some(mj_include) = child.as_mj_include() {
-                for include_child in mj_include.children.iter() {
+                for include_child in mj_include.0.children.iter() {
                     if let Some(mj_raw) = include_child.as_mj_raw() {
                         let mut renderer = mj_raw.renderer(self.context());
                         renderer.set_index(index);
@@ -312,56 +317,55 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjHead {
 mod tests {
     use std::iter::FromIterator;
 
-    use crate::{
-        mj_attributes::{MjAttributes, MjAttributesChild},
-        mj_attributes_all::MjAttributesAll,
-        mj_attributes_class::MjAttributesClass,
-        mj_attributes_element::MjAttributesElement,
-        mj_font::MjFont,
-        mj_head::{MjHead, MjHeadChild},
-        mj_include::head::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild},
-        prelude::hash::Map,
-    };
+    use crate::mj_attributes::{MjAttributes, MjAttributesChild};
+    use crate::mj_attributes_all::MjAttributesAll;
+    use crate::mj_attributes_class::{MjAttributesClass, MjAttributesClassAttributes};
+    use crate::mj_attributes_element::MjAttributesElement;
+    use crate::mj_font::MjFont;
+    use crate::mj_head::{MjHead, MjHeadChild};
+    use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild};
+    use crate::prelude::hash::Map;
 
     crate::should_render!(attributes_basic, "mj-attributes");
     crate::should_render!(style_basic, "mj-style");
 
     #[test]
     fn should_keep_order_with_mj_include_attributes_all() {
-        let element = MjHead {
-            children: vec![
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
-                        attributes: Map::from_iter([(
-                            String::from("font-size"),
-                            String::from("42px"),
-                        )]),
-                    })],
-                }),
-                MjHeadChild::MjInclude(MjIncludeHead {
-                    attributes: MjIncludeHeadAttributes {
+        let element = MjHead::new(
+            (),
+            vec![
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                        Map::from_iter([(String::from("font-size"), String::from("42px"))]),
+                        (),
+                    ))],
+                )),
+                MjHeadChild::MjInclude(MjIncludeHead::new(
+                    MjIncludeHeadAttributes {
                         path: String::from("foo"),
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
-                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
-                        children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
-                            attributes: Map::from_iter([
+                    vec![MjIncludeHeadChild::MjAttributes(MjAttributes::new(
+                        (),
+                        vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                            Map::from_iter([
                                 (String::from("font-size"), String::from("21px")),
                                 (String::from("text-align"), String::from("center")),
                             ]),
-                        })],
-                    })],
-                }),
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesAll(MjAttributesAll {
-                        attributes: Map::from_iter([(
-                            String::from("text-align"),
-                            String::from("right"),
-                        )]),
-                    })],
-                }),
+                            (),
+                        ))],
+                    ))],
+                )),
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
+                        Map::from_iter([(String::from("text-align"), String::from("right"))]),
+                        (),
+                    ))],
+                )),
             ],
-        };
+        );
         assert_eq!(
             element.build_attributes_all().get("font-size"),
             Some("21px").as_ref()
@@ -374,52 +378,72 @@ mod tests {
 
     #[test]
     fn should_keep_order_with_mj_include_attributes_class() {
-        let element = MjHead {
-            children: vec![
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
-                        name: String::from("foo"),
-                        attributes: Map::from_iter([(
-                            String::from("font-size"),
-                            String::from("42px"),
-                        )]),
-                    })],
-                }),
-                MjHeadChild::MjInclude(MjIncludeHead {
-                    attributes: MjIncludeHeadAttributes {
+        let element = MjHead::new(
+            (),
+            vec![
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesClass(
+                        MjAttributesClass::new(
+                            MjAttributesClassAttributes {
+                                name: String::from("foo"),
+                                others: Map::from_iter([(
+                                    String::from("font-size"),
+                                    String::from("42px"),
+                                )]),
+                            },
+                            (),
+                        ),
+                    )],
+                )),
+                MjHeadChild::MjInclude(MjIncludeHead::new(
+                    MjIncludeHeadAttributes {
                         path: String::from("foo"),
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
-                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
-                        children: vec![
-                            MjAttributesChild::MjAttributesClass(MjAttributesClass {
-                                name: String::from("foo"),
-                                attributes: Map::from_iter([(
-                                    String::from("font-size"),
-                                    String::from("21px"),
-                                )]),
-                            }),
-                            MjAttributesChild::MjAttributesClass(MjAttributesClass {
-                                name: String::from("bar"),
-                                attributes: Map::from_iter([(
-                                    String::from("text-align"),
-                                    String::from("center"),
-                                )]),
-                            }),
+                    vec![MjIncludeHeadChild::MjAttributes(MjAttributes::new(
+                        (),
+                        vec![
+                            MjAttributesChild::MjAttributesClass(MjAttributesClass::new(
+                                MjAttributesClassAttributes {
+                                    name: String::from("foo"),
+                                    others: Map::from_iter([(
+                                        String::from("font-size"),
+                                        String::from("21px"),
+                                    )]),
+                                },
+                                (),
+                            )),
+                            MjAttributesChild::MjAttributesClass(MjAttributesClass::new(
+                                MjAttributesClassAttributes {
+                                    name: String::from("bar"),
+                                    others: Map::from_iter([(
+                                        String::from("text-align"),
+                                        String::from("center"),
+                                    )]),
+                                },
+                                (),
+                            )),
                         ],
-                    })],
-                }),
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesClass(MjAttributesClass {
-                        name: String::from("bar"),
-                        attributes: Map::from_iter([(
-                            String::from("text-align"),
-                            String::from("left"),
-                        )]),
-                    })],
-                }),
+                    ))],
+                )),
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesClass(
+                        MjAttributesClass::new(
+                            MjAttributesClassAttributes {
+                                name: String::from("bar"),
+                                others: Map::from_iter([(
+                                    String::from("text-align"),
+                                    String::from("left"),
+                                )]),
+                            },
+                            (),
+                        ),
+                    )],
+                )),
             ],
-        };
+        );
         let attributes = element.build_attributes_class();
         assert_eq!(
             attributes.get("foo").unwrap().get("font-size"),
@@ -433,10 +457,12 @@ mod tests {
 
     #[test]
     fn should_keep_order_with_mj_include_attributes_element() {
-        let element = MjHead {
-            children: vec![
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesElement(
+        let element = MjHead::new(
+            (),
+            vec![
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesElement(
                         MjAttributesElement {
                             name: String::from("mj-text"),
                             attributes: Map::from_iter([(
@@ -445,14 +471,15 @@ mod tests {
                             )]),
                         },
                     )],
-                }),
-                MjHeadChild::MjInclude(MjIncludeHead {
-                    attributes: MjIncludeHeadAttributes {
+                )),
+                MjHeadChild::MjInclude(MjIncludeHead::new(
+                    MjIncludeHeadAttributes {
                         path: String::from("foo"),
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
-                    children: vec![MjIncludeHeadChild::MjAttributes(MjAttributes {
-                        children: vec![MjAttributesChild::MjAttributesElement(
+                    vec![MjIncludeHeadChild::MjAttributes(MjAttributes::new(
+                        (),
+                        vec![MjAttributesChild::MjAttributesElement(
                             MjAttributesElement {
                                 name: String::from("mj-text"),
                                 attributes: Map::from_iter([
@@ -461,10 +488,11 @@ mod tests {
                                 ]),
                             },
                         )],
-                    })],
-                }),
-                MjHeadChild::MjAttributes(MjAttributes {
-                    children: vec![MjAttributesChild::MjAttributesElement(
+                    ))],
+                )),
+                MjHeadChild::MjAttributes(MjAttributes::new(
+                    (),
+                    vec![MjAttributesChild::MjAttributesElement(
                         MjAttributesElement {
                             name: String::from("mj-text"),
                             attributes: Map::from_iter([(
@@ -473,9 +501,9 @@ mod tests {
                             )]),
                         },
                     )],
-                }),
+                )),
             ],
-        };
+        );
         let attributes = element.build_attributes_element();
         assert_eq!(
             attributes.get("mj-text").unwrap().get("font-size"),
@@ -489,22 +517,23 @@ mod tests {
 
     #[test]
     fn should_keep_order_with_mj_font() {
-        let element = MjHead {
-            children: vec![
-                MjHeadChild::MjFont(MjFont::new("foo", "http://foo/root")),
-                MjHeadChild::MjInclude(MjIncludeHead {
-                    attributes: MjIncludeHeadAttributes {
+        let element = MjHead::new(
+            (),
+            vec![
+                MjHeadChild::MjFont(MjFont::build("foo", "http://foo/root")),
+                MjHeadChild::MjInclude(MjIncludeHead::new(
+                    MjIncludeHeadAttributes {
                         path: String::from("foo"),
                         kind: crate::mj_include::head::MjIncludeHeadKind::Mjml,
                     },
-                    children: vec![
-                        MjIncludeHeadChild::MjFont(MjFont::new("foo", "http://foo/include")),
-                        MjIncludeHeadChild::MjFont(MjFont::new("bar", "http://bar/include")),
+                    vec![
+                        MjIncludeHeadChild::MjFont(MjFont::build("foo", "http://foo/include")),
+                        MjIncludeHeadChild::MjFont(MjFont::build("bar", "http://bar/include")),
                     ],
-                }),
-                MjHeadChild::MjFont(MjFont::new("bar", "http://bar/root")),
+                )),
+                MjHeadChild::MjFont(MjFont::build("bar", "http://bar/root")),
             ],
-        };
+        );
         let fonts = element.build_font_families();
         assert_eq!(fonts.get("foo"), Some("http://foo/include").as_ref());
         assert_eq!(fonts.get("bar"), Some("http://bar/root").as_ref());

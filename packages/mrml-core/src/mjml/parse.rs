@@ -1,13 +1,12 @@
-use xmlparser::StrSpan;
-
 use super::{Mjml, MjmlAttributes, MjmlChildren};
+use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
+    ParserOptions,
 };
-use crate::{mj_body::NAME as MJ_BODY, prelude::parser::ParserOptions};
 
 #[inline]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
@@ -97,35 +96,6 @@ impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
                 }
             }
         }
-    }
-}
-
-impl<'opts> ParseElement<Mjml> for MrmlParser<'opts> {
-    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<Mjml, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
-
-        Ok(Mjml {
-            attributes,
-            children,
-        })
-    }
-}
-
-#[cfg(feature = "async")]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseElement<Mjml> for AsyncMrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
-    ) -> Result<Mjml, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
-
-        Ok(Mjml {
-            attributes,
-            children,
-        })
     }
 }
 

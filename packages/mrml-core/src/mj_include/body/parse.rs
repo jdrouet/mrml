@@ -263,10 +263,10 @@ impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
                 MjIncludeBodyKind::Html => {
                     let mut sub = cursor.new_child(child.as_str());
                     let children: Vec<MjBodyChild> = self.parse_children(&mut sub)?;
-                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper {
-                        attributes: Default::default(),
+                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
+                        Default::default(),
                         children,
-                    })]
+                    ))]
                 }
                 MjIncludeBodyKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());
@@ -277,10 +277,7 @@ impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
             children
         };
 
-        Ok(MjIncludeBody {
-            attributes,
-            children,
-        })
+        Ok(MjIncludeBody::new(attributes, children))
     }
 }
 
@@ -313,10 +310,10 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
                 MjIncludeBodyKind::Html => {
                     let mut sub = cursor.new_child(child.as_str());
                     let children: Vec<MjBodyChild> = self.async_parse_children(&mut sub).await?;
-                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper {
-                        attributes: Default::default(),
+                    vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
+                        Default::default(),
                         children,
-                    })]
+                    ))]
                 }
                 MjIncludeBodyKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());
@@ -327,10 +324,7 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
             children
         };
 
-        Ok(MjIncludeBody {
-            attributes,
-            children,
-        })
+        Ok(MjIncludeBody::new(attributes, children))
     }
 }
 
@@ -387,8 +381,8 @@ mod tests {
         let raw = r#"<mj-include path="basic.mjml" />"#;
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeBody = MrmlParser::new(&opts).parse_root(&mut cursor).unwrap();
-        assert_eq!(include.attributes.kind, MjIncludeBodyKind::Mjml);
-        let _content = include.children.first().unwrap();
+        assert_eq!(include.0.attributes.kind, MjIncludeBodyKind::Mjml);
+        let _content = include.0.children.first().unwrap();
     }
 
     #[cfg(feature = "async")]
@@ -407,8 +401,8 @@ mod tests {
             .parse_root(&mut cursor)
             .await
             .unwrap();
-        assert_eq!(include.attributes.kind, MjIncludeBodyKind::Mjml);
-        let _content = include.children.first().unwrap();
+        assert_eq!(include.0.attributes.kind, MjIncludeBodyKind::Mjml);
+        let _content = include.0.children.first().unwrap();
     }
 
     #[test]
@@ -420,8 +414,8 @@ mod tests {
         let raw = r#"<mj-include path="partial.html" type="html" />"#;
         let mut cursor = MrmlCursor::new(raw);
         let include: MjIncludeBody = MrmlParser::new(&opts).parse_root(&mut cursor).unwrap();
-        assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
-        let _content = include.children.first().unwrap();
+        assert_eq!(include.0.attributes.kind, MjIncludeBodyKind::Html);
+        let _content = include.0.children.first().unwrap();
     }
 
     #[cfg(feature = "async")]
@@ -439,8 +433,8 @@ mod tests {
             .parse_root(&mut cursor)
             .await
             .unwrap();
-        assert_eq!(include.attributes.kind, MjIncludeBodyKind::Html);
-        let _content = include.children.first().unwrap();
+        assert_eq!(include.0.attributes.kind, MjIncludeBodyKind::Html);
+        let _content = include.0.children.first().unwrap();
     }
 
     crate::should_parse!(

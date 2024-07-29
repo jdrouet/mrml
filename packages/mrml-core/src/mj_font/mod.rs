@@ -1,3 +1,7 @@
+use std::marker::PhantomData;
+
+use crate::prelude::{Component, StaticTag};
+
 #[cfg(feature = "json")]
 mod json;
 #[cfg(feature = "parse")]
@@ -7,29 +11,33 @@ mod print;
 
 pub const NAME: &str = "mj-font";
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 pub struct MjFontAttributes {
     pub name: String,
     pub href: String,
 }
 
-#[derive(Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct MjFont {
-    pub attributes: MjFontAttributes,
+pub struct MjFontTag;
+
+impl StaticTag for MjFontTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type MjFont = Component<PhantomData<MjFontTag>, MjFontAttributes, ()>;
 
 #[cfg(all(test, feature = "render"))]
 impl MjFont {
-    pub(crate) fn new<N: Into<String>, H: Into<String>>(name: N, href: H) -> Self {
-        Self {
-            attributes: MjFontAttributes {
+    pub(crate) fn build<N: Into<String>, H: Into<String>>(name: N, href: H) -> Self {
+        Self::new(
+            MjFontAttributes {
                 name: name.into(),
                 href: href.into(),
             },
-        }
+            (),
+        )
     }
 }
 

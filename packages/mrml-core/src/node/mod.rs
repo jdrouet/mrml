@@ -7,24 +7,7 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-#[derive(Debug)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag_field = "tag"))]
-pub struct Node<T> {
-    pub tag: String,
-    pub attributes: Map<String, String>,
-    pub children: Vec<T>,
-}
-
-impl<T> Default for Node<T> {
-    fn default() -> Self {
-        Self {
-            tag: Default::default(),
-            attributes: Default::default(),
-            children: Default::default(),
-        }
-    }
-}
+pub type Node<T> = crate::prelude::Component<String, Map<String, String>, Vec<T>>;
 
 impl<N: Into<String>, T> From<N> for Node<T> {
     fn from(tag: N) -> Self {

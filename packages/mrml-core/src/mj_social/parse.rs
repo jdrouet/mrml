@@ -1,6 +1,4 @@
-use xmlparser::StrSpan;
-
-use super::{MjSocial, MjSocialChild};
+use super::MjSocialChild;
 use crate::comment::Comment;
 use crate::mj_social_element::NAME as MJ_SOCIAL_ELEMENT;
 #[cfg(feature = "async")]
@@ -71,38 +69,9 @@ impl AsyncParseChildren<Vec<MjSocialChild>> for AsyncMrmlParser {
     }
 }
 
-impl<'opts> ParseElement<MjSocial> for MrmlParser<'opts> {
-    fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, _tag: StrSpan<'a>) -> Result<MjSocial, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
-
-        Ok(MjSocial {
-            attributes,
-            children,
-        })
-    }
-}
-
-#[cfg(feature = "async")]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseElement<MjSocial> for AsyncMrmlParser {
-    async fn async_parse<'a>(
-        &self,
-        cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
-    ) -> Result<MjSocial, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
-
-        Ok(MjSocial {
-            attributes,
-            children,
-        })
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::MjSocial;
+    use crate::mj_social::MjSocial;
 
     macro_rules! assert_success {
         ($title:ident, $template:expr) => {

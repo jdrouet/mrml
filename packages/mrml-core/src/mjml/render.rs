@@ -97,7 +97,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "orderedmap")]
     fn stable_output() {
         let source = "<mjml><mj-body><mj-section><mj-column><mj-text>hi</mj-text></mj-column></mj-section></mj-body></mjml>";
         let options = RenderOptions::default();
