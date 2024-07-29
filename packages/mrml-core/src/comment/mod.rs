@@ -9,14 +9,11 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-#[cfg(feature = "json")]
-const NAME: &str = "comment";
-
 pub struct CommentTag;
 
 impl StaticTag for CommentTag {
     fn static_tag() -> &'static str {
-        NAME
+        "comment"
     }
 }
 
