@@ -1,6 +1,8 @@
 use xmlparser::StrSpan;
 
 use super::MjHeadChild;
+use crate::comment::Comment;
+use crate::mj_attributes::NAME as MJ_ATTRIBUTES;
 use crate::mj_breakpoint::NAME as MJ_BREAKPOINT;
 use crate::mj_font::NAME as MJ_FONT;
 use crate::mj_include::NAME as MJ_INCLUDE;
@@ -13,7 +15,6 @@ use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElem
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
-use crate::{comment::Comment, mj_attributes::NAME as MJ_ATTRIBUTES};
 
 impl<'opts> ParseChildren<Vec<MjHeadChild>> for MrmlParser<'opts> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjHeadChild>, Error> {

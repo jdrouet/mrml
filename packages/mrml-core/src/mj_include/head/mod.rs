@@ -9,10 +9,9 @@ mod render;
 
 use std::marker::PhantomData;
 
-use crate::prelude::{Component, StaticTag};
-
 #[cfg(any(feature = "print", feature = "json"))]
 use super::NAME;
+use crate::prelude::{Component, StaticTag};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]

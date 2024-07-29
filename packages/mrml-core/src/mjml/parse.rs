@@ -1,11 +1,12 @@
 use super::{Mjml, MjmlAttributes, MjmlChildren};
+use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
+    ParserOptions,
 };
-use crate::{mj_body::NAME as MJ_BODY, prelude::parser::ParserOptions};
 
 #[inline]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {

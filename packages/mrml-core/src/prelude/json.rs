@@ -1,10 +1,11 @@
-use serde::{
-    de::{MapAccess, Unexpected},
-    ser::SerializeMap,
-};
-use std::{hash::Hash, marker::PhantomData};
+use std::hash::Hash;
+use std::marker::PhantomData;
 
-use super::{hash::Map, Component, StaticTag};
+use serde::de::{MapAccess, Unexpected};
+use serde::ser::SerializeMap;
+
+use super::hash::Map;
+use super::{Component, StaticTag};
 
 pub trait ComponentAttributes: serde::Serialize {
     fn has_attributes(&self) -> bool;

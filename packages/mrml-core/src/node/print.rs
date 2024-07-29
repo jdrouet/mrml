@@ -1,8 +1,6 @@
 use super::Node;
-use crate::prelude::{
-    is_void_element,
-    print::{Printable, PrintableAttributes, PrintableChildren, Printer},
-};
+use crate::prelude::is_void_element;
+use crate::prelude::print::{Printable, PrintableAttributes, PrintableChildren, Printer};
 
 impl<T: Printable> Printable for Node<T> {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result {

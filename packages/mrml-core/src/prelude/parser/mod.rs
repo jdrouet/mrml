@@ -1,5 +1,6 @@
+use std::convert::TryFrom;
 use std::fmt::Display;
-use std::{convert::TryFrom, marker::PhantomData};
+use std::marker::PhantomData;
 
 use xmlparser::{StrSpan, Token, Tokenizer};
 

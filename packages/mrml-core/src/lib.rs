@@ -50,7 +50,9 @@
 //!
 //! ## Using `mj-include` with an async loader
 //!
-//! If you want to use the async version to fetch the includes, you've to enable the `async` feature and the required loaders (`http-loader-async-reqwest` in this example).
+//! If you want to use the async version to fetch the includes, you've to enable
+//! the `async` feature and the required loaders (`http-loader-async-reqwest` in
+//! this example).
 //!
 //! ```rust
 //! # #[cfg(all(feature = "parse", feature = "render", feature = "async", feature = "local-loader", feature = "http-loader", feature = "http-loader-async-reqwest"))]
@@ -199,8 +201,9 @@ pub fn parse_with_options<T: AsRef<str>>(
 
 #[cfg(all(feature = "parse", feature = "async"))]
 /// Function to parse asynchronously a raw mjml template with some parsing
-/// [options](crate::prelude::parser::AsyncParserOptions). This function is just an
-/// alias to [the `Mjml::async_parse_with_options` function](crate::mjml::Mjml).
+/// [options](crate::prelude::parser::AsyncParserOptions). This function is just
+/// an alias to [the `Mjml::async_parse_with_options`
+/// function](crate::mjml::Mjml).
 ///
 /// You can specify the kind of loader mrml needs to use for loading the content
 /// of [`mj-include`](crate::mj_include) elements.

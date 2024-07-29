@@ -1,6 +1,5 @@
-use crate::prelude::json::ComponentAttributes;
-
 use super::MjBreakpointAttributes;
+use crate::prelude::json::ComponentAttributes;
 
 impl ComponentAttributes for MjBreakpointAttributes {
     fn has_attributes(&self) -> bool {

@@ -1,4 +1,5 @@
-use std::{borrow::Cow, fmt::Write};
+use std::borrow::Cow;
+use std::fmt::Write;
 
 use super::RenderBuffer;
 use crate::prelude::hash::{Map, Set};

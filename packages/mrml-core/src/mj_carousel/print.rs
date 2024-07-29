@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::{
-        mj_carousel::MjCarousel, mj_carousel_image::MjCarouselImage, prelude::print::Printable,
-    };
+    use crate::mj_carousel::MjCarousel;
+    use crate::mj_carousel_image::MjCarouselImage;
+    use crate::prelude::print::Printable;
 
     #[test]
     fn empty() {

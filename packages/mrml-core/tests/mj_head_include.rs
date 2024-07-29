@@ -2,13 +2,10 @@
 
 #[test]
 fn should_apply_head_includes() {
-    use mrml::{
-        parse_with_options,
-        prelude::{
-            parser::{memory_loader::MemoryIncludeLoader, ParserOptions},
-            render::RenderOptions,
-        },
-    };
+    use mrml::parse_with_options;
+    use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
+    use mrml::prelude::parser::ParserOptions;
+    use mrml::prelude::render::RenderOptions;
 
     let include = r#"<mj-attributes>
         <mj-all font-family="serif" />

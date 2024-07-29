@@ -5,13 +5,10 @@ pub const NAME: &str = "mj-include";
 
 #[cfg(all(test, feature = "parse", feature = "render"))]
 mod tests {
-    use crate::{
-        mjml::Mjml,
-        prelude::{
-            parser::{memory_loader::MemoryIncludeLoader, ParserOptions},
-            render::RenderOptions,
-        },
-    };
+    use crate::mjml::Mjml;
+    use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
+    use crate::prelude::parser::ParserOptions;
+    use crate::prelude::render::RenderOptions;
 
     #[test]
     fn should_render_css_in_include() {

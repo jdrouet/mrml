@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 
-use crate::prelude::{hash::Map, Component, StaticTag};
+use crate::prelude::hash::Map;
+use crate::prelude::{Component, StaticTag};
 
 #[cfg(feature = "json")]
 mod json;

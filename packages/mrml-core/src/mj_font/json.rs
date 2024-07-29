@@ -1,6 +1,5 @@
-use crate::prelude::json::ComponentAttributes;
-
 use super::MjFontAttributes;
+use crate::prelude::json::ComponentAttributes;
 
 impl MjFontAttributes {
     pub fn is_empty(&self) -> bool {

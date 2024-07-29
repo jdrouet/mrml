@@ -24,7 +24,8 @@ use std::marker::PhantomData;
 
 pub use children::MjAccordionChild;
 
-use crate::prelude::{hash::Map, Component, StaticTag};
+use crate::prelude::hash::Map;
+use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-accordion";
 

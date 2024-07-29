@@ -317,16 +317,14 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjHead {
 mod tests {
     use std::iter::FromIterator;
 
-    use crate::{
-        mj_attributes::{MjAttributes, MjAttributesChild},
-        mj_attributes_all::MjAttributesAll,
-        mj_attributes_class::{MjAttributesClass, MjAttributesClassAttributes},
-        mj_attributes_element::MjAttributesElement,
-        mj_font::MjFont,
-        mj_head::{MjHead, MjHeadChild},
-        mj_include::head::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild},
-        prelude::hash::Map,
-    };
+    use crate::mj_attributes::{MjAttributes, MjAttributesChild};
+    use crate::mj_attributes_all::MjAttributesAll;
+    use crate::mj_attributes_class::{MjAttributesClass, MjAttributesClassAttributes};
+    use crate::mj_attributes_element::MjAttributesElement;
+    use crate::mj_font::MjFont;
+    use crate::mj_head::{MjHead, MjHeadChild};
+    use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild};
+    use crate::prelude::hash::Map;
 
     crate::should_render!(attributes_basic, "mj-attributes");
     crate::should_render!(style_basic, "mj-style");

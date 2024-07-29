@@ -12,7 +12,8 @@ impl Printable for Text {
 
 #[cfg(test)]
 mod tests {
-    use crate::{prelude::print::Printable, text::Text};
+    use crate::prelude::print::Printable;
+    use crate::text::Text;
 
     #[test]
     fn empty() {

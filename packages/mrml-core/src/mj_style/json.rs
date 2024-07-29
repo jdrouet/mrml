@@ -1,6 +1,5 @@
-use crate::prelude::json::ComponentAttributes;
-
 use super::MjStyleAttributes;
+use crate::prelude::json::ComponentAttributes;
 
 impl ComponentAttributes for MjStyleAttributes {
     fn has_attributes(&self) -> bool {

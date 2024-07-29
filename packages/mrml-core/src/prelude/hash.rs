@@ -4,7 +4,6 @@ use std::ops::{Deref, DerefMut};
 
 use indexmap::{IndexMap, IndexSet};
 use rustc_hash::FxHasher;
-
 #[cfg(feature = "json")]
 use serde::{Deserialize, Serialize};
 

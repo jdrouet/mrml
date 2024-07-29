@@ -7,7 +7,8 @@ mod render;
 
 use std::marker::PhantomData;
 
-use crate::prelude::{hash::Map, Component, StaticTag};
+use crate::prelude::hash::Map;
+use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-carousel-image";
 

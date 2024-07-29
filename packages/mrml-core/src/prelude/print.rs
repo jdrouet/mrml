@@ -66,40 +66,34 @@ impl<T: StaticTag, A: PrintableAttributes, C: PrintableChildren> PrintableElemen
     }
 }
 
-use crate::mj_accordion::MjAccordionChild;
-use crate::mj_attributes::MjAttributesChild;
-use crate::mj_body::MjBodyChild;
-use crate::mj_carousel::MjCarouselChild;
-use crate::mj_head::MjHeadChild;
-use crate::mj_navbar::MjNavbarChild;
-use crate::mj_raw::MjRawChild;
-use crate::mj_social::MjSocialChild;
-
+use super::StaticTag;
 use crate::comment::Comment;
-use crate::mj_accordion::MjAccordion;
+use crate::mj_accordion::{MjAccordion, MjAccordionChild};
 use crate::mj_accordion_element::MjAccordionElement;
-use crate::mj_attributes::MjAttributes;
+use crate::mj_attributes::{MjAttributes, MjAttributesChild};
 use crate::mj_attributes_all::MjAttributesAll;
 use crate::mj_attributes_class::MjAttributesClass;
 use crate::mj_attributes_element::MjAttributesElement;
+use crate::mj_body::MjBodyChild;
 use crate::mj_breakpoint::MjBreakpoint;
 use crate::mj_button::MjButton;
-use crate::mj_carousel::MjCarousel;
+use crate::mj_carousel::{MjCarousel, MjCarouselChild};
 use crate::mj_carousel_image::MjCarouselImage;
 use crate::mj_column::MjColumn;
 use crate::mj_divider::MjDivider;
 use crate::mj_font::MjFont;
 use crate::mj_group::MjGroup;
+use crate::mj_head::MjHeadChild;
 use crate::mj_hero::MjHero;
 use crate::mj_image::MjImage;
 use crate::mj_include::body::MjIncludeBody;
 use crate::mj_include::head::MjIncludeHead;
-use crate::mj_navbar::MjNavbar;
+use crate::mj_navbar::{MjNavbar, MjNavbarChild};
 use crate::mj_navbar_link::MjNavbarLink;
 use crate::mj_preview::MjPreview;
-use crate::mj_raw::MjRaw;
+use crate::mj_raw::{MjRaw, MjRawChild};
 use crate::mj_section::MjSection;
-use crate::mj_social::MjSocial;
+use crate::mj_social::{MjSocial, MjSocialChild};
 use crate::mj_social_element::MjSocialElement;
 use crate::mj_spacer::MjSpacer;
 use crate::mj_style::MjStyle;
@@ -109,8 +103,6 @@ use crate::mj_title::MjTitle;
 use crate::mj_wrapper::MjWrapper;
 use crate::node::Node;
 use crate::text::Text;
-
-use super::StaticTag;
 
 #[enum_dispatch::enum_dispatch(
     MjAccordionChild,
