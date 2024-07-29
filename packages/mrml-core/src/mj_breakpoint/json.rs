@@ -1,7 +1,7 @@
 use super::MjBreakpointAttributes;
-use crate::prelude::json::ComponentAttributes;
+use crate::prelude::json::JsonAttributes;
 
-impl ComponentAttributes for MjBreakpointAttributes {
+impl JsonAttributes for MjBreakpointAttributes {
     fn has_attributes(&self) -> bool {
         !self.width.is_empty()
     }

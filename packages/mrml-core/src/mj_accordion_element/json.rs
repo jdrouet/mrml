@@ -7,7 +7,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use crate::comment::Comment;
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;
-use crate::prelude::json::ComponentChildren;
+use crate::prelude::json::JsonChildren;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
@@ -19,7 +19,7 @@ enum MjAccordionElementChild {
 
 use super::MjAccordionElementChildren;
 
-impl ComponentChildren for MjAccordionElementChildren {
+impl JsonChildren for MjAccordionElementChildren {
     fn has_children(&self) -> bool {
         self.title.is_some() || self.text.is_some()
     }

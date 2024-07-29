@@ -7,9 +7,9 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use super::MjmlChildren;
 use crate::mj_body::MjBody;
 use crate::mj_head::MjHead;
-use crate::prelude::json::{ComponentAttributes, ComponentChildren};
+use crate::prelude::json::{JsonAttributes, JsonChildren};
 
-impl ComponentAttributes for super::MjmlAttributes {
+impl JsonAttributes for super::MjmlAttributes {
     fn has_attributes(&self) -> bool {
         self.owa.is_some() || self.lang.is_some() || self.dir.is_some()
     }
@@ -29,7 +29,7 @@ pub enum MjmlChild {
     MjBody(MjBody),
 }
 
-impl ComponentChildren for MjmlChildren {
+impl JsonChildren for MjmlChildren {
     fn has_children(&self) -> bool {
         self.head.is_some() || self.body.is_some()
     }

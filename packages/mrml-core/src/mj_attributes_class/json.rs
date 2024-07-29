@@ -1,6 +1,6 @@
-use crate::prelude::json::ComponentAttributes;
+use crate::prelude::json::JsonAttributes;
 
-impl ComponentAttributes for super::MjAttributesClassAttributes {
+impl JsonAttributes for super::MjAttributesClassAttributes {
     fn has_attributes(&self) -> bool {
         true
     }

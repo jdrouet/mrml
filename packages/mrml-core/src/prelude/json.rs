@@ -7,14 +7,14 @@ use serde::ser::SerializeMap;
 use super::hash::Map;
 use super::{Component, StaticTag};
 
-pub trait ComponentAttributes: serde::Serialize {
+pub trait JsonAttributes: serde::Serialize {
     fn has_attributes(&self) -> bool;
     fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
     where
         Self: Sized;
 }
 
-impl ComponentAttributes for () {
+impl JsonAttributes for () {
     #[inline]
     fn has_attributes(&self) -> bool {
         false
@@ -28,7 +28,7 @@ impl ComponentAttributes for () {
     }
 }
 
-impl<K: Hash + Eq + Default + serde::Serialize, V: Default + serde::Serialize> ComponentAttributes
+impl<K: Hash + Eq + Default + serde::Serialize, V: Default + serde::Serialize> JsonAttributes
     for Map<K, V>
 {
     #[inline]
@@ -44,7 +44,7 @@ impl<K: Hash + Eq + Default + serde::Serialize, V: Default + serde::Serialize> C
     }
 }
 
-pub trait ComponentChildren: serde::Serialize {
+pub trait JsonChildren: serde::Serialize {
     fn has_children(&self) -> bool;
 
     fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
@@ -52,7 +52,7 @@ pub trait ComponentChildren: serde::Serialize {
         Self: Sized;
 }
 
-impl ComponentChildren for () {
+impl JsonChildren for () {
     #[inline]
     fn has_children(&self) -> bool {
         false
@@ -66,7 +66,7 @@ impl ComponentChildren for () {
     }
 }
 
-impl<V: serde::Serialize> ComponentChildren for Vec<V> {
+impl<V: serde::Serialize> JsonChildren for Vec<V> {
     #[inline]
     fn has_children(&self) -> bool {
         !self.is_empty()
@@ -80,7 +80,7 @@ impl<V: serde::Serialize> ComponentChildren for Vec<V> {
     }
 }
 
-impl ComponentChildren for String {
+impl JsonChildren for String {
     #[inline]
     fn has_children(&self) -> bool {
         !self.is_empty()
@@ -142,7 +142,7 @@ impl<Child: serde::Serialize> serde::Serialize
     }
 }
 
-impl<Tag: StaticTag, Attributes: ComponentAttributes, Children: ComponentChildren> serde::Serialize
+impl<Tag: StaticTag, Attributes: JsonAttributes, Children: JsonChildren> serde::Serialize
     for super::Component<PhantomData<Tag>, Attributes, Children>
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -181,8 +181,8 @@ impl<'de, Tag, Attributes, Children> serde::de::Deserialize<'de>
     for super::Component<Tag, Attributes, Children>
 where
     DeserializableTag<Tag>: serde::de::Deserialize<'de>,
-    Attributes: ComponentAttributes + serde::de::Deserialize<'de>,
-    Children: ComponentChildren + serde::de::Deserialize<'de>,
+    Attributes: JsonAttributes + serde::de::Deserialize<'de>,
+    Children: JsonChildren + serde::de::Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -204,8 +204,8 @@ impl<'de, Tag, Attributes, Children> serde::de::Visitor<'de>
     for ComponentAsMapVisitor<Tag, Attributes, Children>
 where
     DeserializableTag<Tag>: serde::de::Deserialize<'de>,
-    Attributes: ComponentAttributes + serde::de::Deserialize<'de>,
-    Children: ComponentChildren + serde::de::Deserialize<'de>,
+    Attributes: JsonAttributes + serde::de::Deserialize<'de>,
+    Children: JsonChildren + serde::de::Deserialize<'de>,
 {
     type Value = super::Component<Tag, Attributes, Children>;
 

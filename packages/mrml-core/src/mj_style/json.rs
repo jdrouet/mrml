@@ -1,7 +1,7 @@
 use super::MjStyleAttributes;
-use crate::prelude::json::ComponentAttributes;
+use crate::prelude::json::JsonAttributes;
 
-impl ComponentAttributes for MjStyleAttributes {
+impl JsonAttributes for MjStyleAttributes {
     fn has_attributes(&self) -> bool {
         self.inline.is_some()
     }
