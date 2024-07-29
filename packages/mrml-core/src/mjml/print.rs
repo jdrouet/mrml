@@ -70,10 +70,7 @@ mod tests {
                             ],
                         )
                         .into(),
-                        Comment {
-                            children: "Hello World!".into(),
-                        }
-                        .into(),
+                        Comment::new((), "Hello World!".into()).into(),
                     ],
                 )),
             },

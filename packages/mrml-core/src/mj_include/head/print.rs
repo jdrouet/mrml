@@ -8,7 +8,7 @@ impl PrintableElement for super::MjIncludeHead {
     }
 
     fn attributes(&self) -> &impl PrintableAttributes {
-        &self.attributes
+        &self.0.attributes
     }
 }
 
@@ -33,17 +33,20 @@ impl PrintableAttributes for super::MjIncludeHeadAttributes {
 
 #[cfg(test)]
 mod tests {
-    use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadChild, MjIncludeHeadKind};
+    use crate::mj_include::head::{
+        MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild, MjIncludeHeadKind,
+    };
     use crate::mj_title::MjTitle;
     use crate::prelude::print::Printable;
 
     #[test]
     fn simple() {
-        let mut elt = MjIncludeHead::default();
-        elt.attributes.path = "memory:include.mjml".to_string();
-        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from(
-            "Hello World!".to_owned(),
-        ))];
+        let elt = MjIncludeHead::new(
+            MjIncludeHeadAttributes::new("memory:include.mjml"),
+            vec![MjIncludeHeadChild::MjTitle(MjTitle::from(
+                "Hello World!".to_owned(),
+            ))],
+        );
         assert_eq!(
             elt.print_dense().unwrap(),
             "<mj-include path=\"memory:include.mjml\" />"
@@ -52,12 +55,12 @@ mod tests {
 
     #[test]
     fn html_kind() {
-        let mut elt = MjIncludeHead::default();
-        elt.attributes.kind = MjIncludeHeadKind::Html;
-        elt.attributes.path = "memory:include.html".to_string();
-        elt.children = vec![MjIncludeHeadChild::MjTitle(MjTitle::from(
-            "Hello World!".to_owned(),
-        ))];
+        let elt = MjIncludeHead::new(
+            MjIncludeHeadAttributes::new("memory:include.html").with_kind(MjIncludeHeadKind::Html),
+            vec![MjIncludeHeadChild::MjTitle(MjTitle::from(
+                "Hello World!".to_owned(),
+            ))],
+        );
         assert_eq!(
             elt.print_dense().unwrap(),
             "<mj-include path=\"memory:include.html\" type=\"html\" />"

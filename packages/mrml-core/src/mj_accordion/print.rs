@@ -19,9 +19,7 @@ mod tests {
         let item = MjAccordion::new(
             Default::default(),
             vec![
-                MjAccordionChild::Comment(Comment {
-                    children: "Hello World!".into(),
-                }),
+                MjAccordionChild::Comment(Comment::new((), "Hello World!".into())),
                 MjAccordionChild::MjAccordionElement(MjAccordionElement::new(
                     Default::default(),
                     MjAccordionElementChildren {

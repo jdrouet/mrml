@@ -1,3 +1,7 @@
+use std::marker::PhantomData;
+
+use crate::prelude::{Component, StaticTag};
+
 #[cfg(feature = "json")]
 mod json;
 #[cfg(feature = "print")]
@@ -8,17 +12,18 @@ mod render;
 #[cfg(feature = "json")]
 const NAME: &str = "comment";
 
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "json", derive(mrml_json_macros::MrmlJsonComponent))]
-#[cfg_attr(feature = "json", mrml_json(tag = "NAME"))]
-pub struct Comment {
-    pub children: String,
+pub struct CommentTag;
+
+impl StaticTag for CommentTag {
+    fn static_tag() -> &'static str {
+        NAME
+    }
 }
+
+pub type Comment = Component<PhantomData<CommentTag>, (), String>;
 
 impl<V: Into<String>> From<V> for Comment {
     fn from(value: V) -> Self {
-        Self {
-            children: value.into(),
-        }
+        Self::new((), value.into())
     }
 }

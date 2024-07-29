@@ -22,12 +22,7 @@ pub struct Component<Tag, Attributes, Children> {
     pub children: Children,
 }
 
-impl<
-        T: Clone + std::fmt::Debug + Default,
-        A: Clone + std::fmt::Debug + Default,
-        C: Clone + std::fmt::Debug + Default,
-    > Default for Component<T, A, C>
-{
+impl<T: Default, A: Default, C: Default> Default for Component<T, A, C> {
     fn default() -> Self {
         Self {
             tag: T::default(),

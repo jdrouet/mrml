@@ -35,9 +35,10 @@ impl MjHead {
                 item.as_mj_breakpoint().into_iter().chain(
                     item.as_mj_include()
                         .into_iter()
-                        .filter(|item| item.attributes.kind.is_mjml())
+                        .filter(|item| item.0.attributes.kind.is_mjml())
                         .flat_map(|inner| {
                             inner
+                                .0
                                 .children
                                 .iter()
                                 .filter_map(|child| child.as_mj_breakpoint())
@@ -54,9 +55,10 @@ impl MjHead {
                 item.as_mj_preview().into_iter().chain(
                     item.as_mj_include()
                         .into_iter()
-                        .filter(|item| item.attributes.kind.is_mjml())
+                        .filter(|item| item.0.attributes.kind.is_mjml())
                         .flat_map(|inner| {
                             inner
+                                .0
                                 .children
                                 .iter()
                                 .filter_map(|child| child.as_mj_preview())
@@ -73,9 +75,10 @@ impl MjHead {
                 item.as_mj_title().into_iter().chain(
                     item.as_mj_include()
                         .into_iter()
-                        .filter(|item| item.attributes.kind.is_mjml())
+                        .filter(|item| item.0.attributes.kind.is_mjml())
                         .flat_map(|inner| {
                             inner
+                                .0
                                 .children
                                 .iter()
                                 .filter_map(|child| child.as_mj_title())

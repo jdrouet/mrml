@@ -56,10 +56,10 @@ impl<'root> Render<'root> for Renderer<'root, MjIncludeBody, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        for (index, child) in self.element.children.iter().enumerate() {
+        for (index, child) in self.element.0.children.iter().enumerate() {
             let mut renderer = child.renderer(self.context());
             renderer.set_index(index);
-            renderer.set_siblings(self.element.children.len());
+            renderer.set_siblings(self.element.0.children.len());
             renderer.render(cursor)?;
         }
         Ok(())
@@ -79,7 +79,9 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjIncludeBody {
 mod tests {
     use crate::mj_body::MjBodyChild;
     use crate::mj_head::MjHead;
-    use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyChild, MjIncludeBodyKind};
+    use crate::mj_include::body::{
+        MjIncludeBody, MjIncludeBodyAttributes, MjIncludeBodyChild, MjIncludeBodyKind,
+    };
     use crate::mj_raw::{MjRaw, MjRawChild};
     use crate::mj_text::MjText;
     use crate::node::Node;
@@ -103,10 +105,10 @@ mod tests {
             let header = Header::new(mj_head.as_ref(), None);
             let context = RenderContext::new(&opts, header);
             let mut cursor = RenderCursor::default();
-            let mut elt = MjIncludeBody::default();
-            elt.attributes.path = "memory:foo.mjml".to_string();
-            elt.children
-                .push(MjIncludeBodyChild::MjText(MjText::default()));
+            let elt = MjIncludeBody::new(
+                MjIncludeBodyAttributes::new("memory:foo.mjml"),
+                vec![MjIncludeBodyChild::MjText(MjText::default())],
+            );
             let renderer = elt.renderer(&context);
             renderer.render(&mut cursor).unwrap();
             cursor.buffer.into()
@@ -143,10 +145,10 @@ mod tests {
             node.children
                 .push(MjBodyChild::Text(Text::from("Hello World!")));
 
-            let mut elt = MjIncludeBody::default();
-            elt.attributes.kind = MjIncludeBodyKind::Html;
-            elt.attributes.path = "memory:foo.html".to_string();
-            elt.children.push(MjIncludeBodyChild::Node(node));
+            let elt = MjIncludeBody::new(
+                MjIncludeBodyAttributes::new("memory:foo.html").with_kind(MjIncludeBodyKind::Html),
+                vec![MjIncludeBodyChild::Node(node)],
+            );
 
             let renderer = elt.renderer(&context);
             renderer.render(&mut cursor).unwrap();
