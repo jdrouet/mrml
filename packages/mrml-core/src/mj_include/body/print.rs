@@ -11,12 +11,19 @@ impl PrintableAttributes for super::MjIncludeBodyAttributes {
 }
 
 impl PrintableElement for super::MjIncludeBody {
+    type Attrs = super::MjIncludeBodyAttributes;
+    type Children = ();
+
     fn tag(&self) -> &str {
         super::NAME
     }
 
-    fn attributes(&self) -> &impl PrintableAttributes {
+    fn attributes(&self) -> &Self::Attrs {
         &self.0.attributes
+    }
+
+    fn children(&self) -> &Self::Children {
+        &()
     }
 }
 
