@@ -20,5 +20,8 @@ fn should_apply_head_includes() {
     let template = include_str!("resources/mj-head-include.mjml");
     let expected = include_str!("resources/mj-head-include.html");
     let root = parse_with_options(template, &parser_opts).unwrap();
-    html_compare::assert_similar(expected, root.render(&render_opts).unwrap().as_str());
+    html_compare::assert_similar(
+        expected,
+        root.element.render(&render_opts).unwrap().as_str(),
+    );
 }

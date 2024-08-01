@@ -4,7 +4,7 @@
 //! let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
 //! let root = mrml::parse(template).expect("parse template");
 //! let opts = mrml::prelude::render::Options::default();
-//! match root.render(&opts) {
+//! match root.element.render(&opts) {
 //!     Ok(content) => println!("{content}"),
 //!     Err(_) => println!("couldn't render mjml template"),
 //! };
