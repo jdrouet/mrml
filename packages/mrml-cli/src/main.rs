@@ -12,19 +12,13 @@ use mrml::prelude::parser::loader::IncludeLoader;
 use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
-use mrml::prelude::parser::{Error as ParserError, ParserOptions};
+use mrml::prelude::parser::{Error as ParserError, ParseOutput, ParserOptions};
 use mrml::prelude::print::Printable;
 use mrml::prelude::render::RenderOptions;
 
 fn format_parser_error(error: ParserError) -> String {
     let msg = match error {
         ParserError::EndOfStream => String::from("invalid format"),
-        ParserError::UnexpectedAttribute(token) => {
-            format!(
-                "unexpected attribute at position {}:{}",
-                token.start, token.end
-            )
-        }
         ParserError::UnexpectedElement(token) => {
             format!(
                 "unexpected element at position {}:{}",
@@ -151,7 +145,7 @@ impl Options {
         })
     }
 
-    fn parse_mjml(&self, input: &str) -> Result<Mjml, String> {
+    fn parse_mjml(&self, input: &str) -> Result<ParseOutput<Mjml>, String> {
         log::debug!("parsing mjml input");
         let options = ParserOptions {
             include_loader: self.include_loader()?,
@@ -159,17 +153,25 @@ impl Options {
         Mjml::parse_with_options(input, &options).map_err(format_parser_error)
     }
 
-    fn parse_input(&self, input: &str) -> Result<Mjml, String> {
+    fn parse_input(&self, input: String) -> Result<ParseOutput<Mjml>, String> {
         if let Some(ref filename) = self.input {
             if filename.ends_with(".json") {
-                self.parse_json(input)
+                self.parse_json(&input).map(|element| ParseOutput {
+                    element,
+                    warnings: Vec::new(),
+                })
             } else if filename.ends_with(".mjml") {
-                self.parse_mjml(input)
+                self.parse_mjml(&input)
             } else {
                 Err(format!("unable to detect file type for {filename:?}"))
             }
         } else {
-            self.parse_mjml(input).or_else(|_| self.parse_json(input))
+            self.parse_mjml(&input).or_else(|_| {
+                self.parse_json(&input).map(|element| ParseOutput {
+                    element,
+                    warnings: Vec::new(),
+                })
+            })
         }
     }
 
@@ -183,8 +185,9 @@ impl Options {
 
     pub fn execute(self) -> Result<(), String> {
         let root = self.read_input()?;
-        let root = self.parse_input(&root)?;
-        self.subcmd.execute(&root)
+        let root = self.parse_input(root)?;
+
+        self.subcmd.execute(root.element)
     }
 }
 
@@ -201,23 +204,23 @@ enum SubCommand {
 }
 
 impl SubCommand {
-    pub fn execute(self, root: &Mjml) -> Result<(), String> {
+    pub fn execute(self, root: ParseOutput<Mjml>) -> Result<(), String> {
         match self {
             Self::FormatJSON(opts) => {
                 log::debug!("format to json");
                 let output = if opts.pretty {
-                    serde_json::to_string_pretty(root).expect("couldn't format to JSON")
+                    serde_json::to_string_pretty(&root.element).expect("couldn't format to JSON")
                 } else {
-                    serde_json::to_string(root).expect("couldn't format to JSON")
+                    serde_json::to_string(&root.element).expect("couldn't format to JSON")
                 };
                 println!("{}", output);
             }
             Self::FormatMjml(opts) => {
                 log::debug!("format to mjml");
                 let output = if opts.pretty {
-                    root.print_pretty()
+                    root.element.print_pretty()
                 } else {
-                    root.print_dense()
+                    root.element.print_dense()
                 }
                 .expect("couldn't format mjml");
                 println!("{}", output);
@@ -225,10 +228,26 @@ impl SubCommand {
             Self::Render(render) => {
                 log::debug!("render");
                 let render_opts = RenderOptions::from(render);
-                let output = root.render(&render_opts).expect("couldn't render template");
+                let output = root
+                    .element
+                    .render(&render_opts)
+                    .expect("couldn't render template");
                 println!("{}", output);
             }
-            Self::Validate => log::debug!("validate"),
+            Self::Validate => {
+                log::debug!("validate");
+                for warning in root.warnings {
+                    match warning {
+                        mrml::prelude::parser::Warning::UnexpectedAttribute(span) => {
+                            log::warn!(
+                                "unexpected attribute at position {}..{}",
+                                span.start,
+                                span.end
+                            );
+                        }
+                    }
+                }
+            }
         };
         Ok(())
     }
@@ -279,10 +298,10 @@ mod tests {
         Options::parse_from(args).execute().unwrap()
     }
 
-    fn execute_stdin<const N: usize>(args: [&str; N], input: &str) {
+    fn execute_stdin<const N: usize, I: Into<String>>(args: [&str; N], input: I) {
         let opts = Options::parse_from(args);
-        let root = opts.parse_input(input).unwrap();
-        opts.subcmd.execute(&root).unwrap()
+        let root = opts.parse_input(input.into()).unwrap();
+        opts.subcmd.execute(root).unwrap()
     }
 
     #[test]
