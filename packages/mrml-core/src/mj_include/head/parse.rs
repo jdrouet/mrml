@@ -14,7 +14,8 @@ use crate::mj_title::NAME as MJ_TITLE;
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
-    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement, Warning,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
+    WarningKind,
 };
 use crate::text::Text;
 
@@ -97,7 +98,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeHeadAttribut
                 kind = Some(MjIncludeHeadKind::try_from(attr.value)?);
             }
             _ => {
-                cursor.add_warning(Warning::unexpected_attribute(attr.span));
+                cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
             }
         }
     }
@@ -222,7 +223,9 @@ impl<'opts> ParseElement<MjIncludeHead> for MrmlParser<'opts> {
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());
-                    self.parse_children(&mut sub)?
+                    let children = self.parse_children(&mut sub)?;
+                    cursor.with_warnings(sub.warnings());
+                    children
                 }
                 MjIncludeHeadKind::Html => todo!(),
             }
@@ -267,7 +270,9 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());
-                    self.async_parse_children(&mut sub).await?
+                    let children = self.async_parse_children(&mut sub).await?;
+                    cursor.with_warnings(sub.warnings());
+                    children
                 }
                 MjIncludeHeadKind::Html => unimplemented!(),
             }

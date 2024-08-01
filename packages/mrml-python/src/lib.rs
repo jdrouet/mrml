@@ -212,12 +212,10 @@ impl Warning {
 
 impl From<mrml::prelude::parser::Warning> for Warning {
     fn from(value: mrml::prelude::parser::Warning) -> Self {
-        match value {
-            mrml::prelude::parser::Warning::UnexpectedAttribute(span) => Self {
-                kind: "unexpected-attribute",
-                start: span.start,
-                end: span.end,
-            },
+        Self {
+            kind: value.kind.as_str(),
+            start: value.span.start,
+            end: value.span.end,
         }
     }
 }

@@ -1,7 +1,7 @@
 use super::MjBreakpointAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
-use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, Warning};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, WarningKind};
 
 #[inline]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpointAttributes, Error> {
@@ -10,7 +10,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpointAttribute
         if attr.local.as_str() == "width" {
             result.width = attr.value.to_string();
         } else {
-            cursor.add_warning(Warning::unexpected_attribute(attr.span));
+            cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
         }
     }
     Ok(result)

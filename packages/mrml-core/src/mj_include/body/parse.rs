@@ -24,7 +24,8 @@ use crate::mj_wrapper::{MjWrapper, NAME as MJ_WRAPPER};
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
-    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement, Warning,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
+    WarningKind,
 };
 use crate::text::Text;
 
@@ -144,7 +145,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeBodyAttribut
                 kind = Some(MjIncludeBodyKind::try_from(attr.value)?);
             }
             _ => {
-                cursor.add_warning(Warning::unexpected_attribute(attr.span));
+                cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
             }
         }
     }
@@ -263,6 +264,7 @@ impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
                 MjIncludeBodyKind::Html => {
                     let mut sub = cursor.new_child(child.as_str());
                     let children: Vec<MjBodyChild> = self.parse_children(&mut sub)?;
+                    cursor.with_warnings(sub.warnings());
                     vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
                         Default::default(),
                         children,
@@ -270,7 +272,9 @@ impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
                 }
                 MjIncludeBodyKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());
-                    self.parse_children(&mut sub)?
+                    let children = self.parse_children(&mut sub)?;
+                    cursor.with_warnings(sub.warnings());
+                    children
                 }
             }
         } else {
@@ -317,7 +321,9 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
                 }
                 MjIncludeBodyKind::Mjml => {
                     let mut sub = cursor.new_child(child.as_str());
-                    self.async_parse_children(&mut sub).await?
+                    let children = self.async_parse_children(&mut sub).await?;
+                    cursor.with_warnings(sub.warnings());
+                    children
                 }
             }
         } else {
@@ -336,7 +342,7 @@ mod tests {
 
     use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;
-    use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions};
+    use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions, WarningKind};
 
     #[test]
     fn kind_parser() {
@@ -484,4 +490,23 @@ mod tests {
         r#"<mj-include><!-- empty --></mj-include>"#,
         "MissingAttribute(\"path\", Span { start: 0, end: 0 })"
     );
+
+    #[test]
+    fn warnings_from_include_child() {
+        let resolver = MemoryIncludeLoader::from(vec![(
+            "partial.html",
+            "<mj-raw foo=\"bar\"><h1>Hello World!</h1></mj-raw>",
+        )]);
+        let opts = ParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let raw = r#"<mj-include path="partial.html" type="html" />"#;
+        let mut cursor = MrmlCursor::new(raw);
+        let include: MjIncludeBody = MrmlParser::new(&opts).parse_root(&mut cursor).unwrap();
+        assert_eq!(include.0.attributes.kind, MjIncludeBodyKind::Html);
+        let warnings = cursor.warnings();
+        assert_eq!(warnings.len(), 1);
+        let warning = warnings.first().unwrap();
+        assert_eq!(warning.kind, WarningKind::UnexpectedAttribute);
+    }
 }

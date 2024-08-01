@@ -187,7 +187,7 @@ impl Options {
         let root = self.read_input()?;
         let root = self.parse_input(root)?;
 
-        self.subcmd.execute(root.element)
+        self.subcmd.execute(root)
     }
 }
 
@@ -237,13 +237,9 @@ impl SubCommand {
             Self::Validate => {
                 log::debug!("validate");
                 for warning in root.warnings {
-                    match warning {
-                        mrml::prelude::parser::Warning::UnexpectedAttribute(span) => {
-                            log::warn!(
-                                "unexpected attribute at position {}..{}",
-                                span.start,
-                                span.end
-                            );
+                    match warning.kind {
+                        mrml::prelude::parser::WarningKind::UnexpectedAttribute => {
+                            log::warn!("unexpected attribute at position {}", warning.span);
                         }
                     }
                 }

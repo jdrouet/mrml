@@ -121,12 +121,10 @@ struct Warning {
 
 impl From<mrml::prelude::parser::Warning> for Warning {
     fn from(value: mrml::prelude::parser::Warning) -> Self {
-        match value {
-            mrml::prelude::parser::Warning::UnexpectedAttribute(span) => Warning {
-                code: "unexpected-attribute",
-                start: span.start,
-                end: span.end,
-            },
+        Warning {
+            code: value.kind.as_str(),
+            start: value.span.start,
+            end: value.span.end,
         }
     }
 }

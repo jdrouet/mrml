@@ -1,8 +1,6 @@
-use std::convert::TryFrom;
-use std::fmt::Display;
 use std::marker::PhantomData;
 
-use xmlparser::{StrSpan, Token, Tokenizer};
+use xmlparser::{StrSpan, Tokenizer};
 
 use self::loader::IncludeLoaderError;
 use super::hash::Map;
@@ -16,45 +14,11 @@ pub mod memory_loader;
 pub mod multi_loader;
 pub mod noop_loader;
 
-#[derive(Clone, Debug, Default)]
-pub struct Span {
-    pub start: usize,
-    pub end: usize,
-}
+mod output;
+mod token;
 
-impl Display for Span {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}..{}", self.start, self.end)
-    }
-}
-
-impl<'a> From<StrSpan<'a>> for Span {
-    fn from(value: StrSpan<'a>) -> Self {
-        Self {
-            start: value.start(),
-            end: value.end(),
-        }
-    }
-}
-
-impl<'a> From<Token<'a>> for Span {
-    fn from(value: Token<'a>) -> Self {
-        match value {
-            Token::Attribute { span, .. }
-            | Token::Cdata { span, .. }
-            | Token::Comment { span, .. }
-            | Token::Declaration { span, .. }
-            | Token::DtdEnd { span }
-            | Token::DtdStart { span, .. }
-            | Token::ElementEnd { span, .. }
-            | Token::ElementStart { span, .. }
-            | Token::EmptyDtd { span, .. }
-            | Token::EntityDeclaration { span, .. }
-            | Token::ProcessingInstruction { span, .. } => span.into(),
-            Token::Text { text } => text.into(),
-        }
-    }
-}
+pub use output::*;
+pub use token::*;
 
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
@@ -117,125 +81,6 @@ impl Default for AsyncParserOptions {
     }
 }
 
-#[derive(Debug)]
-pub(crate) enum MrmlToken<'a> {
-    Attribute(Attribute<'a>),
-    Comment(Comment<'a>),
-    ElementClose(ElementClose<'a>),
-    ElementEnd(ElementEnd<'a>),
-    ElementStart(ElementStart<'a>),
-    Text(Text<'a>),
-}
-
-impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
-    type Error = Error;
-
-    fn try_from(value: Token<'a>) -> Result<Self, Self::Error> {
-        match value {
-            Token::Attribute {
-                prefix,
-                local,
-                value,
-                span,
-            } => Ok(MrmlToken::Attribute(Attribute {
-                prefix,
-                local,
-                value,
-                span,
-            })),
-            Token::Comment { text, span } => Ok(MrmlToken::Comment(Comment { span, text })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Close(prefix, local),
-                span,
-            } => Ok(MrmlToken::ElementClose(ElementClose {
-                span,
-                prefix,
-                local,
-            })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Empty,
-                span,
-            } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: true })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Open,
-                span,
-            } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: false })),
-            Token::ElementStart {
-                prefix,
-                local,
-                span,
-            } => Ok(MrmlToken::ElementStart(ElementStart {
-                prefix,
-                local,
-                span,
-            })),
-            Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
-            other => Err(Error::UnexpectedToken(other.into())),
-        }
-    }
-}
-
-impl<'a> MrmlToken<'a> {
-    pub fn span(&self) -> Span {
-        match self {
-            Self::Attribute(item) => item.span,
-            Self::Comment(item) => item.span,
-            Self::ElementClose(item) => item.span,
-            Self::ElementEnd(item) => item.span,
-            Self::ElementStart(item) => item.span,
-            Self::Text(item) => item.text,
-        }
-        .into()
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct Attribute<'a> {
-    #[allow(unused)]
-    pub prefix: StrSpan<'a>,
-    pub local: StrSpan<'a>,
-    pub value: StrSpan<'a>,
-    pub span: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub(crate) struct Comment<'a> {
-    pub span: StrSpan<'a>,
-    pub text: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub(crate) struct ElementClose<'a> {
-    #[allow(unused)]
-    pub prefix: StrSpan<'a>,
-    pub local: StrSpan<'a>,
-    pub span: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub(crate) struct ElementStart<'a> {
-    #[allow(unused)]
-    pub prefix: StrSpan<'a>,
-    pub local: StrSpan<'a>,
-    pub span: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub(crate) struct ElementEnd<'a> {
-    pub span: StrSpan<'a>,
-    pub empty: bool,
-}
-
-#[derive(Debug)]
-pub(crate) struct Text<'a> {
-    pub text: StrSpan<'a>,
-}
-
-pub struct ParseOutput<E> {
-    pub element: E,
-    pub warnings: Vec<Warning>,
-}
-
 pub(crate) trait ParseElement<E> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<E, Error>;
 }
@@ -266,18 +111,6 @@ pub(crate) trait AsyncParseChildren<C> {
     async fn async_parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;
 }
 
-#[derive(Clone, Debug)]
-pub enum Warning {
-    UnexpectedAttribute(Span),
-}
-
-impl Warning {
-    #[inline(always)]
-    pub fn unexpected_attribute<S: Into<Span>>(span: S) -> Self {
-        Self::UnexpectedAttribute(span.into())
-    }
-}
-
 pub struct MrmlCursor<'a> {
     tokenizer: Tokenizer<'a>,
     buffer: Vec<MrmlToken<'a>>,
@@ -299,98 +132,6 @@ impl<'a> MrmlCursor<'a> {
             buffer: Default::default(),
             warnings: Default::default(),
         }
-    }
-
-    fn read_next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
-        self.tokenizer
-            .next()
-            .map(|res| res.map_err(Error::from).and_then(MrmlToken::try_from))
-            .and_then(|token| match token {
-                Ok(MrmlToken::Text(inner))
-                    if inner.text.starts_with('\n') && inner.text.trim().is_empty() =>
-                {
-                    self.read_next_token()
-                }
-                other => Some(other),
-            })
-    }
-
-    pub(crate) fn next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
-        if let Some(item) = self.buffer.pop() {
-            Some(Ok(item))
-        } else {
-            self.read_next_token()
-        }
-    }
-
-    pub(crate) fn rewind(&mut self, token: MrmlToken<'a>) {
-        self.buffer.push(token);
-    }
-
-    pub(crate) fn assert_next(&mut self) -> Result<MrmlToken<'a>, Error> {
-        self.next_token().unwrap_or_else(|| Err(Error::EndOfStream))
-    }
-
-    pub(crate) fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::Attribute(inner))) => Ok(Some(inner)),
-            Some(Ok(other)) => {
-                self.rewind(other);
-                Ok(None)
-            }
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn assert_element_start(&mut self) -> Result<ElementStart<'a>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::ElementStart(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn assert_element_close(&mut self) -> Result<ElementClose<'a>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::ElementClose(inner))) => Ok(inner),
-            Some(Ok(MrmlToken::Text(inner))) if inner.text.trim().is_empty() => {
-                self.assert_element_close()
-            }
-            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn next_text(&mut self) -> Result<Option<Text<'a>>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::Text(inner))) => Ok(Some(inner)),
-            Some(Ok(other)) => {
-                self.rewind(other);
-                Ok(None)
-            }
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn add_warning(&mut self, warning: Warning) {
-        self.warnings.push(warning);
-    }
-
-    pub(crate) fn warnings(self) -> Vec<Warning> {
-        self.warnings
     }
 }
 
@@ -541,7 +282,7 @@ pub(crate) fn parse_attributes_map(
 
 pub(crate) fn parse_attributes_empty(cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
     if let Some(attr) = cursor.next_attribute()? {
-        cursor.add_warning(Warning::unexpected_attribute(attr.span));
+        cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
     }
     Ok(())
 }
