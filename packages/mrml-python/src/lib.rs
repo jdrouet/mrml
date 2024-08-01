@@ -193,23 +193,65 @@ impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
     }
 }
 
+#[pyclass]
+#[derive(Clone, Debug, Default)]
+pub struct Warning {
+    #[pyo3(get)]
+    pub kind: &'static str,
+    #[pyo3(get)]
+    pub start: usize,
+    #[pyo3(get)]
+    pub end: usize,
+}
+
+impl Warning {
+    fn from_vec(input: Vec<mrml::prelude::parser::Warning>) -> Vec<Self> {
+        input.into_iter().map(Self::from).collect()
+    }
+}
+
+impl From<mrml::prelude::parser::Warning> for Warning {
+    fn from(value: mrml::prelude::parser::Warning) -> Self {
+        match value {
+            mrml::prelude::parser::Warning::UnexpectedAttribute(span) => Self {
+                kind: "unexpected-attribute",
+                start: span.start,
+                end: span.end,
+            },
+        }
+    }
+}
+
+#[pyclass]
+#[derive(Clone, Debug, Default)]
+pub struct Output {
+    #[pyo3(get)]
+    pub content: String,
+    #[pyo3(get)]
+    pub warnings: Vec<Warning>,
+}
+
 #[pyfunction]
 #[pyo3(name = "to_html", signature = (input, parser_options=None, render_options=None))]
 fn to_html(
     input: String,
     parser_options: Option<ParserOptions>,
     render_options: Option<RenderOptions>,
-) -> PyResult<String> {
+) -> PyResult<Output> {
     let parser_options = parser_options.unwrap_or_default().into();
     let parsed = mrml::parse_with_options(input, &parser_options)
         .map_err(|err| PyOSError::new_err(err.to_string()))?;
 
     let render_options = render_options.unwrap_or_default().into();
-    let output = parsed
+    let content = parsed
+        .element
         .render(&render_options)
         .map_err(|err| PyOSError::new_err(err.to_string()))?;
 
-    Ok(output)
+    Ok(Output {
+        content,
+        warnings: Warning::from_vec(parsed.warnings),
+    })
 }
 
 #[pymodule]
@@ -222,6 +264,8 @@ fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<HttpIncludeLoaderOptionsMode>()?;
     m.add_class::<ParserOptions>()?;
     m.add_class::<RenderOptions>()?;
+    m.add_class::<Output>()?;
+    m.add_class::<Warning>()?;
     m.add_function(wrap_pyfunction!(to_html, m)?)?;
     m.add_function(wrap_pyfunction!(noop_loader, m)?)?;
     m.add_function(wrap_pyfunction!(local_loader, m)?)?;
