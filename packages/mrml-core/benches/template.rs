@@ -4,7 +4,7 @@ use mrml::prelude::render::RenderOptions;
 fn render(input: &str) {
     let opts = RenderOptions::default();
     let root = mrml::mjml::Mjml::parse(input).unwrap();
-    root.render(&opts).unwrap();
+    root.element.render(&opts).unwrap();
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
