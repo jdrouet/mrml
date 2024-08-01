@@ -21,10 +21,10 @@ fn to_html(
     input: &str,
     parser_options: &mrml::prelude::parser::ParserOptions,
     render_options: &mrml::prelude::render::RenderOptions,
-) -> Result<String, ToHtmlError> {
+) -> Result<(String, Vec<Warning>), ToHtmlError> {
     let element = mrml::parse_with_options(input, parser_options)?;
-    let html = element.render(render_options)?;
-    Ok(html)
+    let html = element.element.render(render_options)?;
+    Ok((html, Warning::from_vec(element.warnings)))
 }
 
 #[cfg(feature = "async")]
@@ -33,10 +33,10 @@ async fn to_html_async(
     input: &str,
     parser_options: std::sync::Arc<mrml::prelude::parser::AsyncParserOptions>,
     render_options: &mrml::prelude::render::RenderOptions,
-) -> Result<String, ToHtmlError> {
+) -> Result<(String, Vec<Warning>), ToHtmlError> {
     let element = mrml::async_parse_with_options(input, parser_options).await?;
-    let html = element.render(render_options)?;
-    Ok(html)
+    let html = element.element.render(render_options)?;
+    Ok((html, Warning::from_vec(element.warnings)))
 }
 
 #[derive(Debug, Default)]
@@ -80,7 +80,7 @@ impl Engine {
     #[wasm_bindgen(js_name = "toHtml")]
     pub fn to_html(&self, input: &str) -> ToHtmlResult {
         match to_html(input, &self.parser, &self.render) {
-            Ok(content) => ToHtmlResult::Success { content },
+            Ok((content, warnings)) => ToHtmlResult::Success { content, warnings },
             Err(error) => ToHtmlResult::Error(error),
         }
     }
@@ -90,8 +90,42 @@ impl Engine {
     #[wasm_bindgen(js_name = "toHtmlAsync")]
     pub async fn to_html_async(&self, input: &str) -> ToHtmlResult {
         match to_html_async(input, self.async_parser.clone(), &self.render).await {
-            Ok(content) => ToHtmlResult::Success { content },
+            Ok((content, warnings)) => ToHtmlResult::Success { content, warnings },
             Err(error) => ToHtmlResult::Error(error),
+        }
+    }
+}
+
+#[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
+#[tsify(into_wasm_abi)]
+pub struct Span {
+    start: usize,
+    end: usize,
+}
+
+#[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
+#[serde(rename_all = "kebab-case", tag = "type")]
+#[tsify(into_wasm_abi)]
+pub enum Warning {
+    UnexpectedAttributes(Span),
+}
+
+impl Warning {
+    #[inline]
+    fn from_vec(list: Vec<mrml::prelude::parser::Warning>) -> Vec<Warning> {
+        list.into_iter().map(Warning::from).collect()
+    }
+}
+
+impl From<mrml::prelude::parser::Warning> for Warning {
+    fn from(value: mrml::prelude::parser::Warning) -> Self {
+        match value {
+            mrml::prelude::parser::Warning::UnexpectedAttribute(span) => {
+                Self::UnexpectedAttributes(Span {
+                    start: span.start,
+                    end: span.end,
+                })
+            }
         }
     }
 }
@@ -124,14 +158,17 @@ impl From<mrml::prelude::render::Error> for ToHtmlError {
 #[serde(rename_all = "camelCase", tag = "type")]
 #[tsify(into_wasm_abi)]
 pub enum ToHtmlResult {
-    Success { content: String },
+    Success {
+        content: String,
+        warnings: Vec<Warning>,
+    },
     Error(ToHtmlError),
 }
 
 impl ToHtmlResult {
     pub fn into_success(self) -> String {
         match self {
-            Self::Success { content } => content,
+            Self::Success { content, .. } => content,
             Self::Error(inner) => panic!("unexpected error {:?}", inner),
         }
     }

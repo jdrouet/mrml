@@ -2,14 +2,16 @@ const assert = require("assert");
 const { Engine } = require("mrml-wasm/nodejs/mrml_wasm");
 const { describe, it } = require("node:test");
 
-describe('mrml-wasm in node', function () {
-  it('should render to html', function () {
+describe("mrml-wasm in node", function () {
+  it("should render to html", function () {
     const engine = new Engine();
-    const result = engine.toHtml("<mjml><mj-body><mj-text>Hello world</mj-text></mj-body></mjml>");
-    assert.equal(result.type, 'success');
+    const result = engine.toHtml(
+      "<mjml><mj-body><mj-text>Hello world</mj-text></mj-body></mjml>",
+    );
+    assert.equal(result.type, "success");
   });
 
-  it('should disable the comments', function () {
+  it("should disable the comments", function () {
     const engine = new Engine();
     engine.setRenderOptions({
       disableComments: true,
@@ -22,11 +24,12 @@ describe('mrml-wasm in node', function () {
     <!-- Goodbye -->
   </mj-body>
 </mjml>`);
-    assert.equal(result.type, 'success');
+    assert.equal(result.type, "success");
     assert.doesNotMatch(result.content, /Goodbye/);
+    assert.equal(result.warnings.length, 0);
   });
 
-  it('should use noop include loader by default', function () {
+  it("should use noop include loader by default", function () {
     const engine = new Engine();
     engine.setRenderOptions({
       disableComments: true,
@@ -37,16 +40,16 @@ describe('mrml-wasm in node', function () {
   <mj-include path="./header.mjml" />
 </mj-body>
 </mjml>`);
-    assert.equal(result.type, 'error');
+    assert.equal(result.type, "error");
   });
 
-  it('should use memory include loader', function () {
+  it("should use memory include loader", function () {
     const engine = new Engine();
     engine.setParserOptions({
       includeLoader: {
-        type: 'memory',
+        type: "memory",
         content: {
-          './header.mjml': '<mj-text>Hello World</mj-text>',
+          "./header.mjml": "<mj-text>Hello World</mj-text>",
         },
       },
     });
@@ -59,15 +62,16 @@ describe('mrml-wasm in node', function () {
   <mj-include path="./header.mjml" />
 </mj-body>
 </mjml>`);
-    assert.equal(result.type, 'success');
+    assert.equal(result.type, "success");
     assert.match(result.content, /Hello/);
+    assert.equal(result.warnings.length, 0);
   });
 
-  it('should use network include loader', async function () {
+  it("should use network include loader", async function () {
     const engine = new Engine();
     engine.setAsyncParserOptions({
       includeLoader: {
-        type: 'reqwest',
+        type: "reqwest",
         headers: {},
       },
     });
@@ -80,7 +84,8 @@ describe('mrml-wasm in node', function () {
   <mj-include path="https://gist.githubusercontent.com/jdrouet/b0ac80fa08a3e7262bd4c94fc8865a87/raw/ec8771f4804a6c38427ed2a9f5937e11ec2b8c27/hello-world.mjml" />
 </mj-body>
 </mjml>`);
-    assert.equal(result.type, 'success');
+    assert.equal(result.type, "success");
     assert.match(result.content, /Hello World/);
+    assert.equal(result.warnings.length, 0);
   });
 });
