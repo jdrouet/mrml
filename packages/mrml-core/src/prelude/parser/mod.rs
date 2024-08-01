@@ -41,7 +41,7 @@ pub enum Error {
     UnexpectedElement(Origin, Span),
     #[error("unexpected token in {0} at position {1}")]
     UnexpectedToken(Origin, Span),
-    #[error("missing attribute {0} in element in {0} at position {1}")]
+    #[error("missing attribute {0} in element in {1} at position {2}")]
     MissingAttribute(&'static str, Origin, Span),
     #[error("invalid attribute in {0} at position {1}")]
     InvalidAttribute(Origin, Span),
@@ -50,15 +50,15 @@ pub enum Error {
     #[error("unexpected end of stream in {0}")]
     EndOfStream(Origin),
     /// The input string should be smaller than 4GiB.
-    #[error("size limit reached with {0}")]
+    #[error("size limit reached in {0}")]
     SizeLimit(Origin),
     /// Errors detected by the `xmlparser` crate.
     #[error("unable to load included template")]
     ParserError(#[from] xmlparser::Error),
     /// The Mjml document must have at least one element.
-    #[error("no root node found")]
+    #[error("unable to find mjml element")]
     NoRootNode,
-    #[error("unable to load included template")]
+    #[error("unable to load included template in {origin} at position {position}: {source}")]
     IncludeLoaderError {
         origin: Origin,
         position: Span,

@@ -17,43 +17,7 @@ use mrml::prelude::print::Printable;
 use mrml::prelude::render::RenderOptions;
 
 fn format_parser_error(error: ParserError) -> String {
-    let msg = match error {
-        ParserError::EndOfStream => String::from("invalid format"),
-        ParserError::UnexpectedElement(token) => {
-            format!(
-                "unexpected element at position {}:{}",
-                token.start, token.end
-            )
-        }
-        ParserError::UnexpectedToken(token) => {
-            format!("unexpected token at position {}:{}", token.start, token.end)
-        }
-        ParserError::InvalidAttribute(token) => {
-            format!(
-                "invalid attribute at position {}:{}",
-                token.start, token.end
-            )
-        }
-        ParserError::InvalidFormat(token) => {
-            format!("invalid format at position {}:{}", token.start, token.end)
-        }
-        ParserError::IncludeLoaderError { position, source } => {
-            format!(
-                "something when wront when loading include at position {}:{}: {source:?}",
-                position.start, position.end
-            )
-        }
-        ParserError::MissingAttribute(name, span) => format!(
-            "missing attribute {name:?} at position {}:{}",
-            span.start, span.end
-        ),
-        ParserError::SizeLimit => String::from("reached the max size limit"),
-        ParserError::NoRootNode => {
-            String::from("couldn't parse document: couldn't find mjml element")
-        }
-        ParserError::ParserError(inner) => format!("something went wront while parsing {inner}"),
-    };
-    format!("couldn't parse document: {msg}")
+    format!("couldn't parse document: {error}")
 }
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
@@ -285,6 +249,149 @@ mod tests {
     use clap::Parser;
 
     use super::Options;
+    use mrml::prelude::parser::{loader::IncludeLoaderError, Error as ParserError, Origin, Span};
+
+    fn origin_include() -> Origin {
+        Origin::Include {
+            path: String::from("foo.mjml"),
+        }
+    }
+
+    const fn any_span() -> Span {
+        Span { start: 10, end: 20 }
+    }
+
+    #[test]
+    fn format_parser_error_end_of_stream_in_root() {
+        assert_eq!(
+            ParserError::EndOfStream(Origin::Root).to_string(),
+            "unexpected end of stream in root template"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_end_of_stream_in_include() {
+        assert_eq!(
+            ParserError::EndOfStream(origin_include()).to_string(),
+            "unexpected end of stream in template from \"foo.mjml\""
+        );
+    }
+
+    #[test]
+    fn format_parser_error_unexpected_element_in_root() {
+        assert_eq!(
+            ParserError::UnexpectedElement(Origin::Root, any_span()).to_string(),
+            "unexpected element in root template at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_unexpected_element_in_include() {
+        assert_eq!(
+            ParserError::UnexpectedElement(origin_include(), any_span()).to_string(),
+            "unexpected element in template from \"foo.mjml\" at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_invalid_attribute_in_root() {
+        assert_eq!(
+            ParserError::InvalidAttribute(Origin::Root, any_span()).to_string(),
+            "invalid attribute in root template at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_invalid_attribute_in_include() {
+        assert_eq!(
+            ParserError::InvalidAttribute(origin_include(), any_span()).to_string(),
+            "invalid attribute in template from \"foo.mjml\" at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_invalid_format_in_root() {
+        assert_eq!(
+            ParserError::InvalidFormat(Origin::Root, any_span()).to_string(),
+            "invalid format in root template at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_invalid_format_in_include() {
+        assert_eq!(
+            ParserError::InvalidFormat(origin_include(), any_span()).to_string(),
+            "invalid format in template from \"foo.mjml\" at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_include_loader_error_in_root() {
+        assert_eq!(
+            ParserError::IncludeLoaderError {
+                origin: Origin::Root,
+                position: any_span(),
+                source: IncludeLoaderError {
+                    path: String::from("foo.mjml"),
+                    reason: std::io::ErrorKind::NotFound,
+                    message: None,
+                    cause: None,
+                }
+            }
+            .to_string(),
+            "unable to load included template in root template at position 10..20: foo.mjml entity not found"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_include_loader_error_in_include() {
+        assert_eq!(
+            ParserError::IncludeLoaderError {
+                origin: Origin::Root,
+                position: any_span(),
+                source: IncludeLoaderError {
+                    path: String::from("foo.mjml"),
+                    reason: std::io::ErrorKind::NotFound,
+                    message: None,
+                    cause: None,
+                }
+            }
+            .to_string(),
+            "unable to load included template in root template at position 10..20: foo.mjml entity not found"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_missing_attribute_in_root() {
+        assert_eq!(
+            ParserError::MissingAttribute("name", Origin::Root, any_span()).to_string(),
+            "missing attribute name in element in root template at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_missing_attribute_in_include() {
+        assert_eq!(
+            ParserError::MissingAttribute("name", origin_include(), any_span()).to_string(),
+            "missing attribute name in element in template from \"foo.mjml\" at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_size_limit_in_root() {
+        assert_eq!(
+            ParserError::SizeLimit(Origin::Root).to_string(),
+            "size limit reached in root template"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_size_limit_in_include() {
+        assert_eq!(
+            ParserError::SizeLimit(origin_include()).to_string(),
+            "size limit reached in template from \"foo.mjml\""
+        );
+    }
 
     fn execute<const N: usize>(args: [&str; N]) {
         Options::parse_from(args).execute().unwrap()

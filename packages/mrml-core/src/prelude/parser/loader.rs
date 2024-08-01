@@ -44,13 +44,9 @@ impl IncludeLoaderError {
 impl std::fmt::Display for IncludeLoaderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(msg) = self.message {
-            write!(
-                f,
-                "Unable to load template {}: {} ({})",
-                self.path, msg, self.reason
-            )
+            write!(f, "{} {} ({msg})", self.path, self.reason)
         } else {
-            write!(f, "Unable to load template {}: {}", self.path, self.reason)
+            write!(f, "{} {}", self.path, self.reason)
         }
     }
 }
