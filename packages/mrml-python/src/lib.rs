@@ -196,6 +196,8 @@ impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
 #[pyclass]
 #[derive(Clone, Debug, Default)]
 pub struct Warning {
+    #[pyo3(get, set)]
+    pub origin: Option<String>,
     #[pyo3(get)]
     pub kind: &'static str,
     #[pyo3(get)]
@@ -213,6 +215,10 @@ impl Warning {
 impl From<mrml::prelude::parser::Warning> for Warning {
     fn from(value: mrml::prelude::parser::Warning) -> Self {
         Self {
+            origin: match value.origin {
+                mrml::prelude::parser::Origin::Root => None,
+                mrml::prelude::parser::Origin::Include { path } => Some(path),
+            },
             kind: value.kind.as_str(),
             start: value.span.start,
             end: value.span.end,

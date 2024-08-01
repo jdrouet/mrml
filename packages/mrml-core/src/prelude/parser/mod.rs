@@ -20,6 +20,21 @@ mod token;
 pub use output::*;
 pub use token::*;
 
+#[derive(Clone, Debug)]
+pub enum Origin {
+    Root,
+    Include { path: String },
+}
+
+impl std::fmt::Display for Origin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Root => write!(f, "root template"),
+            Self::Include { path } => write!(f, "template from {path:?}"),
+        }
+    }
+}
+
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
     #[error("unexpected element at position {0}")]
@@ -114,6 +129,7 @@ pub(crate) trait AsyncParseChildren<C> {
 pub struct MrmlCursor<'a> {
     tokenizer: Tokenizer<'a>,
     buffer: Vec<MrmlToken<'a>>,
+    origin: Origin,
     warnings: Vec<Warning>,
 }
 
@@ -122,14 +138,22 @@ impl<'a> MrmlCursor<'a> {
         Self {
             tokenizer: Tokenizer::from(source),
             buffer: Default::default(),
+            origin: Origin::Root,
             warnings: Default::default(),
         }
     }
 
-    pub(crate) fn new_child<'b>(&self, source: &'b str) -> MrmlCursor<'b> {
+    pub(crate) fn new_child<'b, O: Into<String>>(
+        &self,
+        origin: O,
+        source: &'b str,
+    ) -> MrmlCursor<'b> {
         MrmlCursor {
             tokenizer: Tokenizer::from(source),
             buffer: Default::default(),
+            origin: Origin::Include {
+                path: origin.into(),
+            },
             warnings: Default::default(),
         }
     }

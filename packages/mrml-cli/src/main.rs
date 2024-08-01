@@ -237,11 +237,7 @@ impl SubCommand {
             Self::Validate => {
                 log::debug!("validate");
                 for warning in root.warnings {
-                    match warning.kind {
-                        mrml::prelude::parser::WarningKind::UnexpectedAttribute => {
-                            log::warn!("unexpected attribute at position {}", warning.span);
-                        }
-                    }
+                    log::warn!("{warning}");
                 }
             }
         };

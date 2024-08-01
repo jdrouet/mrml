@@ -227,7 +227,7 @@ impl<'opts> ParseElement<MjIncludeHead> for MrmlParser<'opts> {
                 }
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => {
-                    let mut sub = cursor.new_child(child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
                     let children = self.parse_children(&mut sub)?;
                     cursor.with_warnings(sub.warnings());
                     children
@@ -274,7 +274,7 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
                 }
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => {
-                    let mut sub = cursor.new_child(child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
                     let children = self.async_parse_children(&mut sub).await?;
                     cursor.with_warnings(sub.warnings());
                     children

@@ -267,7 +267,7 @@ impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
                 })?;
             match attributes.kind {
                 MjIncludeBodyKind::Html => {
-                    let mut sub = cursor.new_child(child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
                     let children: Vec<MjBodyChild> = self.parse_children(&mut sub)?;
                     cursor.with_warnings(sub.warnings());
                     vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
@@ -276,7 +276,7 @@ impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
                     ))]
                 }
                 MjIncludeBodyKind::Mjml => {
-                    let mut sub = cursor.new_child(child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
                     let children = self.parse_children(&mut sub)?;
                     cursor.with_warnings(sub.warnings());
                     children
@@ -317,7 +317,7 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
                 })?;
             match attributes.kind {
                 MjIncludeBodyKind::Html => {
-                    let mut sub = cursor.new_child(child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
                     let children: Vec<MjBodyChild> = self.async_parse_children(&mut sub).await?;
                     vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
                         Default::default(),
@@ -325,7 +325,7 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
                     ))]
                 }
                 MjIncludeBodyKind::Mjml => {
-                    let mut sub = cursor.new_child(child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
                     let children = self.async_parse_children(&mut sub).await?;
                     cursor.with_warnings(sub.warnings());
                     children
@@ -513,5 +513,9 @@ mod tests {
         assert_eq!(warnings.len(), 1);
         let warning = warnings.first().unwrap();
         assert_eq!(warning.kind, WarningKind::UnexpectedAttribute);
+        assert_eq!(
+            warning.to_string(),
+            "unexpected attribute in template from \"partial.html\" at position 8..17"
+        );
     }
 }
