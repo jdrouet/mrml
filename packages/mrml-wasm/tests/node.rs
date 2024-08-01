@@ -65,8 +65,9 @@ fn it_should_disable_comments() {
     });
     let result = engine.to_html(template);
     match result {
-        mrml_wasm::ToHtmlResult::Success { content } => {
+        mrml_wasm::ToHtmlResult::Success { content, warnings } => {
             assert_eq!(content.matches("Goodbye").count(), 0);
+            assert!(warnings.is_empty())
         }
         err => panic!("shouldn't fail {:?}", err),
     }
@@ -83,8 +84,9 @@ async fn it_should_disable_comments_async() {
     });
     let result = engine.to_html_async(template).await;
     match result {
-        mrml_wasm::ToHtmlResult::Success { content } => {
+        mrml_wasm::ToHtmlResult::Success { content, warnings } => {
             assert_eq!(content.matches("Goodbye").count(), 0);
+            assert!(warnings.is_empty());
         }
         err => panic!("shouldn't fail {:?}", err),
     }
