@@ -14,8 +14,7 @@ use crate::mj_title::NAME as MJ_TITLE;
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
-    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
-    Warning, WarningKind,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement, Warning,
 };
 use crate::text::Text;
 
@@ -98,10 +97,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeHeadAttribut
                 kind = Some(MjIncludeHeadKind::try_from(attr.value)?);
             }
             _ => {
-                cursor.add_warning(Warning::new(
-                    WarningKind::UnexpectedAttribute,
-                    attr.span.into(),
-                ));
+                cursor.add_warning(Warning::unexpected_attribute(attr.span));
             }
         }
     }

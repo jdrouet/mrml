@@ -1,9 +1,7 @@
 use super::MjFontAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
-use crate::prelude::parser::{
-    Error, MrmlCursor, MrmlParser, ParseAttributes, Warning, WarningKind,
-};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, Warning};
 
 #[inline(always)]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
@@ -13,10 +11,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Err
         match attrs.local.as_str() {
             "name" => result.name = attrs.value.to_string(),
             "href" => result.href = attrs.value.to_string(),
-            _ => cursor.add_warning(Warning::new(
-                WarningKind::UnexpectedAttribute,
-                attrs.span.into(),
-            )),
+            _ => cursor.add_warning(Warning::unexpected_attribute(attrs.span)),
         }
     }
 

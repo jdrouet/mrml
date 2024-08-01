@@ -1,9 +1,7 @@
 use super::MjStyleAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
-use crate::prelude::parser::{
-    Error, MrmlCursor, MrmlParser, ParseAttributes, Warning, WarningKind,
-};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, Warning};
 
 #[inline(always)]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
@@ -12,10 +10,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Er
         if attr.local.as_str() == "inline" {
             result.inline = Some(attr.value.to_string());
         } else {
-            cursor.add_warning(Warning::new(
-                WarningKind::UnexpectedAttribute,
-                attr.span.into(),
-            ));
+            cursor.add_warning(Warning::unexpected_attribute(attr.span));
         }
     }
     Ok(result)

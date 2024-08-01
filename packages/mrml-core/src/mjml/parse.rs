@@ -5,7 +5,7 @@ use crate::mj_head::NAME as MJ_HEAD;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
-    ParseOutput, ParserOptions, Warning, WarningKind,
+    ParseOutput, ParserOptions, Warning,
 };
 
 #[inline(always)]
@@ -16,10 +16,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error
             "owa" => attrs.owa = Some(token.value.to_string()),
             "lang" => attrs.lang = Some(token.value.to_string()),
             "dir" => attrs.dir = Some(token.value.to_string()),
-            _ => cursor.add_warning(Warning::new(
-                WarningKind::UnexpectedAttribute,
-                token.span.into(),
-            )),
+            _ => cursor.add_warning(Warning::unexpected_attribute(token.span)),
         }
     }
     Ok(attrs)

@@ -267,20 +267,15 @@ pub(crate) trait AsyncParseChildren<C> {
 }
 
 #[derive(Clone, Debug)]
-pub struct Warning {
-    pub kind: WarningKind,
-    pub span: Span,
+pub enum Warning {
+    UnexpectedAttribute(Span),
 }
 
 impl Warning {
-    pub fn new(kind: WarningKind, span: Span) -> Self {
-        Self { kind, span }
+    #[inline(always)]
+    pub fn unexpected_attribute<S: Into<Span>>(span: S) -> Self {
+        Self::UnexpectedAttribute(span.into())
     }
-}
-
-#[derive(Clone, Debug)]
-pub enum WarningKind {
-    UnexpectedAttribute,
 }
 
 pub struct MrmlCursor<'a> {
@@ -546,10 +541,7 @@ pub(crate) fn parse_attributes_map(
 
 pub(crate) fn parse_attributes_empty(cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
     if let Some(attr) = cursor.next_attribute()? {
-        cursor.add_warning(Warning::new(
-            WarningKind::UnexpectedAttribute,
-            attr.span.into(),
-        ));
+        cursor.add_warning(Warning::unexpected_attribute(attr.span));
     }
     Ok(())
 }
