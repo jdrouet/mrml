@@ -86,7 +86,10 @@ impl AsyncParseElement<MjIncludeHeadChild> for AsyncMrmlParser {
 }
 
 #[inline]
-fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeHeadAttributes, Error> {
+fn parse_attributes(
+    cursor: &mut MrmlCursor<'_>,
+    tag: &StrSpan<'_>,
+) -> Result<MjIncludeHeadAttributes, Error> {
     let mut path = None;
     let mut kind = None;
     while let Some(attr) = cursor.next_attribute()? {
@@ -103,7 +106,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeHeadAttribut
         }
     }
     Ok(MjIncludeHeadAttributes {
-        path: path.ok_or_else(|| Error::MissingAttribute("path", Default::default()))?,
+        path: path.ok_or_else(|| Error::MissingAttribute("path", tag.into()))?,
         kind: kind.unwrap_or_default(),
     })
 }
@@ -112,8 +115,9 @@ impl<'opts> ParseAttributes<MjIncludeHeadAttributes> for MrmlParser<'opts> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
+        tag: &StrSpan<'_>,
     ) -> Result<MjIncludeHeadAttributes, Error> {
-        parse_attributes(cursor)
+        parse_attributes(cursor, tag)
     }
 }
 
@@ -122,8 +126,9 @@ impl ParseAttributes<MjIncludeHeadAttributes> for AsyncMrmlParser {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
+        tag: &StrSpan<'_>,
     ) -> Result<MjIncludeHeadAttributes, Error> {
-        parse_attributes(cursor)
+        parse_attributes(cursor, tag)
     }
 }
 
@@ -201,7 +206,7 @@ impl<'opts> ParseElement<MjIncludeHead> for MrmlParser<'opts> {
         tag: StrSpan<'a>,
     ) -> Result<MjIncludeHead, Error> {
         let (attributes, children): (MjIncludeHeadAttributes, Vec<MjIncludeHeadChild>) =
-            self.parse_attributes_and_children(cursor)?;
+            self.parse_attributes_and_children(cursor, &tag)?;
 
         // if a mj-include has some content, we don't load it
         let children: Vec<MjIncludeHeadChild> = if children.is_empty() {
@@ -247,7 +252,7 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
         tag: StrSpan<'a>,
     ) -> Result<MjIncludeHead, Error> {
         let (attributes, children): (MjIncludeHeadAttributes, Vec<MjIncludeHeadChild>) =
-            self.parse_attributes_and_children(cursor).await?;
+            self.parse_attributes_and_children(cursor, &tag).await?;
 
         // if a mj-include has some content, we don't load it
         let children: Vec<MjIncludeHeadChild> = if children.is_empty() {
@@ -328,14 +333,14 @@ mod tests {
         should_error_when_no_path,
         MjIncludeHead,
         "<mj-include />",
-        "MissingAttribute(\"path\", Span { start: 0, end: 0 })"
+        "MissingAttribute(\"path\", Span { start: 1, end: 11 })"
     );
 
     crate::should_not_parse!(
         should_error_when_unknown_attribute,
         MjIncludeHead,
         r#"<mj-include unknown="yep" />"#,
-        "MissingAttribute(\"path\", Span { start: 0, end: 0 })"
+        "MissingAttribute(\"path\", Span { start: 1, end: 11 })"
     );
 
     crate::should_parse!(

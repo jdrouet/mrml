@@ -97,7 +97,7 @@ pub(crate) trait AsyncParseElement<E> {
 }
 
 pub(crate) trait ParseAttributes<A> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<A, Error>;
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>, tag: &StrSpan<'_>) -> Result<A, Error>;
 }
 
 pub(crate) trait ParseChildren<C> {
@@ -157,13 +157,14 @@ impl<'opts> MrmlParser<'opts> {
     pub(crate) fn parse_attributes_and_children<A, C>(
         &self,
         cursor: &mut MrmlCursor,
+        tag: &StrSpan<'_>,
     ) -> Result<(A, C), Error>
     where
         MrmlParser<'opts>: ParseAttributes<A>,
         MrmlParser<'opts>: ParseChildren<C>,
         C: Default,
     {
-        let attributes: A = self.parse_attributes(cursor)?;
+        let attributes: A = self.parse_attributes(cursor, tag)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok((attributes, Default::default()));
@@ -178,13 +179,21 @@ impl<'opts> MrmlParser<'opts> {
 }
 
 impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<Map<String, String>, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<Map<String, String>, Error> {
         parse_attributes_map(cursor)
     }
 }
 
 impl<'opts> ParseAttributes<()> for MrmlParser<'opts> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<(), Error> {
         parse_attributes_empty(cursor)
     }
 }
@@ -224,13 +233,14 @@ impl AsyncMrmlParser {
     pub(crate) async fn parse_attributes_and_children<A, C>(
         &self,
         cursor: &mut MrmlCursor<'_>,
+        tag: &StrSpan<'_>,
     ) -> Result<(A, C), Error>
     where
         AsyncMrmlParser: ParseAttributes<A>,
         AsyncMrmlParser: AsyncParseChildren<C>,
         C: Default,
     {
-        let attributes: A = self.parse_attributes(cursor)?;
+        let attributes: A = self.parse_attributes(cursor, tag)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok((attributes, Default::default()));
@@ -246,14 +256,22 @@ impl AsyncMrmlParser {
 
 #[cfg(feature = "async")]
 impl ParseAttributes<Map<String, String>> for AsyncMrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<Map<String, String>, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<Map<String, String>, Error> {
         parse_attributes_map(cursor)
     }
 }
 
 #[cfg(feature = "async")]
 impl ParseAttributes<()> for AsyncMrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<(), Error> {
         parse_attributes_empty(cursor)
     }
 }
@@ -296,9 +314,9 @@ where
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
+        tag: StrSpan<'a>,
     ) -> Result<super::Component<PhantomData<Tag>, A, C>, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
+        let (attributes, children) = self.parse_attributes_and_children(cursor, &tag)?;
 
         Ok(super::Component {
             tag: PhantomData::<Tag>,
@@ -316,9 +334,9 @@ where
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
+        tag: StrSpan<'a>,
     ) -> Result<super::Component<PhantomData<Tag>, A, ()>, Error> {
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = self.parse_attributes(cursor, &tag)?;
         let ending = cursor.assert_element_end()?;
         if !ending.empty {
             cursor.assert_element_close()?;
@@ -345,9 +363,9 @@ where
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
+        tag: StrSpan<'a>,
     ) -> Result<super::Component<PhantomData<Tag>, A, C>, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
+        let (attributes, children) = self.parse_attributes_and_children(cursor, &tag).await?;
 
         Ok(super::Component {
             tag: PhantomData::<Tag>,
@@ -369,9 +387,9 @@ where
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
+        tag: StrSpan<'a>,
     ) -> Result<super::Component<PhantomData<Tag>, A, ()>, Error> {
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = self.parse_attributes(cursor, &tag)?;
         let ending = cursor.assert_element_end()?;
         if !ending.empty {
             cursor.assert_element_close()?;

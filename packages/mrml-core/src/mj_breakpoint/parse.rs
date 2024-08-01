@@ -1,3 +1,5 @@
+use xmlparser::StrSpan;
+
 use super::MjBreakpointAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
@@ -20,6 +22,7 @@ impl<'opts> ParseAttributes<MjBreakpointAttributes> for MrmlParser<'opts> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
     ) -> Result<MjBreakpointAttributes, Error> {
         parse_attributes(cursor)
     }
@@ -30,6 +33,7 @@ impl ParseAttributes<MjBreakpointAttributes> for AsyncMrmlParser {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
     ) -> Result<MjBreakpointAttributes, Error> {
         parse_attributes(cursor)
     }

@@ -1,3 +1,5 @@
+use xmlparser::StrSpan;
+
 use super::MjStyleAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
@@ -17,14 +19,22 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Er
 }
 
 impl<'opts> ParseAttributes<MjStyleAttributes> for MrmlParser<'opts> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<MjStyleAttributes, Error> {
         parse_attributes(cursor)
     }
 }
 
 #[cfg(feature = "async")]
 impl ParseAttributes<MjStyleAttributes> for AsyncMrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<MjStyleAttributes, Error> {
         parse_attributes(cursor)
     }
 }

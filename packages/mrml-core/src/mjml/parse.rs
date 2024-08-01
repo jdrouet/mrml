@@ -1,3 +1,5 @@
+use xmlparser::StrSpan;
+
 use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
@@ -23,7 +25,11 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error
 }
 
 impl<'opts> ParseAttributes<MjmlAttributes> for MrmlParser<'opts> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<MjmlAttributes, Error> {
         parse_attributes(cursor)
     }
 }
@@ -59,7 +65,11 @@ impl<'opts> ParseChildren<MjmlChildren> for MrmlParser<'opts> {
 
 #[cfg(feature = "async")]
 impl ParseAttributes<MjmlAttributes> for AsyncMrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<MjmlAttributes, Error> {
         parse_attributes(cursor)
     }
 }

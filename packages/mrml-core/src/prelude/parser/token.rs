@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::fmt::Display;
 use xmlparser::{StrSpan, Token};
 
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug)]
 pub struct Span {
     pub start: usize,
     pub end: usize,
@@ -11,6 +11,15 @@ pub struct Span {
 impl Display for Span {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}..{}", self.start, self.end)
+    }
+}
+
+impl<'a> From<&StrSpan<'a>> for Span {
+    fn from(value: &StrSpan<'a>) -> Self {
+        Self {
+            start: value.start(),
+            end: value.end(),
+        }
     }
 }
 

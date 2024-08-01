@@ -17,7 +17,7 @@ impl<'opts> ParseElement<Node<MjRawChild>> for MrmlParser<'opts> {
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<Node<MjRawChild>, Error> {
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = self.parse_attributes(cursor, &tag)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty || is_void_element(tag.as_str()) {
             return Ok(Node {
@@ -47,7 +47,7 @@ impl AsyncParseElement<Node<MjRawChild>> for AsyncMrmlParser {
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<Node<MjRawChild>, Error> {
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = self.parse_attributes(cursor, &tag)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty || is_void_element(tag.as_str()) {
             return Ok(Node {

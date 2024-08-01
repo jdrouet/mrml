@@ -133,7 +133,10 @@ impl<'a> TryFrom<StrSpan<'a>> for MjIncludeBodyKind {
 }
 
 #[inline]
-fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeBodyAttributes, Error> {
+fn parse_attributes(
+    cursor: &mut MrmlCursor<'_>,
+    tag: &StrSpan<'_>,
+) -> Result<MjIncludeBodyAttributes, Error> {
     let mut path = None;
     let mut kind: Option<MjIncludeBodyKind> = None;
     while let Some(attr) = cursor.next_attribute()? {
@@ -150,7 +153,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeBodyAttribut
         }
     }
     Ok(MjIncludeBodyAttributes {
-        path: path.ok_or_else(|| Error::MissingAttribute("path", Default::default()))?,
+        path: path.ok_or_else(|| Error::MissingAttribute("path", tag.into()))?,
         kind: kind.unwrap_or_default(),
     })
 }
@@ -159,8 +162,9 @@ impl<'opts> ParseAttributes<MjIncludeBodyAttributes> for MrmlParser<'opts> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
+        tag: &StrSpan<'_>,
     ) -> Result<MjIncludeBodyAttributes, Error> {
-        parse_attributes(cursor)
+        parse_attributes(cursor, tag)
     }
 }
 
@@ -169,8 +173,9 @@ impl ParseAttributes<MjIncludeBodyAttributes> for AsyncMrmlParser {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
+        tag: &StrSpan<'_>,
     ) -> Result<MjIncludeBodyAttributes, Error> {
-        parse_attributes(cursor)
+        parse_attributes(cursor, tag)
     }
 }
 
@@ -248,7 +253,7 @@ impl<'opts> ParseElement<MjIncludeBody> for MrmlParser<'opts> {
         tag: StrSpan<'a>,
     ) -> Result<MjIncludeBody, Error> {
         let (attributes, children): (MjIncludeBodyAttributes, Vec<MjIncludeBodyChild>) =
-            self.parse_attributes_and_children(cursor)?;
+            self.parse_attributes_and_children(cursor, &tag)?;
 
         // if a mj-include has some content, we don't load it
         let children: Vec<MjIncludeBodyChild> = if children.is_empty() {
@@ -297,7 +302,7 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
         use crate::prelude::parser::AsyncParseChildren;
 
         let (attributes, children): (MjIncludeBodyAttributes, Vec<MjIncludeBodyChild>) =
-            self.parse_attributes_and_children(cursor).await?;
+            self.parse_attributes_and_children(cursor, &tag).await?;
 
         // if a mj-include has some content, we don't load it
         let children: Vec<MjIncludeBodyChild> = if children.is_empty() {
@@ -488,7 +493,7 @@ mod tests {
         missing_path,
         MjIncludeBody,
         r#"<mj-include><!-- empty --></mj-include>"#,
-        "MissingAttribute(\"path\", Span { start: 0, end: 0 })"
+        "MissingAttribute(\"path\", Span { start: 1, end: 11 })"
     );
 
     #[test]

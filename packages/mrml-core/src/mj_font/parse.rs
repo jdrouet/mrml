@@ -1,3 +1,5 @@
+use xmlparser::StrSpan;
+
 use super::MjFontAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
@@ -19,14 +21,22 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Err
 }
 
 impl<'opts> ParseAttributes<MjFontAttributes> for MrmlParser<'opts> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<MjFontAttributes, Error> {
         parse_attributes(cursor)
     }
 }
 
 #[cfg(feature = "async")]
 impl ParseAttributes<MjFontAttributes> for AsyncMrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<MjFontAttributes, Error> {
         parse_attributes(cursor)
     }
 }
