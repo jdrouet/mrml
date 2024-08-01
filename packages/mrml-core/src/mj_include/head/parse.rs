@@ -15,6 +15,7 @@ use crate::mj_title::NAME as MJ_TITLE;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
+    Warning, WarningKind,
 };
 use crate::text::Text;
 
@@ -97,7 +98,10 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeHeadAttribut
                 kind = Some(MjIncludeHeadKind::try_from(attr.value)?);
             }
             _ => {
-                return Err(Error::UnexpectedAttribute(attr.span.into()));
+                cursor.add_warning(Warning::new(
+                    WarningKind::UnexpectedAttribute,
+                    attr.span.into(),
+                ));
             }
         }
     }
@@ -330,7 +334,7 @@ mod tests {
         should_error_when_unknown_attribute,
         MjIncludeHead,
         r#"<mj-include unknown="yep" />"#,
-        "UnexpectedAttribute(Span { start: 12, end: 25 })"
+        "MissingAttribute(\"path\", Span { start: 0, end: 0 })"
     );
 
     crate::should_parse!(

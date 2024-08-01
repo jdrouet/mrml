@@ -9,12 +9,3 @@ pub enum MjCarouselChild {
     Comment(Comment),
     MjCarouselImage(MjCarouselImage),
 }
-
-impl MjCarouselChild {
-    pub(crate) fn as_mj_carousel_image(&self) -> Option<&MjCarouselImage> {
-        match self {
-            Self::MjCarouselImage(inner) => Some(inner),
-            _ => None,
-        }
-    }
-}

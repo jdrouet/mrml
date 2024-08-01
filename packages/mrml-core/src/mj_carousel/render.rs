@@ -3,6 +3,15 @@ use crate::helper::size::{Pixel, Size};
 use crate::helper::style::Style;
 use crate::prelude::render::*;
 
+impl MjCarouselChild {
+    fn as_mj_carousel_image(&self) -> Option<&crate::mj_carousel_image::MjCarouselImage> {
+        match self {
+            Self::MjCarouselImage(inner) => Some(inner),
+            _ => None,
+        }
+    }
+}
+
 impl<'render, 'root: 'render> Renderable<'render, 'root> for MjCarouselChild {
     fn renderer(
         &'root self,

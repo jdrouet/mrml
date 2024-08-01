@@ -1,23 +1,24 @@
 #[cfg(test)]
 mod tests {
-    use crate::mj_attributes::MjAttributes;
+    use crate::mj_attributes::{MjAttributes, MjAttributesChild};
     use crate::mj_attributes_all::MjAttributesAll;
     use crate::mj_attributes_class::{MjAttributesClass, MjAttributesClassAttributes};
 
     #[test]
     fn serialize() {
         let mut elt = MjAttributes::default();
-        elt.children.push(MjAttributesAll::default().into());
-        elt.children.push(
+        elt.children.push(MjAttributesChild::MjAttributesAll(
+            MjAttributesAll::default(),
+        ));
+        elt.children.push(MjAttributesChild::MjAttributesClass(
             MjAttributesClass::new(
                 MjAttributesClassAttributes {
                     name: "name".into(),
                     others: Default::default(),
                 },
                 (),
-            )
-            .into(),
-        );
+            ),
+        ));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-attributes","children":[{"type":"mj-all"},{"type":"mj-class","attributes":{"name":"name"}}]}"#

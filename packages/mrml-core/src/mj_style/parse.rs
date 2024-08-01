@@ -1,16 +1,21 @@
 use super::MjStyleAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
-use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes};
+use crate::prelude::parser::{
+    Error, MrmlCursor, MrmlParser, ParseAttributes, Warning, WarningKind,
+};
 
-#[inline]
+#[inline(always)]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Error> {
     let mut result = MjStyleAttributes::default();
     while let Some(attr) = cursor.next_attribute()? {
         if attr.local.as_str() == "inline" {
             result.inline = Some(attr.value.to_string());
         } else {
-            return Err(Error::UnexpectedAttribute(attr.span.into()));
+            cursor.add_warning(Warning::new(
+                WarningKind::UnexpectedAttribute,
+                attr.span.into(),
+            ));
         }
     }
     Ok(result)
@@ -47,12 +52,12 @@ mod tests {
     );
 
     #[test]
-    #[should_panic(expected = "UnexpectedAttribute(Span { start: 10, end: 21 })")]
-    fn should_error_with_unknown_attribute() {
+    fn should_warn_with_unknown_attribute() {
         let template = r#"<mj-style oups="true">.whatever {background-color: red};</mj-style>"#;
         let opts = ParserOptions::default();
         let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(template);
         let _: MjStyle = parser.parse_root(&mut cursor).unwrap();
+        assert_eq!(cursor.warnings().len(), 1);
     }
 }

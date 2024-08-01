@@ -165,6 +165,7 @@ pub mod prelude;
 pub mod text;
 
 // Only used to ignore the comments at the root level
+#[cfg(feature = "parse")]
 mod root;
 
 mod helper;

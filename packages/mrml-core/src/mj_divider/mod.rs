@@ -5,8 +5,6 @@ use crate::prelude::{Component, StaticTag};
 
 #[cfg(feature = "json")]
 mod json;
-#[cfg(feature = "parse")]
-mod parse;
 #[cfg(feature = "print")]
 mod print;
 #[cfg(feature = "render")]

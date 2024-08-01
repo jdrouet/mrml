@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::mj_accordion_text::MjAccordionText;
+    use crate::mj_accordion_text::{MjAccordionText, MjRawChild};
     use crate::text::Text;
 
     #[test]
@@ -8,8 +8,8 @@ mod tests {
         let mut elt = MjAccordionText::default();
         elt.attributes
             .insert("margin".to_string(), "12px".to_string());
-        elt.children.push(Text::from("Hello").into());
-        elt.children.push(Text::from("World").into());
+        elt.children.push(MjRawChild::Text(Text::from("Hello")));
+        elt.children.push(MjRawChild::Text(Text::from("World")));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-accordion-text","attributes":{"margin":"12px"},"children":["Hello","World"]}"#

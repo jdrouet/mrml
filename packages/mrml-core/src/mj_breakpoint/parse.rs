@@ -1,7 +1,9 @@
 use super::MjBreakpointAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
-use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes};
+use crate::prelude::parser::{
+    Error, MrmlCursor, MrmlParser, ParseAttributes, Warning, WarningKind,
+};
 
 #[inline]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpointAttributes, Error> {
@@ -10,7 +12,10 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpointAttribute
         if attr.local.as_str() == "width" {
             result.width = attr.value.to_string();
         } else {
-            return Err(Error::UnexpectedAttribute(attr.span.into()));
+            cursor.add_warning(Warning::new(
+                WarningKind::UnexpectedAttribute,
+                attr.span.into(),
+            ));
         }
     }
     Ok(result)
@@ -39,10 +44,16 @@ impl ParseAttributes<MjBreakpointAttributes> for AsyncMrmlParser {
 mod tests {
     use crate::mj_breakpoint::MjBreakpoint;
 
-    crate::should_sync_parse!(success, MjBreakpoint, r#"<mj-breakpoint width="42px" />"#);
-    crate::should_not_sync_parse!(
+    crate::should_sync_parse!(
+        success,
+        MjBreakpoint,
+        r#"<mj-breakpoint width="42px" />"#,
+        0
+    );
+    crate::should_sync_parse!(
         unexpected_attributes,
         MjBreakpoint,
-        r#"<mj-breakpoint whatever="42px" />"#
+        r#"<mj-breakpoint whatever="42px" />"#,
+        1
     );
 }

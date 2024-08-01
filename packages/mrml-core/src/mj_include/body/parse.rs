@@ -25,6 +25,7 @@ use crate::mj_wrapper::{MjWrapper, NAME as MJ_WRAPPER};
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
+    Warning, WarningKind,
 };
 use crate::text::Text;
 
@@ -144,7 +145,10 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjIncludeBodyAttribut
                 kind = Some(MjIncludeBodyKind::try_from(attr.value)?);
             }
             _ => {
-                return Err(Error::UnexpectedAttribute(attr.span.into()));
+                cursor.add_warning(Warning::new(
+                    WarningKind::UnexpectedAttribute,
+                    attr.span.into(),
+                ));
             }
         }
     }
@@ -471,11 +475,11 @@ mod tests {
         "UnexpectedElement(Span { start: 38, end: 41 })"
     );
 
-    crate::should_not_parse!(
+    crate::should_parse!(
         invalid_attribute,
         MjIncludeBody,
         r#"<mj-include invalid="attribute" path="partial.html"><!-- empty --></mj-include>"#,
-        "UnexpectedAttribute(Span { start: 12, end: 31 })"
+        1
     );
 
     crate::should_not_parse!(

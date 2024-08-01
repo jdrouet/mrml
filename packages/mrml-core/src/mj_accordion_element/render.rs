@@ -136,6 +136,7 @@ mod tests {
     use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
     use crate::mj_accordion_text::MjAccordionText;
     use crate::mj_accordion_title::MjAccordionTitle;
+    use crate::mj_raw::MjRawChild;
     use crate::prelude::render::*;
     use crate::text::Text;
 
@@ -154,7 +155,7 @@ mod tests {
                 )),
                 text: Some(MjAccordionText::new(
                     Default::default(),
-                    vec![Text::from("Lorem Ipsum".to_string()).into()],
+                    vec![MjRawChild::Text(Text::from("Lorem Ipsum".to_string()))],
                 )),
             },
         );

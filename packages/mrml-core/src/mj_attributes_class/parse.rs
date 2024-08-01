@@ -6,7 +6,7 @@ use crate::prelude::parser::{parse_attributes_map, Error, MrmlCursor, MrmlParser
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 
-#[inline]
+#[inline(always)]
 fn parse<'a>(cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<MjAttributesClass, Error> {
     let mut others: Map<String, String> = parse_attributes_map(cursor)?;
     let name: String = others

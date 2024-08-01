@@ -84,7 +84,7 @@ mod tests {
         let opts = RenderOptions::default();
         let template = include_str!("../../resources/template/amario.mjml");
         let root = Mjml::parse(template).unwrap();
-        assert!(root.render(&opts).is_ok());
+        assert!(root.element.render(&opts).is_ok());
     }
 
     #[test]
@@ -93,7 +93,7 @@ mod tests {
         let template = include_str!("../../resources/template/air-astana.mjml");
         let expected = include_str!("../../resources/template/air-astana.html");
         let root = Mjml::parse(template).unwrap();
-        html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
+        html_compare::assert_similar(expected, root.element.render(&opts).unwrap().as_str());
     }
 
     #[test]
@@ -104,8 +104,8 @@ mod tests {
         let root_1 = Mjml::parse(source).unwrap();
         let root_2 = Mjml::parse(source).unwrap();
 
-        let output_1 = root_1.render(&options).unwrap();
-        let output_2 = root_2.render(&options).unwrap();
+        let output_1 = root_1.element.render(&options).unwrap();
+        let output_2 = root_2.element.render(&options).unwrap();
 
         assert_eq!(output_1, output_2);
     }

@@ -5,10 +5,10 @@ use crate::mj_head::NAME as MJ_HEAD;
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
-    ParserOptions,
+    ParseOutput, ParserOptions, Warning, WarningKind,
 };
 
-#[inline]
+#[inline(always)]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
     let mut attrs = MjmlAttributes::default();
     while let Some(token) = cursor.next_attribute()? {
@@ -16,7 +16,10 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error
             "owa" => attrs.owa = Some(token.value.to_string()),
             "lang" => attrs.lang = Some(token.value.to_string()),
             "dir" => attrs.dir = Some(token.value.to_string()),
-            _ => return Err(Error::UnexpectedAttribute(token.span.into())),
+            _ => cursor.add_warning(Warning::new(
+                WarningKind::UnexpectedAttribute,
+                token.span.into(),
+            )),
         }
     }
     Ok(attrs)
@@ -125,38 +128,54 @@ impl Mjml {
     pub fn parse_with_options<T: AsRef<str>>(
         value: T,
         opts: &ParserOptions,
-    ) -> Result<Self, Error> {
+    ) -> Result<ParseOutput<Self>, Error> {
         let parser = MrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
-        parser.parse_root(&mut cursor)
+        let element = parser.parse_root(&mut cursor)?;
+        Ok(ParseOutput {
+            element,
+            warnings: cursor.warnings(),
+        })
     }
 
     #[cfg(feature = "async")]
     pub async fn async_parse_with_options<T: AsRef<str>>(
         value: T,
         opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
-    ) -> Result<Self, Error> {
+    ) -> Result<ParseOutput<Self>, Error> {
         let parser = AsyncMrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
-        parser.parse_root(&mut cursor).await
+        let element = parser.parse_root(&mut cursor).await?;
+        Ok(ParseOutput {
+            element,
+            warnings: cursor.warnings(),
+        })
     }
 
     /// Function to parse a raw mjml template using the default parsing
     /// [options](crate::prelude::parser::ParserOptions).
-    pub fn parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
+    pub fn parse<T: AsRef<str>>(value: T) -> Result<ParseOutput<Self>, Error> {
         let opts = ParserOptions::default();
         let parser = MrmlParser::new(&opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
-        parser.parse_root(&mut cursor)
+        let element = parser.parse_root(&mut cursor)?;
+        Ok(ParseOutput {
+            element,
+            warnings: cursor.warnings(),
+        })
     }
 
     #[cfg(feature = "async")]
     /// Function to parse a raw mjml template using the default parsing
     /// [options](crate::prelude::parser::ParserOptions).
-    pub async fn async_parse<T: AsRef<str>>(value: T) -> Result<Self, Error> {
+    pub async fn async_parse<T: AsRef<str>>(value: T) -> Result<ParseOutput<Self>, Error> {
         let parser = AsyncMrmlParser::default();
         let mut cursor = MrmlCursor::new(value.as_ref());
-        parser.parse_root(&mut cursor).await
+        let element = parser.parse_root(&mut cursor).await?;
+        Ok(ParseOutput {
+            element,
+            warnings: cursor.warnings(),
+        })
     }
 }
 
@@ -167,91 +186,90 @@ mod tests {
     #[test]
     fn should_parse_with_options_sync() {
         let template = "<mjml></mjml>";
-        let elt = Mjml::parse_with_options(template, &Default::default()).unwrap();
-        assert!(elt.children.body.is_none());
-        assert!(elt.children.head.is_none());
+        let output = Mjml::parse_with_options(template, &Default::default()).unwrap();
+        assert!(output.element.children.body.is_none());
+        assert!(output.element.children.head.is_none());
     }
 
     #[cfg(feature = "async")]
     #[tokio::test]
     async fn should_parse_with_options_async() {
         let template = "<mjml></mjml>";
-        let elt = Mjml::async_parse_with_options(template, Default::default())
+        let output = Mjml::async_parse_with_options(template, Default::default())
             .await
             .unwrap();
-        assert!(elt.children.body.is_none());
-        assert!(elt.children.head.is_none());
+        assert!(output.element.children.body.is_none());
+        assert!(output.element.children.head.is_none());
     }
 
     #[test]
     fn should_parse_sync() {
         let template = "<mjml></mjml>";
-        let elt = Mjml::parse(template).unwrap();
-        assert!(elt.children.body.is_none());
-        assert!(elt.children.head.is_none());
+        let output = Mjml::parse(template).unwrap();
+        assert!(output.element.children.body.is_none());
+        assert!(output.element.children.head.is_none());
     }
 
     #[cfg(feature = "async")]
     #[tokio::test]
     async fn should_parse_async() {
         let template = "<mjml></mjml>";
-        let elt = Mjml::async_parse(template).await.unwrap();
-        assert!(elt.children.body.is_none());
-        assert!(elt.children.head.is_none());
+        let output = Mjml::async_parse(template).await.unwrap();
+        assert!(output.element.children.body.is_none());
+        assert!(output.element.children.head.is_none());
     }
 
     #[test]
     fn should_parse_without_children_sync() {
         let template = "<mjml />";
-        let elt: Mjml = Mjml::parse(template).unwrap();
-        assert!(elt.children.body.is_none());
-        assert!(elt.children.head.is_none());
+        let output: ParseOutput<Mjml> = Mjml::parse(template).unwrap();
+        assert!(output.element.children.body.is_none());
+        assert!(output.element.children.head.is_none());
     }
 
     #[cfg(feature = "async")]
     #[tokio::test]
     async fn should_parse_without_children_async() {
         let template = "<mjml />";
-        let elt: Mjml = Mjml::async_parse(template).await.unwrap();
-        assert!(elt.children.body.is_none());
-        assert!(elt.children.head.is_none());
+        let output: ParseOutput<Mjml> = Mjml::async_parse(template).await.unwrap();
+        assert!(output.element.children.body.is_none());
+        assert!(output.element.children.head.is_none());
     }
 
     #[test]
     fn should_parse_with_lang_sync() {
         let template = "<mjml lang=\"fr\"></mjml>";
-        let elt = Mjml::parse(template).unwrap();
-        assert_eq!(elt.attributes.lang.unwrap(), "fr");
+        let output = Mjml::parse(template).unwrap();
+        assert_eq!(output.element.attributes.lang.unwrap(), "fr");
     }
 
     #[cfg(feature = "async")]
     #[tokio::test]
     async fn should_parse_with_lang_async() {
         let template = "<mjml lang=\"fr\"></mjml>";
-        let elt = Mjml::async_parse(template).await.unwrap();
-        assert_eq!(elt.attributes.lang.unwrap(), "fr");
+        let output = Mjml::async_parse(template).await.unwrap();
+        assert_eq!(output.element.attributes.lang.unwrap(), "fr");
     }
 
     #[test]
     fn should_parse_with_owa() {
         let template = "<mjml owa=\"desktop\"></mjml>";
-        let elt = Mjml::parse(template).unwrap();
-        assert_eq!(elt.attributes.owa.unwrap(), "desktop");
+        let output = Mjml::parse(template).unwrap();
+        assert_eq!(output.element.attributes.owa.unwrap(), "desktop");
     }
 
     #[test]
     fn should_parse_with_dir() {
         let template = "<mjml dir=\"rtl\"></mjml>";
-        let elt = Mjml::parse(template).unwrap();
-        assert_eq!(elt.attributes.dir.unwrap(), "rtl");
+        let output = Mjml::parse(template).unwrap();
+        assert_eq!(output.element.attributes.dir.unwrap(), "rtl");
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedAttribute(Span { start: 6, end: 20 })")]
-    fn should_fail_with_unknown_param() {
+    // #[should_panic(expected = "UnexpectedAttribute(Span { start: 6, end: 20 })")]
+    fn should_not_fail_with_unknown_param() {
         let template = "<mjml unknown=\"true\"></mjml>";
-        let elt = Mjml::parse(template).unwrap();
-        assert_eq!(elt.attributes.dir.unwrap(), "rtl");
+        let _output = Mjml::parse(template).unwrap();
     }
 
     #[test]

@@ -1,6 +1,6 @@
 #[cfg(feature = "render")]
 pub mod size;
-#[cfg(any(feature = "render", feature = "print"))]
+#[cfg(any(feature = "render"))]
 pub mod sort;
 #[cfg(feature = "render")]
 pub mod spacing;

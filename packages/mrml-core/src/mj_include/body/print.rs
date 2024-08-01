@@ -15,7 +15,7 @@ impl PrintableElement for super::MjIncludeBody {
     type Children = ();
 
     fn tag(&self) -> &str {
-        super::NAME
+        crate::mj_include::NAME
     }
 
     fn attributes(&self) -> &Self::Attrs {

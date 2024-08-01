@@ -28,7 +28,7 @@ impl StaticTag for MjFontTag {
 
 pub type MjFont = Component<PhantomData<MjFontTag>, MjFontAttributes, ()>;
 
-#[cfg(all(test, feature = "render"))]
+#[cfg(all(test, any(feature = "render", feature = "print")))]
 impl MjFont {
     pub(crate) fn build<N: Into<String>, H: Into<String>>(name: N, href: H) -> Self {
         Self::new(

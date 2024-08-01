@@ -9,6 +9,7 @@ mod render;
 #[derive(Debug)]
 enum RootChild {
     Mjml(Mjml),
+    #[allow(dead_code)]
     Comment(Comment),
 }
 

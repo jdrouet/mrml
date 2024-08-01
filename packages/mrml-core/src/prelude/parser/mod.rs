@@ -58,8 +58,6 @@ impl<'a> From<Token<'a>> for Span {
 
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("unexpected attribute at position {0}")]
-    UnexpectedAttribute(Span),
     #[error("unexpected element at position {0}")]
     UnexpectedElement(Span),
     #[error("unexpected token at position {0}")]
@@ -233,6 +231,11 @@ pub(crate) struct Text<'a> {
     pub text: StrSpan<'a>,
 }
 
+pub struct ParseOutput<E> {
+    pub element: E,
+    pub warnings: Vec<Warning>,
+}
+
 pub(crate) trait ParseElement<E> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<E, Error>;
 }
@@ -263,9 +266,27 @@ pub(crate) trait AsyncParseChildren<C> {
     async fn async_parse_children<'a>(&self, cursor: &mut MrmlCursor<'a>) -> Result<C, Error>;
 }
 
+#[derive(Clone, Debug)]
+pub struct Warning {
+    pub kind: WarningKind,
+    pub span: Span,
+}
+
+impl Warning {
+    pub fn new(kind: WarningKind, span: Span) -> Self {
+        Self { kind, span }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum WarningKind {
+    UnexpectedAttribute,
+}
+
 pub struct MrmlCursor<'a> {
     tokenizer: Tokenizer<'a>,
     buffer: Vec<MrmlToken<'a>>,
+    warnings: Vec<Warning>,
 }
 
 impl<'a> MrmlCursor<'a> {
@@ -273,6 +294,7 @@ impl<'a> MrmlCursor<'a> {
         Self {
             tokenizer: Tokenizer::from(source),
             buffer: Default::default(),
+            warnings: Default::default(),
         }
     }
 
@@ -280,6 +302,7 @@ impl<'a> MrmlCursor<'a> {
         MrmlCursor {
             tokenizer: Tokenizer::from(source),
             buffer: Default::default(),
+            warnings: Default::default(),
         }
     }
 
@@ -365,6 +388,14 @@ impl<'a> MrmlCursor<'a> {
             Some(Err(inner)) => Err(inner),
             None => Err(Error::EndOfStream),
         }
+    }
+
+    pub(crate) fn add_warning(&mut self, warning: Warning) {
+        self.warnings.push(warning);
+    }
+
+    pub(crate) fn warnings(self) -> Vec<Warning> {
+        self.warnings
     }
 }
 
@@ -515,7 +546,10 @@ pub(crate) fn parse_attributes_map(
 
 pub(crate) fn parse_attributes_empty(cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
     if let Some(attr) = cursor.next_attribute()? {
-        return Err(Error::UnexpectedAttribute(Span::from(attr.span)));
+        cursor.add_warning(Warning::new(
+            WarningKind::UnexpectedAttribute,
+            attr.span.into(),
+        ));
     }
     Ok(())
 }
@@ -625,12 +659,19 @@ macro_rules! should_parse {
         $crate::should_sync_parse!($name, $target, $template);
         $crate::should_async_parse!($name, $target, $template);
     };
+    ($name: ident, $target: ty, $template: literal, $warnings: literal) => {
+        $crate::should_sync_parse!($name, $target, $template, $warnings);
+        $crate::should_async_parse!($name, $target, $template, $warnings);
+    };
 }
 
 #[cfg(test)]
 #[macro_export]
 macro_rules! should_sync_parse {
     ($name: ident, $target: ty, $template: literal) => {
+        $crate::should_sync_parse!($name, $target, $template, 0);
+    };
+    ($name: ident, $target: ty, $template: literal, $warnings: literal) => {
         concat_idents::concat_idents!(fn_name = $name, _, sync {
             #[test]
             fn fn_name() {
@@ -638,6 +679,7 @@ macro_rules! should_sync_parse {
                 let parser = $crate::prelude::parser::MrmlParser::new(&opts);
                 let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
                 let _: $target = parser.parse_root(&mut cursor).unwrap();
+                assert_eq!(cursor.warnings().len(), $warnings);
             }
         });
     };
@@ -647,6 +689,9 @@ macro_rules! should_sync_parse {
 #[macro_export]
 macro_rules! should_async_parse {
     ($name: ident, $target: ty, $template: literal) => {
+        $crate::should_async_parse!($name, $target, $template, 0);
+    };
+    ($name: ident, $target: ty, $template: literal, $warnings: literal) => {
         concat_idents::concat_idents!(fn_name = $name, _, "async" {
             #[cfg(feature = "async")]
             #[tokio::test]
@@ -654,6 +699,7 @@ macro_rules! should_async_parse {
                 let parser = $crate::prelude::parser::AsyncMrmlParser::default();
                 let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
                 let _: $target = parser.parse_root(&mut cursor).await.unwrap();
+                assert_eq!(cursor.warnings().len(), $warnings);
             }
         });
     };

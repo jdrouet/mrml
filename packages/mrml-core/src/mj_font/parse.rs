@@ -1,9 +1,11 @@
 use super::MjFontAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
-use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes};
+use crate::prelude::parser::{
+    Error, MrmlCursor, MrmlParser, ParseAttributes, Warning, WarningKind,
+};
 
-#[inline]
+#[inline(always)]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
     let mut result = MjFontAttributes::default();
 
@@ -11,7 +13,10 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Err
         match attrs.local.as_str() {
             "name" => result.name = attrs.value.to_string(),
             "href" => result.href = attrs.value.to_string(),
-            _ => return Err(Error::UnexpectedAttribute(attrs.span.into())),
+            _ => cursor.add_warning(Warning::new(
+                WarningKind::UnexpectedAttribute,
+                attrs.span.into(),
+            )),
         }
     }
 
@@ -41,9 +46,10 @@ mod tests {
         r#"<mj-font name="Comic" href="https://jolimail.io" />"#
     );
 
-    crate::should_not_sync_parse!(
+    crate::should_sync_parse!(
         unexpected_attribute,
         MjFont,
-        r#"<mj-font unknown="whatever" />"#
+        r#"<mj-font unknown="whatever" />"#,
+        1
     );
 }
