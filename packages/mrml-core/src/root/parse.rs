@@ -18,7 +18,7 @@ impl<'opts> crate::prelude::parser::ParseChildren<Vec<RootChild>> for MrmlParser
                     result.push(RootChild::Mjml(self.parse(cursor, inner.local)?));
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken(cursor.origin(), other.span()));
                 }
             }
         }
@@ -49,7 +49,7 @@ impl crate::prelude::parser::AsyncParseChildren<Vec<RootChild>>
                     result.push(RootChild::Mjml(element));
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken(cursor.origin(), other.span()));
                 }
             }
         }

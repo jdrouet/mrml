@@ -25,7 +25,7 @@ impl<'opts> ParseChildren<MjAccordionElementChildren> for MrmlParser<'opts> {
                         result.title = Some(self.parse(cursor, inner.local)?);
                     }
                     _ => {
-                        return Err(Error::UnexpectedElement(inner.span.into()));
+                        return Err(Error::UnexpectedElement(cursor.origin(), inner.span.into()));
                     }
                 },
                 MrmlToken::ElementClose(inner) => {
@@ -33,7 +33,7 @@ impl<'opts> ParseChildren<MjAccordionElementChildren> for MrmlParser<'opts> {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken(cursor.origin(), other.span()));
                 }
             }
         }
@@ -61,7 +61,7 @@ impl AsyncParseChildren<MjAccordionElementChildren> for AsyncMrmlParser {
                         result.title = Some(self.async_parse(cursor, inner.local).await?);
                     }
                     _ => {
-                        return Err(Error::UnexpectedElement(inner.span.into()));
+                        return Err(Error::UnexpectedElement(cursor.origin(), inner.span.into()));
                     }
                 },
                 MrmlToken::ElementClose(inner) => {
@@ -69,7 +69,7 @@ impl AsyncParseChildren<MjAccordionElementChildren> for AsyncMrmlParser {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken(cursor.origin(), other.span()));
                 }
             }
         }
@@ -90,13 +90,13 @@ mod tests {
         should_error_with_unknown_child,
         MjAccordionElement,
         "<mj-accordion-element><span /></mj-accordion-element>",
-        "UnexpectedElement(Span { start: 22, end: 27 })"
+        "UnexpectedElement(Root, Span { start: 22, end: 27 })"
     );
 
     crate::should_not_sync_parse!(
         should_error_with_comment,
         MjAccordionElement,
         "<mj-accordion-element><!-- comment --></mj-accordion-element>",
-        "UnexpectedToken(Span { start: 22, end: 38 }"
+        "UnexpectedToken(Root, Span { start: 22, end: 38 }"
     );
 }

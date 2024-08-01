@@ -32,7 +32,7 @@ impl<'opts> ParseChildren<Vec<MjHeadChild>> for MrmlParser<'opts> {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken(cursor.origin(), other.span()));
                 }
             }
         }
@@ -63,7 +63,7 @@ impl AsyncParseChildren<Vec<MjHeadChild>> for AsyncMrmlParser {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken(cursor.origin(), other.span()));
                 }
             }
         }
@@ -85,7 +85,7 @@ impl<'opts> ParseElement<MjHeadChild> for MrmlParser<'opts> {
             MJ_RAW => self.parse(cursor, tag).map(MjHeadChild::MjRaw),
             MJ_STYLE => self.parse(cursor, tag).map(MjHeadChild::MjStyle),
             MJ_TITLE => self.parse(cursor, tag).map(MjHeadChild::MjTitle),
-            _ => Err(Error::UnexpectedElement(tag.into())),
+            _ => Err(Error::UnexpectedElement(cursor.origin(), tag.into())),
         }
     }
 }
@@ -126,7 +126,7 @@ impl AsyncParseElement<MjHeadChild> for AsyncMrmlParser {
                 .async_parse(cursor, tag)
                 .await
                 .map(MjHeadChild::MjTitle),
-            _ => Err(Error::UnexpectedElement(tag.into())),
+            _ => Err(Error::UnexpectedElement(cursor.origin(), tag.into())),
         }
     }
 }

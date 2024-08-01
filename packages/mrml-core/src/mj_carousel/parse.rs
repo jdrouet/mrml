@@ -22,14 +22,14 @@ impl<'opts> ParseChildren<Vec<MjCarouselChild>> for MrmlParser<'opts> {
                             self.parse(cursor, inner.local)?,
                         ));
                     } else {
-                        return Err(Error::UnexpectedElement(inner.span.into()));
+                        return Err(Error::UnexpectedElement(cursor.origin(), inner.span.into()));
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::UnexpectedToken(other.span())),
+                other => return Err(Error::UnexpectedToken(cursor.origin(), other.span())),
             }
         }
     }
@@ -56,14 +56,14 @@ impl AsyncParseChildren<Vec<MjCarouselChild>> for AsyncMrmlParser {
                             self.async_parse(cursor, inner.local).await?,
                         ));
                     } else {
-                        return Err(Error::UnexpectedElement(inner.span.into()));
+                        return Err(Error::UnexpectedElement(cursor.origin(), inner.span.into()));
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::UnexpectedToken(other.span())),
+                other => return Err(Error::UnexpectedToken(cursor.origin(), other.span())),
             }
         }
     }

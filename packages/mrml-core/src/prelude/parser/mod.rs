@@ -37,21 +37,21 @@ impl std::fmt::Display for Origin {
 
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("unexpected element at position {0}")]
-    UnexpectedElement(Span),
-    #[error("unexpected token at position {0}")]
-    UnexpectedToken(Span),
-    #[error("missing attribute {0} in element at position {1}")]
-    MissingAttribute(&'static str, Span),
-    #[error("invalid attribute at position {0}")]
-    InvalidAttribute(Span),
-    #[error("invalid format at position {0}")]
-    InvalidFormat(Span),
-    #[error("unexpected end of stream")]
-    EndOfStream,
+    #[error("unexpected element in {0} at position {1}")]
+    UnexpectedElement(Origin, Span),
+    #[error("unexpected token in {0} at position {1}")]
+    UnexpectedToken(Origin, Span),
+    #[error("missing attribute {0} in element in {0} at position {1}")]
+    MissingAttribute(&'static str, Origin, Span),
+    #[error("invalid attribute in {0} at position {1}")]
+    InvalidAttribute(Origin, Span),
+    #[error("invalid format in {0} at position {1}")]
+    InvalidFormat(Origin, Span),
+    #[error("unexpected end of stream in {0}")]
+    EndOfStream(Origin),
     /// The input string should be smaller than 4GiB.
-    #[error("size limit reached")]
-    SizeLimit,
+    #[error("size limit reached with {0}")]
+    SizeLimit(Origin),
     /// Errors detected by the `xmlparser` crate.
     #[error("unable to load included template")]
     ParserError(#[from] xmlparser::Error),
@@ -60,6 +60,7 @@ pub enum Error {
     NoRootNode,
     #[error("unable to load included template")]
     IncludeLoaderError {
+        origin: Origin,
         position: Span,
         #[source]
         source: IncludeLoaderError,
@@ -156,6 +157,10 @@ impl<'a> MrmlCursor<'a> {
             },
             warnings: Default::default(),
         }
+    }
+
+    pub(crate) fn origin(&self) -> Origin {
+        self.origin.clone()
     }
 }
 
