@@ -14,6 +14,7 @@ fn should_preserve_whitespaces() {
 
     let root = mrml::parse(template).unwrap();
     let html = root
+        .element
         .render(&mrml::prelude::render::RenderOptions::default())
         .unwrap();
     assert!(

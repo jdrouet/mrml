@@ -22,14 +22,22 @@ impl<'opts> ParseChildren<Vec<MjSocialChild>> for MrmlParser<'opts> {
                             self.parse(cursor, inner.local)?,
                         ));
                     } else {
-                        return Err(Error::UnexpectedElement(inner.span.into()));
+                        return Err(Error::UnexpectedElement {
+                            origin: cursor.origin(),
+                            position: inner.span.into(),
+                        });
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::UnexpectedToken(other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
     }
@@ -56,14 +64,22 @@ impl AsyncParseChildren<Vec<MjSocialChild>> for AsyncMrmlParser {
                             self.async_parse(cursor, inner.local).await?,
                         ));
                     } else {
-                        return Err(Error::UnexpectedElement(inner.span.into()));
+                        return Err(Error::UnexpectedElement {
+                            origin: cursor.origin(),
+                            position: inner.span.into(),
+                        });
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::UnexpectedToken(other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
     }
@@ -95,12 +111,12 @@ mod tests {
     assert_fail!(
         should_error_with_text,
         "<mj-social>Hello</mj-social>",
-        "UnexpectedToken(Span { start: 11, end: 16 })"
+        "UnexpectedToken { origin: Root, position: Span { start: 11, end: 16 } }"
     );
 
     assert_fail!(
         should_error_with_other_element,
         "<mj-social><span /></mj-social>",
-        "UnexpectedElement(Span { start: 11, end: 16 })"
+        "UnexpectedElement { origin: Root, position: Span { start: 11, end: 16 } }"
     );
 }

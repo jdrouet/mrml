@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Set, Union
+from typing import Any, Dict, Optional, Set, Union, List
 
 class NoopIncludeLoaderOptions:
     """No-operation loader options class, which requires no specific configuration."""
@@ -71,10 +71,27 @@ class RenderOptions:
         fonts: Optional[Dict[str, str]] = None,
     ) -> None: ...
 
+class Warning:
+    @property
+    def origin(self) -> Optional[str]: ...
+    @property
+    def kind(self) -> str: ...
+    @property
+    def start(self) -> int: ...
+    @property
+    def end(self) -> int: ...
+
+class Output:
+    """to_html result, containing content field and warnings"""
+    @property
+    def content(self) -> str: ...
+    @property
+    def warnings(self) -> List[Warning]
+
 def to_html(
     input: str,
     parser_options: Optional[ParserOptions] = None,
     render_options: Optional[RenderOptions] = None,
-) -> str:
+) -> Output:
     """Function to convert input a MJML string to HTML using optional parser and render configurations."""
     ...

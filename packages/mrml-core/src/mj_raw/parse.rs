@@ -17,7 +17,7 @@ impl<'opts> ParseElement<Node<MjRawChild>> for MrmlParser<'opts> {
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<Node<MjRawChild>, Error> {
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = self.parse_attributes(cursor, &tag)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty || is_void_element(tag.as_str()) {
             return Ok(Node {
@@ -47,7 +47,7 @@ impl AsyncParseElement<Node<MjRawChild>> for AsyncMrmlParser {
         cursor: &mut MrmlCursor<'a>,
         tag: StrSpan<'a>,
     ) -> Result<Node<MjRawChild>, Error> {
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = self.parse_attributes(cursor, &tag)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty || is_void_element(tag.as_str()) {
             return Ok(Node {
@@ -87,7 +87,12 @@ impl<'opts> ParseChildren<Vec<MjRawChild>> for MrmlParser<'opts> {
                     cursor.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
                 }
-                other => return Err(Error::UnexpectedToken(other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
     }
@@ -118,7 +123,12 @@ impl AsyncParseChildren<Vec<MjRawChild>> for AsyncMrmlParser {
                     cursor.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
                 }
-                other => return Err(Error::UnexpectedToken(other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
     }

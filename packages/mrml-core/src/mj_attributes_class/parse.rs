@@ -6,12 +6,16 @@ use crate::prelude::parser::{parse_attributes_map, Error, MrmlCursor, MrmlParser
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 
-#[inline]
+#[inline(always)]
 fn parse<'a>(cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<MjAttributesClass, Error> {
     let mut others: Map<String, String> = parse_attributes_map(cursor)?;
     let name: String = others
         .remove("name")
-        .ok_or_else(|| Error::MissingAttribute("name", tag.into()))?;
+        .ok_or_else(|| Error::MissingAttribute {
+            name: "name",
+            origin: cursor.origin(),
+            position: tag.into(),
+        })?;
     let attributes = MjAttributesClassAttributes { name, others };
 
     let ending = cursor.assert_element_end()?;
@@ -58,12 +62,12 @@ mod tests {
         should_have_name,
         MjAttributesClass,
         r#"<mj-class color="red" />"#,
-        "MissingAttribute(\"name\", Span { start: 1, end: 9 })"
+        "MissingAttribute { name: \"name\", origin: Root, position: Span { start: 1, end: 9 } }"
     );
     crate::should_not_sync_parse!(
         should_close,
         MjAttributesClass,
         r#"<mj-class name="div" color="red"><whatever>"#,
-        "UnexpectedToken(Span { start: 33, end: 42 })"
+        "UnexpectedToken { origin: Root, position: Span { start: 33, end: 42 } }"
     );
 }

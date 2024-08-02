@@ -289,7 +289,7 @@ macro_rules! should_render {
                 let template = include_str!(concat!("../../resources/compare/success/", $template, ".mjml"));
                 let expected = include_str!(concat!("../../resources/compare/success/", $template, ".html"));
                 let root = $crate::parse(template).unwrap();
-                html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
+                html_compare::assert_similar(expected, root.element.render(&opts).unwrap().as_str());
             }
         });
         concat_idents::concat_idents!(fn_name = $name, _, "async" {
@@ -300,7 +300,7 @@ macro_rules! should_render {
                 let template = include_str!(concat!("../../resources/compare/success/", $template, ".mjml"));
                 let expected = include_str!(concat!("../../resources/compare/success/", $template, ".html"));
                 let root = $crate::async_parse(template).await.unwrap();
-                html_compare::assert_similar(expected, root.render(&opts).unwrap().as_str());
+                html_compare::assert_similar(expected, root.element.render(&opts).unwrap().as_str());
             }
         });
     };

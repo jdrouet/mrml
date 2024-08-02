@@ -13,7 +13,8 @@ def test_memory_loader():
         '<mjml><mj-body><mj-include path="hello-world.mjml" /></mj-body></mjml>',
         parser_options=parser_options,
     )
-    assert result.startswith("<!doctype html>")
+    assert result.content.startswith("<!doctype html>")
+    assert len(result.warnings) == 0
 
 
 def test_local_loader_success():
@@ -24,7 +25,8 @@ def test_local_loader_success():
         '<mjml><mj-body><mj-include path="file:///hello-world.mjml" /></mj-body></mjml>',
         parser_options=parser_options,
     )
-    assert result.startswith("<!doctype html>")
+    assert result.content.startswith("<!doctype html>")
+    assert len(result.warnings) == 0
 
 
 def test_local_loader_missing():
@@ -58,7 +60,8 @@ def test_http_loader_success():
 </mjml>""",
         parser_options=parser_options,
     )
-    assert result.startswith("<!doctype html>")
+    assert result.content.startswith("<!doctype html>")
+    assert len(result.warnings) == 0
 
 
 def test_http_loader_failed_not_in_allow_list():

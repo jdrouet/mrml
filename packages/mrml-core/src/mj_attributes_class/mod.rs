@@ -31,7 +31,7 @@ pub struct MjAttributesClassAttributes {
 pub type MjAttributesClass =
     Component<PhantomData<MjAttributesClassTag>, MjAttributesClassAttributes, ()>;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "json"))]
 impl MjAttributesClassAttributes {
     #[inline]
     fn new(name: String) -> Self {

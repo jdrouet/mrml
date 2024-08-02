@@ -4,7 +4,7 @@
 //! let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
 //! let root = mrml::parse(template).expect("parse template");
 //! let opts = mrml::prelude::render::Options::default();
-//! match root.render(&opts) {
+//! match root.element.render(&opts) {
 //!     Ok(content) => println!("{content}"),
 //!     Err(_) => println!("couldn't render mjml template"),
 //! };
@@ -79,24 +79,25 @@ mod tests {
     #[cfg(feature = "json")]
     #[test]
     fn chaining_json_parse() {
-        use crate::mj_accordion::MjAccordion;
+        use crate::mj_accordion::{MjAccordion, MjAccordionChild};
         use crate::mj_accordion_element::{MjAccordionElement, MjAccordionElementChildren};
         use crate::mj_accordion_title::MjAccordionTitle;
         use crate::text::Text;
 
         let element = MjAccordion::new(
             Default::default(),
-            vec![MjAccordionElement::new(
-                Default::default(),
-                MjAccordionElementChildren {
-                    title: Some(MjAccordionTitle::new(
-                        Default::default(),
-                        vec![Text::from("Hello World!".to_string())],
-                    )),
-                    text: None,
-                },
-            )
-            .into()],
+            vec![MjAccordionChild::MjAccordionElement(
+                MjAccordionElement::new(
+                    Default::default(),
+                    MjAccordionElementChildren {
+                        title: Some(MjAccordionTitle::new(
+                            Default::default(),
+                            vec![Text::from("Hello World!".to_string())],
+                        )),
+                        text: None,
+                    },
+                ),
+            )],
         );
         let initial_json = serde_json::to_string(&element).unwrap();
         let result: MjAccordion = serde_json::from_str(initial_json.as_str()).unwrap();

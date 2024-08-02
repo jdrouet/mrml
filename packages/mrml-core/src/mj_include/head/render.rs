@@ -73,7 +73,7 @@ impl super::MjIncludeHeadKind {
 mod tests {
     use crate::mj_body::MjBody;
     use crate::mj_breakpoint::MjBreakpoint;
-    use crate::mj_head::MjHead;
+    use crate::mj_head::{MjHead, MjHeadChild};
     use crate::mj_include::head::{
         MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild, MjIncludeHeadKind,
     };
@@ -91,8 +91,10 @@ mod tests {
             mj_breakpoint.attributes.width = "500px".into();
             let mj_title = MjTitle::from("Hello Old World!".to_string());
             let mut mj_head = MjHead::default();
-            mj_head.children.push(mj_breakpoint.into());
-            mj_head.children.push(mj_title.into());
+            mj_head
+                .children
+                .push(MjHeadChild::MjBreakpoint(mj_breakpoint));
+            mj_head.children.push(MjHeadChild::MjTitle(mj_title));
             let mut root = Mjml::default();
             root.children.head = Some(mj_head);
             root.children.body = Some(MjBody::default());
@@ -109,9 +111,11 @@ mod tests {
                 vec![MjIncludeHeadChild::MjTitle(mj_include_title)],
             );
             let mut mj_head = MjHead::default();
-            mj_head.children.push(mj_include.into());
-            mj_head.children.push(mj_breakpoint.into());
-            mj_head.children.push(mj_title.into());
+            mj_head.children.push(MjHeadChild::MjInclude(mj_include));
+            mj_head
+                .children
+                .push(MjHeadChild::MjBreakpoint(mj_breakpoint));
+            mj_head.children.push(MjHeadChild::MjTitle(mj_title));
             let mut root = Mjml::default();
             root.children.head = Some(mj_head);
             root.children.body = Some(MjBody::default());
@@ -128,8 +132,10 @@ mod tests {
             mj_breakpoint.attributes.width = "500px".into();
             let mj_title = MjTitle::from("Hello New World!".to_string());
             let mut mj_head = MjHead::default();
-            mj_head.children.push(mj_breakpoint.into());
-            mj_head.children.push(mj_title.into());
+            mj_head
+                .children
+                .push(MjHeadChild::MjBreakpoint(mj_breakpoint));
+            mj_head.children.push(MjHeadChild::MjTitle(mj_title));
             let mut root = Mjml::default();
             root.children.head = Some(mj_head);
             root.children.body = Some(MjBody::default());
@@ -146,9 +152,11 @@ mod tests {
                 vec![MjIncludeHeadChild::MjTitle(mj_include_title)],
             );
             let mut mj_head = MjHead::default();
-            mj_head.children.push(mj_breakpoint.into());
-            mj_head.children.push(mj_title.into());
-            mj_head.children.push(mj_include.into());
+            mj_head
+                .children
+                .push(MjHeadChild::MjBreakpoint(mj_breakpoint));
+            mj_head.children.push(MjHeadChild::MjTitle(mj_title));
+            mj_head.children.push(MjHeadChild::MjInclude(mj_include));
             let mut root = Mjml::default();
             root.children.head = Some(mj_head);
             root.children.body = Some(MjBody::default());
@@ -162,12 +170,12 @@ mod tests {
         let expected = {
             let opts = RenderOptions::default();
             let mut mj_head = MjHead::default();
-            mj_head
-                .children
-                .push(MjTitle::from("Hello World!".to_string()).into());
-            mj_head
-                .children
-                .push(MjStyle::from("* { background-color: red; }".to_string()).into());
+            mj_head.children.push(MjHeadChild::MjTitle(MjTitle::from(
+                "Hello World!".to_string(),
+            )));
+            mj_head.children.push(MjHeadChild::MjStyle(MjStyle::from(
+                "* { background-color: red; }".to_string(),
+            )));
             let mut root = Mjml::default();
             root.children.head = Some(mj_head);
             root.children.body = Some(MjBody::default());
@@ -185,8 +193,8 @@ mod tests {
             let mj_head = MjHead::new(
                 (),
                 vec![
-                    MjTitle::from("Hello World!".to_string()).into(),
-                    mj_include.into(),
+                    MjHeadChild::MjTitle(MjTitle::from("Hello World!".to_string())),
+                    MjHeadChild::MjInclude(mj_include),
                 ],
             );
             let root = Mjml::new(

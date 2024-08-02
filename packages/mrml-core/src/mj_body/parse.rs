@@ -171,7 +171,10 @@ impl<'opts> ParseChildren<Vec<MjBodyChild>> for MrmlParser<'opts> {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    });
                 }
             }
         }
@@ -204,7 +207,10 @@ impl AsyncParseChildren<Vec<MjBodyChild>> for AsyncMrmlParser {
                     return Ok(result);
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    });
                 }
             }
         }

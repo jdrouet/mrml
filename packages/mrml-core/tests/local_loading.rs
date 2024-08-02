@@ -21,7 +21,7 @@ fn loading_include() {
         include_loader: Box::new(resolver),
     };
     let parsed = mrml::parse_with_options(template, &options).unwrap();
-    let output = parsed.render(&RenderOptions::default()).unwrap();
+    let output = parsed.element.render(&RenderOptions::default()).unwrap();
 
     assert!(output.contains("Hello World"));
 }

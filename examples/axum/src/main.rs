@@ -84,11 +84,20 @@ impl Default for Engine {
 }
 
 impl Engine {
-    async fn handle(&self, input: String) -> Result<String, EngineError> {
-        mrml::async_parse_with_options(input, self.parser.clone())
+    async fn handle(&self, input: String) -> Result<Response, EngineError> {
+        let item = mrml::async_parse_with_options(input, self.parser.clone())
             .await
-            .map_err(EngineError::Parse)
-            .and_then(|mjml| mjml.render(&self.render).map_err(EngineError::Render))
+            .map_err(EngineError::Parse)?;
+
+        let content = item
+            .element
+            .render(&self.render)
+            .map_err(EngineError::Render)?;
+
+        Ok(Response {
+            content,
+            warnings: item.warnings.into_iter().map(Warning::from).collect(),
+        })
     }
 }
 
@@ -97,12 +106,35 @@ struct Payload {
     template: String,
 }
 
+#[derive(Debug, serde::Serialize)]
+struct Response {
+    content: String,
+    warnings: Vec<Warning>,
+}
+
+#[derive(Debug, serde::Serialize)]
+struct Warning {
+    code: &'static str,
+    start: usize,
+    end: usize,
+}
+
+impl From<mrml::prelude::parser::Warning> for Warning {
+    fn from(value: mrml::prelude::parser::Warning) -> Self {
+        Warning {
+            code: value.kind.as_str(),
+            start: value.span.start,
+            end: value.span.end,
+        }
+    }
+}
+
 #[axum::debug_handler]
 async fn handler(
     State(engine): State<Engine>,
     Json(payload): Json<Payload>,
-) -> Result<String, EngineError> {
-    engine.handle(payload.template).await
+) -> Result<Json<Response>, EngineError> {
+    engine.handle(payload.template).await.map(Json)
 }
 
 fn create_app() -> axum::Router {

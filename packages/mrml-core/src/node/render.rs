@@ -73,7 +73,7 @@ mod tests {
     </mj-body>
 </mjml>"#;
         let root = Mjml::parse(template).unwrap();
-        let result = root.render(&opts).unwrap();
+        let result = root.element.render(&opts).unwrap();
         assert!(result.contains("<script src=\"http://example.com/hello.js\"></script>"));
     }
 }

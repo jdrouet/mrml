@@ -1,7 +1,7 @@
 use super::RootChild;
 use crate::comment::Comment;
 use crate::prelude::parser::{
-    Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParserOptions,
+    Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseOutput, ParserOptions,
 };
 
 impl<'opts> crate::prelude::parser::ParseChildren<Vec<RootChild>> for MrmlParser<'opts> {
@@ -18,7 +18,10 @@ impl<'opts> crate::prelude::parser::ParseChildren<Vec<RootChild>> for MrmlParser
                     result.push(RootChild::Mjml(self.parse(cursor, inner.local)?));
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    });
                 }
             }
         }
@@ -49,7 +52,10 @@ impl crate::prelude::parser::AsyncParseChildren<Vec<RootChild>>
                     result.push(RootChild::Mjml(element));
                 }
                 other => {
-                    return Err(Error::UnexpectedToken(other.span()));
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    });
                 }
             }
         }
@@ -63,21 +69,29 @@ impl super::Root {
     pub(crate) fn parse_with_options<T: AsRef<str>>(
         value: T,
         opts: &ParserOptions,
-    ) -> Result<Self, Error> {
+    ) -> Result<ParseOutput<Self>, Error> {
         let parser = MrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
-        Ok(Self(parser.parse_children(&mut cursor)?))
+        let element = Self(parser.parse_children(&mut cursor)?);
+        Ok(ParseOutput {
+            element,
+            warnings: cursor.warnings(),
+        })
     }
 
     #[cfg(feature = "async")]
     pub(crate) async fn async_parse_with_options<T: AsRef<str>>(
         value: T,
         opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
-    ) -> Result<Self, Error> {
+    ) -> Result<ParseOutput<Self>, Error> {
         use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren};
 
         let parser = AsyncMrmlParser::new(opts);
         let mut cursor = MrmlCursor::new(value.as_ref());
-        Ok(Self(parser.async_parse_children(&mut cursor).await?))
+        let element = Self(parser.async_parse_children(&mut cursor).await?);
+        Ok(ParseOutput {
+            element,
+            warnings: cursor.warnings(),
+        })
     }
 }

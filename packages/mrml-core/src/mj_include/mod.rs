@@ -29,7 +29,6 @@ mod tests {
             },
         )
         .unwrap();
-        println!("with include: {with_include:?}");
         let basic = Mjml::parse(
             r#"<mjml>
 <mj-head>
@@ -42,8 +41,11 @@ mod tests {
         )
         .unwrap();
 
-        let basic = basic.render(&RenderOptions::default()).unwrap();
-        let with_include = with_include.render(&RenderOptions::default()).unwrap();
+        let basic = basic.element.render(&RenderOptions::default()).unwrap();
+        let with_include = with_include
+            .element
+            .render(&RenderOptions::default())
+            .unwrap();
         similar_asserts::assert_eq!(basic, with_include);
     }
 
@@ -68,7 +70,6 @@ mod tests {
             },
         )
         .unwrap();
-        println!("with include: {with_include:?}");
         let basic = Mjml::parse(
             r#"<mjml>
 <mj-head>
@@ -81,8 +82,11 @@ mod tests {
         )
         .unwrap();
 
-        let basic = basic.render(&RenderOptions::default()).unwrap();
-        let with_include = with_include.render(&RenderOptions::default()).unwrap();
+        let basic = basic.element.render(&RenderOptions::default()).unwrap();
+        let with_include = with_include
+            .element
+            .render(&RenderOptions::default())
+            .unwrap();
         similar_asserts::assert_eq!(basic, with_include);
     }
 }

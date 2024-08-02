@@ -53,7 +53,12 @@ impl<'opts> ParseChildren<Vec<MjAttributesChild>> for MrmlParser<'opts> {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::UnexpectedToken(other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
     }
@@ -78,7 +83,12 @@ impl AsyncParseChildren<Vec<MjAttributesChild>> for AsyncMrmlParser {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::UnexpectedToken(other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
     }

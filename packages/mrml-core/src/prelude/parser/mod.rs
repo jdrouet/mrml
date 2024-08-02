@@ -1,8 +1,6 @@
-use std::convert::TryFrom;
-use std::fmt::Display;
 use std::marker::PhantomData;
 
-use xmlparser::{StrSpan, Token, Tokenizer};
+use xmlparser::{StrSpan, Tokenizer};
 
 use self::loader::IncludeLoaderError;
 use super::hash::Map;
@@ -16,73 +14,61 @@ pub mod memory_loader;
 pub mod multi_loader;
 pub mod noop_loader;
 
-#[derive(Clone, Debug, Default)]
-pub struct Span {
-    pub start: usize,
-    pub end: usize,
+mod output;
+mod token;
+
+pub use output::*;
+pub use token::*;
+
+#[derive(Clone, Debug)]
+pub enum Origin {
+    Root,
+    Include { path: String },
 }
 
-impl Display for Span {
+impl std::fmt::Display for Origin {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}..{}", self.start, self.end)
-    }
-}
-
-impl<'a> From<StrSpan<'a>> for Span {
-    fn from(value: StrSpan<'a>) -> Self {
-        Self {
-            start: value.start(),
-            end: value.end(),
-        }
-    }
-}
-
-impl<'a> From<Token<'a>> for Span {
-    fn from(value: Token<'a>) -> Self {
-        match value {
-            Token::Attribute { span, .. }
-            | Token::Cdata { span, .. }
-            | Token::Comment { span, .. }
-            | Token::Declaration { span, .. }
-            | Token::DtdEnd { span }
-            | Token::DtdStart { span, .. }
-            | Token::ElementEnd { span, .. }
-            | Token::ElementStart { span, .. }
-            | Token::EmptyDtd { span, .. }
-            | Token::EntityDeclaration { span, .. }
-            | Token::ProcessingInstruction { span, .. } => span.into(),
-            Token::Text { text } => text.into(),
+        match self {
+            Self::Root => write!(f, "root template"),
+            Self::Include { path } => write!(f, "template from {path:?}"),
         }
     }
 }
 
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("unexpected attribute at position {0}")]
-    UnexpectedAttribute(Span),
-    #[error("unexpected element at position {0}")]
-    UnexpectedElement(Span),
-    #[error("unexpected token at position {0}")]
-    UnexpectedToken(Span),
-    #[error("missing attribute {0} in element at position {1}")]
-    MissingAttribute(&'static str, Span),
-    #[error("invalid attribute at position {0}")]
-    InvalidAttribute(Span),
-    #[error("invalid format at position {0}")]
-    InvalidFormat(Span),
-    #[error("unexpected end of stream")]
-    EndOfStream,
+    #[error("unexpected element in {origin} at position {position}")]
+    UnexpectedElement { origin: Origin, position: Span },
+    #[error("unexpected token in {origin} at position {position}")]
+    UnexpectedToken { origin: Origin, position: Span },
+    #[error("missing attribute {name:?} in element in {origin} at position {position}")]
+    MissingAttribute {
+        name: &'static str,
+        origin: Origin,
+        position: Span,
+    },
+    #[error("invalid attribute in {origin} at position {position}")]
+    InvalidAttribute { origin: Origin, position: Span },
+    #[error("invalid format in {origin} at position {position}")]
+    InvalidFormat { origin: Origin, position: Span },
+    #[error("unexpected end of stream in {origin}")]
+    EndOfStream { origin: Origin },
     /// The input string should be smaller than 4GiB.
-    #[error("size limit reached")]
-    SizeLimit,
+    #[error("size limit reached in {origin}")]
+    SizeLimit { origin: Origin },
     /// Errors detected by the `xmlparser` crate.
-    #[error("unable to load included template")]
-    ParserError(#[from] xmlparser::Error),
+    #[error("unable to parse next template in {origin}")]
+    ParserError {
+        origin: Origin,
+        #[source]
+        source: xmlparser::Error,
+    },
     /// The Mjml document must have at least one element.
-    #[error("no root node found")]
+    #[error("unable to find mjml element")]
     NoRootNode,
-    #[error("unable to load included template")]
+    #[error("unable to load included template in {origin} at position {position}")]
     IncludeLoaderError {
+        origin: Origin,
         position: Span,
         #[source]
         source: IncludeLoaderError,
@@ -119,120 +105,6 @@ impl Default for AsyncParserOptions {
     }
 }
 
-#[derive(Debug)]
-pub(crate) enum MrmlToken<'a> {
-    Attribute(Attribute<'a>),
-    Comment(Comment<'a>),
-    ElementClose(ElementClose<'a>),
-    ElementEnd(ElementEnd<'a>),
-    ElementStart(ElementStart<'a>),
-    Text(Text<'a>),
-}
-
-impl<'a> TryFrom<Token<'a>> for MrmlToken<'a> {
-    type Error = Error;
-
-    fn try_from(value: Token<'a>) -> Result<Self, Self::Error> {
-        match value {
-            Token::Attribute {
-                prefix,
-                local,
-                value,
-                span,
-            } => Ok(MrmlToken::Attribute(Attribute {
-                prefix,
-                local,
-                value,
-                span,
-            })),
-            Token::Comment { text, span } => Ok(MrmlToken::Comment(Comment { span, text })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Close(prefix, local),
-                span,
-            } => Ok(MrmlToken::ElementClose(ElementClose {
-                span,
-                prefix,
-                local,
-            })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Empty,
-                span,
-            } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: true })),
-            Token::ElementEnd {
-                end: xmlparser::ElementEnd::Open,
-                span,
-            } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: false })),
-            Token::ElementStart {
-                prefix,
-                local,
-                span,
-            } => Ok(MrmlToken::ElementStart(ElementStart {
-                prefix,
-                local,
-                span,
-            })),
-            Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
-            other => Err(Error::UnexpectedToken(other.into())),
-        }
-    }
-}
-
-impl<'a> MrmlToken<'a> {
-    pub fn span(&self) -> Span {
-        match self {
-            Self::Attribute(item) => item.span,
-            Self::Comment(item) => item.span,
-            Self::ElementClose(item) => item.span,
-            Self::ElementEnd(item) => item.span,
-            Self::ElementStart(item) => item.span,
-            Self::Text(item) => item.text,
-        }
-        .into()
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct Attribute<'a> {
-    #[allow(unused)]
-    pub prefix: StrSpan<'a>,
-    pub local: StrSpan<'a>,
-    pub value: StrSpan<'a>,
-    pub span: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub(crate) struct Comment<'a> {
-    pub span: StrSpan<'a>,
-    pub text: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub(crate) struct ElementClose<'a> {
-    #[allow(unused)]
-    pub prefix: StrSpan<'a>,
-    pub local: StrSpan<'a>,
-    pub span: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub(crate) struct ElementStart<'a> {
-    #[allow(unused)]
-    pub prefix: StrSpan<'a>,
-    pub local: StrSpan<'a>,
-    pub span: StrSpan<'a>,
-}
-
-#[derive(Debug)]
-pub(crate) struct ElementEnd<'a> {
-    pub span: StrSpan<'a>,
-    pub empty: bool,
-}
-
-#[derive(Debug)]
-pub(crate) struct Text<'a> {
-    pub text: StrSpan<'a>,
-}
-
 pub(crate) trait ParseElement<E> {
     fn parse<'a>(&self, cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<E, Error>;
 }
@@ -249,7 +121,7 @@ pub(crate) trait AsyncParseElement<E> {
 }
 
 pub(crate) trait ParseAttributes<A> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<A, Error>;
+    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>, tag: &StrSpan<'_>) -> Result<A, Error>;
 }
 
 pub(crate) trait ParseChildren<C> {
@@ -266,6 +138,8 @@ pub(crate) trait AsyncParseChildren<C> {
 pub struct MrmlCursor<'a> {
     tokenizer: Tokenizer<'a>,
     buffer: Vec<MrmlToken<'a>>,
+    origin: Origin,
+    warnings: Vec<Warning>,
 }
 
 impl<'a> MrmlCursor<'a> {
@@ -273,98 +147,28 @@ impl<'a> MrmlCursor<'a> {
         Self {
             tokenizer: Tokenizer::from(source),
             buffer: Default::default(),
+            origin: Origin::Root,
+            warnings: Default::default(),
         }
     }
 
-    pub(crate) fn new_child<'b>(&self, source: &'b str) -> MrmlCursor<'b> {
+    pub(crate) fn new_child<'b, O: Into<String>>(
+        &self,
+        origin: O,
+        source: &'b str,
+    ) -> MrmlCursor<'b> {
         MrmlCursor {
             tokenizer: Tokenizer::from(source),
             buffer: Default::default(),
+            origin: Origin::Include {
+                path: origin.into(),
+            },
+            warnings: Default::default(),
         }
     }
 
-    fn read_next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
-        self.tokenizer
-            .next()
-            .map(|res| res.map_err(Error::from).and_then(MrmlToken::try_from))
-            .and_then(|token| match token {
-                Ok(MrmlToken::Text(inner))
-                    if inner.text.starts_with('\n') && inner.text.trim().is_empty() =>
-                {
-                    self.read_next_token()
-                }
-                other => Some(other),
-            })
-    }
-
-    pub(crate) fn next_token(&mut self) -> Option<Result<MrmlToken<'a>, Error>> {
-        if let Some(item) = self.buffer.pop() {
-            Some(Ok(item))
-        } else {
-            self.read_next_token()
-        }
-    }
-
-    pub(crate) fn rewind(&mut self, token: MrmlToken<'a>) {
-        self.buffer.push(token);
-    }
-
-    pub(crate) fn assert_next(&mut self) -> Result<MrmlToken<'a>, Error> {
-        self.next_token().unwrap_or_else(|| Err(Error::EndOfStream))
-    }
-
-    pub(crate) fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::Attribute(inner))) => Ok(Some(inner)),
-            Some(Ok(other)) => {
-                self.rewind(other);
-                Ok(None)
-            }
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn assert_element_start(&mut self) -> Result<ElementStart<'a>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::ElementStart(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn assert_element_close(&mut self) -> Result<ElementClose<'a>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::ElementClose(inner))) => Ok(inner),
-            Some(Ok(MrmlToken::Text(inner))) if inner.text.trim().is_empty() => {
-                self.assert_element_close()
-            }
-            Some(Ok(other)) => Err(Error::UnexpectedToken(other.span())),
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
-    }
-
-    pub(crate) fn next_text(&mut self) -> Result<Option<Text<'a>>, Error> {
-        match self.next_token() {
-            Some(Ok(MrmlToken::Text(inner))) => Ok(Some(inner)),
-            Some(Ok(other)) => {
-                self.rewind(other);
-                Ok(None)
-            }
-            Some(Err(inner)) => Err(inner),
-            None => Err(Error::EndOfStream),
-        }
+    pub(crate) fn origin(&self) -> Origin {
+        self.origin.clone()
     }
 }
 
@@ -390,13 +194,14 @@ impl<'opts> MrmlParser<'opts> {
     pub(crate) fn parse_attributes_and_children<A, C>(
         &self,
         cursor: &mut MrmlCursor,
+        tag: &StrSpan<'_>,
     ) -> Result<(A, C), Error>
     where
         MrmlParser<'opts>: ParseAttributes<A>,
         MrmlParser<'opts>: ParseChildren<C>,
         C: Default,
     {
-        let attributes: A = self.parse_attributes(cursor)?;
+        let attributes: A = self.parse_attributes(cursor, tag)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok((attributes, Default::default()));
@@ -411,13 +216,21 @@ impl<'opts> MrmlParser<'opts> {
 }
 
 impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<Map<String, String>, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<Map<String, String>, Error> {
         parse_attributes_map(cursor)
     }
 }
 
 impl<'opts> ParseAttributes<()> for MrmlParser<'opts> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<(), Error> {
         parse_attributes_empty(cursor)
     }
 }
@@ -457,13 +270,14 @@ impl AsyncMrmlParser {
     pub(crate) async fn parse_attributes_and_children<A, C>(
         &self,
         cursor: &mut MrmlCursor<'_>,
+        tag: &StrSpan<'_>,
     ) -> Result<(A, C), Error>
     where
         AsyncMrmlParser: ParseAttributes<A>,
         AsyncMrmlParser: AsyncParseChildren<C>,
         C: Default,
     {
-        let attributes: A = self.parse_attributes(cursor)?;
+        let attributes: A = self.parse_attributes(cursor, tag)?;
         let ending = cursor.assert_element_end()?;
         if ending.empty {
             return Ok((attributes, Default::default()));
@@ -479,14 +293,22 @@ impl AsyncMrmlParser {
 
 #[cfg(feature = "async")]
 impl ParseAttributes<Map<String, String>> for AsyncMrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<Map<String, String>, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<Map<String, String>, Error> {
         parse_attributes_map(cursor)
     }
 }
 
 #[cfg(feature = "async")]
 impl ParseAttributes<()> for AsyncMrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<(), Error> {
         parse_attributes_empty(cursor)
     }
 }
@@ -515,7 +337,7 @@ pub(crate) fn parse_attributes_map(
 
 pub(crate) fn parse_attributes_empty(cursor: &mut MrmlCursor<'_>) -> Result<(), Error> {
     if let Some(attr) = cursor.next_attribute()? {
-        return Err(Error::UnexpectedAttribute(Span::from(attr.span)));
+        cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
     }
     Ok(())
 }
@@ -529,9 +351,9 @@ where
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
+        tag: StrSpan<'a>,
     ) -> Result<super::Component<PhantomData<Tag>, A, C>, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor)?;
+        let (attributes, children) = self.parse_attributes_and_children(cursor, &tag)?;
 
         Ok(super::Component {
             tag: PhantomData::<Tag>,
@@ -549,9 +371,9 @@ where
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
+        tag: StrSpan<'a>,
     ) -> Result<super::Component<PhantomData<Tag>, A, ()>, Error> {
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = self.parse_attributes(cursor, &tag)?;
         let ending = cursor.assert_element_end()?;
         if !ending.empty {
             cursor.assert_element_close()?;
@@ -578,9 +400,9 @@ where
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
+        tag: StrSpan<'a>,
     ) -> Result<super::Component<PhantomData<Tag>, A, C>, Error> {
-        let (attributes, children) = self.parse_attributes_and_children(cursor).await?;
+        let (attributes, children) = self.parse_attributes_and_children(cursor, &tag).await?;
 
         Ok(super::Component {
             tag: PhantomData::<Tag>,
@@ -602,9 +424,9 @@ where
     async fn async_parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-        _tag: StrSpan<'a>,
+        tag: StrSpan<'a>,
     ) -> Result<super::Component<PhantomData<Tag>, A, ()>, Error> {
-        let attributes = self.parse_attributes(cursor)?;
+        let attributes = self.parse_attributes(cursor, &tag)?;
         let ending = cursor.assert_element_end()?;
         if !ending.empty {
             cursor.assert_element_close()?;
@@ -625,12 +447,19 @@ macro_rules! should_parse {
         $crate::should_sync_parse!($name, $target, $template);
         $crate::should_async_parse!($name, $target, $template);
     };
+    ($name: ident, $target: ty, $template: literal, $warnings: literal) => {
+        $crate::should_sync_parse!($name, $target, $template, $warnings);
+        $crate::should_async_parse!($name, $target, $template, $warnings);
+    };
 }
 
 #[cfg(test)]
 #[macro_export]
 macro_rules! should_sync_parse {
     ($name: ident, $target: ty, $template: literal) => {
+        $crate::should_sync_parse!($name, $target, $template, 0);
+    };
+    ($name: ident, $target: ty, $template: literal, $warnings: literal) => {
         concat_idents::concat_idents!(fn_name = $name, _, sync {
             #[test]
             fn fn_name() {
@@ -638,6 +467,7 @@ macro_rules! should_sync_parse {
                 let parser = $crate::prelude::parser::MrmlParser::new(&opts);
                 let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
                 let _: $target = parser.parse_root(&mut cursor).unwrap();
+                assert_eq!(cursor.warnings().len(), $warnings);
             }
         });
     };
@@ -647,6 +477,9 @@ macro_rules! should_sync_parse {
 #[macro_export]
 macro_rules! should_async_parse {
     ($name: ident, $target: ty, $template: literal) => {
+        $crate::should_async_parse!($name, $target, $template, 0);
+    };
+    ($name: ident, $target: ty, $template: literal, $warnings: literal) => {
         concat_idents::concat_idents!(fn_name = $name, _, "async" {
             #[cfg(feature = "async")]
             #[tokio::test]
@@ -654,6 +487,7 @@ macro_rules! should_async_parse {
                 let parser = $crate::prelude::parser::AsyncMrmlParser::default();
                 let mut cursor = $crate::prelude::parser::MrmlCursor::new($template);
                 let _: $target = parser.parse_root(&mut cursor).await.unwrap();
+                assert_eq!(cursor.warnings().len(), $warnings);
             }
         });
     };

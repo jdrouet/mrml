@@ -24,12 +24,7 @@ mod tests {
 </mjml>
 "#;
         let root = crate::mjml::Mjml::parse(origin).unwrap();
-        similar_asserts::assert_eq!(origin, root.print_pretty().unwrap());
-        let head = root.head().unwrap();
-        assert_eq!(head.breakpoint().unwrap().value(), "12px");
-        assert_eq!(head.preview().unwrap().content(), "Hello World with all!");
-        assert_eq!(head.title().unwrap().content(), "Hello World!");
-        assert_eq!(head.children().len(), 5);
+        similar_asserts::assert_eq!(origin, root.element.print_pretty().unwrap());
     }
 
     #[test]

@@ -44,13 +44,9 @@ impl IncludeLoaderError {
 impl std::fmt::Display for IncludeLoaderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(msg) = self.message {
-            write!(
-                f,
-                "Unable to load template {}: {} ({})",
-                self.path, msg, self.reason
-            )
+            write!(f, "{} {} ({msg})", self.path, self.reason)
         } else {
-            write!(f, "Unable to load template {}: {}", self.path, self.reason)
+            write!(f, "{} {}", self.path, self.reason)
         }
     }
 }
@@ -95,7 +91,7 @@ mod tests {
     fn should_display_basic() {
         assert_eq!(
             IncludeLoaderError::new("foo.mjml", ErrorKind::NotFound).to_string(),
-            "Unable to load template foo.mjml: entity not found",
+            "foo.mjml entity not found",
         );
     }
 
@@ -105,7 +101,7 @@ mod tests {
             IncludeLoaderError::new("foo.mjml", ErrorKind::NotFound)
                 .with_message("oops")
                 .to_string(),
-            "Unable to load template foo.mjml: oops (entity not found)",
+            "foo.mjml entity not found (oops)",
         );
     }
 
@@ -118,7 +114,7 @@ mod tests {
                     ErrorKind::InvalidInput
                 )))
                 .to_string(),
-            "Unable to load template foo.mjml: entity not found",
+            "foo.mjml entity not found",
         );
     }
 }

@@ -9,8 +9,6 @@ mod render;
 
 use std::marker::PhantomData;
 
-#[cfg(any(feature = "print", feature = "json"))]
-use super::NAME;
 use crate::prelude::{Component, StaticTag};
 
 #[derive(Clone, Debug)]

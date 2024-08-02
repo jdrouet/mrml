@@ -38,7 +38,7 @@ mod tests {
     fn render_enabled() {
         let opts = RenderOptions::default();
         let root = Mjml::parse(r#"<mjml><mj-body><!-- Hello World! --></mj-body></mjml>"#).unwrap();
-        let result = root.render(&opts).unwrap();
+        let result = root.element.render(&opts).unwrap();
         assert!(result.contains("Hello World!"));
     }
 
@@ -49,7 +49,7 @@ mod tests {
             ..Default::default()
         };
         let root = Mjml::parse(r#"<mjml><mj-body><!-- Hello World! --></mj-body></mjml>"#).unwrap();
-        let result = root.render(&opts).unwrap();
+        let result = root.element.render(&opts).unwrap();
         assert!(!result.contains("Hello World!"));
     }
 
@@ -57,7 +57,7 @@ mod tests {
     fn render_with_is_raw() {
         let opts = RenderOptions::default();
         let root = Mjml::parse(r#"<mjml><mj-body><mj-section><mj-column><!-- Hello World! --></mj-column></mj-section></mj-body></mjml>"#).unwrap();
-        let result = root.render(&opts).unwrap();
+        let result = root.element.render(&opts).unwrap();
         assert!(result.contains("Hello World!"));
     }
 }

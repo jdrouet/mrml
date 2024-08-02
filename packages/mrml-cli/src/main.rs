@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 use std::collections::HashSet;
+use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::iter::FromIterator;
@@ -12,54 +13,16 @@ use mrml::prelude::parser::loader::IncludeLoader;
 use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::multi_loader::MultiIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
-use mrml::prelude::parser::{Error as ParserError, ParserOptions};
+use mrml::prelude::parser::{Error as ParserError, ParseOutput, ParserOptions};
 use mrml::prelude::print::Printable;
 use mrml::prelude::render::RenderOptions;
 
 fn format_parser_error(error: ParserError) -> String {
-    let msg = match error {
-        ParserError::EndOfStream => String::from("invalid format"),
-        ParserError::UnexpectedAttribute(token) => {
-            format!(
-                "unexpected attribute at position {}:{}",
-                token.start, token.end
-            )
-        }
-        ParserError::UnexpectedElement(token) => {
-            format!(
-                "unexpected element at position {}:{}",
-                token.start, token.end
-            )
-        }
-        ParserError::UnexpectedToken(token) => {
-            format!("unexpected token at position {}:{}", token.start, token.end)
-        }
-        ParserError::InvalidAttribute(token) => {
-            format!(
-                "invalid attribute at position {}:{}",
-                token.start, token.end
-            )
-        }
-        ParserError::InvalidFormat(token) => {
-            format!("invalid format at position {}:{}", token.start, token.end)
-        }
-        ParserError::IncludeLoaderError { position, source } => {
-            format!(
-                "something when wront when loading include at position {}:{}: {source:?}",
-                position.start, position.end
-            )
-        }
-        ParserError::MissingAttribute(name, span) => format!(
-            "missing attribute {name:?} at position {}:{}",
-            span.start, span.end
-        ),
-        ParserError::SizeLimit => String::from("reached the max size limit"),
-        ParserError::NoRootNode => {
-            String::from("couldn't parse document: couldn't find mjml element")
-        }
-        ParserError::ParserError(inner) => format!("something went wront while parsing {inner}"),
-    };
-    format!("couldn't parse document: {msg}")
+    if let Some(src) = error.source() {
+        format!("{error}: {src}")
+    } else {
+        format!("{error}")
+    }
 }
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
@@ -151,7 +114,7 @@ impl Options {
         })
     }
 
-    fn parse_mjml(&self, input: &str) -> Result<Mjml, String> {
+    fn parse_mjml(&self, input: &str) -> Result<ParseOutput<Mjml>, String> {
         log::debug!("parsing mjml input");
         let options = ParserOptions {
             include_loader: self.include_loader()?,
@@ -159,17 +122,25 @@ impl Options {
         Mjml::parse_with_options(input, &options).map_err(format_parser_error)
     }
 
-    fn parse_input(&self, input: &str) -> Result<Mjml, String> {
+    fn parse_input(&self, input: String) -> Result<ParseOutput<Mjml>, String> {
         if let Some(ref filename) = self.input {
             if filename.ends_with(".json") {
-                self.parse_json(input)
+                self.parse_json(&input).map(|element| ParseOutput {
+                    element,
+                    warnings: Vec::new(),
+                })
             } else if filename.ends_with(".mjml") {
-                self.parse_mjml(input)
+                self.parse_mjml(&input)
             } else {
                 Err(format!("unable to detect file type for {filename:?}"))
             }
         } else {
-            self.parse_mjml(input).or_else(|_| self.parse_json(input))
+            self.parse_mjml(&input).or_else(|_| {
+                self.parse_json(&input).map(|element| ParseOutput {
+                    element,
+                    warnings: Vec::new(),
+                })
+            })
         }
     }
 
@@ -183,8 +154,9 @@ impl Options {
 
     pub fn execute(self) -> Result<(), String> {
         let root = self.read_input()?;
-        let root = self.parse_input(&root)?;
-        self.subcmd.execute(&root)
+        let root = self.parse_input(root)?;
+
+        self.subcmd.execute(root)
     }
 }
 
@@ -201,23 +173,23 @@ enum SubCommand {
 }
 
 impl SubCommand {
-    pub fn execute(self, root: &Mjml) -> Result<(), String> {
+    pub fn execute(self, root: ParseOutput<Mjml>) -> Result<(), String> {
         match self {
             Self::FormatJSON(opts) => {
                 log::debug!("format to json");
                 let output = if opts.pretty {
-                    serde_json::to_string_pretty(root).expect("couldn't format to JSON")
+                    serde_json::to_string_pretty(&root.element).expect("couldn't format to JSON")
                 } else {
-                    serde_json::to_string(root).expect("couldn't format to JSON")
+                    serde_json::to_string(&root.element).expect("couldn't format to JSON")
                 };
                 println!("{}", output);
             }
             Self::FormatMjml(opts) => {
                 log::debug!("format to mjml");
                 let output = if opts.pretty {
-                    root.print_pretty()
+                    root.element.print_pretty()
                 } else {
-                    root.print_dense()
+                    root.element.print_dense()
                 }
                 .expect("couldn't format mjml");
                 println!("{}", output);
@@ -225,10 +197,18 @@ impl SubCommand {
             Self::Render(render) => {
                 log::debug!("render");
                 let render_opts = RenderOptions::from(render);
-                let output = root.render(&render_opts).expect("couldn't render template");
+                let output = root
+                    .element
+                    .render(&render_opts)
+                    .expect("couldn't render template");
                 println!("{}", output);
             }
-            Self::Validate => log::debug!("validate"),
+            Self::Validate => {
+                log::debug!("validate");
+                for warning in root.warnings {
+                    log::warn!("{warning}");
+                }
+            }
         };
         Ok(())
     }
@@ -273,16 +253,193 @@ fn main() {
 mod tests {
     use clap::Parser;
 
+    use crate::format_parser_error;
+
     use super::Options;
+    use mrml::prelude::parser::{loader::IncludeLoaderError, Error as ParserError, Origin, Span};
+
+    fn origin_include() -> Origin {
+        Origin::Include {
+            path: String::from("foo.mjml"),
+        }
+    }
+
+    const fn any_span() -> Span {
+        Span { start: 10, end: 20 }
+    }
+
+    #[test]
+    fn format_parser_error_end_of_stream_in_root() {
+        assert_eq!(
+            format_parser_error(ParserError::EndOfStream {
+                origin: Origin::Root
+            }),
+            "unexpected end of stream in root template"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_end_of_stream_in_include() {
+        assert_eq!(
+            format_parser_error(ParserError::EndOfStream {
+                origin: origin_include()
+            }),
+            "unexpected end of stream in template from \"foo.mjml\""
+        );
+    }
+
+    #[test]
+    fn format_parser_error_unexpected_element_in_root() {
+        assert_eq!(
+            format_parser_error(ParserError::UnexpectedElement {
+                origin: Origin::Root,
+                position: any_span()
+            }),
+            "unexpected element in root template at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_unexpected_element_in_include() {
+        assert_eq!(
+            format_parser_error(ParserError::UnexpectedElement {
+                origin: origin_include(),
+                position: any_span()
+            }),
+            "unexpected element in template from \"foo.mjml\" at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_invalid_attribute_in_root() {
+        assert_eq!(
+            format_parser_error(ParserError::InvalidAttribute {
+                origin: Origin::Root,
+                position: any_span()
+            }),
+            "invalid attribute in root template at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_invalid_attribute_in_include() {
+        assert_eq!(
+            format_parser_error(ParserError::InvalidAttribute {
+                origin: origin_include(),
+                position: any_span()
+            }),
+            "invalid attribute in template from \"foo.mjml\" at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_invalid_format_in_root() {
+        assert_eq!(
+            format_parser_error(ParserError::InvalidFormat {
+                origin: Origin::Root,
+                position: any_span()
+            }),
+            "invalid format in root template at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_invalid_format_in_include() {
+        assert_eq!(
+            format_parser_error(ParserError::InvalidFormat {
+                origin: origin_include(),
+                position: any_span()
+            }),
+            "invalid format in template from \"foo.mjml\" at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_include_loader_error_in_root() {
+        assert_eq!(
+            format_parser_error(ParserError::IncludeLoaderError {
+                origin: Origin::Root,
+                position: any_span(),
+                source: IncludeLoaderError {
+                    path: String::from("foo.mjml"),
+                    reason: std::io::ErrorKind::NotFound,
+                    message: None,
+                    cause: None,
+                }
+            }),
+            "unable to load included template in root template at position 10..20: foo.mjml entity not found"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_include_loader_error_in_include() {
+        assert_eq!(
+            format_parser_error(ParserError::IncludeLoaderError {
+                origin: Origin::Root,
+                position: any_span(),
+                source: IncludeLoaderError {
+                    path: String::from("foo.mjml"),
+                    reason: std::io::ErrorKind::NotFound,
+                    message: None,
+                    cause: None,
+                }
+            }),
+            "unable to load included template in root template at position 10..20: foo.mjml entity not found"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_missing_attribute_in_root() {
+        assert_eq!(
+            format_parser_error(ParserError::MissingAttribute {
+                name: "name",
+                origin: Origin::Root,
+                position: any_span()
+            }),
+            "missing attribute \"name\" in element in root template at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_missing_attribute_in_include() {
+        assert_eq!(
+            format_parser_error(ParserError::MissingAttribute {
+                name: "name",
+                origin: origin_include(),
+                position: any_span()
+            }),
+            "missing attribute \"name\" in element in template from \"foo.mjml\" at position 10..20"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_size_limit_in_root() {
+        assert_eq!(
+            format_parser_error(ParserError::SizeLimit {
+                origin: Origin::Root
+            }),
+            "size limit reached in root template"
+        );
+    }
+
+    #[test]
+    fn format_parser_error_size_limit_in_include() {
+        assert_eq!(
+            format_parser_error(ParserError::SizeLimit {
+                origin: origin_include()
+            }),
+            "size limit reached in template from \"foo.mjml\""
+        );
+    }
 
     fn execute<const N: usize>(args: [&str; N]) {
         Options::parse_from(args).execute().unwrap()
     }
 
-    fn execute_stdin<const N: usize>(args: [&str; N], input: &str) {
+    fn execute_stdin<const N: usize, I: Into<String>>(args: [&str; N], input: I) {
         let opts = Options::parse_from(args);
-        let root = opts.parse_input(input).unwrap();
-        opts.subcmd.execute(&root).unwrap()
+        let root = opts.parse_input(input.into()).unwrap();
+        opts.subcmd.execute(root).unwrap()
     }
 
     #[test]

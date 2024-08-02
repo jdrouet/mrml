@@ -18,6 +18,6 @@ fn should_have_a_single_roboto_font_imported() {
     </mj-section>
     </mj-body>
 </mjml>"#).unwrap();
-    let rendered = parsed.render(&RenderOptions::default()).unwrap();
+    let rendered = parsed.element.render(&RenderOptions::default()).unwrap();
     assert!(!rendered.contains("Roboto:300,400,500,700"));
 }

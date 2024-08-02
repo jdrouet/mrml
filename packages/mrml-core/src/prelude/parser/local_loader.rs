@@ -121,7 +121,7 @@ mod tests {
             .unwrap_err();
 
         assert_eq!(err.reason, ErrorKind::InvalidInput);
-        assert_eq!(err.to_string(), "Unable to load template /resources/compare/success/mj-body.mjml: the path should start with file:/// (invalid input parameter)");
+        assert_eq!(err.to_string(), "/resources/compare/success/mj-body.mjml invalid input parameter (the path should start with file:///)");
     }
 
     #[test]
@@ -159,7 +159,7 @@ mod tests {
         let err = loader.build_path("file:///../partial.mjml").unwrap_err();
 
         assert_eq!(err.reason, ErrorKind::NotFound);
-        assert_eq!(err.to_string(), "Unable to load template file:///../partial.mjml: the path should stay in the context of the loader (entity not found)");
+        assert_eq!(err.to_string(), "file:///../partial.mjml entity not found (the path should stay in the context of the loader)");
     }
 
     #[test]

@@ -1,9 +1,11 @@
+use xmlparser::StrSpan;
+
 use super::MjFontAttributes;
 #[cfg(feature = "async")]
 use crate::prelude::parser::AsyncMrmlParser;
-use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, WarningKind};
 
-#[inline]
+#[inline(always)]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
     let mut result = MjFontAttributes::default();
 
@@ -11,7 +13,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Err
         match attrs.local.as_str() {
             "name" => result.name = attrs.value.to_string(),
             "href" => result.href = attrs.value.to_string(),
-            _ => return Err(Error::UnexpectedAttribute(attrs.span.into())),
+            _ => cursor.add_warning(WarningKind::UnexpectedAttribute, attrs.span),
         }
     }
 
@@ -19,14 +21,22 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Err
 }
 
 impl<'opts> ParseAttributes<MjFontAttributes> for MrmlParser<'opts> {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<MjFontAttributes, Error> {
         parse_attributes(cursor)
     }
 }
 
 #[cfg(feature = "async")]
 impl ParseAttributes<MjFontAttributes> for AsyncMrmlParser {
-    fn parse_attributes(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Error> {
+    fn parse_attributes(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+        _tag: &StrSpan<'_>,
+    ) -> Result<MjFontAttributes, Error> {
         parse_attributes(cursor)
     }
 }
@@ -41,9 +51,10 @@ mod tests {
         r#"<mj-font name="Comic" href="https://jolimail.io" />"#
     );
 
-    crate::should_not_sync_parse!(
+    crate::should_sync_parse!(
         unexpected_attribute,
         MjFont,
-        r#"<mj-font unknown="whatever" />"#
+        r#"<mj-font unknown="whatever" />"#,
+        1
     );
 }

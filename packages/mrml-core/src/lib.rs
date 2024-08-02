@@ -19,7 +19,7 @@
 //! # {
 //! let root = mrml::parse("<mjml><mj-body></mj-body></mjml>").expect("parse template");
 //! let opts = mrml::prelude::render::Options::default();
-//! match root.render(&opts) {
+//! match root.element.render(&opts) {
 //!     Ok(content) => println!("{}", content),
 //!     Err(_) => println!("couldn't render mjml template"),
 //! };
@@ -165,6 +165,7 @@ pub mod prelude;
 pub mod text;
 
 // Only used to ignore the comments at the root level
+#[cfg(feature = "parse")]
 mod root;
 
 mod helper;
@@ -194,9 +195,15 @@ mod helper;
 pub fn parse_with_options<T: AsRef<str>>(
     input: T,
     opts: &crate::prelude::parser::ParserOptions,
-) -> Result<mjml::Mjml, prelude::parser::Error> {
+) -> Result<crate::prelude::parser::ParseOutput<mjml::Mjml>, prelude::parser::Error> {
     let root = crate::root::Root::parse_with_options(input, opts)?;
-    root.into_mjml().ok_or(prelude::parser::Error::NoRootNode)
+    Ok(crate::prelude::parser::ParseOutput {
+        element: root
+            .element
+            .into_mjml()
+            .ok_or(prelude::parser::Error::NoRootNode)?,
+        warnings: root.warnings,
+    })
 }
 
 #[cfg(all(feature = "parse", feature = "async"))]
@@ -227,9 +234,15 @@ pub fn parse_with_options<T: AsRef<str>>(
 pub async fn async_parse_with_options<T: AsRef<str>>(
     input: T,
     opts: std::sync::Arc<crate::prelude::parser::AsyncParserOptions>,
-) -> Result<mjml::Mjml, prelude::parser::Error> {
+) -> Result<crate::prelude::parser::ParseOutput<mjml::Mjml>, prelude::parser::Error> {
     let root = crate::root::Root::async_parse_with_options(input, opts).await?;
-    root.into_mjml().ok_or(prelude::parser::Error::NoRootNode)
+    Ok(crate::prelude::parser::ParseOutput {
+        element: root
+            .element
+            .into_mjml()
+            .ok_or(prelude::parser::Error::NoRootNode)?,
+        warnings: root.warnings,
+    })
 }
 
 #[cfg(feature = "parse")]
@@ -242,7 +255,9 @@ pub async fn async_parse_with_options<T: AsRef<str>>(
 ///     Err(err) => eprintln!("Something went wrong: {err:?}"),
 /// }
 /// ```
-pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
+pub fn parse<T: AsRef<str>>(
+    input: T,
+) -> Result<prelude::parser::ParseOutput<mjml::Mjml>, prelude::parser::Error> {
     let opts = crate::prelude::parser::ParserOptions::default();
     parse_with_options(input, &opts)
 }
@@ -259,7 +274,9 @@ pub fn parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Err
 /// }
 /// # })
 /// ```
-pub async fn async_parse<T: AsRef<str>>(input: T) -> Result<mjml::Mjml, prelude::parser::Error> {
+pub async fn async_parse<T: AsRef<str>>(
+    input: T,
+) -> Result<crate::prelude::parser::ParseOutput<mjml::Mjml>, prelude::parser::Error> {
     let opts = std::sync::Arc::new(crate::prelude::parser::AsyncParserOptions::default());
     async_parse_with_options(input, opts).await
 }
