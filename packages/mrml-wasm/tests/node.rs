@@ -30,7 +30,7 @@ fn it_should_fail_when_render_template() {
     match result {
         mrml_wasm::ToHtmlResult::Error(inner) => match inner {
             ToHtmlError::Parser { message } => {
-                assert_eq!(message, "unable to load included template")
+                assert_eq!(message, "unable to parse next template in root template")
             }
             other => panic!("unexpected error {:?}", other),
         },
@@ -47,7 +47,7 @@ async fn it_should_fail_when_render_template_async() {
     match result {
         mrml_wasm::ToHtmlResult::Error(inner) => match inner {
             ToHtmlError::Parser { message } => {
-                assert_eq!(message, "unable to load included template")
+                assert_eq!(message, "unable to parse next template in root template")
             }
             other => panic!("unexpected error {:?}", other),
         },
@@ -104,7 +104,10 @@ fn it_should_use_noop_include_loader_by_default() {
     match result {
         mrml_wasm::ToHtmlResult::Error(inner) => match inner {
             ToHtmlError::Parser { message } => {
-                assert_eq!(message, "unable to load included template")
+                assert_eq!(
+                    message,
+                    "unable to load included template in root template at position 46..56"
+                )
             }
             other => panic!("unexpected error {:?}", other),
         },
@@ -125,7 +128,10 @@ async fn it_should_use_noop_include_loader_by_default_async() {
     match result {
         mrml_wasm::ToHtmlResult::Error(inner) => match inner {
             ToHtmlError::Parser { message } => {
-                assert_eq!(message, "unable to load included template")
+                assert_eq!(
+                    message,
+                    "unable to load included template in root template at position 46..56"
+                )
             }
             other => panic!("unexpected error {:?}", other),
         },
