@@ -91,7 +91,7 @@ mod tests {
     fn should_display_basic() {
         assert_eq!(
             IncludeLoaderError::new("foo.mjml", ErrorKind::NotFound).to_string(),
-            "Unable to load template foo.mjml: entity not found",
+            "foo.mjml entity not found",
         );
     }
 
@@ -101,7 +101,7 @@ mod tests {
             IncludeLoaderError::new("foo.mjml", ErrorKind::NotFound)
                 .with_message("oops")
                 .to_string(),
-            "Unable to load template foo.mjml: oops (entity not found)",
+            "foo.mjml entity not found (oops)",
         );
     }
 
@@ -114,7 +114,7 @@ mod tests {
                     ErrorKind::InvalidInput
                 )))
                 .to_string(),
-            "Unable to load template foo.mjml: entity not found",
+            "foo.mjml entity not found",
         );
     }
 }

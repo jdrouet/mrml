@@ -1,8 +1,7 @@
-use std::convert::TryFrom;
 use std::fmt::Display;
 use xmlparser::{StrSpan, Token};
 
-use super::Origin;
+use super::MrmlCursor;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Span {
@@ -63,10 +62,11 @@ pub(crate) enum MrmlToken<'a> {
     Text(Text<'a>),
 }
 
-impl<'a> TryFrom<(Origin, Token<'a>)> for MrmlToken<'a> {
-    type Error = super::Error;
-
-    fn try_from((origin, value): (Origin, Token<'a>)) -> Result<Self, Self::Error> {
+impl<'a> MrmlToken<'a> {
+    pub(crate) fn parse(
+        cursor: &mut MrmlCursor<'a>,
+        value: Token<'a>,
+    ) -> Result<Self, super::Error> {
         match value {
             Token::Attribute {
                 prefix,
@@ -106,7 +106,10 @@ impl<'a> TryFrom<(Origin, Token<'a>)> for MrmlToken<'a> {
                 span,
             })),
             Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
-            other => Err(super::Error::UnexpectedToken(origin, other.into())),
+            other => Err(super::Error::UnexpectedToken {
+                origin: cursor.origin(),
+                position: other.into(),
+            }),
         }
     }
 }
@@ -172,8 +175,11 @@ impl<'a> super::MrmlCursor<'a> {
         self.tokenizer
             .next()
             .map(|res| {
-                res.map_err(super::Error::from)
-                    .and_then(|token| MrmlToken::try_from((self.origin(), token)))
+                res.map_err(|source| super::Error::ParserError {
+                    origin: self.origin(),
+                    source,
+                })
+                .and_then(|token| MrmlToken::parse(self, token))
             })
             .and_then(|token| match token {
                 Ok(MrmlToken::Text(inner))
@@ -198,8 +204,11 @@ impl<'a> super::MrmlCursor<'a> {
     }
 
     pub(crate) fn assert_next(&mut self) -> Result<MrmlToken<'a>, super::Error> {
-        self.next_token()
-            .unwrap_or_else(|| Err(super::Error::EndOfStream(self.origin())))
+        self.next_token().unwrap_or_else(|| {
+            Err(super::Error::EndOfStream {
+                origin: self.origin(),
+            })
+        })
     }
 
     pub(crate) fn next_attribute(&mut self) -> Result<Option<Attribute<'a>>, super::Error> {
@@ -210,25 +219,37 @@ impl<'a> super::MrmlCursor<'a> {
                 Ok(None)
             }
             Some(Err(inner)) => Err(inner),
-            None => Err(super::Error::EndOfStream(self.origin())),
+            None => Err(super::Error::EndOfStream {
+                origin: self.origin(),
+            }),
         }
     }
 
     pub(crate) fn assert_element_start(&mut self) -> Result<ElementStart<'a>, super::Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementStart(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(super::Error::UnexpectedToken(self.origin(), other.span())),
+            Some(Ok(other)) => Err(super::Error::UnexpectedToken {
+                origin: self.origin(),
+                position: other.span(),
+            }),
             Some(Err(inner)) => Err(inner),
-            None => Err(super::Error::EndOfStream(self.origin())),
+            None => Err(super::Error::EndOfStream {
+                origin: self.origin(),
+            }),
         }
     }
 
     pub(crate) fn assert_element_end(&mut self) -> Result<ElementEnd<'a>, super::Error> {
         match self.next_token() {
             Some(Ok(MrmlToken::ElementEnd(inner))) => Ok(inner),
-            Some(Ok(other)) => Err(super::Error::UnexpectedToken(self.origin(), other.span())),
+            Some(Ok(other)) => Err(super::Error::UnexpectedToken {
+                origin: self.origin(),
+                position: other.span(),
+            }),
             Some(Err(inner)) => Err(inner),
-            None => Err(super::Error::EndOfStream(self.origin())),
+            None => Err(super::Error::EndOfStream {
+                origin: self.origin(),
+            }),
         }
     }
 
@@ -238,9 +259,14 @@ impl<'a> super::MrmlCursor<'a> {
             Some(Ok(MrmlToken::Text(inner))) if inner.text.trim().is_empty() => {
                 self.assert_element_close()
             }
-            Some(Ok(other)) => Err(super::Error::UnexpectedToken(self.origin(), other.span())),
+            Some(Ok(other)) => Err(super::Error::UnexpectedToken {
+                origin: self.origin(),
+                position: other.span(),
+            }),
             Some(Err(inner)) => Err(inner),
-            None => Err(super::Error::EndOfStream(self.origin())),
+            None => Err(super::Error::EndOfStream {
+                origin: self.origin(),
+            }),
         }
     }
 
@@ -252,7 +278,9 @@ impl<'a> super::MrmlCursor<'a> {
                 Ok(None)
             }
             Some(Err(inner)) => Err(inner),
-            None => Err(super::Error::EndOfStream(self.origin())),
+            None => Err(super::Error::EndOfStream {
+                origin: self.origin(),
+            }),
         }
     }
 }

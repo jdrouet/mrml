@@ -52,11 +52,17 @@ impl<'opts> ParseChildren<MjmlChildren> for MrmlParser<'opts> {
                         children.body = Some(self.parse(cursor, start.local)?);
                     }
                     _ => {
-                        return Err(Error::UnexpectedElement(cursor.origin(), start.span.into()));
+                        return Err(Error::UnexpectedElement {
+                            origin: cursor.origin(),
+                            position: start.span.into(),
+                        });
                     }
                 },
                 other => {
-                    return Err(Error::UnexpectedToken(cursor.origin(), other.span()));
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    });
                 }
             }
         }
@@ -98,11 +104,17 @@ impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
                         children.body = Some(self.async_parse(cursor, start.local).await?);
                     }
                     _ => {
-                        return Err(Error::UnexpectedElement(cursor.origin(), start.span.into()));
+                        return Err(Error::UnexpectedElement {
+                            origin: cursor.origin(),
+                            position: start.span.into(),
+                        });
                     }
                 },
                 other => {
-                    return Err(Error::UnexpectedToken(cursor.origin(), other.span()));
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    });
                 }
             }
         }
@@ -279,14 +291,18 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedToken(Root, Span { start: 6, end: 11 })")]
+    #[should_panic(
+        expected = "UnexpectedToken { origin: Root, position: Span { start: 6, end: 11 } }"
+    )]
     fn should_fail_with_text_as_child() {
         let template = "<mjml>Hello</mjml>";
         let _ = Mjml::parse(template).unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "UnexpectedElement(Root, Span { start: 6, end: 10 })")]
+    #[should_panic(
+        expected = "UnexpectedElement { origin: Root, position: Span { start: 6, end: 10 } }"
+    )]
     fn should_fail_with_other_child() {
         let template = "<mjml><div /></mjml>";
         let _ = Mjml::parse(template).unwrap();

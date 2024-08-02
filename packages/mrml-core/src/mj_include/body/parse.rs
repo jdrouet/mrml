@@ -50,7 +50,10 @@ impl<'opts> ParseElement<MjIncludeBodyChild> for MrmlParser<'opts> {
             MJ_TABLE => Ok(MjIncludeBodyChild::MjTable(self.parse(cursor, tag)?)),
             MJ_TEXT => Ok(MjIncludeBodyChild::MjText(self.parse(cursor, tag)?)),
             MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(self.parse(cursor, tag)?)),
-            _ => Err(Error::UnexpectedElement(cursor.origin(), tag.into())),
+            _ => Err(Error::UnexpectedElement {
+                origin: cursor.origin(),
+                position: tag.into(),
+            }),
         }
     }
 }
@@ -113,7 +116,10 @@ impl AsyncParseElement<MjIncludeBodyChild> for AsyncMrmlParser {
             MJ_WRAPPER => Ok(MjIncludeBodyChild::MjWrapper(
                 self.async_parse(cursor, tag).await?,
             )),
-            _ => Err(Error::UnexpectedElement(cursor.origin(), tag.into())),
+            _ => Err(Error::UnexpectedElement {
+                origin: cursor.origin(),
+                position: tag.into(),
+            }),
         }
     }
 }
@@ -128,8 +134,10 @@ impl MjIncludeBodyKind {
     }
 
     fn parse(cursor: &mut MrmlCursor<'_>, span: StrSpan<'_>) -> Result<Self, Error> {
-        Self::maybe_parse(&span)
-            .ok_or_else(|| Error::InvalidAttribute(cursor.origin(), span.into()))
+        Self::maybe_parse(&span).ok_or_else(|| Error::InvalidAttribute {
+            origin: cursor.origin(),
+            position: span.into(),
+        })
     }
 }
 
@@ -154,7 +162,11 @@ fn parse_attributes(
         }
     }
     Ok(MjIncludeBodyAttributes {
-        path: path.ok_or_else(|| Error::MissingAttribute("path", cursor.origin(), tag.into()))?,
+        path: path.ok_or_else(|| Error::MissingAttribute {
+            name: "path",
+            origin: cursor.origin(),
+            position: tag.into(),
+        })?,
         kind: kind.unwrap_or_default(),
     })
 }
@@ -204,7 +216,12 @@ impl<'opts> ParseChildren<Vec<MjIncludeBodyChild>> for MrmlParser<'opts> {
                 MrmlToken::Text(inner) => {
                     result.push(MjIncludeBodyChild::Text(Text::from(inner.text.as_str())));
                 }
-                other => return Err(Error::UnexpectedToken(cursor.origin(), other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
 
@@ -239,7 +256,12 @@ impl AsyncParseChildren<Vec<MjIncludeBodyChild>> for AsyncMrmlParser {
                 MrmlToken::Text(inner) => {
                     result.push(MjIncludeBodyChild::Text(Text::from(inner.text.as_str())));
                 }
-                other => return Err(Error::UnexpectedToken(cursor.origin(), other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
 
@@ -367,7 +389,7 @@ mod tests {
         invalid_kind,
         MjIncludeBody,
         r#"<mj-include type="foo" path="basic.mjml" />"#,
-        "InvalidAttribute(Root, Span { start: 18, end: 21 })"
+        "InvalidAttribute { origin: Root, position: Span { start: 18, end: 21 } }"
     );
 
     crate::should_not_parse!(
@@ -480,7 +502,7 @@ mod tests {
         r#"<mj-include path="partial.html">
     <foo />
 </mj-include>"#,
-        "UnexpectedElement(Root, Span { start: 38, end: 41 })"
+        "UnexpectedElement { origin: Root, position: Span { start: 38, end: 41 } }"
     );
 
     crate::should_parse!(
@@ -494,7 +516,7 @@ mod tests {
         missing_path,
         MjIncludeBody,
         r#"<mj-include><!-- empty --></mj-include>"#,
-        "MissingAttribute(\"path\", Root, Span { start: 1, end: 11 })"
+        "MissingAttribute { name: \"path\", origin: Root, position: Span { start: 1, end: 11 } }"
     );
 
     #[test]

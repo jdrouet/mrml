@@ -37,28 +37,36 @@ impl std::fmt::Display for Origin {
 
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("unexpected element in {0} at position {1}")]
-    UnexpectedElement(Origin, Span),
-    #[error("unexpected token in {0} at position {1}")]
-    UnexpectedToken(Origin, Span),
-    #[error("missing attribute {0} in element in {1} at position {2}")]
-    MissingAttribute(&'static str, Origin, Span),
-    #[error("invalid attribute in {0} at position {1}")]
-    InvalidAttribute(Origin, Span),
-    #[error("invalid format in {0} at position {1}")]
-    InvalidFormat(Origin, Span),
-    #[error("unexpected end of stream in {0}")]
-    EndOfStream(Origin),
+    #[error("unexpected element in {origin} at position {position}")]
+    UnexpectedElement { origin: Origin, position: Span },
+    #[error("unexpected token in {origin} at position {position}")]
+    UnexpectedToken { origin: Origin, position: Span },
+    #[error("missing attribute {name:?} in element in {origin} at position {position}")]
+    MissingAttribute {
+        name: &'static str,
+        origin: Origin,
+        position: Span,
+    },
+    #[error("invalid attribute in {origin} at position {position}")]
+    InvalidAttribute { origin: Origin, position: Span },
+    #[error("invalid format in {origin} at position {position}")]
+    InvalidFormat { origin: Origin, position: Span },
+    #[error("unexpected end of stream in {origin}")]
+    EndOfStream { origin: Origin },
     /// The input string should be smaller than 4GiB.
-    #[error("size limit reached in {0}")]
-    SizeLimit(Origin),
+    #[error("size limit reached in {origin}")]
+    SizeLimit { origin: Origin },
     /// Errors detected by the `xmlparser` crate.
-    #[error("unable to load included template")]
-    ParserError(#[from] xmlparser::Error),
+    #[error("unable to parse next template in {origin}")]
+    ParserError {
+        origin: Origin,
+        #[source]
+        source: xmlparser::Error,
+    },
     /// The Mjml document must have at least one element.
     #[error("unable to find mjml element")]
     NoRootNode,
-    #[error("unable to load included template in {origin} at position {position}: {source}")]
+    #[error("unable to load included template in {origin} at position {position}")]
     IncludeLoaderError {
         origin: Origin,
         position: Span,

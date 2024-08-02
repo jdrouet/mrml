@@ -24,14 +24,22 @@ impl<'opts> ParseChildren<Vec<MjAccordionChild>> for MrmlParser<'opts> {
                             self.parse(cursor, inner.local)?,
                         ));
                     } else {
-                        return Err(Error::UnexpectedElement(cursor.origin(), inner.span.into()));
+                        return Err(Error::UnexpectedElement {
+                            origin: cursor.origin(),
+                            position: inner.span.into(),
+                        });
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::UnexpectedToken(cursor.origin(), other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
     }
@@ -60,14 +68,22 @@ impl AsyncParseChildren<Vec<MjAccordionChild>> for AsyncMrmlParser {
                             self.async_parse(cursor, inner.local).await?,
                         ));
                     } else {
-                        return Err(Error::UnexpectedElement(cursor.origin(), inner.span.into()));
+                        return Err(Error::UnexpectedElement {
+                            origin: cursor.origin(),
+                            position: inner.span.into(),
+                        });
                     }
                 }
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
                     return Ok(result);
                 }
-                other => return Err(Error::UnexpectedToken(cursor.origin(), other.span())),
+                other => {
+                    return Err(Error::UnexpectedToken {
+                        origin: cursor.origin(),
+                        position: other.span(),
+                    })
+                }
             }
         }
     }
@@ -100,13 +116,13 @@ mod tests {
         should_error_with_text,
         MjAccordion,
         "<mj-accordion>Hello</mj-accordion>",
-        "UnexpectedToken(Root, Span { start: 14, end: 19 })"
+        "UnexpectedToken { origin: Root, position: Span { start: 14, end: 19 } }"
     );
 
     crate::should_not_sync_parse!(
         should_error_with_unknown_element,
         MjAccordion,
         "<mj-accordion><span /></mj-accordion>",
-        "UnexpectedElement(Root, Span { start: 14, end: 19 })"
+        "UnexpectedElement { origin: Root, position: Span { start: 14, end: 19 } }"
     );
 }
