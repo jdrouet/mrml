@@ -15,6 +15,7 @@ export const Application = () => {
   const [output, setOutput] = React.useState<ToHtmlResult>({
     type: "success",
     content: "",
+    warnings: [],
   });
 
   React.useEffect(() => {
