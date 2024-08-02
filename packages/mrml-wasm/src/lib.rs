@@ -97,90 +97,23 @@ impl Engine {
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[serde(rename_all = "kebab-case", tag = "type")]
-#[tsify(into_wasm_abi)]
-pub enum Origin {
-    Root,
-    Include { path: String },
-}
-
-impl From<mrml::prelude::parser::Origin> for Origin {
-    fn from(value: mrml::prelude::parser::Origin) -> Self {
-        match value {
-            mrml::prelude::parser::Origin::Root => Self::Root,
-            mrml::prelude::parser::Origin::Include { path } => Self::Include { path },
-        }
-    }
-}
-
-#[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[tsify(into_wasm_abi)]
-pub struct Span {
-    start: usize,
-    end: usize,
-}
-
-impl From<mrml::prelude::parser::Span> for Span {
-    fn from(value: mrml::prelude::parser::Span) -> Self {
-        Self {
-            start: value.start,
-            end: value.end,
-        }
-    }
-}
-
-#[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[serde(rename_all = "kebab-case")]
-#[tsify(into_wasm_abi)]
-pub enum WarningKind {
-    UnexpectedAttributes,
-}
-
-impl From<mrml::prelude::parser::WarningKind> for WarningKind {
-    fn from(value: mrml::prelude::parser::WarningKind) -> Self {
-        match value {
-            mrml::prelude::parser::WarningKind::UnexpectedAttribute => Self::UnexpectedAttributes,
-        }
-    }
-}
-
-#[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[tsify(into_wasm_abi)]
-pub struct Warning {
-    kind: WarningKind,
-    origin: Origin,
-    span: Span,
-}
-
-impl Warning {
-    #[inline]
-    fn from_vec(list: Vec<mrml::prelude::parser::Warning>) -> Vec<Warning> {
-        list.into_iter().map(Warning::from).collect()
-    }
-}
-
-impl From<mrml::prelude::parser::Warning> for Warning {
-    fn from(value: mrml::prelude::parser::Warning) -> Self {
-        Self {
-            origin: value.origin.into(),
-            kind: value.kind.into(),
-            span: value.span.into(),
-        }
-    }
-}
-
-#[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "camelCase", tag = "origin")]
 #[tsify(into_wasm_abi)]
 pub enum ToHtmlError {
-    Parser { message: String },
-    Render { message: String },
+    Parser {
+        message: String,
+        details: ParserError,
+    },
+    Render {
+        message: String,
+    },
 }
 
 impl From<mrml::prelude::parser::Error> for ToHtmlError {
     fn from(value: mrml::prelude::parser::Error) -> Self {
         ToHtmlError::Parser {
             message: value.to_string(),
+            details: value.into(),
         }
     }
 }

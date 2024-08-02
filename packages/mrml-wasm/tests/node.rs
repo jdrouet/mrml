@@ -28,8 +28,11 @@ fn it_should_fail_when_render_template() {
     let engine = mrml_wasm::Engine::new();
     let result = engine.to_html(template);
     match result {
-        mrml_wasm::ToHtmlResult::Error(inner) => match inner {
-            ToHtmlError::Parser { message } => {
+        mrml_wasm::ToHtmlResult::Error(err) => match err {
+            ToHtmlError::Parser {
+                message,
+                details: _,
+            } => {
                 assert_eq!(message, "unable to parse next template in root template")
             }
             other => panic!("unexpected error {:?}", other),
@@ -45,8 +48,11 @@ async fn it_should_fail_when_render_template_async() {
     let engine = mrml_wasm::Engine::new();
     let result = engine.to_html_async(template).await;
     match result {
-        mrml_wasm::ToHtmlResult::Error(inner) => match inner {
-            ToHtmlError::Parser { message } => {
+        mrml_wasm::ToHtmlResult::Error(err) => match err {
+            ToHtmlError::Parser {
+                message,
+                details: _,
+            } => {
                 assert_eq!(message, "unable to parse next template in root template")
             }
             other => panic!("unexpected error {:?}", other),
@@ -102,11 +108,14 @@ fn it_should_use_noop_include_loader_by_default() {
     });
     let result = engine.to_html(template);
     match result {
-        mrml_wasm::ToHtmlResult::Error(inner) => match inner {
-            ToHtmlError::Parser { message } => {
+        mrml_wasm::ToHtmlResult::Error(err) => match err {
+            ToHtmlError::Parser {
+                message,
+                details: _,
+            } => {
                 assert_eq!(
                     message,
-                    "unable to load included template in root template at position 46..56"
+                    "unable to load included template in root template at position 46:56"
                 )
             }
             other => panic!("unexpected error {:?}", other),
@@ -126,11 +135,14 @@ async fn it_should_use_noop_include_loader_by_default_async() {
     });
     let result = engine.to_html_async(template).await;
     match result {
-        mrml_wasm::ToHtmlResult::Error(inner) => match inner {
-            ToHtmlError::Parser { message } => {
+        mrml_wasm::ToHtmlResult::Error(err) => match err {
+            ToHtmlError::Parser {
+                message,
+                details: _,
+            } => {
                 assert_eq!(
                     message,
-                    "unable to load included template in root template at position 46..56"
+                    "unable to load included template in root template at position 46:56"
                 )
             }
             other => panic!("unexpected error {:?}", other),

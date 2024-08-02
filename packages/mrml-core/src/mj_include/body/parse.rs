@@ -538,7 +538,7 @@ mod tests {
         assert_eq!(warning.kind, WarningKind::UnexpectedAttribute);
         assert_eq!(
             warning.to_string(),
-            "unexpected attribute in template from \"partial.html\" at position 8..17"
+            "unexpected attribute in template from \"partial.html\" at position 8:17"
         );
     }
 }

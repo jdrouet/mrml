@@ -295,7 +295,7 @@ mod tests {
                 origin: Origin::Root,
                 position: any_span()
             }),
-            "unexpected element in root template at position 10..20"
+            "unexpected element in root template at position 10:20"
         );
     }
 
@@ -306,7 +306,7 @@ mod tests {
                 origin: origin_include(),
                 position: any_span()
             }),
-            "unexpected element in template from \"foo.mjml\" at position 10..20"
+            "unexpected element in template from \"foo.mjml\" at position 10:20"
         );
     }
 
@@ -317,7 +317,7 @@ mod tests {
                 origin: Origin::Root,
                 position: any_span()
             }),
-            "invalid attribute in root template at position 10..20"
+            "invalid attribute in root template at position 10:20"
         );
     }
 
@@ -328,7 +328,7 @@ mod tests {
                 origin: origin_include(),
                 position: any_span()
             }),
-            "invalid attribute in template from \"foo.mjml\" at position 10..20"
+            "invalid attribute in template from \"foo.mjml\" at position 10:20"
         );
     }
 
@@ -339,7 +339,7 @@ mod tests {
                 origin: Origin::Root,
                 position: any_span()
             }),
-            "invalid format in root template at position 10..20"
+            "invalid format in root template at position 10:20"
         );
     }
 
@@ -350,7 +350,7 @@ mod tests {
                 origin: origin_include(),
                 position: any_span()
             }),
-            "invalid format in template from \"foo.mjml\" at position 10..20"
+            "invalid format in template from \"foo.mjml\" at position 10:20"
         );
     }
 
@@ -367,7 +367,7 @@ mod tests {
                     cause: None,
                 }
             }),
-            "unable to load included template in root template at position 10..20: foo.mjml entity not found"
+            "unable to load included template in root template at position 10:20: foo.mjml entity not found"
         );
     }
 
@@ -384,7 +384,7 @@ mod tests {
                     cause: None,
                 }
             }),
-            "unable to load included template in root template at position 10..20: foo.mjml entity not found"
+            "unable to load included template in root template at position 10:20: foo.mjml entity not found"
         );
     }
 
@@ -396,7 +396,7 @@ mod tests {
                 origin: Origin::Root,
                 position: any_span()
             }),
-            "missing attribute \"name\" in element in root template at position 10..20"
+            "missing attribute \"name\" in element in root template at position 10:20"
         );
     }
 
@@ -408,7 +408,7 @@ mod tests {
                 origin: origin_include(),
                 position: any_span()
             }),
-            "missing attribute \"name\" in element in template from \"foo.mjml\" at position 10..20"
+            "missing attribute \"name\" in element in template from \"foo.mjml\" at position 10:20"
         );
     }
 
