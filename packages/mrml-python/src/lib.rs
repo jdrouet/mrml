@@ -7,7 +7,7 @@ use mrml::prelude::parser::loader::IncludeLoader;
 use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
-use pyo3::exceptions::PyOSError;
+use pyo3::exceptions::PyIOError;
 use pyo3::prelude::*;
 
 #[pyclass]
@@ -244,13 +244,13 @@ fn to_html(
 ) -> PyResult<Output> {
     let parser_options = parser_options.unwrap_or_default().into();
     let parsed = mrml::parse_with_options(input, &parser_options)
-        .map_err(|err| PyOSError::new_err(err.to_string()))?;
+        .map_err(|err| PyIOError::new_err(err.to_string()))?;
 
     let render_options = render_options.unwrap_or_default().into();
     let content = parsed
         .element
         .render(&render_options)
-        .map_err(|err| PyOSError::new_err(err.to_string()))?;
+        .map_err(|err| PyIOError::new_err(err.to_string()))?;
 
     Ok(Output {
         content,
