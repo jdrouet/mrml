@@ -442,7 +442,7 @@ mod tests {
     #[test]
     fn expected_class_not_found() {
         let err = compare_attr_classes("foo bar baz".into(), "baz bar".into()).unwrap_err();
-        assert_eq!(err.display(), "ExpectedClassesNotFound { expected: StrSpan(\"foo bar baz\" 0..11), generated: StrSpan(\"baz bar\" 0..7), difference: {\"foo\"} }");
+        assert_eq!(err.display(), "ExpectedClassesNotFound { expected: StrSpan(\"foo bar baz\" 0:11), generated: StrSpan(\"baz bar\" 0:7), difference: {\"foo\"} }");
     }
 
     #[test]
@@ -458,7 +458,7 @@ mod tests {
     fn expected_style_not_found() {
         let err =
             compare_attr_styles("width:100%;height:12px".into(), "width:100%".into()).unwrap_err();
-        assert_eq!(err.display(), "ExpectedStylesNotFound { expected: StrSpan(\"width:100%;height:12px\" 0..22), generated: StrSpan(\"width:100%\" 0..10), difference: {\"height\"} }");
+        assert_eq!(err.display(), "ExpectedStylesNotFound { expected: StrSpan(\"width:100%;height:12px\" 0:22), generated: StrSpan(\"width:100%\" 0:10), difference: {\"height\"} }");
     }
 
     #[test]
