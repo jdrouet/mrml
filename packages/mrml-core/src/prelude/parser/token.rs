@@ -1,4 +1,5 @@
 use std::fmt::Display;
+
 use xmlparser::{StrSpan, Token};
 
 use super::MrmlCursor;

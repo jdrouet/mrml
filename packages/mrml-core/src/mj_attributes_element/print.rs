@@ -1,4 +1,5 @@
-use crate::prelude::{hash::Map, print::PrintableElement};
+use crate::prelude::hash::Map;
+use crate::prelude::print::PrintableElement;
 
 impl PrintableElement for super::MjAttributesElement {
     type Attrs = Map<String, String>;
