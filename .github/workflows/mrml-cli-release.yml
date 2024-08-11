@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
