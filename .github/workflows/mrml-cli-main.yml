@@ -39,7 +39,7 @@ jobs:
           toolchain: stable
           profile: minimal
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -70,7 +70,7 @@ jobs:
           toolchain: stable
           profile: minimal
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
