@@ -140,7 +140,7 @@ jobs:
     needs: [release]
     steps:
       - name: notify mastodon
-        uses: cbrgm/mastodon-github-action@v1
+        uses: cbrgm/mastodon-github-action@v2
         with:
           message: |
             👋 Hey! I just released a new version of mrml-python! 🐍
