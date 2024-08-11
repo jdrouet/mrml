@@ -57,7 +57,7 @@ jobs:
           yarn build --base https://jdrouet.github.io/mrml/
 
       - name: setup pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
       - name: upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
