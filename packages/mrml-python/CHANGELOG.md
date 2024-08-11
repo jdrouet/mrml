@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.16](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.15...mrml-python-v0.1.16) - 2024-08-11
+
+### Added
+- parsing warnings and improve errors ([#451](https://github.com/jdrouet/mrml/pull/451))
+
+### Fixed
+- *(mrml-python)* turn PyOSError into PyIOError
+
 ## [0.1.15](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.14...mrml-python-v0.1.15) - 2024-06-30
 
 ### Other
