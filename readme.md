@@ -140,6 +140,8 @@ From this, you can see that `mrml` is **more than 110 faster** than `mjml`.
 
 [mjml-python](https://github.com/mgd020/mjml-python) - Python library
 
+[wagtail-newsletter](https://github.com/wagtail/wagtail-newsletter) - Wagtail extension
+
 <i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
 
 ## License
