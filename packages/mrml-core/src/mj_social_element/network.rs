@@ -47,6 +47,7 @@ impl SocialNetwork {
             "web" => Some(Self::web()),
             "xing" => Some(Self::xing(noshare)),
             "youtube" => Some(Self::youtube()),
+            "x" => Some(Self::x(noshare)),
             _ => None,
         }
     }
@@ -168,6 +169,19 @@ impl SocialNetwork {
                 Some("https://twitter.com/home?status=[[URL]]")
             },
             icon: "twitter.png",
+        }
+    }
+
+
+    fn x(noshare: bool) -> Self {
+        Self {
+            background_color: "#000000",
+            share_url: if noshare {
+                None
+            } else {
+                Some("https://twitter.com/home?status=[[URL]]")
+            },
+            icon: "twitter-x.png",
         }
     }
 
