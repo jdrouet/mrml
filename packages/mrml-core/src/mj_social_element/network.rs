@@ -172,7 +172,6 @@ impl SocialNetwork {
         }
     }
 
-
     fn x(noshare: bool) -> Self {
         Self {
             background_color: "#000000",
