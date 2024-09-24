@@ -26,7 +26,7 @@ fn to_html(
 async fn to_html_async(
     input: &str,
     parser_options: std::sync::Arc<mrml::prelude::parser::AsyncParserOptions>,
-    render_options: &mrml::prelude::render::RenderOptions,
+    render_options: &mrml::prelude::render::RenderOptions<'static>,
 ) -> Result<(String, Vec<Warning>), ToHtmlError> {
     let element = mrml::async_parse_with_options(input, parser_options).await?;
     let html = element.element.render(render_options)?;
@@ -39,7 +39,7 @@ pub struct Engine {
     parser: Rc<mrml::prelude::parser::ParserOptions>,
     #[cfg(feature = "async")]
     async_parser: std::sync::Arc<mrml::prelude::parser::AsyncParserOptions>,
-    render: mrml::prelude::render::RenderOptions,
+    render: mrml::prelude::render::RenderOptions<'static>,
 }
 
 #[wasm_bindgen]

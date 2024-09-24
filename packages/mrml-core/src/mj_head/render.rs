@@ -165,7 +165,7 @@ impl<'root> Renderer<'root, MjHead, ()> {
             if let Some(href) = self.context.header.font_families().get(name.as_str()) {
                 render_font_link(&mut links, href);
                 render_font_import(&mut imports, href);
-            } else if let Some(href) = self.context.options.fonts.get(name) {
+            } else if let Some(href) = self.context.options.fonts.get(name.as_str()) {
                 render_font_link(&mut links, href);
                 render_font_import(&mut imports, href);
             } else {

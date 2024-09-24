@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
@@ -21,12 +22,12 @@ impl<T> Slice<T> {
 
 /// Structure representing a string
 #[repr(C)]
-pub struct SliceCChar {
+pub struct OutputString {
     pointer: *const c_char,
     length: usize,
 }
 
-impl SliceCChar {
+impl OutputString {
     #[inline(always)]
     pub fn from_static_str(input: &'static str) -> Self {
         Self {
@@ -54,7 +55,7 @@ pub struct Span {
 #[repr(C)]
 pub enum Origin {
     Root,
-    Include { path: SliceCChar },
+    Include { path: OutputString },
 }
 
 impl From<mrml::prelude::parser::Origin> for Origin {
@@ -62,7 +63,7 @@ impl From<mrml::prelude::parser::Origin> for Origin {
         match value {
             mrml::prelude::parser::Origin::Root => Self::Root,
             mrml::prelude::parser::Origin::Include { path } => Self::Include {
-                path: SliceCChar::from_string(path),
+                path: OutputString::from_string(path),
             },
         }
     }
@@ -72,7 +73,7 @@ impl From<mrml::prelude::parser::Origin> for Origin {
 #[repr(C)]
 pub struct Warning {
     /// A basic text description of the warning
-    kind: SliceCChar,
+    kind: OutputString,
     /// The origin of the template, could be the root template or an include
     origin: Origin,
     /// Location in the template when this warning happens
@@ -82,7 +83,7 @@ pub struct Warning {
 impl From<mrml::prelude::parser::Warning> for Warning {
     fn from(value: mrml::prelude::parser::Warning) -> Self {
         Self {
-            kind: SliceCChar::from_static_str(value.kind.as_str()),
+            kind: OutputString::from_static_str(value.kind.as_str()),
             origin: Origin::from(value.origin),
             span: Span {
                 start: value.span.start,
@@ -94,13 +95,13 @@ impl From<mrml::prelude::parser::Warning> for Warning {
 
 #[repr(C)]
 pub struct Success {
-    output: SliceCChar,
+    output: OutputString,
     warnings: Slice<Warning>,
 }
 
 #[repr(C)]
 pub struct Error {
-    message: SliceCChar,
+    message: OutputString,
 }
 
 const NULL_POINTER_ERROR: &str = "provided null pointer";
@@ -108,7 +109,7 @@ const NULL_POINTER_ERROR: &str = "provided null pointer";
 impl Error {
     fn null_pointer() -> Self {
         Self {
-            message: SliceCChar::from_static_str(NULL_POINTER_ERROR),
+            message: OutputString::from_static_str(NULL_POINTER_ERROR),
         }
     }
 }
@@ -119,8 +120,37 @@ pub enum Result {
     Err(Error),
 }
 
+#[repr(C)]
+pub struct ParserOptions {}
+
+#[repr(C)]
+pub struct RenderOptions {
+    disable_comments: bool,
+    social_icon_origin: *const c_char,
+}
+
+impl RenderOptions {
+    fn social_icon_origin(&self) -> Option<Cow<'_, str>> {
+        if self.social_icon_origin.is_null() {
+            None
+        } else {
+            Some(unsafe { CStr::from_ptr(self.social_icon_origin).to_string_lossy() })
+        }
+    }
+}
+
+impl<'a> From<&'a RenderOptions> for mrml::prelude::render::RenderOptions<'a> {
+    fn from(value: &'a RenderOptions) -> Self {
+        Self {
+            disable_comments: value.disable_comments,
+            social_icon_origin: value.social_icon_origin(),
+            fonts: Default::default(),
+        }
+    }
+}
+
 #[no_mangle]
-pub extern "C" fn render(pointer: *const c_char) -> Result {
+pub extern "C" fn render(pointer: *const c_char, render: &RenderOptions) -> Result {
     if pointer.is_null() {
         return Result::Err(Error::null_pointer());
     }
@@ -130,16 +160,16 @@ pub extern "C" fn render(pointer: *const c_char) -> Result {
         Ok(res) => res,
         Err(err) => {
             return Result::Err(Error {
-                message: SliceCChar::from_string(err.to_string()),
+                message: OutputString::from_string(err.to_string()),
             })
         }
     };
-    let render_opts = mrml::prelude::render::RenderOptions::default();
+    let render_opts = render.into();
     let output = match parsed.element.render(&render_opts) {
         Ok(res) => res,
         Err(err) => {
             return Result::Err(Error {
-                message: SliceCChar::from_string(err.to_string()),
+                message: OutputString::from_string(err.to_string()),
             })
         }
     };
@@ -150,7 +180,7 @@ pub extern "C" fn render(pointer: *const c_char) -> Result {
             .map(Warning::from)
             .collect::<Vec<_>>(),
     );
-    let output = SliceCChar::from_string(output);
+    let output = OutputString::from_string(output);
     Result::Ok(Success { output, warnings })
 }
 
@@ -177,8 +207,8 @@ mod tests {
         };
     }
 
-    impl super::SliceCChar {
-        fn as_str(&self) -> &str {
+    impl super::OutputString {
+        pub fn as_str(&self) -> &str {
             unsafe {
                 ::std::ffi::CStr::from_bytes_with_nul_unchecked(::std::slice::from_raw_parts(
                     self.pointer as *const u8,
@@ -213,7 +243,11 @@ mod tests {
     fn should_render() {
         let input =
             str_to_c_char!("<mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>");
-        let output = render(input.as_ptr());
+        let render_opts = RenderOptions {
+            disable_comments: true,
+            social_icon_origin: std::ptr::null(),
+        };
+        let output = render(input.as_ptr(), &render_opts);
         let success = output.assert_ok();
         let output = success.output.as_str();
         assert!(output.starts_with("<!doctype html><html"), "{output:?}");
@@ -226,7 +260,11 @@ mod tests {
         let input = str_to_c_char!(
             "<mjml whatever=\"foo\"><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>"
         );
-        let output = render(input.as_ptr());
+        let render_opts = RenderOptions {
+            disable_comments: true,
+            social_icon_origin: std::ptr::null(),
+        };
+        let output = render(input.as_ptr(), &render_opts);
         let success = output.assert_ok();
         let output = success.output.as_str();
         assert!(output.starts_with("<!doctype html><html"), "{output:?}");

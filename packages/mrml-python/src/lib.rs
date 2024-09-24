@@ -174,7 +174,7 @@ impl RenderOptions {
     }
 }
 
-impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
+impl From<RenderOptions> for mrml::prelude::render::RenderOptions<'static> {
     fn from(value: RenderOptions) -> Self {
         let mut opts = mrml::prelude::render::RenderOptions {
             disable_comments: value.disable_comments,
@@ -186,7 +186,7 @@ impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
         if let Some(fonts) = value.fonts {
             opts.fonts = fonts
                 .into_iter()
-                .map(|(name, value)| (name, Cow::Owned(value)))
+                .map(|(name, value)| (Cow::Owned(name), Cow::Owned(value)))
                 .collect();
         }
         opts

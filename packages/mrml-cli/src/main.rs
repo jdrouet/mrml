@@ -231,7 +231,7 @@ struct Render {
     pub social_icon_origin: Option<String>,
 }
 
-impl From<Render> for RenderOptions {
+impl From<Render> for RenderOptions<'static> {
     fn from(value: Render) -> Self {
         Self {
             disable_comments: value.disable_comments,

@@ -56,7 +56,7 @@ impl IntoResponse for EngineError {
 #[derive(Clone, Debug)]
 struct Engine {
     parser: Arc<mrml::prelude::parser::AsyncParserOptions>,
-    render: Arc<mrml::prelude::render::RenderOptions>,
+    render: Arc<mrml::prelude::render::RenderOptions<'static>>,
 }
 
 impl Default for Engine {

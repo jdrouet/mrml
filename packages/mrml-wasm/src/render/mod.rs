@@ -17,7 +17,7 @@ pub struct RenderOptions {
     pub fonts: HashMap<String, String>,
 }
 
-impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
+impl From<RenderOptions> for mrml::prelude::render::RenderOptions<'static> {
     fn from(value: RenderOptions) -> Self {
         Self {
             disable_comments: value.disable_comments,
@@ -25,7 +25,7 @@ impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
             fonts: value
                 .fonts
                 .into_iter()
-                .map(|(key, value)| (key, Cow::Owned(value)))
+                .map(|(key, value)| (Cow::Owned(key), Cow::Owned(value)))
                 .collect(),
         }
     }

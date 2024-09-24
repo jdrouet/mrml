@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-pub fn default_fonts() -> HashMap<String, Cow<'static, str>> {
+pub fn default_fonts() -> HashMap<Cow<'static, str>, Cow<'static, str>> {
     HashMap::from([
         (
             "Open Sans".into(),
@@ -27,13 +27,13 @@ pub fn default_fonts() -> HashMap<String, Cow<'static, str>> {
 }
 
 #[derive(Debug)]
-pub struct RenderOptions {
+pub struct RenderOptions<'a> {
     pub disable_comments: bool,
-    pub social_icon_origin: Option<Cow<'static, str>>,
-    pub fonts: HashMap<String, Cow<'static, str>>,
+    pub social_icon_origin: Option<Cow<'a, str>>,
+    pub fonts: HashMap<Cow<'a, str>, Cow<'a, str>>,
 }
 
-impl Default for RenderOptions {
+impl<'a> Default for RenderOptions<'a> {
     fn default() -> Self {
         Self {
             disable_comments: false,
