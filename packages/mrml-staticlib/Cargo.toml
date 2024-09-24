@@ -1,0 +1,15 @@
+[package]
+name = "mrml-staticlib"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+mrml = { version = "4.0.1", path = "../mrml-core" }
+
+[build-dependencies]
+cbindgen = "^0.27.0"

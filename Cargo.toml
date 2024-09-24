@@ -6,6 +6,7 @@ members = [
     "packages/mrml-core/lib/html-compare",
     "packages/mrml-core",
     "packages/mrml-python",
+    "packages/mrml-staticlib",
     "packages/mrml-wasm",
 ]
 resolver = "2"
