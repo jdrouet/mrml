@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
@@ -17,6 +18,14 @@ impl<T> Slice<T> {
         let length: usize = boxed_slice.len();
         std::mem::forget(boxed_slice);
         Self { pointer, length }
+    }
+
+    pub fn as_slice(&self) -> Option<&[T]> {
+        if self.pointer.is_null() {
+            None
+        } else {
+            Some(unsafe { std::slice::from_raw_parts(self.pointer, self.length) })
+        }
     }
 }
 
@@ -124,9 +133,27 @@ pub enum Result {
 pub struct ParserOptions {}
 
 #[repr(C)]
+pub struct RenderFontOption {
+    name: *const c_char,
+    href: *const c_char,
+}
+
+impl RenderFontOption {
+    fn into_entry(&self) -> (Cow<'_, str>, Cow<'_, str>) {
+        unsafe {
+            (
+                CStr::from_ptr(self.name).to_string_lossy(),
+                CStr::from_ptr(self.href).to_string_lossy(),
+            )
+        }
+    }
+}
+
+#[repr(C)]
 pub struct RenderOptions {
     disable_comments: bool,
     social_icon_origin: *const c_char,
+    fonts: Slice<RenderFontOption>,
 }
 
 impl RenderOptions {
@@ -137,6 +164,13 @@ impl RenderOptions {
             Some(unsafe { CStr::from_ptr(self.social_icon_origin).to_string_lossy() })
         }
     }
+
+    fn fonts(&self) -> HashMap<Cow<'_, str>, Cow<'_, str>> {
+        match self.fonts.as_slice() {
+            Some(inner) => inner.iter().map(|v| v.into_entry()).collect(),
+            None => HashMap::default(),
+        }
+    }
 }
 
 impl<'a> From<&'a RenderOptions> for mrml::prelude::render::RenderOptions<'a> {
@@ -144,7 +178,7 @@ impl<'a> From<&'a RenderOptions> for mrml::prelude::render::RenderOptions<'a> {
         Self {
             disable_comments: value.disable_comments,
             social_icon_origin: value.social_icon_origin(),
-            fonts: Default::default(),
+            fonts: value.fonts(),
         }
     }
 }
@@ -239,6 +273,15 @@ mod tests {
         }
     }
 
+    impl<T> super::Slice<T> {
+        fn empty() -> Self {
+            Self {
+                pointer: std::ptr::null(),
+                length: 0,
+            }
+        }
+    }
+
     #[test]
     fn should_render() {
         let input =
@@ -246,6 +289,7 @@ mod tests {
         let render_opts = RenderOptions {
             disable_comments: true,
             social_icon_origin: std::ptr::null(),
+            fonts: Slice::empty(),
         };
         let output = render(input.as_ptr(), &render_opts);
         let success = output.assert_ok();
@@ -263,6 +307,31 @@ mod tests {
         let render_opts = RenderOptions {
             disable_comments: true,
             social_icon_origin: std::ptr::null(),
+            fonts: Slice::empty(),
+        };
+        let output = render(input.as_ptr(), &render_opts);
+        let success = output.assert_ok();
+        let output = success.output.as_str();
+        assert!(output.starts_with("<!doctype html><html"), "{output:?}");
+        let warnings = success.warnings();
+        assert_eq!(warnings.len(), 1);
+        assert_eq!(warnings[0].kind.as_str(), "unexpected-attribute");
+        assert_eq!(warnings[0].span.start, 6);
+        assert_eq!(warnings[0].span.end, 20);
+    }
+
+    #[test]
+    fn should_render_with_fonts() {
+        let input = str_to_c_char!(
+            "<mjml whatever=\"foo\"><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>"
+        );
+        let render_opts = RenderOptions {
+            disable_comments: true,
+            social_icon_origin: std::ptr::null(),
+            fonts: Slice::from_vec(vec![RenderFontOption {
+                name: str_to_c_char!("foo").as_ptr(),
+                href: str_to_c_char!("bar").as_ptr(),
+            }]),
         };
         let output = render(input.as_ptr(), &render_opts);
         let success = output.assert_ok();
