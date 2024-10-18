@@ -12,7 +12,6 @@ use std::marker::PhantomData;
 
 pub use children::MjSocialChild;
 
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-social";
@@ -25,4 +24,5 @@ impl StaticTag for MjSocialTag {
     }
 }
 
-pub type MjSocial = Component<PhantomData<MjSocialTag>, Map<String, String>, Vec<MjSocialChild>>;
+pub type MjSocial =
+    Component<PhantomData<MjSocialTag>, crate::prelude::AttributeMap, Vec<MjSocialChild>>;

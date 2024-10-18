@@ -10,7 +10,6 @@ mod render;
 use std::marker::PhantomData;
 
 use crate::mj_raw::MjRawChild;
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-navbar-link";
@@ -24,4 +23,4 @@ impl StaticTag for MjNavbarLinkTag {
 }
 
 pub type MjNavbarLink =
-    Component<PhantomData<MjNavbarLinkTag>, Map<String, String>, Vec<MjRawChild>>;
+    Component<PhantomData<MjNavbarLinkTag>, crate::prelude::AttributeMap, Vec<MjRawChild>>;

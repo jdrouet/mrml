@@ -24,7 +24,6 @@ use std::marker::PhantomData;
 
 pub use children::MjAccordionChild;
 
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-accordion";
@@ -38,7 +37,7 @@ impl StaticTag for MjAccordionTag {
 }
 
 pub type MjAccordion =
-    Component<PhantomData<MjAccordionTag>, Map<String, String>, Vec<MjAccordionChild>>;
+    Component<PhantomData<MjAccordionTag>, crate::prelude::AttributeMap, Vec<MjAccordionChild>>;
 
 #[cfg(all(test, feature = "parse", feature = "render"))]
 mod tests {

@@ -1,7 +1,6 @@
 use std::marker::PhantomData;
 
 use crate::mj_body::MjBodyChild;
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 #[cfg(feature = "json")]
@@ -21,4 +20,5 @@ impl StaticTag for MjGroupTag {
     }
 }
 
-pub type MjGroup = Component<PhantomData<MjGroupTag>, Map<String, String>, Vec<MjBodyChild>>;
+pub type MjGroup =
+    Component<PhantomData<MjGroupTag>, crate::prelude::AttributeMap, Vec<MjBodyChild>>;

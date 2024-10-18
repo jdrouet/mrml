@@ -12,7 +12,6 @@ use std::marker::PhantomData;
 
 pub use children::MjBodyChild;
 
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-body";
@@ -25,4 +24,4 @@ impl StaticTag for MjBodyTag {
     }
 }
 
-pub type MjBody = Component<PhantomData<MjBodyTag>, Map<String, String>, Vec<MjBodyChild>>;
+pub type MjBody = Component<PhantomData<MjBodyTag>, crate::prelude::AttributeMap, Vec<MjBodyChild>>;

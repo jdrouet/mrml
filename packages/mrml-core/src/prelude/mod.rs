@@ -64,3 +64,5 @@ pub(crate) fn is_void_element(tag: &str) -> bool {
             | "wbr"
     )
 }
+
+pub type AttributeMap = hash::Map<String, String>;

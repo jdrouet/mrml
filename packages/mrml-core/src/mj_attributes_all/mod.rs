@@ -1,6 +1,5 @@
 use std::marker::PhantomData;
 
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 #[cfg(feature = "json")]
@@ -20,10 +19,11 @@ impl StaticTag for MjAttributesAllTag {
     }
 }
 
-pub type MjAttributesAll = Component<PhantomData<MjAttributesAllTag>, Map<String, String>, ()>;
+pub type MjAttributesAll =
+    Component<PhantomData<MjAttributesAllTag>, crate::prelude::AttributeMap, ()>;
 
 impl MjAttributesAll {
-    pub fn attributes(&self) -> &Map<String, String> {
+    pub fn attributes(&self) -> &crate::prelude::AttributeMap {
         &self.attributes
     }
 }

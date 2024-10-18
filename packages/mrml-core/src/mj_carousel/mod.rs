@@ -12,7 +12,6 @@ use std::marker::PhantomData;
 
 pub use children::MjCarouselChild;
 
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-carousel";
@@ -26,4 +25,4 @@ impl StaticTag for MjCarouselTag {
 }
 
 pub type MjCarousel =
-    Component<PhantomData<MjCarouselTag>, Map<String, String>, Vec<MjCarouselChild>>;
+    Component<PhantomData<MjCarouselTag>, crate::prelude::AttributeMap, Vec<MjCarouselChild>>;

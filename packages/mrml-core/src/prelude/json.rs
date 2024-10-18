@@ -124,7 +124,7 @@ impl<'de, T: StaticTag> serde::de::Deserialize<'de> for DeserializableTag<Phanto
 }
 
 impl<Child: serde::Serialize> serde::Serialize
-    for super::Component<String, Map<String, String>, Vec<Child>>
+    for super::Component<String, crate::prelude::AttributeMap, Vec<Child>>
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

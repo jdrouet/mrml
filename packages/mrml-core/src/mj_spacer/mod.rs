@@ -1,6 +1,5 @@
 use std::marker::PhantomData;
 
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 #[cfg(feature = "json")]
@@ -20,4 +19,4 @@ impl StaticTag for MjSpacerTag {
     }
 }
 
-pub type MjSpacer = Component<PhantomData<MjSpacerTag>, Map<String, String>, ()>;
+pub type MjSpacer = Component<PhantomData<MjSpacerTag>, crate::prelude::AttributeMap, ()>;

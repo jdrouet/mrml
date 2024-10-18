@@ -9,7 +9,6 @@ mod render;
 
 use std::marker::PhantomData;
 
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 use crate::text::Text;
 
@@ -24,4 +23,4 @@ impl StaticTag for MjAccordionTitleTag {
 }
 
 pub type MjAccordionTitle =
-    Component<PhantomData<MjAccordionTitleTag>, Map<String, String>, Vec<Text>>;
+    Component<PhantomData<MjAccordionTitleTag>, crate::prelude::AttributeMap, Vec<Text>>;

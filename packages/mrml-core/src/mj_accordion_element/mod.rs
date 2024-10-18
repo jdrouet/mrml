@@ -11,7 +11,6 @@ use std::marker::PhantomData;
 
 use crate::mj_accordion_text::MjAccordionText;
 use crate::mj_accordion_title::MjAccordionTitle;
-use crate::prelude::hash::Map;
 use crate::prelude::{Component, StaticTag};
 
 pub const NAME: &str = "mj-accordion-element";
@@ -30,5 +29,8 @@ pub struct MjAccordionElementChildren {
     pub text: Option<MjAccordionText>,
 }
 
-pub type MjAccordionElement =
-    Component<PhantomData<MjAccordionElementTag>, Map<String, String>, MjAccordionElementChildren>;
+pub type MjAccordionElement = Component<
+    PhantomData<MjAccordionElementTag>,
+    crate::prelude::AttributeMap,
+    MjAccordionElementChildren,
+>;
