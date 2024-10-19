@@ -14,4 +14,4 @@ lightningcss = { version = "1.0.0-alpha.59", features = [
 ], default-features = false }
 
 [dev-dependencies]
-similar-asserts = { version = "1.4" }
+similar-asserts = { workspace = true }
