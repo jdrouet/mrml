@@ -22,8 +22,8 @@ pub struct MemoryIncludeLoaderOptions(HashMap<String, String>);
 #[derive(Clone, Debug, Default)]
 pub struct LocalIncludeLoaderOptions(PathBuf);
 
-#[pyclass]
-#[derive(Clone, Debug)]
+#[pyclass(eq, eq_int)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum HttpIncludeLoaderOptionsMode {
     Allow,
     Deny,
