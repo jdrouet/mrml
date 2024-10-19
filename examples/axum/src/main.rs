@@ -162,7 +162,7 @@ mod tests {
         http::{self, Request, StatusCode},
     };
     use serde_json::json;
-    use tower::ServiceExt;
+    use tower::util::ServiceExt;
 
     #[tokio::test]
     async fn should_parse_and_render() {
