@@ -44,6 +44,12 @@ impl<'opts> ParseChildren<MjmlChildren> for MrmlParser<'opts> {
                     cursor.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
                 }
+                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {
+                    // ignoring empty text
+                }
+                MrmlToken::Comment(_) => {
+                    // ignoring comment on purpose
+                }
                 MrmlToken::ElementStart(start) => match start.local.as_str() {
                     MJ_HEAD => {
                         children.head = Some(self.parse(cursor, start.local)?);
