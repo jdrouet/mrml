@@ -40,7 +40,7 @@ async-trait = { version = "0.1", optional = true }
 serde = { version = "1.0", optional = true, features = ["derive"] }
 serde_json = { version = "1.0", optional = true }
 xmlparser = { version = "0.13", optional = true }
-indexmap = { version = "2.0", default-features = false }
+indexmap = { version = "2.6", default-features = false }
 rustc-hash = { version = "2.0", default-features = false }
 thiserror = { version = "1.0", optional = true }
 
@@ -48,20 +48,20 @@ thiserror = { version = "1.0", optional = true }
 reqwest = { version = "0.12", default-features = false, features = [
     "rustls-tls",
 ], optional = true }
-ureq = { version = "2.7", optional = true }
-url = { version = "^2", optional = true }
+ureq = { version = "2.10", optional = true }
+url = { version = "2.5", optional = true }
 
 # macros
-itertools = { version = "0.13.0" }
-enum_dispatch = { version = "0.3.13", optional = true }
-enum-as-inner = { version = "0.6.0", optional = true }
+itertools = { version = "0.13" }
+enum_dispatch = { version = "0.3", optional = true }
+enum-as-inner = { version = "0.6", optional = true }
 
 [dev-dependencies]
 concat-idents = "1.1"
 criterion = "0.5"
 html-compare = { version = "0.1", path = "./lib/html-compare" }
-similar-asserts = "1.4"
-mockito = "1.1"
+similar-asserts = { workspace = true }
+mockito = "1.5"
 tokio = { version = "1.0", features = ["full"] }
 tokio-test = { version = "0.4" }
 

@@ -148,6 +148,8 @@ impl From<ToHtmlResult> for JsValue {
 
 #[cfg(test)]
 mod tests {
+    #![allow(dead_code)]
+
     use std::collections::HashMap;
     use std::iter::FromIterator;
 
@@ -192,6 +194,8 @@ mod tests {
 
 #[cfg(all(test, feature = "async"))]
 mod async_tests {
+    #![allow(dead_code)]
+
     use std::collections::HashMap;
     use std::iter::FromIterator;
 

@@ -11,5 +11,5 @@ repository = "https://github.com/jdrouet/mrml"
 [dependencies]
 colored = "2.0"
 css-compare = { path = "../css-compare", version = "0.1" }
-similar-asserts = "1.4"
+similar-asserts = { workspace = true }
 htmlparser = "0.1"
