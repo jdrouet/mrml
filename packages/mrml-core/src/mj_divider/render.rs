@@ -8,9 +8,12 @@ impl<'root> Renderer<'root, MjDivider, ()> {
             "border-top",
             format!(
                 "{} {} {}",
-                self.attribute("border-style").unwrap(),
-                self.attribute("border-width").unwrap(),
-                self.attribute("border-color").unwrap()
+                self.attribute("border-style")
+                    .unwrap_or(DEFAULT_BORDER_STYLE),
+                self.attribute("border-width")
+                    .unwrap_or(DEFAULT_BORDER_WIDTH),
+                self.attribute("border-color")
+                    .unwrap_or(DEFAULT_BORDER_COLOR)
             ),
         )
         .add_style("font-size", "1px")
@@ -27,16 +30,16 @@ impl<'root> Renderer<'root, MjDivider, ()> {
 
     fn set_style_outlook<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         self.set_style_p_without_width(tag)
-            .add_style("width", self.get_outlook_width().to_string())
+            .maybe_add_style("width", self.get_outlook_width().map(|v| v.to_string()))
     }
 
-    fn get_outlook_width(&self) -> Pixel {
-        let container_width = self.container_width.as_ref().unwrap();
+    fn get_outlook_width(&self) -> Option<Pixel> {
+        let container_width = self.container_width.as_ref()?;
         let padding_horizontal = self.get_padding_horizontal();
         let width = self
             .attribute_as_size("width")
             .unwrap_or_else(|| Size::percent(100.0));
-        match width {
+        Some(match width {
             Size::Percent(value) => {
                 let effective = container_width.value() - padding_horizontal.value();
                 let multiplier = value.value() / 100.0;
@@ -44,14 +47,14 @@ impl<'root> Renderer<'root, MjDivider, ()> {
             }
             Size::Pixel(value) => value,
             _ => Pixel::new(container_width.value() - padding_horizontal.value()),
-        }
+        })
     }
 
     fn render_after(&self, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = self
             .set_style_outlook(Tag::table_presentation())
             .add_attribute("align", "center")
-            .add_attribute("width", self.get_outlook_width().to_string());
+            .maybe_add_attribute("width", self.get_outlook_width().map(|v| v.to_string()));
         let tr = Tag::tr();
         let td = Tag::td()
             .add_style("height", "0")
@@ -69,13 +72,17 @@ impl<'root> Renderer<'root, MjDivider, ()> {
     }
 }
 
+const DEFAULT_BORDER_COLOR: &str = "#000000";
+const DEFAULT_BORDER_STYLE: &str = "solid";
+const DEFAULT_BORDER_WIDTH: &str = "4px";
+
 impl<'root> Render<'root> for Renderer<'root, MjDivider, ()> {
     fn default_attribute(&self, key: &str) -> Option<&'static str> {
         match key {
             "align" => Some("center"),
-            "border-color" => Some("#000000"),
-            "border-style" => Some("solid"),
-            "border-width" => Some("4px"),
+            "border-color" => Some(DEFAULT_BORDER_COLOR),
+            "border-style" => Some(DEFAULT_BORDER_STYLE),
+            "border-width" => Some(DEFAULT_BORDER_WIDTH),
             "padding" => Some("10px 25px"),
             "width" => Some("100%"),
             _ => None,

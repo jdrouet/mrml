@@ -22,8 +22,9 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
     where
         'root: 'a,
     {
-        // can be unwraped because has default value
-        let position = self.attribute("background-position").unwrap();
+        let position = self
+            .attribute("background-position")
+            .unwrap_or(DEFAULT_BACKGROUND_POSITION);
         let mut positions = position.split_whitespace();
         if let Some(first) = positions.next() {
             if let Some(second) = positions.next() {
@@ -70,12 +71,17 @@ pub trait WithMjSectionBackground<'root>: Render<'root> {
                 format!(
                     "{} / {}",
                     self.get_background_position_str(),
-                    self.attribute("background-size").unwrap()
+                    self.attribute("background-size")
+                        .unwrap_or(DEFAULT_BACKGROUND_SIZE)
                 )
                 .into(),
             );
             // has default value
-            res.push(self.attribute("background-repeat").unwrap().into());
+            res.push(
+                self.attribute("background-repeat")
+                    .unwrap_or(DEFAULT_BACKGROUND_REPEAT)
+                    .into(),
+            );
         }
 
         if res.is_empty() {
@@ -524,12 +530,16 @@ impl<'root> SectionLikeRender<'root> for Renderer<'root, MjSection, ()> {
     }
 }
 
+const DEFAULT_BACKGROUND_POSITION: &str = "top center";
+const DEFAULT_BACKGROUND_REPEAT: &str = "repeat";
+const DEFAULT_BACKGROUND_SIZE: &str = "auto";
+
 impl<'root> Render<'root> for Renderer<'root, MjSection, ()> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
-            "background-position" => Some("top center"),
-            "background-repeat" => Some("repeat"),
-            "background-size" => Some("auto"),
+            "background-position" => Some(DEFAULT_BACKGROUND_POSITION),
+            "background-repeat" => Some(DEFAULT_BACKGROUND_REPEAT),
+            "background-size" => Some(DEFAULT_BACKGROUND_SIZE),
             "direction" => Some("ltr"),
             "padding" => Some("20px 0"),
             "text-align" => Some("center"),

@@ -215,13 +215,13 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
 
         self.render_controls(
             "previous",
-            self.attribute("left-icon").unwrap(),
+            self.attribute("left-icon").unwrap_or(DEFAULT_LEFT_ICON),
             &mut cursor.buffer,
         )?;
         self.render_images(cursor)?;
         self.render_controls(
             "next",
-            self.attribute("right-icon").unwrap(),
+            self.attribute("right-icon").unwrap_or(DEFAULT_RIGHT_ICON),
             &mut cursor.buffer,
         )?;
 
@@ -271,7 +271,7 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
                 .add_content("display: table-cell !important;")
                 .add_content(format!(
                     "width: {} !important;",
-                    self.attribute("icon-width").unwrap()
+                    self.attribute("icon-width").unwrap_or(DEFAULT_ICON_WIDTH)
                 ))
                 .to_string(),
             Style::default()
@@ -340,7 +340,8 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
         style.push(
             base.add_content(format!(
                 "border-color: {} !important;",
-                self.attribute("tb-selected-border-color").unwrap()
+                self.attribute("tb-selected-border-color")
+                    .unwrap_or(DEFAULT_TB_SELECTED_BORDER_COLOR)
             ))
             .to_string(),
         );
@@ -368,7 +369,8 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
                 .add_selector(".mj-carousel-thumbnail:hover")
                 .add_content(format!(
                     "border-color: {} !important;",
-                    self.attribute("tb-hover-border-color").unwrap()
+                    self.attribute("tb-hover-border-color")
+                        .unwrap_or(DEFAULT_TB_HOVER_BORDER_COLOR)
                 ))
                 .to_string(),
         );
@@ -406,19 +408,25 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
     }
 }
 
+const DEFAULT_ICON_WIDTH: &str = "44px";
+const DEFAULT_LEFT_ICON: &str = "https://i.imgur.com/xTh3hln.png";
+const DEFAULT_RIGHT_ICON: &str = "https://i.imgur.com/os7o9kz.png";
+const DEFAULT_TB_HOVER_BORDER_COLOR: &str = "#fead0d";
+const DEFAULT_TB_SELECTED_BORDER_COLOR: &str = "#cccccc";
+
 impl<'root> Render<'root> for Renderer<'root, MjCarousel, MjCarouselExtra> {
     fn default_attribute(&self, name: &str) -> Option<&'static str> {
         match name {
             "align" => Some("center"),
             "border-radius" => Some("6px"),
-            "icon-width" => Some("44px"),
-            "left-icon" => Some("https://i.imgur.com/xTh3hln.png"),
-            "right-icon" => Some("https://i.imgur.com/os7o9kz.png"),
+            "icon-width" => Some(DEFAULT_ICON_WIDTH),
+            "left-icon" => Some(DEFAULT_LEFT_ICON),
+            "right-icon" => Some(DEFAULT_RIGHT_ICON),
             "thumbnails" => Some("visible"),
             "tb-border" => Some("2px solid transparent"),
             "tb-border-radius" => Some("6px"),
-            "tb-hover-border-color" => Some("#fead0d"),
-            "tb-selected-border-color" => Some("#cccccc"),
+            "tb-hover-border-color" => Some(DEFAULT_TB_HOVER_BORDER_COLOR),
+            "tb-selected-border-color" => Some(DEFAULT_TB_SELECTED_BORDER_COLOR),
             _ => None,
         }
     }
