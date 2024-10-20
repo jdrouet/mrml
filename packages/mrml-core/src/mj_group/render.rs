@@ -5,8 +5,8 @@ use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjGroup, ()> {
-    fn current_width(&self) -> Pixel {
-        let parent_width = self.container_width.as_ref().unwrap();
+    fn current_width(&self) -> Option<Pixel> {
+        let parent_width = self.container_width.as_ref()?;
         let non_raw_siblings = self.non_raw_siblings();
         let borders = self.get_border_horizontal();
         let paddings = self.get_padding_horizontal();
@@ -24,11 +24,11 @@ impl<'root> Renderer<'root, MjGroup, ()> {
         let container_width = self
             .attribute_as_size("width")
             .unwrap_or_else(|| Size::pixel(parent_width.value() / (non_raw_siblings as f32)));
-        if let Size::Percent(pc) = container_width {
+        Some(if let Size::Percent(pc) = container_width {
             Pixel::new((parent_width.value() * pc.value() / 100.0) - all_paddings)
         } else {
             Pixel::new(container_width.value() - all_paddings)
-        }
+        })
     }
 
     fn non_raw_siblings(&self) -> usize {
@@ -71,7 +71,7 @@ impl<'root> Renderer<'root, MjGroup, ()> {
         'a: 't,
     {
         tag.maybe_add_style("vertical-align", self.attribute("vertical-align"))
-            .add_style("width", self.current_width().to_string())
+            .maybe_add_style("width", self.current_width().map(|v| v.to_string()))
     }
 
     fn render_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -89,7 +89,7 @@ impl<'root> Renderer<'root, MjGroup, ()> {
             renderer.set_index(index);
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
-            renderer.set_container_width(Some(current_width));
+            renderer.set_container_width(current_width);
             renderer.add_extra_attribute("mobile-width", "mobile-width");
             if child.is_raw() {
                 renderer.render(cursor)?;
@@ -139,7 +139,7 @@ impl<'root> Render<'root> for Renderer<'root, MjGroup, ()> {
     }
 
     fn get_width(&self) -> Option<Size> {
-        Some(Size::Pixel(self.current_width()))
+        self.current_width().map(Size::Pixel)
     }
 
     fn set_container_width(&mut self, width: Option<Pixel>) {

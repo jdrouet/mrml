@@ -247,7 +247,10 @@ impl<'root> Renderer<'root, MjHero, ()> {
 
     fn render_mode_fixed(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         // has a default value
-        let height = self.attribute_as_pixel("height").unwrap().value();
+        let height = self
+            .attribute_as_pixel("height")
+            .map(|v| v.value())
+            .unwrap_or(0.0);
         let padding = self.get_padding_vertical().value();
         let height = height - padding;
         let td = self
