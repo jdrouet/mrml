@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.3...html-compare-v0.1.4) - 2024-10-20
+
+### Other
+
+- *(deps)* upgrade multiple dependencies ([#476](https://github.com/jdrouet/mrml/pull/476))
+
 ## [0.1.3](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.2...html-compare-v0.1.3) - 2024-06-13
 
 ### Other

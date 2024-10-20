@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.12...mrml-wasm-v1.5.0) - 2024-10-20
+
+### Added
+
+- improve error handling ([#452](https://github.com/jdrouet/mrml/pull/452))
+- parsing warnings and improve errors ([#451](https://github.com/jdrouet/mrml/pull/451))
+
+### Fixed
+
+- *(mrml-wasm)* remove wee_alloc dependency ([#472](https://github.com/jdrouet/mrml/pull/472))
+
+### Other
+
+- *(deps)* upgrade multiple dependencies ([#476](https://github.com/jdrouet/mrml/pull/476))
+- *(mrml-core)* base all component on the same struct ([#448](https://github.com/jdrouet/mrml/pull/448))
+
 ## [1.4.12](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.11...mrml-wasm-v1.4.12) - 2024-06-30
 
 ### Other
