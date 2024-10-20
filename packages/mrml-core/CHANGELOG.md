@@ -6,6 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0](https://github.com/jdrouet/mrml/compare/mrml-v4.0.1...mrml-v5.0.0) - 2024-10-20
+
+### Added
+
+- *(mrml-core)* add x to the supported social elements ([#469](https://github.com/jdrouet/mrml/pull/469))
+- improve error handling ([#452](https://github.com/jdrouet/mrml/pull/452))
+- parsing warnings and improve errors ([#451](https://github.com/jdrouet/mrml/pull/451))
+
+### Fixed
+
+- *(mrml-core)* handle duplicate border in mj-column ([#479](https://github.com/jdrouet/mrml/pull/479))
+- *(mj-core)* mj-text is an ending tag ([#478](https://github.com/jdrouet/mrml/pull/478))
+- *(mrml-core)* comments in mrml component should be ignored ([#477](https://github.com/jdrouet/mrml/pull/477))
+
+### Other
+
+- *(mrml-core)* remove unwraps in code ([#482](https://github.com/jdrouet/mrml/pull/482))
+- *(deps)* upgrade multiple dependencies ([#476](https://github.com/jdrouet/mrml/pull/476))
+- *(mrml-core)* create alias for attributes map
+- apply format changes
+- rename json traits to json prefix
+- stop returning impl ([#449](https://github.com/jdrouet/mrml/pull/449))
+- *(mrml-core)* base all component on the same struct ([#448](https://github.com/jdrouet/mrml/pull/448))
+- *(mrml-core)* introduce proper errors for size parsing ([#447](https://github.com/jdrouet/mrml/pull/447))
+- remove to_owned call
+- make size, pixel, percent copy ([#445](https://github.com/jdrouet/mrml/pull/445))
+
 ## [4.0.1](https://github.com/jdrouet/mrml/compare/mrml-v4.0.0...mrml-v4.0.1) - 2024-06-30
 
 ### Fixed
