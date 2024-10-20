@@ -123,41 +123,13 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
         'root: 'a,
         'a: 't,
     {
-        tag.maybe_add_style(
-            "background-color",
-            self.attribute("inner-background-color")
-                .or_else(|| self.attribute("background-color")),
-        )
-        .maybe_add_style(
-            "border",
-            self.attribute("inner-border")
-                .or_else(|| self.attribute("border")),
-        )
-        .maybe_add_style(
-            "border-bottom",
-            self.attribute("inner-border-bottom")
-                .or_else(|| self.attribute("border-bottom")),
-        )
-        .maybe_add_style(
-            "border-left",
-            self.attribute("inner-border-left")
-                .or_else(|| self.attribute("border-left")),
-        )
-        .maybe_add_style(
-            "border-radius",
-            self.attribute("inner-border-radius")
-                .or_else(|| self.attribute("border-radius")),
-        )
-        .maybe_add_style(
-            "border-right",
-            self.attribute("inner-border-right")
-                .or_else(|| self.attribute("border-right")),
-        )
-        .maybe_add_style(
-            "border-top",
-            self.attribute("inner-border-top")
-                .or_else(|| self.attribute("border-top")),
-        )
+        tag.maybe_add_style("background-color", self.attribute("inner-background-color"))
+            .maybe_add_style("border", self.attribute("inner-border"))
+            .maybe_add_style("border-bottom", self.attribute("inner-border-bottom"))
+            .maybe_add_style("border-left", self.attribute("inner-border-left"))
+            .maybe_add_style("border-radius", self.attribute("inner-border-radius"))
+            .maybe_add_style("border-right", self.attribute("inner-border-right"))
+            .maybe_add_style("border-top", self.attribute("inner-border-top"))
     }
 
     fn set_style_table_simple<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -198,7 +170,7 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
         tbody.render_open(&mut cursor.buffer)?;
         tr.render_open(&mut cursor.buffer)?;
         td.render_open(&mut cursor.buffer)?;
-        self.render_column(cursor)?;
+        self.render_column(cursor, true)?;
         td.render_close(&mut cursor.buffer);
         tr.render_close(&mut cursor.buffer);
         tbody.render_close(&mut cursor.buffer);
@@ -207,21 +179,21 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
         Ok(())
     }
 
-    fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
+    fn set_style_table<'a, 't>(&'a self, tag: Tag<'t>, gutter: bool) -> Tag<'t>
     where
         'root: 'a,
         'a: 't,
     {
-        if self.has_gutter() {
+        if gutter {
             self.set_style_table_gutter(tag)
         } else {
             self.set_style_table_simple(tag)
         }
     }
 
-    fn render_column(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
+    fn render_column(&self, cursor: &mut RenderCursor, gutter: bool) -> Result<(), Error> {
         let table = self
-            .set_style_table(Tag::table_presentation())
+            .set_style_table(Tag::table_presentation(), gutter)
             .add_attribute("width", "100%");
         let tbody = Tag::tbody();
         let siblings = self.element.children.len();
@@ -342,7 +314,7 @@ impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra<'root>> {
         if self.has_gutter() {
             self.render_gutter(cursor)?;
         } else {
-            self.render_column(cursor)?;
+            self.render_column(cursor, false)?;
         }
         div.render_close(&mut cursor.buffer);
         Ok(())
@@ -375,4 +347,6 @@ mod tests {
     crate::should_render!(padding, "mj-column-padding");
     crate::should_render!(vertical_align, "mj-column-vertical-align");
     crate::should_render!(width, "mj-column-width");
+    // issues
+    crate::should_render!(border_issue_466, "mj-column-border-issue-466");
 }
