@@ -1,4 +1,4 @@
-use xmlparser::StrSpan;
+use htmlparser::StrSpan;
 
 use super::{MjIncludeBody, MjIncludeBodyAttributes, MjIncludeBodyChild, MjIncludeBodyKind};
 use crate::comment::Comment;
@@ -366,7 +366,7 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
 
 #[cfg(test)]
 mod tests {
-    use xmlparser::StrSpan;
+    use htmlparser::StrSpan;
 
     use crate::mj_include::body::{MjIncludeBody, MjIncludeBodyKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;

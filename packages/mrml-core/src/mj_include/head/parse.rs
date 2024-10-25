@@ -1,4 +1,4 @@
-use xmlparser::StrSpan;
+use htmlparser::StrSpan;
 
 use super::{MjIncludeHead, MjIncludeHeadAttributes, MjIncludeHeadChild, MjIncludeHeadKind};
 use crate::comment::Comment;
@@ -325,7 +325,7 @@ impl MjIncludeHeadKind {
 
 #[cfg(test)]
 mod tests {
-    use xmlparser::StrSpan;
+    use htmlparser::StrSpan;
 
     use crate::mj_include::head::{MjIncludeHead, MjIncludeHeadKind};
     use crate::prelude::parser::memory_loader::MemoryIncludeLoader;

@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use xmlparser::{StrSpan, Tokenizer};
+use htmlparser::{StrSpan, Tokenizer};
 
 use self::loader::IncludeLoaderError;
 use super::hash::Map;
@@ -56,12 +56,12 @@ pub enum Error {
     /// The input string should be smaller than 4GiB.
     #[error("size limit reached in {origin}")]
     SizeLimit { origin: Origin },
-    /// Errors detected by the `xmlparser` crate.
+    /// Errors detected by the `htmlparser` crate.
     #[error("unable to parse next template in {origin}")]
     ParserError {
         origin: Origin,
         #[source]
-        source: xmlparser::Error,
+        source: htmlparser::Error,
     },
     /// The Mjml document must have at least one element.
     #[error("unable to find mjml element")]

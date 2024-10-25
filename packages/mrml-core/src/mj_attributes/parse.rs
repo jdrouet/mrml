@@ -1,4 +1,4 @@
-use xmlparser::StrSpan;
+use htmlparser::StrSpan;
 
 use super::MjAttributesChild;
 use crate::mj_attributes_all::NAME as MJ_ALL;
