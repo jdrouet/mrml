@@ -47,6 +47,8 @@ impl<'a> From<Token<'a>> for Span {
             | Token::ElementStart { span, .. }
             | Token::EmptyDtd { span, .. }
             | Token::EntityDeclaration { span, .. }
+            | Token::ConditionalCommentStart { span, .. }
+            | Token::ConditionalCommentEnd { span, .. }
             | Token::ProcessingInstruction { span, .. } => span.into(),
             Token::Text { text } => text.into(),
         }
