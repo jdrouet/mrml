@@ -1,0 +1,55 @@
+name: test building demo
+
+on:
+  merge_group:
+    types: [checks_requested]
+  pull_request:
+    paths:
+      - ".github/workflows/example-demo.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "packages/mrml-core/**"
+      - "packages/mrml-wasm/**"
+      - "example/demo/**"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}-example-demo-test
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          registry-url: "https://registry.npmjs.org"
+      - name: install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-example-demo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: build release
+        working-directory: packages/mrml-wasm
+        run: bash build.sh
+      - name: prepare linking package
+        working-directory: packages/mrml-wasm/pkg
+        run: yarn link
+      - name: install packages
+        working-directory: examples/demo
+        run: |
+          yarn
+          yarn link mrml
+          yarn build --base https://jdrouet.github.io/mrml/
