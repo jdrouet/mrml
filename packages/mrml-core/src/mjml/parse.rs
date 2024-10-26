@@ -1,4 +1,4 @@
-use xmlparser::StrSpan;
+use htmlparser::StrSpan;
 
 use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::NAME as MJ_BODY;

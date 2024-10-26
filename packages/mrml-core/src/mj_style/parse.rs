@@ -1,4 +1,4 @@
-use xmlparser::StrSpan;
+use htmlparser::StrSpan;
 
 use super::MjStyleAttributes;
 #[cfg(feature = "async")]

@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use xmlparser::{StrSpan, Token};
+use htmlparser::{StrSpan, Token};
 
 use super::MrmlCursor;
 
@@ -47,6 +47,8 @@ impl<'a> From<Token<'a>> for Span {
             | Token::ElementStart { span, .. }
             | Token::EmptyDtd { span, .. }
             | Token::EntityDeclaration { span, .. }
+            | Token::ConditionalCommentStart { span, .. }
+            | Token::ConditionalCommentEnd { span, .. }
             | Token::ProcessingInstruction { span, .. } => span.into(),
             Token::Text { text } => text.into(),
         }
@@ -82,7 +84,7 @@ impl<'a> MrmlToken<'a> {
             })),
             Token::Comment { text, span } => Ok(MrmlToken::Comment(Comment { span, text })),
             Token::ElementEnd {
-                end: xmlparser::ElementEnd::Close(prefix, local),
+                end: htmlparser::ElementEnd::Close(prefix, local),
                 span,
             } => Ok(MrmlToken::ElementClose(ElementClose {
                 span,
@@ -90,11 +92,11 @@ impl<'a> MrmlToken<'a> {
                 local,
             })),
             Token::ElementEnd {
-                end: xmlparser::ElementEnd::Empty,
+                end: htmlparser::ElementEnd::Empty,
                 span,
             } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: true })),
             Token::ElementEnd {
-                end: xmlparser::ElementEnd::Open,
+                end: htmlparser::ElementEnd::Open,
                 span,
             } => Ok(MrmlToken::ElementEnd(ElementEnd { span, empty: false })),
             Token::ElementStart {
