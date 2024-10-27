@@ -3,10 +3,10 @@ name = "mrml"
 description = "Rust implementation of MJML renderer"
 keywords = ["email", "mjml"]
 version = "4.0.1"
-authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
-edition = "2018"
-license = "MIT"
-repository = "https://github.com/jdrouet/mrml/"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 readme = "readme.md"
 
 include = ["src/*", "Cargo.toml"]

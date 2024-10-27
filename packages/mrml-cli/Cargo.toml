@@ -3,9 +3,10 @@ name = "mrml-cli"
 description = "CLI for the Rust implementation of MJML renderer"
 keywords = ["cli", "email", "mjml"]
 version = "1.6.1"
-authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
-license = "MIT"
-edition = "2018"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 readme = "readme.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
