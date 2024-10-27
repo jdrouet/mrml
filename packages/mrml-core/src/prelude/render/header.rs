@@ -6,7 +6,7 @@ use crate::mj_head::MjHead;
 use crate::prelude::hash::{Map, Set};
 
 #[derive(Debug)]
-pub struct VariableHeader {
+pub(crate) struct VariableHeader {
     used_font_families: Set<String>,
     media_queries: Map<String, Size>,
     styles: Set<Cow<'static, str>>,
@@ -71,19 +71,18 @@ impl VariableHeader {
     }
 }
 
-pub struct Header<'h> {
+pub(crate) struct Header<'h> {
     attributes_all: Map<&'h str, &'h str>,
     attributes_class: Map<&'h str, Map<&'h str, &'h str>>,
     attributes_element: Map<&'h str, Map<&'h str, &'h str>>,
     breakpoint: Pixel,
     font_families: Map<&'h str, &'h str>,
-    title: Option<&'h str>,
     preview: Option<&'h str>,
     lang: Option<&'h str>,
 }
 
 impl<'h> Header<'h> {
-    pub fn new(head: Option<&'h MjHead>, lang: Option<&'h str>) -> Self {
+    pub(crate) fn new(head: Option<&'h MjHead>, lang: Option<&'h str>) -> Self {
         Self {
             attributes_all: head
                 .as_ref()
@@ -106,7 +105,6 @@ impl<'h> Header<'h> {
                 .as_ref()
                 .map(|h| h.build_font_families())
                 .unwrap_or_default(),
-            title: head.and_then(|h| h.title().map(|t| t.content())),
             preview: head.and_then(|h| h.preview().map(|t| t.content())),
             lang,
         }
@@ -140,10 +138,6 @@ impl<'h> Header<'h> {
 
     pub fn lang(&self) -> Option<&str> {
         self.lang
-    }
-
-    pub fn title(&self) -> Option<&str> {
-        self.title
     }
 
     pub fn preview(&self) -> Option<&str> {

@@ -9,10 +9,10 @@ mod header;
 mod options;
 mod tag;
 
-pub use buffer::*;
-pub use header::*;
+pub(crate) use buffer::*;
+pub(crate) use header::*;
 pub use options::*;
-pub use tag::*;
+pub(crate) use tag::*;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -23,7 +23,7 @@ pub enum Error {
 }
 
 #[derive(Debug, Default)]
-pub struct Generator(AtomicU16);
+pub(crate) struct Generator(AtomicU16);
 
 impl Generator {
     pub fn next_id(&self) -> String {
@@ -35,7 +35,7 @@ impl Generator {
 #[deprecated = "use mrml::prelude::render::RenderOptions instead"]
 pub type Options = RenderOptions;
 
-pub struct RenderContext<'h> {
+pub(crate) struct RenderContext<'h> {
     pub options: &'h RenderOptions,
     pub header: Header<'h>,
     pub generator: Generator,
@@ -52,7 +52,7 @@ impl<'h> RenderContext<'h> {
 }
 
 #[derive(Debug, Default)]
-pub struct RenderCursor {
+pub(crate) struct RenderCursor {
     pub buffer: RenderBuffer,
     pub header: VariableHeader,
 }
@@ -86,7 +86,7 @@ impl<'root, Element, Extra> Renderer<'root, Element, Extra> {
     }
 }
 
-pub trait Render<'root> {
+pub(crate) trait Render<'root> {
     fn context(&self) -> &'root RenderContext<'root>;
 
     fn tag(&self) -> Option<&str> {
@@ -226,16 +226,6 @@ pub trait Render<'root> {
         self.default_attribute(key)
     }
 
-    fn attribute_size(&self, key: &str) -> Option<Size> {
-        self.attribute(key)
-            .and_then(|value| Size::try_from(value).ok())
-    }
-
-    fn attribute_pixel(&self, key: &str) -> Option<Pixel> {
-        self.attribute(key)
-            .and_then(|value| Pixel::try_from(value).ok())
-    }
-
     fn set_style<'a, 't>(&'a self, _name: &str, tag: Tag<'t>) -> Tag<'t>
     where
         'root: 'a,
@@ -266,7 +256,7 @@ pub trait Render<'root> {
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error>;
 }
 
-pub trait Renderable<'render, 'root: 'render> {
+pub(crate) trait Renderable<'render, 'root: 'render> {
     fn is_raw(&'root self) -> bool {
         false
     }

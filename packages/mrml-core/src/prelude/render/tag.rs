@@ -33,7 +33,7 @@ impl<'a> std::fmt::Debug for Classes<'a> {
     }
 }
 
-pub struct Tag<'a> {
+pub(crate) struct Tag<'a> {
     name: Cow<'a, str>,
     attributes: Map<Cow<'a, str>, Cow<'a, str>>,
     classes: Classes<'a>,

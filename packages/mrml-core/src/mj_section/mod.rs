@@ -11,7 +11,7 @@ mod print;
 mod render;
 
 #[cfg(feature = "render")]
-pub use render::{SectionLikeRender, WithMjSectionBackground};
+pub(crate) use render::{SectionLikeRender, WithMjSectionBackground};
 
 pub const NAME: &str = "mj-section";
 

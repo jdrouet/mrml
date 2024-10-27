@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Write};
 
 #[derive(Debug, Default)]
-pub struct RenderBuffer {
+pub(crate) struct RenderBuffer {
     inner: String,
 }
 
