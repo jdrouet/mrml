@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 
 use crate::prelude::hash::Map;
 
-pub trait PrintableAttributes {
+pub(crate) trait PrintableAttributes {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result;
 }
 
@@ -22,7 +22,7 @@ impl PrintableAttributes for Map<String, String> {
     }
 }
 
-pub trait PrintableChildren {
+pub(crate) trait PrintableChildren {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result;
     fn has_children(&self) -> bool;
 }
@@ -133,7 +133,7 @@ pub trait Printable {
     }
 }
 
-pub trait PrintableElement {
+pub(crate) trait PrintableElement {
     type Attrs: PrintableAttributes;
     type Children: PrintableChildren;
 
@@ -195,7 +195,7 @@ pub trait Printer {
 }
 
 #[derive(Debug, Default)]
-pub struct DensePrinter {
+pub(crate) struct DensePrinter {
     buffer: String,
 }
 
@@ -245,7 +245,7 @@ impl Printer for DensePrinter {
 }
 
 #[derive(Debug)]
-pub struct PrettyPrinter {
+pub(crate) struct PrettyPrinter {
     indent_size: usize,
     level: usize,
     buffer: String,

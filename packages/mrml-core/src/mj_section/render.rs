@@ -13,7 +13,7 @@ fn is_vertical_position(value: &str) -> bool {
     value == "top" || value == "bottom" || value == "center"
 }
 
-pub trait WithMjSectionBackground<'root>: Render<'root> {
+pub(crate) trait WithMjSectionBackground<'root>: Render<'root> {
     fn has_background(&self) -> bool {
         self.attribute_exists("background-url")
     }

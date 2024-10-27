@@ -28,22 +28,8 @@ impl Size {
         Self::Pixel(Pixel::new(value))
     }
 
-    pub fn as_percent(&self) -> Option<&Percent> {
-        match self {
-            Self::Percent(value) => Some(value),
-            _ => None,
-        }
-    }
-
     pub fn is_percent(&self) -> bool {
         matches!(self, Self::Percent(_))
-    }
-
-    pub fn as_pixel(&self) -> Option<&Pixel> {
-        match self {
-            Self::Pixel(value) => Some(value),
-            _ => None,
-        }
     }
 
     pub fn is_pixel(&self) -> bool {
@@ -56,13 +42,6 @@ impl Size {
             Self::Percent(p) => p.value(),
             Self::Raw(v) => *v,
         }
-    }
-
-    pub fn from_border(input: &str) -> Option<Self> {
-        input
-            .split_whitespace()
-            .next()
-            .and_then(|value| Size::try_from(value).ok())
     }
 }
 

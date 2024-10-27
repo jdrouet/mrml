@@ -23,6 +23,7 @@ pub enum Spacing {
 }
 
 impl Spacing {
+    #[cfg(test)]
     pub fn top(&self) -> &Pixel {
         match self {
             Self::Single(top) => top,
@@ -59,6 +60,7 @@ impl Spacing {
         }
     }
 
+    #[cfg(test)]
     pub fn bottom(&self) -> &Pixel {
         match self {
             Self::Single(top) => top,

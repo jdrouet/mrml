@@ -2,7 +2,7 @@ use super::{MjIncludeBody, MjIncludeBodyChild};
 use crate::prelude::render::*;
 
 impl MjIncludeBodyChild {
-    pub fn as_renderable<'render, 'root: 'render>(
+    pub(crate) fn as_renderable<'render, 'root: 'render>(
         &'root self,
     ) -> &'root (dyn Renderable<'render, 'root> + 'root) {
         match self {
