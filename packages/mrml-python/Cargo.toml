@@ -3,10 +3,10 @@ name = "mrml-python"
 description = "Python wrapping on MRML"
 keywords = ["email", "mjml"]
 version = "0.1.15"
-authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
-edition = "2021"
-license = "MIT"
-repository = "https://github.com/jdrouet/mrml/"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 readme = "readme.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

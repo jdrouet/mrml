@@ -13,3 +13,9 @@ resolver = "2"
 [workspace.dependencies]
 htmlparser = { version = "0.1" }
 similar-asserts = { version = "1.6" }
+
+[workspace.package]
+authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/jdrouet/mrml/"

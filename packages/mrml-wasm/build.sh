@@ -11,5 +11,6 @@ done
 # copy resources
 cp pkg/nodejs/package.json pkg/
 rm pkg/{web,nodejs,bundler}/{.gitignore,LICENSE,package.json,README.md}
-cp {LICENSE,README.md} pkg/
+cp README.md pkg/
+cp ../../LICENSE pkg/
 node scripts/build-package.js
