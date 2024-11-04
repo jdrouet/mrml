@@ -6,7 +6,8 @@ mod tests {
     #[test]
     fn serialize() {
         let mut elt = Node::<Text>::from("span");
-        elt.attributes.insert("margin-bottom".into(), "20px".into());
+        elt.attributes
+            .insert("margin-bottom".into(), Some("20px".into()));
         elt.children.push(Text::from("Hello"));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),

@@ -10,9 +10,9 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Err
     let mut result = MjFontAttributes::default();
 
     while let Some(attrs) = cursor.next_attribute()? {
-        match attrs.local.as_str() {
-            "name" => result.name = attrs.value.to_string(),
-            "href" => result.href = attrs.value.to_string(),
+        match (attrs.local.as_str(), attrs.value) {
+            ("name", Some(value)) => result.name = value.to_string(),
+            ("href", Some(value)) => result.href = value.to_string(),
             _ => cursor.add_warning(WarningKind::UnexpectedAttribute, attrs.span),
         }
     }

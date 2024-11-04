@@ -17,7 +17,9 @@ where
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         cursor.buffer.open_tag(&self.element.tag);
         for (key, value) in self.element.attributes.iter() {
-            cursor.buffer.push_attribute(key, value)?;
+            cursor
+                .buffer
+                .push_attribute(key.as_str(), value.as_deref())?;
         }
         if self.element.children.is_empty() {
             if is_void_element(self.element.tag.as_str()) {
@@ -75,5 +77,26 @@ mod tests {
         let root = Mjml::parse(template).unwrap();
         let result = root.element.render(&opts).unwrap();
         assert!(result.contains("<script src=\"http://example.com/hello.js\"></script>"));
+    }
+
+    #[cfg(feature = "parse")]
+    #[test]
+    fn elements_with_no_attribute_value() {
+        use crate::mjml::Mjml;
+        use crate::prelude::render::RenderOptions;
+
+        let opts = RenderOptions::default();
+        let template = r#"<mjml>
+        <mj-body>
+            <mj-section>
+            <mj-column>
+                <mj-raw><span foo bar></span></mj-raw>
+            </mj-column>
+            </mj-section>
+        </mj-body>
+    </mjml>"#;
+        let root = Mjml::parse(template).unwrap();
+        let result = root.element.render(&opts).unwrap();
+        assert!(result.contains("<span foo bar>"));
     }
 }

@@ -10,7 +10,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Er
     let mut result = MjStyleAttributes::default();
     while let Some(attr) = cursor.next_attribute()? {
         if attr.local.as_str() == "inline" {
-            result.inline = Some(attr.value.to_string());
+            result.inline = attr.value.map(|v| v.to_string());
         } else {
             cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
         }

@@ -5,7 +5,7 @@ use super::RenderBuffer;
 use crate::prelude::hash::{Map, Set};
 
 #[derive(Default)]
-struct Styles<'a>(Vec<(Cow<'a, str>, Cow<'a, str>)>);
+pub(super) struct Styles<'a>(Vec<(Cow<'a, str>, Cow<'a, str>)>);
 
 impl<'a> std::fmt::Debug for Styles<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -18,7 +18,7 @@ impl<'a> std::fmt::Debug for Styles<'a> {
 }
 
 #[derive(Default)]
-struct Classes<'a>(Set<Cow<'a, str>>);
+pub(super) struct Classes<'a>(Set<Cow<'a, str>>);
 
 impl<'a> std::fmt::Debug for Classes<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -149,7 +149,7 @@ impl<'a> Tag<'a> {
         b.push('<');
         b.push_str(&self.name);
         for (key, value) in self.attributes.iter() {
-            b.push_attribute(key, value)?;
+            b.push_attribute(key.as_ref(), value.as_ref())?;
         }
         if !self.classes.0.is_empty() {
             b.push_attribute("class", &self.classes)?;

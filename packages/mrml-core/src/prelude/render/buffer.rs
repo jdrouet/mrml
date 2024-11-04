@@ -1,4 +1,6 @@
-use std::fmt::{Debug, Display, Write};
+use std::fmt::Write;
+
+use super::{Classes, Styles};
 
 #[derive(Debug, Default)]
 pub(crate) struct RenderBuffer {
@@ -22,6 +24,35 @@ impl std::fmt::Write for RenderBuffer {
     }
 }
 
+pub(crate) struct RenderAttribute<N, V>(N, V);
+
+impl<'a> std::fmt::Display for RenderAttribute<&'a str, &'a str> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}={:?}", self.0, self.1)
+    }
+}
+
+impl<'a> std::fmt::Display for RenderAttribute<&'a str, &'a Classes<'a>> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}={:?}", self.0, self.1)
+    }
+}
+
+impl<'a> std::fmt::Display for RenderAttribute<&'a str, &'a Styles<'a>> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}={:?}", self.0, self.1)
+    }
+}
+
+impl<'a> std::fmt::Display for RenderAttribute<&'a str, Option<&'a str>> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.1 {
+            Some(ref value) => write!(f, "{}={value:?}", self.0),
+            None => write!(f, "{}", self.0),
+        }
+    }
+}
+
 impl RenderBuffer {
     #[inline]
     pub fn push_str(&mut self, value: &str) {
@@ -34,12 +65,11 @@ impl RenderBuffer {
     }
 
     #[inline]
-    pub fn push_attribute<K: Display + ?Sized, V: Debug + ?Sized>(
-        &mut self,
-        key: &K,
-        value: &V,
-    ) -> std::fmt::Result {
-        write!(&mut self.inner, " {key}={value:?}")
+    pub fn push_attribute<N, V>(&mut self, key: N, value: V) -> std::fmt::Result
+    where
+        RenderAttribute<N, V>: std::fmt::Display,
+    {
+        write!(&mut self.inner, " {}", RenderAttribute(key, value))
     }
 
     #[inline]

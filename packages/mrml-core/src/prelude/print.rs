@@ -13,10 +13,10 @@ impl PrintableAttributes for () {
     }
 }
 
-impl PrintableAttributes for Map<String, String> {
+impl PrintableAttributes for Map<String, Option<String>> {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result {
         for (name, value) in self.iter() {
-            printer.push_attribute(name.as_str(), value.as_str())?;
+            printer.push_attribute(name.as_str(), value.as_deref())?;
         }
         Ok(())
     }
@@ -167,6 +167,32 @@ impl<E: PrintableElement> Printable for E {
     }
 }
 
+pub struct PrintAttribute<N, V> {
+    name: N,
+    value: V,
+}
+
+impl<N, V> From<(N, V)> for PrintAttribute<N, V> {
+    fn from((name, value): (N, V)) -> Self {
+        Self { name, value }
+    }
+}
+
+impl<'a> std::fmt::Display for PrintAttribute<&'a str, &'a str> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}={:?}", self.name, self.value)
+    }
+}
+
+impl<'a> std::fmt::Display for PrintAttribute<&'a str, Option<&'a str>> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.value {
+            Some(ref value) => write!(f, "{}={:?}", self.name, value),
+            None => write!(f, "{}", self.name),
+        }
+    }
+}
+
 pub trait Printer {
     fn push_new_line(&mut self);
     fn push_indent(&mut self);
@@ -185,11 +211,9 @@ pub trait Printer {
     }
     fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result;
 
-    fn push_attribute<N: Display + ?Sized, V: Debug + ?Sized>(
-        &mut self,
-        name: &N,
-        value: &V,
-    ) -> std::fmt::Result;
+    fn push_attribute<N, V>(&mut self, name: N, value: V) -> std::fmt::Result
+    where
+        PrintAttribute<N, V>: Display;
 
     fn inner(self) -> String;
 }
@@ -225,12 +249,11 @@ impl Printer for DensePrinter {
     }
 
     #[inline]
-    fn push_attribute<N: Display + ?Sized, V: Debug + ?Sized>(
-        &mut self,
-        name: &N,
-        value: &V,
-    ) -> std::fmt::Result {
-        write!(&mut self.buffer, " {name}={value:?}")
+    fn push_attribute<N, V>(&mut self, name: N, value: V) -> std::fmt::Result
+    where
+        PrintAttribute<N, V>: Display,
+    {
+        write!(&mut self.buffer, " {}", PrintAttribute::from((name, value)))
     }
 
     #[inline]
@@ -299,12 +322,11 @@ impl Printer for PrettyPrinter {
     }
 
     #[inline]
-    fn push_attribute<N: Display + ?Sized, V: Debug + ?Sized>(
-        &mut self,
-        name: &N,
-        value: &V,
-    ) -> std::fmt::Result {
-        write!(&mut self.buffer, " {name}={value:?}")
+    fn push_attribute<N, V>(&mut self, name: N, value: V) -> std::fmt::Result
+    where
+        PrintAttribute<N, V>: Display,
+    {
+        write!(&mut self.buffer, " {}", PrintAttribute::from((name, value)))
     }
 
     #[inline]

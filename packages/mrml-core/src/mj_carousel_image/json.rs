@@ -6,7 +6,7 @@ mod tests {
     fn serialize() {
         let mut elt = MjCarouselImage::default();
         elt.attributes
-            .insert("src".into(), "https://jolimail.io".into());
+            .insert("src".into(), Some("https://jolimail.io".into()));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-carousel-image","attributes":{"src":"https://jolimail.io"}}"#

@@ -6,7 +6,7 @@ mod tests {
     fn serialize() {
         let mut elt = MjNavbarLink::default();
         elt.attributes
-            .insert("href".into(), "https://jolimail.io".into());
+            .insert("href".into(), Some("https://jolimail.io".into()));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-navbar-link","attributes":{"href":"https://jolimail.io"}}"#

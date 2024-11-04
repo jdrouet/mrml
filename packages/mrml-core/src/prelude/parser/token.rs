@@ -136,7 +136,7 @@ pub(crate) struct Attribute<'a> {
     #[allow(unused)]
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
-    pub value: StrSpan<'a>,
+    pub value: Option<StrSpan<'a>>,
     pub span: StrSpan<'a>,
 }
 

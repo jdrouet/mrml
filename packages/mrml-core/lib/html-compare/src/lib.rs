@@ -171,7 +171,12 @@ fn compare_attributes<'a>(
     let exp_keys = exp_attrs
         .iter()
         .filter(|attr| {
-            !(["style", "class"].contains(&attr.local.as_str()) && attr.value.as_str().is_empty())
+            // if attribute is `class` or `style`, and the value is empty, we can ignore it
+            if ["class", "style"].contains(&attr.local.as_str()) {
+                attr.value.map_or(false, |v| !v.is_empty())
+            } else {
+                true
+            }
         })
         .map(|attr| (attr.local.as_str(), attr.local))
         .collect::<BTreeMap<_, _>>();
@@ -218,15 +223,26 @@ fn compare_attributes<'a>(
             .get(key)
             .map(|gen_value| (*exp_value, *gen_value))
     }) {
-        if exp_attr.local == "style" {
-            compare_attr_styles(exp_attr.value, gen_attr.value)?;
-        } else if exp_attr.local == "class" {
-            compare_attr_classes(exp_attr.value, gen_attr.value)?;
-        } else if exp_attr.value.as_str() != gen_attr.value.as_str() {
-            return Err(ErrorKind::InvalidAttributeValue {
-                expected: exp_attr.clone(),
-                generated: exp_attr.clone(),
-            });
+        match (exp_attr.value, gen_attr.value) {
+            (Some(exp_value), Some(gen_value)) => {
+                if exp_attr.local == "style" {
+                    compare_attr_styles(exp_value, gen_value)?
+                } else if exp_attr.local == "class" {
+                    compare_attr_classes(exp_value, gen_value)?
+                } else if exp_value.as_str() != gen_value.as_str() {
+                    return Err(ErrorKind::InvalidAttributeValue {
+                        expected: exp_attr.clone(),
+                        generated: exp_attr.clone(),
+                    });
+                }
+            }
+            (None, Some(inner)) | (Some(inner), None) if !inner.as_str().is_empty() => {
+                return Err(ErrorKind::InvalidAttributeValue {
+                    expected: exp_attr.clone(),
+                    generated: exp_attr.clone(),
+                });
+            }
+            _ => {}
         }
     }
 
@@ -417,6 +433,10 @@ pub fn compare<'a>(expected: &'a str, generated: &'a str) -> Result<(), Error<'a
 }
 
 pub fn assert_similar(expected: &str, generated: &str) {
+    println!("=== expected");
+    println!("{expected}");
+    println!("=== generated");
+    println!("{generated}");
     if let Err(error) = compare(expected, generated) {
         panic!("{error}");
     }

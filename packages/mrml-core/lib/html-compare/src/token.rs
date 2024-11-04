@@ -4,7 +4,7 @@ use htmlparser::StrSpan;
 pub struct Attribute<'a> {
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
-    pub value: StrSpan<'a>,
+    pub value: Option<StrSpan<'a>>,
     pub span: StrSpan<'a>,
 }
 
@@ -31,7 +31,8 @@ impl<'a> Attribute<'a> {
                 Some(htmlparser::Token::ElementEnd { end, span }) => {
                     return (result, ElementEnd { end, span })
                 }
-                _ => panic!("invalid token in attributes"),
+                None => panic!("expected attribute that was not found."),
+                other => panic!("invalid token in attributes: {other:?}"),
             }
         }
     }

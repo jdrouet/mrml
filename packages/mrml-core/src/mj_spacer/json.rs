@@ -5,7 +5,8 @@ mod tests {
     #[test]
     fn serialize() {
         let mut elt = MjSpacer::default();
-        elt.attributes.insert("margin-bottom".into(), "20px".into());
+        elt.attributes
+            .insert("margin-bottom".into(), Some("20px".into()));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-spacer","attributes":{"margin-bottom":"20px"}}"#

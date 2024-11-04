@@ -6,7 +6,7 @@ mod tests {
     fn empty() {
         let mut item = crate::mj_navbar_link::MjNavbarLink::default();
         item.attributes
-            .insert("src".to_string(), "http://localhost".into());
+            .insert("src".to_string(), Some("http://localhost".into()));
         assert_eq!(
             "<mj-navbar-link src=\"http://localhost\" />",
             item.print_dense().unwrap()

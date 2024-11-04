@@ -11,7 +11,7 @@ impl super::MjIncludeHead {
                     .filter_map(|inner| inner.as_mj_attributes_all())
             })
             .flat_map(|child| child.attributes.iter())
-            .map(|(k, v)| (k.as_str(), v.as_str()))
+            .filter_map(|(k, v)| v.as_deref().map(|inner| (k.as_str(), inner)))
     }
 
     pub(crate) fn mj_attributes_class_iter(&self) -> impl Iterator<Item = (&str, &str, &str)> {
@@ -26,11 +26,10 @@ impl super::MjIncludeHead {
                     .filter_map(|inner| inner.as_mj_attributes_class())
             })
             .flat_map(|child| {
-                child
-                    .attributes
-                    .others
-                    .iter()
-                    .map(move |(k, v)| (child.attributes.name.as_str(), k.as_str(), v.as_str()))
+                child.attributes.others.iter().filter_map(move |(k, v)| {
+                    v.as_deref()
+                        .map(|inner| (child.attributes.name.as_str(), k.as_str(), inner))
+                })
             })
     }
 
@@ -46,10 +45,10 @@ impl super::MjIncludeHead {
                     .filter_map(|inner| inner.as_mj_attributes_element())
             })
             .flat_map(|child| {
-                child
-                    .attributes
-                    .iter()
-                    .map(move |(k, v)| (child.name.as_str(), k.as_str(), v.as_str()))
+                child.attributes.iter().filter_map(move |(k, v)| {
+                    v.as_deref()
+                        .map(|inner| (child.name.as_str(), k.as_str(), inner))
+                })
             })
     }
 }

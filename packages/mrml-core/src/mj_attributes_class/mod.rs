@@ -1,7 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::prelude::hash::Map;
-use crate::prelude::{Component, StaticTag};
+use crate::prelude::{AttributeMap, Component, StaticTag};
 
 #[cfg(feature = "json")]
 mod json;
@@ -25,7 +24,7 @@ impl StaticTag for MjAttributesClassTag {
 pub struct MjAttributesClassAttributes {
     pub name: String,
     #[cfg_attr(feature = "json", serde(flatten))]
-    pub others: Map<String, String>,
+    pub others: AttributeMap,
 }
 
 pub type MjAttributesClass =
@@ -37,7 +36,7 @@ impl MjAttributesClassAttributes {
     fn new(name: String) -> Self {
         Self {
             name,
-            others: Map::default(),
+            others: AttributeMap::default(),
         }
     }
 }

@@ -93,7 +93,7 @@ mod tests {
     fn serialize() {
         let mut elt = MjAccordionElement::default();
         elt.attributes
-            .insert("margin".to_string(), "12px".to_string());
+            .insert("margin".to_string(), Some("12px".to_string()));
         elt.children.title = Some(MjAccordionTitle::new(
             Default::default(),
             vec![Text::from("Hello".to_string())],

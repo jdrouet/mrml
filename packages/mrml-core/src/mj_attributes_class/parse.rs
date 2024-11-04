@@ -1,21 +1,23 @@
 use htmlparser::StrSpan;
 
 use super::{MjAttributesClass, MjAttributesClassAttributes};
-use crate::prelude::hash::Map;
 use crate::prelude::parser::{parse_attributes_map, Error, MrmlCursor, MrmlParser, ParseElement};
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
+use crate::prelude::AttributeMap;
 
 #[inline(always)]
 fn parse<'a>(cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<MjAttributesClass, Error> {
-    let mut others: Map<String, String> = parse_attributes_map(cursor)?;
-    let name: String = others
-        .remove("name")
-        .ok_or_else(|| Error::MissingAttribute {
-            name: "name",
-            origin: cursor.origin(),
-            position: tag.into(),
-        })?;
+    let mut others: AttributeMap = parse_attributes_map(cursor)?;
+    let name: String =
+        others
+            .remove("name")
+            .and_then(|v| v)
+            .ok_or_else(|| Error::MissingAttribute {
+                name: "name",
+                origin: cursor.origin(),
+                position: tag.into(),
+            })?;
     let attributes = MjAttributesClassAttributes { name, others };
 
     let ending = cursor.assert_element_end()?;

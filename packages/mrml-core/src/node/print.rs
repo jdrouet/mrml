@@ -43,7 +43,7 @@ mod tests {
     fn with_attributes() {
         let mut item = crate::node::Node::<MjBodyChild>::from("span");
         item.attributes
-            .insert("color".to_string(), "red".to_string());
+            .insert("color".to_string(), Some("red".to_string()));
         item.children
             .push(crate::node::Node::from("b".to_string()).into());
         assert_eq!(
