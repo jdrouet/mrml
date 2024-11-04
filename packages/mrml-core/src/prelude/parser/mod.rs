@@ -292,12 +292,12 @@ impl AsyncMrmlParser {
 }
 
 #[cfg(feature = "async")]
-impl ParseAttributes<Map<String, String>> for AsyncMrmlParser {
+impl ParseAttributes<Map<String, Option<String>>> for AsyncMrmlParser {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
         _tag: &StrSpan<'_>,
-    ) -> Result<Map<String, String>, Error> {
+    ) -> Result<Map<String, Option<String>>, Error> {
         parse_attributes_map(cursor)
     }
 }
