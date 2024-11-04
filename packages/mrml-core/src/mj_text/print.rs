@@ -6,7 +6,7 @@ mod tests {
     fn empty() {
         let mut item = crate::mj_text::MjText::default();
         item.attributes
-            .insert("href".to_string(), "http://localhost".into());
+            .insert("href".to_string(), Some("http://localhost".into()));
         item.children
             .push(crate::text::Text::from(String::from("test")).into());
         assert_eq!(

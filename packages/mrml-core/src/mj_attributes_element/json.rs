@@ -75,7 +75,8 @@ mod tests {
             name: "name".into(),
             ..Default::default()
         };
-        elt.attributes.insert("margin-bottom".into(), "20px".into());
+        elt.attributes
+            .insert("margin-bottom".into(), Some("20px".into()));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-element","name":"name","attributes":{"margin-bottom":"20px"}}"#

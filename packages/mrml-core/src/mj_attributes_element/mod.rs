@@ -1,4 +1,4 @@
-use crate::prelude::hash::Map;
+use crate::prelude::{hash::Map, AttributeMap};
 
 #[cfg(feature = "json")]
 mod json;
@@ -10,7 +10,7 @@ mod print;
 #[derive(Clone, Debug, Default)]
 pub struct MjAttributesElement {
     pub name: String,
-    pub attributes: Map<String, String>,
+    pub attributes: AttributeMap,
 }
 
 impl MjAttributesElement {
@@ -27,7 +27,7 @@ impl MjAttributesElement {
         &self.name
     }
 
-    pub fn attributes(&self) -> &Map<String, String> {
+    pub fn attributes(&self) -> &AttributeMap {
         &self.attributes
     }
 }

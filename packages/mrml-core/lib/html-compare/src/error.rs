@@ -210,7 +210,7 @@ impl<'a> std::fmt::Display for Error<'a> {
                 let span_start = expected.span.end();
                 let span_end = expected_attributes
                     .iter()
-                    .map(|attr| attr.value.end())
+                    .filter_map(|attr| attr.value.as_ref().map(|value| value.end()))
                     .max()
                     .unwrap_or(span_start);
                 writeln!(
@@ -223,7 +223,7 @@ impl<'a> std::fmt::Display for Error<'a> {
                 let span_start = generated.span.end();
                 let span_end = generated_attributes
                     .iter()
-                    .map(|attr| attr.value.end())
+                    .filter_map(|attr| attr.value.as_ref().map(|value| value.end()))
                     .max()
                     .unwrap_or(span_start);
                 writeln!(

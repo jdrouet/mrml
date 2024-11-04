@@ -28,7 +28,7 @@ mod tests {
         );
         elt.attributes
             .others
-            .insert("margin-bottom".into(), "20px".into());
+            .insert("margin-bottom".into(), Some("20px".into()));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-class","attributes":{"name":"classname","margin-bottom":"20px"}}"#

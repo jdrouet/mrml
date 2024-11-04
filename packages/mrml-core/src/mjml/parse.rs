@@ -15,9 +15,9 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error
     let mut attrs = MjmlAttributes::default();
     while let Some(token) = cursor.next_attribute()? {
         match token.local.as_str() {
-            "owa" => attrs.owa = Some(token.value.to_string()),
-            "lang" => attrs.lang = Some(token.value.to_string()),
-            "dir" => attrs.dir = Some(token.value.to_string()),
+            "owa" => attrs.owa = token.value.map(|v| v.to_string()),
+            "lang" => attrs.lang = token.value.map(|v| v.to_string()),
+            "dir" => attrs.dir = token.value.map(|v| v.to_string()),
             _ => cursor.add_warning(WarningKind::UnexpectedAttribute, token.span),
         }
     }

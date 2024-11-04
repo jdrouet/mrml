@@ -12,7 +12,7 @@ mod tests {
     fn with_children() {
         let mut item = crate::mj_body::MjBody::default();
         item.attributes
-            .insert("background-color".to_string(), "red".to_string());
+            .insert("background-color".to_string(), Some("red".to_string()));
         item.children
             .push(crate::mj_body::MjBodyChild::from(crate::node::Node::from(
                 "span",

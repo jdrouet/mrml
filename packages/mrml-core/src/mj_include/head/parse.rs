@@ -97,12 +97,12 @@ fn parse_attributes(
     let mut path = None;
     let mut kind = None;
     while let Some(attr) = cursor.next_attribute()? {
-        match attr.local.as_str() {
-            "path" => {
-                path = Some(attr.value.to_string());
+        match (attr.local.as_str(), attr.value) {
+            ("path", Some(value)) => {
+                path = Some(value.to_string());
             }
-            "type" => {
-                kind = Some(MjIncludeHeadKind::parse(cursor, attr.value)?);
+            ("type", Some(value)) => {
+                kind = Some(MjIncludeHeadKind::parse(cursor, value)?);
             }
             _ => {
                 cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);

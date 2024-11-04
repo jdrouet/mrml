@@ -215,12 +215,12 @@ impl<'opts> MrmlParser<'opts> {
     }
 }
 
-impl<'opts> ParseAttributes<Map<String, String>> for MrmlParser<'opts> {
+impl<'opts> ParseAttributes<Map<String, Option<String>>> for MrmlParser<'opts> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
         _tag: &StrSpan<'_>,
-    ) -> Result<Map<String, String>, Error> {
+    ) -> Result<Map<String, Option<String>>, Error> {
         parse_attributes_map(cursor)
     }
 }
@@ -327,10 +327,13 @@ impl AsyncParseChildren<String> for AsyncMrmlParser {
 
 pub(crate) fn parse_attributes_map(
     cursor: &mut MrmlCursor<'_>,
-) -> Result<Map<String, String>, Error> {
+) -> Result<Map<String, Option<String>>, Error> {
     let mut result = Map::new();
     while let Some(attr) = cursor.next_attribute()? {
-        result.insert(attr.local.to_string(), attr.value.to_string());
+        result.insert(
+            attr.local.to_string(),
+            attr.value.map(|inner| inner.to_string()),
+        );
     }
     Ok(result)
 }

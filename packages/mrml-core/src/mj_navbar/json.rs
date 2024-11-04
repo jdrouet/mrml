@@ -5,7 +5,7 @@ mod tests {
     #[test]
     fn serialize() {
         let mut elt = MjNavbar::default();
-        elt.attributes.insert("margin".into(), "42px".into());
+        elt.attributes.insert("margin".into(), Some("42px".into()));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-navbar","attributes":{"margin":"42px"}}"#

@@ -1,8 +1,8 @@
-use crate::prelude::hash::Map;
 use crate::prelude::print::PrintableElement;
+use crate::prelude::AttributeMap;
 
 impl PrintableElement for super::MjAttributesElement {
-    type Attrs = Map<String, String>;
+    type Attrs = AttributeMap;
     type Children = ();
 
     fn tag(&self) -> &str {

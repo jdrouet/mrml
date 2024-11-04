@@ -62,7 +62,10 @@ impl<'root> Renderer<'root, MjBody, ()> {
 
 impl<'root> Render<'root> for Renderer<'root, MjBody, ()> {
     fn raw_attribute(&self, key: &str) -> Option<&'root str> {
-        self.element.attributes.get(key).map(|v| v.as_str())
+        match self.element.attributes.get(key) {
+            Some(Some(inner)) => Some(inner),
+            _ => None,
+        }
     }
 
     fn default_attribute(&self, key: &str) -> Option<&'static str> {

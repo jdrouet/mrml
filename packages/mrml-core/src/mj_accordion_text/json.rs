@@ -7,7 +7,7 @@ mod tests {
     fn serialize() {
         let mut elt = MjAccordionText::default();
         elt.attributes
-            .insert("margin".to_string(), "12px".to_string());
+            .insert("margin".to_string(), Some("12px".to_string()));
         elt.children.push(MjRawChild::Text(Text::from("Hello")));
         elt.children.push(MjRawChild::Text(Text::from("World")));
         assert_eq!(

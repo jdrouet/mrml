@@ -8,7 +8,7 @@ use crate::prelude::parser::{AsyncMrmlParser, AsyncParseElement};
 
 #[inline]
 fn parse<'a>(cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<MjAttributesElement, Error> {
-    let attributes: Map<String, String> = parse_attributes_map(cursor)?;
+    let attributes: Map<String, Option<String>> = parse_attributes_map(cursor)?;
     let ending = cursor.assert_element_end()?;
     if !ending.empty {
         cursor.assert_element_close()?;

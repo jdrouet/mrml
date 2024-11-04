@@ -9,10 +9,13 @@ use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, ParseAttributes, War
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjBreakpointAttributes, Error> {
     let mut result = MjBreakpointAttributes::default();
     while let Some(attr) = cursor.next_attribute()? {
-        if attr.local.as_str() == "width" {
-            result.width = attr.value.to_string();
-        } else {
-            cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
+        match (attr.local.as_str(), attr.value) {
+            ("width", Some(value)) => {
+                result.width = value.to_string();
+            }
+            _ => {
+                cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
+            }
         }
     }
     Ok(result)

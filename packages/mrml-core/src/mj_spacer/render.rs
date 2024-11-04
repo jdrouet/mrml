@@ -11,7 +11,10 @@ impl<'root> Render<'root> for Renderer<'root, MjSpacer, ()> {
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'root str> {
-        self.element.attributes.get(key).map(|v| v.as_str())
+        match self.element.attributes.get(key) {
+            Some(Some(inner)) => Some(inner),
+            _ => None,
+        }
     }
 
     fn tag(&self) -> Option<&str> {

@@ -5,7 +5,7 @@ mod tests {
     #[test]
     fn serialize() {
         let mut elt = MjSocialElement::default();
-        elt.attributes.insert("name".into(), "twitter".into());
+        elt.attributes.insert("name".into(), Some("twitter".into()));
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-social-element","attributes":{"name":"twitter"}}"#

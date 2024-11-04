@@ -337,7 +337,7 @@ mod tests {
                 MjHeadChild::MjAttributes(MjAttributes::new(
                     (),
                     vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
-                        Map::from_iter([(String::from("font-size"), String::from("42px"))]),
+                        Map::from_iter([(String::from("font-size"), Some(String::from("42px")))]),
                         (),
                     ))],
                 )),
@@ -350,8 +350,8 @@ mod tests {
                         (),
                         vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
                             Map::from_iter([
-                                (String::from("font-size"), String::from("21px")),
-                                (String::from("text-align"), String::from("center")),
+                                (String::from("font-size"), Some(String::from("21px"))),
+                                (String::from("text-align"), Some(String::from("center"))),
                             ]),
                             (),
                         ))],
@@ -360,7 +360,7 @@ mod tests {
                 MjHeadChild::MjAttributes(MjAttributes::new(
                     (),
                     vec![MjAttributesChild::MjAttributesAll(MjAttributesAll::new(
-                        Map::from_iter([(String::from("text-align"), String::from("right"))]),
+                        Map::from_iter([(String::from("text-align"), Some(String::from("right")))]),
                         (),
                     ))],
                 )),
@@ -389,7 +389,7 @@ mod tests {
                                 name: String::from("foo"),
                                 others: Map::from_iter([(
                                     String::from("font-size"),
-                                    String::from("42px"),
+                                    Some(String::from("42px")),
                                 )]),
                             },
                             (),
@@ -409,7 +409,7 @@ mod tests {
                                     name: String::from("foo"),
                                     others: Map::from_iter([(
                                         String::from("font-size"),
-                                        String::from("21px"),
+                                        Some(String::from("21px")),
                                     )]),
                                 },
                                 (),
@@ -419,7 +419,7 @@ mod tests {
                                     name: String::from("bar"),
                                     others: Map::from_iter([(
                                         String::from("text-align"),
-                                        String::from("center"),
+                                        Some(String::from("center")),
                                     )]),
                                 },
                                 (),
@@ -435,7 +435,7 @@ mod tests {
                                 name: String::from("bar"),
                                 others: Map::from_iter([(
                                     String::from("text-align"),
-                                    String::from("left"),
+                                    Some(String::from("left")),
                                 )]),
                             },
                             (),
@@ -467,7 +467,7 @@ mod tests {
                             name: String::from("mj-text"),
                             attributes: Map::from_iter([(
                                 String::from("font-size"),
-                                String::from("42px"),
+                                Some(String::from("42px")),
                             )]),
                         },
                     )],
@@ -483,8 +483,8 @@ mod tests {
                             MjAttributesElement {
                                 name: String::from("mj-text"),
                                 attributes: Map::from_iter([
-                                    (String::from("font-size"), String::from("21px")),
-                                    (String::from("text-align"), String::from("center")),
+                                    (String::from("font-size"), Some(String::from("21px"))),
+                                    (String::from("text-align"), Some(String::from("center"))),
                                 ]),
                             },
                         )],
@@ -497,7 +497,7 @@ mod tests {
                             name: String::from("mj-text"),
                             attributes: Map::from_iter([(
                                 String::from("text-align"),
-                                String::from("left"),
+                                Some(String::from("left")),
                             )]),
                         },
                     )],

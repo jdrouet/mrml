@@ -6,7 +6,7 @@ mod tests {
     #[test]
     fn serialize() {
         let mut elt = MjAccordion::default();
-        elt.attributes.insert("margin".into(), "42px".into());
+        elt.attributes.insert("margin".into(), Some("42px".into()));
         elt.children.push(MjAccordionChild::MjAccordionElement(
             MjAccordionElement::default(),
         ));

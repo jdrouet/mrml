@@ -249,7 +249,10 @@ impl<'root> Render<'root> for Renderer<'root, MjSocialElement, MjSocialElementEx
     }
 
     fn raw_attribute(&self, key: &str) -> Option<&'root str> {
-        self.element.attributes.get(key).map(|v| v.as_str())
+        match self.element.attributes.get(key) {
+            Some(Some(inner)) => Some(inner),
+            _ => None,
+        }
     }
 
     fn tag(&self) -> Option<&str> {
@@ -289,6 +292,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialElement {
         let extra = MjSocialElementExtra::new(
             self.attributes
                 .get("name")
+                .and_then(|v| v.as_deref())
                 .and_then(|name| SocialNetwork::find(name)),
         );
         Box::new(Renderer::new(context, self, extra))
