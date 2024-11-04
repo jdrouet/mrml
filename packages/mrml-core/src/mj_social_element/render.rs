@@ -293,7 +293,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialElement {
             self.attributes
                 .get("name")
                 .and_then(|v| v.as_deref())
-                .and_then(|name| SocialNetwork::find(name)),
+                .and_then(SocialNetwork::find),
         );
         Box::new(Renderer::new(context, self, extra))
     }
