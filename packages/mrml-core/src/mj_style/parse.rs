@@ -18,7 +18,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Er
     Ok(result)
 }
 
-impl<'opts> ParseAttributes<MjStyleAttributes> for MrmlParser<'opts> {
+impl ParseAttributes<MjStyleAttributes> for MrmlParser<'_> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,

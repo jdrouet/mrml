@@ -7,7 +7,7 @@ use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl<'opts> ParseChildren<MjAccordionElementChildren> for MrmlParser<'opts> {
+impl ParseChildren<MjAccordionElementChildren> for MrmlParser<'_> {
     fn parse_children(
         &self,
         cursor: &mut MrmlCursor<'_>,

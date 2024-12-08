@@ -4,7 +4,7 @@ use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseOutput, ParserOptions,
 };
 
-impl<'opts> crate::prelude::parser::ParseChildren<Vec<RootChild>> for MrmlParser<'opts> {
+impl crate::prelude::parser::ParseChildren<Vec<RootChild>> for MrmlParser<'_> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<RootChild>, Error> {
         use crate::prelude::parser::ParseElement;
 

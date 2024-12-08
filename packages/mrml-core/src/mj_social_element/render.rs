@@ -14,7 +14,7 @@ struct MjSocialElementExtra<'a> {
     network: Option<SocialNetwork>,
 }
 
-impl<'a> MjSocialElementExtra<'a> {
+impl MjSocialElementExtra<'_> {
     pub fn new(network: Option<SocialNetwork>) -> Self {
         Self {
             attributes: Map::new(),

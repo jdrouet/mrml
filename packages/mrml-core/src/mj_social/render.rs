@@ -45,7 +45,7 @@ const EXTRA_CHILD_KEY: [&str; 13] = [
     "text-decoration",
 ];
 
-impl<'root> Renderer<'root, MjSocial, ()> {
+impl Renderer<'_, MjSocial, ()> {
     fn set_style_table_vertical<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
         tag.add_style("margin", "0px")
     }

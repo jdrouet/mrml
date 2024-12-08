@@ -16,7 +16,7 @@ fn parse_children(cursor: &mut MrmlCursor<'_>) -> Result<Vec<Text>, Error> {
     Ok(result)
 }
 
-impl<'opts> ParseChildren<Vec<Text>> for MrmlParser<'opts> {
+impl ParseChildren<Vec<Text>> for MrmlParser<'_> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<Text>, Error> {
         parse_children(cursor)
     }

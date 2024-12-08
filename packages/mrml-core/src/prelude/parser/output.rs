@@ -29,7 +29,7 @@ pub struct Warning {
     pub span: super::Span,
 }
 
-impl<'a> super::MrmlCursor<'a> {
+impl super::MrmlCursor<'_> {
     pub(crate) fn add_warning<S: Into<super::Span>>(&mut self, kind: WarningKind, span: S) {
         self.warnings.push(Warning {
             kind,

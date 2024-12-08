@@ -119,7 +119,7 @@ fn render_font_link(target: &mut String, href: &str) {
     target.push_str("\" rel=\"stylesheet\" type=\"text/css\">");
 }
 
-impl<'root> Renderer<'root, MjHead, ()> {
+impl Renderer<'_, MjHead, ()> {
     fn mj_style_iter(&self) -> impl Iterator<Item = &str> {
         self.element.children.iter().flat_map(|item| {
             item.as_mj_include()

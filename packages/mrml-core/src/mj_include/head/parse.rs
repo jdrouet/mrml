@@ -17,7 +17,7 @@ use crate::prelude::parser::{
 };
 use crate::text::Text;
 
-impl<'opts> ParseElement<MjIncludeHeadChild> for MrmlParser<'opts> {
+impl ParseElement<MjIncludeHeadChild> for MrmlParser<'_> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -119,7 +119,7 @@ fn parse_attributes(
     })
 }
 
-impl<'opts> ParseAttributes<MjIncludeHeadAttributes> for MrmlParser<'opts> {
+impl ParseAttributes<MjIncludeHeadAttributes> for MrmlParser<'_> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -140,7 +140,7 @@ impl ParseAttributes<MjIncludeHeadAttributes> for AsyncMrmlParser {
     }
 }
 
-impl<'opts> ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser<'opts> {
+impl ParseChildren<Vec<MjIncludeHeadChild>> for MrmlParser<'_> {
     fn parse_children(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -213,7 +213,7 @@ impl AsyncParseChildren<Vec<MjIncludeHeadChild>> for AsyncMrmlParser {
     }
 }
 
-impl<'opts> ParseElement<MjIncludeHead> for MrmlParser<'opts> {
+impl ParseElement<MjIncludeHead> for MrmlParser<'_> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

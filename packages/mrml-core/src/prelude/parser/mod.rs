@@ -215,7 +215,7 @@ impl<'opts> MrmlParser<'opts> {
     }
 }
 
-impl<'opts> ParseAttributes<Map<String, Option<String>>> for MrmlParser<'opts> {
+impl ParseAttributes<Map<String, Option<String>>> for MrmlParser<'_> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -225,7 +225,7 @@ impl<'opts> ParseAttributes<Map<String, Option<String>>> for MrmlParser<'opts> {
     }
 }
 
-impl<'opts> ParseAttributes<()> for MrmlParser<'opts> {
+impl ParseAttributes<()> for MrmlParser<'_> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -235,7 +235,7 @@ impl<'opts> ParseAttributes<()> for MrmlParser<'opts> {
     }
 }
 
-impl<'opts> ParseChildren<String> for MrmlParser<'opts> {
+impl ParseChildren<String> for MrmlParser<'_> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<String, Error> {
         Ok(cursor
             .next_text()?

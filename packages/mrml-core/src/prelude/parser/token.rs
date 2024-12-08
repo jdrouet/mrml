@@ -117,7 +117,7 @@ impl<'a> MrmlToken<'a> {
     }
 }
 
-impl<'a> MrmlToken<'a> {
+impl MrmlToken<'_> {
     pub fn span(&self) -> Span {
         match self {
             Self::Attribute(item) => item.span,

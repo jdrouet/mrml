@@ -7,7 +7,7 @@ struct MjNavbarLinkExtra<'a> {
     attributes: Map<&'a str, &'a str>,
 }
 
-impl<'a> Default for MjNavbarLinkExtra<'a> {
+impl Default for MjNavbarLinkExtra<'_> {
     fn default() -> Self {
         Self {
             attributes: Map::new(),
