@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.6.1...mrml-cli-v1.7.0) - 2024-12-08
+
+### Added
+
+- improve error handling (#452)
+- parsing warnings and improve errors (#451)
+
+### Other
+
+- use package attributes from workspace (#488)
+
 ## [1.6.1](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.6.0...mrml-cli-v1.6.1) - 2024-06-30
 
 ### Other
