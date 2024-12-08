@@ -3,7 +3,7 @@ use crate::helper::size::Pixel;
 use crate::mj_section::{SectionLikeRender, WithMjSectionBackground};
 use crate::prelude::render::*;
 
-impl<'root> Renderer<'root, MjWrapper, ()> {
+impl Renderer<'_, MjWrapper, ()> {
     fn current_width(&self) -> Option<Pixel> {
         self.container_width.as_ref().map(|width| {
             let hborder = self.get_border_horizontal();

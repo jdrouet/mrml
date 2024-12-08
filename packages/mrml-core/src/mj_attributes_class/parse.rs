@@ -28,7 +28,7 @@ fn parse<'a>(cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<MjAttribut
     Ok(MjAttributesClass::new(attributes, ()))
 }
 
-impl<'opts> ParseElement<MjAttributesClass> for MrmlParser<'opts> {
+impl ParseElement<MjAttributesClass> for MrmlParser<'_> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,

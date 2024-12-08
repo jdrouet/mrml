@@ -20,7 +20,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjFontAttributes, Err
     Ok(result)
 }
 
-impl<'opts> ParseAttributes<MjFontAttributes> for MrmlParser<'opts> {
+impl ParseAttributes<MjFontAttributes> for MrmlParser<'_> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,

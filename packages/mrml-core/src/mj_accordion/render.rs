@@ -31,7 +31,7 @@ const STYLE: &str = r#"noinput.mj-accordion-checkbox { display: block! important
 @goodbye { @gmail }
 "#;
 
-impl<'root> Renderer<'root, MjAccordion, ()> {
+impl Renderer<'_, MjAccordion, ()> {
     fn update_header(&self, header: &mut VariableHeader) {
         let font_families = self.attribute("font-family");
         header.maybe_add_font_families(font_families);

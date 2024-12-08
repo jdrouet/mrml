@@ -85,7 +85,7 @@ pub enum ErrorKind<'a> {
     },
 }
 
-impl<'a> ErrorKind<'a> {
+impl ErrorKind<'_> {
     pub fn display(&self) -> String {
         // TODO improve error display
         format!("{self:?}")
@@ -112,7 +112,7 @@ fn display_subset(data: &str, span_start: usize, span_end: usize, gap: usize) ->
 
 const SUBSET_GAP: usize = 150;
 
-impl<'a> std::fmt::Display for Error<'a> {
+impl std::fmt::Display for Error<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.kind {
             ErrorKind::ElementMismatch {

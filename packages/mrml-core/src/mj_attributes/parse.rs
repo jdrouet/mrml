@@ -9,7 +9,7 @@ use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl<'opts> ParseElement<MjAttributesChild> for MrmlParser<'opts> {
+impl ParseElement<MjAttributesChild> for MrmlParser<'_> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -40,7 +40,7 @@ impl AsyncParseElement<MjAttributesChild> for AsyncMrmlParser {
     }
 }
 
-impl<'opts> ParseChildren<Vec<MjAttributesChild>> for MrmlParser<'opts> {
+impl ParseChildren<Vec<MjAttributesChild>> for MrmlParser<'_> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjAttributesChild>, Error> {
         let mut result = Vec::new();
 

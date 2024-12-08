@@ -11,7 +11,7 @@ use crate::prelude::parser::{
 };
 use crate::text::Text;
 
-impl<'opts> ParseElement<Node<MjRawChild>> for MrmlParser<'opts> {
+impl ParseElement<Node<MjRawChild>> for MrmlParser<'_> {
     fn parse<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
@@ -68,7 +68,7 @@ impl AsyncParseElement<Node<MjRawChild>> for AsyncMrmlParser {
     }
 }
 
-impl<'opts> ParseChildren<Vec<MjRawChild>> for MrmlParser<'opts> {
+impl ParseChildren<Vec<MjRawChild>> for MrmlParser<'_> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjRawChild>, Error> {
         let mut children = Vec::new();
         loop {

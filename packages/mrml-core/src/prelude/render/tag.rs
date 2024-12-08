@@ -7,7 +7,7 @@ use crate::prelude::hash::{Map, Set};
 #[derive(Default)]
 pub(super) struct Styles<'a>(Vec<(Cow<'a, str>, Cow<'a, str>)>);
 
-impl<'a> std::fmt::Debug for Styles<'a> {
+impl std::fmt::Debug for Styles<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_char('"')?;
         for (key, value) in self.0.iter() {
@@ -20,7 +20,7 @@ impl<'a> std::fmt::Debug for Styles<'a> {
 #[derive(Default)]
 pub(super) struct Classes<'a>(Set<Cow<'a, str>>);
 
-impl<'a> std::fmt::Debug for Classes<'a> {
+impl std::fmt::Debug for Classes<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_char('"')?;
         for (i, c) in self.0.iter().enumerate() {
@@ -144,7 +144,7 @@ impl<'a> Tag<'a> {
     }
 }
 
-impl<'a> Tag<'a> {
+impl Tag<'_> {
     fn render_opening(&self, b: &mut RenderBuffer) -> std::fmt::Result {
         b.push('<');
         b.push_str(&self.name);

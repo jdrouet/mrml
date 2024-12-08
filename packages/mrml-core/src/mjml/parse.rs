@@ -24,7 +24,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error
     Ok(attrs)
 }
 
-impl<'opts> ParseAttributes<MjmlAttributes> for MrmlParser<'opts> {
+impl ParseAttributes<MjmlAttributes> for MrmlParser<'_> {
     fn parse_attributes(
         &self,
         cursor: &mut MrmlCursor<'_>,
@@ -34,7 +34,7 @@ impl<'opts> ParseAttributes<MjmlAttributes> for MrmlParser<'opts> {
     }
 }
 
-impl<'opts> ParseChildren<MjmlChildren> for MrmlParser<'opts> {
+impl ParseChildren<MjmlChildren> for MrmlParser<'_> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlChildren, Error> {
         let mut children = MjmlChildren::default();
 

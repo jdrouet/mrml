@@ -17,7 +17,7 @@ impl Serialize for Text {
 #[derive(Default)]
 struct TextVisitor;
 
-impl<'de> Visitor<'de> for TextVisitor {
+impl Visitor<'_> for TextVisitor {
     type Value = Text;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {

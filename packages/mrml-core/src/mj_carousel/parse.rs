@@ -7,7 +7,7 @@ use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren, ParseElement,
 };
 
-impl<'opts> ParseChildren<Vec<MjCarouselChild>> for MrmlParser<'opts> {
+impl ParseChildren<Vec<MjCarouselChild>> for MrmlParser<'_> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjCarouselChild>, Error> {
         let mut result = Vec::new();
 
