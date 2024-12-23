@@ -42,8 +42,8 @@ pub struct HttpIncludeLoaderOptions {
     list: HashSet<String>,
 }
 
-// #[pyclass]
-#[derive(FromPyObject, Clone, Debug)]
+#[pyclass]
+#[derive(Clone, Debug)]
 pub enum ParserIncludeLoaderOptions {
     Noop(NoopIncludeLoaderOptions),
     Memory(MemoryIncludeLoaderOptions),
@@ -75,17 +75,6 @@ impl ParserIncludeLoaderOptions {
                     Box::new(HttpIncludeLoader::<UreqFetcher>::new_deny(list))
                 }
             },
-        }
-    }
-}
-
-impl IntoPy<PyObject> for ParserIncludeLoaderOptions {
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        match self {
-            Self::Noop(inner) => inner.into_py(py),
-            Self::Memory(inner) => inner.into_py(py),
-            Self::Local(inner) => inner.into_py(py),
-            Self::Http(inner) => inner.into_py(py),
         }
     }
 }
@@ -275,5 +264,6 @@ fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(local_loader, m)?)?;
     m.add_function(wrap_pyfunction!(http_loader, m)?)?;
     m.add_function(wrap_pyfunction!(memory_loader, m)?)?;
+    m.gil_used(false)?;
     Ok(())
 }
