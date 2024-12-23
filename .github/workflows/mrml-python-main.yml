@@ -35,7 +35,7 @@ jobs:
 
       # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: Setup Python
-        uses: deadsnakes/action@v3
+        uses: deadsnakes/action@v3.2.0
         with:
           python-version: "3.13"
           nogil: true
