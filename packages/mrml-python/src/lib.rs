@@ -10,19 +10,19 @@ use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 use pyo3::exceptions::PyIOError;
 use pyo3::prelude::*;
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug, Default)]
 pub struct NoopIncludeLoaderOptions;
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug, Default)]
 pub struct MemoryIncludeLoaderOptions(HashMap<String, String>);
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug, Default)]
 pub struct LocalIncludeLoaderOptions(PathBuf);
 
-#[pyclass(eq, eq_int)]
+#[pyclass(frozen, eq, eq_int)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum HttpIncludeLoaderOptionsMode {
     Allow,
@@ -35,14 +35,14 @@ impl Default for HttpIncludeLoaderOptionsMode {
     }
 }
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug, Default)]
 pub struct HttpIncludeLoaderOptions {
     mode: HttpIncludeLoaderOptionsMode,
     list: HashSet<String>,
 }
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug)]
 pub enum ParserIncludeLoaderOptions {
     Noop(NoopIncludeLoaderOptions),
@@ -119,10 +119,10 @@ pub fn http_loader(
     })
 }
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug, Default)]
 pub struct ParserOptions {
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     pub include_loader: ParserIncludeLoaderOptions,
 }
 
@@ -144,22 +144,31 @@ impl From<ParserOptions> for mrml::prelude::parser::ParserOptions {
     }
 }
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug, Default)]
 pub struct RenderOptions {
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     pub disable_comments: bool,
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     pub social_icon_origin: Option<String>,
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     pub fonts: Option<HashMap<String, String>>,
 }
 
 #[pymethods]
 impl RenderOptions {
     #[new]
-    pub fn new() -> Self {
-        Self::default()
+    #[pyo3(signature = (disable_comments=false, social_icon_origin=None, fonts=None))]
+    pub fn new(
+        disable_comments: bool,
+        social_icon_origin: Option<String>,
+        fonts: Option<HashMap<String, String>>,
+    ) -> Self {
+        Self {
+            disable_comments,
+            social_icon_origin,
+            fonts,
+        }
     }
 }
 
@@ -182,10 +191,10 @@ impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
     }
 }
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug, Default)]
 pub struct Warning {
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     pub origin: Option<String>,
     #[pyo3(get)]
     pub kind: &'static str,
@@ -215,7 +224,7 @@ impl From<mrml::prelude::parser::Warning> for Warning {
     }
 }
 
-#[pyclass]
+#[pyclass(frozen)]
 #[derive(Clone, Debug, Default)]
 pub struct Output {
     #[pyo3(get)]

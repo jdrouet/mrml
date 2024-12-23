@@ -64,12 +64,18 @@ class ParserOptions:
 
 class RenderOptions:
     """RenderOptions configures rendering behavior, including whether to disable comments and how to handle social icons and fonts."""
-
-    disable_comments: bool
-    social_icon_origin: Optional[str]
-    fonts: Optional[Dict[str, str]]
-
-    def __init__(self) -> None: ...
+    def __init__(
+        self,
+        disable_comments: bool = False,
+        social_icon_origin: str | None = None,
+        fonts: Dict[str, str] | None = None,
+    ) -> None: ...
+    @property
+    def disable_comments(self) -> bool: ...
+    @property
+    def social_icon_origin(self) -> str | None: ...
+    @property
+    def fonts(self) -> Dict[str, str] | None: ...
 
 class Warning:
     @property
