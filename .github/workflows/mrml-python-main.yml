@@ -26,18 +26,22 @@ jobs:
   testing:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.13"]
+
     concurrency:
-      group: ${{ github.ref }}-mrml-python
+      group: ${{ github.ref }}-mrml-python-${{ matrix.python-version }}
       cancel-in-progress: true
 
     steps:
       - uses: actions/checkout@v4
 
       # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
-      - name: Setup Python
+      - name: setup python
         uses: deadsnakes/action@v3.2.0
         with:
-          python-version: "3.13"
+          python-version: ${{ matrix.python-version }}
           nogil: true
 
       - name: install cargo toolchain
