@@ -37,8 +37,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: setup python
+        if: matrix.python-version != '3.13'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
       # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: setup python
+        if: matrix.python-version == '3.13'
         uses: deadsnakes/action@v3.2.0
         with:
           python-version: ${{ matrix.python-version }}
