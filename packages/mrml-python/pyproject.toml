@@ -4,13 +4,14 @@ build-backend = "maturin"
 
 [project]
 name = "mrml"
+version = "0.1.15"
 description = "A Python wrapper for MRML (Rust port of MJML)."
 readme = "readme.md"
 requires-python = ">=3.7"
 classifiers = [
-  "Programming Language :: Rust",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
 [project.urls]
