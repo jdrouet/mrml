@@ -14,6 +14,8 @@ impl<'root> Renderer<'root, MjAccordionText, MjAccordionTextExtra<'root>> {
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("font-family", self.attribute("font-family"))
             .maybe_add_style("line-height", self.attribute("line-height"))
+            .maybe_add_style("font-weight", self.attribute("font-weight"))
+            .maybe_add_style("letter-spacing", self.attribute("letter-spacing"))
             .maybe_add_style("color", self.attribute("color"))
             .maybe_add_style("padding-top", self.attribute("padding-top"))
             .maybe_add_style("padding-right", self.attribute("padding-right"))
