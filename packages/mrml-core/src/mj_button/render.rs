@@ -77,6 +77,7 @@ impl<'root> Renderer<'root, MjButton, ()> {
             .maybe_add_style("font-size", self.attribute("font-size"))
             .maybe_add_style("font-style", self.attribute("font-style"))
             .maybe_add_style("font-weight", self.attribute("font-weight"))
+            .maybe_add_style("letter-spacing", self.attribute("letter-spacing"))
             .maybe_add_style("line-height", self.attribute("line-height"))
             .maybe_add_style("line-spacing", self.attribute("line-spacing"))
             .add_style("margin", "0")
