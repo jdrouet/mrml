@@ -1,3 +1,5 @@
+#![allow(clippy::useless_conversion)]
+
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
