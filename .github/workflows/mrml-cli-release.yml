@@ -63,17 +63,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-arm64
+
       - name: display downloaded files
         run: ls -R
-      - name: get release id from tag
-        id: release_id
-        run: |
-          release_id=$(curl -L -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" $GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/tags/${{ inputs.release_tag }} | jq .id)
-          echo "release_id=$release_id" >> $GITHUB_OUTPUT
+
       - name: upload the artifacts
-        uses: skx/github-action-publish-binaries@release-2.0
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          releaseId: ${{ steps.release_id.outputs.release_id }}
-          args: "mrml-cli_*"
+          fail_on_unmatched_files: true
+          files: "mrml-cli_*"
+          tag_name: ${{ inputs.release_tag }}
