@@ -252,11 +252,11 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use clap::Parser;
-
-    use crate::format_parser_error;
+    use mrml::prelude::parser::loader::IncludeLoaderError;
+    use mrml::prelude::parser::{Error as ParserError, Origin, Span};
 
     use super::Options;
-    use mrml::prelude::parser::{loader::IncludeLoaderError, Error as ParserError, Origin, Span};
+    use crate::format_parser_error;
 
     fn origin_include() -> Origin {
         Origin::Include {

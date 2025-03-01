@@ -1,9 +1,9 @@
-use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    sync::Arc,
-};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::sync::Arc;
 
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::extract::State;
+use axum::response::IntoResponse;
+use axum::Json;
 use tokio::net::TcpListener;
 
 fn init_logs() {
@@ -157,10 +157,8 @@ async fn main() {
 
 #[cfg(test)]
 mod tests {
-    use axum::{
-        body::Body,
-        http::{self, Request, StatusCode},
-    };
+    use axum::body::Body;
+    use axum::http::{self, Request, StatusCode};
     use serde_json::json;
     use tower::util::ServiceExt;
 

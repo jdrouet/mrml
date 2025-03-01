@@ -1,4 +1,5 @@
-use crate::prelude::{hash::Map, AttributeMap};
+use crate::prelude::hash::Map;
+use crate::prelude::AttributeMap;
 
 #[cfg(feature = "json")]
 mod json;
