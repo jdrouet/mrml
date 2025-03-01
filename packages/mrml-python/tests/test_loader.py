@@ -1,5 +1,7 @@
 import mrml
 import os
+import pytest
+import sys
 
 
 PARTIALS_PATH = os.path.join(os.getcwd(), 'resources', 'partials')
@@ -21,6 +23,7 @@ def test_memory_loader():
     assert len(result.warnings) == 0
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Unable to load from local path on windows")
 def test_local_loader_success():
     parser_options = mrml.ParserOptions(
         include_loader=mrml.local_loader(PARTIALS_PATH)

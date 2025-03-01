@@ -1,7 +1,12 @@
 import concurrent.futures
 
 import mrml
+import os
 import pytest
+import sys
+
+
+PARTIALS_PATH = os.path.join(os.getcwd(), 'resources', 'partials')
 
 
 def test_concurrent_simple_template():
@@ -41,9 +46,10 @@ def test_concurrent_memory_loader():
         assert all(results)
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Unable to load from local path on windows")
 def test_concurrent_local_loader():
     parser_options = mrml.ParserOptions(
-        include_loader=mrml.local_loader("./resources/partials")
+        include_loader=mrml.local_loader(PARTIALS_PATH)
     )
 
     def worker():
@@ -91,6 +97,7 @@ def test_concurrent_http_loader():
         assert all(results)
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Unable to load from local path on windows")
 def test_concurrent_mixed_operations():
     """Test different MRML operations running concurrently"""
     memory_parser_options = mrml.ParserOptions(
@@ -102,7 +109,7 @@ def test_concurrent_mixed_operations():
     )
 
     local_parser_options = mrml.ParserOptions(
-        include_loader=mrml.local_loader("./resources/partials")
+        include_loader=mrml.local_loader(PARTIALS_PATH)
     )
 
     def worker_simple():
