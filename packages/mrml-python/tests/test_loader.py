@@ -1,4 +1,8 @@
 import mrml
+import os
+
+
+PARTIALS_PATH = os.path.join(os.getcwd(), 'resources', 'partials')
 
 
 def test_memory_loader():
@@ -19,7 +23,7 @@ def test_memory_loader():
 
 def test_local_loader_success():
     parser_options = mrml.ParserOptions(
-        include_loader=mrml.local_loader("./resources/partials")
+        include_loader=mrml.local_loader(PARTIALS_PATH)
     )
     result = mrml.to_html(
         '<mjml><mj-body><mj-include path="file:///hello-world.mjml" /></mj-body></mjml>',
@@ -31,7 +35,7 @@ def test_local_loader_success():
 
 def test_local_loader_missing():
     parser_options = mrml.ParserOptions(
-        include_loader=mrml.local_loader("./resources/partials")
+        include_loader=mrml.local_loader(PARTIALS_PATH)
     )
     try:
         mrml.to_html(
