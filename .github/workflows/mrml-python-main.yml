@@ -31,10 +31,6 @@ jobs:
 
     runs-on: ${{ matrix.platform-os }}
 
-    concurrency:
-      group: ${{ github.ref }}-mrml-python-${{ matrix.platform-os }}-${{ matrix.python-version }}
-      cancel-in-progress: true
-
     steps:
       - uses: actions/checkout@v4
 
@@ -59,10 +55,23 @@ jobs:
           profile: minimal
 
       - name: init python venv
+        if: matrix.platform-os != 'windows-latest'
         run: |
           pip install --upgrade pip
           python3 -m venv env
           source env/bin/activate
+          python3 -m pip install pytest maturin
+          maturin develop
+          python3 -m pytest
+        working-directory: packages/mrml-python
+
+      - name: init python venv
+        if: matrix.platform-os == 'windows-latest'
+        shell: pwsh
+        run: |
+          pip install --upgrade pip
+          python3 -m venv env
+          .\env\bin\Activate.ps1
           python3 -m pip install pytest maturin
           maturin develop
           python3 -m pytest
