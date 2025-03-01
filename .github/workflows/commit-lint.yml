@@ -19,7 +19,7 @@ jobs:
           # Default: https://github.com/commitizen/conventional-commit-types
           types: |
             ci
-            chod
+            chore
             build
             doc
             example

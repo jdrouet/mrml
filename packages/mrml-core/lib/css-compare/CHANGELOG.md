@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/jdrouet/mrml/compare/css-compare-v0.1.3...css-compare-v0.1.4) - 2025-03-01
+
+### Other
+
+- *(deps)* upgrade multiple dependencies (#476)
+
 ## [0.1.3](https://github.com/jdrouet/mrml/compare/css-compare-v0.1.2...css-compare-v0.1.3) - 2024-06-13
 
 ### Other
