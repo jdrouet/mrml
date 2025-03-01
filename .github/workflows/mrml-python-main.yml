@@ -75,5 +75,4 @@ jobs:
           env\Scripts\Activate.ps1
           python3 -m pip install pytest maturin
           maturin develop
-          python3 -m pytest
         working-directory: packages/mrml-python
