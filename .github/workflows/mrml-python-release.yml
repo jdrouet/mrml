@@ -151,11 +151,11 @@ jobs:
       - name: notify mastodon
         uses: cbrgm/mastodon-github-action@v2
         with:
+          access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          language: "en" # ISO 639 language code for the toot.
           message: |
             👋 Hey! I just released a new version of mrml-python! 🐍
             https://github.com/jdrouet/mrml/releases/tag/${{ inputs.release_tag }} and https://pypi.org/project/mrml/
+          url: ${{ secrets.MASTODON_URL }}
           visibility: "public"
-        env:
-          MASTODON_URL: ${{ secrets.MASTODON_URL }}
-          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
         continue-on-error: true
