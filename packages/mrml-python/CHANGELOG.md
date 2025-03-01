@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.15...mrml-python-v0.2.0) - 2025-03-01
+
+### Added
+
+- *(mrml-python)* add support for 3.13 with no GIL (#505)
+- parsing warnings and improve errors (#451)
+
+### Fixed
+
+- *(mrml-core)* add missing attributes in mj-accordion-text and mj-button (#513)
+- *(mrml-python)* turn PyOSError into PyIOError
+
+### Other
+
+- use package attributes from workspace (#488)
+- *(deps)* upgrade multiple dependencies (#476)
+
 ## [0.1.15](https://github.com/jdrouet/mrml/compare/mrml-python-v0.1.14...mrml-python-v0.1.15) - 2024-06-30
 
 ### Other

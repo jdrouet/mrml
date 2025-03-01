@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.3...html-compare-v0.1.4) - 2025-03-01
+
+### Fixed
+
+- *(mrml-core)* add missing attributes in mj-accordion-text and mj-button (#513)
+- apply clippy suggestions (#495)
+
+### Other
+
+- *(deps)* bump htmlparser to 0.2.1 (#489)
+- replace xmlparser by htmlparser (#485)
+- *(deps)* upgrade multiple dependencies (#476)
+
 ## [0.1.3](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.2...html-compare-v0.1.3) - 2024-06-13
 
 ### Other

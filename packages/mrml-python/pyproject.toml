@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "mrml"
-version = "0.1.15"
+version = "0.2.0"
 description = "A Python wrapper for MRML (Rust port of MJML)."
 readme = "readme.md"
 requires-python = ">=3.7"

@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 axum = { version = "0.7", features = ["macros"] }
-mrml = { version = "4.0.1", path = "../../packages/mrml-core", features = [
+mrml = { version = "5.0.0", path = "../../packages/mrml-core", features = [
     "async",
     "http-loader-async-reqwest",
 ] }
