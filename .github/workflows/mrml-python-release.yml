@@ -58,7 +58,7 @@ jobs:
       - name: upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-linux-${{ matrix.target.platform }}
           path: packages/mrml-python/dist
           overwrite: true
 
@@ -83,7 +83,7 @@ jobs:
       - name: upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-windows-${{ matrix.target }}
           path: packages/mrml-python/dist
           overwrite: true
 
@@ -109,7 +109,7 @@ jobs:
       - name: upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-macos-${{ matrix.target }}
           path: packages/mrml-python/dist
           overwrite: true
 
@@ -126,7 +126,7 @@ jobs:
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-sdist
           path: packages/mrml-python/dist
           overwrite: true
 
@@ -137,8 +137,52 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: wheels
+          name: wheels-linux-x86_64
           path: packages/mrml-python/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux-x86
+          path: packages/mrml-python/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux-aarch64
+          path: packages/mrml-python/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux-armv7
+          path: packages/mrml-python/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux-s390x
+          path: packages/mrml-python/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux-ppc64le
+          path: packages/mrml-python/dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-windows-x64
+          path: packages/mrml-python/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-windows-x86
+          path: packages/mrml-python/dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-macos-x86_64
+          path: packages/mrml-python/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-macos-aarch64
+          path: packages/mrml-python/dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-sdist
+          path: packages/mrml-python/dist
+
       - name: publish to PyPI
         uses: PyO3/maturin-action@v1
         env:
