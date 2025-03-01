@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Set, Union, List
+from typing import Any, Dict, List, Optional, Set, Union
 
 class NoopIncludeLoaderOptions:
     """No-operation loader options class, which requires no specific configuration."""
@@ -67,9 +67,15 @@ class RenderOptions:
     def __init__(
         self,
         disable_comments: bool = False,
-        social_icon_origin: Optional[str] = None,
-        fonts: Optional[Dict[str, str]] = None,
+        social_icon_origin: str | None = None,
+        fonts: Dict[str, str] | None = None,
     ) -> None: ...
+    @property
+    def disable_comments(self) -> bool: ...
+    @property
+    def social_icon_origin(self) -> str | None: ...
+    @property
+    def fonts(self) -> Dict[str, str] | None: ...
 
 class Warning:
     @property
@@ -86,7 +92,8 @@ class Output:
     @property
     def content(self) -> str: ...
     @property
-    def warnings(self) -> List[Warning]
+    def warnings(self) -> List[Warning]: ...
+    def __init__(self) -> None: ...
 
 def to_html(
     input: str,
