@@ -64,12 +64,10 @@ jobs:
         target: [x64, x86]
     steps:
       - uses: actions/checkout@v4
-      # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: setup python
-        uses: deadsnakes/action@v3.2.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          nogil: true"
           architecture: ${{ matrix.target }}
       - name: build wheels
         uses: PyO3/maturin-action@v1
@@ -93,10 +91,10 @@ jobs:
       - uses: actions/checkout@v4
       # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: setup python
-        uses: deadsnakes/action@v3.2.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          nogil: true"
+          architecture: ${{ matrix.target }}
       - name: build wheels
         uses: PyO3/maturin-action@v1
         with:
