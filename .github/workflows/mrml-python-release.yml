@@ -51,6 +51,10 @@ jobs:
           sccache: "true"
           manylinux: ${{ matrix.target.manylinux }}
           working-directory: packages/mrml-python
+
+      - name: display directory content
+        run: ls -lha packages/mrml-python/dist/*
+
       - name: upload wheels
         uses: actions/upload-artifact@v4
         with:
