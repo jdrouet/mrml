@@ -39,6 +39,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
       # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: setup python
@@ -71,7 +72,7 @@ jobs:
         run: |
           pip install --upgrade pip
           python3 -m venv env
-          .\env\bin\Activate.ps1
+          env\Scripts\Activate.ps1
           python3 -m pip install pytest maturin
           maturin develop
           python3 -m pytest
