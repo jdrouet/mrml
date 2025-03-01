@@ -24,28 +24,29 @@ permissions:
 
 jobs:
   testing:
-    runs-on: ubuntu-latest
-
     strategy:
       matrix:
+        platform-os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         python-version: ["3.10", "3.13"]
 
+    runs-on: ${{ matrix.platform-os }}
+
     concurrency:
-      group: ${{ github.ref }}-mrml-python-${{ matrix.python-version }}
+      group: ${{ github.ref }}-mrml-python-${{ matrix.platform-os }}-${{ matrix.python-version }}
       cancel-in-progress: true
 
     steps:
       - uses: actions/checkout@v4
 
       - name: setup python
-        if: matrix.python-version != '3.13'
+        if: matrix.python-version != '3.13' || matrix.platform-os != 'ubuntu-latest'
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
       # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: setup python
-        if: matrix.python-version == '3.13'
+        if: matrix.python-version == '3.13' && matrix.platform-os == 'ubuntu-latest'
         uses: deadsnakes/action@v3.2.0
         with:
           python-version: ${{ matrix.python-version }}
