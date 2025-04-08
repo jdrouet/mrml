@@ -62,7 +62,7 @@ criterion = "0.5"
 html-compare = { version = "0.1", path = "./lib/html-compare" }
 similar-asserts = { workspace = true }
 mockito = "1.5"
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.43", features = ["full"] }
 tokio-test = { version = "0.4" }
 
 [[bench]]
