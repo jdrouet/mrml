@@ -2,6 +2,7 @@ use htmlparser::StrSpan;
 
 use super::MjRawChild;
 use crate::comment::Comment;
+use crate::conditional_comment::ConditionalComment;
 use crate::node::Node;
 use crate::prelude::is_void_element;
 #[cfg(feature = "async")]
@@ -87,11 +88,21 @@ impl ParseChildren<Vec<MjRawChild>> for MrmlParser<'_> {
                     cursor.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
                 }
+                MrmlToken::ConditionalCommentStart(start) => {
+                    children.push(MjRawChild::ConditionalComment(ConditionalComment::from(
+                        start.span.as_str(),
+                    )));
+                }
+                MrmlToken::ConditionalCommentEnd(end) => {
+                    children.push(MjRawChild::ConditionalComment(ConditionalComment::from(
+                        end.span.as_str(),
+                    )));
+                }
                 other => {
                     return Err(Error::UnexpectedToken {
                         origin: cursor.origin(),
                         position: other.span(),
-                    })
+                    });
                 }
             }
         }
@@ -122,6 +133,16 @@ impl AsyncParseChildren<Vec<MjRawChild>> for AsyncMrmlParser {
                 MrmlToken::ElementClose(close) => {
                     cursor.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
+                }
+                MrmlToken::ConditionalCommentStart(start) => {
+                    children.push(MjRawChild::ConditionalComment(ConditionalComment::from(
+                        start.span.as_str(),
+                    )));
+                }
+                MrmlToken::ConditionalCommentEnd(end) => {
+                    children.push(MjRawChild::ConditionalComment(ConditionalComment::from(
+                        end.span.as_str(),
+                    )));
                 }
                 other => {
                     return Err(Error::UnexpectedToken {

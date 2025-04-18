@@ -8,6 +8,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRawChild {
         context: &'root RenderContext<'root>,
     ) -> Box<dyn Render<'root> + 'render> {
         match self {
+            Self::ConditionalComment(elt) => elt.renderer(context),
             Self::Comment(elt) => elt.renderer(context),
             Self::Node(elt) => elt.renderer(context),
             Self::Text(elt) => elt.renderer(context),
@@ -55,4 +56,5 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRaw {
 mod tests {
     crate::should_render!(basic, "mj-raw");
     crate::should_render!(in_head, "mj-raw-head");
+    crate::should_render!(conditional_comment, "mj-raw-conditional-comment");
 }
