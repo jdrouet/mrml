@@ -71,6 +71,7 @@ impl<T: StaticTag, A: PrintableAttributes, C: PrintableChildren> PrintableElemen
 
 use super::StaticTag;
 use crate::comment::Comment;
+use crate::conditional_comment::ConditionalComment;
 use crate::mj_accordion::{MjAccordion, MjAccordionChild};
 use crate::mj_accordion_element::MjAccordionElement;
 use crate::mj_attributes::{MjAttributes, MjAttributesChild};
@@ -108,6 +109,7 @@ use crate::node::Node;
 use crate::text::Text;
 
 #[enum_dispatch::enum_dispatch(
+    ConditionalComment,
     MjAccordionChild,
     MjAttributesChild,
     MjBodyChild,
