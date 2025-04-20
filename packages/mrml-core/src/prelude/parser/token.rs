@@ -115,8 +115,8 @@ impl<'a> MrmlToken<'a> {
                     span,
                 }))
             }
-            Token::ConditionalCommentStart { span, condition } => Ok(
-                MrmlToken::ConditionalCommentStart(ConditionalCommentStart { span, condition }),
+            Token::ConditionalCommentStart { span, condition: _ } => Ok(
+                MrmlToken::ConditionalCommentStart(ConditionalCommentStart { span }),
             ),
             Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
             other => Err(super::Error::UnexpectedToken {
@@ -160,7 +160,6 @@ pub(crate) struct ConditionalCommentEnd<'a> {
 #[derive(Debug)]
 pub(crate) struct ConditionalCommentStart<'a> {
     pub span: StrSpan<'a>,
-    pub condition: StrSpan<'a>,
 }
 
 #[derive(Debug)]
