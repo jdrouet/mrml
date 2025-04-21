@@ -40,6 +40,7 @@ mod tests {
         );
     }
 
+    #[test]
     fn render_when_inside_mj_raw() {
         let opts = RenderOptions::default();
         let root = Mjml::parse(r#"<mjml><mj-body><mj-raw><!--[if mso]><span>SpanContent</span><![endif]--></mj-raw></mj-body></mjml>"#).unwrap();

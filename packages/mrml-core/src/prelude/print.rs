@@ -295,7 +295,7 @@ impl Printer for PrettyPrinter {
     #[inline]
     fn push_indent(&mut self) {
         self.buffer
-            .extend(std::iter::repeat(' ').take(self.level * self.indent_size));
+            .extend(std::iter::repeat_n(' ', self.level * self.indent_size));
     }
 
     #[inline]
