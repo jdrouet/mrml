@@ -20,3 +20,41 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for ConditionalComment 
         Box::new(Renderer::new(context, self, ()))
     }
 }
+
+#[cfg(all(test, feature = "parse"))]
+mod tests {
+    use crate::mjml::Mjml;
+    use crate::prelude::render::RenderOptions;
+
+    #[test]
+    fn render_fails_without_mj_raw() {
+        let result = Mjml::parse(
+            r#"<mjml><mj-body><!--[if mso]><span>SpanContent</span><![endif]--></mj-body></mjml>"#,
+        );
+        assert!(
+            matches!(
+                result,
+                Err(crate::prelude::parser::Error::UnexpectedToken { .. })
+            ),
+            "Expected UnexpectedToken error (conditional comment not being inside mj-raw)",
+        );
+    }
+
+    fn render_when_inside_mj_raw() {
+        let opts = RenderOptions::default();
+        let root = Mjml::parse(r#"<mjml><mj-body><mj-raw><!--[if mso]><span>SpanContent</span><![endif]--></mj-raw></mj-body></mjml>"#).unwrap();
+        let result = root.element.render(&opts).unwrap();
+        assert!(result.contains("<!--[if mso]><span>SpanContent</span><![endif]-->"));
+    }
+
+    #[test]
+    fn render_inner_comments_are_removed_when_disabled() {
+        let opts = RenderOptions {
+            disable_comments: true,
+            ..Default::default()
+        };
+        let root = Mjml::parse(r#"<mjml><mj-body><mj-raw><!--[if mso]><!-- Comment --><span>SpanContent</span><![endif]--></mj-raw></mj-body></mjml>"#).unwrap();
+        let result = root.element.render(&opts).unwrap();
+        assert!(result.contains("<!--[if mso]><span>SpanContent</span><![endif]-->"));
+    }
+}
