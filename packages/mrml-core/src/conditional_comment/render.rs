@@ -13,10 +13,6 @@ impl<'root> Render<'root> for Renderer<'root, ConditionalComment, ()> {
 }
 
 impl<'render, 'root: 'render> Renderable<'render, 'root> for ConditionalComment {
-    fn is_raw(&'root self) -> bool {
-        true
-    }
-
     fn renderer(
         &'root self,
         context: &'root RenderContext<'root>,
