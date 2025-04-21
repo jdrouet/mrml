@@ -154,3 +154,32 @@ impl AsyncParseChildren<Vec<MjRawChild>> for AsyncMrmlParser {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::mj_raw::MjRaw;
+
+    crate::should_parse!(
+        should_parse_start_conditional_comment_child,
+        MjRaw,
+        "<mj-raw><!--[if mso]></mj-raw>"
+    );
+
+    crate::should_parse!(
+        should_parse_end_conditional_comment_child,
+        MjRaw,
+        "<mj-raw><![endif]--></mj-raw>"
+    );
+
+    crate::should_parse!(
+        should_parse_conditional_comment_children,
+        MjRaw,
+        "<mj-raw><!--[if mso]>--><!--[if mso]><!--<![endif]--></mj-raw>"
+    );
+
+    crate::should_not_parse!(
+        should_not_parse_malformed_conditional_comment_child,
+        MjRaw,
+        "<mj-raw><!- -[if mso]>--></mj-raw>"
+    );
+}
