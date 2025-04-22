@@ -82,21 +82,26 @@ impl<'root> Renderer<'root, MjNavbar, MjNavbarExtra> {
             .set_style_input(Tag::new("input"))
             .add_class("mj-menu-checkbox")
             .add_attribute("id", self.extra.id.clone())
-            .add_attribute("type", "checkbox");
+            .add_attribute("type", "checkbox")
+            .set_html_attributes(self.context.header.html_attributes());
         let div = self
             .set_style_trigger(Tag::div())
-            .add_class("mj-menu-trigger");
+            .add_class("mj-menu-trigger")
+            .set_html_attributes(self.context.header.html_attributes());
         let label = self
             .set_style_label(Tag::new("label"))
             .maybe_add_attribute("align", self.attribute("ico-align"))
             .add_class("mj-menu-label")
-            .add_attribute("for", self.extra.id.clone());
+            .add_attribute("for", self.extra.id.clone())
+            .set_html_attributes(self.context.header.html_attributes());
         let span_open = self
             .set_style_ico_open(Tag::new("span"))
-            .add_class("mj-menu-icon-open");
+            .add_class("mj-menu-icon-open")
+            .set_html_attributes(self.context.header.html_attributes());
         let span_close = self
             .set_style_ico_close(Tag::new("span"))
-            .add_class("mj-menu-icon-close");
+            .add_class("mj-menu-icon-close")
+            .set_html_attributes(self.context.header.html_attributes());
 
         buf.start_mso_negation_conditional_tag();
         input.render_closed(buf)?;
@@ -192,9 +197,13 @@ impl<'root> Render<'root> for Renderer<'root, MjNavbar, MjNavbarExtra> {
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         cursor.header.add_style(self.render_style());
 
-        let div = Tag::div().add_class("mj-inline-links");
-        let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
-        let tr = Tag::tr();
+        let div = Tag::div()
+            .add_class("mj-inline-links")
+            .set_html_attributes(self.context.header.html_attributes());
+        let table = Tag::table_presentation()
+            .maybe_add_attribute("align", self.attribute("align"))
+            .set_html_attributes(self.context.header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
         let base_url = self.attribute("base-url");
 
         if self.has_hamburger() {

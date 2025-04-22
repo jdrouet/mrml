@@ -67,14 +67,17 @@ impl Renderer<'_, MjSocial, ()> {
     }
 
     fn render_horizontal(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let table = Tag::table_presentation().maybe_add_attribute("align", self.attribute("align"));
-        let tr = Tag::tr();
-        let td = Tag::td();
+        let table = Tag::table_presentation()
+            .maybe_add_attribute("align", self.attribute("align"))
+            .set_html_attributes(self.context().header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context().header.html_attributes());
+        let td = Tag::td().set_html_attributes(self.context().header.html_attributes());
         let inner_table = Tag::table_presentation()
             .maybe_add_attribute("align", self.attribute("align"))
             .add_style("float", "none")
-            .add_style("display", "inline-table");
-        let inner_tbody = Tag::tbody();
+            .add_style("display", "inline-table")
+            .set_html_attributes(self.context().header.html_attributes());
+        let inner_tbody = Tag::tbody().set_html_attributes(self.context().header.html_attributes());
         let child_attributes = self.build_child_attributes();
 
         cursor.buffer.start_conditional_tag();
@@ -109,7 +112,9 @@ impl Renderer<'_, MjSocial, ()> {
     }
 
     fn render_vertical(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let table = self.set_style_table_vertical(Tag::table_presentation());
+        let table = self
+            .set_style_table_vertical(Tag::table_presentation())
+            .set_html_attributes(self.context().header.html_attributes());
         let tbody = Tag::tbody();
         let child_attributes = self.build_child_attributes();
 

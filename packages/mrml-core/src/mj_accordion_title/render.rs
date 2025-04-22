@@ -15,6 +15,7 @@ impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra<'root>> {
         tag.add_style("display", "none")
             .maybe_add_style("width", self.attribute("icon-width"))
             .maybe_add_style("height", self.attribute("icon-height"))
+            .set_html_attributes(self.context.header.html_attributes())
     }
 
     fn render_title(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
@@ -29,7 +30,8 @@ impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra<'root>> {
             .maybe_add_style("padding-bottom", self.attribute("padding-bottom"))
             .maybe_add_style("padding-left", self.attribute("padding-left"))
             .maybe_add_style("padding", self.attribute("padding"))
-            .maybe_add_class(self.attribute("css-class"));
+            .maybe_add_class(self.attribute("css-class"))
+            .set_html_attributes(self.context.header.html_attributes());
 
         td.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
@@ -46,17 +48,20 @@ impl<'root> Renderer<'root, MjAccordionTitle, MjAccordionTitleExtra<'root>> {
             .set_style_img(Tag::new("img"))
             .maybe_add_attribute("src", self.attribute("icon-wrapped-url"))
             .maybe_add_attribute("alt", self.attribute("icon-wrapped-alt"))
-            .add_class("mj-accordion-more");
+            .add_class("mj-accordion-more")
+            .set_html_attributes(self.context.header.html_attributes());
         let img_less = self
             .set_style_img(Tag::new("img"))
             .maybe_add_attribute("src", self.attribute("icon-unwrapped-url"))
             .maybe_add_attribute("alt", self.attribute("icon-unwrapped-alt"))
-            .add_class("mj-accordion-less");
+            .add_class("mj-accordion-less")
+            .set_html_attributes(self.context.header.html_attributes());
         let td = Tag::td()
             .add_style("padding", "16px")
             .maybe_add_style("background", self.attribute("background-color"))
             .maybe_add_style("vertical-align", self.attribute("icon-align"))
-            .add_class("mj-accordion-ico");
+            .add_class("mj-accordion-ico")
+            .set_html_attributes(self.context.header.html_attributes());
 
         buf.start_negation_conditional_tag();
         td.render_open(buf)?;
@@ -105,14 +110,17 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordionTitle, MjAccordionTitle
         let font_families = self.attribute("font-family");
         cursor.header.maybe_add_font_families(font_families);
 
-        let tr = Tag::tr();
-        let tbody = Tag::tbody();
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
         let table = Tag::table()
             .add_attribute("cellspacing", "0")
             .add_attribute("cellpadding", "0")
             .add_style("width", "100%")
-            .maybe_add_style("border-bottom", self.attribute("border"));
-        let div = Tag::div().add_class("mj-accordion-title");
+            .maybe_add_style("border-bottom", self.attribute("border"))
+            .set_html_attributes(self.context.header.html_attributes());
+        let div = Tag::div()
+            .add_class("mj-accordion-title")
+            .set_html_attributes(self.context.header.html_attributes());
 
         div.render_open(&mut cursor.buffer)?;
         table.render_open(&mut cursor.buffer)?;

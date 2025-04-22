@@ -152,14 +152,19 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
         href: &Option<Cow<'root, str>>,
         cursor: &mut RenderCursor,
     ) -> Result<(), Error> {
-        let table = self.set_style_table(Tag::table_presentation());
-        let tbody = Tag::tbody();
-        let tr = Tag::tr();
-        let td = self.set_style_icon(Tag::td());
+        let table = self
+            .set_style_table(Tag::table_presentation())
+            .set_html_attributes(self.context().header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context().header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context().header.html_attributes());
+        let td = self
+            .set_style_icon(Tag::td())
+            .set_html_attributes(self.context().header.html_attributes());
         let a = Tag::new("a")
             .maybe_add_attribute("href", href.clone())
             .maybe_add_attribute("rel", self.attribute("rel"))
-            .maybe_add_attribute("target", self.attribute("target"));
+            .maybe_add_attribute("target", self.attribute("target"))
+            .set_html_attributes(self.context().header.html_attributes());
         let img = self
             .set_style_img(Tag::new("img"))
             .maybe_add_attribute("alt", self.attribute("alt"))
@@ -174,7 +179,8 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
             .maybe_add_attribute(
                 "width",
                 self.get_icon_size().map(|size| size.value().to_string()),
-            );
+            )
+            .set_html_attributes(self.context().header.html_attributes());
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
@@ -199,16 +205,21 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
         href: &Option<Cow<'root, str>>,
         cursor: &mut RenderCursor,
     ) -> Result<(), Error> {
-        let td = self.set_style_td_text(Tag::td());
+        let td = self
+            .set_style_td_text(Tag::td())
+            .set_html_attributes(self.context().header.html_attributes());
         let wrapper = if href.is_some() {
             Tag::new("a")
                 .maybe_add_attribute("href", href.clone())
                 .maybe_add_attribute("rel", self.attribute("rel"))
                 .maybe_add_attribute("target", self.attribute("target"))
+                .set_html_attributes(self.context().header.html_attributes())
         } else {
-            Tag::new("span")
+            Tag::new("span").set_html_attributes(self.context().header.html_attributes())
         };
-        let wrapper = self.set_style_text(wrapper);
+        let wrapper = self
+            .set_style_text(wrapper)
+            .set_html_attributes(self.context().header.html_attributes());
 
         td.render_open(&mut cursor.buffer)?;
         wrapper.render_open(&mut cursor.buffer)?;
@@ -269,8 +280,12 @@ impl<'root> Render<'root> for Renderer<'root, MjSocialElement, MjSocialElementEx
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let href = self.get_href();
-        let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
-        let td = self.set_style_td(Tag::td());
+        let tr = Tag::tr()
+            .maybe_add_class(self.attribute("css-class"))
+            .set_html_attributes(self.context().header.html_attributes());
+        let td = self
+            .set_style_td(Tag::td())
+            .set_html_attributes(self.context().header.html_attributes());
 
         tr.render_open(&mut cursor.buffer)?;
         td.render_open(&mut cursor.buffer)?;

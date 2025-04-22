@@ -5,6 +5,7 @@ use crate::comment::Comment;
 use crate::mj_attributes::NAME as MJ_ATTRIBUTES;
 use crate::mj_breakpoint::NAME as MJ_BREAKPOINT;
 use crate::mj_font::NAME as MJ_FONT;
+use crate::mj_html_attributes::NAME as MJ_HTML_ATTRIBUTES;
 use crate::mj_include::NAME as MJ_INCLUDE;
 use crate::mj_preview::NAME as MJ_PREVIEW;
 use crate::mj_raw::NAME as MJ_RAW;
@@ -83,6 +84,7 @@ impl ParseElement<MjHeadChild> for MrmlParser<'_> {
         tag: StrSpan<'a>,
     ) -> Result<MjHeadChild, Error> {
         match tag.as_str() {
+            MJ_HTML_ATTRIBUTES => self.parse(cursor, tag).map(MjHeadChild::MjHtmlAttributes),
             MJ_ATTRIBUTES => self.parse(cursor, tag).map(MjHeadChild::MjAttributes),
             MJ_BREAKPOINT => self.parse(cursor, tag).map(MjHeadChild::MjBreakpoint),
             MJ_FONT => self.parse(cursor, tag).map(MjHeadChild::MjFont),
@@ -109,6 +111,10 @@ impl AsyncParseElement<MjHeadChild> for AsyncMrmlParser {
         tag: StrSpan<'a>,
     ) -> Result<MjHeadChild, Error> {
         match tag.as_str() {
+            MJ_HTML_ATTRIBUTES => self
+                .async_parse(cursor, tag)
+                .await
+                .map(MjHeadChild::MjHtmlAttributes),
             MJ_ATTRIBUTES => self
                 .async_parse(cursor, tag)
                 .await

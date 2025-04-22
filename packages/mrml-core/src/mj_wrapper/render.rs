@@ -25,7 +25,7 @@ impl<'root> SectionLikeRender<'root> for Renderer<'root, MjWrapper, ()> {
     }
 
     fn render_wrapped_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let tr = Tag::tr();
+        let tr = Tag::tr().set_html_attributes(self.context().header.html_attributes());
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
         let current_width = self.current_width();
@@ -42,7 +42,8 @@ impl<'root> SectionLikeRender<'root> for Renderer<'root, MjWrapper, ()> {
                     .set_style("td-outlook", Tag::td())
                     .maybe_add_attribute("align", renderer.attribute("align"))
                     .maybe_add_attribute("width", container_width.as_ref().cloned())
-                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
+                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook")
+                    .set_html_attributes(self.context().header.html_attributes());
                 tr.render_open(&mut cursor.buffer)?;
                 td.render_open(&mut cursor.buffer)?;
                 cursor.buffer.end_conditional_tag();

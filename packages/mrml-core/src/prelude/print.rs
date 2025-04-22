@@ -88,6 +88,7 @@ use crate::mj_font::MjFont;
 use crate::mj_group::MjGroup;
 use crate::mj_head::MjHeadChild;
 use crate::mj_hero::MjHero;
+use crate::mj_html_attributes::MjHtmlAttributes;
 use crate::mj_image::MjImage;
 use crate::mj_include::body::MjIncludeBody;
 use crate::mj_include::head::MjIncludeHead;
@@ -110,6 +111,7 @@ use crate::text::Text;
 #[enum_dispatch::enum_dispatch(
     MjAccordionChild,
     MjAttributesChild,
+    MjSelector,
     MjBodyChild,
     MjCarouselChild,
     MjHeadChild,

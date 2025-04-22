@@ -91,16 +91,21 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordionElement, MjAccordionEle
         let input = Tag::new("input")
             .add_attribute("type", "checkbox")
             .add_class("mj-accordion-checkbox")
-            .add_style("display", "none");
-        let div = Tag::div();
+            .add_style("display", "none")
+            .set_html_attributes(self.context.header.html_attributes());
+        let div = Tag::div().set_html_attributes(self.context.header.html_attributes());
         let label = Tag::new("label")
             .add_class("mj-accordion-element")
             .add_style("font-size", "13px")
-            .maybe_add_style("font-family", self.attribute("font-family"));
+            .maybe_add_style("font-family", self.attribute("font-family"))
+            .set_html_attributes(self.context.header.html_attributes());
         let td = Tag::td()
             .add_style("padding", "0px")
-            .maybe_add_style("background-color", self.attribute("background-color"));
-        let tr = Tag::tr().maybe_add_class(self.attribute("css-class"));
+            .maybe_add_style("background-color", self.attribute("background-color"))
+            .set_html_attributes(self.context.header.html_attributes());
+        let tr = Tag::tr()
+            .maybe_add_class(self.attribute("css-class"))
+            .set_html_attributes(self.context.header.html_attributes());
 
         tr.render_open(&mut cursor.buffer)?;
         td.render_open(&mut cursor.buffer)?;

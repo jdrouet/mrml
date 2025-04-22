@@ -54,11 +54,13 @@ impl<'root> Renderer<'root, MjDivider, ()> {
         let table = self
             .set_style_outlook(Tag::table_presentation())
             .add_attribute("align", "center")
-            .maybe_add_attribute("width", self.get_outlook_width().map(|v| v.to_string()));
-        let tr = Tag::tr();
+            .maybe_add_attribute("width", self.get_outlook_width().map(|v| v.to_string()))
+            .set_html_attributes(self.context.header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
         let td = Tag::td()
             .add_style("height", "0")
-            .add_style("line-height", "0");
+            .add_style("line-height", "0")
+            .set_html_attributes(self.context.header.html_attributes());
 
         buf.start_conditional_tag();
         table.render_open(buf)?;
@@ -109,7 +111,9 @@ impl<'root> Render<'root> for Renderer<'root, MjDivider, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let p = self.set_style_p(Tag::new("p"));
+        let p = self
+            .set_style_p(Tag::new("p"))
+            .set_html_attributes(self.context.header.html_attributes());
         p.render_text(&mut cursor.buffer, "")?;
 
         self.render_after(&mut cursor.buffer)?;

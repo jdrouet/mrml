@@ -130,15 +130,18 @@ impl<'root> Render<'root> for Renderer<'root, MjButton, ()> {
         let font_family = self.attribute("font-family");
         cursor.header.maybe_add_font_families(font_family);
 
-        let table = self.set_style_table(Tag::table_presentation());
-        let tbody = Tag::tbody();
-        let tr = Tag::tr();
+        let table = self
+            .set_style_table(Tag::table_presentation())
+            .set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
         let td = self
             .set_style_td(Tag::td())
             .add_attribute("align", "center")
             .maybe_add_attribute("bgcolor", self.attribute("background-color"))
             .add_attribute("role", "presentation")
-            .maybe_add_attribute("valign", self.attribute("vertical-align"));
+            .maybe_add_attribute("valign", self.attribute("vertical-align"))
+            .set_html_attributes(self.context.header.html_attributes());
         let link = Tag::new(self.attribute("href").map(|_| "a").unwrap_or("p"))
             .maybe_add_attribute("href", self.attribute("href"))
             .maybe_add_attribute("rel", self.attribute("rel"))
@@ -147,7 +150,8 @@ impl<'root> Render<'root> for Renderer<'root, MjButton, ()> {
                 "target",
                 self.attribute("href")
                     .and_then(|_v| self.attribute("target")),
-            );
+            )
+            .set_html_attributes(self.context.header.html_attributes());
         let link = self.set_style_content(link);
 
         table.render_open(&mut cursor.buffer)?;

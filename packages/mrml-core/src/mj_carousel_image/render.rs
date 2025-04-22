@@ -84,6 +84,7 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra<'root>> {
                     .get("carousel-id")
                     .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
             )
+            .set_html_attributes(self.context.header.html_attributes())
             .render_closed(buf)
             .map_err(Error::from)
     }
@@ -102,14 +103,17 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra<'root>> {
                 self.container_width
                     .as_ref()
                     .map(|item| item.value().to_string()),
-            );
-        let label = Tag::new("label").maybe_add_attribute(
-            "for",
-            self.extra
-                .attributes
-                .get("carousel-id")
-                .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
-        );
+            )
+            .set_html_attributes(self.context.header.html_attributes());
+        let label = Tag::new("label")
+            .maybe_add_attribute(
+                "for",
+                self.extra
+                    .attributes
+                    .get("carousel-id")
+                    .map(|id| format!("mj-carousel-{}-radio-{}", id, self.index + 1)),
+            )
+            .set_html_attributes(self.context.header.html_attributes());
         let link = self
             .set_style_thumbnails_a(Tag::new("a"))
             .add_attribute("href", format!("#{}", self.index + 1))
@@ -131,7 +135,8 @@ impl<'root> Renderer<'root, MjCarouselImage, MjCarouselImageExtra<'root>> {
             .maybe_add_style(
                 "width",
                 self.container_width.as_ref().map(|item| item.to_string()),
-            );
+            )
+            .set_html_attributes(self.context.header.html_attributes());
 
         link.render_open(buf)?;
         label.render_open(buf)?;
@@ -206,7 +211,8 @@ impl<'root> Render<'root> for Renderer<'root, MjCarouselImage, MjCarouselImageEx
                 self.container_width
                     .as_ref()
                     .map(|width| width.value().to_string()),
-            );
+            )
+            .set_html_attributes(self.context.header.html_attributes());
         let div = if self.index == 0 {
             Tag::div()
         } else {
@@ -217,14 +223,16 @@ impl<'root> Render<'root> for Renderer<'root, MjCarouselImage, MjCarouselImageEx
         let div = div
             .add_class("mj-carousel-image")
             .add_class(format!("mj-carousel-image-{}", self.index + 1))
-            .maybe_add_class(self.attribute("css-class"));
+            .maybe_add_class(self.attribute("css-class"))
+            .set_html_attributes(self.context.header.html_attributes());
 
         div.render_open(&mut cursor.buffer)?;
         if let Some(href) = self.attribute("href") {
             let link = Tag::new("a")
                 .add_attribute("href", href)
                 .maybe_add_attribute("rel", self.attribute("rel"))
-                .add_attribute("target", "_blank");
+                .add_attribute("target", "_blank")
+                .set_html_attributes(self.context.header.html_attributes());
             link.render_open(&mut cursor.buffer)?;
             img.render_closed(&mut cursor.buffer)?;
             link.render_close(&mut cursor.buffer);

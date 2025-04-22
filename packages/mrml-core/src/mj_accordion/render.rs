@@ -91,7 +91,7 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         self.update_header(&mut cursor.header);
 
-        let tbody = Tag::tbody();
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
         let table = Tag::table()
             .add_style("width", "100%")
             .add_style("border-collapse", "collapse")
@@ -100,7 +100,8 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordion, ()> {
             .maybe_add_style("font-family", self.attribute("font-family"))
             .add_attribute("cellspacing", "0")
             .add_attribute("cellpadding", "0")
-            .add_class("mj-accordion");
+            .add_class("mj-accordion")
+            .set_html_attributes(self.context.header.html_attributes());
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;

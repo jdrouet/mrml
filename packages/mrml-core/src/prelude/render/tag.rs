@@ -33,6 +33,102 @@ impl std::fmt::Debug for Classes<'_> {
     }
 }
 
+pub fn matches_selector(tag: &Tag, selector: &str) -> bool {
+    let mut tag_name: Option<&str> = None;
+    let mut class_selector: Option<&str> = None;
+    let mut id_selector: Option<&str> = None;
+    let mut attribute_selector: Option<&str> = None;
+
+    let mut current = selector;
+
+    if !current.starts_with('.') && !current.starts_with('#') && !current.starts_with('[') {
+        if let Some(first_special) = current.find(|c| c == '.' || c == '#' || c == '[') {
+            tag_name = Some(&current[..first_special]);
+            current = &current[first_special..];
+        } else {
+            tag_name = Some(current);
+            current = "";
+        }
+    }
+
+    while !current.is_empty() {
+        if current.starts_with('.') {
+            if class_selector.is_none() {
+                if let Some(next_special) = current[1..].find(|c| c == '.' || c == '#' || c == '[')
+                {
+                    class_selector = Some(&current[..next_special + 1]);
+                    current = &current[next_special + 1..];
+                } else {
+                    class_selector = Some(current);
+                    current = "";
+                }
+            } else {
+                break;
+            }
+        } else if current.starts_with('#') {
+            if id_selector.is_none() {
+                if let Some(next_special) = current[1..].find(|c| c == '.' || c == '#' || c == '[')
+                {
+                    id_selector = Some(&current[..next_special + 1]);
+                    current = &current[next_special + 1..];
+                } else {
+                    id_selector = Some(current);
+                    current = "";
+                }
+            } else {
+                break;
+            }
+        } else if current.starts_with('[') {
+            if attribute_selector.is_none() {
+                if let Some(end_bracket) = current.find(']') {
+                    attribute_selector = Some(&current[..end_bracket + 1]);
+                    current = &current[end_bracket + 1..];
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+
+    let tag_name_matches = tag_name.map_or(true, |name| tag.name.as_ref() == name);
+
+    let class_matches = class_selector.map_or(true, |class_sel| {
+        let class_name = &class_sel[1..];
+        tag.classes.0.iter().any(|c| c.as_ref() == class_name)
+    });
+
+    let id_matches = id_selector.map_or(true, |id_sel| {
+        let id_name = &id_sel[1..];
+        tag.attributes
+            .get("id")
+            .map(|id| id.as_ref() == id_name)
+            .unwrap_or(false)
+    });
+
+    let attribute_matches = attribute_selector.map_or(true, |attr_sel| {
+        if attr_sel.starts_with('[') && attr_sel.ends_with(']') {
+            let content = &attr_sel[1..attr_sel.len() - 1];
+            if let Some((attr_name, attr_value)) = content.split_once('=') {
+                let value = attr_value.trim_matches('"').trim_matches('\'');
+                tag.attributes
+                    .get(attr_name)
+                    .map(|v| v.as_ref() == value)
+                    .unwrap_or(false)
+            } else {
+                tag.attributes.contains_key(content)
+            }
+        } else {
+            true
+        }
+    });
+
+    tag_name_matches && class_matches && id_matches && attribute_matches
+}
+
 pub(crate) struct Tag<'a> {
     name: Cow<'a, str>,
     attributes: Map<Cow<'a, str>, Cow<'a, str>>,
@@ -141,6 +237,23 @@ impl<'a> Tag<'a> {
         } else {
             self
         }
+    }
+
+    pub fn set_html_attributes(
+        mut self,
+        html_attributes: &Map<&'a str, Map<&'a str, &'a str>>,
+    ) -> Self {
+        for (selector, attrs) in html_attributes.iter() {
+            if matches_selector(&self, selector) {
+                for (name, value) in attrs.iter() {
+                    self.attributes.insert(
+                        std::borrow::Cow::from(*name),
+                        std::borrow::Cow::from(*value),
+                    );
+                }
+            }
+        }
+        self
     }
 }
 
