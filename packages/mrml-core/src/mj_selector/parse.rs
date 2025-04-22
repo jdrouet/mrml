@@ -1,6 +1,8 @@
 use htmlparser::StrSpan;
 
-use super::{MjSelector, MjSelectorAttributes};
+#[cfg(feature = "async")]
+use super::MjSelector;
+use super::MjSelectorAttributes;
 use crate::mj_html_attribute::MjHtmlAttribute;
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
@@ -125,12 +127,13 @@ mod tests {
     crate::should_sync_parse!(
         parse_complete,
         MjSelector,
-        r#"<mj-selector name="data-id" />"#
+        r#"<mj-selector path="data-id" />"#
     );
+
     crate::should_not_sync_parse!(
         should_have_name,
         MjSelector,
         r#"<mj-selector />"#,
-        "MissingAttribute { name: \"name\", origin: Root, Position: Span { start: 1, end 9 } }"
+        r#"MissingAttribute { name: "path", origin: Root, position: Span { start: 1, end: 12 } }"#
     );
 }

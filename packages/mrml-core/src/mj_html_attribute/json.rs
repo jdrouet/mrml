@@ -27,7 +27,7 @@ mod tests {
         );
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-html-attribute","attributes":{"name":".test"}}"#
+            r#"{"type":"mj-html-attribute","attributes":{"name":".classname"},"children":"42"}"#
         );
     }
 }

@@ -16,13 +16,13 @@ mod tests {
 
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"children":[{}],"mj-selector":{"attributes":{},"name":"","type":""}}"#
+            r#"{"type":"mj-html-attributes","children":[{"type":"mj-selector","attributes":{"path":".class"}}]}"#
         )
     }
 
     #[test]
     fn deserialize() {
-        let json = r#"{"type":"mj-html-attributes","children":[{"type":"mj-selector"}, {"type":"mj-html-attribute"}]}"#;
+        let json = r#"{"type":"mj-html-attributes","children":[{"type":"mj-selector","attributes":{"path":".class"}},{"type":"mj-selector","attributes":{"path":"a[href]"}}]}"#;
         let res: MjHtmlAttributes = serde_json::from_str(json).unwrap();
         assert_eq!(res.children.len(), 2);
         let next = serde_json::to_string(&res).unwrap();

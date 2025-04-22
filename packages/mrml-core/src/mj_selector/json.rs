@@ -31,7 +31,7 @@ mod tests {
 
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-selector",attributes:{"name":"classname"}}"#,
+            r#"{"type":"mj-selector","attributes":{"path":".test"}}"#,
         );
     }
 }

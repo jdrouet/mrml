@@ -27,7 +27,7 @@ mod tests {
     fn empty() {
         let item = crate::mj_html_attribute::MjHtmlAttribute::default();
         assert_eq!(
-            r#"<mj-html-attribute name=".test"></mj-html-attribute>"#,
+            r#"<mj-html-attribute name=""></mj-html-attribute>"#,
             item.print_dense().unwrap()
         )
     }
