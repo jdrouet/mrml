@@ -55,6 +55,7 @@ url = { version = "2.5", optional = true }
 itertools = { version = "0.13" }
 enum_dispatch = { version = "0.3", optional = true }
 enum-as-inner = { version = "0.6", optional = true }
+css-inline = "0.14.4"
 
 [dev-dependencies]
 concat-idents = "1.1"

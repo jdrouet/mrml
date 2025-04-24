@@ -10,6 +10,7 @@ pub(crate) struct VariableHeader {
     used_font_families: Set<String>,
     media_queries: Map<String, Size>,
     styles: Set<Cow<'static, str>>,
+    has_inline_styles: bool,
 }
 
 impl Default for VariableHeader {
@@ -18,6 +19,7 @@ impl Default for VariableHeader {
             used_font_families: Default::default(),
             media_queries: Map::new(),
             styles: Set::new(),
+            has_inline_styles: false,
         }
     }
 }
@@ -68,6 +70,14 @@ impl VariableHeader {
         if let Some(value) = value {
             self.add_style(value);
         }
+    }
+
+    pub fn has_inline_styles(&self) -> bool {
+        self.has_inline_styles
+    }
+
+    pub fn set_has_inline_styles(&mut self, value: bool) {
+        self.has_inline_styles = value;
     }
 }
 

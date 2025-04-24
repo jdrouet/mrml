@@ -56,7 +56,18 @@ impl Mjml {
         let context = RenderContext::new(opts, header);
         let mut cursor = RenderCursor::default();
         self.renderer(&context).render(&mut cursor)?;
-        Ok(cursor.buffer.into())
+
+        let html = String::from(cursor.buffer.as_ref());
+
+        // Only inline CSS if there are inline styles
+        if cursor.header.has_inline_styles() {
+            match css_inline::inline(&html) {
+                Ok(inlined_html) => return Ok(inlined_html),
+                Err(_) => {}
+            }
+        }
+
+        Ok(html)
     }
 
     pub fn get_title(&self) -> Option<String> {
@@ -75,7 +86,7 @@ impl Mjml {
 #[cfg(all(test, feature = "parse"))]
 mod tests {
     use crate::mjml::Mjml;
-    use crate::prelude::render::RenderOptions;
+    use crate::prelude::render::{Header, RenderContext, RenderCursor, RenderOptions, Renderable};
 
     crate::should_render!(empty, "mjml");
 
@@ -108,5 +119,138 @@ mod tests {
         let output_2 = root_2.element.render(&options).unwrap();
 
         assert_eq!(output_1, output_2);
+    }
+
+    #[test]
+    fn test_css_inlining() {
+        // Template with inline styles
+        let source_with_inline = r#"<mjml>
+            <mj-head>
+                <mj-style>
+                    .red { color: red; }
+                </mj-style>
+                <mj-style inline="true">
+                    .blue { color: blue; }
+                </mj-style>
+            </mj-head>
+            <mj-body>
+                <mj-section>
+                    <mj-column>
+                        <mj-text>
+                            <p class="red">This should be red</p>
+                            <p class="blue">This should be blue</p>
+                        </mj-text>
+                    </mj-column>
+                </mj-section>
+            </mj-body>
+        </mjml>"#;
+
+        // Template without inline styles
+        let source_without_inline = r#"<mjml>
+            <mj-head>
+                <mj-style>
+                    .red { color: red; }
+                </mj-style>
+                <mj-style>
+                    .blue { color: blue; }
+                </mj-style>
+            </mj-head>
+            <mj-body>
+                <mj-section>
+                    <mj-column>
+                        <mj-text>
+                            <p class="red">This should be red</p>
+                            <p class="blue">This should be blue</p>
+                        </mj-text>
+                    </mj-column>
+                </mj-section>
+            </mj-body>
+        </mjml>"#;
+
+        let options = RenderOptions::default();
+
+        let root_with_inline = Mjml::parse(source_with_inline).unwrap();
+        let root_without_inline = Mjml::parse(source_without_inline).unwrap();
+
+        // Check that the has_inline_styles flag is correctly set in the header
+        let mut cursor_with_inline = RenderCursor::default();
+        let mut cursor_without_inline = RenderCursor::default();
+
+        // Render to populate the header information
+        root_with_inline
+            .element
+            .renderer(&RenderContext::new(
+                &options,
+                Header::new(root_with_inline.element.head(), None),
+            ))
+            .render(&mut cursor_with_inline)
+            .unwrap();
+        root_without_inline
+            .element
+            .renderer(&RenderContext::new(
+                &options,
+                Header::new(root_without_inline.element.head(), None),
+            ))
+            .render(&mut cursor_without_inline)
+            .unwrap();
+
+        // Check if the has_inline_styles flag was properly set
+        assert!(
+            cursor_with_inline.header.has_inline_styles(),
+            "Header with inline styles should have has_inline_styles set to true"
+        );
+        assert!(
+            !cursor_without_inline.header.has_inline_styles(),
+            "Header without inline styles should have has_inline_styles set to false"
+        );
+
+        // Also verify the rendered output has the expected style tags
+        let output_with_inline = root_with_inline.element.render(&options).unwrap();
+        let output_without_inline = root_without_inline.element.render(&options).unwrap();
+
+        // Debug output
+        println!("\nOUTPUT WITH INLINE:\n{}\n", output_with_inline);
+        println!("\nOUTPUT WITHOUT INLINE:\n{}\n", output_without_inline);
+
+        // For the template with inline styles:
+        // 1. The blue class should be inlined, so we should find style attributes with
+        //    color: blue
+        assert!(
+            output_with_inline.contains("color: blue;"),
+            "CSS inlining should have happened for the blue class"
+        );
+
+        // 2. The red class should not be inlined because it's not marked as inline
+        assert!(
+            !output_with_inline.contains("color: red;"),
+            "The red class should not be inlined as it's not marked as inline"
+        );
+
+        // 3. The style tags are removed during inlining by css-inline
+        assert!(
+            !output_with_inline.contains("<style type=\"text/css\">.blue { color: blue; }</style>"),
+            "Style tags should be removed during inlining"
+        );
+
+        // For the template without inline styles:
+        // 1. No CSS inlining should happen
+        assert!(
+            !output_without_inline.contains("style=\"color: blue;\""),
+            "No CSS inlining should happen for the template without inline styles"
+        );
+        assert!(
+            !output_without_inline.contains("style=\"color: red;\""),
+            "No CSS inlining should happen for the template without inline styles"
+        );
+
+        // 2. Original style tags should remain in the head
+        assert!(
+            output_without_inline.contains(".blue { color: blue; }"),
+            "Original blue style should remain in output without inline styles"
+        );
+        assert!(
+            output_without_inline.contains(".red { color: red; }"),
+            "Original red style should remain in output without inline styles"
+        );
     }
 }

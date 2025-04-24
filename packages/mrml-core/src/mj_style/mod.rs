@@ -30,7 +30,10 @@ pub type MjStyle = Component<PhantomData<MjStyleTag>, MjStyleAttributes, String>
 
 impl MjStyle {
     pub fn is_inline(&self) -> bool {
-        matches!(self.attributes.inline.as_deref(), Some("inline"))
+        matches!(
+            self.attributes.inline.as_deref(),
+            Some("inline") | Some("true")
+        )
     }
 
     pub fn children(&self) -> &str {
