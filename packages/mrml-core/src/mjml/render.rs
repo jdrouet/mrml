@@ -123,9 +123,12 @@ mod tests {
 
     #[test]
     fn test_css_inlining() {
-        // Simple template with inline style
-        let source_with_inline = r#"<mjml>
+        // Single template with both inline and non-inline styles
+        let source = r#"<mjml>
             <mj-head>
+                <mj-style>
+                    .red { color: red; }
+                </mj-style>
                 <mj-style inline="true">
                     .blue { color: blue; }
                 </mj-style>
@@ -133,54 +136,38 @@ mod tests {
             <mj-body>
                 <mj-section>
                     <mj-column>
-                        <mj-text><p class="blue">Blue text</p></mj-text>
-                    </mj-column>
-                </mj-section>
-            </mj-body>
-        </mjml>"#;
-
-        // Same template without inline style
-        let source_without_inline = r#"<mjml>
-            <mj-head>
-                <mj-style>
-                    .blue { color: blue; }
-                </mj-style>
-            </mj-head>
-            <mj-body>
-                <mj-section>
-                    <mj-column>
-                        <mj-text><p class="blue">Blue text</p></mj-text>
+                        <mj-text>
+                            <p class="blue">Blue text</p>
+                            <p class="red">Red text</p>
+                        </mj-text>
                     </mj-column>
                 </mj-section>
             </mj-body>
         </mjml>"#;
 
         let options = RenderOptions::default();
-        let output_with_inline = Mjml::parse(source_with_inline)
-            .unwrap()
-            .element
-            .render(&options)
-            .unwrap();
-        let output_without_inline = Mjml::parse(source_without_inline)
+        let output = Mjml::parse(source)
             .unwrap()
             .element
             .render(&options)
             .unwrap();
 
-        // Check that CSS inlining happened with inline styles
+        // Check that only the inline style (.blue) was inlined
         assert!(
-            output_with_inline.contains("style=\"color: blue;\""),
-            "CSS inlining should happen when inline styles are present"
+            output.contains("style=\"color: blue;\""),
+            "CSS inlining should happen for elements with inline styles"
         );
 
-        // Check that CSS inlining did not happen without inline styles
+        // Check that non-inline style (.red) was not inlined
         assert!(
-            !output_without_inline.contains("style=\"color: blue;\""),
-            "CSS inlining should not happen when inline styles are not present"
+            !output.contains("style=\"color: red;\""),
+            "CSS inlining should not happen for elements without inline styles"
         );
+
+        // Check that the non-inline style is preserved in the output
         assert!(
-            output_without_inline.contains(".blue { color: blue; }"),
-            "Original style should remain in the output without inline styles"
+            output.contains(".red { color: red; }"),
+            "Non-inline styles should be preserved in the output"
         );
     }
 }
