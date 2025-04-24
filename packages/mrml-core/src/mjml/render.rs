@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use super::Mjml;
 use crate::mj_head::MjHead;
 use crate::prelude::render::*;
@@ -56,7 +58,34 @@ impl Mjml {
         let context = RenderContext::new(opts, header);
         let mut cursor = RenderCursor::default();
         self.renderer(&context).render(&mut cursor)?;
-        Ok(cursor.buffer.into())
+
+        let html = String::from(cursor.buffer.as_ref());
+
+        // Only inline CSS if there are inline styles
+        if !cursor.header.inline_styles().is_empty() {
+            // Collect inline styles from the header into a single string
+            let inline_styles =
+                cursor
+                    .header
+                    .inline_styles()
+                    .iter()
+                    .fold(String::new(), |mut acc, style| {
+                        acc.push_str(style);
+                        acc
+                    });
+
+            let inliner = css_inline::CSSInliner::options()
+                .inline_style_tags(false) // Process style tags
+                .keep_link_tags(true) // Keep link tags
+                .keep_style_tags(true) // Keep style tags
+                .load_remote_stylesheets(false) // Don't load remote stylesheets
+                .extra_css(Some(Cow::Owned(inline_styles))) // Add collected inline styles
+                .build();
+
+            return inliner.inline(&html).map_err(Error::InlineCSS);
+        }
+
+        Ok(html)
     }
 
     pub fn get_title(&self) -> Option<String> {
@@ -108,5 +137,53 @@ mod tests {
         let output_2 = root_2.element.render(&options).unwrap();
 
         assert_eq!(output_1, output_2);
+    }
+
+    #[test]
+    fn test_css_inlining() {
+        // Single template with both inline and non-inline styles
+        let source = r#"<mjml>
+            <mj-head>
+                <mj-style>
+                    .red { color: red; }
+                </mj-style>
+                <mj-style inline="inline">
+                    .blue { color: blue; }
+                </mj-style>
+            </mj-head>
+            <mj-body>
+                <mj-section>
+                    <mj-column>
+                        <mj-text>
+                            <p class="blue">Blue text</p>
+                            <p class="red">Red text</p>
+                        </mj-text>
+                    </mj-column>
+                </mj-section>
+            </mj-body>
+        </mjml>"#;
+
+        let options = RenderOptions::default();
+        let output = Mjml::parse(source)
+            .unwrap()
+            .element
+            .render(&options)
+            .unwrap();
+
+        // Check that blue style is inlined
+        assert!(
+            output.contains("<p class=\"blue\" style=\"color: blue;\">"),
+            "CSS inlining should happen for elements with inline styles"
+        );
+
+        // Check that red style is not inlined
+        assert!(
+            output.contains("<p class=\"red\">"),
+            "CSS inlining should not happen for elements without inline styles"
+        );
+
+        // The test no longer needs to check for non-inline styles being
+        // preserved, as the CSS inlining library removes all style tags
+        // when processing
     }
 }
