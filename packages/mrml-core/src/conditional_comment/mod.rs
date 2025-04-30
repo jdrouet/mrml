@@ -14,12 +14,6 @@ impl ConditionalComment {
     }
 }
 
-impl AsRef<str> for ConditionalComment {
-    fn as_ref(&self) -> &str {
-        self.0.as_str()
-    }
-}
-
 impl<V: Into<String>> From<V> for ConditionalComment {
     fn from(value: V) -> Self {
         Self(value.into())
