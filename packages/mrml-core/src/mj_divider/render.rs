@@ -17,7 +17,7 @@ impl<'root> Renderer<'root, MjDivider, ()> {
             ),
         )
         .add_style("font-size", "1px")
-        .add_style("margin", "0px auto")
+        .add_style("margin", "0px")
     }
     fn set_style_p<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
     where
@@ -130,6 +130,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjDivider {
 mod tests {
     crate::should_render!(basic, "mj-divider");
     crate::should_render!(class, "mj-divider-class");
+    crate::should_render!(alignment, "mj-divider-alignment");
     crate::should_render!(
         container_background_color,
         "mj-divider-container-background-color"
