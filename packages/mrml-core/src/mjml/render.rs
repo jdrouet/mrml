@@ -64,22 +64,14 @@ impl Mjml {
         // Only inline CSS if there are inline styles
         if !cursor.header.inline_styles().is_empty() {
             // Collect inline styles from the header into a single string
-            let inline_styles =
-                cursor
-                    .header
-                    .inline_styles()
-                    .iter()
-                    .fold(String::new(), |mut acc, style| {
-                        acc.push_str(style);
-                        acc
-                    });
+            let inline_styles = cursor.header.inline_styles().iter().collect();
 
             let inliner = css_inline::CSSInliner::options()
-                .inline_style_tags(false) // Process style tags
-                .keep_link_tags(true) // Keep link tags
-                .keep_style_tags(true) // Keep style tags
-                .load_remote_stylesheets(false) // Don't load remote stylesheets
-                .extra_css(Some(Cow::Owned(inline_styles))) // Add collected inline styles
+                .inline_style_tags(false)
+                .keep_link_tags(true)
+                .keep_style_tags(true)
+                .load_remote_stylesheets(false)
+                .extra_css(Some(Cow::Owned(inline_styles)))
                 .build();
 
             return inliner.inline(&html).map_err(Error::InlineCSS);
