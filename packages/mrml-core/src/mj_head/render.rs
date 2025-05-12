@@ -120,36 +120,43 @@ fn render_font_link(target: &mut String, href: &str) {
 }
 
 impl Renderer<'_, MjHead, ()> {
-    fn mj_style_iter(&self) -> impl Iterator<Item = &str> {
+    fn mj_style_iter(&self) -> impl Iterator<Item = (&str, bool)> {
         self.element.children.iter().flat_map(|item| {
-            item.as_mj_include()
+            // Include styles from mj_include elements
+            let included_styles = item.as_mj_include().into_iter().flat_map(|inner| {
+                let includes_css = inner
+                    .0
+                    .children
+                    .iter()
+                    .filter_map(|child| child.as_mj_style())
+                    .map(|child| (child.children.trim(), child.is_inline()));
+
+                let direct_css = inner
+                    .0
+                    .attributes
+                    .kind
+                    .is_css(false)
+                    .then(|| {
+                        inner
+                            .0
+                            .children
+                            .iter()
+                            .filter_map(|item| item.as_text())
+                            .map(|text| (text.inner_str().trim(), false))
+                    })
+                    .into_iter()
+                    .flatten();
+
+                includes_css.chain(direct_css)
+            });
+
+            // Direct mj_style elements
+            let direct_styles = item
+                .as_mj_style()
                 .into_iter()
-                .flat_map(|inner| {
-                    inner
-                        .0
-                        .children
-                        .iter()
-                        .filter_map(|child| child.as_mj_style())
-                        .map(|child| child.children.trim())
-                })
-                .chain(
-                    item.as_mj_include()
-                        .into_iter()
-                        .filter(|child| child.0.attributes.kind.is_css(false))
-                        .flat_map(|child| {
-                            child
-                                .0
-                                .children
-                                .iter()
-                                .filter_map(|item| item.as_text())
-                                .map(|text| text.inner_str().trim())
-                        }),
-                )
-                .chain(
-                    item.as_mj_style()
-                        .into_iter()
-                        .map(|item| item.children.trim()),
-                )
+                .map(|style| (style.children.trim(), style.is_inline()));
+
+            included_styles.chain(direct_styles)
         })
     }
 
@@ -228,6 +235,7 @@ impl Renderer<'_, MjHead, ()> {
     }
 
     fn render_styles(&self, cursor: &mut RenderCursor) {
+        // Add regular styles from header to the buffer
         if !cursor.header.styles().is_empty() {
             cursor.buffer.push_str("<style type=\"text/css\">");
             for style in cursor.header.styles().iter() {
@@ -236,12 +244,18 @@ impl Renderer<'_, MjHead, ()> {
             cursor.buffer.push_str("</style>");
         }
 
-        // TODO this should be optional
-        cursor.buffer.push_str("<style type=\"text/css\">");
-        for item in self.mj_style_iter() {
-            cursor.buffer.push_str(item);
+        // Process mj-style items
+        for (content, is_inline) in self.mj_style_iter() {
+            if is_inline {
+                // Add inline styles to inline_styles collection
+                cursor.header.add_inline_style(content.to_string());
+            } else {
+                // Output non-inlined styles to the buffer
+                cursor.buffer.push_str("<style type=\"text/css\">");
+                cursor.buffer.push_str(content);
+                cursor.buffer.push_str("</style>");
+            }
         }
-        cursor.buffer.push_str("</style>");
     }
 
     fn render_raw(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
