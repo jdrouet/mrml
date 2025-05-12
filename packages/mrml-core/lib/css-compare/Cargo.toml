@@ -9,9 +9,7 @@ repository = "https://github.com/jdrouet/mrml"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-lightningcss = { version = "1.0.0-alpha.59", features = [
-    "grid",
-], default-features = false }
+lightningcss = { version = "1.0.0-alpha.66", default-features = false }
 
 [dev-dependencies]
 similar-asserts = { workspace = true }
