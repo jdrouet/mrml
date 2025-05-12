@@ -6,18 +6,18 @@ on:
   workflow_call:
   pull_request:
     paths:
-      - '.github/workflows/mrml-core-main.yml'
-      - 'Cargo.lock'
-      - 'Cargo.toml'
-      - 'packages/mrml-core/**'
+      - ".github/workflows/mrml-core-main.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "packages/mrml-core/**"
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/mrml-core-main.yml'
-      - 'Cargo.lock'
-      - 'Cargo.toml'
-      - 'packages/mrml-core/**'
+      - ".github/workflows/mrml-core-main.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "packages/mrml-core/**"
 
 defaults:
   run:
@@ -38,11 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: install cargo toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: prepare cache
         uses: actions/cache@v4
