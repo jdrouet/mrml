@@ -59,12 +59,15 @@ impl Mjml {
         let mut cursor = RenderCursor::default();
         self.renderer(&context).render(&mut cursor)?;
 
-        let html = String::from(cursor.buffer.as_ref());
-
         // Only inline CSS if there are inline styles
         if !cursor.header.inline_styles().is_empty() {
             // Collect inline styles from the header into a single string
-            let inline_styles = cursor.header.inline_styles().iter().collect();
+            let inline_styles = cursor
+                .header
+                .inline_styles()
+                .iter()
+                .map(|s| s.as_ref())
+                .collect::<String>();
 
             let inliner = css_inline::CSSInliner::options()
                 .inline_style_tags(false)
@@ -74,10 +77,12 @@ impl Mjml {
                 .extra_css(Some(Cow::Owned(inline_styles)))
                 .build();
 
-            return inliner.inline(&html).map_err(Error::InlineCSS);
+            return inliner
+                .inline(cursor.buffer.as_ref())
+                .map_err(Error::InlineCSS);
         }
 
-        Ok(html)
+        Ok(cursor.buffer.into())
     }
 
     pub fn get_title(&self) -> Option<String> {
