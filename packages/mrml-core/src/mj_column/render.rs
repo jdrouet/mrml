@@ -161,10 +161,14 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
     }
 
     fn render_gutter(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let table = Tag::table_presentation().add_attribute("width", "100%");
-        let tbody = Tag::tbody();
-        let tr = Tag::tr();
-        let td = self.set_style_gutter_td(Tag::td());
+        let table = Tag::table_presentation()
+            .add_attribute("width", "100%")
+            .set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
+        let td = self
+            .set_style_gutter_td(Tag::td())
+            .set_html_attributes(self.context.header.html_attributes());
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
@@ -194,8 +198,9 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
     fn render_column(&self, cursor: &mut RenderCursor, gutter: bool) -> Result<(), Error> {
         let table = self
             .set_style_table(Tag::table_presentation(), gutter)
-            .add_attribute("width", "100%");
-        let tbody = Tag::tbody();
+            .add_attribute("width", "100%")
+            .set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
         let siblings = self.element.children.len();
         let raw_siblings = self.element.children.iter().filter(|i| i.is_raw()).count();
         let current_width = self.current_width();
@@ -212,7 +217,7 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             if child.is_raw() {
                 renderer.render(cursor)?;
             } else {
-                let tr = Tag::tr();
+                let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
                 let td = Tag::td()
                     .maybe_add_style(
                         "background",
@@ -227,7 +232,8 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
                     .add_style("word-break", "break-word")
                     .maybe_add_attribute("align", renderer.attribute("align"))
                     .maybe_add_attribute("vertical-align", renderer.attribute("vertical-align"))
-                    .maybe_add_class(renderer.attribute("css-class"));
+                    .maybe_add_class(renderer.attribute("css-class"))
+                    .set_html_attributes(self.context.header.html_attributes());
 
                 tr.render_open(&mut cursor.buffer)?;
                 td.render_open(&mut cursor.buffer)?;
@@ -311,7 +317,8 @@ impl<'root> Render<'root> for Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             .set_style_root_div(Tag::div())
             .add_class("mj-outlook-group-fix")
             .add_class(classname)
-            .maybe_add_class(self.attribute("css-class"));
+            .maybe_add_class(self.attribute("css-class"))
+            .set_html_attributes(self.context.header.html_attributes());
 
         div.render_open(&mut cursor.buffer)?;
         if self.has_gutter() {

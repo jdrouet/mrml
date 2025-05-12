@@ -103,7 +103,8 @@ impl<'root> Renderer<'root, MjGroup, ()> {
                             .get_width()
                             .map(|w| Cow::Owned(w.to_string()))
                             .or_else(|| renderer.attribute("width").map(Cow::Borrowed)),
-                    );
+                    )
+                    .set_html_attributes(self.context.header.html_attributes());
 
                 cursor.buffer.start_conditional_tag();
                 td.render_open(&mut cursor.buffer)?;
@@ -176,18 +177,21 @@ impl<'root> Render<'root> for Renderer<'root, MjGroup, ()> {
             .set_style_root_div(Tag::div())
             .add_class(classname)
             .add_class("mj-outlook-group-fix")
-            .maybe_add_class(self.attribute("css-class"));
-        let table = Tag::table_presentation().maybe_add_attribute(
-            "bgcolor",
-            self.attribute("background-color").and_then(|color| {
-                if color == "none" {
-                    None
-                } else {
-                    Some(color)
-                }
-            }),
-        );
-        let tr = Tag::tr();
+            .maybe_add_class(self.attribute("css-class"))
+            .set_html_attributes(self.context.header.html_attributes());
+        let table = Tag::table_presentation()
+            .maybe_add_attribute(
+                "bgcolor",
+                self.attribute("background-color").and_then(|color| {
+                    if color == "none" {
+                        None
+                    } else {
+                        Some(color)
+                    }
+                }),
+            )
+            .set_html_attributes(self.context.header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
 
         div.render_open(&mut cursor.buffer)?;
         cursor.buffer.start_conditional_tag();

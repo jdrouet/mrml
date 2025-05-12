@@ -18,6 +18,7 @@ use crate::prelude::{Component, StaticTag};
 pub enum MjIncludeHeadChild {
     Comment(crate::comment::Comment),
     MjAttributes(crate::mj_attributes::MjAttributes),
+    MjHtmlAttributes(crate::mj_html_attributes::MjHtmlAttributes),
     MjBreakpoint(crate::mj_breakpoint::MjBreakpoint),
     MjFont(crate::mj_font::MjFont),
     MjPreview(crate::mj_preview::MjPreview),

@@ -21,7 +21,8 @@ impl<'root> Renderer<'root, MjAccordionText, MjAccordionTextExtra<'root>> {
             .maybe_add_style("padding-right", self.attribute("padding-right"))
             .maybe_add_style("padding-bottom", self.attribute("padding-bottom"))
             .maybe_add_style("padding-left", self.attribute("padding-left"))
-            .maybe_add_style("padding", self.attribute("padding"));
+            .maybe_add_style("padding", self.attribute("padding"))
+            .set_html_attributes(self.context.header.html_attributes());
 
         td.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
@@ -71,14 +72,17 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordionText, MjAccordionTextEx
         let font_families = self.attribute("font-family");
         cursor.header.maybe_add_font_families(font_families);
 
-        let tr = Tag::tr();
-        let tbody = Tag::tbody();
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
         let table = Tag::table()
             .add_attribute("cellspacing", "0")
             .add_attribute("cellpadding", "0")
             .add_style("width", "100%")
-            .maybe_add_style("border-bottom", self.attribute("border"));
-        let div = Tag::div().add_class("mj-accordion-content");
+            .maybe_add_style("border-bottom", self.attribute("border"))
+            .set_html_attributes(self.context.header.html_attributes());
+        let div = Tag::div()
+            .add_class("mj-accordion-content")
+            .set_html_attributes(self.context.header.html_attributes());
 
         div.render_open(&mut cursor.buffer)?;
         table.render_open(&mut cursor.buffer)?;

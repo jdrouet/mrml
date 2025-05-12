@@ -146,10 +146,12 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             .map(|value| value.value());
         let div = self
             .set_style_controls_div(Tag::div())
-            .add_class(format!("mj-carousel-{direction}-icons"));
+            .add_class(format!("mj-carousel-{direction}-icons"))
+            .set_html_attributes(self.context.header.html_attributes());
         let td = self
             .set_style_controls_td(Tag::td())
-            .add_class(format!("mj-carousel-{}-icons-cell", self.extra.id));
+            .add_class(format!("mj-carousel-{}-icons-cell", self.extra.id))
+            .set_html_attributes(self.context.header.html_attributes());
 
         td.render_open(buf)?;
         div.render_open(buf)?;
@@ -158,14 +160,16 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
                 .set_style_controls_img(Tag::new("img"))
                 .add_attribute("src", icon.to_string())
                 .add_attribute("alt", direction.to_string())
-                .maybe_add_attribute("width", icon_width.map(|v| v.to_string()));
+                .maybe_add_attribute("width", icon_width.map(|v| v.to_string()))
+                .set_html_attributes(self.context.header.html_attributes());
             let label = Tag::new("label")
                 .add_attribute(
                     "for",
                     format!("mj-carousel-{}-radio-{}", self.extra.id, index + 1),
                 )
                 .add_class(format!("mj-carousel-{direction}"))
-                .add_class(format!("mj-carousel-{}-{}", direction, index + 1));
+                .add_class(format!("mj-carousel-{}-{}", direction, index + 1))
+                .set_html_attributes(self.context.header.html_attributes());
             label.render_open(buf)?;
             img.render_closed(buf)?;
             label.render_close(buf);
@@ -177,8 +181,12 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
     }
 
     fn render_images(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let div = Tag::div().add_class("mj-carousel-images");
-        let td = self.set_style_images_td(Tag::td());
+        let div = Tag::div()
+            .add_class("mj-carousel-images")
+            .set_html_attributes(self.context.header.html_attributes());
+        let td = self
+            .set_style_images_td(Tag::td())
+            .set_html_attributes(self.context.header.html_attributes());
 
         td.render_open(&mut cursor.buffer)?;
         div.render_open(&mut cursor.buffer)?;
@@ -202,12 +210,13 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
     }
 
     fn render_carousel(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let tr = Tag::tr();
-        let tbody = Tag::tbody();
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
         let table = self
             .set_style_carousel_table(Tag::table_presentation())
             .add_attribute("width", "100%")
-            .add_class("mj-carousel-main");
+            .add_class("mj-carousel-main")
+            .set_html_attributes(self.context.header.html_attributes());
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;
@@ -468,8 +477,11 @@ impl<'root> Render<'root> for Renderer<'root, MjCarousel, MjCarouselExtra> {
         let inner_div = self
             .set_style_carousel_div(Tag::div())
             .add_class("mj-carousel-content")
-            .add_class(format!("mj-carousel-{}-content", self.extra.id));
-        let div = Tag::div().add_class("mj-carousel");
+            .add_class(format!("mj-carousel-{}-content", self.extra.id))
+            .set_html_attributes(self.context.header.html_attributes());
+        let div = Tag::div()
+            .add_class("mj-carousel")
+            .set_html_attributes(self.context.header.html_attributes());
 
         cursor.buffer.start_mso_negation_conditional_tag();
         div.render_open(&mut cursor.buffer)?;

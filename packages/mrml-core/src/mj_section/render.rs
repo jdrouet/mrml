@@ -240,11 +240,15 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             )
             .add_attribute("xmlns:v", "urn:schemas-microsoft-com:vml")
             .add_attribute("fill", "true")
-            .add_attribute("stroke", "false");
-        let vfill = self.get_vfill_tag();
+            .add_attribute("stroke", "false")
+            .set_html_attributes(self.context().header.html_attributes());
+        let vfill = self
+            .get_vfill_tag()
+            .set_html_attributes(self.context().header.html_attributes());
         let vtextbox = Tag::new("v:textbox")
             .add_attribute("inset", "0,0,0,0")
-            .add_style("mso-fit-shape-to-text", "true");
+            .add_style("mso-fit-shape-to-text", "true")
+            .set_html_attributes(self.context().header.html_attributes());
 
         vrect.render_open(&mut cursor.buffer)?;
         vfill.render_closed(&mut cursor.buffer)?;
@@ -293,12 +297,14 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
                 "width",
                 self.container_width().as_ref().map(|v| v.to_string()),
             )
-            .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
-        let tr = Tag::tr();
+            .maybe_add_suffixed_class(self.attribute("css-class"), "outlook")
+            .set_html_attributes(self.context().header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context().header.html_attributes());
         let td = Tag::td()
             .add_style("line-height", "0px")
             .add_style("font-size", "0px")
-            .add_style("mso-line-height-rule", "exactly");
+            .add_style("mso-line-height-rule", "exactly")
+            .set_html_attributes(self.context().header.html_attributes());
 
         cursor.buffer.start_conditional_tag();
         table.render_open(&mut cursor.buffer)?;
@@ -324,7 +330,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
     fn render_wrapped_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
-        let tr = Tag::tr();
+        let tr = Tag::tr().set_html_attributes(self.context().header.html_attributes());
 
         tr.render_open(&mut cursor.buffer)?;
         for child in self.children().iter() {
@@ -340,7 +346,8 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
                 let td = renderer
                     .set_style("td-outlook", Tag::td())
                     .maybe_add_attribute("align", renderer.attribute("align"))
-                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook");
+                    .maybe_add_suffixed_class(renderer.attribute("css-class"), "outlook")
+                    .set_html_attributes(self.context().header.html_attributes());
                 td.render_open(&mut cursor.buffer)?;
                 cursor.buffer.end_conditional_tag();
                 renderer.render(cursor)?;
@@ -399,24 +406,30 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
                 None
             } else {
                 self.attribute("css-class")
-            });
+            })
+            .set_html_attributes(self.context().header.html_attributes());
         let inner_div = self.set_style_section_inner_div(Tag::div());
-        let table = self.set_style_section_table(
-            Tag::table_presentation()
-                .add_attribute("align", "center")
-                .maybe_add_attribute(
-                    "background",
-                    if is_full_width {
-                        None
-                    } else {
-                        self.attribute("background-url")
-                    },
-                ),
-        );
-        let tbody = Tag::tbody();
-        let tr = Tag::tr();
-        let td = self.set_style_section_td(Tag::td());
-        let inner_table = Tag::table_presentation();
+        let table = self
+            .set_style_section_table(
+                Tag::table_presentation()
+                    .add_attribute("align", "center")
+                    .maybe_add_attribute(
+                        "background",
+                        if is_full_width {
+                            None
+                        } else {
+                            self.attribute("background-url")
+                        },
+                    ),
+            )
+            .set_html_attributes(self.context().header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context().header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context().header.html_attributes());
+        let td = self
+            .set_style_section_td(Tag::td())
+            .set_html_attributes(self.context().header.html_attributes());
+        let inner_table =
+            Tag::table_presentation().set_html_attributes(self.context().header.html_attributes());
 
         let has_bg = self.has_background();
         div.render_open(&mut cursor.buffer)?;
@@ -469,10 +482,12 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
     }
 
     fn render_full_width(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let table = self.get_full_width_table();
-        let tbody = Tag::tbody();
-        let tr = Tag::tr();
-        let td = Tag::td();
+        let table = self
+            .get_full_width_table()
+            .set_html_attributes(self.context().header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context().header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context().header.html_attributes());
+        let td = Tag::td().set_html_attributes(self.context().header.html_attributes());
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;

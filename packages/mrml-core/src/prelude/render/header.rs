@@ -75,6 +75,7 @@ pub(crate) struct Header<'h> {
     attributes_all: Map<&'h str, &'h str>,
     attributes_class: Map<&'h str, Map<&'h str, &'h str>>,
     attributes_element: Map<&'h str, Map<&'h str, &'h str>>,
+    html_attributes: Map<&'h str, Map<&'h str, &'h str>>,
     breakpoint: Pixel,
     font_families: Map<&'h str, &'h str>,
     preview: Option<&'h str>,
@@ -95,6 +96,10 @@ impl<'h> Header<'h> {
             attributes_element: head
                 .as_ref()
                 .map(|h| h.build_attributes_element())
+                .unwrap_or_default(),
+            html_attributes: head
+                .as_ref()
+                .map(|h| h.build_html_attributes())
                 .unwrap_or_default(),
             breakpoint: head
                 .as_ref()
@@ -119,6 +124,10 @@ impl<'h> Header<'h> {
             .get(name)
             .and_then(|class_map| class_map.get(key))
             .copied()
+    }
+
+    pub fn html_attributes(&self) -> &Map<&str, Map<&str, &str>> {
+        &self.html_attributes
     }
 
     pub fn attribute_element(&self, name: &str, key: &str) -> Option<&str> {

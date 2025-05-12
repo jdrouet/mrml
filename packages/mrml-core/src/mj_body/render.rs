@@ -11,13 +11,18 @@ impl<'root> Renderer<'root, MjBody, ()> {
     }
 
     fn get_body_tag(&self) -> Tag {
-        self.set_body_style(Tag::new("body").add_style("word-spacing", "normal"))
+        self.set_body_style(
+            Tag::new("body")
+                .add_style("word-spacing", "normal")
+                .set_html_attributes(self.context.header.html_attributes()),
+        )
     }
 
     fn get_content_div_tag(&self) -> Tag {
         self.set_body_style(Tag::new("div"))
             .maybe_add_attribute("class", self.attribute("css-class"))
             .maybe_add_attribute("lang", self.context.header.lang())
+            .set_html_attributes(self.context.header.html_attributes())
     }
 
     fn set_body_style<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -26,6 +31,7 @@ impl<'root> Renderer<'root, MjBody, ()> {
         'a: 't,
     {
         tag.maybe_add_style("background-color", self.attribute("background-color"))
+            .set_html_attributes(self.context.header.html_attributes())
     }
 
     fn render_preview(&self, buf: &mut RenderBuffer) {
@@ -80,7 +86,9 @@ impl<'root> Render<'root> for Renderer<'root, MjBody, ()> {
     }
 
     fn render(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let body = self.get_body_tag();
+        let body = self
+            .get_body_tag()
+            .set_html_attributes(self.context.header.html_attributes());
         body.render_open(&mut cursor.buffer)?;
         self.render_preview(&mut cursor.buffer);
         self.render_content(cursor)?;

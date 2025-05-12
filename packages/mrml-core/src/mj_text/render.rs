@@ -21,7 +21,9 @@ impl<'root> Renderer<'root, MjText, ()> {
     }
 
     fn render_content(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let root = self.set_style_text(Tag::div());
+        let root = self
+            .set_style_text(Tag::div())
+            .set_html_attributes(self.context().header.html_attributes());
         root.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
             child.renderer(self.context()).render(cursor)?;
@@ -31,12 +33,14 @@ impl<'root> Renderer<'root, MjText, ()> {
     }
 
     fn render_with_height(&self, height: &str, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let table = Tag::table_presentation();
-        let tr = Tag::tr();
+        let table =
+            Tag::table_presentation().set_html_attributes(self.context().header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context().header.html_attributes());
         let td = Tag::td()
             .add_attribute("height", height)
             .add_style("vertical-align", "top")
-            .add_style("height", height);
+            .add_style("height", height)
+            .set_html_attributes(self.context().header.html_attributes());
 
         cursor.buffer.start_conditional_tag();
         table.render_open(&mut cursor.buffer)?;

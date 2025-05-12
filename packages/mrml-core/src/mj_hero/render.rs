@@ -145,7 +145,7 @@ impl<'root> Renderer<'root, MjHero, ()> {
             if child.is_raw() {
                 renderer.render(cursor)?;
             } else {
-                let tr = Tag::tr();
+                let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
                 let td = Tag::td()
                     .maybe_add_style(
                         "background",
@@ -163,7 +163,8 @@ impl<'root> Renderer<'root, MjHero, ()> {
                         "background",
                         renderer.attribute("container-background-color"),
                     )
-                    .maybe_add_attribute("class", renderer.attribute("css-class"));
+                    .maybe_add_attribute("class", renderer.attribute("css-class"))
+                    .set_html_attributes(self.context.header.html_attributes());
 
                 tr.render_open(&mut cursor.buffer)?;
                 td.render_open(&mut cursor.buffer)?;
@@ -183,16 +184,22 @@ impl<'root> Renderer<'root, MjHero, ()> {
             .maybe_add_attribute(
                 "width",
                 self.container_width.as_ref().map(|w| w.value().to_string()),
-            );
-        let tbody = Tag::tbody();
-        let tr = Tag::tr();
-        let td = Tag::td();
-        let outlook_inner_td = self.set_style_outlook_inner_td(Tag::td());
+            )
+            .set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
+        let td = Tag::td().set_html_attributes(self.context.header.html_attributes());
+        let outlook_inner_td = self
+            .set_style_outlook_inner_td(Tag::td())
+            .set_html_attributes(self.context.header.html_attributes());
         let outlook_inner_div = self
             .set_style_inner_div(Tag::div())
             .maybe_add_attribute("width", self.attribute("align"))
-            .add_class("mj-hero-content");
-        let inner_table = self.set_style_inner_table(Tag::table_presentation());
+            .add_class("mj-hero-content")
+            .set_html_attributes(self.context.header.html_attributes());
+        let inner_table = self
+            .set_style_inner_table(Tag::table_presentation())
+            .set_html_attributes(self.context.header.html_attributes());
 
         cursor.buffer.start_conditional_tag();
         table.render_open(&mut cursor.buffer)?;
@@ -226,10 +233,13 @@ impl<'root> Renderer<'root, MjHero, ()> {
     }
 
     fn render_mode_fluid(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let td_fluid = self.set_style_td_fluid(Tag::td());
+        let td_fluid = self
+            .set_style_td_fluid(Tag::td())
+            .set_html_attributes(self.context.header.html_attributes());
         let td = self
             .set_style_hero(Tag::td())
-            .maybe_add_attribute("background", self.attribute("background-url"));
+            .maybe_add_attribute("background", self.attribute("background-url"))
+            .set_html_attributes(self.context.header.html_attributes());
 
         td_fluid.render_closed(&mut cursor.buffer)?;
         td.render_open(&mut cursor.buffer)?;
@@ -252,7 +262,8 @@ impl<'root> Renderer<'root, MjHero, ()> {
             .set_style_hero(Tag::td())
             .add_style("height", format!("{height}px"))
             .maybe_add_attribute("background", self.attribute("background-url"))
-            .add_attribute("height", height.to_string());
+            .add_attribute("height", height.to_string())
+            .set_html_attributes(self.context.header.html_attributes());
 
         td.render_open(&mut cursor.buffer)?;
         self.render_content(cursor)?;
@@ -316,20 +327,28 @@ impl<'root> Render<'root> for Renderer<'root, MjHero, ()> {
             .maybe_add_attribute(
                 "width",
                 self.container_width.as_ref().map(|v| v.value().to_string()),
-            );
-        let outlook_tr = Tag::tr();
-        let outlook_td = self.set_style_outlook_td(Tag::td());
+            )
+            .set_html_attributes(self.context.header.html_attributes());
+        let outlook_tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
+        let outlook_td = self
+            .set_style_outlook_td(Tag::td())
+            .set_html_attributes(self.context.header.html_attributes());
         let v_image = self
             .set_style_outlook_image(Tag::new("v:image"))
             .maybe_add_attribute("src", self.attribute("background-url"))
-            .add_attribute("xmlns:v", "urn:schemas-microsoft-com:vml");
+            .add_attribute("xmlns:v", "urn:schemas-microsoft-com:vml")
+            .set_html_attributes(self.context.header.html_attributes());
         let div = self
             .set_style_div(Tag::div())
             .maybe_add_attribute("align", self.attribute("align"))
             .maybe_add_class(self.attribute("css-class"));
-        let table = self.set_style_table(Tag::table_presentation());
-        let tbody = Tag::tbody();
-        let tr = self.set_style_tr(Tag::tr());
+        let table = self
+            .set_style_table(Tag::table_presentation())
+            .set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
+        let tr = self
+            .set_style_tr(Tag::tr())
+            .set_html_attributes(self.context.header.html_attributes());
 
         cursor.buffer.start_conditional_tag();
         outlook_table.render_open(&mut cursor.buffer)?;

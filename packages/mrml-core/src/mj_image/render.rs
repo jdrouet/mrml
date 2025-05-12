@@ -101,7 +101,8 @@ impl<'root> Renderer<'root, MjImage, ()> {
                 self.get_content_width()
                     .map(|size| size.value().to_string()),
             )
-            .maybe_add_attribute("usemap", self.attribute("usemap"));
+            .maybe_add_attribute("usemap", self.attribute("usemap"))
+            .set_html_attributes(self.context.header.html_attributes());
         let img = self.set_style_img(img);
         img.render_closed(buf)
     }
@@ -112,6 +113,7 @@ impl<'root> Renderer<'root, MjImage, ()> {
             .maybe_add_attribute("name", self.attribute("name"))
             .maybe_add_attribute("rel", self.attribute("rel"))
             .maybe_add_attribute("target", self.attribute("target"))
+            .set_html_attributes(self.context.header.html_attributes())
             .render_with(buf, |b| self.render_image(b))
     }
 
@@ -169,10 +171,14 @@ impl<'root> Render<'root> for Renderer<'root, MjImage, ()> {
         };
         let table = self
             .set_style_table(Tag::table_presentation())
-            .maybe_add_class(class);
-        let tbody = Tag::tbody();
-        let tr = Tag::tr();
-        let td = self.set_style_td(Tag::td()).maybe_add_class(class);
+            .maybe_add_class(class)
+            .set_html_attributes(self.context.header.html_attributes());
+        let tbody = Tag::tbody().set_html_attributes(self.context.header.html_attributes());
+        let tr = Tag::tr().set_html_attributes(self.context.header.html_attributes());
+        let td = self
+            .set_style_td(Tag::td())
+            .maybe_add_class(class)
+            .set_html_attributes(self.context.header.html_attributes());
 
         table.render_open(&mut cursor.buffer)?;
         tbody.render_open(&mut cursor.buffer)?;

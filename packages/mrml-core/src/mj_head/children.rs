@@ -2,6 +2,7 @@ use crate::comment::Comment;
 use crate::mj_attributes::MjAttributes;
 use crate::mj_breakpoint::MjBreakpoint;
 use crate::mj_font::MjFont;
+use crate::mj_html_attributes::MjHtmlAttributes;
 use crate::mj_include::head::MjIncludeHead;
 use crate::mj_preview::MjPreview;
 use crate::mj_raw::MjRaw;
@@ -23,4 +24,5 @@ pub enum MjHeadChild {
     MjRaw(MjRaw),
     MjStyle(MjStyle),
     MjTitle(MjTitle),
+    MjHtmlAttributes(MjHtmlAttributes),
 }

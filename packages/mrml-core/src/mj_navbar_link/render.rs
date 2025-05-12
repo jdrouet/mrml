@@ -66,7 +66,8 @@ impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'root>> {
             .maybe_add_attribute("href", self.get_link())
             .maybe_add_attribute("rel", self.attribute("rel"))
             .maybe_add_attribute("target", self.attribute("target"))
-            .maybe_add_attribute("name", self.attribute("name"));
+            .maybe_add_attribute("name", self.attribute("name"))
+            .set_html_attributes(self.context.header.html_attributes());
 
         link.render_open(&mut cursor.buffer)?;
         for child in self.element.children.iter() {
@@ -128,7 +129,8 @@ impl<'root> Render<'root> for Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'r
 
         let td = self
             .set_style_td(Tag::td())
-            .maybe_add_suffixed_class(self.attribute("css-class"), "outlook");
+            .maybe_add_suffixed_class(self.attribute("css-class"), "outlook")
+            .set_html_attributes(self.context.header.html_attributes());
 
         cursor.buffer.start_conditional_tag();
         td.render_open(&mut cursor.buffer)?;

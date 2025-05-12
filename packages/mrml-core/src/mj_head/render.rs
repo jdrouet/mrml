@@ -105,6 +105,17 @@ impl MjHead {
             .map(|font| (font.name(), font.href()))
             .collect()
     }
+
+    pub fn build_html_attributes(&self) -> Map<&str, Map<&str, &str>> {
+        self.children
+            .iter()
+            .flat_map(|item| {
+                item.as_mj_html_attributes()
+                    .into_iter()
+                    .flat_map(|inner| inner.mj_selector_iter())
+            })
+            .fold(Map::new(), combine_attribute_map)
+    }
 }
 
 fn render_font_import(target: &mut String, href: &str) {
