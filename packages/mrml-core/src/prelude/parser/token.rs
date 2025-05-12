@@ -58,6 +58,8 @@ impl<'a> From<Token<'a>> for Span {
 #[derive(Debug)]
 pub(crate) enum MrmlToken<'a> {
     Attribute(Attribute<'a>),
+    ConditionalCommentEnd(ConditionalCommentEnd<'a>),
+    ConditionalCommentStart(ConditionalCommentStart<'a>),
     Comment(Comment<'a>),
     ElementClose(ElementClose<'a>),
     ElementEnd(ElementEnd<'a>),
@@ -108,6 +110,14 @@ impl<'a> MrmlToken<'a> {
                 local,
                 span,
             })),
+            Token::ConditionalCommentEnd { span } => {
+                Ok(MrmlToken::ConditionalCommentEnd(ConditionalCommentEnd {
+                    span,
+                }))
+            }
+            Token::ConditionalCommentStart { span, condition: _ } => Ok(
+                MrmlToken::ConditionalCommentStart(ConditionalCommentStart { span }),
+            ),
             Token::Text { text } => Ok(MrmlToken::Text(Text { text })),
             other => Err(super::Error::UnexpectedToken {
                 origin: cursor.origin(),
@@ -121,6 +131,8 @@ impl MrmlToken<'_> {
     pub fn span(&self) -> Span {
         match self {
             Self::Attribute(item) => item.span,
+            Self::ConditionalCommentEnd(item) => item.span,
+            Self::ConditionalCommentStart(item) => item.span,
             Self::Comment(item) => item.span,
             Self::ElementClose(item) => item.span,
             Self::ElementEnd(item) => item.span,
@@ -137,6 +149,16 @@ pub(crate) struct Attribute<'a> {
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
     pub value: Option<StrSpan<'a>>,
+    pub span: StrSpan<'a>,
+}
+
+#[derive(Debug)]
+pub(crate) struct ConditionalCommentEnd<'a> {
+    pub span: StrSpan<'a>,
+}
+
+#[derive(Debug)]
+pub(crate) struct ConditionalCommentStart<'a> {
     pub span: StrSpan<'a>,
 }
 

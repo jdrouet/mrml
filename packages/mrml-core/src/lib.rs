@@ -125,6 +125,7 @@
 //! one (and WebAssembly one) can be.
 
 pub mod comment;
+pub mod conditional_comment;
 pub mod mj_accordion;
 pub mod mj_accordion_element;
 pub mod mj_accordion_text;

@@ -2,6 +2,7 @@ use htmlparser::StrSpan;
 
 use super::MjRawChild;
 use crate::comment::Comment;
+use crate::conditional_comment::ConditionalComment;
 use crate::node::Node;
 use crate::prelude::is_void_element;
 #[cfg(feature = "async")]
@@ -87,11 +88,21 @@ impl ParseChildren<Vec<MjRawChild>> for MrmlParser<'_> {
                     cursor.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
                 }
+                MrmlToken::ConditionalCommentStart(start) => {
+                    children.push(MjRawChild::ConditionalComment(ConditionalComment::from(
+                        start.span.as_str(),
+                    )));
+                }
+                MrmlToken::ConditionalCommentEnd(end) => {
+                    children.push(MjRawChild::ConditionalComment(ConditionalComment::from(
+                        end.span.as_str(),
+                    )));
+                }
                 other => {
                     return Err(Error::UnexpectedToken {
                         origin: cursor.origin(),
                         position: other.span(),
-                    })
+                    });
                 }
             }
         }
@@ -123,6 +134,16 @@ impl AsyncParseChildren<Vec<MjRawChild>> for AsyncMrmlParser {
                     cursor.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
                 }
+                MrmlToken::ConditionalCommentStart(start) => {
+                    children.push(MjRawChild::ConditionalComment(ConditionalComment::from(
+                        start.span.as_str(),
+                    )));
+                }
+                MrmlToken::ConditionalCommentEnd(end) => {
+                    children.push(MjRawChild::ConditionalComment(ConditionalComment::from(
+                        end.span.as_str(),
+                    )));
+                }
                 other => {
                     return Err(Error::UnexpectedToken {
                         origin: cursor.origin(),
@@ -132,4 +153,33 @@ impl AsyncParseChildren<Vec<MjRawChild>> for AsyncMrmlParser {
             }
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::mj_raw::MjRaw;
+
+    crate::should_parse!(
+        should_parse_start_conditional_comment_child,
+        MjRaw,
+        "<mj-raw><!--[if mso]></mj-raw>"
+    );
+
+    crate::should_parse!(
+        should_parse_end_conditional_comment_child,
+        MjRaw,
+        "<mj-raw><![endif]--></mj-raw>"
+    );
+
+    crate::should_parse!(
+        should_parse_conditional_comment_children,
+        MjRaw,
+        "<mj-raw><!--[if mso]>--><!--[if mso]><!--<![endif]--></mj-raw>"
+    );
+
+    crate::should_not_parse!(
+        should_not_parse_malformed_conditional_comment_child,
+        MjRaw,
+        "<mj-raw><!- -[if mso]>--></mj-raw>"
+    );
 }

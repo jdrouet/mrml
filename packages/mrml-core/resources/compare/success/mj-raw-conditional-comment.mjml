@@ -1,0 +1,23 @@
+<mjml>
+    <mj-head>
+    </mj-head>
+    <mj-body>
+        <mj-section>
+            <mj-raw>
+                <!--[if mso]>--><div>mso</div><!--<![endif]-->
+                <span>general</span>
+                <!--[if mso]><div><![endif]-->
+                <span>general two</span>
+                <!--[if mso]></div><![endif]-->
+            </mj-raw>
+            <mj-raw>
+                <img src="bananas" alt=""/>
+            </mj-raw>
+        </mj-section>
+        <mj-section>
+            <mj-column>
+                <mj-text>After</mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

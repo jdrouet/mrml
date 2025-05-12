@@ -63,6 +63,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: jdrouet/action-git-metrics@install
+        continue-on-error: true
       - uses: jdrouet/action-git-identity@main
 
       - uses: actions-rs/toolchain@v1
