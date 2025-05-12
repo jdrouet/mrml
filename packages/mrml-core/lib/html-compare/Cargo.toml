@@ -9,7 +9,7 @@ repository = "https://github.com/jdrouet/mrml"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-colored = "2.0"
+colored = "3.0"
 css-compare = { path = "../css-compare", version = "0.1" }
 similar-asserts = { workspace = true }
 htmlparser = { workspace = true }

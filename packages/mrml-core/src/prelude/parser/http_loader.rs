@@ -110,21 +110,19 @@ impl HttpFetcher for UreqFetcher {
         headers: &HashMap<String, String>,
     ) -> Result<String, IncludeLoaderError> {
         let req = ureq::get(url);
-        let req = headers
-            .iter()
-            .fold(req, |r, (key, value)| r.set(key.as_str(), value.as_str()));
-        req.call()
-            .map_err(|err| {
-                IncludeLoaderError::new(url, ErrorKind::NotFound)
-                    .with_message("unable to fetch template")
-                    .with_cause(Arc::new(err))
-            })?
-            .into_string()
-            .map_err(|err| {
-                IncludeLoaderError::new(url, ErrorKind::InvalidData)
-                    .with_message("unable to convert remote template as string")
-                    .with_cause(Arc::new(err))
-            })
+        let req = headers.iter().fold(req, |r, (key, value)| {
+            r.header(key.as_str(), value.as_str())
+        });
+        let mut res = req.call().map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::NotFound)
+                .with_message("unable to fetch template")
+                .with_cause(Arc::new(err))
+        })?;
+        res.body_mut().read_to_string().map_err(|err| {
+            IncludeLoaderError::new(url, ErrorKind::InvalidData)
+                .with_message("unable to convert remote template as string")
+                .with_cause(Arc::new(err))
+        })
     }
 }
 

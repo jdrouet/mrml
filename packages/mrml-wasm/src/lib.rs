@@ -140,12 +140,6 @@ impl ToHtmlResult {
     }
 }
 
-impl From<ToHtmlResult> for JsValue {
-    fn from(value: ToHtmlResult) -> Self {
-        serde_wasm_bindgen::to_value(&value).unwrap()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     #![allow(dead_code)]
