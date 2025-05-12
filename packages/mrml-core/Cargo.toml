@@ -42,17 +42,17 @@ serde_json = { version = "1.0", optional = true }
 htmlparser = { workspace = true, optional = true }
 indexmap = { version = "2.6", default-features = false }
 rustc-hash = { version = "2.0", default-features = false }
-thiserror = { version = "1.0", optional = true }
+thiserror = { version = "2.0", optional = true }
 
 # http-loader feature related
 reqwest = { version = "0.12", default-features = false, features = [
     "rustls-tls",
 ], optional = true }
-ureq = { version = "2.10", optional = true }
+ureq = { version = "3.0", optional = true }
 url = { version = "2.5", optional = true }
 
 # macros
-itertools = { version = "0.13" }
+itertools = { version = "0.14" }
 enum_dispatch = { version = "0.3", optional = true }
 enum-as-inner = { version = "0.6", optional = true }
 
