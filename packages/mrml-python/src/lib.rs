@@ -255,12 +255,8 @@ fn to_html(
         .element
         .render(&render_options)
         .map_err(|err| PyIOError::new_err(err.to_string()))?;
-    let title = parsed
-        .element
-        .get_title();
-    let preview = parsed
-        .element
-        .get_preview();
+    let title = parsed.element.get_title();
+    let preview = parsed.element.get_preview();
     Ok(Output {
         content,
         title,
@@ -268,7 +264,6 @@ fn to_html(
         warnings: Warning::from_vec(parsed.warnings),
     })
 }
-
 
 #[pymodule]
 #[pyo3(name = "mrml")]
