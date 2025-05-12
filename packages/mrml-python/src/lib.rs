@@ -232,6 +232,10 @@ pub struct Output {
     #[pyo3(get)]
     pub content: String,
     #[pyo3(get)]
+    pub title: Option<String>,
+    #[pyo3(get)]
+    pub preview: Option<String>,
+    #[pyo3(get)]
     pub warnings: Vec<Warning>,
 }
 
@@ -251,9 +255,12 @@ fn to_html(
         .element
         .render(&render_options)
         .map_err(|err| PyIOError::new_err(err.to_string()))?;
-
+    let title = parsed.element.get_title();
+    let preview = parsed.element.get_preview();
     Ok(Output {
         content,
+        title,
+        preview,
         warnings: Warning::from_vec(parsed.warnings),
     })
 }
