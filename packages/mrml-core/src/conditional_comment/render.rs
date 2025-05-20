@@ -65,7 +65,7 @@ mod tests {
     fn render_context() {
         let opts = RenderOptions::default();
         let mj_head = Some(MjHead::default());
-        let header = Header::new(mj_head.as_ref(), None);
+        let header = Header::new(mj_head.as_ref(), "und", "auto");
         let context = RenderContext::new(&opts, header);
 
         let content = "<!--[if mso]><span>Test Content</span><![endif]-->";

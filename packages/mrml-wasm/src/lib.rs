@@ -135,14 +135,8 @@ impl ToHtmlResult {
     pub fn into_success(self) -> String {
         match self {
             Self::Success { content, .. } => content,
-            Self::Error(inner) => panic!("unexpected error {:?}", inner),
+            Self::Error(inner) => panic!("unexpected error {inner:?}"),
         }
-    }
-}
-
-impl From<ToHtmlResult> for JsValue {
-    fn from(value: ToHtmlResult) -> Self {
-        serde_wasm_bindgen::to_value(&value).unwrap()
     }
 }
 

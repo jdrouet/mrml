@@ -49,7 +49,9 @@ pub enum Error<'a> {
 
 fn font_family_as_key(item: &FontFamily<'_>) -> String {
     match item {
-        FontFamily::FamilyName(inner) => inner.to_string(),
+        FontFamily::FamilyName(inner) => inner
+            .to_css_string(PrinterOptions::default())
+            .unwrap_or_default(),
         FontFamily::Generic(inner) => inner.as_str().to_string(),
     }
 }
@@ -366,7 +368,7 @@ mod tests {
             width: 50% !important;
             max-width: 50%;
         }
-    
+
         .mj-column-per-33-333332 {
             width: 33.333332% !important;
             max-width: 33.333332%;

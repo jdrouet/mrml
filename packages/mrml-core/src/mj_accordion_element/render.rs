@@ -146,7 +146,7 @@ mod tests {
     #[test]
     fn basic() {
         let opts = RenderOptions::default();
-        let head = Header::new(None, None);
+        let head = Header::new(None, "und", "auto");
         let ctx = RenderContext::new(&opts, head);
 
         let element = MjAccordionElement::new(

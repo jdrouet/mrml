@@ -172,7 +172,7 @@ fn compare_attributes<'a>(
         .iter()
         .filter(|attr| {
             // if attribute is `class` or `style`, and the value is empty, we can ignore it
-            if ["class", "style"].contains(&attr.local.as_str()) {
+            if ["alt", "class", "style"].contains(&attr.local.as_str()) {
                 attr.value.is_some_and(|v| !v.is_empty())
             } else {
                 true

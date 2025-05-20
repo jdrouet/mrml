@@ -327,16 +327,16 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         let tr = Tag::tr();
 
         tr.render_open(&mut cursor.buffer)?;
+        cursor.buffer.end_conditional_tag();
         for child in self.children().iter() {
             let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
             renderer.set_container_width(*self.container_width());
             if child.is_raw() {
-                cursor.buffer.end_conditional_tag();
                 renderer.render(cursor)?;
-                cursor.buffer.start_conditional_tag();
             } else {
+                cursor.buffer.start_conditional_tag();
                 let td = renderer
                     .set_style("td-outlook", Tag::td())
                     .maybe_add_attribute("align", renderer.attribute("align"))
@@ -346,8 +346,10 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
                 renderer.render(cursor)?;
                 cursor.buffer.start_conditional_tag();
                 td.render_close(&mut cursor.buffer);
+                cursor.buffer.end_conditional_tag();
             }
         }
+        cursor.buffer.start_conditional_tag();
         tr.render_close(&mut cursor.buffer);
         Ok(())
     }

@@ -51,7 +51,7 @@ struct Options {
 
 impl Options {
     fn read_file(&self, filename: &str) -> Result<String, String> {
-        log::debug!("reading from file {}", filename);
+        log::debug!("reading from file {filename}");
         let mut file =
             File::open(filename).map_err(|err| format!("couldn't open {filename:?}: {err}"))?;
         let mut content = String::new();
@@ -182,7 +182,7 @@ impl SubCommand {
                 } else {
                     serde_json::to_string(&root.element).expect("couldn't format to JSON")
                 };
-                println!("{}", output);
+                println!("{output}");
             }
             Self::FormatMjml(opts) => {
                 log::debug!("format to mjml");
@@ -192,7 +192,7 @@ impl SubCommand {
                     root.element.print_dense()
                 }
                 .expect("couldn't format mjml");
-                println!("{}", output);
+                println!("{output}");
             }
             Self::Render(render) => {
                 log::debug!("render");
@@ -201,7 +201,7 @@ impl SubCommand {
                     .element
                     .render(&render_opts)
                     .expect("couldn't render template");
-                println!("{}", output);
+                println!("{output}");
             }
             Self::Validate => {
                 log::debug!("validate");
