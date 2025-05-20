@@ -17,7 +17,8 @@ impl<'root> Renderer<'root, MjBody, ()> {
     fn get_content_div_tag(&self) -> Tag {
         self.set_body_style(Tag::new("div"))
             .maybe_add_attribute("class", self.attribute("css-class"))
-            .maybe_add_attribute("lang", self.context.header.lang())
+            .add_attribute("lang", self.context.header.lang())
+            .add_attribute("dir", self.context.header.dir())
     }
 
     fn set_body_style<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
