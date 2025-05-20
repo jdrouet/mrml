@@ -78,11 +78,12 @@ pub(crate) struct Header<'h> {
     breakpoint: Pixel,
     font_families: Map<&'h str, &'h str>,
     preview: Option<&'h str>,
-    lang: Option<&'h str>,
+    lang: &'h str,
+    dir: &'h str,
 }
 
 impl<'h> Header<'h> {
-    pub(crate) fn new(head: Option<&'h MjHead>, lang: Option<&'h str>) -> Self {
+    pub(crate) fn new(head: Option<&'h MjHead>, lang: &'h str, dir: &'h str) -> Self {
         Self {
             attributes_all: head
                 .as_ref()
@@ -107,6 +108,7 @@ impl<'h> Header<'h> {
                 .unwrap_or_default(),
             preview: head.and_then(|h| h.preview().map(|t| t.content())),
             lang,
+            dir,
         }
     }
 
@@ -136,8 +138,12 @@ impl<'h> Header<'h> {
         &self.font_families
     }
 
-    pub fn lang(&self) -> Option<&str> {
+    pub fn lang(&self) -> &str {
         self.lang
+    }
+
+    pub fn dir(&self) -> &str {
+        self.dir
     }
 
     pub fn preview(&self) -> Option<&str> {
