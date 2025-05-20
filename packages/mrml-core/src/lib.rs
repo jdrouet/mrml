@@ -84,7 +84,7 @@
 //! </mj-body>
 //! </mjml>"#;
 //! match mrml::async_parse_with_options(json, Arc::new(parser_options)).await {
-//!     Ok(mjml) => match mjml.render(&render_options) {
+//!     Ok(mjml) => match mjml.element.render(&render_options) {
 //!         Ok(html) => println!("{html}"),
 //!         Err(err) => eprintln!("Couldn't render template: {err:?}"),
 //!     },
