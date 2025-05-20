@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.0](https://github.com/jdrouet/mrml/compare/mrml-v5.0.0...mrml-v6.0.0) - 2025-05-20
+
+### Added
+
+- enabling conditional comments ([#533](https://github.com/jdrouet/mrml/pull/533))
+
+### Fixed
+
+- update resources and adjust conditional comments ([#545](https://github.com/jdrouet/mrml/pull/545))
+
+### Other
+
+- use dtolnay/rust-toolchain ([#542](https://github.com/jdrouet/mrml/pull/542))
+- *(deps)* bump all dependencies ([#541](https://github.com/jdrouet/mrml/pull/541))
+
 ## [5.0.0](https://github.com/jdrouet/mrml/compare/mrml-v4.0.1...mrml-v5.0.0) - 2025-03-01
 
 ### Added
