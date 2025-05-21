@@ -10,6 +10,7 @@ pub(crate) struct VariableHeader {
     used_font_families: Set<String>,
     media_queries: Map<String, Size>,
     styles: Set<Cow<'static, str>>,
+    #[cfg(feature = "css-inline")]
     inline_styles: Set<Cow<'static, str>>,
 }
 
@@ -19,6 +20,7 @@ impl Default for VariableHeader {
             used_font_families: Default::default(),
             media_queries: Map::new(),
             styles: Set::new(),
+            #[cfg(feature = "css-inline")]
             inline_styles: Set::new(),
         }
     }
@@ -72,10 +74,12 @@ impl VariableHeader {
         }
     }
 
+    #[cfg(feature = "css-inline")]
     pub fn inline_styles(&self) -> &Set<Cow<'static, str>> {
         &self.inline_styles
     }
 
+    #[cfg(feature = "css-inline")]
     pub fn add_inline_style<V: Into<Cow<'static, str>>>(&mut self, value: V) {
         self.inline_styles.insert(value.into());
     }

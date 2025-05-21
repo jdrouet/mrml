@@ -247,14 +247,18 @@ impl Renderer<'_, MjHead, ()> {
         // Process mj-style items
         for (content, is_inline) in self.mj_style_iter() {
             if is_inline {
-                // Add inline styles to inline_styles collection
-                cursor.header.add_inline_style(content.to_string());
-            } else {
-                // Output non-inlined styles to the buffer
-                cursor.buffer.push_str("<style type=\"text/css\">");
-                cursor.buffer.push_str(content);
-                cursor.buffer.push_str("</style>");
+                #[cfg(feature = "css-inline")]
+                {
+                    // Add inline styles to inline_styles collection
+                    cursor.header.add_inline_styles(content.to_string());
+                    continue;
+                }
             }
+
+            // Output non-inlined styles to the buffer
+            cursor.buffer.push_str("<style type=\"text/css\">");
+            cursor.buffer.push_str(content);
+            cursor.buffer.push_str("</style>");
         }
     }
 

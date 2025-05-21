@@ -6,11 +6,15 @@ pub struct ParseOutput<E> {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum WarningKind {
     UnexpectedAttribute,
+    InlineStyleUnsupported,
 }
 
 impl WarningKind {
     pub const fn as_str(&self) -> &'static str {
-        "unexpected-attribute"
+        match self {
+            Self::UnexpectedAttribute => "unexpected-attribute",
+            Self::InlineStyleUnsupported => "inline-style-unsupported",
+        }
     }
 }
 
@@ -18,6 +22,9 @@ impl std::fmt::Display for WarningKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::UnexpectedAttribute => f.write_str("unexpected attribute"),
+            Self::InlineStyleUnsupported => {
+                f.write_str("inlining styles is not supported in this build")
+            }
         }
     }
 }

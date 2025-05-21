@@ -21,6 +21,7 @@ pub enum Error {
     #[error("unable to format {0}")]
     Format(#[from] std::fmt::Error),
     #[error("unable to inline css {0}")]
+    #[cfg(feature = "css-inline")]
     InlineCSS(#[from] css_inline::InlineError),
 }
 

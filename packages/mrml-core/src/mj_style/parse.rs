@@ -11,6 +11,11 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Er
     while let Some(attr) = cursor.next_attribute()? {
         if attr.local.as_str() == "inline" {
             result.inline = attr.value.map(|v| v.to_string());
+
+            #[cfg(not(feature = "css-inline"))]
+            if attr.value == Some("inline") {
+                cursor.add_warning(WarningKind::InlineStyleUnsupported, attr.span);
+            }
         } else {
             cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
         }

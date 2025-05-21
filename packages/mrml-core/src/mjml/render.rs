@@ -1,3 +1,4 @@
+#[cfg(feature = "css-inline")]
 use std::borrow::Cow;
 
 use super::Mjml;
@@ -60,6 +61,7 @@ impl Mjml {
         self.renderer(&context).render(&mut cursor)?;
 
         // Only inline CSS if there are inline styles
+        #[cfg(feature = "css-inline")]
         if !cursor.header.inline_styles().is_empty() {
             // Collect inline styles from the header into a single string
             let inline_styles = cursor
