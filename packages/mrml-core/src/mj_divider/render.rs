@@ -4,6 +4,12 @@ use crate::prelude::render::*;
 
 impl<'root> Renderer<'root, MjDivider, ()> {
     fn set_style_p_without_width<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
+        let margin = match self.raw_attribute("align") {
+            Some("left") => "0px",
+            Some("right") => "0px 0px 0px auto",
+            _ => "0px auto",
+        };
+
         tag.add_style(
             "border-top",
             format!(
@@ -17,7 +23,7 @@ impl<'root> Renderer<'root, MjDivider, ()> {
             ),
         )
         .add_style("font-size", "1px")
-        .add_style("margin", "0px")
+        .add_style("margin", margin)
     }
     fn set_style_p<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
     where
@@ -53,7 +59,7 @@ impl<'root> Renderer<'root, MjDivider, ()> {
     fn render_after(&self, buf: &mut RenderBuffer) -> Result<(), Error> {
         let table = self
             .set_style_outlook(Tag::table_presentation())
-            .add_attribute("align", "center")
+            .add_attribute("align", self.raw_attribute("align").unwrap_or("center"))
             .maybe_add_attribute("width", self.get_outlook_width().map(|v| v.to_string()));
         let tr = Tag::tr();
         let td = Tag::td()

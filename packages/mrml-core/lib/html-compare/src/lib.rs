@@ -232,14 +232,14 @@ fn compare_attributes<'a>(
                 } else if exp_value.as_str() != gen_value.as_str() {
                     return Err(ErrorKind::InvalidAttributeValue {
                         expected: exp_attr.clone(),
-                        generated: exp_attr.clone(),
+                        generated: gen_attr.clone(),
                     });
                 }
             }
             (None, Some(inner)) | (Some(inner), None) if !inner.as_str().is_empty() => {
                 return Err(ErrorKind::InvalidAttributeValue {
                     expected: exp_attr.clone(),
-                    generated: exp_attr.clone(),
+                    generated: gen_attr.clone(),
                 });
             }
             _ => {}
