@@ -10,7 +10,9 @@ pub enum WarningKind {
 
 impl WarningKind {
     pub const fn as_str(&self) -> &'static str {
-        "unexpected-attribute"
+        match self {
+            Self::UnexpectedAttribute => "unexpected-attribute",
+        }
     }
 }
 
