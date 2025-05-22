@@ -240,6 +240,10 @@ impl From<mrml::prelude::parser::WarningKind> for WarningKind {
     fn from(value: mrml::prelude::parser::WarningKind) -> Self {
         match value {
             mrml::prelude::parser::WarningKind::UnexpectedAttribute => Self::UnexpectedAttributes,
+            // If mrml_core::WarningKind::UnknownElement is encountered, it will now cause a compile
+            // error here, which is acceptable as we've removed UnknownElement from
+            // mrml_core::WarningKind. If it were to remain in mrml_core (which it
+            // won't), this match would need to be exhaustive.
         }
     }
 }

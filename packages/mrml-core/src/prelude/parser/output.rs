@@ -6,14 +6,12 @@ pub struct ParseOutput<E> {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum WarningKind {
     UnexpectedAttribute,
-    UnknownElement,
 }
 
 impl WarningKind {
     pub const fn as_str(&self) -> &'static str {
         match self {
             Self::UnexpectedAttribute => "unexpected-attribute",
-            Self::UnknownElement => "unknown-element",
         }
     }
 }
@@ -22,7 +20,6 @@ impl std::fmt::Display for WarningKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::UnexpectedAttribute => f.write_str("unexpected attribute"),
-            Self::UnknownElement => f.write_str("unknown element"),
         }
     }
 }
