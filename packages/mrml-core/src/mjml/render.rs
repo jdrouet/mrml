@@ -20,9 +20,12 @@ impl<'root> Render<'root> for Renderer<'root, Mjml, ()> {
         std::mem::swap(&mut body, &mut cursor.buffer);
         cursor.buffer.push_str("<!doctype html>");
         cursor.buffer.open_tag("html");
-        if let Some(ref lang) = self.element.attributes.lang {
-            cursor.buffer.push_attribute("lang", lang.as_str())?;
-        }
+        cursor
+            .buffer
+            .push_attribute("lang", self.element.attributes.lang())?;
+        cursor
+            .buffer
+            .push_attribute("dir", self.element.attributes.dir())?;
         cursor
             .buffer
             .push_attribute("xmlns", "http://www.w3.org/1999/xhtml")?;
@@ -55,7 +58,11 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for Mjml {
 
 impl Mjml {
     pub fn render(&self, opts: &RenderOptions) -> Result<String, Error> {
-        let header = Header::new(self.children.head.as_ref(), self.attributes.lang.as_deref());
+        let header = Header::new(
+            self.children.head.as_ref(),
+            self.attributes.lang(),
+            self.attributes.dir(),
+        );
         let context = RenderContext::new(opts, header);
         let mut cursor = RenderCursor::default();
         self.renderer(&context).render(&mut cursor)?;

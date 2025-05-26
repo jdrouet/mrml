@@ -111,12 +111,7 @@ impl<'root> Renderer<'root, MjHero, ()> {
             self.attribute("background-position"),
         ) {
             Some(Cow::Owned(format!(
-                "{} url('{}') no-repeat {} / cover",
-                // has default value
-                color,
-                url,
-                // has default value
-                position
+                "{color} url('{url}') no-repeat {position} / cover"
             )))
         } else {
             self.attribute("background-color").map(Cow::Borrowed)

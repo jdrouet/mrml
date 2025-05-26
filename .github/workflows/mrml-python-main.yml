@@ -49,11 +49,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           nogil: true
 
-      - name: install cargo toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: init python venv
         if: matrix.platform-os != 'windows-latest'

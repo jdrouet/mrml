@@ -28,6 +28,16 @@ pub struct MjmlAttributes {
     pub dir: Option<String>,
 }
 
+impl MjmlAttributes {
+    fn lang(&self) -> &str {
+        self.lang.as_deref().unwrap_or("und")
+    }
+
+    fn dir(&self) -> &str {
+        self.dir.as_deref().unwrap_or("auto")
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct MjmlChildren {
     pub head: Option<MjHead>,

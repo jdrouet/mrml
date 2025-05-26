@@ -44,6 +44,10 @@ impl<'root> Render<'root> for Renderer<'root, MjRaw, ()> {
 }
 
 impl<'render, 'root: 'render> Renderable<'render, 'root> for MjRaw {
+    fn is_raw(&'root self) -> bool {
+        true
+    }
+
     fn renderer(
         &'root self,
         context: &'root RenderContext<'root>,

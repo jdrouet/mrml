@@ -93,7 +93,7 @@ mod tests {
         let opts = RenderOptions::default();
         let mj_head = Some(MjHead::default());
         let expected: String = {
-            let header = Header::new(mj_head.as_ref(), None);
+            let header = Header::new(mj_head.as_ref(), "und", "auto");
             let context = RenderContext::new(&opts, header);
             let mut cursor = RenderCursor::default();
             let elt = MjText::default();
@@ -102,7 +102,7 @@ mod tests {
             cursor.buffer.into()
         };
         let result: String = {
-            let header = Header::new(mj_head.as_ref(), None);
+            let header = Header::new(mj_head.as_ref(), "und", "auto");
             let context = RenderContext::new(&opts, header);
             let mut cursor = RenderCursor::default();
             let elt = MjIncludeBody::new(
@@ -122,7 +122,7 @@ mod tests {
         let mj_head = Some(MjHead::default());
 
         let expected: String = {
-            let header = Header::new(mj_head.as_ref(), None);
+            let header = Header::new(mj_head.as_ref(), "und", "auto");
             let context = RenderContext::new(&opts, header);
             let mut cursor = RenderCursor::default();
 
@@ -137,7 +137,7 @@ mod tests {
             cursor.buffer.into()
         };
         let result: String = {
-            let header = Header::new(mj_head.as_ref(), None);
+            let header = Header::new(mj_head.as_ref(), "und", "auto");
             let context = RenderContext::new(&opts, header);
             let mut cursor = RenderCursor::default();
 
