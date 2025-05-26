@@ -122,10 +122,6 @@ Summary
 
 From this, you can see that `mrml` is **more than 110 faster** than `mjml`.
 
-## Missing implementations
-
-- `mj-style[inline]`: not yet implemented. It requires parsing the generated html to apply the inline styles afterward (that's how it's done in mjml) which would kill the performances. Applying it at render time would improve the performance but it would still require to parse the CSS.
-
 ## Who is using MRML?
 
 [<img src="https://www.blizzstatic.com/www/marketing/images/logo.svg" height="22px" />](https://www.blizzfull.com/)
