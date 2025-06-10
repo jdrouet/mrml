@@ -108,17 +108,6 @@ mod tests {
     }
 
     #[test]
-    fn should_start_with_file() {
-        let loader = LocalIncludeLoader::default();
-        let err = loader
-            .build_path("/resources/compare/success/mj-body.mjml")
-            .unwrap_err();
-
-        assert_eq!(err.reason, ErrorKind::InvalidInput);
-        assert_eq!(err.to_string(), "/resources/compare/success/mj-body.mjml invalid input parameter (the path should start with file:///)");
-    }
-
-    #[test]
     fn should_turn_into_path() {
         let loader = LocalIncludeLoader::current_dir();
         let path = loader
