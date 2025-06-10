@@ -54,13 +54,7 @@ impl LocalIncludeLoader {
     }
 
     fn build_path(&self, url: &str) -> Result<PathBuf, IncludeLoaderError> {
-        let path = url
-            .strip_prefix("file:///")
-            .map(|p| self.root.join(p))
-            .ok_or_else(|| {
-                IncludeLoaderError::new(url, ErrorKind::InvalidInput)
-                    .with_message("the path should start with file:///")
-            })?;
+        let path = self.root.join(url.trim_start_matches("file:///"));
         path.canonicalize()
             .map_err(|err| IncludeLoaderError::new(url, err.kind()))
             .and_then(|path| {
