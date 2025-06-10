@@ -10,11 +10,11 @@ impl<'root> Renderer<'root, MjBody, ()> {
             .and_then(|value| Pixel::try_from(value).ok())
     }
 
-    fn get_body_tag(&self) -> Tag {
+    fn get_body_tag(&self) -> Tag<'_> {
         self.set_body_style(Tag::new("body").add_style("word-spacing", "normal"))
     }
 
-    fn get_content_div_tag(&self) -> Tag {
+    fn get_content_div_tag(&self) -> Tag<'_> {
         self.set_body_style(Tag::new("div"))
             .maybe_add_attribute("class", self.attribute("css-class"))
             .add_attribute("lang", self.context.header.lang())
