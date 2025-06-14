@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.5.0...mrml-wasm-v1.5.1) - 2025-06-14
+
+### Other
+
+- update examples dependencies
+- use dtolnay/rust-toolchain ([#542](https://github.com/jdrouet/mrml/pull/542))
+- *(deps)* bump all dependencies ([#541](https://github.com/jdrouet/mrml/pull/541))
+
 ## [1.5.0](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.4.12...mrml-wasm-v1.5.0) - 2025-03-01
 
 ### Added
