@@ -1,4 +1,32 @@
 # Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [6.0.0](https://github.com/jdrouet/mrml/compare/mrml-v5.0.0...mrml-v6.0.0) - 2025-08-23
+
+### Added
+
+- local-loader path should not always include protocol ([#555](https://github.com/jdrouet/mrml/pull/555))
+- enabling conditional comments ([#533](https://github.com/jdrouet/mrml/pull/533))
+
+### Fixed
+
+- *(mrml-core)* mj-divider align property with values left/right take no effect ([#540](https://github.com/jdrouet/mrml/pull/540))
+- update resources and adjust conditional comments ([#545](https://github.com/jdrouet/mrml/pull/545))
+
+### Other
+
+- remove deprecated type alias
+- update readme with tested code ([#556](https://github.com/jdrouet/mrml/pull/556))
+- fix clippy lint
+- use dtolnay/rust-toolchain ([#542](https://github.com/jdrouet/mrml/pull/542))
+- *(deps)* bump all dependencies ([#541](https://github.com/jdrouet/mrml/pull/541))
+# Changelog
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

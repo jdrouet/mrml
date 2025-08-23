@@ -1,4 +1,27 @@
 # Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.2.1](https://github.com/jdrouet/mrml/compare/mrml-python-v0.2.0...mrml-python-v0.2.1) - 2025-08-23
+
+### Added
+
+- *(mrml-python)* expose title and preview ([#538](https://github.com/jdrouet/mrml/pull/538))
+
+### Fixed
+
+- update documentation to match API change ([#523](https://github.com/jdrouet/mrml/pull/523))
+
+### Other
+
+- *(deps)* bump all dependencies ([#541](https://github.com/jdrouet/mrml/pull/541))
+- run python tests on all platforms ([#520](https://github.com/jdrouet/mrml/pull/520))
+# Changelog
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
