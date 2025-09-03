@@ -125,18 +125,13 @@ assert result.startswith("<!doctype html>")
 # Why?
 
 A Node.js server rendering an MJML template takes around **20 MB** of RAM at
-startup and **130 MB** under stress test. In Rust, less than **1.7 MB** at
+startup and **130 MB** under stress test. In Rust, it takes less than **1.7 MB** at
 startup and a bit less that **3 MB** under stress test. The Rust version can
 also handle twice as many requests per second. You can perform the
 benchmarks by running `bash script/run-bench.sh`.
 
-Also, the JavaScript implementation cannot be run in the browser; the Rust
-one (and WebAssembly one) can be.
-
-## Why?
-
-- A Node.js server rendering an MJML template takes around 20 MB of RAM at startup and 130 MB under stress test. In Rust, less than 1.7 MB at startup and a bit less that 3 MB under stress test. The Rust version can also handle twice as many requests per second. You can perform the benchmarks by running `bash script/run-bench.sh`.
-- The JavaScript implementation cannot be run in the browser; the Rust one (and WebAssembly one) can be.
+Also, the JavaScript implementation cannot run in the browser; the Rust
+one (and WebAssembly one) can.
 
 ## You want to contribute?
 
