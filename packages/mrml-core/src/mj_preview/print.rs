@@ -5,7 +5,7 @@ impl Printable for super::MjPreview {
         printer.push_indent();
         printer.open_tag(super::NAME)?;
         printer.close_tag();
-        for item in &self.children {
+        for item in self.children.iter() {
             match item {
                 MjPreviewChild::Text(inner) => {
                     printer.push_str(inner.inner_str());

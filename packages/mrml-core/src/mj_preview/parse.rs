@@ -3,12 +3,18 @@ use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren};
 use crate::{
     comment::Comment,
     mj_preview::MjPreviewChild,
-    prelude::parser::{Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren},
+    prelude::{
+        parser::{Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren},
+        OneOrMany,
+    },
     text::Text,
 };
 
-impl ParseChildren<Vec<MjPreviewChild>> for MrmlParser<'_> {
-    fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<Vec<MjPreviewChild>, Error> {
+impl ParseChildren<OneOrMany<MjPreviewChild>> for MrmlParser<'_> {
+    fn parse_children(
+        &self,
+        cursor: &mut MrmlCursor<'_>,
+    ) -> Result<OneOrMany<MjPreviewChild>, Error> {
         let mut children = Vec::new();
         loop {
             let token = cursor.assert_next()?;
@@ -21,7 +27,7 @@ impl ParseChildren<Vec<MjPreviewChild>> for MrmlParser<'_> {
                 }
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
-                    return Ok(children);
+                    return Ok(OneOrMany::Many(children));
                 }
                 other => {
                     return Err(Error::UnexpectedToken {
@@ -37,11 +43,11 @@ impl ParseChildren<Vec<MjPreviewChild>> for MrmlParser<'_> {
 #[cfg(feature = "async")]
 #[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-impl AsyncParseChildren<Vec<MjPreviewChild>> for AsyncMrmlParser {
+impl AsyncParseChildren<OneOrMany<MjPreviewChild>> for AsyncMrmlParser {
     async fn async_parse_children<'a>(
         &self,
         cursor: &mut MrmlCursor<'a>,
-    ) -> Result<Vec<MjPreviewChild>, Error> {
+    ) -> Result<OneOrMany<MjPreviewChild>, Error> {
         let mut children = Vec::new();
         loop {
             let token = cursor.assert_next()?;
@@ -54,7 +60,7 @@ impl AsyncParseChildren<Vec<MjPreviewChild>> for AsyncMrmlParser {
                 }
                 MrmlToken::ElementClose(inner) => {
                     cursor.rewind(MrmlToken::ElementClose(inner));
-                    return Ok(children);
+                    return Ok(OneOrMany::Many(children));
                 }
                 other => {
                     return Err(Error::UnexpectedToken {

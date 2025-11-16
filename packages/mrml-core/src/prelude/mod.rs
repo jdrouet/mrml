@@ -66,3 +66,42 @@ pub(crate) fn is_void_element(tag: &str) -> bool {
 }
 
 pub type AttributeMap = hash::Map<String, Option<String>>;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "json", serde(untagged))]
+pub enum OneOrMany<T> {
+    One(T),
+    Many(Vec<T>),
+}
+
+impl<T> Default for OneOrMany<T> {
+    fn default() -> Self {
+        OneOrMany::Many(Vec::default())
+    }
+}
+
+impl<T> OneOrMany<T> {
+    pub fn iter(&self) -> OneOrManyIter<'_, T> {
+        match self {
+            Self::One(item) => OneOrManyIter::One(std::iter::once(&item)),
+            Self::Many(list) => OneOrManyIter::Many(list.iter()),
+        }
+    }
+}
+
+pub enum OneOrManyIter<'a, T> {
+    One(std::iter::Once<&'a T>),
+    Many(std::slice::Iter<'a, T>),
+}
+
+impl<'a, T> Iterator for OneOrManyIter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            Self::One(inner) => inner.next(),
+            Self::Many(inner) => inner.next(),
+        }
+    }
+}

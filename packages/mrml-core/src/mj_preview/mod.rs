@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use crate::comment::Comment;
-use crate::prelude::{Component, StaticTag};
+use crate::prelude::{Component, OneOrMany, StaticTag};
 use crate::text::Text;
 
 #[cfg(feature = "json")]
@@ -30,7 +30,7 @@ pub enum MjPreviewChild {
     Text(Text),
 }
 
-pub type MjPreview = Component<PhantomData<MjPreviewTag>, (), Vec<MjPreviewChild>>;
+pub type MjPreview = Component<PhantomData<MjPreviewTag>, (), OneOrMany<MjPreviewChild>>;
 
 impl MjPreview {
     pub fn content(&self) -> String {
@@ -46,7 +46,10 @@ impl MjPreview {
 
 impl From<String> for MjPreview {
     fn from(children: String) -> Self {
-        Self::new((), vec![MjPreviewChild::Text(Text::from(children))])
+        Self::new(
+            (),
+            OneOrMany::One(MjPreviewChild::Text(Text::from(children))),
+        )
     }
 }
 
