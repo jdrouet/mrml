@@ -528,7 +528,7 @@ checksum = "43da5946c66ffcc7745f48db692ffbb10a83bfe0afd96235c5c2a4fb23994929"
 
 [[package]]
 name = "css-compare"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "lightningcss",
  "similar-asserts",
@@ -833,7 +833,7 @@ checksum = "f154ce46856750ed433c8649605bf7ed2de3bc35fd9d2a9f30cddd873c80cb08"
 
 [[package]]
 name = "html-compare"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "colored",
  "css-compare",
@@ -1324,7 +1324,7 @@ dependencies = [
 
 [[package]]
 name = "mrml"
-version = "5.0.0"
+version = "5.1.0"
 dependencies = [
  "async-trait",
  "concat-idents",
@@ -1350,7 +1350,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-cli"
-version = "1.7.0"
+version = "1.7.1"
 dependencies = [
  "clap",
  "env_logger",
@@ -1362,7 +1362,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-python"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "mrml",
  "pyo3",
@@ -1370,7 +1370,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-wasm"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "console_error_panic_hook",
  "mrml",
