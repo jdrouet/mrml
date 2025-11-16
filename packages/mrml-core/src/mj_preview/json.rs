@@ -1,11 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::{
-        comment::Comment,
-        mj_preview::{MjPreview, MjPreviewChild},
-        prelude::OneOrMany,
-        text::Text,
-    };
+    use crate::comment::Comment;
+    use crate::mj_preview::{MjPreview, MjPreviewChild};
+    use crate::prelude::OneOrMany;
+    use crate::text::Text;
 
     #[test]
     fn serialize() {

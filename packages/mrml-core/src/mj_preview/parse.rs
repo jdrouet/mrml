@@ -1,14 +1,10 @@
+use crate::comment::Comment;
+use crate::mj_preview::MjPreviewChild;
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren};
-use crate::{
-    comment::Comment,
-    mj_preview::MjPreviewChild,
-    prelude::{
-        parser::{Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren},
-        OneOrMany,
-    },
-    text::Text,
-};
+use crate::prelude::parser::{Error, MrmlCursor, MrmlParser, MrmlToken, ParseChildren};
+use crate::prelude::OneOrMany;
+use crate::text::Text;
 
 impl ParseChildren<OneOrMany<MjPreviewChild>> for MrmlParser<'_> {
     fn parse_children(

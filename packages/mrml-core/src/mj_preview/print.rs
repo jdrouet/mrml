@@ -1,4 +1,5 @@
-use crate::{mj_preview::MjPreviewChild, prelude::print::Printable};
+use crate::mj_preview::MjPreviewChild;
+use crate::prelude::print::Printable;
 
 impl Printable for super::MjPreview {
     fn print<P: crate::prelude::print::Printer>(&self, printer: &mut P) -> std::fmt::Result {
