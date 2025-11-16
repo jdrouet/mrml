@@ -167,6 +167,7 @@ With the same Linux amd64 machine, to render the amario template
 - [mjml-python](https://github.com/mgd020/mjml-python) - Python library
 - [wagtail-newsletter](https://github.com/wagtail/wagtail-newsletter) - Wagtail extension
 - [intellij-mjml-support](https://github.com/timo-reymann/intellij-mjml-support) - MJML support for the IntelliJ Platform
+- [mjml-php](https://github.com/alekitto/mjml-php) - PHP extension
 
 <i>If you are using MRML and want to be added to this list, don't hesitate to create an issue or open a pull request.</i>
 
