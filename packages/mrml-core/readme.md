@@ -27,7 +27,7 @@ And you can then just create a `main.rs` with the following code
 # #[cfg(feature = "parse")]
 # {
 let root = mrml::parse("<mjml><mj-body></mj-body></mjml>").expect("parse template");
-let opts = mrml::prelude::render::Options::default();
+let opts = mrml::prelude::render::RenderOptions::default();
 match root.element.render(&opts) {
     Ok(content) => println!("{}", content),
     Err(_) => println!("couldn't render mjml template"),

@@ -1,3 +1,4 @@
+use crate::mj_preview::MjPreviewChild;
 use crate::prelude::print::Printable;
 
 impl Printable for super::MjPreview {
@@ -5,7 +6,14 @@ impl Printable for super::MjPreview {
         printer.push_indent();
         printer.open_tag(super::NAME)?;
         printer.close_tag();
-        printer.push_str(self.children.as_str());
+        for item in self.children.iter() {
+            match item {
+                MjPreviewChild::Text(inner) => {
+                    printer.push_str(inner.inner_str());
+                }
+                MjPreviewChild::Comment(inner) => inner.print(printer)?,
+            }
+        }
         printer.end_tag(super::NAME)?;
         printer.push_new_line();
         Ok(())

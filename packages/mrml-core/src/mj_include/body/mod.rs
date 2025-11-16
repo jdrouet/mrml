@@ -39,7 +39,9 @@ pub enum MjIncludeBodyChild {
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
+#[derive(Default)]
 pub enum MjIncludeBodyKind {
+    #[default]
     Mjml,
     Html,
 }
@@ -57,12 +59,6 @@ impl AsRef<str> for MjIncludeBodyKind {
 impl MjIncludeBodyKind {
     fn is_default(&self) -> bool {
         matches!(self, Self::Mjml)
-    }
-}
-
-impl Default for MjIncludeBodyKind {
-    fn default() -> Self {
-        Self::Mjml
     }
 }
 

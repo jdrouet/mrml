@@ -77,7 +77,7 @@ pub(crate) struct Header<'h> {
     attributes_element: Map<&'h str, Map<&'h str, &'h str>>,
     breakpoint: Pixel,
     font_families: Map<&'h str, &'h str>,
-    preview: Option<&'h str>,
+    preview: Option<String>,
     lang: &'h str,
     dir: &'h str,
 }
@@ -147,6 +147,6 @@ impl<'h> Header<'h> {
     }
 
     pub fn preview(&self) -> Option<&str> {
-        self.preview
+        self.preview.as_deref()
     }
 }

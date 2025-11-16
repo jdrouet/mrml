@@ -30,10 +30,14 @@ pub enum MjIncludeHeadChild {
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
+#[derive(Default)]
 pub enum MjIncludeHeadKind {
+    #[default]
     Mjml,
     Html,
-    Css { inline: bool },
+    Css {
+        inline: bool,
+    },
 }
 
 impl AsRef<str> for MjIncludeHeadKind {
@@ -50,12 +54,6 @@ impl AsRef<str> for MjIncludeHeadKind {
 impl MjIncludeHeadKind {
     fn is_default(&self) -> bool {
         matches!(self, Self::Mjml)
-    }
-}
-
-impl Default for MjIncludeHeadKind {
-    fn default() -> Self {
-        Self::Mjml
     }
 }
 
