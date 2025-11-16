@@ -1,6 +1,8 @@
 use std::marker::PhantomData;
 
+use crate::comment::Comment;
 use crate::prelude::{Component, StaticTag};
+use crate::text::Text;
 
 #[cfg(feature = "json")]
 mod json;
@@ -19,17 +21,32 @@ impl StaticTag for MjPreviewTag {
     }
 }
 
-pub type MjPreview = Component<PhantomData<MjPreviewTag>, (), String>;
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "json", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "json", serde(untagged))]
+#[cfg_attr(feature = "print", enum_dispatch::enum_dispatch)]
+pub enum MjPreviewChild {
+    Comment(Comment),
+    Text(Text),
+}
+
+pub type MjPreview = Component<PhantomData<MjPreviewTag>, (), Vec<MjPreviewChild>>;
 
 impl MjPreview {
-    pub fn content(&self) -> &str {
-        &self.children
+    pub fn content(&self) -> String {
+        self.children
+            .iter()
+            .filter_map(|item| match item {
+                MjPreviewChild::Text(inner) => Some(inner.inner_str()),
+                _ => None,
+            })
+            .collect::<String>()
     }
 }
 
 impl From<String> for MjPreview {
     fn from(children: String) -> Self {
-        Self::new((), children)
+        Self::new((), vec![MjPreviewChild::Text(Text::from(children))])
     }
 }
 

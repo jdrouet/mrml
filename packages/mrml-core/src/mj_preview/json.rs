@@ -7,7 +7,7 @@ mod tests {
         let elt = MjPreview::from("Hello World");
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
-            r#"{"type":"mj-preview","children":"Hello World"}"#
+            r#"{"type":"mj-preview","children":["Hello World"]}"#
         );
     }
 

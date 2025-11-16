@@ -15,7 +15,7 @@ pub trait StaticTag {
     fn static_tag() -> &'static str;
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Component<Tag, Attributes, Children> {
     pub tag: Tag,
     pub attributes: Attributes,
