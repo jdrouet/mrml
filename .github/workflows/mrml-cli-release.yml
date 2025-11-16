@@ -46,7 +46,7 @@ jobs:
           strip: true
       - name: move binary file
         run: mv target/${{ matrix.platform.target }}/release/mrml target/${{ matrix.platform.filename }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.platform.release_for }}
           path: target/${{ matrix.platform.filename }}
