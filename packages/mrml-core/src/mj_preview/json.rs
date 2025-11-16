@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod tests {
+    use std::marker::PhantomData;
+
     use crate::comment::Comment;
     use crate::mj_preview::{MjPreview, MjPreviewChild};
     use crate::prelude::OneOrMany;
@@ -13,11 +15,14 @@ mod tests {
             r#"{"type":"mj-preview","children":"Hello World"}"#
         );
 
-        let mut elt = MjPreview::default();
-        elt.children = OneOrMany::Many(vec![
-            MjPreviewChild::Text(Text::from("Hello World")),
-            MjPreviewChild::Comment(Comment::from("this is a comment")),
-        ]);
+        let elt = MjPreview {
+            tag: PhantomData,
+            attributes: (),
+            children: OneOrMany::Many(vec![
+                MjPreviewChild::Text(Text::from("Hello World")),
+                MjPreviewChild::Comment(Comment::from("this is a comment")),
+            ]),
+        };
         assert_eq!(
             serde_json::to_string(&elt).unwrap(),
             r#"{"type":"mj-preview","children":["Hello World",{"type":"comment","children":"this is a comment"}]}"#

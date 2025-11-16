@@ -84,7 +84,7 @@ impl<T> Default for OneOrMany<T> {
 impl<T> OneOrMany<T> {
     pub fn iter(&self) -> OneOrManyIter<'_, T> {
         match self {
-            Self::One(item) => OneOrManyIter::One(std::iter::once(&item)),
+            Self::One(item) => OneOrManyIter::One(std::iter::once(item)),
             Self::Many(list) => OneOrManyIter::Many(list.iter()),
         }
     }
