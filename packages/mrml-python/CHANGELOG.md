@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/jdrouet/mrml/compare/mrml-python-v0.2.1...mrml-python-v0.2.2) - 2025-11-17
+
+### Other
+
+- updated the following local packages: mrml
+
 ## [0.2.1](https://github.com/jdrouet/mrml/compare/mrml-python-v0.2.0...mrml-python-v0.2.1) - 2025-11-16
 
 ### Added
