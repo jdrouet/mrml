@@ -36,7 +36,7 @@ jobs:
           - platform: ppc64le
             manylinux: "auto"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: setup python
         uses: deadsnakes/action@v3.2.0
@@ -68,7 +68,7 @@ jobs:
       matrix:
         target: [x64, x86]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: setup python
         uses: actions/setup-python@v6
         with:
@@ -93,7 +93,7 @@ jobs:
       matrix:
         target: [x86_64, aarch64]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: setup python
         uses: actions/setup-python@v6
@@ -116,7 +116,7 @@ jobs:
   sdist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
