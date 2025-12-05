@@ -35,9 +35,6 @@ impl Generator {
     }
 }
 
-#[deprecated = "use mrml::prelude::render::RenderOptions instead"]
-pub type Options = RenderOptions;
-
 pub(crate) struct RenderContext<'h> {
     pub options: &'h RenderOptions,
     pub header: Header<'h>,

@@ -6,6 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.1.0](https://github.com/jdrouet/mrml/compare/mrml-v5.0.0...mrml-v5.1.0) - 2025-11-16
+
+### Added
+
+- local-loader path should not always include protocol ([#555](https://github.com/jdrouet/mrml/pull/555))
+- enabling conditional comments ([#533](https://github.com/jdrouet/mrml/pull/533))
+
+### Fixed
+
+- mj preview with comments ([#580](https://github.com/jdrouet/mrml/pull/580))
+- *(mrml-core)* mj-divider align property with values left/right take no effect ([#540](https://github.com/jdrouet/mrml/pull/540))
+- update resources and adjust conditional comments ([#545](https://github.com/jdrouet/mrml/pull/545))
+
+### Other
+
+- add php extension to the list of projects using mrml ([#575](https://github.com/jdrouet/mrml/pull/575))
+- remove deprecated type alias
+- update readme with tested code ([#556](https://github.com/jdrouet/mrml/pull/556))
+- fix clippy lint
+- use dtolnay/rust-toolchain ([#542](https://github.com/jdrouet/mrml/pull/542))
+- *(deps)* bump all dependencies ([#541](https://github.com/jdrouet/mrml/pull/541))
+
 ## [5.0.0](https://github.com/jdrouet/mrml/compare/mrml-v4.0.1...mrml-v5.0.0) - 2025-03-01
 
 ### Added

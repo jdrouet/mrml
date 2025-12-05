@@ -250,7 +250,7 @@ impl Renderer<'_, MjHead, ()> {
                 #[cfg(feature = "css-inline")]
                 {
                     // Add inline styles to inline_styles collection
-                    cursor.header.add_inline_styles(content.to_string());
+                    cursor.header.add_inline_style(content.to_string());
                     continue;
                 }
             }

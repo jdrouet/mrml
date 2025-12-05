@@ -5,7 +5,7 @@ mod print;
 #[cfg(feature = "render")]
 mod render;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Text(String);
 
 impl Text {

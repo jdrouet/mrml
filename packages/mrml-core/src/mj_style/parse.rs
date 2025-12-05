@@ -13,7 +13,7 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Er
             result.inline = attr.value.map(|v| v.to_string());
 
             #[cfg(not(feature = "css-inline"))]
-            if attr.value == Some("inline") {
+            if attr.value.as_ref().is_some_and(|v| v.as_str() == "inline") {
                 cursor.add_warning(WarningKind::InlineStyleUnsupported, attr.span);
             }
         } else {

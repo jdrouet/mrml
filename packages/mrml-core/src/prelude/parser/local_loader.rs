@@ -54,13 +54,7 @@ impl LocalIncludeLoader {
     }
 
     fn build_path(&self, url: &str) -> Result<PathBuf, IncludeLoaderError> {
-        let path = url
-            .strip_prefix("file:///")
-            .map(|p| self.root.join(p))
-            .ok_or_else(|| {
-                IncludeLoaderError::new(url, ErrorKind::InvalidInput)
-                    .with_message("the path should start with file:///")
-            })?;
+        let path = self.root.join(url.trim_start_matches("file:///"));
         path.canonicalize()
             .map_err(|err| IncludeLoaderError::new(url, err.kind()))
             .and_then(|path| {
@@ -111,17 +105,6 @@ mod tests {
         fn current_dir() -> Self {
             Self::new(PathBuf::from(std::env::var("PWD").unwrap()))
         }
-    }
-
-    #[test]
-    fn should_start_with_file() {
-        let loader = LocalIncludeLoader::default();
-        let err = loader
-            .build_path("/resources/compare/success/mj-body.mjml")
-            .unwrap_err();
-
-        assert_eq!(err.reason, ErrorKind::InvalidInput);
-        assert_eq!(err.to_string(), "/resources/compare/success/mj-body.mjml invalid input parameter (the path should start with file:///)");
     }
 
     #[test]

@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: build binary
         uses: houseabsolute/actions-rust-cross@v1
         with:
@@ -46,7 +46,7 @@ jobs:
           strip: true
       - name: move binary file
         run: mv target/${{ matrix.platform.target }}/release/mrml target/${{ matrix.platform.filename }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.platform.release_for }}
           path: target/${{ matrix.platform.filename }}
@@ -56,11 +56,11 @@ jobs:
     needs: [build-binary]
     steps:
       - name: download amd64 artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: linux-x86_64
       - name: download arm64 artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: linux-arm64
 

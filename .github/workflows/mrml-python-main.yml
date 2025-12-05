@@ -32,11 +32,11 @@ jobs:
     runs-on: ${{ matrix.platform-os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: setup python
         if: matrix.python-version != '3.13' || matrix.platform-os != 'ubuntu-latest'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"

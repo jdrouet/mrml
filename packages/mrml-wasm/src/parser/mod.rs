@@ -9,15 +9,11 @@ pub use reqwest_include_loader::*;
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(tag = "type", rename_all = "camelCase")]
 #[tsify(into_wasm_abi, from_wasm_abi)]
+#[derive(Default)]
 pub enum IncludeLoaderOptions {
+    #[default]
     Noop,
     Memory(MemoryIncludeLoaderOptions),
-}
-
-impl Default for IncludeLoaderOptions {
-    fn default() -> Self {
-        Self::Noop
-    }
 }
 
 impl IncludeLoaderOptions {
@@ -51,18 +47,13 @@ impl From<ParserOptions> for mrml::prelude::parser::ParserOptions {
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(tag = "type", rename_all = "camelCase")]
 #[tsify(into_wasm_abi, from_wasm_abi)]
+#[derive(Default)]
 pub enum AsyncIncludeLoaderOptions {
+    #[default]
     Noop,
     Memory(MemoryIncludeLoaderOptions),
     #[cfg(feature = "reqwest-include-loader")]
     Reqwest(ReqwestIncludeLoaderOptions),
-}
-
-#[cfg(feature = "async")]
-impl Default for AsyncIncludeLoaderOptions {
-    fn default() -> Self {
-        Self::Noop
-    }
 }
 
 #[cfg(feature = "async")]

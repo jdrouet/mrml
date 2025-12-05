@@ -253,3 +253,25 @@ where
         })
     }
 }
+
+impl<T> JsonChildren for super::OneOrMany<T>
+where
+    T: serde::Serialize,
+{
+    fn has_children(&self) -> bool {
+        match self {
+            Self::One(_) => true,
+            Self::Many(inner) => !inner.is_empty(),
+        }
+    }
+
+    fn try_from_serde<Err: serde::de::Error>(this: Option<Self>) -> Result<Self, Err>
+    where
+        Self: Sized,
+    {
+        match this {
+            Some(item) => Ok(item),
+            None => Ok(super::OneOrMany::Many(Vec::default())),
+        }
+    }
+}
