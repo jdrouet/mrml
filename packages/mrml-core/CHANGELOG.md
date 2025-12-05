@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.1.1](https://github.com/jdrouet/mrml/compare/mrml-v5.1.0...mrml-v5.1.1) - 2025-12-05
+
+### Other
+
+- fix `result.startswith` in Python usage demo ([#589](https://github.com/jdrouet/mrml/pull/589))
+- improve readme wording ([#571](https://github.com/jdrouet/mrml/pull/571))
+
 ## [5.1.0](https://github.com/jdrouet/mrml/compare/mrml-v5.0.0...mrml-v5.1.0) - 2025-11-16
 
 ### Added
