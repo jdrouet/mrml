@@ -187,9 +187,5 @@ mod tests {
             output.contains("<p class=\"red\">"),
             "CSS inlining should not happen for elements without inline styles"
         );
-
-        // The test no longer needs to check for non-inline styles being
-        // preserved, as the CSS inlining library removes all style tags
-        // when processing
     }
 }
