@@ -32,6 +32,7 @@ http-loader-blocking-reqwest = [
 ]
 http-loader-async-reqwest = ["dep:reqwest", "async", "http-loader-base"]
 http-loader-ureq = ["dep:ureq", "http-loader-base"]
+css-inline = ["dep:css-inline"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -43,6 +44,7 @@ htmlparser = { workspace = true, optional = true }
 indexmap = { version = "2.6", default-features = false }
 rustc-hash = { version = "2.0", default-features = false }
 thiserror = { version = "2.0", optional = true }
+css-inline = { version = "0.18", default-features = false, optional = true }
 
 # http-loader feature related
 reqwest = { version = "0.12", default-features = false, features = [
