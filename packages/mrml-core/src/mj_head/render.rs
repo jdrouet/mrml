@@ -1,5 +1,6 @@
 use super::MjHead;
 use crate::helper::sort::sort_by_key;
+use crate::mj_style::StyleInlineMode;
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
@@ -120,7 +121,7 @@ fn render_font_link(target: &mut String, href: &str) {
 }
 
 impl Renderer<'_, MjHead, ()> {
-    fn mj_style_iter(&self) -> impl Iterator<Item = (&str, bool)> {
+    fn mj_style_iter(&self) -> impl Iterator<Item = (&str, StyleInlineMode)> {
         self.element.children.iter().flat_map(|item| {
             // Include styles from mj_include elements
             let included_styles = item.as_mj_include().into_iter().flat_map(|inner| {
@@ -129,7 +130,7 @@ impl Renderer<'_, MjHead, ()> {
                     .children
                     .iter()
                     .filter_map(|child| child.as_mj_style())
-                    .map(|child| (child.children.trim(), child.is_inline()));
+                    .map(|child| (child.children.trim(), child.inline_mode()));
 
                 let direct_css = inner
                     .0
@@ -142,7 +143,7 @@ impl Renderer<'_, MjHead, ()> {
                             .children
                             .iter()
                             .filter_map(|item| item.as_text())
-                            .map(|text| (text.inner_str().trim(), false))
+                            .map(|text| (text.inner_str().trim(), StyleInlineMode::StyleTag))
                     })
                     .into_iter()
                     .flatten();
@@ -154,7 +155,7 @@ impl Renderer<'_, MjHead, ()> {
             let direct_styles = item
                 .as_mj_style()
                 .into_iter()
-                .map(|style| (style.children.trim(), style.is_inline()));
+                .map(|style| (style.children.trim(), style.inline_mode()));
 
             included_styles.chain(direct_styles)
         })
@@ -246,8 +247,8 @@ impl Renderer<'_, MjHead, ()> {
         }
 
         // Process mj-style items
-        for (content, is_inline) in self.mj_style_iter() {
-            if is_inline {
+        for (content, inline_mode) in self.mj_style_iter() {
+            if inline_mode == StyleInlineMode::Inline {
                 // Add inline styles to inline_styles collection
                 cursor.header.add_inline_style(content.to_string());
             } else {

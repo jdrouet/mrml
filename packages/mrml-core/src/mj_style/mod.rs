@@ -11,6 +11,17 @@ mod print;
 
 pub const NAME: &str = "mj-style";
 
+/// Specifies how CSS styles should be applied in the rendered output.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum StyleInlineMode {
+    /// CSS styles will be output in a `<style>` tag in the document head.
+    #[default]
+    StyleTag,
+    /// CSS styles will be processed by css-inline and merged into element style
+    /// attributes.
+    Inline,
+}
+
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
 pub struct MjStyleAttributes {
@@ -29,8 +40,12 @@ impl StaticTag for MjStyleTag {
 pub type MjStyle = Component<PhantomData<MjStyleTag>, MjStyleAttributes, String>;
 
 impl MjStyle {
-    pub fn is_inline(&self) -> bool {
-        matches!(self.attributes.inline.as_deref(), Some("inline"))
+    pub fn inline_mode(&self) -> StyleInlineMode {
+        if matches!(self.attributes.inline.as_deref(), Some("inline")) {
+            StyleInlineMode::Inline
+        } else {
+            StyleInlineMode::StyleTag
+        }
     }
 
     pub fn children(&self) -> &str {
