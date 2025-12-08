@@ -50,10 +50,23 @@ mod tests {
     use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions};
 
     crate::should_sync_parse!(should_work_empty, MjStyle, "<mj-style />");
+
+    // When css-inline feature is enabled, no warning is emitted
+    #[cfg(feature = "css-inline")]
     crate::should_sync_parse!(
         should_work_inline,
         MjStyle,
-        r#"<mj-style inline="inline" />"#
+        r#"<mj-style inline="inline" />"#,
+        0
+    );
+
+    // When css-inline feature is NOT enabled, a warning is emitted
+    #[cfg(not(feature = "css-inline"))]
+    crate::should_sync_parse!(
+        should_work_inline,
+        MjStyle,
+        r#"<mj-style inline="inline" />"#,
+        1
     );
     crate::should_sync_parse!(
         should_work_basic,

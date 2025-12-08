@@ -146,6 +146,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "css-inline")]
     fn test_css_inlining() {
         // Single template with both inline and non-inline styles
         let source = r#"<mjml>
