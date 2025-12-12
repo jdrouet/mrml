@@ -11,6 +11,11 @@ fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjStyleAttributes, Er
     while let Some(attr) = cursor.next_attribute()? {
         if attr.local.as_str() == "inline" {
             result.inline = attr.value.map(|v| v.to_string());
+
+            #[cfg(not(feature = "css-inline"))]
+            if attr.value.as_ref().is_some_and(|v| v.as_str() == "inline") {
+                cursor.add_warning(WarningKind::InlineStyleUnsupported, attr.span);
+            }
         } else {
             cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span);
         }
@@ -45,10 +50,23 @@ mod tests {
     use crate::prelude::parser::{MrmlCursor, MrmlParser, ParserOptions};
 
     crate::should_sync_parse!(should_work_empty, MjStyle, "<mj-style />");
+
+    // When css-inline feature is enabled, no warning is emitted
+    #[cfg(feature = "css-inline")]
     crate::should_sync_parse!(
         should_work_inline,
         MjStyle,
-        r#"<mj-style inline="inline" />"#
+        r#"<mj-style inline="inline" />"#,
+        0
+    );
+
+    // When css-inline feature is NOT enabled, a warning is emitted
+    #[cfg(not(feature = "css-inline"))]
+    crate::should_sync_parse!(
+        should_work_inline,
+        MjStyle,
+        r#"<mj-style inline="inline" />"#,
+        1
     );
     crate::should_sync_parse!(
         should_work_basic,

@@ -19,5 +19,6 @@ crate-type = ["cdylib"]
 mrml = { version = "5.1.0", path = "../mrml-core", features = [
     "http-loader-ureq",
     "local-loader",
+    "css-inline",
 ] }
 pyo3 = { version = "0.24", features = ["extension-module"] }
