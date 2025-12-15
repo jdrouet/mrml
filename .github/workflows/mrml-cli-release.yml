@@ -56,11 +56,11 @@ jobs:
     needs: [build-binary]
     steps:
       - name: download amd64 artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: linux-x86_64
       - name: download arm64 artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: linux-arm64
 

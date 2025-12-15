@@ -135,50 +135,50 @@ jobs:
     runs-on: ubuntu-latest
     needs: [linux, windows, macos, sdist]
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-linux-x86_64
           path: packages/mrml-python/dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-linux-x86
           path: packages/mrml-python/dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-linux-aarch64
           path: packages/mrml-python/dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-linux-armv7
           path: packages/mrml-python/dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-linux-s390x
           path: packages/mrml-python/dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-linux-ppc64le
           path: packages/mrml-python/dist
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-windows-x64
           path: packages/mrml-python/dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-windows-x86
           path: packages/mrml-python/dist
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-macos-x86_64
           path: packages/mrml-python/dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-macos-aarch64
           path: packages/mrml-python/dist
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: wheels-sdist
           path: packages/mrml-python/dist
