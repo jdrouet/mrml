@@ -11,17 +11,49 @@ on:
       - main
 
 jobs:
-  release-plz:
+  # Create a PR with the new versions and changelog, preparing the next release.
+  release-plz-pr:
+    name: release-plz PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: release-plz-${{ github.ref }}
+      cancel-in-progress: false
     steps:
-      - name: Checkout repository
+      - &checkout
+        name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: dtolnay/rust-toolchain@stable
+          persist-credentials: false
+      - &install-rust
+        name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run release-plz
+        uses: release-plz/action@v0.5
+        with:
+          command: release-pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  # Release unpublished packages.
+  release-plz-release:
+    name: release-plz release
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'jdrouet' }}
+    permissions:
+      contents: write
+    steps:
+      - *checkout
+      - *install-rust
       - name: Run release-plz
         id: release-plz
-        uses: MarcoIeni/release-plz-action@v0.5
+        uses: release-plz/action@v0.5
+        with:
+          command: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
@@ -31,13 +63,13 @@ jobs:
   release-tags:
     runs-on: ubuntu-latest
     needs:
-      - release-plz
-    if: ${{ needs.release-plz.outputs.releases != '[]' }}
+      - release-plz-release
+    if: ${{ needs.release-plz-release.outputs.releases != '[]' && needs.release-plz-release.outputs.releases != '' }}
     steps:
       - name: parsing release-plz-output
         id: values
         run: |
-          json_output=${{ needs.release-plz.oututs.releases }}
+          json_output=${{ needs.release-plz-release.oututs.releases }}
           mrml_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml")] | map(.tag) | first')
           mrml_cli_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-cli")] | map(.tag) | first')
           mrml_python_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-python")] | map(.tag) | first')
