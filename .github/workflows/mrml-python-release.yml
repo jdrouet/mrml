@@ -24,32 +24,23 @@ jobs:
       matrix:
         target:
           - platform: x86_64
-            manylinux: "auto"
           - platform: x86
-            manylinux: "auto"
           - platform: aarch64
-            manylinux: "2_28"
           - platform: armv7
-            manylinux: "auto"
           - platform: s390x
-            manylinux: "auto"
           - platform: ppc64le
-            manylinux: "auto"
     steps:
       - uses: actions/checkout@v6
-      # Use deadsnakes until https://github.com/actions/setup-python/issues/771 is closed
       - name: setup python
-        uses: deadsnakes/action@v3.2.0
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
-          nogil: true"
+          python-version: "3.13t"
       - name: build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target.platform }}
           args: --release --out dist --find-interpreter
           sccache: "true"
-          manylinux: ${{ matrix.target.manylinux }}
           working-directory: packages/mrml-python
 
       - name: display directory content
