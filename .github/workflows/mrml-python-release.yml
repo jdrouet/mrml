@@ -56,7 +56,7 @@ jobs:
         run: ls -lha packages/mrml-python/dist/*
 
       - name: upload wheels
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-linux-${{ matrix.target.platform }}
           path: packages/mrml-python/dist
@@ -81,7 +81,7 @@ jobs:
           sccache: "true"
           working-directory: packages/mrml-python
       - name: upload wheels
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-windows-${{ matrix.target }}
           path: packages/mrml-python/dist
@@ -107,7 +107,7 @@ jobs:
           sccache: "true"
           working-directory: packages/mrml-python
       - name: upload wheels
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-macos-${{ matrix.target }}
           path: packages/mrml-python/dist
@@ -124,7 +124,7 @@ jobs:
           args: --out dist
           working-directory: packages/mrml-python
       - name: Upload sdist
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-sdist
           path: packages/mrml-python/dist
