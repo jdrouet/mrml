@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.0](https://github.com/jdrouet/mrml/compare/mrml-v5.1.0...mrml-v6.0.0) - 2025-12-29
+
+### Added
+
+- add CSS inlining support for mj-style with inline attribute ([#537](https://github.com/jdrouet/mrml/pull/537))
+
+### Other
+
+- fix `result.startswith` in Python usage demo ([#589](https://github.com/jdrouet/mrml/pull/589))
+- improve readme wording ([#571](https://github.com/jdrouet/mrml/pull/571))
+
 ## [5.1.0](https://github.com/jdrouet/mrml/compare/mrml-v5.0.0...mrml-v5.1.0) - 2025-11-16
 
 ### Added

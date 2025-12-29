@@ -1413,7 +1413,7 @@ dependencies = [
 
 [[package]]
 name = "mrml"
-version = "5.1.0"
+version = "6.0.0"
 dependencies = [
  "async-trait",
  "concat-idents",
@@ -1440,7 +1440,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-cli"
-version = "1.7.1"
+version = "1.7.2"
 dependencies = [
  "clap",
  "env_logger",
@@ -1452,7 +1452,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-python"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "mrml",
  "pyo3",
@@ -1460,7 +1460,7 @@ dependencies = [
 
 [[package]]
 name = "mrml-wasm"
-version = "1.5.1"
+version = "1.6.0"
 dependencies = [
  "console_error_panic_hook",
  "mrml",

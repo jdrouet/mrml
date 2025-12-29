@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.5.1...mrml-wasm-v1.6.0) - 2025-12-29
+
+### Added
+
+- add CSS inlining support for mj-style with inline attribute ([#537](https://github.com/jdrouet/mrml/pull/537))
+
 ## [1.5.1](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.5.0...mrml-wasm-v1.5.1) - 2025-11-16
 
 ### Fixed
