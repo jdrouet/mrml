@@ -268,12 +268,14 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         } else {
             self.set_background_style(tag)
         };
+        let has_border_radius = self.attribute_exists("border-radius");
         base.add_style("margin", "0px auto")
             .maybe_add_style("border-radius", self.attribute("border-radius"))
             .maybe_add_style(
                 "max-width",
                 self.container_width().as_ref().map(|item| item.to_string()),
             )
+            .maybe_add_style("overflow", has_border_radius.then_some("hidden"))
     }
 
     fn render_wrap<F>(&self, cursor: &mut RenderCursor, content: F) -> Result<(), Error>
@@ -364,13 +366,14 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         'root: 'a,
         'a: 't,
     {
+        let has_border_radius = self.attribute_exists("border-radius");
         let base = if self.is_full_width() {
             tag
         } else {
             self.set_background_style(tag)
         };
         base.add_style("width", "100%")
-            .maybe_add_style("border-radius", self.attribute("border-radius"))
+            .maybe_add_style("border-collapse", has_border_radius.then_some("separate"))
     }
 
     fn set_style_section_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -383,6 +386,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             .maybe_add_style("border-left", self.attribute("border-left"))
             .maybe_add_style("border-right", self.attribute("border-right"))
             .maybe_add_style("border-top", self.attribute("border-top"))
+            .maybe_add_style("border-radius", self.attribute("border-radius"))
             .maybe_add_style("direction", self.attribute("direction"))
             .add_style("font-size", "0px")
             .maybe_add_style("padding", self.attribute("padding"))
@@ -456,7 +460,8 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         } else {
             tag
         };
-        base.maybe_add_style("border-radius", self.attribute("border-radius"))
+        let has_border_radius = self.attribute_exists("border-radius");
+        base.maybe_add_style("border-collapse", has_border_radius.then_some("separate"))
             .add_style("width", "100%")
     }
 
