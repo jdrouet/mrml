@@ -166,7 +166,7 @@ impl SocialNetwork {
             share_url: if noshare {
                 None
             } else {
-                Some("https://twitter.com/home?status=[[URL]]")
+                Some("https://twitter.com/intent/tweet?url=[[URL]]")
             },
             icon: "twitter.png",
         }
@@ -178,7 +178,7 @@ impl SocialNetwork {
             share_url: if noshare {
                 None
             } else {
-                Some("https://twitter.com/home?status=[[URL]]")
+                Some("https://twitter.com/intent/tweet?url=[[URL]]")
             },
             icon: "twitter-x.png",
         }
