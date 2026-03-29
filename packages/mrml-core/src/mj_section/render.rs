@@ -226,7 +226,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
     {
         let full_width = self.is_full_width();
         let vrect = Tag::new("v:rect")
-            .maybe_add_attribute(
+            .maybe_add_style(
                 "mso-width-percent",
                 if full_width { Some("1000") } else { None },
             )
