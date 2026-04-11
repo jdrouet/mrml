@@ -60,7 +60,7 @@ enum-as-inner = { version = "0.7", optional = true }
 
 [dev-dependencies]
 concat-idents = "1.1"
-criterion = "0.5"
+criterion = "0.8"
 html-compare = { version = "0.1", path = "./lib/html-compare" }
 similar-asserts = { workspace = true }
 mockito = "1.5"
