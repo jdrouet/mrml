@@ -282,9 +282,7 @@ node scripts/update-resources.js
 
 This compiles every `.mjml` file in the comparison directories using the official mjml library, then applies cleanup transformations (ID normalization, whitespace normalization, rounding adjustments). The generated `.html` file is the expected output.
 
-**Manual adjustments.** Sometimes the generated HTML needs tweaking because the `pretty` formatter or ID normalization is too aggressive. Common cases:
-- User-specified `id` attributes in `mj-raw` content get normalized to `id="00000000"` -- restore the original value.
-- Self-closing non-void elements like `<v:fill ... />` may need to be changed to `<v:fill ...></v:fill>` to match what mrml renders.
+**Manual adjustments.** Sometimes the generated HTML needs tweaking because the `pretty` formatter introduces artifacts. Known cases are already handled in the script's `cleanup()` function, but new cases may need a manual fix or a new cleanup rule in the script.
 
 ### 3. Register the test
 

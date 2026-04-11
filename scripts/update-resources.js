@@ -10,9 +10,17 @@ const iterate = (list, callback) =>
 
 const cleanupIds = (content) => {
   console.log(`⌛️ doing some cleanup on ids`);
-  content = content
-    .replace(/for="([a-zA-Z0-9]+)"/g, 'for="00000000"')
-    .replace(/id="([a-zA-Z0-9]+)"/g, 'id="00000000"');
+  // Collect all generated IDs referenced by for attributes (these are mjml-generated
+  // for checkbox/label pairs in accordion, navbar, etc.)
+  const generatedIds = new Set();
+  for (const match of content.matchAll(/for="([a-zA-Z0-9]+)"/g)) {
+    generatedIds.add(match[1]);
+  }
+  // Only normalize IDs that are part of a generated for/id pair
+  for (const id of generatedIds) {
+    content = content.replaceAll(`for="${id}"`, 'for="00000000"');
+    content = content.replaceAll(`id="${id}"`, 'id="00000000"');
+  }
   let matches;
   while (
     (matches = /mj-carousel-([a-zA-Z0-9]{12,16})-([a-zA-Z0-9\-]+)/g.exec(content))
