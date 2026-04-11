@@ -22,7 +22,7 @@ where
                 .push_attribute(key.as_str(), value.as_deref())?;
         }
         if self.element.children.is_empty() {
-            if is_void_element(self.element.tag.as_str()) {
+            if is_void_element(self.element.tag.as_str()) || self.element.tag.contains(':') {
                 cursor.buffer.closed_tag();
             } else {
                 cursor.buffer.close_tag();
