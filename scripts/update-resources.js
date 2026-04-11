@@ -59,13 +59,24 @@ const cleanup = (content) => {
   );
 };
 
+const fixMjmlInput = (content) => {
+  // mjml 4.x has a camelCase bug: getMobileWidth checks
+  // getAttribute('mobileWidth') !== 'mobileWidth', but the XML parser keeps
+  // the value as-is ("mobile-width"). Rewrite to the camelCase form so that
+  // the pixel-to-percent code path actually triggers.
+  return content.replace(
+    /mobile-width="mobile-width"/g,
+    'mobileWidth="mobileWidth"',
+  );
+};
+
 const handleFile = (dir, fname) => {
   console.log(`👉 starting ${dir}/${fname}`);
   return fsp
     .readFile(`${dir}/${fname}.mjml`, { encoding: "utf8" })
     .then((content) => {
       console.log(`⌛️ converting ${dir}/${fname}.mjml`);
-      return mjml2html(content).html;
+      return mjml2html(fixMjmlInput(content)).html;
     })
     .then(pretty)
     .then(cleanupIds)

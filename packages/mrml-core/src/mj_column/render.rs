@@ -65,7 +65,7 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             } else if width.is_pixel() {
                 self.container_width
                     .as_ref()
-                    .map(|w| Size::percent(width.value() / w.value()))
+                    .map(|w| Size::percent(width.value() / w.value() * 100.0))
             } else {
                 None
             }
@@ -367,4 +367,5 @@ mod tests {
     crate::should_render!(width, "mj-column-width");
     // issues
     crate::should_render!(border_issue_466, "mj-column-border-issue-466");
+    crate::should_render!(mobile_width_pixel, "mj-column-mobile-width-pixel");
 }
