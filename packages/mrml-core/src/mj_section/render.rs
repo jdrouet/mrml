@@ -220,6 +220,14 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         self.attribute_exists("full-width")
     }
 
+    fn current_width(&self) -> Option<Pixel> {
+        self.container_width().as_ref().map(|width| {
+            let hborder = self.get_border_horizontal();
+            let hpadding = self.get_padding_horizontal();
+            Pixel::new(width.value() - hborder.value() - hpadding.value())
+        })
+    }
+
     fn render_with_background<F>(&self, cursor: &mut RenderCursor, content: F) -> Result<(), Error>
     where
         F: Fn(&mut RenderCursor) -> Result<(), Error>,
@@ -328,6 +336,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
     fn render_wrapped_children(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
         let siblings = self.get_siblings();
         let raw_siblings = self.get_raw_siblings();
+        let current_width = self.current_width();
         let tr = Tag::tr();
 
         tr.render_open(&mut cursor.buffer)?;
@@ -336,7 +345,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             let mut renderer = child.renderer(self.context());
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
-            renderer.set_container_width(*self.container_width());
+            renderer.set_container_width(current_width);
             if child.is_raw() {
                 renderer.render(cursor)?;
             } else {
