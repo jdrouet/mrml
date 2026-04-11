@@ -44,11 +44,11 @@ htmlparser = { workspace = true, optional = true }
 indexmap = { version = "2.6", default-features = false }
 rustc-hash = { version = "2.0", default-features = false }
 thiserror = { version = "2.0", optional = true }
-css-inline = { version = "0.18", default-features = false, optional = true }
+css-inline = { version = "0.20", default-features = false, optional = true }
 
 # http-loader feature related
-reqwest = { version = "0.12", default-features = false, features = [
-    "rustls-tls",
+reqwest = { version = "0.13", default-features = false, features = [
+    "rustls",
 ], optional = true }
 ureq = { version = "3.0", optional = true }
 url = { version = "2.5", optional = true }
@@ -56,11 +56,11 @@ url = { version = "2.5", optional = true }
 # macros
 itertools = { version = "0.14" }
 enum_dispatch = { version = "0.3", optional = true }
-enum-as-inner = { version = "0.6", optional = true }
+enum-as-inner = { version = "0.7", optional = true }
 
 [dev-dependencies]
 concat-idents = "1.1"
-criterion = "0.5"
+criterion = "0.8"
 html-compare = { version = "0.1", path = "./lib/html-compare" }
 similar-asserts = { workspace = true }
 mockito = "1.5"
