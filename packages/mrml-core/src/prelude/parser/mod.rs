@@ -140,6 +140,9 @@ pub struct MrmlCursor<'a> {
     buffer: Vec<MrmlToken<'a>>,
     origin: Origin,
     warnings: Vec<Warning>,
+    /// Byte offset to subtract from token positions when reporting warnings.
+    /// Used when content is wrapped in a synthetic root element for parsing.
+    source_offset: usize,
 }
 
 impl<'a> MrmlCursor<'a> {
@@ -149,6 +152,7 @@ impl<'a> MrmlCursor<'a> {
             buffer: Default::default(),
             origin: Origin::Root,
             warnings: Default::default(),
+            source_offset: 0,
         }
     }
 
@@ -164,7 +168,12 @@ impl<'a> MrmlCursor<'a> {
                 path: origin.into(),
             },
             warnings: Default::default(),
+            source_offset: 0,
         }
+    }
+
+    pub(crate) fn set_source_offset(&mut self, offset: usize) {
+        self.source_offset = offset;
     }
 
     pub(crate) fn origin(&self) -> Origin {

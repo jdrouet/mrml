@@ -27,6 +27,9 @@ use crate::prelude::parser::{
 };
 use crate::text::Text;
 
+const FRAGMENT_OPEN: &str = "<mrml-fragment>";
+const FRAGMENT_CLOSE: &str = "</mrml-fragment>";
+
 impl ParseElement<MjIncludeBodyChild> for MrmlParser<'_> {
     fn parse<'a>(
         &self,
@@ -289,10 +292,17 @@ impl ParseElement<MjIncludeBody> for MrmlParser<'_> {
                     position: tag.into(),
                     source,
                 })?;
+            // Wrap the loaded content in a synthetic root element so the
+            // XML tokenizer can handle content with multiple root elements.
+            let wrapped = format!("{FRAGMENT_OPEN}{child}{FRAGMENT_CLOSE}");
             match attributes.kind {
                 MjIncludeBodyKind::Html => {
-                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    sub.set_source_offset(FRAGMENT_OPEN.len());
+                    sub.assert_element_start()?;
+                    sub.assert_element_end()?;
                     let children: Vec<MjBodyChild> = self.parse_children(&mut sub)?;
+                    sub.assert_element_close()?;
                     cursor.with_warnings(sub.warnings());
                     vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
                         Default::default(),
@@ -300,8 +310,12 @@ impl ParseElement<MjIncludeBody> for MrmlParser<'_> {
                     ))]
                 }
                 MjIncludeBodyKind::Mjml => {
-                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    sub.set_source_offset(FRAGMENT_OPEN.len());
+                    sub.assert_element_start()?;
+                    sub.assert_element_end()?;
                     let children = self.parse_children(&mut sub)?;
+                    sub.assert_element_close()?;
                     cursor.with_warnings(sub.warnings());
                     children
                 }
@@ -340,18 +354,30 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
                     position: tag.into(),
                     source,
                 })?;
+            // Wrap the loaded content in a synthetic root element so the
+            // XML tokenizer can handle content with multiple root elements.
+            let wrapped = format!("{FRAGMENT_OPEN}{child}{FRAGMENT_CLOSE}");
             match attributes.kind {
                 MjIncludeBodyKind::Html => {
-                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    sub.set_source_offset(FRAGMENT_OPEN.len());
+                    sub.assert_element_start()?;
+                    sub.assert_element_end()?;
                     let children: Vec<MjBodyChild> = self.async_parse_children(&mut sub).await?;
+                    sub.assert_element_close()?;
+                    cursor.with_warnings(sub.warnings());
                     vec![MjIncludeBodyChild::MjWrapper(MjWrapper::new(
                         Default::default(),
                         children,
                     ))]
                 }
                 MjIncludeBodyKind::Mjml => {
-                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    sub.set_source_offset(FRAGMENT_OPEN.len());
+                    sub.assert_element_start()?;
+                    sub.assert_element_end()?;
                     let children = self.async_parse_children(&mut sub).await?;
+                    sub.assert_element_close()?;
                     cursor.with_warnings(sub.warnings());
                     children
                 }

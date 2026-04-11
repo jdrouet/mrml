@@ -17,6 +17,9 @@ use crate::prelude::parser::{
 };
 use crate::text::Text;
 
+const FRAGMENT_OPEN: &str = "<mrml-fragment>";
+const FRAGMENT_CLOSE: &str = "</mrml-fragment>";
+
 impl ParseElement<MjIncludeHeadChild> for MrmlParser<'_> {
     fn parse<'a>(
         &self,
@@ -234,6 +237,9 @@ impl ParseElement<MjIncludeHead> for MrmlParser<'_> {
                     source,
                 })?;
 
+            // Wrap the loaded content in a synthetic root element so the
+            // XML tokenizer can handle content with multiple root elements.
+            let wrapped = format!("{FRAGMENT_OPEN}{child}{FRAGMENT_CLOSE}");
             match attributes.kind {
                 MjIncludeHeadKind::Css { inline: false } => {
                     vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(
@@ -242,8 +248,12 @@ impl ParseElement<MjIncludeHead> for MrmlParser<'_> {
                 }
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => {
-                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    sub.set_source_offset(FRAGMENT_OPEN.len());
+                    sub.assert_element_start()?;
+                    sub.assert_element_end()?;
                     let children = self.parse_children(&mut sub)?;
+                    sub.assert_element_close()?;
                     cursor.with_warnings(sub.warnings());
                     children
                 }
@@ -282,6 +292,9 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
                     source,
                 })?;
 
+            // Wrap the loaded content in a synthetic root element so the
+            // XML tokenizer can handle content with multiple root elements.
+            let wrapped = format!("{FRAGMENT_OPEN}{child}{FRAGMENT_CLOSE}");
             match attributes.kind {
                 MjIncludeHeadKind::Css { inline: false } => {
                     vec![MjIncludeHeadChild::MjStyle(crate::mj_style::MjStyle::from(
@@ -290,8 +303,12 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
                 }
                 MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
                 MjIncludeHeadKind::Mjml => {
-                    let mut sub = cursor.new_child(&attributes.path, child.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    sub.set_source_offset(FRAGMENT_OPEN.len());
+                    sub.assert_element_start()?;
+                    sub.assert_element_end()?;
                     let children = self.async_parse_children(&mut sub).await?;
+                    sub.assert_element_close()?;
                     cursor.with_warnings(sub.warnings());
                     children
                 }
