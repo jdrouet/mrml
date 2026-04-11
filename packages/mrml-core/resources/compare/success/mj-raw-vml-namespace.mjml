@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-raw>
+      <!--[if mso]>
+      <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:128px;">
+        <v:fill type="frame" src="https://example.com/image.jpg" />
+      </v:rect>
+      <![endif]-->
+    </mj-raw>
+  </mj-body>
+</mjml>

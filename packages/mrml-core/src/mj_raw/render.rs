@@ -61,4 +61,5 @@ mod tests {
     crate::should_render!(basic, "mj-raw");
     crate::should_render!(in_head, "mj-raw-head");
     crate::should_render!(conditional_comment, "mj-raw-conditional-comment");
+    crate::should_render!(vml_namespace, "mj-raw-vml-namespace");
 }
