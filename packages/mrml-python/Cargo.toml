@@ -21,4 +21,4 @@ mrml = { version = "5.1.0", path = "../mrml-core", features = [
     "local-loader",
     "css-inline",
 ] }
-pyo3 = { version = "0.24", features = ["extension-module"] }
+pyo3 = { version = "0.27", features = ["extension-module"] }
