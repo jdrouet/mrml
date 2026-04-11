@@ -75,6 +75,61 @@ pub enum Error {
     },
 }
 
+impl Error {
+    /// Subtract `offset` from every byte-position embedded in this error.
+    /// Used to correct spans that were computed against a synthetic wrapper.
+    pub(crate) fn adjust_positions(self, offset: usize) -> Self {
+        if offset == 0 {
+            return self;
+        }
+        let adj = |s: Span| Span {
+            start: s.start.saturating_sub(offset),
+            end: s.end.saturating_sub(offset),
+        };
+        match self {
+            Self::UnexpectedElement { origin, position } => Self::UnexpectedElement {
+                origin,
+                position: adj(position),
+            },
+            Self::UnexpectedToken { origin, position } => Self::UnexpectedToken {
+                origin,
+                position: adj(position),
+            },
+            Self::MissingAttribute {
+                name,
+                origin,
+                position,
+            } => Self::MissingAttribute {
+                name,
+                origin,
+                position: adj(position),
+            },
+            Self::InvalidAttribute { origin, position } => Self::InvalidAttribute {
+                origin,
+                position: adj(position),
+            },
+            Self::InvalidFormat { origin, position } => Self::InvalidFormat {
+                origin,
+                position: adj(position),
+            },
+            Self::IncludeLoaderError {
+                origin,
+                position,
+                source,
+            } => Self::IncludeLoaderError {
+                origin,
+                position: adj(position),
+                source,
+            },
+            // Variants without byte positions are returned unchanged.
+            other @ (Self::EndOfStream { .. }
+            | Self::SizeLimit { .. }
+            | Self::ParserError { .. }
+            | Self::NoRootNode) => other,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct ParserOptions {
     pub include_loader: Box<dyn loader::IncludeLoader>,
@@ -140,6 +195,9 @@ pub struct MrmlCursor<'a> {
     buffer: Vec<MrmlToken<'a>>,
     origin: Origin,
     warnings: Vec<Warning>,
+    /// Byte offset to subtract from token positions when reporting warnings.
+    /// Used when content is wrapped in a synthetic root element for parsing.
+    source_offset: usize,
 }
 
 impl<'a> MrmlCursor<'a> {
@@ -149,6 +207,7 @@ impl<'a> MrmlCursor<'a> {
             buffer: Default::default(),
             origin: Origin::Root,
             warnings: Default::default(),
+            source_offset: 0,
         }
     }
 
@@ -164,7 +223,12 @@ impl<'a> MrmlCursor<'a> {
                 path: origin.into(),
             },
             warnings: Default::default(),
+            source_offset: 0,
         }
+    }
+
+    pub(crate) fn set_source_offset(&mut self, offset: usize) {
+        self.source_offset = offset;
     }
 
     pub(crate) fn origin(&self) -> Origin {

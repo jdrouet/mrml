@@ -46,7 +46,19 @@ impl super::MrmlCursor<'_> {
     }
 
     pub(crate) fn warnings(self) -> Vec<Warning> {
-        self.warnings
+        if self.source_offset > 0 {
+            let offset = self.source_offset;
+            self.warnings
+                .into_iter()
+                .map(|mut w| {
+                    w.span.start = w.span.start.saturating_sub(offset);
+                    w.span.end = w.span.end.saturating_sub(offset);
+                    w
+                })
+                .collect()
+        } else {
+            self.warnings
+        }
     }
 
     pub(crate) fn with_warnings(&mut self, others: Vec<Warning>) {
