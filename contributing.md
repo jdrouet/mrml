@@ -246,9 +246,84 @@ All workflows are in `.github/workflows/`. Key workflows:
 4. Add the component to parent component children enums (e.g., `MjBodyChild`)
 5. Add tests in the module or in `packages/mrml-core/tests/`
 
-## Fixing a Bug
+## Fixing a Rendering Bug
 
-1. Create a regression test file: `packages/mrml-core/tests/issue-<number>.rs`
+When mrml produces different HTML output than the official mjml library, the fix involves adding a comparison test, generating the expected output, and updating the Rust rendering code.
+
+### 1. Create the MJML test template
+
+Add a `.mjml` file in `packages/mrml-core/resources/compare/success/` that reproduces the issue:
+
+```bash
+# Example: packages/mrml-core/resources/compare/success/mj-text-custom-case.mjml
+cat > packages/mrml-core/resources/compare/success/mj-text-custom-case.mjml << 'EOF'
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Your test case here</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+EOF
+```
+
+### 2. Generate the expected HTML with mjml
+
+Run the transpilation script to generate the expected `.html` file from the official mjml npm package:
+
+```bash
+cd scripts
+npm install    # first time only
+cd ..
+node scripts/update-resources.js
+```
+
+This compiles every `.mjml` file in the comparison directories using the official mjml library, then applies cleanup transformations (ID normalization, whitespace normalization, rounding adjustments). The generated `.html` file is the expected output.
+
+**Manual adjustments.** Sometimes the generated HTML needs tweaking because the `pretty` formatter or ID normalization is too aggressive. Common cases:
+- User-specified `id` attributes in `mj-raw` content get normalized to `id="00000000"` -- restore the original value.
+- Self-closing non-void elements like `<v:fill ... />` may need to be changed to `<v:fill ...></v:fill>` to match what mrml renders.
+
+### 3. Register the test
+
+Add a `should_render!` macro invocation in the component's `render.rs` test module:
+
+```rust
+// In packages/mrml-core/src/mj_text/render.rs
+#[cfg(test)]
+mod tests {
+    crate::should_render!(custom_case, "mj-text-custom-case");
+}
+```
+
+The macro generates both sync and async tests that:
+1. Parse the `.mjml` template
+2. Render it to HTML
+3. Compare the result against the `.html` file using `html_compare::assert_similar`
+
+The comparison is smart -- it ignores whitespace differences, CSS property ordering, and class ordering.
+
+### 4. Run the failing test
+
+```bash
+cargo test -p mrml --all-features "custom_case_sync"
+```
+
+### 5. Fix the rendering code and verify
+
+Fix the Rust rendering code (typically in `src/mj_<component>/render.rs`), then run the full test suite:
+
+```bash
+cargo test -p mrml --all-features
+```
+
+### Regression tests for parsing bugs
+
+For bugs that aren't about rendering differences, create a standalone test file:
+
+1. Create `packages/mrml-core/tests/issue-<number>.rs`
 2. Write a failing test that reproduces the issue
 3. Fix the bug
 4. Verify the test passes
