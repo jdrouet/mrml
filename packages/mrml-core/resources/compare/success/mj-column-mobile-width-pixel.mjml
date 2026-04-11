@@ -1,0 +1,9 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column mobile-width="mobile-width" width="300px">
+        <mj-text>Column with pixel width and mobile-width</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
