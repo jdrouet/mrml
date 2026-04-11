@@ -123,6 +123,12 @@
         border-color: #cccccc !important;
       }
 
+      .mj-carousel-00000000-radio-1:checked+*+*+.mj-carousel-content .mj-carousel-00000000-thumbnail,
+      .mj-carousel-00000000-radio-2:checked+*+.mj-carousel-content .mj-carousel-00000000-thumbnail,
+      .mj-carousel-00000000-radio-3:checked+.mj-carousel-content .mj-carousel-00000000-thumbnail {
+        display: inline-block !important;
+      }
+
       .mj-carousel-image img+div,
       .mj-carousel-thumbnail img+div {
         display: none !important;
@@ -161,7 +167,8 @@
         display: none !important;
       }
 
-      @media screen, yahoo {
+      @media screen,
+      yahoo {
 
         .mj-carousel-00000000-icons-cell,
         .mj-carousel-previous-icons,
@@ -177,7 +184,7 @@
   </head>
 
   <body style="word-spacing:normal;">
-    <div lang="und" dir="auto">
+    <div aria-roledescription="email" role="article" lang="und" dir="auto">
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
       <div style="margin:0px auto;max-width:600px;">
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
