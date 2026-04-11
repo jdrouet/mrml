@@ -130,6 +130,10 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             .maybe_add_style("border-radius", self.attribute("inner-border-radius"))
             .maybe_add_style("border-right", self.attribute("inner-border-right"))
             .maybe_add_style("border-top", self.attribute("inner-border-top"))
+            .maybe_add_style(
+                "border-collapse",
+                self.attribute("inner-border-radius").map(|_| "separate"),
+            )
     }
 
     fn set_style_table_simple<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -145,6 +149,10 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
             .maybe_add_style("border-right", self.attribute("border-right"))
             .maybe_add_style("border-top", self.attribute("border-top"))
             .maybe_add_style("vertical-align", self.attribute("vertical-align"))
+            .maybe_add_style(
+                "border-collapse",
+                self.attribute("border-radius").map(|_| "separate"),
+            )
     }
 
     fn set_style_gutter_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -161,7 +169,14 @@ impl<'root> Renderer<'root, MjColumn, MjColumnExtra<'root>> {
     }
 
     fn render_gutter(&self, cursor: &mut RenderCursor) -> Result<(), Error> {
-        let table = Tag::table_presentation().add_attribute("width", "100%");
+        let table = Tag::table_presentation()
+            .add_attribute("width", "100%")
+            .maybe_add_style(
+                "border-collapse",
+                self.attribute("border-radius")
+                    .or(self.attribute("inner-border-radius"))
+                    .map(|_| "separate"),
+            );
         let tbody = Tag::tbody();
         let tr = Tag::tr();
         let td = self.set_style_gutter_td(Tag::td());

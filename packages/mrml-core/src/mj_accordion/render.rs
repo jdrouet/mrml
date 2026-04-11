@@ -2,8 +2,9 @@ use super::{MjAccordion, MjAccordionChild, NAME};
 use crate::helper::size::{Pixel, Size};
 use crate::prelude::render::*;
 
-const CHILDREN_ATTRIBUTES: [&str; 9] = [
+const CHILDREN_ATTRIBUTES: [&str; 10] = [
     "border",
+    "font-family",
     "icon-align",
     "icon-width",
     "icon-height",

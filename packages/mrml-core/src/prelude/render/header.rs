@@ -92,6 +92,7 @@ pub(crate) struct Header<'h> {
     breakpoint: Pixel,
     font_families: Map<&'h str, &'h str>,
     preview: Option<String>,
+    title: Option<String>,
     lang: &'h str,
     dir: &'h str,
 }
@@ -121,6 +122,9 @@ impl<'h> Header<'h> {
                 .map(|h| h.build_font_families())
                 .unwrap_or_default(),
             preview: head.and_then(|h| h.preview().map(|t| t.content())),
+            title: head
+                .and_then(|h| h.title())
+                .map(|t| t.content().to_string()),
             lang,
             dir,
         }
@@ -162,5 +166,9 @@ impl<'h> Header<'h> {
 
     pub fn preview(&self) -> Option<&str> {
         self.preview.as_deref()
+    }
+
+    pub fn title(&self) -> Option<&str> {
+        self.title.as_deref()
     }
 }

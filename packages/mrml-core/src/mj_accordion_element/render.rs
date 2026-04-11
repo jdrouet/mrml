@@ -4,8 +4,9 @@ use crate::mj_accordion_title::MjAccordionTitle;
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
-const CHILDREN_ATTRIBUTES: [&str; 9] = [
+const CHILDREN_ATTRIBUTES: [&str; 10] = [
     "border",
+    "font-family",
     "icon-align",
     "icon-width",
     "icon-height",
@@ -96,7 +97,7 @@ impl<'root> Render<'root> for Renderer<'root, MjAccordionElement, MjAccordionEle
         let label = Tag::new("label")
             .add_class("mj-accordion-element")
             .add_style("font-size", "13px")
-            .maybe_add_style("font-family", self.attribute("font-family"));
+            .maybe_add_style("font-family", self.raw_attribute("font-family"));
         let td = Tag::td()
             .add_style("padding", "0px")
             .maybe_add_style("background-color", self.attribute("background-color"));

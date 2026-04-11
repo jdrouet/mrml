@@ -345,6 +345,17 @@ impl<'root> Renderer<'root, MjCarousel, MjCarouselExtra> {
             ))
             .to_string(),
         );
+        let base = (0..length).fold(Style::default(), |res, idx| {
+            let ext = repeat(length - idx - 1, "+ * ");
+            res.add_selector(format!(
+                ".mj-carousel-{}-radio-{}:checked {}+ .mj-carousel-content .mj-carousel-{}-thumbnail",
+                self.extra.id, idx + 1, ext, self.extra.id
+            ))
+        });
+        style.push(
+            base.add_content("display: inline-block !important;")
+                .to_string(),
+        );
         style.push(
             Style::default()
                 .add_selector(".mj-carousel-image img + div")

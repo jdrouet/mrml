@@ -117,6 +117,7 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
     {
         tag.add_style("vertical-align", "middle")
             .maybe_add_style("padding", self.attribute("text-padding"))
+            .maybe_add_style("text-align", self.attribute("align"))
     }
 
     fn set_style_text<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -164,12 +165,6 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
             .set_style_img(Tag::new("img"))
             .maybe_add_attribute("alt", self.attribute("alt"))
             .maybe_add_attribute("title", self.attribute("title"))
-            .maybe_add_attribute(
-                "height",
-                self.get_icon_height()
-                    .or_else(|| self.get_icon_size())
-                    .map(|size| size.value().to_string()),
-            )
             .maybe_add_attribute("src", self.get_icon_src())
             .maybe_add_attribute(
                 "width",

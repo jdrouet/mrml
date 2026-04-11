@@ -18,6 +18,12 @@ impl<'root> Renderer<'root, MjTable, ()> {
             .maybe_add_style("table-layout", self.attribute("table-layout"))
             .maybe_add_style("width", self.attribute("width"))
             .maybe_add_style("border", self.attribute("border"))
+            .maybe_add_style(
+                "border-collapse",
+                self.attribute("border")
+                    .filter(|v| *v != "none")
+                    .map(|_| "separate"),
+            )
     }
 }
 
