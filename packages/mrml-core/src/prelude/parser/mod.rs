@@ -75,6 +75,61 @@ pub enum Error {
     },
 }
 
+impl Error {
+    /// Subtract `offset` from every byte-position embedded in this error.
+    /// Used to correct spans that were computed against a synthetic wrapper.
+    pub(crate) fn adjust_positions(self, offset: usize) -> Self {
+        if offset == 0 {
+            return self;
+        }
+        let adj = |s: Span| Span {
+            start: s.start.saturating_sub(offset),
+            end: s.end.saturating_sub(offset),
+        };
+        match self {
+            Self::UnexpectedElement { origin, position } => Self::UnexpectedElement {
+                origin,
+                position: adj(position),
+            },
+            Self::UnexpectedToken { origin, position } => Self::UnexpectedToken {
+                origin,
+                position: adj(position),
+            },
+            Self::MissingAttribute {
+                name,
+                origin,
+                position,
+            } => Self::MissingAttribute {
+                name,
+                origin,
+                position: adj(position),
+            },
+            Self::InvalidAttribute { origin, position } => Self::InvalidAttribute {
+                origin,
+                position: adj(position),
+            },
+            Self::InvalidFormat { origin, position } => Self::InvalidFormat {
+                origin,
+                position: adj(position),
+            },
+            Self::IncludeLoaderError {
+                origin,
+                position,
+                source,
+            } => Self::IncludeLoaderError {
+                origin,
+                position: adj(position),
+                source,
+            },
+            // Variants without byte positions are returned unchanged.
+            other @ (Self::EndOfStream { .. }
+            | Self::SizeLimit { .. }
+            | Self::ParserError { .. }
+            | Self::NoRootNode) => other,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct ParserOptions {
     pub include_loader: Box<dyn loader::IncludeLoader>,
