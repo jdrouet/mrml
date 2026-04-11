@@ -145,11 +145,20 @@ impl MrmlToken<'_> {
 
 #[derive(Debug)]
 pub(crate) struct Attribute<'a> {
-    #[allow(unused)]
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
     pub value: Option<StrSpan<'a>>,
     pub span: StrSpan<'a>,
+}
+
+impl Attribute<'_> {
+    pub fn qualified_name(&self) -> String {
+        if self.prefix.is_empty() {
+            self.local.to_string()
+        } else {
+            format!("{}:{}", self.prefix, self.local)
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -178,10 +187,19 @@ pub(crate) struct ElementClose<'a> {
 
 #[derive(Debug)]
 pub(crate) struct ElementStart<'a> {
-    #[allow(unused)]
     pub prefix: StrSpan<'a>,
     pub local: StrSpan<'a>,
     pub span: StrSpan<'a>,
+}
+
+impl ElementStart<'_> {
+    pub fn qualified_name(&self) -> String {
+        if self.prefix.is_empty() {
+            self.local.to_string()
+        } else {
+            format!("{}:{}", self.prefix, self.local)
+        }
+    }
 }
 
 #[derive(Debug)]

@@ -331,7 +331,7 @@ pub(crate) fn parse_attributes_map(
     let mut result = Map::new();
     while let Some(attr) = cursor.next_attribute()? {
         result.insert(
-            attr.local.to_string(),
+            attr.qualified_name(),
             attr.value.map(|inner| inner.to_string()),
         );
     }
