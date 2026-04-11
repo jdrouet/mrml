@@ -1,0 +1,16 @@
+<mjml>
+  <mj-body>
+    <mj-wrapper>
+      <mj-section full-width="full-width" background-url="https://example.com/image.jpg" background-size="cover" background-repeat="no-repeat">
+        <mj-column>
+          <mj-text>Hero section</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#ffffff">
+        <mj-column>
+          <mj-text>Regular section</mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>

@@ -114,4 +114,8 @@ mod tests {
     crate::should_render!(border, "mj-wrapper-border");
     crate::should_render!(other, "mj-wrapper-other");
     crate::should_render!(padding, "mj-wrapper-padding");
+    crate::should_render!(
+        full_width_section_background,
+        "mj-wrapper-full-width-section-background"
+    );
 }

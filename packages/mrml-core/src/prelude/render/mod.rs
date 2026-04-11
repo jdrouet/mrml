@@ -125,12 +125,14 @@ pub(crate) trait Render<'root> {
     }
 
     fn get_border_left(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("border-left")
+        self.attribute("border-left")
+            .and_then(Pixel::from_border)
             .or_else(|| self.attribute("border").and_then(Pixel::from_border))
     }
 
     fn get_border_right(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("border-right")
+        self.attribute("border-right")
+            .and_then(Pixel::from_border)
             .or_else(|| self.attribute("border").and_then(Pixel::from_border))
     }
 
