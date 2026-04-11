@@ -142,6 +142,7 @@ impl<'root> Renderer<'root, MjHero, ()> {
             renderer.set_index(index);
             renderer.set_siblings(siblings);
             renderer.set_raw_siblings(raw_siblings);
+            renderer.set_container_width(self.container_width);
             if child.is_raw() {
                 renderer.render(cursor)?;
             } else {
@@ -382,4 +383,5 @@ mod tests {
     crate::should_render!(mode, "mj-hero-mode");
     crate::should_render!(vertical_align, "mj-hero-vertical-align");
     crate::should_render!(width, "mj-hero-width");
+    crate::should_render!(divider, "mj-hero-divider");
 }
