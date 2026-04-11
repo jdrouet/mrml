@@ -217,4 +217,5 @@ mod tests {
     crate::should_render!(mode, "mj-social-mode");
     crate::should_render!(padding, "mj-social-padding");
     crate::should_render!(text, "mj-social-text");
+    crate::should_render!(share_url, "mj-social-share-url");
 }
