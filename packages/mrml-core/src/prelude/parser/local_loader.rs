@@ -103,7 +103,7 @@ mod tests {
 
     impl LocalIncludeLoader {
         fn current_dir() -> Self {
-            Self::new(PathBuf::from(std::env::var("PWD").unwrap()))
+            Self::new(PathBuf::from(env!("CARGO_MANIFEST_DIR")))
         }
     }
 
