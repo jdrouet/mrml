@@ -1,0 +1,49 @@
+name: resources check
+
+on:
+  merge_group:
+    types: [checks_requested]
+  pull_request:
+    paths:
+      - ".github/workflows/resources-check.yml"
+      - "scripts/**"
+      - "packages/mrml-core/resources/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/resources-check.yml"
+      - "scripts/**"
+      - "packages/mrml-core/resources/**"
+
+jobs:
+  resources-check:
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: ${{ github.ref }}-resources-check
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: install dependencies
+        run: npm ci
+        working-directory: scripts
+
+      - name: regenerate html resources
+        run: node scripts/update-resources.js
+
+      - name: check for diff
+        run: |
+          if [ -n "$(git diff --name-only)" ]; then
+            echo "::error::HTML resources are out of date. Run 'node scripts/update-resources.js' and commit the changes."
+            git diff --stat
+            exit 1
+          fi
