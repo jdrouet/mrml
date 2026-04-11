@@ -12,19 +12,19 @@ use mrml::prelude::parser::noop_loader::NoopIncludeLoader;
 use pyo3::exceptions::PyIOError;
 use pyo3::prelude::*;
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug, Default)]
 pub struct NoopIncludeLoaderOptions;
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug, Default)]
 pub struct MemoryIncludeLoaderOptions(HashMap<String, String>);
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug, Default)]
 pub struct LocalIncludeLoaderOptions(PathBuf);
 
-#[pyclass(frozen, eq, eq_int)]
+#[pyclass(frozen, from_py_object, eq, eq_int)]
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub enum HttpIncludeLoaderOptionsMode {
     #[default]
@@ -32,14 +32,14 @@ pub enum HttpIncludeLoaderOptionsMode {
     Deny,
 }
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug, Default)]
 pub struct HttpIncludeLoaderOptions {
     mode: HttpIncludeLoaderOptionsMode,
     list: HashSet<String>,
 }
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug)]
 pub enum ParserIncludeLoaderOptions {
     Noop(NoopIncludeLoaderOptions),
@@ -116,7 +116,7 @@ pub fn http_loader(
     })
 }
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug, Default)]
 pub struct ParserOptions {
     #[pyo3(get)]
@@ -141,7 +141,7 @@ impl From<ParserOptions> for mrml::prelude::parser::ParserOptions {
     }
 }
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug, Default)]
 pub struct RenderOptions {
     #[pyo3(get)]
@@ -188,7 +188,7 @@ impl From<RenderOptions> for mrml::prelude::render::RenderOptions {
     }
 }
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug, Default)]
 pub struct Warning {
     #[pyo3(get)]
@@ -221,7 +221,7 @@ impl From<mrml::prelude::parser::Warning> for Warning {
     }
 }
 
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 #[derive(Clone, Debug, Default)]
 pub struct Output {
     #[pyo3(get)]
