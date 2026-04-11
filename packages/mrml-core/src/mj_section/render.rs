@@ -269,10 +269,14 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             self.set_background_style(tag)
         };
         base.add_style("margin", "0px auto")
-            .maybe_add_style("border-radius", self.attribute("border-radius"))
             .maybe_add_style(
                 "max-width",
                 self.container_width().as_ref().map(|item| item.to_string()),
+            )
+            .maybe_add_style("border-radius", self.attribute("border-radius"))
+            .maybe_add_style(
+                "overflow",
+                self.attribute("border-radius").map(|_| "hidden"),
             )
     }
 
@@ -369,8 +373,10 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         } else {
             self.set_background_style(tag)
         };
-        base.add_style("width", "100%")
-            .maybe_add_style("border-radius", self.attribute("border-radius"))
+        base.add_style("width", "100%").maybe_add_style(
+            "border-collapse",
+            self.attribute("border-radius").map(|_| "separate"),
+        )
     }
 
     fn set_style_section_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -383,6 +389,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
             .maybe_add_style("border-left", self.attribute("border-left"))
             .maybe_add_style("border-right", self.attribute("border-right"))
             .maybe_add_style("border-top", self.attribute("border-top"))
+            .maybe_add_style("border-radius", self.attribute("border-radius"))
             .maybe_add_style("direction", self.attribute("direction"))
             .add_style("font-size", "0px")
             .maybe_add_style("padding", self.attribute("padding"))

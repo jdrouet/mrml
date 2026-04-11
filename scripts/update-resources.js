@@ -15,7 +15,7 @@ const cleanupIds = (content) => {
     .replace(/id="([a-zA-Z0-9]+)"/g, 'id="00000000"');
   let matches;
   while (
-    (matches = /mj-carousel-([a-zA-Z0-9]{12})-([a-zA-Z0-9\-]+)/g.exec(content))
+    (matches = /mj-carousel-([a-zA-Z0-9]{12,16})-([a-zA-Z0-9\-]+)/g.exec(content))
   ) {
     const carouselId = matches[1];
     const extension = matches[2];
@@ -44,6 +44,10 @@ const cleanup = (content) => {
       // percentages that are rounded in rust
       .replace(/33\.333333333333336/gm, "33.333332")
       .replace(/33-333333333333336/gm, "33-333332")
+      // pretty formatter mangles @media screen, yahoo
+      .replace(/@media screen yahoo/gm, "@media screen, yahoo")
+      // pretty formatter self-closes non-void elements like canvas
+      .replace(/<canvas\s*\/>/gim, "<canvas></canvas>")
   );
 };
 

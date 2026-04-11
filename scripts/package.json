@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mjml": "^4.15.3",
+    "mjml": "^4.18.0",
     "pretty": "^2.0.0"
   }
 }
