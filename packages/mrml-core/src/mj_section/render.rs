@@ -373,11 +373,10 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         } else {
             self.set_background_style(tag)
         };
-        base.add_style("width", "100%")
-            .maybe_add_style(
-                "border-collapse",
-                self.attribute("border-radius").map(|_| "separate"),
-            )
+        base.add_style("width", "100%").maybe_add_style(
+            "border-collapse",
+            self.attribute("border-radius").map(|_| "separate"),
+        )
     }
 
     fn set_style_section_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
