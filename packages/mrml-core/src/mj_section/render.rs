@@ -489,6 +489,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
         td.render_open(&mut cursor.buffer)?;
         //
         if self.has_background() {
+            cursor.buffer.start_conditional_tag();
             self.render_with_background(cursor, |cursor| {
                 self.render_wrap(cursor, |cursor| {
                     cursor.buffer.end_conditional_tag();
@@ -497,6 +498,7 @@ pub trait SectionLikeRender<'root>: WithMjSectionBackground<'root> {
                     Ok(())
                 })
             })?;
+            cursor.buffer.end_conditional_tag();
         } else {
             self.render_wrap(cursor, |cursor| {
                 cursor.buffer.end_conditional_tag();
@@ -609,6 +611,10 @@ mod tests {
     crate::should_render!(class, "mj-section-class");
     crate::should_render!(direction, "mj-section-direction");
     crate::should_render!(full_width, "mj-section-full-width");
+    crate::should_render!(
+        full_width_background_url,
+        "mj-section-full-width-background-url"
+    );
     crate::should_render!(padding, "mj-section-padding");
     crate::should_render!(text_align, "mj-section-text-align");
 }
