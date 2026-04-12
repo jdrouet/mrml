@@ -69,7 +69,7 @@ jobs:
       - name: parsing release-plz-output
         id: values
         run: |
-          json_output=${{ needs.release-plz-release.oututs.releases }}
+          json_output=${{ needs.release-plz-release.outputs.releases }}
           mrml_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml")] | map(.tag) | first')
           mrml_cli_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-cli")] | map(.tag) | first')
           mrml_python_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-python")] | map(.tag) | first')
