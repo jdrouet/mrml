@@ -2,7 +2,7 @@
 name = "mrml-python"
 description = "Python wrapping on MRML"
 keywords = ["email", "mjml"]
-version = "0.2.2"
+version = "0.2.3"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
