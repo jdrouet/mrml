@@ -3,12 +3,16 @@ use htmlparser::StrSpan;
 use super::{Mjml, MjmlAttributes, MjmlChildren};
 use crate::mj_body::NAME as MJ_BODY;
 use crate::mj_head::NAME as MJ_HEAD;
+use crate::mj_include::NAME as MJ_INCLUDE;
 #[cfg(feature = "async")]
 use crate::prelude::parser::{AsyncMrmlParser, AsyncParseChildren, AsyncParseElement};
 use crate::prelude::parser::{
     Error, MrmlCursor, MrmlParser, MrmlToken, ParseAttributes, ParseChildren, ParseElement,
     ParseOutput, ParserOptions, WarningKind,
 };
+
+const WRAPPER_OPEN: &str = "<mjml>";
+const WRAPPER_CLOSE: &str = "</mjml>";
 
 #[inline(always)]
 fn parse_attributes(cursor: &mut MrmlCursor<'_>) -> Result<MjmlAttributes, Error> {
@@ -34,6 +38,33 @@ impl ParseAttributes<MjmlAttributes> for MrmlParser<'_> {
     }
 }
 
+fn parse_include_path(
+    cursor: &mut MrmlCursor<'_>,
+    tag_span: &htmlparser::StrSpan<'_>,
+) -> Result<String, Error> {
+    let mut path = None;
+    while let Some(attr) = cursor.next_attribute()? {
+        match attr.local.as_str() {
+            "path" => path = attr.value.map(|v| v.to_string()),
+            _ => cursor.add_warning(WarningKind::UnexpectedAttribute, attr.span),
+        }
+    }
+    path.ok_or_else(|| Error::MissingAttribute {
+        name: "path",
+        origin: cursor.origin(),
+        position: tag_span.into(),
+    })
+}
+
+fn merge_include_children(children: &mut MjmlChildren, included: MjmlChildren) {
+    if let Some(head) = included.head {
+        children.head = Some(head);
+    }
+    if let Some(body) = included.body {
+        children.body = Some(body);
+    }
+}
+
 impl ParseChildren<MjmlChildren> for MrmlParser<'_> {
     fn parse_children(&self, cursor: &mut MrmlCursor<'_>) -> Result<MjmlChildren, Error> {
         let mut children = MjmlChildren::default();
@@ -56,6 +87,34 @@ impl ParseChildren<MjmlChildren> for MrmlParser<'_> {
                     }
                     MJ_BODY => {
                         children.body = Some(self.parse(cursor, start.local)?);
+                    }
+                    MJ_INCLUDE => {
+                        let path = parse_include_path(cursor, &start.local)?;
+                        let ending = cursor.assert_element_end()?;
+                        if !ending.empty {
+                            cursor.assert_element_close()?;
+                        }
+                        let content =
+                            self.options
+                                .include_loader
+                                .resolve(&path)
+                                .map_err(|source| Error::IncludeLoaderError {
+                                    origin: cursor.origin(),
+                                    position: start.span.into(),
+                                    source,
+                                })?;
+                        let wrapped = format!("{WRAPPER_OPEN}{content}{WRAPPER_CLOSE}");
+                        let offset = WRAPPER_OPEN.len();
+                        let with_position = |err: Error| err.adjust_positions(offset);
+                        let mut sub = cursor.new_child(&path, wrapped.as_str());
+                        sub.set_source_offset(offset);
+                        sub.assert_element_start().map_err(&with_position)?;
+                        sub.assert_element_end().map_err(&with_position)?;
+                        let included: MjmlChildren =
+                            self.parse_children(&mut sub).map_err(&with_position)?;
+                        sub.assert_element_close().map_err(&with_position)?;
+                        cursor.with_warnings(sub.warnings());
+                        merge_include_children(&mut children, included);
                     }
                     _ => {
                         return Err(Error::UnexpectedElement {
@@ -102,12 +161,49 @@ impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
                     cursor.rewind(MrmlToken::ElementClose(close));
                     return Ok(children);
                 }
+                MrmlToken::Text(inner) if inner.text.trim().is_empty() => {
+                    // ignoring empty text
+                }
+                MrmlToken::Comment(_) => {
+                    // ignoring comment on purpose
+                }
                 MrmlToken::ElementStart(start) => match start.local.as_str() {
                     MJ_HEAD => {
                         children.head = Some(self.async_parse(cursor, start.local).await?);
                     }
                     MJ_BODY => {
                         children.body = Some(self.async_parse(cursor, start.local).await?);
+                    }
+                    MJ_INCLUDE => {
+                        let path = parse_include_path(cursor, &start.local)?;
+                        let ending = cursor.assert_element_end()?;
+                        if !ending.empty {
+                            cursor.assert_element_close()?;
+                        }
+                        let content = self
+                            .options
+                            .include_loader
+                            .async_resolve(&path)
+                            .await
+                            .map_err(|source| Error::IncludeLoaderError {
+                                origin: cursor.origin(),
+                                position: start.span.into(),
+                                source,
+                            })?;
+                        let wrapped = format!("{WRAPPER_OPEN}{content}{WRAPPER_CLOSE}");
+                        let offset = WRAPPER_OPEN.len();
+                        let with_position = |err: Error| err.adjust_positions(offset);
+                        let mut sub = cursor.new_child(&path, wrapped.as_str());
+                        sub.set_source_offset(offset);
+                        sub.assert_element_start().map_err(&with_position)?;
+                        sub.assert_element_end().map_err(&with_position)?;
+                        let included: MjmlChildren = self
+                            .async_parse_children(&mut sub)
+                            .await
+                            .map_err(&with_position)?;
+                        sub.assert_element_close().map_err(&with_position)?;
+                        cursor.with_warnings(sub.warnings());
+                        merge_include_children(&mut children, included);
                     }
                     _ => {
                         return Err(Error::UnexpectedElement {
