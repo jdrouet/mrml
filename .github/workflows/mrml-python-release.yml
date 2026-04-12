@@ -182,6 +182,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: packages/mrml-python/dist/
+          skip-existing: true
 
   notify:
     runs-on: ubuntu-latest
