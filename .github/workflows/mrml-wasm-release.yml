@@ -73,8 +73,6 @@ jobs:
       - name: publish release
         if: inputs.publish
         run: cd pkg && npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   notify:
     runs-on: ubuntu-latest
