@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.5.1...mrml-wasm-v1.6.0) - 2026-04-12
+
+### Added
+
+- add CSS inlining support for mj-style with inline attribute ([#537](https://github.com/jdrouet/mrml/pull/537))
+
+### Fixed
+
+- *(mrml-core)* multiply pixel-to-percent mobile width by 100 ([#628](https://github.com/jdrouet/mrml/pull/628))
+
+### Other
+
+- update js deps ([#626](https://github.com/jdrouet/mrml/pull/626))
+- update html resources ([#621](https://github.com/jdrouet/mrml/pull/621))
+
 ## [1.5.1](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.5.0...mrml-wasm-v1.5.1) - 2025-11-16
 
 ### Fixed
