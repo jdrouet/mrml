@@ -6,6 +6,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.0](https://github.com/jdrouet/mrml/compare/mrml-v5.1.0...mrml-v6.0.0) - 2026-04-12
+
+### Added
+
+- add CSS inlining support for mj-style with inline attribute ([#537](https://github.com/jdrouet/mrml/pull/537))
+
+### Fixed
+
+- *(mrml-core)* allow mj-include directly inside mjml ([#633](https://github.com/jdrouet/mrml/pull/633))
+- *(mrml-core)* resolve mj-include inside mj-attributes ([#632](https://github.com/jdrouet/mrml/pull/632))
+- mj-include with multiple roots ([#631](https://github.com/jdrouet/mrml/pull/631))
+- *(mrml-core)* propagate section inner width to column children ([#630](https://github.com/jdrouet/mrml/pull/630))
+- *(mrml-core)* propagate container width to mj-hero children ([#629](https://github.com/jdrouet/mrml/pull/629))
+- *(mrml-core)* multiply pixel-to-percent mobile width by 100 ([#628](https://github.com/jdrouet/mrml/pull/628))
+- twitter share url ([#624](https://github.com/jdrouet/mrml/pull/624))
+- vml mso width style ([#623](https://github.com/jdrouet/mrml/pull/623))
+- *(mrml-core)* preserve VML namespace prefixes in parsed elements ([#622](https://github.com/jdrouet/mrml/pull/622))
+
+### Other
+
+- *(deps)* update Rust dependencies ([#625](https://github.com/jdrouet/mrml/pull/625))
+- update html resources ([#621](https://github.com/jdrouet/mrml/pull/621))
+- fix `result.startswith` in Python usage demo ([#589](https://github.com/jdrouet/mrml/pull/589))
+- improve readme wording ([#571](https://github.com/jdrouet/mrml/pull/571))
+
 ## [5.1.0](https://github.com/jdrouet/mrml/compare/mrml-v5.0.0...mrml-v5.1.0) - 2025-11-16
 
 ### Added

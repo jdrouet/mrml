@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/jdrouet/mrml/compare/mrml-python-v0.2.1...mrml-python-v0.2.2) - 2026-04-12
+
+### Added
+
+- add CSS inlining support for mj-style with inline attribute ([#537](https://github.com/jdrouet/mrml/pull/537))
+
+### Fixed
+
+- fix python package to build with python 3.14 ([#596](https://github.com/jdrouet/mrml/pull/596))
+
+### Other
+
+- *(deps)* update Rust dependencies ([#625](https://github.com/jdrouet/mrml/pull/625))
+
 ## [0.2.1](https://github.com/jdrouet/mrml/compare/mrml-python-v0.2.0...mrml-python-v0.2.1) - 2025-11-16
 
 ### Added
