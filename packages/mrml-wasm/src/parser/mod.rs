@@ -225,6 +225,7 @@ impl From<mrml::prelude::parser::Span> for Span {
 #[tsify(into_wasm_abi)]
 pub enum WarningKind {
     UnexpectedAttributes,
+    DuplicateAttribute,
     InlineStyleUnsupported,
 }
 
@@ -232,6 +233,7 @@ impl From<mrml::prelude::parser::WarningKind> for WarningKind {
     fn from(value: mrml::prelude::parser::WarningKind) -> Self {
         match value {
             mrml::prelude::parser::WarningKind::UnexpectedAttribute => Self::UnexpectedAttributes,
+            mrml::prelude::parser::WarningKind::DuplicateAttribute => Self::DuplicateAttribute,
             mrml::prelude::parser::WarningKind::InlineStyleUnsupported => {
                 Self::InlineStyleUnsupported
             }
