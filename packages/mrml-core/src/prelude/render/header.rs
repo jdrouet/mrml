@@ -5,6 +5,90 @@ use crate::helper::size::{Pixel, Size};
 use crate::mj_head::MjHead;
 use crate::prelude::hash::{Map, Set};
 
+pub(crate) fn parse_font_families(value: &str) -> Vec<&str> {
+    let mut in_quote: Option<char> = None;
+    value
+        .split(|c: char| match (in_quote, c) {
+            (None, ',') => true,
+            (None, '\'' | '"') => {
+                in_quote = Some(c);
+                false
+            }
+            (Some(q), c) if q == c => {
+                in_quote = None;
+                false
+            }
+            _ => false,
+        })
+        .map(str::trim)
+        .map(unwrap_quotes)
+        .filter(|token| !token.is_empty())
+        .collect()
+}
+
+fn unwrap_quotes(token: &str) -> &str {
+    for quote in ['\'', '"'] {
+        if let Some(inner) = token
+            .strip_prefix(quote)
+            .and_then(|s| s.strip_suffix(quote))
+        {
+            return inner;
+        }
+    }
+    token
+}
+
+#[cfg(test)]
+mod parse_font_families_tests {
+    use super::parse_font_families;
+
+    #[test]
+    fn unquoted_comma_separated_list() {
+        assert_eq!(
+            parse_font_families("Roboto, Arial, sans-serif"),
+            vec!["Roboto", "Arial", "sans-serif"]
+        );
+    }
+
+    #[test]
+    fn single_quoted_name_containing_comma_is_one_token() {
+        assert_eq!(
+            parse_font_families("'Open, Sans', Ubuntu, sans-serif"),
+            vec!["Open, Sans", "Ubuntu", "sans-serif"]
+        );
+    }
+
+    #[test]
+    fn double_quoted_name_containing_comma_is_one_token() {
+        assert_eq!(
+            parse_font_families("\"Open, Sans\", Ubuntu"),
+            vec!["Open, Sans", "Ubuntu"]
+        );
+    }
+
+    #[test]
+    fn single_quotes_are_stripped_from_names_without_commas() {
+        assert_eq!(
+            parse_font_families("'Source Sans 3', Helvetica, Arial, sans-serif"),
+            vec!["Source Sans 3", "Helvetica", "Arial", "sans-serif"]
+        );
+    }
+
+    #[test]
+    fn empty_tokens_are_filtered() {
+        assert_eq!(
+            parse_font_families("Roboto, , Arial"),
+            vec!["Roboto", "Arial"]
+        );
+    }
+
+    #[test]
+    fn empty_input_yields_no_tokens() {
+        assert!(parse_font_families("").is_empty());
+        assert!(parse_font_families("   ").is_empty());
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct VariableHeader {
     used_font_families: Set<String>,
@@ -36,12 +120,7 @@ impl VariableHeader {
     }
 
     pub fn add_font_families<T: AsRef<str>>(&mut self, value: T) {
-        for name in value
-            .as_ref()
-            .split(',')
-            .map(|item| item.trim())
-            .filter(|item| !item.is_empty())
-        {
+        for name in parse_font_families(value.as_ref()) {
             self.add_used_font_family(name);
         }
     }
