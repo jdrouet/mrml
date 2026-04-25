@@ -21,3 +21,27 @@ fn should_have_a_single_roboto_font_imported() {
     let rendered = parsed.element.render(&RenderOptions::default()).unwrap();
     assert!(!rendered.contains("Roboto:300,400,500,700"));
 }
+
+#[test]
+fn quoted_font_family_value_still_imports_matching_font() {
+    let parsed = mrml::parse(
+        r#"<mjml>
+  <mj-head>
+    <mj-font name="Source Sans 3" href="https://fonts.googleapis.com/css?family=Source+Sans+3" />
+    <mj-attributes>
+      <mj-all font-family="'Source Sans 3', Helvetica, Arial, sans-serif" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Hello</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>"#,
+    )
+    .unwrap();
+    let rendered = parsed.element.render(&RenderOptions::default()).unwrap();
+    assert!(rendered.contains("fonts.googleapis.com/css?family=Source+Sans+3"));
+}
