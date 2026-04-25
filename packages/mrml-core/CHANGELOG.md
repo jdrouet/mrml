@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.1](https://github.com/jdrouet/mrml/compare/mrml-v6.0.0...mrml-v6.0.1) - 2026-04-25
+
+### Fixed
+
+- clippy issue
+- *(mrml-core)* parse quoted names in font-family values ([#637](https://github.com/jdrouet/mrml/pull/637))
+
+### Other
+
+- format code
+
 ## [6.0.0](https://github.com/jdrouet/mrml/compare/mrml-v5.1.0...mrml-v6.0.0) - 2026-04-12
 
 ### Added
