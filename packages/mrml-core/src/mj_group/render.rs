@@ -179,7 +179,8 @@ impl<'root> Render<'root> for Renderer<'root, MjGroup, ()> {
             .maybe_add_class(self.attribute("css-class"));
         let table = Tag::table_presentation().maybe_add_attribute(
             "bgcolor",
-            self.attribute("background-color").filter(|&color| color != "none"),
+            self.attribute("background-color")
+                .filter(|&color| color != "none"),
         );
         let tr = Tag::tr();
 
