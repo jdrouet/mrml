@@ -146,6 +146,8 @@ impl TryFrom<&str> for Pixel {
                 .parse::<f32>()
                 .map(Pixel::new)
                 .map_err(SizeParserError::InvalidFloat)
+        } else if value == "0" {
+            Ok(Pixel::new(0.0))
         } else {
             Err(SizeParserError::MissingSuffix("px"))
         }

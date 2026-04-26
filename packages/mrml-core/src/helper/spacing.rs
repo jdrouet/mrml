@@ -188,4 +188,13 @@ pub mod tests {
         let res = Spacing::try_from("2tx 3px 4px 5px");
         assert!(res.is_err());
     }
+
+    #[test]
+    fn unitless_zero() {
+        let res: Spacing = Spacing::try_from("20px 20px 0 20px").unwrap();
+        assert_eq!(res.top(), &Pixel::new(20.0));
+        assert_eq!(res.right(), &Pixel::new(20.0));
+        assert_eq!(res.bottom(), &Pixel::new(0.0));
+        assert_eq!(res.left(), &Pixel::new(20.0));
+    }
 }
