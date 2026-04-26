@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.0](https://github.com/jdrouet/mrml/compare/mrml-v6.0.1...mrml-v7.0.0) - 2026-04-26
+
+### Fixed
+
+- *(mrml-core)* warn on duplicate attributes and keep first value ([#638](https://github.com/jdrouet/mrml/pull/638))
+
 ## [6.0.1](https://github.com/jdrouet/mrml/compare/mrml-v6.0.0...mrml-v6.0.1) - 2026-04-25
 
 ### Fixed
