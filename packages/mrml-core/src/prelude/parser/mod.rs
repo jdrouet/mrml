@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 
 use htmlparser::{StrSpan, Tokenizer};
+use indexmap::map::Entry;
 
 use self::loader::IncludeLoaderError;
 use super::hash::Map;
@@ -394,10 +395,14 @@ pub(crate) fn parse_attributes_map(
 ) -> Result<Map<String, Option<String>>, Error> {
     let mut result = Map::new();
     while let Some(attr) = cursor.next_attribute()? {
-        result.insert(
-            attr.qualified_name(),
-            attr.value.map(|inner| inner.to_string()),
-        );
+        match result.entry(attr.qualified_name()) {
+            Entry::Vacant(slot) => {
+                slot.insert(attr.value.map(|inner| inner.to_string()));
+            }
+            Entry::Occupied(_) => {
+                cursor.add_warning(WarningKind::DuplicateAttribute, attr.span);
+            }
+        }
     }
     Ok(result)
 }
@@ -629,4 +634,33 @@ macro_rules! should_not_async_parse {
             }
         });
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{MrmlCursor, MrmlParser, ParserOptions, WarningKind};
+    use crate::mj_text::MjText;
+
+    #[test]
+    fn should_warn_and_keep_first_value_on_duplicate_attribute() {
+        let raw = r#"<mj-text font-size="12px" font-size="20px">hi</mj-text>"#;
+        let opts = ParserOptions::default();
+        let parser = MrmlParser::new(&opts);
+        let mut cursor = MrmlCursor::new(raw);
+        let element: MjText = parser.parse_root(&mut cursor).unwrap();
+
+        assert_eq!(
+            element
+                .attributes
+                .get("font-size")
+                .and_then(|v| v.as_deref()),
+            Some("12px")
+        );
+
+        let warnings = cursor.warnings();
+        assert_eq!(warnings.len(), 1);
+        assert_eq!(warnings[0].kind, WarningKind::DuplicateAttribute);
+        // The span should point at the second occurrence, not the first.
+        assert_eq!(warnings[0].span.start, raw.rfind("font-size").unwrap());
+    }
 }
