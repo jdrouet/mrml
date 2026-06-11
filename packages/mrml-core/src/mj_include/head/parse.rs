@@ -248,7 +248,13 @@ impl ParseElement<MjIncludeHead> for MrmlParser<'_> {
                         child,
                     ))]
                 }
-                MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
+                MjIncludeHeadKind::Css { inline: true } => {
+                    return Err(Error::UnsupportedIncludeKind {
+                        kind: "css(inline)",
+                        origin: cursor.origin(),
+                        position: tag.into(),
+                    })
+                }
                 MjIncludeHeadKind::Mjml => {
                     let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
                     sub.set_source_offset(offset);
@@ -259,7 +265,13 @@ impl ParseElement<MjIncludeHead> for MrmlParser<'_> {
                     cursor.with_warnings(sub.warnings());
                     children
                 }
-                MjIncludeHeadKind::Html => todo!(),
+                MjIncludeHeadKind::Html => {
+                    return Err(Error::UnsupportedIncludeKind {
+                        kind: "html",
+                        origin: cursor.origin(),
+                        position: tag.into(),
+                    })
+                }
             }
         } else {
             children
@@ -305,7 +317,13 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
                         child,
                     ))]
                 }
-                MjIncludeHeadKind::Css { inline: true } => unimplemented!(),
+                MjIncludeHeadKind::Css { inline: true } => {
+                    return Err(Error::UnsupportedIncludeKind {
+                        kind: "css(inline)",
+                        origin: cursor.origin(),
+                        position: tag.into(),
+                    })
+                }
                 MjIncludeHeadKind::Mjml => {
                     let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
                     sub.set_source_offset(offset);
@@ -319,7 +337,13 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
                     cursor.with_warnings(sub.warnings());
                     children
                 }
-                MjIncludeHeadKind::Html => unimplemented!(),
+                MjIncludeHeadKind::Html => {
+                    return Err(Error::UnsupportedIncludeKind {
+                        kind: "html",
+                        origin: cursor.origin(),
+                        position: tag.into(),
+                    })
+                }
             }
         } else {
             children
@@ -485,5 +509,45 @@ mod tests {
             MjIncludeHeadKind::Css { inline: false }
         );
         let _content = include.0.children.first().unwrap();
+    }
+
+    #[test]
+    fn type_html_returns_error_rather_than_panic_sync() {
+        use crate::prelude::parser::Error;
+
+        let resolver = MemoryIncludeLoader::from(vec![("partial.html", "<h1>Hello</h1>")]);
+        let raw = r#"<mj-include path="partial.html" type="html" />"#;
+        let opts = ParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let parser = MrmlParser::new(&opts);
+        let mut cursor = MrmlCursor::new(raw);
+        let err = parser.parse_root::<MjIncludeHead>(&mut cursor).unwrap_err();
+        assert!(
+            matches!(err, Error::UnsupportedIncludeKind { kind: "html", .. }),
+            "unexpected error: {err:?}"
+        );
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn type_html_returns_error_rather_than_panic_async() {
+        use crate::prelude::parser::{AsyncMrmlParser, AsyncParserOptions, Error};
+
+        let resolver = MemoryIncludeLoader::from(vec![("partial.html", "<h1>Hello</h1>")]);
+        let raw = r#"<mj-include path="partial.html" type="html" />"#;
+        let opts = AsyncParserOptions {
+            include_loader: Box::new(resolver),
+        };
+        let parser = AsyncMrmlParser::new(opts.into());
+        let mut cursor = MrmlCursor::new(raw);
+        let err = parser
+            .parse_root::<MjIncludeHead>(&mut cursor)
+            .await
+            .unwrap_err();
+        assert!(
+            matches!(err, Error::UnsupportedIncludeKind { kind: "html", .. }),
+            "unexpected error: {err:?}"
+        );
     }
 }

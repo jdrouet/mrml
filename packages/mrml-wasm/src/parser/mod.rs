@@ -131,6 +131,11 @@ pub enum ParserError {
         position: super::Span,
         source: String,
     },
+    UnsupportedIncludeKind {
+        kind: String,
+        origin: super::Origin,
+        position: super::Span,
+    },
 }
 
 impl From<mrml::prelude::parser::Error> for ParserError {
@@ -180,6 +185,15 @@ impl From<mrml::prelude::parser::Error> for ParserError {
                 position: position.into(),
             },
             Error::UnexpectedToken { origin, position } => Self::UnexpectedToken {
+                origin: origin.into(),
+                position: position.into(),
+            },
+            Error::UnsupportedIncludeKind {
+                kind,
+                origin,
+                position,
+            } => Self::UnsupportedIncludeKind {
+                kind: kind.to_string(),
                 origin: origin.into(),
                 position: position.into(),
             },
