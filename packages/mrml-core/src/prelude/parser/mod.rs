@@ -74,6 +74,14 @@ pub enum Error {
         #[source]
         source: IncludeLoaderError,
     },
+    /// The `mj-include` type is recognized but not yet supported by the parser
+    /// (e.g. `type="html"` or inlined CSS includes).
+    #[error("unsupported mj-include type {kind:?} in {origin} at position {position}")]
+    UnsupportedIncludeKind {
+        kind: &'static str,
+        origin: Origin,
+        position: Span,
+    },
 }
 
 impl Error {
@@ -121,6 +129,15 @@ impl Error {
                 origin,
                 position: adj(position),
                 source,
+            },
+            Self::UnsupportedIncludeKind {
+                kind,
+                origin,
+                position,
+            } => Self::UnsupportedIncludeKind {
+                kind,
+                origin,
+                position: adj(position),
             },
             // Variants without byte positions are returned unchanged.
             other @ (Self::EndOfStream { .. }
