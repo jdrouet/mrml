@@ -226,7 +226,7 @@ impl<'a> super::MrmlCursor<'a> {
             })
             .and_then(|token| match token {
                 Ok(MrmlToken::Text(inner))
-                    if inner.text.starts_with('\n') && inner.text.trim().is_empty() =>
+                    if inner.text.starts_with(['\n', '\r']) && inner.text.trim().is_empty() =>
                 {
                     self.read_next_token()
                 }
