@@ -409,4 +409,19 @@ mod tests {
         let template = "<mjml><div /></mjml>";
         let _ = Mjml::parse(template).unwrap();
     }
+
+    #[test]
+    fn should_parse_with_crlf_line_endings_and_void_element_sync() {
+        let template = "<mjml><mj-body><mj-section><mj-column><mj-text><br></mj-text></mj-column></mj-section></mj-body></mjml>\r\n";
+        let output = Mjml::parse(template).unwrap();
+        assert!(output.element.children.body.is_some());
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn should_parse_with_crlf_line_endings_and_void_element_async() {
+        let template = "<mjml><mj-body><mj-section><mj-column><mj-text><br></mj-text></mj-column></mj-section></mj-body></mjml>\r\n";
+        let output = Mjml::async_parse(template).await.unwrap();
+        assert!(output.element.children.body.is_some());
+    }
 }
