@@ -327,3 +327,47 @@ impl<'a> super::MrmlCursor<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{MrmlToken, Text};
+    use crate::prelude::parser::MrmlCursor;
+
+    fn assert_element_start<'a>(
+        token: Option<Result<MrmlToken<'a>, super::super::Error>>,
+        name: &str,
+    ) {
+        match token {
+            Some(Ok(MrmlToken::ElementStart(inner))) => assert_eq!(inner.local.as_str(), name),
+            other => panic!("expected element start `{name}`, got {other:?}"),
+        }
+    }
+
+    // Whitespace-only text tokens leading with `\r` are emitted by the tokenizer
+    // for CRLF line endings and must be skipped just like `\n` ones. See issue #654.
+    #[test]
+    fn should_skip_whitespace_text_starting_with_carriage_return() {
+        let mut cursor = MrmlCursor::new("<a>\r\n<b></b></a>");
+        assert_element_start(cursor.next_token(), "a");
+        assert!(matches!(
+            cursor.next_token(),
+            Some(Ok(MrmlToken::ElementEnd(_)))
+        ));
+        // the standalone "\r\n" text token in between must be skipped
+        assert_element_start(cursor.next_token(), "b");
+    }
+
+    #[test]
+    fn should_keep_text_with_non_whitespace_content() {
+        let mut cursor = MrmlCursor::new("<a>\r\nhello</a>");
+        assert_element_start(cursor.next_token(), "a");
+        assert!(matches!(
+            cursor.next_token(),
+            Some(Ok(MrmlToken::ElementEnd(_)))
+        ));
+        assert!(matches!(
+            cursor.next_token(),
+            Some(Ok(MrmlToken::Text(Text { text }))) if text.as_str() == "\r\nhello"
+        ));
+    }
+}
