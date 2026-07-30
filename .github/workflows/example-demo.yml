@@ -27,7 +27,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: latest
-          registry-url: "https://registry.npmjs.org"
       - name: install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - uses: actions/cache@v6
