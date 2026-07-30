@@ -40,8 +40,15 @@ impl<'root> Renderer<'root, MjHero, ()> {
         )
     }
 
+    fn inner_container_width(&self) -> Option<Pixel> {
+        self.container_width.as_ref().map(|width| {
+            let hpadding = self.get_padding_horizontal();
+            Pixel::new(width.value() - hpadding.value())
+        })
+    }
+
     fn set_style_outlook_inner_table<'t>(&self, tag: Tag<'t>) -> Tag<'t> {
-        self.set_style_outlook_table(tag)
+        tag.maybe_add_style("width", self.inner_container_width().map(|w| w.to_string()))
     }
 
     fn set_style_outlook_inner_td<'a, 't>(&'a self, tag: Tag<'t>) -> Tag<'t>
@@ -183,7 +190,7 @@ impl<'root> Renderer<'root, MjHero, ()> {
             .maybe_add_attribute("align", self.attribute("align"))
             .maybe_add_attribute(
                 "width",
-                self.container_width.as_ref().map(|w| w.value().to_string()),
+                self.inner_container_width().map(|w| w.value().to_string()),
             );
         let tbody = Tag::tbody();
         let tr = Tag::tr();

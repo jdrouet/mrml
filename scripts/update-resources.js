@@ -76,7 +76,8 @@ const handleFile = (dir, fname) => {
     .readFile(`${dir}/${fname}.mjml`, { encoding: "utf8" })
     .then((content) => {
       console.log(`⌛️ converting ${dir}/${fname}.mjml`);
-      return mjml2html(fixMjmlInput(content)).html;
+      // mjml 5.x made mjml2html async (PostCSS/cssnano), so await the result.
+      return mjml2html(fixMjmlInput(content)).then((result) => result.html);
     })
     .then(pretty)
     .then(cleanupIds)
