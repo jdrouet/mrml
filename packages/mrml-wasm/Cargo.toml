@@ -14,17 +14,11 @@ name = "mrml_wasm"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["console_error_panic_hook", "async", "reqwest-include-loader"]
+default = ["async", "reqwest-include-loader"]
 async = ["dep:wasm-bindgen-futures", "mrml/async"]
 reqwest-include-loader = ["async", "mrml/http-loader-async-reqwest"]
 
 [dependencies]
-# The `console_error_panic_hook` crate provides better debugging of panics by
-# logging them with `console.error`. This is great for development, but requires
-# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
-# code size when deploying.
-console_error_panic_hook = { version = "0.1.7", optional = true }
-
 mrml = { version = "6.0.1", path = "../mrml-core", default-features = false, features = [
     "parse",
     "render",
@@ -41,7 +35,3 @@ wasm-bindgen-futures = { version = "0.4", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
-
-[profile.release]
-# Tell `rustc` to optimize for small code size.
-opt-level = "s"
