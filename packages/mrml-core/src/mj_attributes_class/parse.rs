@@ -72,4 +72,17 @@ mod tests {
         r#"<mj-class name="div" color="red"><whatever>"#,
         "UnexpectedToken { origin: Root, position: Span { start: 33, end: 42 } }"
     );
+
+    // pins shift_remove (order-preserving) over remove (swap-remove)
+    #[test]
+    fn removing_name_preserves_order_of_other_attributes() {
+        let opts = crate::prelude::parser::ParserOptions::default();
+        let parser = crate::prelude::parser::MrmlParser::new(&opts);
+        let mut cursor = crate::prelude::parser::MrmlCursor::new(
+            r#"<mj-class name="whatever" color="red" font-size="12px" padding="10px" />"#,
+        );
+        let elt: MjAttributesClass = parser.parse_root(&mut cursor).unwrap();
+        let keys: Vec<&str> = elt.attributes.others.keys().map(String::as_str).collect();
+        assert_eq!(keys, vec!["color", "font-size", "padding"]);
+    }
 }
