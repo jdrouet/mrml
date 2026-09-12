@@ -171,7 +171,8 @@ fn compare_attributes<'a>(
     let exp_keys = exp_attrs
         .iter()
         .filter(|attr| {
-            // if attribute is `class` or `style`, and the value is empty, we can ignore it
+            // if attribute is `class` or `style`, and the value is empty, we
+            // can ignore it
             if ["alt", "class", "style"].contains(&attr.local.as_str()) {
                 attr.value.is_some_and(|v| !v.is_empty())
             } else {
