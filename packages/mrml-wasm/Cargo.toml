@@ -35,7 +35,3 @@ wasm-bindgen-futures = { version = "0.4", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
-
-[profile.release]
-# Tell `rustc` to optimize for small code size.
-opt-level = "s"
