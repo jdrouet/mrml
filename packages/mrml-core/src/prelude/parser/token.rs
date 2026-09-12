@@ -343,9 +343,9 @@ mod tests {
         }
     }
 
-    // Whitespace-only text tokens leading with `\r` are emitted by the tokenizer
-    // for CRLF line endings and must be skipped just like `\n` ones. See issue
-    // #654.
+    // Whitespace-only text tokens leading with `\r` are emitted by the
+    // tokenizer for CRLF line endings and must be skipped just like `\n`
+    // ones. See issue #654.
     #[test]
     fn should_skip_whitespace_text_starting_with_carriage_return() {
         let mut cursor = MrmlCursor::new("<a>\r\n<b></b></a>");
