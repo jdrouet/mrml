@@ -69,7 +69,7 @@ impl MjHead {
                             .flat_map(|inner| inner.mj_attributes_class_iter()),
                     )
             })
-            .fold(Map::new(), combine_attribute_map)
+            .fold(Map::default(), combine_attribute_map)
     }
 
     pub fn build_attributes_element(&self) -> Map<&str, Map<&str, &str>> {
@@ -86,7 +86,7 @@ impl MjHead {
                             .flat_map(|inner| inner.mj_attributes_element_iter()),
                     )
             })
-            .fold(Map::new(), combine_attribute_map)
+            .fold(Map::default(), combine_attribute_map)
     }
 
     pub fn build_font_families(&self) -> Map<&str, &str> {

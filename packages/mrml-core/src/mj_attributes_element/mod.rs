@@ -18,7 +18,7 @@ impl MjAttributesElement {
     pub fn new(name: String) -> Self {
         Self {
             name,
-            attributes: Map::new(),
+            attributes: Map::default(),
         }
     }
 }

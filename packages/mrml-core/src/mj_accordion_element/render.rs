@@ -129,7 +129,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionElement 
             context,
             self,
             MjAccordionElementExtra {
-                attributes: Map::new(),
+                attributes: Map::default(),
             },
         ))
     }

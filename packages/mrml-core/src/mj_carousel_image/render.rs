@@ -246,7 +246,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjCarouselImage {
             context,
             self,
             MjCarouselImageExtra {
-                attributes: Map::new(),
+                attributes: Map::default(),
             },
         ))
     }

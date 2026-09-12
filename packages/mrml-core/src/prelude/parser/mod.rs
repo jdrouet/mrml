@@ -410,7 +410,7 @@ impl AsyncParseChildren<String> for AsyncMrmlParser {
 pub(crate) fn parse_attributes_map(
     cursor: &mut MrmlCursor<'_>,
 ) -> Result<Map<String, Option<String>>, Error> {
-    let mut result = Map::new();
+    let mut result = Map::default();
     while let Some(attr) = cursor.next_attribute()? {
         match result.entry(attr.qualified_name()) {
             Entry::Vacant(slot) => {

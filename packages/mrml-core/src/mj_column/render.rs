@@ -348,7 +348,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjColumn {
             context,
             self,
             MjColumnExtra {
-                attributes: Map::new(),
+                attributes: Map::default(),
             },
         ))
     }

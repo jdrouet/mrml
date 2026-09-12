@@ -103,7 +103,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionText {
             context,
             self,
             MjAccordionTextExtra {
-                attributes: Map::new(),
+                attributes: Map::default(),
             },
         ))
     }
