@@ -127,4 +127,26 @@ pub mod tests {
         assert_eq!(res.bottom(), Pixel::new(0.0));
         assert_eq!(res.left(), Pixel::new(20.0));
     }
+
+    // pin deliberate parser quirks
+    #[test]
+    fn tab_is_not_a_separator() {
+        let res = Spacing::try_from("2px\t4px");
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn double_space_fails_to_parse() {
+        let res = Spacing::try_from("2px  4px");
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn fifth_value_is_ignored() {
+        let res: Spacing = Spacing::try_from("1px 2px 3px 4px 5px").unwrap();
+        assert_eq!(res.top(), Pixel::new(1.0));
+        assert_eq!(res.right(), Pixel::new(2.0));
+        assert_eq!(res.bottom(), Pixel::new(3.0));
+        assert_eq!(res.left(), Pixel::new(4.0));
+    }
 }
