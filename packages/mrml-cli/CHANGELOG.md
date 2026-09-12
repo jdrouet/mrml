@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.4](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.7.3...mrml-cli-v1.7.4) - 2026-09-12
+
+### Other
+
+- *(mrml-cli)* read input files with fs::read_to_string ([#680](https://github.com/jdrouet/mrml/pull/680))
+
 ## [1.7.3](https://github.com/jdrouet/mrml/compare/mrml-cli-v1.7.2...mrml-cli-v1.7.3) - 2026-04-25
 
 ### Other

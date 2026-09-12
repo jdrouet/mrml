@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.5...html-compare-v0.1.6) - 2026-09-12
+
+### Other
+
+- rewrap comments for current nightly rustfmt ([#673](https://github.com/jdrouet/mrml/pull/673))
+
 ## [0.1.5](https://github.com/jdrouet/mrml/compare/html-compare-v0.1.4...html-compare-v0.1.5) - 2025-11-16
 
 ### Fixed
