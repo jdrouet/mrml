@@ -1,7 +1,6 @@
 use std::borrow::Cow;
 use std::collections::HashSet;
 use std::error::Error;
-use std::fs::File;
 use std::io::prelude::*;
 use std::iter::FromIterator;
 use std::path::PathBuf;
@@ -52,12 +51,8 @@ struct Options {
 impl Options {
     fn read_file(&self, filename: &str) -> Result<String, String> {
         log::debug!("reading from file {filename}");
-        let mut file =
-            File::open(filename).map_err(|err| format!("couldn't open {filename:?}: {err}"))?;
-        let mut content = String::new();
-        file.read_to_string(&mut content)
-            .map_err(|err| format!("couldn't read {filename:?}: {err}"))?;
-        Ok(content)
+        std::fs::read_to_string(filename)
+            .map_err(|err| format!("couldn't read {filename:?}: {err}"))
     }
 
     fn read_stdin(&self) -> Result<String, String> {
