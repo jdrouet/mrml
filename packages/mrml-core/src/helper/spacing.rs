@@ -15,99 +15,23 @@ pub enum SpacingParserError {
 }
 
 /// representation of spacing
-pub enum Spacing {
-    Single(Pixel),
-    Two(Pixel, Pixel),
-    Three(Pixel, Pixel, Pixel),
-    Four(Pixel, Pixel, Pixel, Pixel),
-}
+pub struct Spacing([Pixel; 4]);
 
 impl Spacing {
-    #[cfg(test)]
-    pub fn top(&self) -> &Pixel {
-        match self {
-            Self::Single(top) => top,
-            Self::Two(vertical, _horizontal) => vertical,
-            Self::Three(top, _horizontal, _bottom) => top,
-            Self::Four(top, _right, _bottom, _left) => top,
-        }
+    pub fn top(&self) -> Pixel {
+        self.0[0]
     }
 
-    pub fn into_top(self) -> Pixel {
-        match self {
-            Self::Single(top) => top,
-            Self::Two(vertical, _horizontal) => vertical,
-            Self::Three(top, _horizontal, _bottom) => top,
-            Self::Four(top, _right, _bottom, _left) => top,
-        }
+    pub fn right(&self) -> Pixel {
+        self.0[1]
     }
 
-    pub fn right(&self) -> &Pixel {
-        match self {
-            Self::Single(top) => top,
-            Self::Two(_vertical, horizontal) => horizontal,
-            Self::Three(_top, horizontal, _bottom) => horizontal,
-            Self::Four(_top, right, _bottom, _left) => right,
-        }
+    pub fn bottom(&self) -> Pixel {
+        self.0[2]
     }
 
-    pub fn into_right(self) -> Pixel {
-        match self {
-            Self::Single(top) => top,
-            Self::Two(_vertical, horizontal) => horizontal,
-            Self::Three(_top, horizontal, _bottom) => horizontal,
-            Self::Four(_top, right, _bottom, _left) => right,
-        }
-    }
-
-    #[cfg(test)]
-    pub fn bottom(&self) -> &Pixel {
-        match self {
-            Self::Single(top) => top,
-            Self::Two(vertical, _horizontal) => vertical,
-            Self::Three(_top, _horizontal, bottom) => bottom,
-            Self::Four(_top, _right, bottom, _left) => bottom,
-        }
-    }
-
-    pub fn into_bottom(self) -> Pixel {
-        match self {
-            Self::Single(top) => top,
-            Self::Two(vertical, _horizontal) => vertical,
-            Self::Three(_top, _horizontal, bottom) => bottom,
-            Self::Four(_top, _right, bottom, _left) => bottom,
-        }
-    }
-
-    pub fn left(&self) -> &Pixel {
-        match self {
-            Self::Single(top) => top,
-            Self::Two(_vertical, horizontal) => horizontal,
-            Self::Three(_top, horizontal, _bottom) => horizontal,
-            Self::Four(_top, _right, _bottom, left) => left,
-        }
-    }
-
-    pub fn into_left(self) -> Pixel {
-        match self {
-            Self::Single(top) => top,
-            Self::Two(_vertical, horizontal) => horizontal,
-            Self::Three(_top, horizontal, _bottom) => horizontal,
-            Self::Four(_top, _right, _bottom, left) => left,
-        }
-    }
-}
-
-impl std::fmt::Display for Spacing {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Single(first) => write!(f, "{first}"),
-            Self::Two(first, second) => write!(f, "{first} {second}"),
-            Self::Three(first, second, third) => write!(f, "{first} {second} {third}"),
-            Self::Four(first, second, third, fourth) => {
-                write!(f, "{first} {second} {third} {fourth}")
-            }
-        }
+    pub fn left(&self) -> Pixel {
+        self.0[3]
     }
 }
 
@@ -122,21 +46,27 @@ impl TryFrom<&str> for Spacing {
             sections.next(),
             sections.next(),
         ) {
-            (Some(first), None, None, None) => Ok(Self::Single(Pixel::try_from(first)?)),
-            (Some(first), Some(second), None, None) => {
-                Ok(Self::Two(Pixel::try_from(first)?, Pixel::try_from(second)?))
+            (Some(first), None, None, None) => {
+                let first = Pixel::try_from(first)?;
+                Ok(Self([first, first, first, first]))
             }
-            (Some(first), Some(second), Some(third), None) => Ok(Self::Three(
-                Pixel::try_from(first)?,
-                Pixel::try_from(second)?,
-                Pixel::try_from(third)?,
-            )),
-            (Some(first), Some(second), Some(third), Some(four)) => Ok(Self::Four(
+            (Some(first), Some(second), None, None) => {
+                let first = Pixel::try_from(first)?;
+                let second = Pixel::try_from(second)?;
+                Ok(Self([first, second, first, second]))
+            }
+            (Some(first), Some(second), Some(third), None) => {
+                let first = Pixel::try_from(first)?;
+                let second = Pixel::try_from(second)?;
+                let third = Pixel::try_from(third)?;
+                Ok(Self([first, second, third, second]))
+            }
+            (Some(first), Some(second), Some(third), Some(four)) => Ok(Self([
                 Pixel::try_from(first)?,
                 Pixel::try_from(second)?,
                 Pixel::try_from(third)?,
                 Pixel::try_from(four)?,
-            )),
+            ])),
             _ => Err(SpacingParserError::Empty),
         }
     }
@@ -150,7 +80,7 @@ pub mod tests {
     #[test]
     fn single_value() {
         let res: Spacing = Spacing::try_from("1px").unwrap();
-        assert_eq!(res.top(), &Pixel::new(1.0));
+        assert_eq!(res.top(), Pixel::new(1.0));
         assert_eq!(res.top(), res.bottom());
         assert_eq!(res.top(), res.right());
         assert_eq!(res.right(), res.left());
@@ -159,28 +89,28 @@ pub mod tests {
     #[test]
     fn two_values() {
         let res: Spacing = Spacing::try_from("2px 4px").unwrap();
-        assert_eq!(res.top(), &Pixel::new(2.0));
+        assert_eq!(res.top(), Pixel::new(2.0));
         assert_eq!(res.top(), res.bottom());
-        assert_eq!(res.left(), &Pixel::new(4.0));
+        assert_eq!(res.left(), Pixel::new(4.0));
         assert_eq!(res.left(), res.right());
     }
 
     #[test]
     fn three_values() {
         let res: Spacing = Spacing::try_from("2px 3px 4px").unwrap();
-        assert_eq!(res.top(), &Pixel::new(2.0));
-        assert_eq!(res.right(), &Pixel::new(3.0));
+        assert_eq!(res.top(), Pixel::new(2.0));
+        assert_eq!(res.right(), Pixel::new(3.0));
         assert_eq!(res.left(), res.right());
-        assert_eq!(res.bottom(), &Pixel::new(4.0));
+        assert_eq!(res.bottom(), Pixel::new(4.0));
     }
 
     #[test]
     fn four_values() {
         let res: Spacing = Spacing::try_from("2px 3px 4px 5px").unwrap();
-        assert_eq!(res.top(), &Pixel::new(2.0));
-        assert_eq!(res.right(), &Pixel::new(3.0));
-        assert_eq!(res.bottom(), &Pixel::new(4.0));
-        assert_eq!(res.left(), &Pixel::new(5.0));
+        assert_eq!(res.top(), Pixel::new(2.0));
+        assert_eq!(res.right(), Pixel::new(3.0));
+        assert_eq!(res.bottom(), Pixel::new(4.0));
+        assert_eq!(res.left(), Pixel::new(5.0));
     }
 
     #[test]
@@ -192,9 +122,31 @@ pub mod tests {
     #[test]
     fn unitless_zero() {
         let res: Spacing = Spacing::try_from("20px 20px 0 20px").unwrap();
-        assert_eq!(res.top(), &Pixel::new(20.0));
-        assert_eq!(res.right(), &Pixel::new(20.0));
-        assert_eq!(res.bottom(), &Pixel::new(0.0));
-        assert_eq!(res.left(), &Pixel::new(20.0));
+        assert_eq!(res.top(), Pixel::new(20.0));
+        assert_eq!(res.right(), Pixel::new(20.0));
+        assert_eq!(res.bottom(), Pixel::new(0.0));
+        assert_eq!(res.left(), Pixel::new(20.0));
+    }
+
+    // pin deliberate parser quirks
+    #[test]
+    fn tab_is_not_a_separator() {
+        let res = Spacing::try_from("2px\t4px");
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn double_space_fails_to_parse() {
+        let res = Spacing::try_from("2px  4px");
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn fifth_value_is_ignored() {
+        let res: Spacing = Spacing::try_from("1px 2px 3px 4px 5px").unwrap();
+        assert_eq!(res.top(), Pixel::new(1.0));
+        assert_eq!(res.right(), Pixel::new(2.0));
+        assert_eq!(res.bottom(), Pixel::new(3.0));
+        assert_eq!(res.left(), Pixel::new(4.0));
     }
 }

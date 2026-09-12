@@ -143,39 +143,33 @@ pub(crate) trait Render<'root> {
     }
 
     fn get_inner_border_left(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("inner-border-left").or_else(|| {
-            self.attribute_as_spacing("inner-border")
-                .map(|s| s.into_left())
-        })
+        self.attribute_as_pixel("inner-border-left")
+            .or_else(|| self.attribute_as_spacing("inner-border").map(|s| s.left()))
     }
 
     fn get_inner_border_right(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("inner-border-right").or_else(|| {
-            self.attribute_as_spacing("inner-border")
-                .map(|s| s.into_right())
-        })
+        self.attribute_as_pixel("inner-border-right")
+            .or_else(|| self.attribute_as_spacing("inner-border").map(|s| s.right()))
     }
 
     fn get_padding_top(&self) -> Option<Pixel> {
         self.attribute_as_pixel("padding-top")
-            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.into_top()))
+            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.top()))
     }
 
     fn get_padding_bottom(&self) -> Option<Pixel> {
-        self.attribute_as_pixel("padding-bottom").or_else(|| {
-            self.attribute_as_spacing("padding")
-                .map(|s| s.into_bottom())
-        })
+        self.attribute_as_pixel("padding-bottom")
+            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.bottom()))
     }
 
     fn get_padding_left(&self) -> Option<Pixel> {
         self.attribute_as_pixel("padding-left")
-            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.into_left()))
+            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.left()))
     }
 
     fn get_padding_right(&self) -> Option<Pixel> {
         self.attribute_as_pixel("padding-right")
-            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.into_right()))
+            .or_else(|| self.attribute_as_spacing("padding").map(|s| s.right()))
     }
 
     fn get_padding_horizontal(&self) -> Pixel {
