@@ -123,13 +123,13 @@ pub trait Printable {
     fn print<P: Printer>(&self, printer: &mut P) -> std::fmt::Result;
 
     fn print_dense(&self) -> Result<String, std::fmt::Error> {
-        let mut p = DensePrinter::default();
+        let mut p = StringPrinter::dense();
         self.print(&mut p)?;
         Ok(p.inner())
     }
 
     fn print_pretty(&self) -> Result<String, std::fmt::Error> {
-        let mut p = PrettyPrinter::default();
+        let mut p = StringPrinter::pretty();
         self.print(&mut p)?;
         Ok(p.inner())
     }
@@ -220,92 +220,59 @@ pub trait Printer {
     fn inner(self) -> String;
 }
 
-#[derive(Debug, Default)]
-pub(crate) struct DensePrinter {
-    buffer: String,
-}
-
-impl Printer for DensePrinter {
-    #[inline]
-    fn push_new_line(&mut self) {}
-    #[inline]
-    fn push_indent(&mut self) {}
-    #[inline]
-    fn increase_indent(&mut self) {}
-    #[inline]
-    fn decrease_indent(&mut self) {}
-
-    #[inline]
-    fn push(&mut self, value: char) {
-        self.buffer.push(value);
-    }
-
-    #[inline]
-    fn push_str(&mut self, value: &str) {
-        self.buffer.push_str(value);
-    }
-
-    #[inline]
-    fn open_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
-        write!(&mut self.buffer, "<{name}")
-    }
-
-    #[inline]
-    fn push_attribute<N, V>(&mut self, name: N, value: V) -> std::fmt::Result
-    where
-        PrintAttribute<N, V>: Display,
-    {
-        write!(&mut self.buffer, " {}", PrintAttribute::from((name, value)))
-    }
-
-    #[inline]
-    fn end_tag<N: Display + ?Sized>(&mut self, name: &N) -> std::fmt::Result {
-        write!(&mut self.buffer, "</{name}>")
-    }
-
-    #[inline]
-    fn inner(self) -> String {
-        self.buffer
-    }
-}
-
 #[derive(Debug)]
-pub(crate) struct PrettyPrinter {
-    indent_size: usize,
+pub(crate) struct StringPrinter {
+    indent_size: Option<usize>,
     level: usize,
     buffer: String,
 }
 
-impl Default for PrettyPrinter {
-    fn default() -> Self {
+impl StringPrinter {
+    fn dense() -> Self {
         Self {
-            indent_size: 2,
+            indent_size: None,
+            level: 0,
+            buffer: String::default(),
+        }
+    }
+
+    fn pretty() -> Self {
+        Self {
+            indent_size: Some(2),
             level: 0,
             buffer: String::default(),
         }
     }
 }
 
-impl Printer for PrettyPrinter {
+impl Printer for StringPrinter {
     #[inline]
     fn push_new_line(&mut self) {
-        self.buffer.push('\n');
+        if self.indent_size.is_some() {
+            self.buffer.push('\n');
+        }
     }
 
     #[inline]
     fn push_indent(&mut self) {
-        self.buffer
-            .extend(std::iter::repeat_n(' ', self.level * self.indent_size));
+        if let Some(indent_size) = self.indent_size {
+            self.buffer
+                .extend(std::iter::repeat_n(' ', self.level * indent_size));
+        }
     }
 
     #[inline]
     fn increase_indent(&mut self) {
-        self.level += 1;
+        if self.indent_size.is_some() {
+            self.level += 1;
+        }
     }
 
     #[inline]
     fn decrease_indent(&mut self) {
-        self.level -= 1;
+        if self.indent_size.is_some() {
+            self.level -= 1;
+        }
     }
 
     #[inline]
