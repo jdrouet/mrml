@@ -11,7 +11,7 @@ fn parse<'a>(cursor: &mut MrmlCursor<'a>, tag: StrSpan<'a>) -> Result<MjAttribut
     let mut others: AttributeMap = parse_attributes_map(cursor)?;
     let name: String =
         others
-            .remove("name")
+            .shift_remove("name")
             .and_then(|v| v)
             .ok_or_else(|| Error::MissingAttribute {
                 name: "name",

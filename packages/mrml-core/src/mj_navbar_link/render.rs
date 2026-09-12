@@ -3,16 +3,9 @@ use crate::helper::size::Pixel;
 use crate::prelude::hash::Map;
 use crate::prelude::render::*;
 
+#[derive(Default)]
 struct MjNavbarLinkExtra<'a> {
     attributes: Map<&'a str, &'a str>,
-}
-
-impl Default for MjNavbarLinkExtra<'_> {
-    fn default() -> Self {
-        Self {
-            attributes: Map::new(),
-        }
-    }
 }
 
 impl<'root> Renderer<'root, MjNavbarLink, MjNavbarLinkExtra<'root>> {

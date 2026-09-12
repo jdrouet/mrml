@@ -70,7 +70,7 @@ impl<'a> Tag<'a> {
     pub fn new<N: Into<Cow<'a, str>>>(name: N) -> Self {
         Self {
             name: name.into(),
-            attributes: Map::new(),
+            attributes: Map::default(),
             classes: Default::default(),
             styles: Default::default(),
         }

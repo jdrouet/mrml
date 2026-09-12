@@ -145,7 +145,7 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjAccordionTitle {
             context,
             self,
             MjAccordionTitleExtra {
-                attributes: Map::new(),
+                attributes: Map::default(),
             },
         ))
     }

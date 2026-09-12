@@ -11,7 +11,7 @@ impl<N: Into<String>, T> From<N> for Node<T> {
     fn from(tag: N) -> Self {
         Self {
             tag: tag.into(),
-            attributes: crate::prelude::AttributeMap::new(),
+            attributes: crate::prelude::AttributeMap::default(),
             children: Vec::new(),
         }
     }
