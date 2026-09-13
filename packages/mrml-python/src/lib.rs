@@ -201,12 +201,6 @@ pub struct Warning {
     pub end: usize,
 }
 
-impl Warning {
-    fn from_vec(input: Vec<mrml::prelude::parser::Warning>) -> Vec<Self> {
-        input.into_iter().map(Self::from).collect()
-    }
-}
-
 impl From<mrml::prelude::parser::Warning> for Warning {
     fn from(value: mrml::prelude::parser::Warning) -> Self {
         Self {
@@ -256,7 +250,7 @@ fn to_html(
         content,
         title,
         preview,
-        warnings: Warning::from_vec(parsed.warnings),
+        warnings: parsed.warnings.into_iter().map(Warning::from).collect(),
     })
 }
 
