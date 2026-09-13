@@ -44,7 +44,7 @@ mrml/
 │   │   ├── src/             # Source code with MJML component modules
 │   │   ├── tests/           # Integration tests
 │   │   ├── benches/         # Criterion benchmarks
-│   │   └── lib/             # Helper libraries (html-compare, css-compare)
+│   │   └── lib/             # Helper libraries (html-compare)
 │   ├── mrml-cli/            # Command-line interface tool
 │   ├── mrml-python/         # Python bindings via PyO3
 │   └── mrml-wasm/           # WebAssembly bindings for browser/Node.js

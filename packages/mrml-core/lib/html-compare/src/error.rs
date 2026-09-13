@@ -81,7 +81,7 @@ pub enum ErrorKind<'a> {
     CssMismatch {
         expected: StrSpan<'a>,
         generated: StrSpan<'a>,
-        error: css_compare::Error<'a>,
+        error: crate::css::Error<'a>,
     },
 }
 
