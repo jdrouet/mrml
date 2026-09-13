@@ -136,6 +136,16 @@ pub enum ParserError {
         origin: super::Origin,
         position: super::Span,
     },
+    DepthLimitExceeded {
+        origin: super::Origin,
+    },
+    /// Fallback for a `mrml-core` error variant this crate does not yet know
+    /// about (`prelude::parser::Error` is `#[non_exhaustive]`). Carries the
+    /// core error's own message rather than panicking, since no `origin`
+    /// field is guaranteed to exist on an unknown future variant.
+    Unknown {
+        message: String,
+    },
 }
 
 impl From<mrml::prelude::parser::Error> for ParserError {
@@ -196,6 +206,12 @@ impl From<mrml::prelude::parser::Error> for ParserError {
                 kind: kind.to_string(),
                 origin: origin.into(),
                 position: position.into(),
+            },
+            Error::DepthLimitExceeded { origin } => Self::DepthLimitExceeded {
+                origin: origin.into(),
+            },
+            other => Self::Unknown {
+                message: other.to_string(),
             },
         }
     }

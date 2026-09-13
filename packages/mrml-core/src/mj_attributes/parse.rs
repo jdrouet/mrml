@@ -84,7 +84,7 @@ impl MrmlParser<'_> {
         let wrapped = format!("{FRAGMENT_OPEN}{content}{FRAGMENT_CLOSE}");
         let offset = FRAGMENT_OPEN.len();
         let with_position = |err: Error| err.adjust_positions(offset);
-        let mut sub = cursor.new_child(&path, wrapped.as_str());
+        let mut sub = cursor.new_child(&path, wrapped.as_str())?;
         sub.set_source_offset(offset);
         sub.assert_element_start().map_err(&with_position)?;
         sub.assert_element_end().map_err(&with_position)?;
@@ -168,7 +168,7 @@ impl AsyncMrmlParser {
         let wrapped = format!("{FRAGMENT_OPEN}{content}{FRAGMENT_CLOSE}");
         let offset = FRAGMENT_OPEN.len();
         let with_position = |err: Error| err.adjust_positions(offset);
-        let mut sub = cursor.new_child(&path, wrapped.as_str());
+        let mut sub = cursor.new_child(&path, wrapped.as_str())?;
         sub.set_source_offset(offset);
         sub.assert_element_start().map_err(&with_position)?;
         sub.assert_element_end().map_err(&with_position)?;

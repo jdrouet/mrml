@@ -256,7 +256,7 @@ impl ParseElement<MjIncludeHead> for MrmlParser<'_> {
                     })
                 }
                 MjIncludeHeadKind::Mjml => {
-                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str())?;
                     sub.set_source_offset(offset);
                     sub.assert_element_start().map_err(&with_position)?;
                     sub.assert_element_end().map_err(&with_position)?;
@@ -325,7 +325,7 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
                     })
                 }
                 MjIncludeHeadKind::Mjml => {
-                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str())?;
                     sub.set_source_offset(offset);
                     sub.assert_element_start().map_err(&with_position)?;
                     sub.assert_element_end().map_err(&with_position)?;
