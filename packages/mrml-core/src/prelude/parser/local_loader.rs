@@ -10,7 +10,7 @@ use super::loader::IncludeLoaderError;
 use crate::prelude::parser::loader::AsyncIncludeLoader;
 use crate::prelude::parser::loader::IncludeLoader;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 /// This struct is an
 /// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) where
 /// you can read a template for the filesystem and be able to use it with
@@ -19,31 +19,32 @@ use crate::prelude::parser::loader::IncludeLoader;
 /// # Example
 /// ```rust
 /// use std::path::PathBuf;
-/// use mrml::mj_include::body::MjIncludeBodyKind;
 /// use mrml::prelude::parser::local_loader::LocalIncludeLoader;
 /// use mrml::prelude::parser::ParserOptions;
 ///
-/// let root = PathBuf::default()
-///     .join("resources")
-///     .join("compare")
-///     .join("success");
+/// // relative to the crate root; resolved lazily so it can stay relative
+/// let root = PathBuf::from("tests").join("resources");
 /// let resolver = LocalIncludeLoader::new(root);
 /// let opts = ParserOptions {
 ///     include_loader: Box::new(resolver),
 /// };
 /// let template = r#"<mjml>
 ///   <mj-body>
-///     <mj-include path="file:///mj-accordion.mjml" />
+///     <mj-include path="file:///mj-text-hello-world.mjml" />
 ///   </mj-body>
 /// </mjml>"#;
-/// match mrml::parse_with_options(template, &opts) {
-///     Ok(_) => println!("Success!"),
-///     Err(err) => eprintln!("Couldn't parse template: {err:?}"),
-/// }
+/// let output = mrml::parse_with_options(template, &opts)
+///     .expect("template should load")
+///     .element
+///     .render(&Default::default())
+///     .expect("template should render");
+/// assert!(output.contains("Hello World"));
 /// ```
 ///
-/// About the security: this loader doesn't allow to go fetch a template that
-/// is in a parent directory of the root directory.
+/// About the security: the resolved file must be inside the root directory,
+/// with any `..` components and symlinks resolved first on both sides of the
+/// comparison. `root` may be relative or contain a symlinked ancestor; it is
+/// canonicalized before every comparison.
 pub struct LocalIncludeLoader {
     root: PathBuf,
 }
@@ -54,14 +55,19 @@ impl LocalIncludeLoader {
     }
 
     fn build_path(&self, url: &str) -> Result<PathBuf, IncludeLoaderError> {
+        let root = self.root.canonicalize().map_err(|err| {
+            IncludeLoaderError::new(url, err.kind())
+                .with_message("unable to canonicalize the loader root directory")
+                .with_cause(Arc::new(err))
+        })?;
         let path = self.root.join(url.trim_start_matches("file:///"));
         path.canonicalize()
             .map_err(|err| IncludeLoaderError::new(url, err.kind()))
             .and_then(|path| {
-                if !path.starts_with(&self.root) {
-                    Err(IncludeLoaderError::new(url, ErrorKind::NotFound))
-                } else {
+                if path.starts_with(&root) {
                     Ok(path)
+                } else {
+                    Err(IncludeLoaderError::new(url, ErrorKind::NotFound))
                 }
             })
             .map_err(|err| err.with_message("the path should stay in the context of the loader"))
@@ -126,11 +132,51 @@ mod tests {
 
     #[test]
     fn should_handle_dots_with_existing_file() {
-        let loader = LocalIncludeLoader::new(PathBuf::default().join("src"));
+        // "src/../resources/..." resolves to a sibling of the "src" root, not
+        // a descendant of it, so this must be rejected even though the file
+        // itself exists on disk.
+        let loader = LocalIncludeLoader::new(PathBuf::from("src"));
 
         let err = loader
             .build_path("file:///../resources/compare/success/mj-body.mjml")
             .unwrap_err();
+
+        assert_eq!(err.reason, ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn should_resolve_relative_root() {
+        // Regression test: with a relative root, build_path used to compare a
+        // canonicalized (absolute) target against a non-canonical (relative)
+        // root, so `starts_with` never matched and every legitimate path was
+        // rejected.
+        let loader = LocalIncludeLoader::new(PathBuf::from("tests").join("resources"));
+
+        loader
+            .build_path("file:///mj-text-hello-world.mjml")
+            .expect("a legitimate file under a relative root should resolve");
+    }
+
+    #[test]
+    fn should_block_traversal_with_relative_root() {
+        let loader = LocalIncludeLoader::new(PathBuf::from("tests").join("resources"));
+
+        let err = loader
+            .build_path("file:///../../../../../../../../etc/hostname")
+            .unwrap_err();
+
+        assert_eq!(err.reason, ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn should_block_absolute_path_smuggling_with_relative_root() {
+        // `PathBuf::join` with an absolute path discards the base entirely,
+        // so a URL surviving `trim_start_matches("file:///")` as an absolute
+        // path (e.g. a fourth leading slash) must still be rejected by the
+        // containment check rather than silently resolving outside root.
+        let loader = LocalIncludeLoader::new(PathBuf::from("tests").join("resources"));
+
+        let err = loader.build_path("file:////etc/hostname").unwrap_err();
 
         assert_eq!(err.reason, ErrorKind::NotFound);
     }
