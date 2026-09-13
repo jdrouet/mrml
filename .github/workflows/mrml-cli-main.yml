@@ -63,10 +63,7 @@ jobs:
         continue-on-error: true
       - uses: jdrouet/action-git-identity@main
 
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
+      - uses: dtolnay/rust-toolchain@stable
 
       - uses: actions/cache@v6
         with:
