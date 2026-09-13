@@ -6,6 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.0](https://github.com/jdrouet/mrml/compare/mrml-v6.0.1...mrml-v7.0.0) - 2026-09-13
+
+### Fixed
+
+- *(mrml-core)* make local loader containment hold ([#695](https://github.com/jdrouet/mrml/pull/695))
+- *(mrml-core)* forward layout context through mj-include ([#696](https://github.com/jdrouet/mrml/pull/696))
+- also consider carriage return when skipping empty tokens ([#656](https://github.com/jdrouet/mrml/pull/656))
+- *(mrml-core)* return typed error for unsupported mj-include type instead of panicking ([#647](https://github.com/jdrouet/mrml/pull/647))
+- *(mrml-core)* accept unitless zero in Pixel::try_from ([#644](https://github.com/jdrouet/mrml/pull/644))
+- *(mrml-core)* warn on duplicate attributes and keep first value ([#638](https://github.com/jdrouet/mrml/pull/638))
+
+### Other
+
+- fold css-compare into html-compare ([#691](https://github.com/jdrouet/mrml/pull/691))
+- *(mrml-core)* scope the dead_code allow to the render feature ([#690](https://github.com/jdrouet/mrml/pull/690))
+- *(mrml-core)* merge the dense and pretty printers ([#682](https://github.com/jdrouet/mrml/pull/682))
+- *(mrml-core)* replace the Map and Set newtypes with type aliases ([#683](https://github.com/jdrouet/mrml/pull/683))
+- *(mrml-core)* simplify the spacing and sort helpers ([#681](https://github.com/jdrouet/mrml/pull/681))
+- *(deps)* remove unused itertools dependency ([#677](https://github.com/jdrouet/mrml/pull/677))
+- rewrap comments for current nightly rustfmt ([#673](https://github.com/jdrouet/mrml/pull/673))
+- *(deps)* Bump mjml from 4.18.0 to 5.0.0 in /scripts ([#653](https://github.com/jdrouet/mrml/pull/653))
+- add zed-mjml to the list of what is using it ([#649](https://github.com/jdrouet/mrml/pull/649))
+
 ## [6.0.1](https://github.com/jdrouet/mrml/compare/mrml-v6.0.0...mrml-v6.0.1) - 2026-04-25
 
 ### Fixed
