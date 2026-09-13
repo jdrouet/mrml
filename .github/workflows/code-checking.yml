@@ -23,15 +23,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt,clippy
-      - uses: actions/cache@v6
+      - uses: ./.github/actions/cargo-cache
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-code-checking-${{ hashFiles('**/Cargo.lock') }}
+          name: code-checking
 
       - name: run lint
         run: cargo fmt --all --check

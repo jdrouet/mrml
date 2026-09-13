@@ -49,15 +49,9 @@ jobs:
       - name: install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-      - uses: actions/cache@v6
+      - uses: ./.github/actions/cargo-cache
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-mrml-wasm-testing-${{ hashFiles('**/Cargo.lock') }}
+          name: mrml-wasm-testing
 
       - name: run integration tests
         run: wasm-pack test --node

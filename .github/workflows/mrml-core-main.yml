@@ -41,15 +41,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: prepare cache
-        uses: actions/cache@v6
+        uses: ./.github/actions/cargo-cache
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
+          name: testing
 
       # the image ships a prebaked apt index that 404s once versions are superseded
       - name: refresh apt index

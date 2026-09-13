@@ -37,15 +37,9 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - uses: actions/cache@v6
+      - uses: ./.github/actions/cargo-cache
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-exampl-axum-testing-${{ hashFiles('**/Cargo.lock') }}
+          name: exampl-axum-testing
 
       - name: run tests
         run: cargo test -p axum-mrml
