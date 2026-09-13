@@ -1,0 +1,18 @@
+name: cargo-cache
+description: Cache cargo registry and target directories
+inputs:
+  name:
+    description: Name used to namespace the cache key
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache@v6
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-${{ inputs.name }}-${{ hashFiles('**/Cargo.lock') }}

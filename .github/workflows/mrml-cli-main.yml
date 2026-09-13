@@ -36,15 +36,9 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - uses: actions/cache@v6
+      - uses: ./.github/actions/cargo-cache
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
+          name: testing
 
       - name: run tests
         run: cargo test -p mrml-cli
@@ -68,15 +62,9 @@ jobs:
           toolchain: stable
           profile: minimal
 
-      - uses: actions/cache@v6
+      - uses: ./.github/actions/cargo-cache
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
+          name: testing
 
       - name: building the cli binary
         run: cargo build --package mrml-cli --release
