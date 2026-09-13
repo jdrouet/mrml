@@ -6,7 +6,6 @@ WORKDIR /code
 RUN cargo init --bin --name axum-mrml /code/examples/axum \
   && cargo init --bin --name mrml-cli /code/packages/mrml-cli \
   && cargo init --lib --name mrml /code/packages/mrml-core \
-  && cargo init --lib --name css-compare /code/packages/mrml-core/lib/css-compare \
   && cargo init --lib --name html-compare /code/packages/mrml-core/lib/html-compare \
   && cargo init --lib --name mrml-python /code/packages/mrml-python \
   && cargo init --lib --name mrml-warm /code/packages/mrml-wasm
@@ -15,7 +14,6 @@ COPY Cargo.toml /code/Cargo.toml
 COPY examples/axum/Cargo.toml /code/examples/axum/Cargo.toml
 COPY packages/mrml-cli/Cargo.toml /code/packages/mrml-cli/Cargo.toml
 COPY packages/mrml-core/Cargo.toml /code/packages/mrml-core/Cargo.toml
-COPY packages/mrml-core/lib/css-compare/Cargo.toml /code/packages/mrml-core/lib/css-compare/Cargo.toml
 COPY packages/mrml-core/lib/html-compare/Cargo.toml /code/packages/mrml-core/lib/html-compare/Cargo.toml
 COPY packages/mrml-python/Cargo.toml /code/packages/mrml-python/Cargo.toml
 COPY packages/mrml-wasm/Cargo.toml /code/packages/mrml-wasm/Cargo.toml

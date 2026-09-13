@@ -10,6 +10,6 @@ repository = "https://github.com/jdrouet/mrml"
 
 [dependencies]
 colored = "3.0"
-css-compare = { path = "../css-compare", version = "0.1" }
+lightningcss = { version = "1.0.0-alpha.66", default-features = false }
 similar-asserts = { workspace = true }
 htmlparser = { workspace = true }
