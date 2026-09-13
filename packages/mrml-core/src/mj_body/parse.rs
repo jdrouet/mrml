@@ -44,7 +44,10 @@ impl ParseElement<Node<MjBodyChild>> for MrmlParser<'_> {
                 children: Vec::new(),
             });
         }
-        let children = self.parse_children(cursor)?;
+        cursor.enter_nested()?;
+        let children = self.parse_children(cursor);
+        cursor.leave_nested();
+        let children = children?;
 
         cursor.assert_element_close()?;
 
@@ -75,7 +78,10 @@ impl AsyncParseElement<Node<MjBodyChild>> for AsyncMrmlParser {
                 children: Vec::new(),
             });
         }
-        let children = self.async_parse_children(cursor).await?;
+        cursor.enter_nested()?;
+        let children = self.async_parse_children(cursor).await;
+        cursor.leave_nested();
+        let children = children?;
 
         cursor.assert_element_close()?;
 

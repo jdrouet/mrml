@@ -27,7 +27,10 @@ fn parse_raw_node<'a>(
         });
     }
 
-    let children = parse_raw_children(cursor)?;
+    cursor.enter_nested()?;
+    let children = parse_raw_children(cursor);
+    cursor.leave_nested();
+    let children = children?;
     cursor.assert_element_close()?;
 
     Ok(Node {
