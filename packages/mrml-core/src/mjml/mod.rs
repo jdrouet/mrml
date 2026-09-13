@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::marker::PhantomData;
 
 use crate::mj_body::MjBody;
@@ -28,6 +26,7 @@ pub struct MjmlAttributes {
     pub dir: Option<String>,
 }
 
+#[cfg(feature = "render")]
 impl MjmlAttributes {
     fn lang(&self) -> &str {
         self.lang.as_deref().unwrap_or("und")
