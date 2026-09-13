@@ -29,7 +29,7 @@ env:
 jobs:
   testing:
     runs-on: ubuntu-latest
-    container: rust:1-bullseye
+    container: rust:1-bookworm
 
     concurrency:
       group: ${{ github.ref }}-mrml-core-testing
@@ -50,6 +50,10 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-testing-${{ hashFiles('**/Cargo.lock') }}
+
+      # the image ships a prebaked apt index that 404s once versions are superseded
+      - name: refresh apt index
+        run: apt-get update
 
       - name: install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov

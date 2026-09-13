@@ -31,7 +31,7 @@ env:
 jobs:
   testing:
     runs-on: ubuntu-latest
-    container: rust:1-bullseye
+    container: rust:1-bookworm
 
     concurrency:
       group: ${{ github.ref }}-mrml-wasm-testing
