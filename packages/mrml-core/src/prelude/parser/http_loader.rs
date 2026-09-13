@@ -86,12 +86,12 @@ pub struct AsyncReqwestFetcher(reqwest::Client);
 #[cfg(feature = "http-loader-async-reqwest")]
 impl Default for AsyncReqwestFetcher {
     fn default() -> Self {
-        Self(
-            reqwest::Client::builder()
-                .redirect(reqwest::redirect::Policy::none())
-                .build()
-                .expect("failed to build the http client"),
-        )
+        let builder = reqwest::Client::builder();
+        // reqwest exposes no redirect policy on wasm: the browser performs the
+        // request and follows redirects itself.
+        #[cfg(not(target_arch = "wasm32"))]
+        let builder = builder.redirect(reqwest::redirect::Policy::none());
+        Self(builder.build().expect("failed to build the http client"))
     }
 }
 
@@ -196,6 +196,10 @@ impl OriginList {
 /// treated as an error rather than being resolved further, so the
 /// allow/deny origin list applies to the requested URL, not to whatever
 /// address a server might redirect it to.
+///
+/// The exception is `wasm32`, where reqwest delegates the request to the
+/// browser and exposes no redirect policy, so the browser follows redirects
+/// before mrml sees the response.
 ///
 /// # Example with `reqwest`
 /// ```rust
