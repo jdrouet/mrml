@@ -9,10 +9,6 @@ pub struct ReqwestIncludeLoaderOptions {
 }
 
 impl ReqwestIncludeLoaderOptions {
-    pub fn new(headers: HashMap<String, String>) -> Self {
-        Self { headers }
-    }
-
     pub fn build_async(self) -> Box<dyn AsyncIncludeLoader + Sync + Send + 'static> {
         Box::new(HttpIncludeLoader::<AsyncReqwestFetcher>::allow_all().with_headers(self.headers))
     }
