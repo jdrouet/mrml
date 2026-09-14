@@ -100,25 +100,6 @@ impl<T> MultiIncludeLoader<T> {
             loader,
         )
     }
-
-    fn add_item(&mut self, filter: MultiIncludeLoaderFilter, loader: T) {
-        self.0.push(MultiIncludeLoaderItem { filter, loader });
-    }
-
-    #[inline]
-    pub fn add_any(&mut self, loader: T) {
-        self.add_item(MultiIncludeLoaderFilter::Any, loader);
-    }
-
-    #[inline]
-    pub fn add_starts_with<S: ToString>(&mut self, starts_with: S, loader: T) {
-        self.add_item(
-            MultiIncludeLoaderFilter::StartsWith {
-                value: starts_with.to_string(),
-            },
-            loader,
-        );
-    }
 }
 
 #[derive(Debug)]
@@ -237,9 +218,9 @@ mod tests {
         use crate::prelude::parser::multi_loader::MultiIncludeLoader;
         use crate::prelude::parser::noop_loader::NoopIncludeLoader;
 
-        let mut resolver = MultiIncludeLoader::default();
-        resolver.add_starts_with("foo", Box::<NoopIncludeLoader>::default());
-        resolver.add_any(Box::<NoopIncludeLoader>::default());
+        let resolver = MultiIncludeLoader::default()
+            .with_starts_with("foo", Box::<NoopIncludeLoader>::default())
+            .with_any(Box::<NoopIncludeLoader>::default());
         assert_eq!(resolver.0.len(), 2);
 
         assert_eq!(format!("{resolver:?}"), "MultiIncludeLoader([MultiIncludeLoaderItem { filter: StartsWith { value: \"foo\" }, loader: NoopIncludeLoader }, MultiIncludeLoaderItem { filter: Any, loader: NoopIncludeLoader }])");
