@@ -299,7 +299,7 @@ impl ParseElement<MjIncludeBody> for MrmlParser<'_> {
             let with_position = |err: Error| err.adjust_positions(offset);
             match attributes.kind {
                 MjIncludeBodyKind::Html => {
-                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str())?;
                     sub.set_source_offset(offset);
                     sub.assert_element_start().map_err(&with_position)?;
                     sub.assert_element_end().map_err(&with_position)?;
@@ -313,7 +313,7 @@ impl ParseElement<MjIncludeBody> for MrmlParser<'_> {
                     ))]
                 }
                 MjIncludeBodyKind::Mjml => {
-                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str())?;
                     sub.set_source_offset(offset);
                     sub.assert_element_start().map_err(&with_position)?;
                     sub.assert_element_end().map_err(&with_position)?;
@@ -364,7 +364,7 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
             let with_position = |err: Error| err.adjust_positions(offset);
             match attributes.kind {
                 MjIncludeBodyKind::Html => {
-                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str())?;
                     sub.set_source_offset(offset);
                     sub.assert_element_start().map_err(&with_position)?;
                     sub.assert_element_end().map_err(&with_position)?;
@@ -380,7 +380,7 @@ impl crate::prelude::parser::AsyncParseElement<MjIncludeBody> for AsyncMrmlParse
                     ))]
                 }
                 MjIncludeBodyKind::Mjml => {
-                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
+                    let mut sub = cursor.new_child(&attributes.path, wrapped.as_str())?;
                     sub.set_source_offset(offset);
                     sub.assert_element_start().map_err(&with_position)?;
                     sub.assert_element_end().map_err(&with_position)?;

@@ -106,7 +106,7 @@ impl ParseChildren<MjmlChildren> for MrmlParser<'_> {
                         let wrapped = format!("{WRAPPER_OPEN}{content}{WRAPPER_CLOSE}");
                         let offset = WRAPPER_OPEN.len();
                         let with_position = |err: Error| err.adjust_positions(offset);
-                        let mut sub = cursor.new_child(&path, wrapped.as_str());
+                        let mut sub = cursor.new_child(&path, wrapped.as_str())?;
                         sub.set_source_offset(offset);
                         sub.assert_element_start().map_err(&with_position)?;
                         sub.assert_element_end().map_err(&with_position)?;
@@ -193,7 +193,7 @@ impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
                         let wrapped = format!("{WRAPPER_OPEN}{content}{WRAPPER_CLOSE}");
                         let offset = WRAPPER_OPEN.len();
                         let with_position = |err: Error| err.adjust_positions(offset);
-                        let mut sub = cursor.new_child(&path, wrapped.as_str());
+                        let mut sub = cursor.new_child(&path, wrapped.as_str())?;
                         sub.set_source_offset(offset);
                         sub.assert_element_start().map_err(&with_position)?;
                         sub.assert_element_end().map_err(&with_position)?;
