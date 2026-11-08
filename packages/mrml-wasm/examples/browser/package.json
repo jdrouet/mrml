@@ -12,7 +12,7 @@
     "mrml-wasm": "file:../../pkg"
   },
   "devDependencies": {
-    "vite": "^8.0.8",
-    "vite-plugin-wasm": "^3.4.1"
+    "vite": "^8.3.6",
+    "vite-plugin-wasm": "^3.6.0"
   }
 }

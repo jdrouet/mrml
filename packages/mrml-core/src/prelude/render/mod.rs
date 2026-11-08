@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::str::FromStr;
 use std::sync::atomic::{AtomicU16, Ordering};
 
 use crate::helper::size::{Pixel, Size};
@@ -103,17 +103,17 @@ pub(crate) trait Render<'root> {
 
     fn attribute_as_pixel(&self, name: &str) -> Option<Pixel> {
         self.attribute(name)
-            .and_then(|value| Pixel::try_from(value).ok())
+            .and_then(|value| Pixel::from_str(value).ok())
     }
 
     fn attribute_as_size(&self, name: &str) -> Option<Size> {
         self.attribute(name)
-            .and_then(|value| Size::try_from(value).ok())
+            .and_then(|value| Size::from_str(value).ok())
     }
 
     fn attribute_as_spacing(&self, name: &str) -> Option<Spacing> {
         self.attribute(name)
-            .and_then(|value| Spacing::try_from(value).ok())
+            .and_then(|value| Spacing::from_str(value).ok())
     }
 
     fn attribute_equals(&self, key: &str, value: &str) -> bool {
