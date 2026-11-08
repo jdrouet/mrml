@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5](https://github.com/jdrouet/mrml/compare/mrml-python-v0.2.4...mrml-python-v0.2.5) - 2026-11-08
+
+### Other
+
+- *(deps)* update rust and js dependencies ([#706](https://github.com/jdrouet/mrml/pull/706))
+- *(mrml-python)* inline the single-caller warning converter ([#689](https://github.com/jdrouet/mrml/pull/689))
+- *(deps)* Bump pyo3 from 0.28.3 to 0.29.0 ([#648](https://github.com/jdrouet/mrml/pull/648))
+
 ## [0.2.4](https://github.com/jdrouet/mrml/compare/mrml-python-v0.2.3...mrml-python-v0.2.4) - 2026-04-25
 
 ### Other
