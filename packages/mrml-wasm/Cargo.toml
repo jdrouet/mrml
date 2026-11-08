@@ -25,7 +25,6 @@ mrml = { version = "6.0.1", path = "../mrml-core", default-features = false, fea
 ] }
 
 serde = { version = "1.0", features = ["derive"] }
-serde-wasm-bindgen = { version = "0.6" }
 
 # to generate typescript binding
 tsify = { version = "0.5.8" }
