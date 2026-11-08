@@ -10,7 +10,7 @@ on:
       - "Cargo.toml"
       - "packages/mrml-core/**"
       - "packages/mrml-wasm/**"
-      - "example/demo/**"
+      - "examples/demo/**"
   workflow_dispatch:
 
 jobs:
