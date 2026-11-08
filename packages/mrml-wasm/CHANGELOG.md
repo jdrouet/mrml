@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.6.1...mrml-wasm-v2.0.0) - 2026-11-08
+
+### Fixed
+
+- *(mrml-core)* return typed error for unsupported mj-include type instead of panicking ([#647](https://github.com/jdrouet/mrml/pull/647))
+- *(mrml-core)* warn on duplicate attributes and keep first value ([#638](https://github.com/jdrouet/mrml/pull/638))
+
+### Other
+
+- *(deps)* update rust and js dependencies ([#706](https://github.com/jdrouet/mrml/pull/706))
+- *(mrml-wasm)* remove orphan utils module and ignored release profile ([#678](https://github.com/jdrouet/mrml/pull/678))
+- *(deps-dev)* Bump mocha from 11.8.0 to 12.0.0 in /packages/mrml-wasm/examples/node ([#669](https://github.com/jdrouet/mrml/pull/669))
+
 ## [1.6.1](https://github.com/jdrouet/mrml/compare/mrml-wasm-v1.6.0...mrml-wasm-v1.6.1) - 2026-04-25
 
 ### Other
