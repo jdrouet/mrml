@@ -73,6 +73,7 @@ impl<'root> Render<'root> for Renderer<'root, MjTable, ()> {
             .add_attribute("border", "0")
             .maybe_add_attribute("cellpadding", self.attribute("cellpadding"))
             .maybe_add_attribute("cellspacing", self.attribute("cellspacing"))
+            .maybe_add_attribute("role", self.attribute("role"))
             .maybe_add_attribute("width", self.attribute("width"));
         table.render_open(&mut cursor.buffer)?;
         for (index, child) in self.element.children.iter().enumerate() {
@@ -100,4 +101,5 @@ mod tests {
     crate::should_render!(table, "mj-table-table");
     crate::should_render!(text, "mj-table-text");
     crate::should_render!(other, "mj-table-other");
+    crate::should_render!(role, "mj-table-role");
 }

@@ -1,0 +1,23 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-table role="presentation">
+          <tr>
+            <td>Presentation</td>
+          </tr>
+        </mj-table>
+        <mj-table role="none">
+          <tr>
+            <td>None</td>
+          </tr>
+        </mj-table>
+        <mj-table>
+          <tr>
+            <td>Default</td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
