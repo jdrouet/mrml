@@ -31,8 +31,20 @@ pub trait AsyncHttpFetcher: Default + Debug {
 }
 
 #[cfg(feature = "http-loader-blocking-reqwest")]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct BlockingReqwestFetcher(reqwest::blocking::Client);
+
+#[cfg(feature = "http-loader-blocking-reqwest")]
+impl Default for BlockingReqwestFetcher {
+    fn default() -> Self {
+        Self(
+            reqwest::blocking::Client::builder()
+                .redirect(reqwest::redirect::Policy::none())
+                .build()
+                .expect("failed to build the http client"),
+        )
+    }
+}
 
 #[cfg(feature = "http-loader-blocking-reqwest")]
 impl HttpFetcher for BlockingReqwestFetcher {
@@ -50,6 +62,10 @@ impl HttpFetcher for BlockingReqwestFetcher {
                 .with_message("unable to fetch template")
                 .with_cause(Arc::new(err))
         })?;
+        if res.status().is_redirection() {
+            return Err(IncludeLoaderError::new(url, ErrorKind::InvalidData)
+                .with_message("redirects are not followed"));
+        }
         let res = res.error_for_status().map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::NotFound)
                 .with_message("unable to fetch template")
@@ -64,8 +80,20 @@ impl HttpFetcher for BlockingReqwestFetcher {
 }
 
 #[cfg(feature = "http-loader-async-reqwest")]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct AsyncReqwestFetcher(reqwest::Client);
+
+#[cfg(feature = "http-loader-async-reqwest")]
+impl Default for AsyncReqwestFetcher {
+    fn default() -> Self {
+        let builder = reqwest::Client::builder();
+        // reqwest exposes no redirect policy on wasm: the browser performs the
+        // request and follows redirects itself.
+        #[cfg(not(target_arch = "wasm32"))]
+        let builder = builder.redirect(reqwest::redirect::Policy::none());
+        Self(builder.build().expect("failed to build the http client"))
+    }
+}
 
 #[cfg(feature = "http-loader-async-reqwest")]
 #[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
@@ -85,6 +113,10 @@ impl AsyncHttpFetcher for AsyncReqwestFetcher {
                 .with_message("unable to fetch template")
                 .with_cause(Arc::new(err))
         })?;
+        if res.status().is_redirection() {
+            return Err(IncludeLoaderError::new(url, ErrorKind::InvalidData)
+                .with_message("redirects are not followed"));
+        }
         let res = res.error_for_status().map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::NotFound)
                 .with_message("unable to fetch template")
@@ -109,7 +141,7 @@ impl HttpFetcher for UreqFetcher {
         url: &str,
         headers: &HashMap<String, String>,
     ) -> Result<String, IncludeLoaderError> {
-        let req = ureq::get(url);
+        let req = ureq::get(url).config().max_redirects(0).build();
         let req = headers.iter().fold(req, |r, (key, value)| {
             r.header(key.as_str(), value.as_str())
         });
@@ -118,6 +150,10 @@ impl HttpFetcher for UreqFetcher {
                 .with_message("unable to fetch template")
                 .with_cause(Arc::new(err))
         })?;
+        if res.status().is_redirection() {
+            return Err(IncludeLoaderError::new(url, ErrorKind::InvalidData)
+                .with_message("redirects are not followed"));
+        }
         res.body_mut().read_to_string().map_err(|err| {
             IncludeLoaderError::new(url, ErrorKind::InvalidData)
                 .with_message("unable to convert remote template as string")
@@ -155,6 +191,15 @@ impl OriginList {
 /// [`IncludeLoader`](crate::prelude::parser::loader::IncludeLoader) where
 /// you can read a template from an http server and be able to use it with
 /// [`mj-include`](crate::mj_include).
+///
+/// The bundled fetchers do not follow redirects: a redirect response is
+/// treated as an error rather than being resolved further, so the
+/// allow/deny origin list applies to the requested URL, not to whatever
+/// address a server might redirect it to.
+///
+/// The exception is `wasm32`, where reqwest delegates the request to the
+/// browser and exposes no redirect policy, so the browser follows redirects
+/// before mrml sees the response.
 ///
 /// # Example with `reqwest`
 /// ```rust
@@ -464,6 +509,31 @@ mod ureq_tests {
         assert_eq!(err.reason, ErrorKind::NotFound);
         m.assert();
     }
+
+    #[test]
+    fn include_loader_should_not_follow_redirects() {
+        let mut mock_server = mockito::Server::new();
+        let location = format!("{}/secret.mjml", mock_server.url());
+        let redirect = mock_server
+            .mock("GET", "/partial.mjml")
+            .with_status(302)
+            .with_header("Location", &location)
+            .create();
+        let secret = mock_server
+            .mock("GET", "/secret.mjml")
+            .with_status(200)
+            .with_body("<mj-text>Secret</mj-text>")
+            .expect(0)
+            .create();
+        let loader =
+            HttpIncludeLoader::<UreqFetcher>::new_allow(HashSet::from([mock_server.url()]));
+        let err = loader
+            .resolve(&format!("{}/partial.mjml", mock_server.url()))
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::InvalidData);
+        redirect.assert();
+        secret.assert();
+    }
 }
 
 #[cfg(all(test, feature = "http-loader-blocking-reqwest"))]
@@ -580,5 +650,68 @@ mod reqwest_tests {
             .unwrap_err();
         assert_eq!(err.reason, ErrorKind::NotFound);
         m.assert();
+    }
+
+    #[test]
+    fn include_loader_should_not_follow_redirects() {
+        let mut mock_server = mockito::Server::new();
+        let location = format!("{}/secret.mjml", mock_server.url());
+        let redirect = mock_server
+            .mock("GET", "/partial.mjml")
+            .with_status(302)
+            .with_header("Location", &location)
+            .create();
+        let secret = mock_server
+            .mock("GET", "/secret.mjml")
+            .with_status(200)
+            .with_body("<mj-text>Secret</mj-text>")
+            .expect(0)
+            .create();
+        let loader = HttpIncludeLoader::<BlockingReqwestFetcher>::new_allow(HashSet::from([
+            mock_server.url(),
+        ]));
+        let err = loader
+            .resolve(&format!("{}/partial.mjml", mock_server.url()))
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::InvalidData);
+        redirect.assert();
+        secret.assert();
+    }
+}
+
+#[cfg(all(test, feature = "http-loader-async-reqwest"))]
+mod async_reqwest_tests {
+    use std::collections::HashSet;
+    use std::io::ErrorKind;
+
+    use super::{AsyncReqwestFetcher, HttpIncludeLoader};
+    use crate::prelude::parser::loader::AsyncIncludeLoader;
+
+    #[tokio::test]
+    async fn include_loader_should_not_follow_redirects() {
+        let mut mock_server = mockito::Server::new_async().await;
+        let location = format!("{}/secret.mjml", mock_server.url());
+        let redirect = mock_server
+            .mock("GET", "/partial.mjml")
+            .with_status(302)
+            .with_header("Location", &location)
+            .create_async()
+            .await;
+        let secret = mock_server
+            .mock("GET", "/secret.mjml")
+            .with_status(200)
+            .with_body("<mj-text>Secret</mj-text>")
+            .expect(0)
+            .create_async()
+            .await;
+        let loader =
+            HttpIncludeLoader::<AsyncReqwestFetcher>::new_allow(HashSet::from([mock_server.url()]));
+        let err = loader
+            .async_resolve(&format!("{}/partial.mjml", mock_server.url()))
+            .await
+            .unwrap_err();
+        assert_eq!(err.reason, ErrorKind::InvalidData);
+        redirect.assert_async().await;
+        secret.assert_async().await;
     }
 }
