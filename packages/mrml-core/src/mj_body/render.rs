@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::str::FromStr;
 
 use super::MjBody;
 use crate::helper::size::Pixel;
@@ -7,7 +7,7 @@ use crate::prelude::render::*;
 impl<'root> Renderer<'root, MjBody, ()> {
     fn get_width(&self) -> Option<Pixel> {
         self.attribute("width")
-            .and_then(|value| Pixel::try_from(value).ok())
+            .and_then(|value| Pixel::from_str(value).ok())
     }
 
     fn get_body_tag(&self) -> Tag<'_> {

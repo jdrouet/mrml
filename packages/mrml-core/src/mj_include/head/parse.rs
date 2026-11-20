@@ -258,10 +258,10 @@ impl ParseElement<MjIncludeHead> for MrmlParser<'_> {
                 MjIncludeHeadKind::Mjml => {
                     let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
                     sub.set_source_offset(offset);
-                    sub.assert_element_start().map_err(&with_position)?;
-                    sub.assert_element_end().map_err(&with_position)?;
-                    let children = self.parse_children(&mut sub).map_err(&with_position)?;
-                    sub.assert_element_close().map_err(&with_position)?;
+                    sub.assert_element_start().map_err(with_position)?;
+                    sub.assert_element_end().map_err(with_position)?;
+                    let children = self.parse_children(&mut sub).map_err(with_position)?;
+                    sub.assert_element_close().map_err(with_position)?;
                     cursor.with_warnings(sub.warnings());
                     children
                 }
@@ -327,13 +327,13 @@ impl AsyncParseElement<MjIncludeHead> for AsyncMrmlParser {
                 MjIncludeHeadKind::Mjml => {
                     let mut sub = cursor.new_child(&attributes.path, wrapped.as_str());
                     sub.set_source_offset(offset);
-                    sub.assert_element_start().map_err(&with_position)?;
-                    sub.assert_element_end().map_err(&with_position)?;
+                    sub.assert_element_start().map_err(with_position)?;
+                    sub.assert_element_end().map_err(with_position)?;
                     let children = self
                         .async_parse_children(&mut sub)
                         .await
-                        .map_err(&with_position)?;
-                    sub.assert_element_close().map_err(&with_position)?;
+                        .map_err(with_position)?;
+                    sub.assert_element_close().map_err(with_position)?;
                     cursor.with_warnings(sub.warnings());
                     children
                 }

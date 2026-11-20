@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::convert::TryFrom;
+use std::str::FromStr;
 
 use super::{MjSection, NAME};
 use crate::helper::size::{Percent, Pixel};
@@ -137,7 +137,7 @@ pub(crate) trait WithMjSectionBackground<'root>: Render<'root> {
                 }
             }
         };
-        let position_x = if let Ok(position) = Percent::try_from(bg_position_x) {
+        let position_x = if let Ok(position) = Percent::from_str(bg_position_x) {
             if bg_repeat {
                 position.value() * 0.01
             } else {
@@ -148,7 +148,7 @@ pub(crate) trait WithMjSectionBackground<'root>: Render<'root> {
         } else {
             0.0
         };
-        let position_y = if let Ok(position) = Percent::try_from(bg_position_y) {
+        let position_y = if let Ok(position) = Percent::from_str(bg_position_y) {
             if bg_repeat {
                 position.value() * 0.01
             } else {
