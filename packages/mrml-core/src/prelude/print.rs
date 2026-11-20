@@ -182,14 +182,18 @@ impl<N, V> From<(N, V)> for PrintAttribute<N, V> {
 
 impl<'a> std::fmt::Display for PrintAttribute<&'a str, &'a str> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}={:?}", self.name, self.value)
+        write!(f, "{}=", self.name)?;
+        crate::prelude::write_attribute_value(f, self.value)
     }
 }
 
 impl<'a> std::fmt::Display for PrintAttribute<&'a str, Option<&'a str>> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.value {
-            Some(ref value) => write!(f, "{}={:?}", self.name, value),
+            Some(value) => {
+                write!(f, "{}=", self.name)?;
+                crate::prelude::write_attribute_value(f, value)
+            }
             None => write!(f, "{}", self.name),
         }
     }

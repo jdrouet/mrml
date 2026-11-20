@@ -43,6 +43,23 @@ impl<T, A, C> Component<PhantomData<T>, A, C> {
     }
 }
 
+/// Writes `value` as a double-quoted HTML attribute value, escaping only `"`
+/// so the input text (entities included) is kept as written, like mjml does.
+#[cfg(any(feature = "print", feature = "render"))]
+pub(crate) fn write_attribute_value<W: std::fmt::Write>(
+    f: &mut W,
+    value: &str,
+) -> std::fmt::Result {
+    f.write_char('"')?;
+    for (index, part) in value.split('"').enumerate() {
+        if index > 0 {
+            f.write_str("&quot;")?;
+        }
+        f.write_str(part)?;
+    }
+    f.write_char('"')
+}
+
 // see https://developer.mozilla.org/en-US/docs/Glossary/Void_element
 #[cfg(any(feature = "parse", feature = "print", feature = "render"))]
 pub(crate) fn is_void_element(tag: &str) -> bool {

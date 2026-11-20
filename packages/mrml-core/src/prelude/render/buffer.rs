@@ -28,7 +28,8 @@ pub(crate) struct RenderAttribute<N, V>(N, V);
 
 impl<'a> std::fmt::Display for RenderAttribute<&'a str, &'a str> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}={:?}", self.0, self.1)
+        write!(f, "{}=", self.0)?;
+        crate::prelude::write_attribute_value(f, self.1)
     }
 }
 
@@ -47,7 +48,10 @@ impl<'a> std::fmt::Display for RenderAttribute<&'a str, &'a Styles<'a>> {
 impl<'a> std::fmt::Display for RenderAttribute<&'a str, Option<&'a str>> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.1 {
-            Some(ref value) => write!(f, "{}={value:?}", self.0),
+            Some(value) => {
+                write!(f, "{}=", self.0)?;
+                crate::prelude::write_attribute_value(f, value)
+            }
             None => write!(f, "{}", self.0),
         }
     }
