@@ -8,6 +8,7 @@ pub enum WarningKind {
     UnexpectedAttribute,
     DuplicateAttribute,
     InlineStyleUnsupported,
+    UnexpectedElement,
 }
 
 impl WarningKind {
@@ -16,6 +17,7 @@ impl WarningKind {
             Self::UnexpectedAttribute => "unexpected-attribute",
             Self::DuplicateAttribute => "duplicate-attribute",
             Self::InlineStyleUnsupported => "inline-style-unsupported",
+            Self::UnexpectedElement => "unexpected-element",
         }
     }
 }
@@ -28,6 +30,7 @@ impl std::fmt::Display for WarningKind {
             Self::InlineStyleUnsupported => {
                 f.write_str("inlining styles is not supported in this build")
             }
+            Self::UnexpectedElement => f.write_str("unexpected element, ignored"),
         }
     }
 }

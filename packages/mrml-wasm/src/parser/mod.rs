@@ -249,6 +249,7 @@ pub enum WarningKind {
     UnexpectedAttributes,
     DuplicateAttribute,
     InlineStyleUnsupported,
+    UnexpectedElement,
 }
 
 impl From<mrml::prelude::parser::WarningKind> for WarningKind {
@@ -259,6 +260,7 @@ impl From<mrml::prelude::parser::WarningKind> for WarningKind {
             mrml::prelude::parser::WarningKind::InlineStyleUnsupported => {
                 Self::InlineStyleUnsupported
             }
+            mrml::prelude::parser::WarningKind::UnexpectedElement => Self::UnexpectedElement,
         }
     }
 }

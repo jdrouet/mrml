@@ -1,7 +1,7 @@
 use htmlparser::StrSpan;
 
 use super::{Mjml, MjmlAttributes, MjmlChildren};
-use crate::mj_body::NAME as MJ_BODY;
+use crate::mj_body::{MjBodyChild, NAME as MJ_BODY};
 use crate::mj_head::NAME as MJ_HEAD;
 use crate::mj_include::NAME as MJ_INCLUDE;
 #[cfg(feature = "async")]
@@ -116,11 +116,11 @@ impl ParseChildren<MjmlChildren> for MrmlParser<'_> {
                         cursor.with_warnings(sub.warnings());
                         merge_include_children(&mut children, included);
                     }
+                    // mjml ignores anything else here, like an mj-style outside
+                    // mj-head.
                     _ => {
-                        return Err(Error::UnexpectedElement {
-                            origin: cursor.origin(),
-                            position: start.span.into(),
-                        });
+                        cursor.add_warning(WarningKind::UnexpectedElement, start.span);
+                        let _: MjBodyChild = self.parse(cursor, start.local)?;
                     }
                 },
                 other => {
@@ -205,11 +205,11 @@ impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
                         cursor.with_warnings(sub.warnings());
                         merge_include_children(&mut children, included);
                     }
+                    // mjml ignores anything else here, like an mj-style outside
+                    // mj-head.
                     _ => {
-                        return Err(Error::UnexpectedElement {
-                            origin: cursor.origin(),
-                            position: start.span.into(),
-                        });
+                        cursor.add_warning(WarningKind::UnexpectedElement, start.span);
+                        let _: MjBodyChild = self.async_parse(cursor, start.local).await?;
                     }
                 },
                 other => {
@@ -402,12 +402,33 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "UnexpectedElement { origin: Root, position: Span { start: 6, end: 10 } }"
-    )]
-    fn should_fail_with_other_child() {
+    fn should_ignore_other_child_with_warning() {
         let template = "<mjml><div /></mjml>";
-        let _ = Mjml::parse(template).unwrap();
+        let output = Mjml::parse(template).unwrap();
+        assert_eq!(output.warnings.len(), 1);
+        assert_eq!(
+            output.warnings[0].kind,
+            crate::prelude::parser::WarningKind::UnexpectedElement
+        );
+        assert_eq!(output.warnings[0].span.start, 6);
+    }
+
+    #[test]
+    fn should_ignore_mj_style_outside_head() {
+        let template = "<mjml><mj-style>.foo { color: red; }</mj-style><mj-body><mj-text>Hi</mj-text></mj-body></mjml>";
+        let output = Mjml::parse(template).unwrap();
+        assert_eq!(output.warnings.len(), 1);
+        assert!(output.element.children.head.is_none());
+        assert!(output.element.children.body.is_some());
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn should_ignore_mj_style_outside_head_async() {
+        let template = "<mjml><mj-style>.foo { color: red; }</mj-style><mj-body><mj-text>Hi</mj-text></mj-body></mjml>";
+        let output = Mjml::async_parse(template).await.unwrap();
+        assert_eq!(output.warnings.len(), 1);
+        assert!(output.element.children.body.is_some());
     }
 
     #[test]
