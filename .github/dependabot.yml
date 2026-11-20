@@ -6,18 +6,9 @@ updates:
       # Check for updates to GitHub Actions every week
       interval: "weekly"
 
+  # Members inherit fields from the workspace manifest, so cargo must resolve from the root.
   - package-ecosystem: "cargo"
-    directory: "/packages/mrml-cli"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "cargo"
-    directory: "/packages/mrml-core"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "cargo"
-    directory: "/packages/mrml-wasm"
+    directory: "/"
     schedule:
       interval: "daily"
 
