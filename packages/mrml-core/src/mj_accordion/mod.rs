@@ -1,6 +1,8 @@
 //! Module containing the `mj-accordion` element as defined in [the documentation](https://documentation.mjml.io/#mj-accordion).
 //!
 //! ```rust
+//! # #[cfg(all(feature = "parse", feature = "render"))]
+//! # {
 //! let template = include_str!("../../resources/compare/success/mj-accordion.mjml");
 //! let root = mrml::parse(template).expect("parse template");
 //! let opts = mrml::prelude::render::RenderOptions::default();
@@ -8,6 +10,7 @@
 //!     Ok(content) => println!("{content}"),
 //!     Err(_) => println!("couldn't render mjml template"),
 //! };
+//! # }
 //! ```
 
 mod children;

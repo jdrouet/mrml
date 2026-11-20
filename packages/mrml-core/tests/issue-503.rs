@@ -1,5 +1,7 @@
-/// Regression tests for https://github.com/jdrouet/mrml/issues/503
-/// mj-include should be usable directly inside <mjml>.
+//! Regression tests for https://github.com/jdrouet/mrml/issues/503
+//! mj-include should be usable directly inside <mjml>.
+#![cfg(all(feature = "parse", feature = "render"))]
+
 use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 use mrml::prelude::parser::ParserOptions;
 
@@ -36,6 +38,7 @@ fn include_head_inside_mjml_sync() {
     assert!(html.contains("World"));
 }
 
+#[cfg(feature = "async")]
 #[tokio::test]
 async fn include_head_inside_mjml_async() {
     let resolver = MemoryIncludeLoader::from(vec![(

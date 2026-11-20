@@ -70,8 +70,10 @@ tokio-test = { version = "0.4" }
 name = "basic"
 path = "benches/basic.rs"
 harness = false
+required-features = ["parse", "render"]
 
 [[bench]]
 name = "template"
 path = "benches/template.rs"
 harness = false
+required-features = ["parse", "render"]
