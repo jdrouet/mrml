@@ -35,3 +35,10 @@ jobs:
 
       - name: run clippy
         run: cargo clippy --all-targets --all-features --tests --workspace
+
+      # Tests must keep compiling without --all-features.
+      - name: run check on mrml with default features
+        run: cargo check -p mrml --all-targets
+
+      - name: run check on mrml without default features
+        run: cargo check -p mrml --all-targets --no-default-features

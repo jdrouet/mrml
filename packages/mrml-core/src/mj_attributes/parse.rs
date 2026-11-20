@@ -252,7 +252,10 @@ mod tests {
         let mut cursor = MrmlCursor::new(raw);
         let result: MjAttributes = parser.parse_root(&mut cursor).unwrap();
         assert_eq!(result.children.len(), 1);
-        assert!(result.children[0].as_mj_attributes_element().is_some());
+        assert!(matches!(
+            result.children[0],
+            crate::mj_attributes::MjAttributesChild::MjAttributesElement(_)
+        ));
     }
 
     #[cfg(feature = "async")]
@@ -273,7 +276,10 @@ mod tests {
         let mut cursor = MrmlCursor::new(raw);
         let result: MjAttributes = parser.parse_root(&mut cursor).await.unwrap();
         assert_eq!(result.children.len(), 1);
-        assert!(result.children[0].as_mj_attributes_element().is_some());
+        assert!(matches!(
+            result.children[0],
+            crate::mj_attributes::MjAttributesChild::MjAttributesElement(_)
+        ));
     }
 
     #[test]

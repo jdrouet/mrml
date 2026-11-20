@@ -1,5 +1,7 @@
-/// Regression tests for https://github.com/jdrouet/mrml/issues/501
-/// mj-include inside mj-attributes should resolve included attribute defaults.
+//! Regression tests for https://github.com/jdrouet/mrml/issues/501
+//! mj-include inside mj-attributes should resolve included attribute defaults.
+#![cfg(all(feature = "parse", feature = "render"))]
+
 use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 use mrml::prelude::parser::ParserOptions;
 use mrml::prelude::render::RenderOptions;
@@ -45,6 +47,7 @@ fn include_inside_mj_attributes_sync() {
 }
 
 /// Same test but using the async parser.
+#[cfg(feature = "async")]
 #[tokio::test]
 async fn include_inside_mj_attributes_async() {
     let resolver = MemoryIncludeLoader::from(vec![(

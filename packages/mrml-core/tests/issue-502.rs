@@ -1,5 +1,7 @@
-/// Regression tests for https://github.com/jdrouet/mrml/issues/502
-/// mj-include should handle included templates with multiple root elements.
+//! Regression tests for https://github.com/jdrouet/mrml/issues/502
+//! mj-include should handle included templates with multiple root elements.
+#![cfg(all(feature = "parse", feature = "render"))]
+
 use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 use mrml::prelude::parser::ParserOptions;
 
@@ -43,6 +45,7 @@ fn multiple_root_elements_sync() {
 
 // -- happy-path: multiple root elements (async) -------------------------
 
+#[cfg(feature = "async")]
 #[tokio::test]
 async fn multiple_root_elements_async() {
     let resolver = MemoryIncludeLoader::from(vec![(

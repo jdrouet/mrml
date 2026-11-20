@@ -1,7 +1,9 @@
-/// Regression tests for the two unbounded-recursion shapes found by the
-/// security audit: deeply nested elements, and mutually-recursive
-/// `mj-include` chains. Both used to abort the process with a stack
-/// overflow instead of returning a parse error.
+//! Regression tests for the two unbounded-recursion shapes found by the
+//! security audit: deeply nested elements, and mutually-recursive
+//! `mj-include` chains. Both used to abort the process with a stack
+//! overflow instead of returning a parse error.
+#![cfg(feature = "parse")]
+
 use mrml::prelude::parser::memory_loader::MemoryIncludeLoader;
 use mrml::prelude::parser::{Error, ParserOptions};
 
@@ -44,6 +46,7 @@ fn nested_elements_sync() {
     assert_depth_limit_exceeded(mrml::parse(&template));
 }
 
+#[cfg(feature = "async")]
 #[tokio::test]
 async fn nested_elements_async() {
     let template = nested_divs(NESTED_DEPTH);
@@ -71,6 +74,7 @@ fn mutual_include_cycle_sync() {
     assert_depth_limit_exceeded(mrml::parse_with_options(template, &cycle_opts()));
 }
 
+#[cfg(feature = "async")]
 #[tokio::test]
 async fn mutual_include_cycle_async() {
     use mrml::prelude::parser::AsyncParserOptions;
