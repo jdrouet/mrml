@@ -102,6 +102,27 @@ match mrml::async_parse_with_options(json, Arc::new(parser_options)).await {
 # })
 ```
 
+## Security of `mj-include` loaders
+
+`mj-include` is disabled by default: the default loader refuses every path.
+Once you enable a loader, the `path` attribute of every `mj-include` decides
+what mrml reads, and the content ends up in the rendered email. If templates
+come from people you do not trust, treat the loader as a security boundary:
+
+- `LocalIncludeLoader` only reads files inside the root directory you give it,
+  after resolving `..` and symlinks. Point it at a directory that holds only
+  templates, never at `/` or a directory with secrets.
+- `HttpIncludeLoader::allow_all()` and `new_deny` let a template make the
+  server fetch any URL, including internal addresses (server-side request
+  forgery). Prefer `new_allow` with the exact origins you need. The loader does
+  not follow redirects, so an allowed host cannot send the request elsewhere.
+- Headers set with `with_headers` are sent with every request, to every host
+  the loader accepts.
+- Nested includes are limited in depth, so an include cycle fails with
+  `Error::DepthLimitExceeded` instead of looping.
+- Combine loaders with `MultiIncludeLoader` so each prefix only reaches the
+  loader meant for it, and fall back to `NoopIncludeLoader`.
+
 ## Using `mrml` in Python
 
 This crate can also be used in Python. The crate is available with pypi and
