@@ -8,7 +8,6 @@ pub use reqwest_include_loader::*;
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(tag = "type", rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
 #[derive(Default)]
 pub enum IncludeLoaderOptions {
     #[default]
@@ -29,7 +28,6 @@ impl IncludeLoaderOptions {
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct ParserOptions {
     pub include_loader: IncludeLoaderOptions,
 }
@@ -46,7 +44,6 @@ impl From<ParserOptions> for mrml::prelude::parser::ParserOptions {
 #[cfg(feature = "async")]
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(tag = "type", rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
 #[derive(Default)]
 pub enum AsyncIncludeLoaderOptions {
     #[default]
@@ -73,7 +70,6 @@ impl AsyncIncludeLoaderOptions {
 #[cfg(feature = "async")]
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "camelCase")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct AsyncParserOptions {
     pub include_loader: AsyncIncludeLoaderOptions,
 }
@@ -89,7 +85,6 @@ impl From<AsyncParserOptions> for mrml::prelude::parser::AsyncParserOptions {
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "kebab-case", tag = "type")]
-#[tsify(into_wasm_abi, from_wasm_abi)]
 pub enum ParserError {
     UnexpectedElement {
         origin: super::Origin,
@@ -203,7 +198,6 @@ impl From<mrml::prelude::parser::Error> for ParserError {
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "kebab-case", tag = "type")]
-#[tsify(into_wasm_abi)]
 pub enum Origin {
     Root,
     Include { path: String },
@@ -219,7 +213,6 @@ impl From<mrml::prelude::parser::Origin> for Origin {
 }
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[tsify(into_wasm_abi)]
 pub struct Span {
     start: usize,
     end: usize,
@@ -236,7 +229,6 @@ impl From<mrml::prelude::parser::Span> for Span {
 
 #[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "kebab-case")]
-#[tsify(into_wasm_abi)]
 pub enum WarningKind {
     UnexpectedAttributes,
     DuplicateAttribute,
@@ -256,7 +248,6 @@ impl From<mrml::prelude::parser::WarningKind> for WarningKind {
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
-#[tsify(into_wasm_abi)]
 pub struct Warning {
     kind: WarningKind,
     origin: Origin,

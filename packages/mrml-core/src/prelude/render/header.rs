@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::convert::TryFrom;
+use std::str::FromStr;
 
 use crate::helper::size::{Pixel, Size};
 use crate::mj_head::MjHead;
@@ -35,58 +35,6 @@ fn unwrap_quotes(token: &str) -> &str {
         }
     }
     token
-}
-
-#[cfg(test)]
-mod parse_font_families_tests {
-    use super::parse_font_families;
-
-    #[test]
-    fn unquoted_comma_separated_list() {
-        assert_eq!(
-            parse_font_families("Roboto, Arial, sans-serif").collect::<Vec<_>>(),
-            vec!["Roboto", "Arial", "sans-serif"]
-        );
-    }
-
-    #[test]
-    fn single_quoted_name_containing_comma_is_one_token() {
-        assert_eq!(
-            parse_font_families("'Open, Sans', Ubuntu, sans-serif").collect::<Vec<_>>(),
-            vec!["Open, Sans", "Ubuntu", "sans-serif"]
-        );
-    }
-
-    #[test]
-    fn double_quoted_name_containing_comma_is_one_token() {
-        assert_eq!(
-            parse_font_families("\"Open, Sans\", Ubuntu").collect::<Vec<_>>(),
-            vec!["Open, Sans", "Ubuntu"]
-        );
-    }
-
-    #[test]
-    fn single_quotes_are_stripped_from_names_without_commas() {
-        assert_eq!(
-            parse_font_families("'Source Sans 3', Helvetica, Arial, sans-serif")
-                .collect::<Vec<_>>(),
-            vec!["Source Sans 3", "Helvetica", "Arial", "sans-serif"]
-        );
-    }
-
-    #[test]
-    fn empty_tokens_are_filtered() {
-        assert_eq!(
-            parse_font_families("Roboto, , Arial").collect::<Vec<_>>(),
-            vec!["Roboto", "Arial"]
-        );
-    }
-
-    #[test]
-    fn empty_input_yields_no_tokens() {
-        assert!(parse_font_families("").next().is_none());
-        assert!(parse_font_families("   ").next().is_none());
-    }
 }
 
 #[derive(Debug, Default)]
@@ -182,7 +130,7 @@ impl<'h> Header<'h> {
             breakpoint: head
                 .as_ref()
                 .and_then(|h| h.breakpoint())
-                .and_then(|s| Pixel::try_from(s.value()).ok())
+                .and_then(|s| Pixel::from_str(s.value()).ok())
                 .unwrap_or_else(|| Pixel::new(480.0)),
             font_families: head
                 .as_ref()
@@ -237,5 +185,57 @@ impl<'h> Header<'h> {
 
     pub fn title(&self) -> Option<&str> {
         self.title.as_deref()
+    }
+}
+
+#[cfg(test)]
+mod parse_font_families_tests {
+    use super::parse_font_families;
+
+    #[test]
+    fn unquoted_comma_separated_list() {
+        assert_eq!(
+            parse_font_families("Roboto, Arial, sans-serif").collect::<Vec<_>>(),
+            vec!["Roboto", "Arial", "sans-serif"]
+        );
+    }
+
+    #[test]
+    fn single_quoted_name_containing_comma_is_one_token() {
+        assert_eq!(
+            parse_font_families("'Open, Sans', Ubuntu, sans-serif").collect::<Vec<_>>(),
+            vec!["Open, Sans", "Ubuntu", "sans-serif"]
+        );
+    }
+
+    #[test]
+    fn double_quoted_name_containing_comma_is_one_token() {
+        assert_eq!(
+            parse_font_families("\"Open, Sans\", Ubuntu").collect::<Vec<_>>(),
+            vec!["Open, Sans", "Ubuntu"]
+        );
+    }
+
+    #[test]
+    fn single_quotes_are_stripped_from_names_without_commas() {
+        assert_eq!(
+            parse_font_families("'Source Sans 3', Helvetica, Arial, sans-serif")
+                .collect::<Vec<_>>(),
+            vec!["Source Sans 3", "Helvetica", "Arial", "sans-serif"]
+        );
+    }
+
+    #[test]
+    fn empty_tokens_are_filtered() {
+        assert_eq!(
+            parse_font_families("Roboto, , Arial").collect::<Vec<_>>(),
+            vec!["Roboto", "Arial"]
+        );
+    }
+
+    #[test]
+    fn empty_input_yields_no_tokens() {
+        assert!(parse_font_families("").next().is_none());
+        assert!(parse_font_families("   ").next().is_none());
     }
 }

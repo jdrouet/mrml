@@ -1,5 +1,5 @@
-use std::convert::TryFrom;
 use std::num::ParseFloatError;
+use std::str::FromStr;
 
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum SizeParserError {
@@ -45,14 +45,14 @@ impl Size {
     }
 }
 
-impl TryFrom<&str> for Size {
-    type Error = SizeParserError;
+impl FromStr for Size {
+    type Err = SizeParserError;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         if value.ends_with("px") {
-            Ok(Self::Pixel(Pixel::try_from(value)?))
+            Ok(Self::Pixel(Pixel::from_str(value)?))
         } else if value.ends_with('%') {
-            Ok(Self::Percent(Percent::try_from(value)?))
+            Ok(Self::Percent(Percent::from_str(value)?))
         } else {
             Ok(Self::Raw(value.parse::<f32>()?))
         }
@@ -82,10 +82,10 @@ impl Percent {
     }
 }
 
-impl TryFrom<&str> for Percent {
-    type Error = SizeParserError;
+impl FromStr for Percent {
+    type Err = SizeParserError;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         if let Some(value) = value.strip_suffix('%') {
             value
                 .parse::<f32>()
@@ -125,7 +125,7 @@ impl Pixel {
         input
             .split_whitespace()
             .next()
-            .and_then(|value| Self::try_from(value).ok())
+            .and_then(|value| Self::from_str(value).ok())
     }
 
     pub fn lower(&self) -> Self {
@@ -137,10 +137,10 @@ impl Pixel {
     }
 }
 
-impl TryFrom<&str> for Pixel {
-    type Error = SizeParserError;
+impl FromStr for Pixel {
+    type Err = SizeParserError;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         if let Some(value) = value.strip_suffix("px") {
             value
                 .parse::<f32>()

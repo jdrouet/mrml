@@ -108,11 +108,11 @@ impl ParseChildren<MjmlChildren> for MrmlParser<'_> {
                         let with_position = |err: Error| err.adjust_positions(offset);
                         let mut sub = cursor.new_child(&path, wrapped.as_str());
                         sub.set_source_offset(offset);
-                        sub.assert_element_start().map_err(&with_position)?;
-                        sub.assert_element_end().map_err(&with_position)?;
+                        sub.assert_element_start().map_err(with_position)?;
+                        sub.assert_element_end().map_err(with_position)?;
                         let included: MjmlChildren =
-                            self.parse_children(&mut sub).map_err(&with_position)?;
-                        sub.assert_element_close().map_err(&with_position)?;
+                            self.parse_children(&mut sub).map_err(with_position)?;
+                        sub.assert_element_close().map_err(with_position)?;
                         cursor.with_warnings(sub.warnings());
                         merge_include_children(&mut children, included);
                     }
@@ -195,13 +195,13 @@ impl AsyncParseChildren<MjmlChildren> for AsyncMrmlParser {
                         let with_position = |err: Error| err.adjust_positions(offset);
                         let mut sub = cursor.new_child(&path, wrapped.as_str());
                         sub.set_source_offset(offset);
-                        sub.assert_element_start().map_err(&with_position)?;
-                        sub.assert_element_end().map_err(&with_position)?;
+                        sub.assert_element_start().map_err(with_position)?;
+                        sub.assert_element_end().map_err(with_position)?;
                         let included: MjmlChildren = self
                             .async_parse_children(&mut sub)
                             .await
-                            .map_err(&with_position)?;
-                        sub.assert_element_close().map_err(&with_position)?;
+                            .map_err(with_position)?;
+                        sub.assert_element_close().map_err(with_position)?;
                         cursor.with_warnings(sub.warnings());
                         merge_include_children(&mut children, included);
                     }

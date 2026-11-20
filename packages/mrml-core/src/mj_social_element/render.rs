@@ -66,7 +66,8 @@ impl<'root> Renderer<'root, MjSocialElement, MjSocialElementExtra<'root>> {
         'root: 'a,
         'a: 't,
     {
-        tag.maybe_add_style("border-radius", self.attribute("border-radius"))
+        tag.maybe_add_style("border", self.attribute("border"))
+            .maybe_add_style("border-radius", self.attribute("border-radius"))
             .add_style("display", "block")
     }
 
@@ -222,6 +223,7 @@ impl<'root> Render<'root> for Renderer<'root, MjSocialElement, MjSocialElementEx
         match key {
             "align" => Some("left"),
             "color" => Some("#000"),
+            "border" => Some("0"),
             "border-radius" => Some("3px"),
             "font-family" => Some("Ubuntu, Helvetica, Arial, sans-serif"),
             "font-size" => Some("13px"),

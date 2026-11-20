@@ -5,6 +5,7 @@ mod render;
 
 use std::rc::Rc;
 
+use tsify::{Ts, Tsify};
 use wasm_bindgen::prelude::*;
 
 pub use crate::parser::*;
@@ -52,47 +53,47 @@ impl Engine {
     /// Defines the parsing options.
     #[allow(clippy::arc_with_non_send_sync)]
     #[wasm_bindgen(js_name = "setParserOptions")]
-    pub fn set_parser_options(&mut self, value: ParserOptions) {
-        self.parser = Rc::new(value.into());
+    pub fn set_parser_options(&mut self, value: Ts<ParserOptions>) -> Result<(), JsError> {
+        self.parser = Rc::new(value.to_rust()?.into());
+        Ok(())
     }
 
     /// Defines the async parsing options.
     #[cfg(feature = "async")]
     #[allow(clippy::arc_with_non_send_sync)]
     #[wasm_bindgen(js_name = "setAsyncParserOptions")]
-    pub fn set_async_parser_options(&mut self, value: AsyncParserOptions) {
-        self.async_parser = std::sync::Arc::new(value.into());
+    pub fn set_async_parser_options(
+        &mut self,
+        value: Ts<AsyncParserOptions>,
+    ) -> Result<(), JsError> {
+        self.async_parser = std::sync::Arc::new(value.to_rust()?.into());
+        Ok(())
     }
 
     /// Defines the rendering options.
     #[wasm_bindgen(js_name = "setRenderOptions")]
-    pub fn set_render_options(&mut self, value: RenderOptions) {
-        self.render = value.into();
+    pub fn set_render_options(&mut self, value: Ts<RenderOptions>) -> Result<(), JsError> {
+        self.render = value.to_rust()?.into();
+        Ok(())
     }
 
     /// Renders the mjml input into html.
     #[wasm_bindgen(js_name = "toHtml")]
-    pub fn to_html(&self, input: &str) -> ToHtmlResult {
-        match to_html(input, &self.parser, &self.render) {
-            Ok((content, warnings)) => ToHtmlResult::Success { content, warnings },
-            Err(error) => ToHtmlResult::Error(error),
-        }
+    pub fn to_html(&self, input: &str) -> Result<Ts<ToHtmlResult>, JsError> {
+        Ok(ToHtmlResult::from(to_html(input, &self.parser, &self.render)).into_ts()?)
     }
 
     /// Renders the mjml input into html.
     #[cfg(feature = "async")]
     #[wasm_bindgen(js_name = "toHtmlAsync")]
-    pub async fn to_html_async(&self, input: &str) -> ToHtmlResult {
-        match to_html_async(input, self.async_parser.clone(), &self.render).await {
-            Ok((content, warnings)) => ToHtmlResult::Success { content, warnings },
-            Err(error) => ToHtmlResult::Error(error),
-        }
+    pub async fn to_html_async(&self, input: &str) -> Result<Ts<ToHtmlResult>, JsError> {
+        let result = to_html_async(input, self.async_parser.clone(), &self.render).await;
+        Ok(ToHtmlResult::from(result).into_ts()?)
     }
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "camelCase", tag = "origin")]
-#[tsify(into_wasm_abi)]
 pub enum ToHtmlError {
     Parser {
         message: String,
@@ -120,15 +121,23 @@ impl From<mrml::prelude::render::Error> for ToHtmlError {
     }
 }
 
-#[derive(Debug, serde::Serialize, tsify::Tsify)]
+#[derive(Debug, serde::Deserialize, serde::Serialize, tsify::Tsify)]
 #[serde(rename_all = "camelCase", tag = "type")]
-#[tsify(into_wasm_abi)]
 pub enum ToHtmlResult {
     Success {
         content: String,
         warnings: Vec<Warning>,
     },
     Error(ToHtmlError),
+}
+
+impl From<Result<(String, Vec<Warning>), ToHtmlError>> for ToHtmlResult {
+    fn from(value: Result<(String, Vec<Warning>), ToHtmlError>) -> Self {
+        match value {
+            Ok((content, warnings)) => Self::Success { content, warnings },
+            Err(error) => Self::Error(error),
+        }
+    }
 }
 
 impl ToHtmlResult {
@@ -147,6 +156,7 @@ mod tests {
     use std::collections::HashMap;
     use std::iter::FromIterator;
 
+    use tsify::Tsify;
     use wasm_bindgen_test::wasm_bindgen_test;
 
     use crate::{Engine, ToHtmlResult};
@@ -155,7 +165,7 @@ mod tests {
     fn it_should_render() {
         let template = "<mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>";
         let opts = Engine::new();
-        let result = opts.to_html(template);
+        let result = opts.to_html(template).unwrap().to_rust().unwrap();
         assert!(matches!(result, ToHtmlResult::Success { .. }));
     }
 
@@ -163,7 +173,7 @@ mod tests {
     fn it_should_error() {
         let template = "<mjml><mj-body><mj-text>Hello World";
         let opts = Engine::new();
-        let result = opts.to_html(template);
+        let result = opts.to_html(template).unwrap().to_rust().unwrap();
         assert!(matches!(result, ToHtmlResult::Error(_)));
     }
 
@@ -171,17 +181,22 @@ mod tests {
     fn it_should_render_with_include() {
         let template = "<mjml><mj-body><mj-include path=\"/hello-world.mjml\" /></mj-body></mjml>";
         let mut opts = Engine::new();
-        opts.set_parser_options(crate::ParserOptions {
-            include_loader: crate::parser::IncludeLoaderOptions::Memory(
-                crate::parser::MemoryIncludeLoaderOptions {
-                    content: HashMap::from_iter([(
-                        "/hello-world.mjml".to_string(),
-                        "<mj-text>Hello World</mj-text>".to_string(),
-                    )]),
-                },
-            ),
-        });
-        let result = opts.to_html(template);
+        opts.set_parser_options(
+            crate::ParserOptions {
+                include_loader: crate::parser::IncludeLoaderOptions::Memory(
+                    crate::parser::MemoryIncludeLoaderOptions {
+                        content: HashMap::from_iter([(
+                            "/hello-world.mjml".to_string(),
+                            "<mj-text>Hello World</mj-text>".to_string(),
+                        )]),
+                    },
+                ),
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+        let result = opts.to_html(template).unwrap().to_rust().unwrap();
         assert!(matches!(result, ToHtmlResult::Success { .. }));
     }
 }
@@ -193,6 +208,7 @@ mod async_tests {
     use std::collections::HashMap;
     use std::iter::FromIterator;
 
+    use tsify::Tsify;
     use wasm_bindgen_test::wasm_bindgen_test;
 
     use crate::{Engine, ToHtmlResult};
@@ -201,7 +217,12 @@ mod async_tests {
     async fn it_should_render() {
         let template = "<mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>";
         let opts = Engine::new();
-        let result = opts.to_html_async(template).await;
+        let result = opts
+            .to_html_async(template)
+            .await
+            .unwrap()
+            .to_rust()
+            .unwrap();
         assert!(matches!(result, ToHtmlResult::Success { .. }));
     }
 
@@ -209,7 +230,12 @@ mod async_tests {
     async fn it_should_error() {
         let template = "<mjml><mj-body><mj-text>Hello World";
         let opts = Engine::new();
-        let result = opts.to_html_async(template).await;
+        let result = opts
+            .to_html_async(template)
+            .await
+            .unwrap()
+            .to_rust()
+            .unwrap();
         assert!(matches!(result, ToHtmlResult::Error(_)));
     }
 
@@ -217,17 +243,27 @@ mod async_tests {
     async fn it_should_render_with_include() {
         let template = "<mjml><mj-body><mj-include path=\"/hello-world.mjml\" /></mj-body></mjml>";
         let mut opts = Engine::new();
-        opts.set_async_parser_options(crate::AsyncParserOptions {
-            include_loader: crate::parser::AsyncIncludeLoaderOptions::Memory(
-                crate::parser::MemoryIncludeLoaderOptions {
-                    content: HashMap::from_iter([(
-                        "/hello-world.mjml".to_string(),
-                        "<mj-text>Hello World</mj-text>".to_string(),
-                    )]),
-                },
-            ),
-        });
-        let result = opts.to_html_async(template).await;
+        opts.set_async_parser_options(
+            crate::AsyncParserOptions {
+                include_loader: crate::parser::AsyncIncludeLoaderOptions::Memory(
+                    crate::parser::MemoryIncludeLoaderOptions {
+                        content: HashMap::from_iter([(
+                            "/hello-world.mjml".to_string(),
+                            "<mj-text>Hello World</mj-text>".to_string(),
+                        )]),
+                    },
+                ),
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+        let result = opts
+            .to_html_async(template)
+            .await
+            .unwrap()
+            .to_rust()
+            .unwrap();
         assert!(matches!(result, ToHtmlResult::Success { .. }));
     }
 }

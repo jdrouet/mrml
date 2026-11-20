@@ -3,13 +3,14 @@
 #![cfg(target_arch = "wasm32")]
 
 use mrml_wasm::ToHtmlError;
+use tsify::Tsify;
 use wasm_bindgen_test::*;
 
 #[wasm_bindgen_test]
 fn it_should_render_template() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>";
     let engine = mrml_wasm::Engine::new();
-    let result = engine.to_html(template);
+    let result = engine.to_html(template).unwrap().to_rust().unwrap();
     assert!(matches!(result, mrml_wasm::ToHtmlResult::Success { .. }));
 }
 
@@ -18,7 +19,12 @@ fn it_should_render_template() {
 async fn it_should_render_template_async() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text></mj-body></mjml>";
     let engine = mrml_wasm::Engine::new();
-    let result = engine.to_html_async(template).await;
+    let result = engine
+        .to_html_async(template)
+        .await
+        .unwrap()
+        .to_rust()
+        .unwrap();
     assert!(matches!(result, mrml_wasm::ToHtmlResult::Success { .. }));
 }
 
@@ -26,7 +32,7 @@ async fn it_should_render_template_async() {
 fn it_should_fail_when_render_template() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-";
     let engine = mrml_wasm::Engine::new();
-    let result = engine.to_html(template);
+    let result = engine.to_html(template).unwrap().to_rust().unwrap();
     match result {
         mrml_wasm::ToHtmlResult::Error(err) => match err {
             ToHtmlError::Parser {
@@ -46,7 +52,12 @@ fn it_should_fail_when_render_template() {
 async fn it_should_fail_when_render_template_async() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-";
     let engine = mrml_wasm::Engine::new();
-    let result = engine.to_html_async(template).await;
+    let result = engine
+        .to_html_async(template)
+        .await
+        .unwrap()
+        .to_rust()
+        .unwrap();
     match result {
         mrml_wasm::ToHtmlResult::Error(err) => match err {
             ToHtmlError::Parser {
@@ -65,11 +76,17 @@ async fn it_should_fail_when_render_template_async() {
 fn it_should_disable_comments() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text><!-- Goodbye --></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
-    engine.set_render_options(mrml_wasm::RenderOptions {
-        disable_comments: true,
-        ..Default::default()
-    });
-    let result = engine.to_html(template);
+    engine
+        .set_render_options(
+            mrml_wasm::RenderOptions {
+                disable_comments: true,
+                ..Default::default()
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+    let result = engine.to_html(template).unwrap().to_rust().unwrap();
     match result {
         mrml_wasm::ToHtmlResult::Success { content, warnings } => {
             assert_eq!(content.matches("Goodbye").count(), 0);
@@ -84,11 +101,22 @@ fn it_should_disable_comments() {
 async fn it_should_disable_comments_async() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text><!-- Goodbye --></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
-    engine.set_render_options(mrml_wasm::RenderOptions {
-        disable_comments: true,
-        ..Default::default()
-    });
-    let result = engine.to_html_async(template).await;
+    engine
+        .set_render_options(
+            mrml_wasm::RenderOptions {
+                disable_comments: true,
+                ..Default::default()
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+    let result = engine
+        .to_html_async(template)
+        .await
+        .unwrap()
+        .to_rust()
+        .unwrap();
     match result {
         mrml_wasm::ToHtmlResult::Success { content, warnings } => {
             assert_eq!(content.matches("Goodbye").count(), 0);
@@ -102,11 +130,17 @@ async fn it_should_disable_comments_async() {
 fn it_should_use_noop_include_loader_by_default() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text><mj-include path=\"./header.mjml\" /></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
-    engine.set_render_options(mrml_wasm::RenderOptions {
-        disable_comments: true,
-        ..Default::default()
-    });
-    let result = engine.to_html(template);
+    engine
+        .set_render_options(
+            mrml_wasm::RenderOptions {
+                disable_comments: true,
+                ..Default::default()
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+    let result = engine.to_html(template).unwrap().to_rust().unwrap();
     match result {
         mrml_wasm::ToHtmlResult::Error(err) => match err {
             ToHtmlError::Parser {
@@ -129,11 +163,22 @@ fn it_should_use_noop_include_loader_by_default() {
 async fn it_should_use_noop_include_loader_by_default_async() {
     let template = "<mjml><mj-body><mj-text>Hello World</mj-text><mj-include path=\"./header.mjml\" /></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
-    engine.set_render_options(mrml_wasm::RenderOptions {
-        disable_comments: true,
-        ..Default::default()
-    });
-    let result = engine.to_html_async(template).await;
+    engine
+        .set_render_options(
+            mrml_wasm::RenderOptions {
+                disable_comments: true,
+                ..Default::default()
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+    let result = engine
+        .to_html_async(template)
+        .await
+        .unwrap()
+        .to_rust()
+        .unwrap();
     match result {
         mrml_wasm::ToHtmlResult::Error(err) => match err {
             ToHtmlError::Parser {
@@ -155,22 +200,34 @@ async fn it_should_use_noop_include_loader_by_default_async() {
 fn it_should_use_memory_include_loader_by_default() {
     let template = "<mjml><mj-body><mj-include path=\"./header.mjml\" /></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
-    engine.set_parser_options(mrml_wasm::ParserOptions {
-        include_loader: mrml_wasm::IncludeLoaderOptions::Memory(
-            mrml_wasm::MemoryIncludeLoaderOptions {
-                content: [(
-                    "./header.mjml".to_string(),
-                    "<mj-text>Hello World</mj-text>".to_string(),
-                )]
-                .into(),
-            },
-        ),
-    });
-    engine.set_render_options(mrml_wasm::RenderOptions {
-        disable_comments: true,
-        ..Default::default()
-    });
-    let result = engine.to_html(template);
+    engine
+        .set_parser_options(
+            mrml_wasm::ParserOptions {
+                include_loader: mrml_wasm::IncludeLoaderOptions::Memory(
+                    mrml_wasm::MemoryIncludeLoaderOptions {
+                        content: [(
+                            "./header.mjml".to_string(),
+                            "<mj-text>Hello World</mj-text>".to_string(),
+                        )]
+                        .into(),
+                    },
+                ),
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+    engine
+        .set_render_options(
+            mrml_wasm::RenderOptions {
+                disable_comments: true,
+                ..Default::default()
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+    let result = engine.to_html(template).unwrap().to_rust().unwrap();
     let content = result.into_success();
     assert_eq!(content.matches("Hello World").count(), 1);
 }
@@ -180,22 +237,39 @@ fn it_should_use_memory_include_loader_by_default() {
 async fn it_should_use_memory_include_loader_by_default_async() {
     let template = "<mjml><mj-body><mj-include path=\"./header.mjml\" /></mj-body></mjml>";
     let mut engine = mrml_wasm::Engine::new();
-    engine.set_async_parser_options(mrml_wasm::AsyncParserOptions {
-        include_loader: mrml_wasm::AsyncIncludeLoaderOptions::Memory(
-            mrml_wasm::MemoryIncludeLoaderOptions {
-                content: [(
-                    "./header.mjml".to_string(),
-                    "<mj-text>Hello World</mj-text>".to_string(),
-                )]
-                .into(),
-            },
-        ),
-    });
-    engine.set_render_options(mrml_wasm::RenderOptions {
-        disable_comments: true,
-        ..Default::default()
-    });
-    let result = engine.to_html_async(template).await;
+    engine
+        .set_async_parser_options(
+            mrml_wasm::AsyncParserOptions {
+                include_loader: mrml_wasm::AsyncIncludeLoaderOptions::Memory(
+                    mrml_wasm::MemoryIncludeLoaderOptions {
+                        content: [(
+                            "./header.mjml".to_string(),
+                            "<mj-text>Hello World</mj-text>".to_string(),
+                        )]
+                        .into(),
+                    },
+                ),
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+    engine
+        .set_render_options(
+            mrml_wasm::RenderOptions {
+                disable_comments: true,
+                ..Default::default()
+            }
+            .into_ts()
+            .unwrap(),
+        )
+        .unwrap();
+    let result = engine
+        .to_html_async(template)
+        .await
+        .unwrap()
+        .to_rust()
+        .unwrap();
     let content = result.into_success();
     assert_eq!(content.matches("Hello World").count(), 1);
 }

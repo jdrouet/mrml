@@ -14,8 +14,9 @@ impl<'render, 'root: 'render> Renderable<'render, 'root> for MjSocialChild {
     }
 }
 
-const EXTRA_CONTAINER_KEY: [&str; 13] = [
+const EXTRA_CONTAINER_KEY: [&str; 14] = [
     "inner-padding",
+    "border",
     "border-radius",
     "color",
     "font-family",
@@ -29,8 +30,9 @@ const EXTRA_CONTAINER_KEY: [&str; 13] = [
     "line-height",
     "text-decoration",
 ];
-const EXTRA_CHILD_KEY: [&str; 13] = [
+const EXTRA_CHILD_KEY: [&str; 14] = [
     "padding",
+    "border",
     "border-radius",
     "color",
     "font-family",
