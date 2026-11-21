@@ -1,0 +1,217 @@
+[
+  {
+    "template": "small",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    "same_links": true,
+    "same_images": true,
+    "bytes_mjml": 4945,
+    "bytes_mrml": 3819,
+    "identical": false,
+    "markers_preserved": true,
+    "markers": [
+      "BENCHMARK_USER"
+    ]
+  },
+  {
+    "template": "medium",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    "same_links": true,
+    "same_images": true,
+    "bytes_mjml": 21611,
+    "bytes_mrml": 15513,
+    "identical": false,
+    "markers_preserved": true,
+    "markers": [
+      "BENCHMARK_USER"
+    ]
+  },
+  {
+    "template": "large",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    "same_links": true,
+    "same_images": true,
+    "bytes_mjml": 86867,
+    "bytes_mrml": 60801,
+    "identical": false,
+    "markers_preserved": true,
+    "markers": [
+      "BENCHMARK_USER"
+    ]
+  },
+  {
+    "template": "features",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    "same_links": true,
+    "same_images": true,
+    "bytes_mjml": 27623,
+    "bytes_mrml": 21825,
+    "identical": false,
+    "markers_preserved": true,
+    "markers": [
+      "FEATURE_ACCORDION_BODY",
+      "FEATURE_ACCORDION_TITLE",
+      "FEATURE_BUTTON",
+      "FEATURE_CAROUSEL",
+      "FEATURE_HERO",
+      "FEATURE_IMAGE",
+      "FEATURE_NAV",
+      "FEATURE_PREVIEW",
+      "FEATURE_RAW",
+      "FEATURE_SOCIAL",
+      "FEATURE_TABLE",
+      "FEATURE_TEXT"
+    ]
+  },
+  {
+    "template": "inline",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    "same_links": true,
+    "same_images": true,
+    "bytes_mjml": 3837,
+    "bytes_mrml": 3120,
+    "identical": false,
+    "markers_preserved": true,
+    "markers": [
+      "INLINE_PROBE"
+    ],
+    "inline_styles": {
+      "mjml": [
+        {
+          "tag": "div",
+          "style": "letter-spacing: 3px; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1; text-align: left; color: #000000;"
+        }
+      ],
+      "mrml": [
+        {
+          "tag": "div",
+          "style": "letter-spacing: 3px;font-family: Ubuntu, Helvetica, Arial, sans-serif;font-size: 13px;line-height: 1;text-align: left;color: #000000"
+        }
+      ]
+    }
+  },
+  {
+    "template": "inline-important",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    "same_links": true,
+    "same_images": true,
+    "bytes_mjml": 3834,
+    "bytes_mrml": 3128,
+    "identical": false,
+    "markers_preserved": true,
+    "markers": [],
+    "inline_styles": {
+      "mjml": [
+        {
+          "tag": "div",
+          "style": "letter-spacing: 3px; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1; text-align: left; color: #123456;"
+        }
+      ],
+      "mrml": [
+        {
+          "tag": "div",
+          "style": "letter-spacing: 3px;font-family: Ubuntu, Helvetica, Arial, sans-serif;font-size: 13px;line-height: 1;text-align: left;color: #123456 !important"
+        }
+      ]
+    }
+  },
+  {
+    "template": "invalid",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    "same_links": true,
+    "same_images": true,
+    "bytes_mjml": 1483,
+    "bytes_mrml": 1266,
+    "identical": false,
+    "markers_preserved": true,
+    "markers": []
+  },
+  {
+    "template": "void-close",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 101,
+        "stderr": "\nthread 'main' (1) panicked at src/main.rs:3:35:\ncalled `Result::unwrap()` on an `Err` value: UnexpectedToken { origin: Root, position: Span { start: 115, end: 125 } }\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+      }
+    }
+  },
+  {
+    "template": "malformed",
+    "engines": {
+      "mjml": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "mrml": {
+        "exit": 101,
+        "stderr": "\nthread 'main' (1) panicked at src/main.rs:3:35:\ncalled `Result::unwrap()` on an `Err` value: EndOfStream { origin: Root }\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+      }
+    }
+  }
+]
