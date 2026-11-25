@@ -68,16 +68,14 @@ jobs:
     steps:
       - name: parsing release-plz-output
         id: values
+        env:
+          RELEASES: ${{ needs.release-plz-release.outputs.releases }}
         run: |
-          json_output=${{ needs.release-plz-release.outputs.releases }}
-          mrml_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml")] | map(.tag) | first')
-          mrml_cli_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-cli")] | map(.tag) | first')
-          mrml_python_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-python")] | map(.tag) | first')
-          mrml_wasm_tag=$(echo $json_output | jq -r '[.[] | select(.package_name == "mrml-wasm")] | map(.tag) | first')
-          echo "mrml_tag=$mrml_tag" >> "$GITHUB_OUTPUT"
-          echo "mrml_cli_tag=$mrml_cli_tag" >> "$GITHUB_OUTPUT"
-          echo "mrml_python_tag=$mrml_python_tag" >> "$GITHUB_OUTPUT"
-          echo "mrml_wasm_tag=$mrml_wasm_tag" >> "$GITHUB_OUTPUT"
+          tag() { jq -r --arg name "$1" '[.[] | select(.package_name == $name)] | map(.tag) | first' <<< "$RELEASES"; }
+          echo "mrml_tag=$(tag mrml)" >> "$GITHUB_OUTPUT"
+          echo "mrml_cli_tag=$(tag mrml-cli)" >> "$GITHUB_OUTPUT"
+          echo "mrml_python_tag=$(tag mrml-python)" >> "$GITHUB_OUTPUT"
+          echo "mrml_wasm_tag=$(tag mrml-wasm)" >> "$GITHUB_OUTPUT"
     outputs:
       mrml_tag: ${{ steps.values.outputs.mrml_tag }}
       mrml_cli_tag: ${{ steps.values.outputs.mrml_cli_tag }}
