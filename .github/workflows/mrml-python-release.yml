@@ -22,12 +22,13 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         target:
           - platform: x86_64
             manylinux: "auto"
           - platform: x86
-            manylinux: "auto"
+            manylinux: "2_28"
           - platform: aarch64
             manylinux: "2_28"
           - platform: armv7
