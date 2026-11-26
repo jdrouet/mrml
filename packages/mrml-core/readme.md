@@ -165,6 +165,42 @@ With the same Linux amd64 machine, to render the amario template
 - Node: 606.59ms
 - Rust: 3.48ms
 
+### Warm library rendering (Linux ARM64, Docker Desktop)
+
+A separate warm-library comparison used MRML **6.0.1** (Rust **1.91**, release
+build, `css-inline` enabled) and MJML **5.4.1** (Node.js **22.23.5**) on an Apple M1
+running Docker Desktop's Linux ARM64 VM. Each engine ran sequentially in a
+container limited to one pinned logical CPU and 1 GiB RAM. Each case had a
+five-second warm-up followed by a 30-second measurement. Every iteration parsed
+and rendered the same in-memory template; MJML's async API was awaited,
+validation was skipped, and minification was disabled.
+
+| Engine | Synthetic template | Renders/s | p95 latency (ms) | Average CPU | Peak process RSS (MiB) | Peak sampled threads |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| MJML | small | 2,197 | 0.938 | 99.4% | 108.2 | 7 |
+| MRML | small | 68,341 | 0.015 | 99.6% | 27.0 | 1 |
+| MJML | medium | 468 | 3.067 | 99.6% | 109.0 | 7 |
+| MRML | medium | 12,194 | 0.088 | 99.5% | 8.8 | 1 |
+| MJML | large | 86 | 23.780 | 99.2% | 109.7 | 7 |
+| MRML | large | 2,905 | 0.356 | 99.6% | 4.7 | 1 |
+
+MRML achieved approximately **26–34×** the throughput on these three synthetic
+fixtures. These measurements exclude per-email process startup, output storage,
+network traffic and email delivery. CPU percentages use 100% for one logical CPU;
+CPU averages and memory peaks include startup, warm-up and measurement. Thread
+counts include runtime helpers, not just rendering workers. Retained latency
+samples contribute to the memory peaks, especially for the fastest MRML case.
+
+The tested common components and inline-CSS rules rendered with both engines,
+but their HTML differed and parser tolerance differed on malformed input. These
+checks do not establish visual equivalence in email clients or complete MJML
+compatibility. Results are workload- and hardware-specific, not minimum system
+requirements or a production capacity guarantee.
+
+See the [benchmark methodology, recorded results and reproduction instructions](https://github.com/jdrouet/mrml/tree/main/benchmarks/warm-render)
+for CPU peaks, container memory, reduced-memory checks and rendering-time
+projections for one million emails.
+
 ## Missing implementations
 
 - `mj-style[inline]`: not yet implemented. It requires parsing the generated html to apply the inline styles afterward (that's how it's done in mjml) which would kill the performances. Applying it at render time would improve the performance but it would still require to parse the CSS.
