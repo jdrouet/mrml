@@ -27,8 +27,6 @@ jobs:
         target:
           - platform: x86_64
             manylinux: "auto"
-          - platform: x86
-            manylinux: "2_28"
           - platform: aarch64
             manylinux: "2_28"
           - platform: armv7
@@ -134,10 +132,6 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: wheels-linux-x86_64
-          path: packages/mrml-python/dist
-      - uses: actions/download-artifact@v8
-        with:
-          name: wheels-linux-x86
           path: packages/mrml-python/dist
       - uses: actions/download-artifact@v8
         with:
